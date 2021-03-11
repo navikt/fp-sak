@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.svangerskapspenger.domene.felles.AktivitetType;
 import no.nav.svangerskapspenger.domene.felles.Arbeidsforhold;
 import no.nav.svangerskapspenger.domene.resultat.Uttaksperiode;
@@ -25,11 +25,11 @@ public class UttaksresultatMapperTest {
 
     @Test
     public void mapping_av_regelmodell() {
-        AktørId aktørId = AktørId.dummy();
-        String internRef = InternArbeidsforholdRef.nyRef().getReferanse();
+        var aktørId = AktørId.dummy();
+        var internRef = InternArbeidsforholdRef.nyRef().getReferanse();
 
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        var repositoryProvider = new UttakRepositoryProviderForTest();
+        var repositoryProvider = new UttakRepositoryStubProvider();
         var behandling = scenario.lagre(repositoryProvider);
         var perioder = new Uttaksperioder();
         var periode = new Uttaksperiode(LocalDate.of(2019, Month.JANUARY, 1), LocalDate.of(2019, Month.MARCH, 31), BigDecimal.ZERO);

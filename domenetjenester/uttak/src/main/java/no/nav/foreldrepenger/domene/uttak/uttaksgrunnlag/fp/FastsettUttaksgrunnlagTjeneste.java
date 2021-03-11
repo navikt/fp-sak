@@ -11,18 +11,15 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
-import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
-import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
 import no.nav.vedtak.util.Tuple;
 
 @Dependent
@@ -113,7 +110,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerFordelingEtterFamilieHendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> oppgittePerioder) {
-        Tuple<Optional<LocalDate>, LocalDate> familiehendelser = finnFamiliehendelser(fpGrunnlag);
+        var familiehendelser = finnFamiliehendelser(fpGrunnlag);
         return justerFordelingTjeneste.juster(
             oppgittePerioder,
             familiehendelser.getElement1().orElse(null),
@@ -121,7 +118,7 @@ public class FastsettUttaksgrunnlagTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
-        YtelseFordelingAggregat forrigeBehandlingYtelseFordeling = ytelsesFordelingRepository.hentAggregat(forrigeBehandling);
+        var forrigeBehandlingYtelseFordeling = ytelsesFordelingRepository.hentAggregat(forrigeBehandling);
         return forrigeBehandlingYtelseFordeling.getOppgittFordeling().getOppgittePerioder();
     }
 
@@ -131,30 +128,30 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private AvklarteUttakDatoerEntitet avklarteDatoerMedEndringsdato(Long behandlingId, LocalDate endringsdato) {
         var avklarteUttakDatoer = ytelsesFordelingRepository.hentAggregat(behandlingId).getAvklarteDatoer();
-        AvklarteUttakDatoerEntitet.Builder builder = new AvklarteUttakDatoerEntitet.Builder(avklarteUttakDatoer);
+        var builder = new AvklarteUttakDatoerEntitet.Builder(avklarteUttakDatoer);
         return builder.medOpprinneligEndringsdato(endringsdato).build();
     }
 
     private List<OppgittPeriodeEntitet> kopierVedtaksperioderFomEndringsdato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate endringsdato, Long forrigeBehandling) {
         //Kopier vedtaksperioder fom endringsdato.
-        UttakResultatEntitet uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
+        var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
         return vedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato);
     }
 
     private Tuple<Optional<LocalDate>, LocalDate> finnFamiliehendelser(ForeldrepengerGrunnlag fpGrunnlag) {
-        LocalDate gjeldendeFødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+        var gjeldendeFødselsdato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
         if (fpGrunnlag.getOriginalBehandling().isPresent()) {
-            LocalDate fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
+            var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
             return new Tuple<>(Optional.ofNullable(fødselsdatoForrigeBehandling), gjeldendeFødselsdato);
         } else {
-            FamilieHendelse søknadVersjon = fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse();
-            Optional<LocalDate> søknadFødselsdato = søknadVersjon.getFødselsdato();
-            Optional<LocalDate> søknadTermindato = søknadVersjon.getTermindato();
+            var søknadVersjon = fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse();
+            var søknadFødselsdato = søknadVersjon.getFødselsdato();
+            var søknadTermindato = søknadVersjon.getTermindato();
             if (søknadTermindato.isPresent()) {
                 if (søknadFødselsdato.isPresent()) {
                     return new Tuple<>(søknadFødselsdato, gjeldendeFødselsdato);
                 }
-                LocalDate termindato = søknadTermindato.get();
+                var termindato = søknadTermindato.get();
                 return new Tuple<>(Optional.of(termindato), gjeldendeFødselsdato);
             } else {
                 return new Tuple<>(søknadFødselsdato, gjeldendeFødselsdato);

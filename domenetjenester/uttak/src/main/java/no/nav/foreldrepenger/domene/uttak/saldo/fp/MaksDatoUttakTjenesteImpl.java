@@ -44,22 +44,23 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
     public Optional<LocalDate> beregnMaksDatoUttak(UttakInput uttakInput) {
         var ref = uttakInput.getBehandlingReferanse();
-        Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
+        var uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(ref.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        Optional<UttakResultatEntitet> annenpartResultat = ( foreldrepengerGrunnlag == null ) ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
+        Optional<UttakResultatEntitet> annenpartResultat =
+            foreldrepengerGrunnlag == null ? Optional.empty() : annenPartUttak(foreldrepengerGrunnlag);
 
-        Optional<LocalDate> sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
+        var sisteUttaksdato = finnSisteUttaksdato(uttakResultat, annenpartResultat);
 
         if (sisteUttaksdato.isPresent()) {
-            SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
+            var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput);
             if (ref.getRelasjonsRolleType().equals(RelasjonsRolleType.MORA)) {
-                return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.MØDREKVOTE,
-                    Stønadskontotype.FELLESPERIODE,
-                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+                return Optional.of(beregnMaksDato(saldoUtregning,
+                    List.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FELLESPERIODE,
+                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
             } else {
-                return Optional.of(beregnMaksDato(saldoUtregning, List.of(Stønadskontotype.FEDREKVOTE,
-                    Stønadskontotype.FELLESPERIODE,
-                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
+                return Optional.of(beregnMaksDato(saldoUtregning,
+                    List.of(Stønadskontotype.FEDREKVOTE, Stønadskontotype.FELLESPERIODE,
+                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
             }
         }
         return Optional.empty();
@@ -74,9 +75,12 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         return Optional.empty();
     }
 
-    private Optional<LocalDate> finnSisteUttaksdato(Optional<UttakResultatEntitet> uttakResultat, Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
+    private Optional<LocalDate> finnSisteUttaksdato(Optional<UttakResultatEntitet> uttakResultat,
+                                                    Optional<UttakResultatEntitet> uttakResultatAnnenPart) {
         if (uttakResultat.isPresent()) {
-            boolean erManuellBehandling = uttakResultat.get().getGjeldendePerioder().getPerioder()
+            var erManuellBehandling = uttakResultat.get()
+                .getGjeldendePerioder()
+                .getPerioder()
                 .stream()
                 .anyMatch(UttakResultatPeriodeEntitet::opprinneligSendtTilManuellBehandling);
 
@@ -87,8 +91,10 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
 
         List<UttakResultatPeriodeEntitet> allePerioder = new ArrayList<>();
 
-        uttakResultatAnnenPart.ifPresent(uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
-        uttakResultat.ifPresent(uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
+        uttakResultatAnnenPart.ifPresent(
+            uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
+        uttakResultat.ifPresent(
+            uttakResultatEntitet -> allePerioder.addAll(uttakResultatEntitet.getGjeldendePerioder().getPerioder()));
 
         return allePerioder.stream()
             .filter(this::erInnvilgetEllerAvslåttMedTrekkdager)
@@ -97,16 +103,19 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
     }
 
     private boolean erInnvilgetEllerAvslåttMedTrekkdager(UttakResultatPeriodeEntitet periode) {
-        var harTrekkdager = PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter().stream()
+        var harTrekkdager = PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
             .anyMatch(aktivitet -> aktivitet.getTrekkdager().merEnn0());
         return periode.isInnvilget() || harTrekkdager;
 
     }
 
-    private LocalDate beregnMaksDato(SaldoUtregning saldoUtregning, List<Stønadskontotype> gyldigeStønadskontoer, LocalDate sisteUttaksdato) {
-        int tilgjengeligeDager = 0;
+    private LocalDate beregnMaksDato(SaldoUtregning saldoUtregning,
+                                     List<Stønadskontotype> gyldigeStønadskontoer,
+                                     LocalDate sisteUttaksdato) {
+        var tilgjengeligeDager = 0;
 
-        for (Stønadskontotype stønadskonto : gyldigeStønadskontoer) {
+        for (var stønadskonto : gyldigeStønadskontoer) {
             tilgjengeligeDager += saldoUtregning.saldo(stønadskonto);
         }
         var maksdato = Virkedager.plusVirkedager(sisteUttaksdato, tilgjengeligeDager);

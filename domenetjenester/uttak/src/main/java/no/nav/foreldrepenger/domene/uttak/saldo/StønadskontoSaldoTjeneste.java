@@ -10,7 +10,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
@@ -67,15 +66,17 @@ public class StønadskontoSaldoTjeneste {
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
             var perioderAnnenpart = perioderAnnenpart(foreldrepengerGrunnlag);
             var kontoer = lagKontoer(stønadskontoer.get());
-            return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker, foreldrepengerGrunnlag.isTapendeBehandling(), perioderAnnenpart, kontoer);
+            return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
+                foreldrepengerGrunnlag.isTapendeBehandling(), perioderAnnenpart, kontoer);
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), foreldrepengerGrunnlag.isTapendeBehandling(), List.of(), new Kontoer.Builder().build());
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), foreldrepengerGrunnlag.isTapendeBehandling(),
+            List.of(), new Kontoer.Builder().build());
     }
 
     private Kontoer lagKontoer(Set<Stønadskonto> stønadskontoer) {
-        var kontoList = stønadskontoer.stream().map(stønadskonto -> new Konto.Builder()
-            .medType(UttakEnumMapper.map(stønadskonto.getStønadskontoType()))
-            .medTrekkdager(stønadskonto.getMaxDager()))
+        var kontoList = stønadskontoer.stream()
+            .map(stønadskonto -> new Konto.Builder().medType(UttakEnumMapper.map(stønadskonto.getStønadskontoType()))
+                .medTrekkdager(stønadskonto.getMaxDager()))
             .collect(Collectors.toList());
         return new Kontoer.Builder().medKontoList(kontoList).build();
     }
@@ -90,9 +91,12 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        Optional<UttakResultatEntitet> opt = annenPartUttak(foreldrepengerGrunnlag);
+        var opt = annenPartUttak(foreldrepengerGrunnlag);
         if (opt.isPresent()) {
-            return opt.get().getGjeldendePerioder().getPerioder().stream()
+            return opt.get()
+                .getGjeldendePerioder()
+                .getPerioder()
+                .stream()
                 .map(AnnenPartGrunnlagBygger::map)
                 .collect(Collectors.toList());
         }
@@ -108,7 +112,7 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private List<UttakResultatPeriodeEntitet> perioderSøker(Long behandlingId) {
-        Optional<UttakResultatEntitet> opt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
+        var opt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandlingId);
         if (opt.isPresent()) {
             return opt.get().getGjeldendePerioder().getPerioder();
         }
@@ -116,7 +120,7 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private Optional<Set<Stønadskonto>> stønadskontoer(BehandlingReferanse ref) {
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
         if (fagsakRelasjon.isPresent() && fagsakRelasjon.get().getGjeldendeStønadskontoberegning().isPresent()) {
             var stønadskontoer = fagsakRelasjon.get().getGjeldendeStønadskontoberegning().get().getStønadskontoer();
             return Optional.ofNullable(stønadskontoer);
@@ -131,13 +135,12 @@ public class StønadskontoSaldoTjeneste {
 
     public int finnStønadRest(UttakInput uttakInput) {
         var saldoUtregning = finnSaldoUtregning(uttakInput);
-        return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER, Stønadskontotype.FELLESPERIODE)
-            .mapToInt(saldoUtregning::saldo).sum();
+        return Stream.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FEDREKVOTE, Stønadskontotype.FORELDREPENGER,
+            Stønadskontotype.FELLESPERIODE).mapToInt(saldoUtregning::saldo).sum();
     }
 
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
-        return new FastsattUttakPeriode.Builder()
-            .medTidsperiode(periode.getFom(), periode.getTom())
+        return new FastsattUttakPeriode.Builder().medTidsperiode(periode.getFom(), periode.getTom())
             .medAktiviteter(mapTilRegelPeriodeAktiviteter(periode.getAktiviteter()))
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .medSamtidigUttak(periode.isSamtidigUttak())
@@ -150,10 +153,12 @@ public class StønadskontoSaldoTjeneste {
         return aktiviteter.stream().map(StønadskontoSaldoTjeneste::map).collect(Collectors.toList());
     }
 
-    private static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetEntitet aktivitet) {
+    private static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet map(
+        UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var trekkdager = UttakEnumMapper.map(aktivitet.getTrekkdager());
         var stønadskontotype = UttakEnumMapper.map(aktivitet.getTrekkonto());
         var aktivitetIdentifikator = UttakEnumMapper.map(aktivitet.getUttakAktivitet());
-        return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet(trekkdager, stønadskontotype, aktivitetIdentifikator);
+        return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet(
+            trekkdager, stønadskontotype, aktivitetIdentifikator);
     }
 }

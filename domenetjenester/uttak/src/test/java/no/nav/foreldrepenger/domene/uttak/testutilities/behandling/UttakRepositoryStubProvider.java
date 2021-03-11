@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 
-public class UttakRepositoryProviderForTest extends UttakRepositoryProvider {
+public class UttakRepositoryStubProvider extends UttakRepositoryProvider {
 
     private final FagsakRepository fagsakRepository;
     private final FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -19,15 +19,15 @@ public class UttakRepositoryProviderForTest extends UttakRepositoryProvider {
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
-    public UttakRepositoryProviderForTest() {
-        this.ytelsesFordelingRepository = new YtelsesFordelingRepositoryForTest();
-        this.fagsakRepository = new FagsakRepositoryForTest();
-        this.fagsakRelasjonRepository = new FagsakRelasjonRepositoryForTest();
-        this.behandlingsresultatRepository = new BehandlingsresultatRepositoryForTest();
-        this.fpUttakRepository = new FpUttakRepositoryForTest(
-            (BehandlingsresultatRepositoryForTest) behandlingsresultatRepository);
-        this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepositoryForTest();
-        this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepositoryForTest();
+    public UttakRepositoryStubProvider() {
+        this.ytelsesFordelingRepository = new YtelsesFordelingRepositoryStub();
+        this.fagsakRepository = new FagsakRepositoryStub();
+        this.fagsakRelasjonRepository = new FagsakRelasjonRepositoryStub();
+        this.behandlingsresultatRepository = new BehandlingsresultatRepositoryStub();
+        this.fpUttakRepository = new FpUttakRepositoryStub(
+            (BehandlingsresultatRepositoryStub) behandlingsresultatRepository);
+        this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepositoryStub();
+        this.svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepositoryStub();
     }
 
     @Override

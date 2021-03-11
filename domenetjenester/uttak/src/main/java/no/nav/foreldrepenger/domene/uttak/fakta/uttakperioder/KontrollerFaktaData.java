@@ -4,7 +4,7 @@ import java.util.List;
 
 public class KontrollerFaktaData {
 
-    private List<KontrollerFaktaPeriode> perioder;
+    private final List<KontrollerFaktaPeriode> perioder;
 
     public KontrollerFaktaData(List<KontrollerFaktaPeriode> perioder) {
         this.perioder = perioder;

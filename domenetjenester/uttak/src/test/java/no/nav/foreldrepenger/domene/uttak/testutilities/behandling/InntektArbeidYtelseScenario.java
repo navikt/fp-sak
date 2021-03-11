@@ -11,12 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -47,33 +44,33 @@ public class InntektArbeidYtelseScenario {
     }
 
     Optional<InntektArbeidYtelseAggregatBuilder> initInntektArbeidYtelseAggregatBuilder() {
-        InntektArbeidYtelseAggregatBuilder kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
+        var kladd = getInntektArbeidYtelseScenarioTestBuilder().getKladd();
         return Optional.ofNullable(kladd);
     }
 
     public static class InntektArbeidYtelseScenarioTestBuilder {
         private static final InternArbeidsforholdRef DEFAULT_REF = InternArbeidsforholdRef.namedRef("TEST-REF");
 
-        private InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder;
+        private final InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder;
 
         // AktivitetsAvtale
-        private LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
-        private LocalDate aktivitetsAvtaleTom = LocalDate.now();
-        private BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
+        private final LocalDate aktivitetsAvtaleFom = LocalDate.now().minusYears(3L);
+        private final LocalDate aktivitetsAvtaleTom = LocalDate.now();
+        private final BigDecimal aktivitetsAvtaleProsentsats = BigDecimal.TEN;
 
-        private AktørId aktørId = AktørId.dummy();
+        private final AktørId aktørId = AktørId.dummy();
 
         // Yrkesaktivitet
-        private ArbeidType yrkesaktivitetArbeidType = ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
-        private InternArbeidsforholdRef yrkesaktivitetArbeidsforholdId = DEFAULT_REF;
+        private final ArbeidType yrkesaktivitetArbeidType = ArbeidType.ORDINÆRT_ARBEIDSFORHOLD;
+        private final InternArbeidsforholdRef yrkesaktivitetArbeidsforholdId = DEFAULT_REF;
 
         // RelaterteYtelser
-        private RelatertYtelseType ytelseType = null;
-        private LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
-        private RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
-        private TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
-        private Saksnummer saksnummer = new Saksnummer("00001");
-        private Fagsystem ytelseKilde = Fagsystem.INFOTRYGD;
+        private final RelatertYtelseType ytelseType = null;
+        private final LocalDate iverksettelsesDato = LocalDate.now().minusYears(5L);
+        private final RelatertYtelseTilstand relatertYtelseTilstand = RelatertYtelseTilstand.AVSLUTTET;
+        private final TemaUnderkategori ytelseBehandlingstema = TemaUnderkategori.FORELDREPENGER_SVANGERSKAPSPENGER;
+        private final Saksnummer saksnummer = new Saksnummer("00001");
+        private final Fagsystem ytelseKilde = Fagsystem.INFOTRYGD;
 
         private InntektArbeidYtelseScenarioTestBuilder(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
             this.inntektArbeidYtelseAggregatBuilder = inntektArbeidYtelseAggregatBuilder;
@@ -94,25 +91,24 @@ public class InntektArbeidYtelseScenario {
         }
 
         public InntektArbeidYtelseAggregatBuilder build() {
-            final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, KUNSTIG_ORG, aktørId.getId());
+            final var opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, KUNSTIG_ORG, aktørId.getId());
 
-            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
-            YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
+            var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder.getAktørArbeidBuilder(aktørId);
+            var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-            AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
+            var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
-            InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(aktørId);
+            var aktørYtelseBuilder = inntektArbeidYtelseAggregatBuilder.getAktørYtelseBuilder(aktørId);
 
-            AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
+            var aktivitetsAvtale = aktivitetsAvtaleBuilder
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom))
                 .medProsentsats(aktivitetsAvtaleProsentsats)
                 .medSisteLønnsendringsdato(aktivitetsAvtaleFom);
 
-            AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtaleFom, aktivitetsAvtaleTom));
 
-            @SuppressWarnings("unused")
-            Yrkesaktivitet yrkesaktivitet = yrkesaktivitetBuilder
+            @SuppressWarnings("unused") var yrkesaktivitet = yrkesaktivitetBuilder
                 .medArbeidType(yrkesaktivitetArbeidType)
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(KUNSTIG_ORG))
                 .medArbeidsforholdId(yrkesaktivitetArbeidsforholdId)
@@ -121,13 +117,8 @@ public class InntektArbeidYtelseScenario {
                 .leggTilAktivitetsAvtale(ansettelsesperiode)
                 .build();
 
-            InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeid = aktørArbeidBuilder
+            var aktørArbeid = aktørArbeidBuilder
                 .leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-
-            if (ytelseType != null) {
-                aktørYtelseBuilder.leggTilYtelse(buildRelaterteYtelserGrunnlag(ytelseType));
-                inntektArbeidYtelseAggregatBuilder.leggTilAktørYtelse(aktørYtelseBuilder);
-            }
 
             inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeid);
             return inntektArbeidYtelseAggregatBuilder;

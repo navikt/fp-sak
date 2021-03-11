@@ -26,11 +26,11 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class MaksDatoUttakTjenesteImplTest {
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     private final MaksDatoUttakTjenesteImpl maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(
         repositoryProvider.getFpUttakRepository(), new StønadskontoSaldoTjeneste(repositoryProvider));
@@ -38,19 +38,19 @@ public class MaksDatoUttakTjenesteImplTest {
     @Test
     public void maksdato_skal_være_siste_uttaksdato_hvis_tom_konto() {
 
-        UttakResultatPerioderEntitet uttak = new UttakResultatPerioderEntitet();
+        var uttak = new UttakResultatPerioderEntitet();
         //mandag
-        LocalDate fødselsdato = LocalDate.of(2019, 2, 4);
-        UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
+        var fødselsdato = LocalDate.of(2019, 2, 4);
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
             fødselsdato.plusDays(4)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medUttak(uttak);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         lagreStønadskonto(behandling,
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
@@ -63,18 +63,18 @@ public class MaksDatoUttakTjenesteImplTest {
     @Test
     public void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_søndag() {
 
-        UttakResultatPerioderEntitet uttak = new UttakResultatPerioderEntitet();
+        var uttak = new UttakResultatPerioderEntitet();
         //søndag
-        UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
             LocalDate.of(2019, 10, 20)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medUttak(uttak);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         lagreStønadskonto(behandling,
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
@@ -91,18 +91,18 @@ public class MaksDatoUttakTjenesteImplTest {
     @Test
     public void maksdato_skal_være_fredag_hvis_tom_konto_når_siste_uttaksdato_er_lørdag() {
 
-        UttakResultatPerioderEntitet uttak = new UttakResultatPerioderEntitet();
+        var uttak = new UttakResultatPerioderEntitet();
         //søndag
-        UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 10, 10),
             LocalDate.of(2019, 10, 19)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medUttak(uttak);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         lagreStønadskonto(behandling,
             new Stønadskonto.Builder().medMaxDager(5).medStønadskontoType(StønadskontoType.FELLESPERIODE).build());
@@ -114,7 +114,7 @@ public class MaksDatoUttakTjenesteImplTest {
 
     private void lagreStønadskonto(Behandling behandling, Stønadskonto stønadskonto) {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        Stønadskontoberegning stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
+        var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
             .medRegelInput(" ")
             .medStønadskonto(stønadskonto)
             .build();
@@ -125,22 +125,22 @@ public class MaksDatoUttakTjenesteImplTest {
     @Test
     public void skal_legge_på_gjenværende_dager_på_siste_uttaksdato() {
 
-        UttakResultatPerioderEntitet uttak = new UttakResultatPerioderEntitet();
+        var uttak = new UttakResultatPerioderEntitet();
         //mandag
-        LocalDate fødselsdato = LocalDate.of(2019, 2, 4);
-        UttakResultatPeriodeEntitet fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
+        var fødselsdato = LocalDate.of(2019, 2, 4);
+        var fellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
             fødselsdato.plusDays(4)).medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(fellesperiode,
             new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build()).medTrekkonto(
             StønadskontoType.FELLESPERIODE).medTrekkdager(new Trekkdager(5)).medArbeidsprosent(BigDecimal.ZERO).build();
         uttak.leggTilPeriode(fellesperiode);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medUttak(uttak);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
-        Stønadskontoberegning stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
+        var stønadskontoberegning = new Stønadskontoberegning.Builder().medRegelEvaluering(" ")
             .medRegelInput(" ")
             .medStønadskonto(
                 new Stønadskonto.Builder().medMaxDager(7).medStønadskontoType(StønadskontoType.FELLESPERIODE).build())

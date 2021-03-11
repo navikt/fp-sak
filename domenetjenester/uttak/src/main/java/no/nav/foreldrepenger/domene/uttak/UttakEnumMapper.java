@@ -83,7 +83,9 @@ public final class UttakEnumMapper {
         return map(uttakArbeidType, arbeidsgiver, ref);
     }
 
-    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType, Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef ref) {
+    public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType,
+                                             Optional<Arbeidsgiver> arbeidsgiver,
+                                             InternArbeidsforholdRef ref) {
         if (uttakArbeidType.equals(UttakArbeidType.FRILANS)) {
             return AktivitetIdentifikator.forFrilans();
         }
@@ -100,7 +102,8 @@ public final class UttakEnumMapper {
                 }
                 return AktivitetIdentifikator.ArbeidsgiverType.PERSON;
             }).orElse(null);
-            return AktivitetIdentifikator.forArbeid(arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null), ref.getReferanse(), arbeidsgiverType);
+            return AktivitetIdentifikator.forArbeid(arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null),
+                ref.getReferanse(), arbeidsgiverType);
         }
         throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
     }
@@ -263,59 +266,42 @@ public final class UttakEnumMapper {
     }
 
     public static UttakUtsettelseType map(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak utsettelseårsaktype) {
-        switch (utsettelseårsaktype) {
-            case ARBEID:
-                return UttakUtsettelseType.ARBEID;
-            case FERIE:
-                return UttakUtsettelseType.FERIE;
-            case INNLAGT_BARN:
-                return UttakUtsettelseType.BARN_INNLAGT;
-            case SYKDOM_SKADE:
-                return UttakUtsettelseType.SYKDOM_SKADE;
-            case INNLAGT_SØKER:
-                return UttakUtsettelseType.SØKER_INNLAGT;
-            case HV_OVELSE:
-                return UttakUtsettelseType.HV_OVELSE;
-            case NAV_TILTAK:
-                return UttakUtsettelseType.NAV_TILTAK;
-            default:
-                throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med perioderesultattype " + utsettelseårsaktype);
-        }
+        return switch (utsettelseårsaktype) {
+            case ARBEID -> UttakUtsettelseType.ARBEID;
+            case FERIE -> UttakUtsettelseType.FERIE;
+            case INNLAGT_BARN -> UttakUtsettelseType.BARN_INNLAGT;
+            case SYKDOM_SKADE -> UttakUtsettelseType.SYKDOM_SKADE;
+            case INNLAGT_SØKER -> UttakUtsettelseType.SØKER_INNLAGT;
+            case HV_OVELSE -> UttakUtsettelseType.HV_OVELSE;
+            case NAV_TILTAK -> UttakUtsettelseType.NAV_TILTAK;
+            default -> throw new IllegalArgumentException(
+                "Utvikler-feil: Kom ut av regel med perioderesultattype " + utsettelseårsaktype);
+        };
     }
 
     public static PeriodeResultatType map(Perioderesultattype perioderesultatType) {
-        switch (perioderesultatType) {
-            case INNVILGET:
-                return PeriodeResultatType.INNVILGET;
-            case AVSLÅTT:
-                return PeriodeResultatType.AVSLÅTT;
-            case MANUELL_BEHANDLING:
-                return PeriodeResultatType.MANUELL_BEHANDLING;
-            default:
-                throw new IllegalArgumentException("Utvikler-feil: Kom ut av regel med perioderesultattype " + perioderesultatType);
-        }
+        return switch (perioderesultatType) {
+            case INNVILGET -> PeriodeResultatType.INNVILGET;
+            case AVSLÅTT -> PeriodeResultatType.AVSLÅTT;
+            case MANUELL_BEHANDLING -> PeriodeResultatType.MANUELL_BEHANDLING;
+            default -> throw new IllegalArgumentException(
+                "Utvikler-feil: Kom ut av regel med perioderesultattype " + perioderesultatType);
+        };
     }
 
     public static StønadskontoType map(Stønadskontotype stønadskontotype) {
         if (stønadskontotype == null) {
             return StønadskontoType.UDEFINERT;
         }
-        switch (stønadskontotype) {
-            case FEDREKVOTE:
-                return StønadskontoType.FEDREKVOTE;
-            case MØDREKVOTE:
-                return StønadskontoType.MØDREKVOTE;
-            case FELLESPERIODE:
-                return StønadskontoType.FELLESPERIODE;
-            case FORELDREPENGER:
-                return StønadskontoType.FORELDREPENGER;
-            case FORELDREPENGER_FØR_FØDSEL:
-                return StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-            case FLERBARNSDAGER:
-                return StønadskontoType.FLERBARNSDAGER;
-            default:
-                throw new IllegalArgumentException("Støtter ikke Stønadskontotype: " + stønadskontotype);
-        }
+        return switch (stønadskontotype) {
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+            case FLERBARNSDAGER -> StønadskontoType.FLERBARNSDAGER;
+            default -> throw new IllegalArgumentException("Støtter ikke Stønadskontotype: " + stønadskontotype);
+        };
     }
 
     public static ManuellBehandlingÅrsak map(Manuellbehandlingårsak input) {
@@ -384,15 +370,11 @@ public final class UttakEnumMapper {
         if (avklaring == null) {
             return null;
         }
-        switch (avklaring) {
-            case I_AKTIVITET:
-                return PeriodeMedAvklartMorsAktivitet.Resultat.I_AKTIVITET;
-            case IKKE_I_AKTIVITET_DOKUMENTERT:
-                return PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
-            case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT:
-                return PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
-            default:
-                throw new IllegalStateException("Ukjent type " + avklaring);
-        }
+        return switch (avklaring) {
+            case I_AKTIVITET -> PeriodeMedAvklartMorsAktivitet.Resultat.I_AKTIVITET;
+            case IKKE_I_AKTIVITET_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_DOKUMENTERT;
+            case IKKE_I_AKTIVITET_IKKE_DOKUMENTERT -> PeriodeMedAvklartMorsAktivitet.Resultat.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT;
+            default -> throw new IllegalStateException("Ukjent type " + avklaring);
+        };
     }
 }

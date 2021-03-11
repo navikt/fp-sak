@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,29 +29,29 @@ public class FastsettePerioderRevurderingUtilTest {
 
     @Test
     public void skalSplitteOppUttaksresultatPeriodeHvisEndringsdatoErIPerioden() {
-        UttakResultatPerioderEntitet opprinneligePerioder = new UttakResultatPerioderEntitet();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var opprinneligePerioder = new UttakResultatPerioderEntitet();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .build();
 
-        UttakResultatPeriodeEntitet periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
+        var periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
             LocalDate.of(2018, 6, 20))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
-        UttakResultatPeriodeEntitet periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusWeeks(1))
+        var periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusWeeks(1))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.FELLESPERIODE, new Trekkdager(10));
 
         opprinneligePerioder.leggTilPeriode(periode1);
         opprinneligePerioder.leggTilPeriode(periode2);
-        UttakResultatEntitet opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligePerioder)
             .build();
 
-        LocalDate endringsdato = periode2.getFom().plusDays(2);
-        List<UttakResultatPeriodeEntitet> perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
+        var endringsdato = periode2.getFom().plusDays(2);
+        var perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
 
         assertThat(perioder).hasSize(2);
         assertThat(perioder.get(0).getFom()).isEqualTo(periode1.getFom());
@@ -60,7 +59,7 @@ public class FastsettePerioderRevurderingUtilTest {
         assertThat(perioder.get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(periode1.getAktiviteter().get(0).getTrekkdager());
         assertThat(perioder.get(1).getFom()).isEqualTo(periode2.getFom());
         assertThat(perioder.get(1).getTom()).isEqualTo(endringsdato.minusDays(1));
-        Trekkdager forventetTrekkdagerSplittetPeriode = new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(
+        var forventetTrekkdagerSplittetPeriode = new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(
             new Periode(perioder.get(1).getFom(), perioder.get(1).getTom()), false, BigDecimal.ZERO, null
         ).decimalValue());
         assertThat(perioder.get(1).getAktiviteter().get(0).getTrekkdager()).isEqualTo(forventetTrekkdagerSplittetPeriode);
@@ -68,42 +67,42 @@ public class FastsettePerioderRevurderingUtilTest {
 
     @Test
     public void skalIkkeKopiereUttaksperioderTattAvAnnenpartFraForrigeUttaksresultat() {
-        UttakResultatPerioderEntitet opprinneligePerioder = new UttakResultatPerioderEntitet();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var opprinneligePerioder = new UttakResultatPerioderEntitet();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .build();
 
-        UttakResultatPeriodeEntitet periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
+        var periode1 = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2018, 6, 6),
             LocalDate.of(2018, 6, 20))
             .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_HAR_OVERLAPPENDE_UTTAKSPERIODER_SOM_ER_INNVILGET_UTSETTELSE)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode1, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
-        UttakResultatPeriodeEntitet periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
+        var periode2 = new UttakResultatPeriodeEntitet.Builder(periode1.getTom().plusDays(1), periode1.getTom().plusDays(10))
             .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.DEN_ANDRE_PART_OVERLAPPENDE_UTTAK_IKKE_SØKT_INNVILGET_SAMTIDIG_UTTAK)
             .build();
         leggTilPeriodeAktivitet(uttakAktivitet, periode2, StønadskontoType.MØDREKVOTE, Trekkdager.ZERO, BigDecimal.ZERO);
 
         opprinneligePerioder.leggTilPeriode(periode1);
         opprinneligePerioder.leggTilPeriode(periode2);
-        UttakResultatEntitet opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligePerioder)
             .build();
 
-        LocalDate endringsdato = periode2.getTom();
-        List<UttakResultatPeriodeEntitet> perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
+        var endringsdato = periode2.getTom();
+        var perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
 
         assertThat(perioder).isEmpty();
     }
 
     @Test
     public void skalRegneUtTrekkdagerKorrektVedSplittingHvisIkkeSamtidigUttakMenHarSamtidigUttaksprosent() {
-        UttakResultatPerioderEntitet opprinneligePerioder = new UttakResultatPerioderEntitet();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var opprinneligePerioder = new UttakResultatPerioderEntitet();
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .build();
 
         //Fått perioder med samtidig uttak false, men med en prosent i prod
-        UttakResultatPeriodeEntitet opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 4, 22),
+        var opprinneligPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.of(2019, 4, 22),
             LocalDate.of(2019, 4, 26))
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.ZERO)
             .medSamtidigUttak(false)
@@ -112,12 +111,12 @@ public class FastsettePerioderRevurderingUtilTest {
         leggTilPeriodeAktivitet(uttakAktivitet, opprinneligPeriode, StønadskontoType.MØDREKVOTE, new Trekkdager(10));
 
         opprinneligePerioder.leggTilPeriode(opprinneligPeriode);
-        UttakResultatEntitet opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
+        var opprinneligUttak = new UttakResultatEntitet.Builder(mock(Behandlingsresultat.class))
             .medOpprinneligPerioder(opprinneligePerioder)
             .build();
 
-        LocalDate endringsdato = opprinneligPeriode.getFom().plusDays(2);
-        List<UttakResultatPeriodeEntitet> perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
+        var endringsdato = opprinneligPeriode.getFom().plusDays(2);
+        var perioder = FastsettePerioderRevurderingUtil.perioderFørDato(opprinneligUttak, endringsdato);
 
         assertThat(perioder).hasSize(1);
         assertThat(perioder.get(0).getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(2));
@@ -128,7 +127,7 @@ public class FastsettePerioderRevurderingUtilTest {
     }
 
     private void leggTilPeriodeAktivitet(UttakAktivitetEntitet uttakAktivitet, UttakResultatPeriodeEntitet periode, StønadskontoType stønadskontoType, Trekkdager trekkdager, BigDecimal utbetalingsgrad) {
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+        var periodeAktivitet1 = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(trekkdager)
             .medArbeidsprosent(utbetalingsgrad)

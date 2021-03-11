@@ -135,7 +135,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             throw new IllegalStateException(
                     "build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        Builder behandlingBuilder = grunnBuild(repositoryProvider);
+        var behandlingBuilder = grunnBuild(repositoryProvider);
 
         this.behandling = behandlingBuilder.build();
         behandling.setId(BEHANDLING_ID.getAndIncrement());
@@ -177,7 +177,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private Builder grunnBuild(UttakRepositoryProvider repositoryProvider) {
-        FagsakRepository fagsakRepo = repositoryProvider.getFagsakRepository();
+        var fagsakRepo = repositoryProvider.getFagsakRepository();
 
         lagFagsak(fagsakRepo);
 
@@ -196,7 +196,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private void lagFagsak(FagsakRepository fagsakRepo) {
-        Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
+        var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR //$NON-NLS-1$
         fagsak.setId(fagsakId);
     }
 

@@ -17,13 +17,13 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntit
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 class ForeldrepengerUttakTjenesteTest {
 
     @Test
     public void skal_mappe_uttak() {
-        var repositoryProvider = new UttakRepositoryProviderForTest();
+        var repositoryProvider = new UttakRepositoryStubProvider();
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusMonths(6);
         var mottattDato = LocalDate.now().minusWeeks(2);

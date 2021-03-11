@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSÃ
 
 class GrunnlagOppretter {
 
-    private UttakRepositoryProvider repositoryProvider;
+    private final UttakRepositoryProvider repositoryProvider;
 
     GrunnlagOppretter(UttakRepositoryProvider repositoryProvider) {
         this.repositoryProvider = repositoryProvider;

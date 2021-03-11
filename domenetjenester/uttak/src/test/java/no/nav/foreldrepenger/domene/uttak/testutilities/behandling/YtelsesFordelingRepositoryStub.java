@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 
-class YtelsesFordelingRepositoryForTest extends YtelsesFordelingRepository {
+class YtelsesFordelingRepositoryStub extends YtelsesFordelingRepository {
 
     private final Map<Long, YtelseFordelingAggregat> ytelseFordelingAggregatMap = new ConcurrentHashMap<>();
 

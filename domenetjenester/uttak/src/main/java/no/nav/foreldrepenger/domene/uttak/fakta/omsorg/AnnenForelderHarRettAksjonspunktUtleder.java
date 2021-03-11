@@ -51,7 +51,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
     @Override
     public List<AksjonspunktDefinisjon> utledAksjonspunkterFor(UttakInput input) {
         var ref = input.getBehandlingReferanse();
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
 
         if (!Objects.equals(ref.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) ||
             !personopplysninger.harOppgittAnnenpartMedNorskID(ref)) {
@@ -65,7 +65,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             if (fpGrunnlag.getAnnenpart().isPresent()) {
-                boolean harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().get().harInnvilgetES();
+                var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().get().harInnvilgetES();
                 return harAnnennartInnvilgetES ? List.of() : aksjonspunkt();
             }
             return aksjonspunkt();
@@ -102,12 +102,12 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
     }
 
     private boolean oppgittAleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Boolean aleneomsorg = ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet();
+        var aleneomsorg = ytelseFordelingAggregat.getOppgittRettighet().getHarAleneomsorgForBarnet();
         return Objects.equals(TRUE, aleneomsorg);
     }
 
     public static boolean oppgittHarAnnenForeldreRett(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Boolean harAnnenForeldreRett = ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett();
+        var harAnnenForeldreRett = ytelseFordelingAggregat.getOppgittRettighet().getHarAnnenForeldreRett();
         return harAnnenForeldreRett == null || Objects.equals(TRUE, harAnnenForeldreRett);
     }
 }

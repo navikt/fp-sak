@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.domene.uttak.fakta.wagnerfisher.EditDistanceLetter;
 
 public class UttakPeriodeEditDistance implements EditDistanceLetter {
-    private OppgittPeriodeEntitet periode;
+    private final OppgittPeriodeEntitet periode;
     private Boolean periodeErDokumentert;
 
     public UttakPeriodeEditDistance(OppgittPeriodeEntitet periode) {
@@ -26,7 +26,7 @@ public class UttakPeriodeEditDistance implements EditDistanceLetter {
 
     @Override
     public int kostnadEndre(EditDistanceLetter annen) {
-        UttakPeriodeEditDistance annenUttakPeriode = (UttakPeriodeEditDistance) annen;
+        var annenUttakPeriode = (UttakPeriodeEditDistance) annen;
         if (!Objects.equals(periode.getÅrsak(), annenUttakPeriode.getPeriode().getÅrsak())) {
             return 6;
         }
@@ -39,7 +39,7 @@ public class UttakPeriodeEditDistance implements EditDistanceLetter {
             return false;
         }
 
-        UttakPeriodeEditDistance annenUttakPeriode = (UttakPeriodeEditDistance) annen;
+        var annenUttakPeriode = (UttakPeriodeEditDistance) annen;
         return annenUttakPeriode.periode.equals(this.periode)
             && Objects.equals(annenUttakPeriode.periodeErDokumentert, this.periodeErDokumentert);
     }
@@ -62,7 +62,7 @@ public class UttakPeriodeEditDistance implements EditDistanceLetter {
 
 
     public static class Builder {
-        private UttakPeriodeEditDistance kladd;
+        private final UttakPeriodeEditDistance kladd;
 
         public Builder(OppgittPeriodeEntitet periode) {
             Objects.requireNonNull(periode, "Periode");

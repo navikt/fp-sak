@@ -66,8 +66,8 @@ public class YtelseFordelingTjeneste {
     }
 
     private void validerOverlapp(List<OppgittPeriodeEntitet> perioder) {
-        for (int i = 0; i < perioder.size(); i++) {
-            for (int j = i + 1; j < perioder.size(); j++) {
+        for (var i = 0; i < perioder.size(); i++) {
+            for (var j = i + 1; j < perioder.size(); j++) {
                 var per1 = new LocalDateInterval(perioder.get(i).getFom(), perioder.get(i).getTom());
                 var per2 = new LocalDateInterval(perioder.get(j).getFom(), perioder.get(j).getTom());
                 if (per1.overlaps(per2)) {
@@ -78,7 +78,7 @@ public class YtelseFordelingTjeneste {
     }
 
     public EndringsresultatSnapshot finnAktivAggregatId(Long behandlingId) {
-        Optional<Long> funnetId = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandlingId);
+        var funnetId = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandlingId);
         return funnetId
             .map(id -> EndringsresultatSnapshot.medSnapshot(YtelseFordelingAggregat.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(YtelseFordelingAggregat.class));

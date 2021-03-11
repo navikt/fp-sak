@@ -22,11 +22,11 @@ public final class FastsettePerioderRevurderingUtil {
     }
 
     public static List<UttakResultatPeriodeEntitet> perioderFørDato(UttakResultatEntitet opprinneligUttak, LocalDate endringsdato) {
-        List<UttakResultatPeriodeEntitet> opprinneligePerioder = opprinneligUttak.getGjeldendePerioder().getPerioder();
+        var opprinneligePerioder = opprinneligUttak.getGjeldendePerioder().getPerioder();
 
         List<UttakResultatPeriodeEntitet> perioderFør = new ArrayList<>();
 
-        for (UttakResultatPeriodeEntitet periode : opprinneligePerioder) {
+        for (var periode : opprinneligePerioder) {
             if (!VedtaksperioderHelper.avslåttPgaAvTaptPeriodeTilAnnenpart(periode)) {
                 if (periode.getTom().isBefore(endringsdato)) {
                     perioderFør.add(kopierPeriode(periode));
@@ -41,30 +41,30 @@ public final class FastsettePerioderRevurderingUtil {
 
     public static UttakResultatPerioderEntitet kopier(UttakResultatPerioderEntitet perioder) {
         var nyePerioder = new UttakResultatPerioderEntitet();
-        for (UttakResultatPeriodeEntitet periode : perioder.getPerioder()) {
+        for (var periode : perioder.getPerioder()) {
             nyePerioder.leggTilPeriode(kopierPeriode(periode));
         }
         return perioder;
     }
 
     private static UttakResultatPeriodeEntitet splittPeriode(UttakResultatPeriodeEntitet periode, LocalDate endringsdato) {
-        UttakResultatPeriodeEntitet nyPeriode = kopierPeriode(periode, endringsdato.minusDays(1));
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : periode.getAktiviteter()) {
+        var nyPeriode = kopierPeriode(periode, endringsdato.minusDays(1));
+        for (var aktivitet : periode.getAktiviteter()) {
             nyPeriode.leggTilAktivitet(kopierAktivitet(aktivitet, nyPeriode, regnUtTrekkdager(aktivitet, nyPeriode.getTom())));
         }
         return nyPeriode;
     }
 
     private static UttakResultatPeriodeEntitet kopierPeriode(UttakResultatPeriodeEntitet periode) {
-        UttakResultatPeriodeEntitet nyPeriode = kopierPeriode(periode, periode.getTom());
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : periode.getAktiviteter()) {
+        var nyPeriode = kopierPeriode(periode, periode.getTom());
+        for (var aktivitet : periode.getAktiviteter()) {
             nyPeriode.leggTilAktivitet(kopierAktivitet(aktivitet, nyPeriode, aktivitet.getTrekkdager()));
         }
         return nyPeriode;
     }
 
     private static UttakResultatPeriodeEntitet kopierPeriode(UttakResultatPeriodeEntitet periode, LocalDate nyTom) {
-        UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), nyTom)
+        var builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(), nyTom)
             .medResultatType(periode.getResultatType(), periode.getResultatÅrsak())
             .medGraderingInnvilget(periode.isGraderingInnvilget())
             .medUtsettelseType(periode.getUtsettelseType())

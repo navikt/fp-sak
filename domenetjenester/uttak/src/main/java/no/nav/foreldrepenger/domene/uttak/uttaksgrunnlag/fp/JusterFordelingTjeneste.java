@@ -32,7 +32,7 @@ class JusterFordelingTjeneste {
      * Gradering, utsettelse, opphold og hull mellom perioder flyttes ikke.
      */
     List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
-        List<OppgittPeriodeEntitet> justert = sorterEtterFom(oppgittePerioder);
+        var justert = sorterEtterFom(oppgittePerioder);
         if (finnesOverlapp(oppgittePerioder)) {
             LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
                 + "Hvis periodene ikke kan slås sammen faller behandlingen ut til manuell behandling");
@@ -50,21 +50,21 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerVedEndringAvFamilieHendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
-        List<OppgittPeriodeEntitet> oppgittPerioder = sorterEtterFom(oppgittePerioder);
+        var oppgittPerioder = sorterEtterFom(oppgittePerioder);
         return sorterEtterFom(justerPerioder(oppgittPerioder, gammelFamiliehendelse, nyFamiliehendelse));
     }
 
     private List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
-        int i = 0;
+        var i = 0;
         while (i < perioder.size()) {
-            int j = i + 1;
-            OppgittPeriodeEntitet slåttSammen = perioder.get(i);
+            var j = i + 1;
+            var slåttSammen = perioder.get(i);
             if (i < perioder.size() - 1) {
                 //Hvis ikke hull mellom periodene skal vi se om de er like for å så slå de sammen
                 while (j < perioder.size()) {
-                    OppgittPeriodeEntitet nestePeriode = perioder.get(j);
+                    var nestePeriode = perioder.get(j);
                     if (!erHullMellom(slåttSammen.getTom(), nestePeriode.getFom()) && erLikBortsettFraTidsperiode(slåttSammen, nestePeriode)) {
                         slåttSammen = slåSammen(slåttSammen, nestePeriode);
                     } else {
@@ -123,7 +123,7 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerPerioder(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
-        List<OppgittPeriodeEntitet> fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
+        var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
         List<OppgittPeriodeEntitet> justerte;
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
             justerte = justerVedFødselEtterTermin(fjernetHelgerFraStartOgSluttAvPerioder, gammelFamiliehendelse, nyFamiliehendelse);
@@ -159,15 +159,15 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
-        List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
-        int virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
+        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
+        var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
         List<OppgittPeriodeEntitet> justertePerioder = new ArrayList<>();
-        for (OppgittPeriodeEntitet oppgittPeriode : oppgittePerioder) {
-            List<OppgittPeriodeEntitet> justert = flyttPeriodeTilVenstre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+        for (var oppgittPeriode : oppgittePerioder) {
+            var justert = flyttPeriodeTilVenstre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             justertePerioder.addAll(justert);
         }
-        List<OppgittPeriodeEntitet> sortert = sorterEtterFom(justertePerioder);
+        var sortert = sorterEtterFom(justertePerioder);
         if (førsteUttaksdatoErFlyttet(oppgittePerioder, sortert)) {
             if (søktOmPerioderFørFamiliehendelse(oppgittePerioder, gammelFamiliehendelse)) {
                 sortert = beholdStartdatoForUttak(sortert, oppgittePerioder.get(0).getFom(), nyFamiliehendelse);
@@ -184,14 +184,14 @@ class JusterFordelingTjeneste {
                                                                              List<OppgittPeriodeEntitet> oppgittePerioder) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
 
-        for (int i = 0; i < justertePerioder.size() - 1; i++) {
+        for (var i = 0; i < justertePerioder.size() - 1; i++) {
             resultat.add(justertePerioder.get(i));
             if (erHullMellom(justertePerioder.get(i).getTom(), justertePerioder.get(i + 1).getFom())) {
-                LocalDate førsteVirkedagIHull = plusVirkedager(justertePerioder.get(i).getTom(), 1);
-                LocalDate sisteVirkedagIHull = minusVirkedag(justertePerioder.get(i + 1).getFom());
+                var førsteVirkedagIHull = plusVirkedager(justertePerioder.get(i).getTom(), 1);
+                var sisteVirkedagIHull = minusVirkedag(justertePerioder.get(i + 1).getFom());
                 //sjekker om hullet vi finner ikke finnes i oppgitteperioder (hvis det er søkt med hull i perioden skal vi ikke fylle)
                 if (!hullFinnesIOppgittePeriode(oppgittePerioder, førsteVirkedagIHull, sisteVirkedagIHull)) {
-                    OppgittPeriodeEntitet sisteFlyttbarPeriode = sisteFlyttbarePeriode(resultat);
+                    var sisteFlyttbarPeriode = sisteFlyttbarePeriode(resultat);
                     resultat.add(kopier(sisteFlyttbarPeriode, førsteVirkedagIHull, sisteVirkedagIHull));
                 }
             }
@@ -201,7 +201,7 @@ class JusterFordelingTjeneste {
     }
 
     private OppgittPeriodeEntitet sisteFlyttbarePeriode(List<OppgittPeriodeEntitet> resultat) {
-        List<OppgittPeriodeEntitet> flyttbarePerioder = flyttbarePerioder(resultat);
+        var flyttbarePerioder = flyttbarePerioder(resultat);
         if (flyttbarePerioder.size() == 0) {
             throw new IllegalStateException("Forventer minst en flyttbar periode før hull");
         }
@@ -209,7 +209,7 @@ class JusterFordelingTjeneste {
     }
 
     private boolean hullFinnesIOppgittePeriode(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate hullFom, LocalDate hullTom) {
-        List<OppgittPeriodeEntitet> perioderMedHull = hullPerioder(oppgittePerioder);
+        var perioderMedHull = hullPerioder(oppgittePerioder);
         return perioderMedHull.stream().anyMatch(p -> overlapper(p, hullFom) || overlapper(p, hullTom));
     }
 
@@ -234,7 +234,7 @@ class JusterFordelingTjeneste {
             tilDato = dato1;
         }
         //teller antall virkedager som ikke ligger i ikkeflyttbare perioder
-        int ledigeVirkedager = 0;
+        var ledigeVirkedager = 0;
         while (fraDato.isBefore(tilDato)) {
             if (erLedigVirkedager(ikkeFlyttbarePerioder, fraDato)) {
                 ledigeVirkedager++;
@@ -250,11 +250,11 @@ class JusterFordelingTjeneste {
 
     private List<OppgittPeriodeEntitet> beholdSluttdatoForUttak(List<OppgittPeriodeEntitet> justertePerioder, LocalDate sluttdato) {
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>(justertePerioder);
-        OppgittPeriodeEntitet sisteJustertePeriode = justertePerioder.get(justertePerioder.size() - 1);
+        var sisteJustertePeriode = justertePerioder.get(justertePerioder.size() - 1);
         if (erPeriodeFlyttbar(sisteJustertePeriode)) {
             resultat.set(justertePerioder.size() - 1, kopier(sisteJustertePeriode, sisteJustertePeriode.getFom(), sluttdato));
         } else if (!sisteJustertePeriode.getTom().isEqual(sluttdato)){
-            OppgittPeriodeEntitet sisteFlyttbarePeriode = sisteFlyttbarePeriode(justertePerioder);
+            var sisteFlyttbarePeriode = sisteFlyttbarePeriode(justertePerioder);
             resultat.add(kopier(sisteFlyttbarePeriode, plusVirkedager(sisteJustertePeriode.getTom(), 1), sluttdato));
         }
         return resultat;
@@ -283,12 +283,12 @@ class JusterFordelingTjeneste {
             return Collections.singletonList(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
         }
 
-        LocalDate nyFom = finnNyFomVedFlyttingTilVenstre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+        var nyFom = finnNyFomVedFlyttingTilVenstre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
 
-        LocalDate nyTom = nyFom;
-        int i = 0;
-        boolean knekkFunnet = false;
-        int antallVirkedager = beregnAntallLedigeVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom(), ikkeFlyttbarePerioder);
+        var nyTom = nyFom;
+        var i = 0;
+        var knekkFunnet = false;
+        var antallVirkedager = beregnAntallLedigeVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom(), ikkeFlyttbarePerioder);
         //flytter en og en dag
         while (i < antallVirkedager && !knekkFunnet) {
             if (erLedigVirkedager(ikkeFlyttbarePerioder, plusVirkedager(nyTom, 1))) {
@@ -299,13 +299,13 @@ class JusterFordelingTjeneste {
             }
         }
 
-        OppgittPeriodeEntitet nyPeriode = kopier(oppgittPeriode, nyFom, nyTom);
+        var nyPeriode = kopier(oppgittPeriode, nyFom, nyTom);
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         resultat.add(nyPeriode);
         if (knekkFunnet) {
-            int virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
-            LocalDate fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
-            List<OppgittPeriodeEntitet> perioderEtterKnekk = flyttPeriodeTilVenstre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()), antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            var virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
+            var fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
+            var perioderEtterKnekk = flyttPeriodeTilVenstre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()), antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             resultat.addAll(perioderEtterKnekk);
         }
 
@@ -315,8 +315,8 @@ class JusterFordelingTjeneste {
     private LocalDate finnNyFomVedFlyttingTilVenstre(OppgittPeriodeEntitet oppgittPeriode,
                                                      int antallVirkedagerSomSkalSkyves,
                                                      List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
-        LocalDate nyFom = oppgittPeriode.getFom();
-        int i = 0;
+        var nyFom = oppgittPeriode.getFom();
+        var i = 0;
         //flytter en og en dag
         while (i < antallVirkedagerSomSkalSkyves) {
             nyFom = minusVirkedag(nyFom);
@@ -340,17 +340,17 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
-        List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
-        int virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
+        var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
+        var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
         List<OppgittPeriodeEntitet> justertePerioder = new ArrayList<>();
-        for (OppgittPeriodeEntitet oppgittPeriode : oppgittePerioder) {
-            List<OppgittPeriodeEntitet> justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+        for (var oppgittPeriode : oppgittePerioder) {
+            var justert = flyttPeriodeTilHøyre(oppgittPeriode, virkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             justertePerioder.addAll(justert);
         }
         justertePerioder = sorterEtterFom(justertePerioder);
         if (førsteUttaksdatoErFlyttet(oppgittePerioder, justertePerioder)) {
-            OppgittPeriodeEntitet ekstraPeriode = lagEkstraPeriodeFraOpprinneligUttaksdato(oppgittePerioder, justertePerioder);
+            var ekstraPeriode = lagEkstraPeriodeFraOpprinneligUttaksdato(oppgittePerioder, justertePerioder);
             justertePerioder.add(0, ekstraPeriode);
             justertePerioder = fjernPerioderEtterSisteSøkteDato(justertePerioder, oppgittePerioder.get(oppgittePerioder.size() - 1).getTom());
         }
@@ -359,7 +359,7 @@ class JusterFordelingTjeneste {
 
     private OppgittPeriodeEntitet lagEkstraPeriodeFraOpprinneligUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                            List<OppgittPeriodeEntitet> justertePerioder) {
-        UttakPeriodeType uttakPeriodeType = finnUttakPeriodeType(justertePerioder);
+        var uttakPeriodeType = finnUttakPeriodeType(justertePerioder);
         return OppgittPeriodeBuilder.ny()
             .medPeriodeType(uttakPeriodeType)
             .medPeriode(flyttFraHelgTilMandag(oppgittePerioder.get(0).getFom()), flyttFraHelgTilFredag(justertePerioder.get(0).getFom().minusDays(1)))
@@ -378,12 +378,12 @@ class JusterFordelingTjeneste {
             return Collections.singletonList(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
         }
 
-        LocalDate nyFom = finnNyFomVedFlyttingTilHøyre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+        var nyFom = finnNyFomVedFlyttingTilHøyre(oppgittPeriode, antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
 
-        LocalDate nyTom = nyFom;
-        int i = 0;
-        boolean knekkFunnet = false;
-        int antallVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
+        var nyTom = nyFom;
+        var i = 0;
+        var knekkFunnet = false;
+        var antallVirkedager = beregnAntallVirkedager(oppgittPeriode.getFom(), oppgittPeriode.getTom());
         //flytter en og en dag
         while (i < antallVirkedager - 1 && !knekkFunnet) {
             if (erLedigVirkedager(ikkeFlyttbarePerioder, plusVirkedager(nyTom, 1))) {
@@ -394,13 +394,13 @@ class JusterFordelingTjeneste {
             }
         }
 
-        OppgittPeriodeEntitet nyPeriode = kopier(oppgittPeriode, nyFom, nyTom);
+        var nyPeriode = kopier(oppgittPeriode, nyFom, nyTom);
         List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
         resultat.add(nyPeriode);
         if (knekkFunnet) {
-            int virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
-            LocalDate fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
-            List<OppgittPeriodeEntitet> perioderEtterKnekk = flyttPeriodeTilHøyre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()),
+            var virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
+            var fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
+            var perioderEtterKnekk = flyttPeriodeTilHøyre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()),
                 antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             resultat.addAll(perioderEtterKnekk);
         }
@@ -411,8 +411,8 @@ class JusterFordelingTjeneste {
     private LocalDate finnNyFomVedFlyttingTilHøyre(OppgittPeriodeEntitet oppgittPeriode,
                                                    int antallVirkedagerSomSkalSkyves,
                                                    List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
-        LocalDate nyFom = oppgittPeriode.getFom();
-        int i = 0;
+        var nyFom = oppgittPeriode.getFom();
+        var i = 0;
         //flytter en og en dag
         while (i < antallVirkedagerSomSkalSkyves) {
             nyFom = plusVirkedager(nyFom, 1);
@@ -428,7 +428,7 @@ class JusterFordelingTjeneste {
     }
 
     private List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        List<OppgittPeriodeEntitet> ikkeFlyttbare = oppgittePerioder.stream()
+        var ikkeFlyttbare = oppgittePerioder.stream()
             .filter(periode -> !erPeriodeFlyttbar(periode))
             .collect(Collectors.toList());
         ikkeFlyttbare.addAll(hullPerioder(oppgittePerioder));
@@ -437,9 +437,9 @@ class JusterFordelingTjeneste {
 
     private List<OppgittPeriodeEntitet> hullPerioder(List<OppgittPeriodeEntitet> oppgittePerioder) {
         List<OppgittPeriodeEntitet> hull = new ArrayList<>();
-        for (int i = 1; i < oppgittePerioder.size(); i++) {
-            LocalDate nesteVirkedag = plusVirkedager(oppgittePerioder.get(i - 1).getTom(), 1);
-            LocalDate startDatoNestePeriode = oppgittePerioder.get(i).getFom();
+        for (var i = 1; i < oppgittePerioder.size(); i++) {
+            var nesteVirkedag = plusVirkedager(oppgittePerioder.get(i - 1).getTom(), 1);
+            var startDatoNestePeriode = oppgittePerioder.get(i).getFom();
             if (!nesteVirkedag.isEqual(startDatoNestePeriode)) {
                 hull.add(new JusterPeriodeHull(nesteVirkedag, Virkedager.plusVirkedager(nesteVirkedag,
                     beregnAntallVirkedager(nesteVirkedag, startDatoNestePeriode) - 2)));
@@ -467,7 +467,7 @@ class JusterFordelingTjeneste {
     }
 
     private UttakPeriodeType finnUttakPeriodeType(List<OppgittPeriodeEntitet> oppgittPerioder) {
-        for (OppgittPeriodeEntitet oppgittPeriode : oppgittPerioder) {
+        for (var oppgittPeriode : oppgittPerioder) {
             if (oppgittPeriode.getPeriodeType().equals(UttakPeriodeType.FORELDREPENGER)) {
                 return UttakPeriodeType.FORELDREPENGER;
             }
@@ -504,8 +504,8 @@ class JusterFordelingTjeneste {
     }
 
     private boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
-        for (int i = 0; i < oppgittPerioder.size(); i++) {
-            for (int j = i + 1; j < oppgittPerioder.size(); j++) {
+        for (var i = 0; i < oppgittPerioder.size(); i++) {
+            for (var j = i + 1; j < oppgittPerioder.size(); j++) {
                 if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
                     return true;
                 }

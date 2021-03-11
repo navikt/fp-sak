@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 class EndringerHarBegrunnelseValidering implements OverstyrUttakPerioderValidering {
 
-    private List<ForeldrepengerUttakPeriode> opprinnelig;
+    private final List<ForeldrepengerUttakPeriode> opprinnelig;
 
     EndringerHarBegrunnelseValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
         this.opprinnelig = opprinnelig;

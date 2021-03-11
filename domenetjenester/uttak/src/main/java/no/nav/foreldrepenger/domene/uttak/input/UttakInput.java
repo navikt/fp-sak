@@ -13,10 +13,10 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 /** Inputstruktur for uttak tjenester. */
 public class UttakInput {
 
-    private BehandlingReferanse behandlingReferanse;
-    private Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser = Set.of();
+    private final BehandlingReferanse behandlingReferanse;
     private final InntektArbeidYtelseGrunnlag iayGrunnlag;
     private final YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag;
+    private Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser = Set.of();
     private LocalDate søknadMottattDato;
     private LocalDate medlemskapOpphørsdato;
     private Set<BehandlingÅrsakType> behandlingÅrsaker = Set.of();

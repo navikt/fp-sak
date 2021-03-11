@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 
-class UttaksperiodegrenseRepositoryForTest extends UttaksperiodegrenseRepository {
+class UttaksperiodegrenseRepositoryStub extends UttaksperiodegrenseRepository {
 
     private final Map<Long, Uttaksperiodegrense> uttaksperiodegrenseMap = new ConcurrentHashMap<>();
 

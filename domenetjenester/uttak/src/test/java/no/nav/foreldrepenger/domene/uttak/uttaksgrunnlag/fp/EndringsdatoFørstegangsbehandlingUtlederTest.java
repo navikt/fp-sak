@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -17,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class EndringsdatoFørstegangsbehandlingUtlederTest {
 
@@ -25,7 +24,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
 
     private static final LocalDate FØRSTE_UTTAKSDATO_OPPGITT = LocalDate.now().plusDays(10);
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
 
     private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(
         repositoryProvider.getYtelsesFordelingRepository());
@@ -34,12 +33,12 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_det_ikke_finnes_manuell_vurdering() {
         // Arrange
         var perioder = opprettOppgittePerioder();
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(perioder, false));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
             perioder);
 
         // Assert
@@ -49,12 +48,12 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     @Test
     public void skal_utlede_at_endringsdatoen_er_første_uttaksdato_i_søknaden_når_manuell_vurdering_er_senere() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(opprettAvklarteUttakDatoer(FØRSTE_UTTAKSDATO_OPPGITT.plusDays(1)));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
             opprettOppgittePerioder());
 
         // Assert
@@ -64,12 +63,12 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     @Test
     public void skal_utlede_at_endringsdatoen_er_manuelt_vurdert_uttaksdato_når_manuell_vurdering_er_tidligere() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medAvklarteUttakDatoer(opprettAvklarteUttakDatoer(FØRSTE_UTTAKSDATO_OPPGITT.minusDays(1)));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        LocalDate endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
+        var endringsdato = endringsdatoFørstegangsbehandlingUtleder.utledEndringsdato(behandling.getId(),
             opprettOppgittePerioder());
 
         // Assert
@@ -77,7 +76,7 @@ public class EndringsdatoFørstegangsbehandlingUtlederTest {
     }
 
     private List<OppgittPeriodeEntitet> opprettOppgittePerioder() {
-        OppgittPeriodeBuilder periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medPeriode(FØRSTE_UTTAKSDATO_OPPGITT, FØRSTE_UTTAKSDATO_OPPGITT.plusWeeks(2))
             .medArbeidsgiver(opprettOgLagreVirksomhet());

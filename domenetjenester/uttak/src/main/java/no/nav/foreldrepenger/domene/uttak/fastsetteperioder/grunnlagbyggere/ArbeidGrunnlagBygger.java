@@ -56,7 +56,8 @@ public class ArbeidGrunnlagBygger {
     private Set<Arbeidsforhold> lagArbeidsforhold(UttakInput input) {
         var resultat = new HashSet<Arbeidsforhold>();
         var beregningsgrunnlagStatuser = input.getBeregningsgrunnlagStatuser();
-        var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(input.getBehandlingReferanse().getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesfordelingRepository.hentAggregat(
+            input.getBehandlingReferanse().getBehandlingId());
         var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
 
         if (beregningsgrunnlagStatuser.isEmpty()) {
@@ -64,7 +65,8 @@ public class ArbeidGrunnlagBygger {
         }
 
         for (BeregningsgrunnlagStatus beregningsgrunnlagStatus : beregningsgrunnlagStatuser) {
-            var arbeidsforhold = lagArbeidsforhold(beregningsgrunnlagStatuser, beregningsgrunnlagStatus, ytelseFordelingAggregat, uttakYrkesaktiviteter);
+            var arbeidsforhold = lagArbeidsforhold(beregningsgrunnlagStatuser, beregningsgrunnlagStatus,
+                ytelseFordelingAggregat, uttakYrkesaktiviteter);
             resultat.add(arbeidsforhold);
         }
 
@@ -78,10 +80,12 @@ public class ArbeidGrunnlagBygger {
         var identifikator = statusPeriode.toUttakAktivitetIdentifikator();
         var startdatoer = finnStartdatoer(alleStatuser, uttakYrkesaktiviteter);
 
-        var arbeidsforhold = new Arbeidsforhold(identifikator, startdatoer.get(statusPeriode.toUttakAktivitetIdentifikator()));
+        var arbeidsforhold = new Arbeidsforhold(identifikator,
+            startdatoer.get(statusPeriode.toUttakAktivitetIdentifikator()));
 
         if (erArbeidstakerMedArbeidsgiver(arbeidsforhold)) {
-            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat, uttakYrkesaktiviteter).stream()
+            var endringerIStilling = finnEndringerIStilling(identifikator, ytelseFordelingAggregat,
+                uttakYrkesaktiviteter).stream()
                 .sorted(Comparator.comparing(EndringAvStilling::getDato))
                 .collect(Collectors.toList());
             for (EndringAvStilling endringAvStilling : endringerIStilling) {
@@ -93,8 +97,8 @@ public class ArbeidGrunnlagBygger {
     }
 
     private boolean erArbeidstakerMedArbeidsgiver(Arbeidsforhold arbeidsforhold) {
-        return arbeidsforhold.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID) &&
-            arbeidsforhold.getIdentifikator().getArbeidsgiverIdentifikator() != null;
+        return arbeidsforhold.getIdentifikator().getAktivitetType().equals(AktivitetType.ARBEID)
+            && arbeidsforhold.getIdentifikator().getArbeidsgiverIdentifikator() != null;
     }
 
     private Map<AktivitetIdentifikator, LocalDate> finnStartdatoer(Collection<BeregningsgrunnlagStatus> statuser,
@@ -107,10 +111,12 @@ public class ArbeidGrunnlagBygger {
         return resultat;
     }
 
-    private LocalDate finnStartdato(UttakYrkesaktiviteter uttakYrkesaktiviteter, BeregningsgrunnlagStatus statusPeriode) {
+    private LocalDate finnStartdato(UttakYrkesaktiviteter uttakYrkesaktiviteter,
+                                    BeregningsgrunnlagStatus statusPeriode) {
         if (statusPeriode.getArbeidsgiver().isPresent()) {
             var arbeidsforholdRef = statusPeriode.getArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef());
-            return uttakYrkesaktiviteter.finnStartdato(statusPeriode.getArbeidsgiver().get(), arbeidsforholdRef).orElse(LocalDate.MIN);
+            return uttakYrkesaktiviteter.finnStartdato(statusPeriode.getArbeidsgiver().get(), arbeidsforholdRef)
+                .orElse(LocalDate.MIN);
         }
         return LocalDate.MIN;
     }
@@ -120,15 +126,19 @@ public class ArbeidGrunnlagBygger {
                                                           UttakYrkesaktiviteter uttakYrkesaktiviteter) {
         //Forenkling: Henter ikke faktisk endring. Bare sjekker stillingsprosent første dag i søknadsperioder
         var endringer = new HashSet<EndringAvStilling>();
-        for (OppgittPeriodeEntitet søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder().getOppgittePerioder()) {
-            var stillingsprosent = finnStillingsprosent(aktivitetIdentifikator, uttakYrkesaktiviteter, søknadsperiode.getFom());
+        for (OppgittPeriodeEntitet søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder()
+            .getOppgittePerioder()) {
+            var stillingsprosent = finnStillingsprosent(aktivitetIdentifikator, uttakYrkesaktiviteter,
+                søknadsperiode.getFom());
             endringer.add(new EndringAvStilling(søknadsperiode.getFom(), stillingsprosent));
         }
 
         return endringer;
     }
 
-    private BigDecimal finnStillingsprosent(AktivitetIdentifikator aktivitetIdentifikator, UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate dato) {
+    private BigDecimal finnStillingsprosent(AktivitetIdentifikator aktivitetIdentifikator,
+                                            UttakYrkesaktiviteter uttakYrkesaktiviteter,
+                                            LocalDate dato) {
         var arbeidsgiver = mapArbeidsgiver(aktivitetIdentifikator);
         var ref = InternArbeidsforholdRef.ref(aktivitetIdentifikator.getArbeidsforholdId());
         return uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver, ref, dato);

@@ -19,7 +19,7 @@ public class PerioderHarFastsattResultatValideringTest {
     public void feilVedPeriodeMedNullResultat() {
         var nyePerioder = List.of(periodeMedResultat(null));
 
-        PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
+        var validering = new PerioderHarFastsattResultatValidering();
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
@@ -27,7 +27,7 @@ public class PerioderHarFastsattResultatValideringTest {
     public void feilVedPeriodeMedResultatIkkeFastsatt() {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.IKKE_FASTSATT));
 
-        PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
+        var validering = new PerioderHarFastsattResultatValidering();
         assertThrows(TekniskException.class, () -> validering.utfør(nyePerioder));
     }
 
@@ -35,7 +35,7 @@ public class PerioderHarFastsattResultatValideringTest {
     public void okHvisPerioderHarFastsattResultat() {
         var nyePerioder = List.of(periodeMedResultat(PeriodeResultatType.INNVILGET));
 
-        PerioderHarFastsattResultatValidering validering = new PerioderHarFastsattResultatValidering();
+        var validering = new PerioderHarFastsattResultatValidering();
         assertDoesNotThrow(() -> validering.utfør(nyePerioder));
     }
 

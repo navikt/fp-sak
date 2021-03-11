@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakBeregningsandelTjenesteTestUtil;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
@@ -28,7 +28,7 @@ public class GraderingUkjentAktivitetAksjonspunktUtlederTest {
     private static final LocalDate FOM = LocalDate.of(2018, 1, 14);
     private static final LocalDate TOM = LocalDate.of(2018, 1, 31);
 
-    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final GraderingUkjentAktivitetAksjonspunktUtleder utleder = new GraderingUkjentAktivitetAksjonspunktUtleder(
         new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     private final UttakBeregningsandelTjenesteTestUtil beregningandelUtil = new UttakBeregningsandelTjenesteTestUtil();

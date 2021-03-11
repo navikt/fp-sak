@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
@@ -48,7 +48,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
 
     @BeforeEach
     void setUp() {
-        repositoryProvider = new UttakRepositoryProviderForTest();
+        repositoryProvider = new UttakRepositoryStubProvider();
         personopplysninger = mock(PersonopplysningerForUttak.class);
         aksjonspunktUtleder = new BrukerHarOmsorgAksjonspunktUtleder(repositoryProvider, personopplysninger, FORBEHOLDT_MOR_ETTER_FØDSEL);
     }
@@ -56,9 +56,9 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ingen_aksjonspunkt_dersom_bruker_oppgitt_omsorg_til_barnet_men_barnet_er_ikke_født() {
         // Arrange
-        Behandling behandling = opprettBehandling(TERMINDATO);
+        var behandling = opprettBehandling(TERMINDATO);
         var familieHendelse = FamilieHendelse.forFødsel(TERMINDATO, null, List.of(new Barn()), 1);
-        FamilieHendelser familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse);
         // Act
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
 
@@ -69,8 +69,8 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_men_barn_har_ikke_sammebosted() {
         // Arrange
-        Behandling behandling = opprettBehandling(FØDSELSDATO);
-        FamilieHendelser familieHendelser = fødselSøknadOgBekreftetStemmer();
+        var behandling = opprettBehandling(FØDSELSDATO);
+        var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
         // Act
         var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
@@ -84,15 +84,15 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private UttakInput lagInput(Behandling behandling, FamilieHendelser familieHendelser) {
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØDSELSDATO).build();
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØDSELSDATO).build();
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
         return new UttakInput(ref, null, new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser));
     }
 
     @Test
     public void aksjonspunkt_dersom_far_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
         // Arrange
-        Behandling behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker();
+        var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker();
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
         // Act
@@ -104,7 +104,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_far_ikke_mor() {
         // Arrange
-        Behandling behandling = opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(FØDSELSDATO);
+        var behandling = opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
         // Act
@@ -116,7 +116,7 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ingen_aksjonspunkt_dersom_mor_søker_og_oppgitt_omsorg_til_barnet_og_fødsel_og_barn_har_sammebosted_med_mor_ikke_far() {
         // Arrange
-        Behandling behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(FØDSELSDATO);
+        var behandling = opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(FØDSELSDATO);
         var familieHendelser = fødselSøknadOgBekreftetStemmer();
 
         // Act
@@ -128,16 +128,16 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_lengre_søknadsperioden() {
         // Arrange
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(6))
             .build();
 
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .medPeriode(FØDSELSDATO.plusWeeks(6).plusDays(1), FØDSELSDATO.plusWeeks(10))
             .build();
-        Behandling behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1, periode2));
+        var behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1, periode2));
         // Act
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
 
@@ -148,12 +148,12 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ingen_aksjonspunkt_dersom_mor_søker_og_ikke_oppgitt_omsorg_til_barnet_med_kortere_søknadsperioden() {
         // Arrange
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
+        var periode1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FØDSELSDATO, FØDSELSDATO.plusWeeks(5))
             .build();
 
-        Behandling behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1));
+        var behandling = opprettBehandlingForBekreftetFødselMedSøknadsperioder(List.of(periode1));
         // Act
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, fødselSøknadOgBekreftetStemmer()));
 
@@ -164,8 +164,8 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ingen_aksjonspunkt_dersom_barn_er_død_selvom_de_ikke_har_samme_adresse() {
         // Arrange
-        Behandling behandling = opprettBehandling(FØDSELSDATO);
-        FamilieHendelser familieHendelser = new FamilieHendelser()
+        var behandling = opprettBehandling(FØDSELSDATO);
+        var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1))
             .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO)), 1));
 
@@ -179,9 +179,9 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void aksjonspunkt_dersom_ikke_alle_barn_er_død_fordi_det_levende_barnet_ikke_har_samme_bostedsadresse() {
         // Arrange
-        Behandling behandling = opprettBehandling(FØDSELSDATO);
+        var behandling = opprettBehandling(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 1);
-        FamilieHendelser familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
 
         // Act
         var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
@@ -193,9 +193,9 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bosted() {
         // Arrange
-        Behandling behandling = opprettBehandlingForFødselSammeBosted(FØDSELSDATO);
+        var behandling = opprettBehandlingForFødselSammeBosted(FØDSELSDATO);
         var familieHendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn(FØDSELSDATO), new Barn()), 2);
-        FamilieHendelser familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
+        var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
 
         // Act
         var utledeteAksjonspunkter = aksjonspunktUtleder.utledAksjonspunkterFor(lagInput(behandling, familieHendelser));
@@ -207,8 +207,8 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     @Test
     public void ikke_aksjonspunkt_dersom_ett_barn_døde_og_ikke_har_samme_adresse_fordi_det_andre_barnet_lever_og_har_samme_bostedsadresse() {
         // Arrange
-        Behandling behandling = opprettBehandlingForFødselMedLikBostedsadresse(FØDSELSDATO);
-        FamilieHendelser familieHendelser = new FamilieHendelser()
+        var behandling = opprettBehandlingForFødselMedLikBostedsadresse(FØDSELSDATO);
+        var familieHendelser = new FamilieHendelser()
             .medSøknadHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(), new Barn()), 2))
             .medBekreftetHendelse(FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of( new Barn(FØDSELSDATO), new Barn()), 2));
 
@@ -220,11 +220,11 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandling(LocalDate førsteUttaksdato) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(førsteUttaksdato).build());
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
         return scenario.lagre(repositoryProvider);
     }
@@ -241,9 +241,9 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgFarSøker() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_FAR_AKTØR_ID);
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -254,12 +254,12 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedFarIkkeMorOgMorSøker(LocalDate fødselsdato) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -270,12 +270,12 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForFødselOgBarnBorSammenMedMorIkkeFarOgMorSøker(LocalDate fødselsdato) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(fødselsdato).build());
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
 
         var behandling = scenario.lagre(repositoryProvider);
@@ -286,14 +286,14 @@ public class BrukerHarOmsorgAksjonspunktUtlederTest {
     }
 
     private Behandling opprettBehandlingForBekreftetFødselMedSøknadsperioder(List<OppgittPeriodeEntitet> søknadsPerioder) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
 
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, false, false);
+        var rettighet = new OppgittRettighetEntitet(true, false, false);
         scenario.medOppgittRettighet(rettighet);
 
-        OppgittFordelingEntitet fordeling = new OppgittFordelingEntitet(søknadsPerioder, true);
+        var fordeling = new OppgittFordelingEntitet(søknadsPerioder, true);
         scenario.medFordeling(fordeling);
 
         return scenario.lagre(repositoryProvider);

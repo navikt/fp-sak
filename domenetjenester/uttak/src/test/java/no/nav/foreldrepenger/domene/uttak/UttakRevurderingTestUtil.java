@@ -97,16 +97,16 @@ public class UttakRevurderingTestUtil {
                                          OppgittFordelingEntitet nyFordeling,
                                          OppgittDekningsgradEntitet oppgittDekningsgrad) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
-        Behandling førstegangsbehandling = byggFørstegangsbehandling(scenario, opprinneligUttaksResultatPerioder);
+        var førstegangsbehandling = byggFørstegangsbehandling(scenario, opprinneligUttaksResultatPerioder);
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
+        var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
             aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
             .medFordeling(nyFordeling)
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false))
             .medOppgittDekningsgrad(oppgittDekningsgrad);
 
-        Behandling revurdering = lagre(revurderingsscenario);
+        var revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         repositoryProvider.getFagsakRelasjonRepository()
@@ -129,13 +129,13 @@ public class UttakRevurderingTestUtil {
     }
 
     public Behandling opprettRevurderingAdopsjon() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
-        Behandling førstegangsbehandling = byggFørstegangsbehandling(scenario, defaultUttaksresultat());
+        var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
+        var førstegangsbehandling = byggFørstegangsbehandling(scenario, defaultUttaksresultat());
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
+        var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
 
-        Behandling revurdering = revurderingsscenario.lagre(repositoryProvider);
+        var revurdering = revurderingsscenario.lagre(repositoryProvider);
         kopierGrunnlagsdata(revurdering);
         return revurdering;
     }
@@ -154,7 +154,7 @@ public class UttakRevurderingTestUtil {
     }
 
     private OppgittFordelingEntitet defaultFordeling() {
-        OppgittPeriodeBuilder oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK, FØDSELSDATO.plusDays(10));
         return new OppgittFordelingEntitet(Collections.singletonList(oppgittPeriodeBuilder.build()), true);
@@ -172,8 +172,8 @@ public class UttakRevurderingTestUtil {
         if (perioder == null || perioder.isEmpty()) {
             return;
         }
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
-        for (UttakResultatPeriodeEntitet periode : perioder) {
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        for (var periode : perioder) {
             uttakResultatPerioder.leggTilPeriode(periode);
         }
         repositoryProvider.getFpUttakRepository()
@@ -181,7 +181,7 @@ public class UttakRevurderingTestUtil {
     }
 
     private void kopierGrunnlagsdata(Behandling revurdering) {
-        Long originalBehandlingId = revurdering.getOriginalBehandlingId().orElseThrow();
+        var originalBehandlingId = revurdering.getOriginalBehandlingId().orElseThrow();
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, revurdering.getId());
     }
 
@@ -238,8 +238,8 @@ public class UttakRevurderingTestUtil {
     }
 
     public void opprettInntektsmelding(Behandling revurdering) {
-        JournalpostId journalpostId = new JournalpostId("2");
-        InntektsmeldingBuilder inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
+        var journalpostId = new JournalpostId("2");
+        var inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
             .medBeløp(BigDecimal.TEN)
             .medStartDatoPermisjon(FØDSELSDATO)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
@@ -258,12 +258,12 @@ public class UttakRevurderingTestUtil {
     public Behandling byggFørstegangsbehandlingForRevurderingBerørtSak(AktørId aktørId,
                                                                        List<UttakResultatPeriodeEntitet> perioder,
                                                                        Fagsak relatertFagsak) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medDefaultInntektArbeidYtelse();
         var behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(
             BehandlingResultatType.INNVILGET).build();
         scenario.medBehandlingsresultat(behandlingsresultat);
-        Behandling førstegangsbehandling = lagre(scenario);
+        var førstegangsbehandling = lagre(scenario);
         repositoryProvider.getFagsakRelasjonRepository()
             .opprettRelasjon(førstegangsbehandling.getFagsak(), Dekningsgrad._100);
         if (relatertFagsak != null) {
@@ -283,11 +283,11 @@ public class UttakRevurderingTestUtil {
                                                   BehandlingÅrsakType behandlingÅrsakType,
                                                   Behandling førstegangsbehandling) {
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
+        var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødselUtenSøknad(
             aktørId)
             .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType);
 
-        Behandling revurdering = lagre(revurderingsscenario);
+        var revurdering = lagre(revurderingsscenario);
         lagreUttaksperiodegrense(revurdering.getId());
         kopierGrunnlagsdata(revurdering);
         return revurdering;

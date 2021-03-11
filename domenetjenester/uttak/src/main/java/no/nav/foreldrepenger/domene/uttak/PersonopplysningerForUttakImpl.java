@@ -102,15 +102,11 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     private boolean harSammeAdresseSomBarn(PersonopplysningerAggregat personopplysningerAggregat) {
-        for (PersonAdresseEntitet opplysningAdresseSøker : personopplysningerAggregat.getAdresserFor(
-            personopplysningerAggregat.getSøker().getAktørId())) {
-            for (PersonopplysningEntitet barn : personopplysningerAggregat.getBarna()) {
-                if (harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return personopplysningerAggregat.getAdresserFor(personopplysningerAggregat.getSøker().getAktørId())
+            .stream()
+            .anyMatch(opplysningAdresseSøker -> personopplysningerAggregat.getBarna()
+                .stream()
+                .anyMatch(barn -> harBarnetSammeAdresse(personopplysningerAggregat, opplysningAdresseSøker, barn)));
     }
 
     private boolean harBarnetSammeAdresse(PersonopplysningerAggregat personopplysningerAggregat,
@@ -119,7 +115,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
         if (barn.getDødsdato() != null) {
             return true;
         }
-        for (PersonAdresseEntitet opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(
+        for (var opplysningAdresseBarn : personopplysningerAggregat.getAdresserFor(
             barn.getAktørId())) {
             var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseBarn.getPeriode());
             if (sammeperiode && (likAdresseIgnoringCase(opplysningAdresseSøker.getMatrikkelId(), opplysningAdresseBarn.getMatrikkelId()) ||
@@ -146,7 +142,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     }
 
     private boolean harEktefelleSammeBosted(PersonopplysningerAggregat personopplysningerAggregat) {
-        final Optional<PersonopplysningEntitet> ektefelle = personopplysningerAggregat.getEktefelle();
+        final var ektefelle = personopplysningerAggregat.getEktefelle();
         return ektefelle.filter(personopplysningEntitet -> personopplysningerAggregat.søkerHarSammeAdresseSom(
             personopplysningEntitet.getAktørId(), RelasjonsRolleType.EKTE)).isPresent();
     }

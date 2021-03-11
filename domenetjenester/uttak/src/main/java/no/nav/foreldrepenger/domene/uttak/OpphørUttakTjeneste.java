@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -38,8 +36,8 @@ public class OpphørUttakTjeneste {
         if (!behandlingsresultat.isBehandlingsresultatOpphørt()) {
             return Optional.empty();
         }
-        LocalDate skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        LocalDate opphørsdato = utledOpphørsdatoFraUttak(hentUttakResultatFor(ref.getBehandlingId()), skjæringstidspunkt);
+        var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var opphørsdato = utledOpphørsdatoFraUttak(hentUttakResultatFor(ref.getBehandlingId()), skjæringstidspunkt);
 
         return Optional.ofNullable(opphørsdato);
     }
@@ -49,12 +47,12 @@ public class OpphørUttakTjeneste {
     }
 
     private LocalDate utledOpphørsdatoFraUttak(UttakResultatEntitet uttakResultat, LocalDate skjæringstidspunkt) {
-        Set<PeriodeResultatÅrsak> opphørsårsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
-        List<UttakResultatPeriodeEntitet> perioder = getUttaksperioderIOmvendtRekkefølge(uttakResultat);
+        var opphørsårsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var perioder = getUttaksperioderIOmvendtRekkefølge(uttakResultat);
 
         // Finn fom-dato i første periode av de siste sammenhengende periodene med opphørårsaker
         LocalDate fom = null;
-        for (UttakResultatPeriodeEntitet periode : perioder) {
+        for (var periode : perioder) {
             if (opphørsårsaker.contains(periode.getResultatÅrsak())) {
                 fom = periode.getFom();
             } else if (fom != null && periode.isInnvilget()) {

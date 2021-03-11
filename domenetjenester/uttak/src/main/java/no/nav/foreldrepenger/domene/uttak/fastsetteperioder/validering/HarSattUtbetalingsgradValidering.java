@@ -7,7 +7,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 class HarSattUtbetalingsgradValidering implements OverstyrUttakPerioderValidering {
 
-    private List<ForeldrepengerUttakPeriode> opprinnelig;
+    private final List<ForeldrepengerUttakPeriode> opprinnelig;
 
     HarSattUtbetalingsgradValidering(List<ForeldrepengerUttakPeriode> opprinnelig) {
         this.opprinnelig = opprinnelig;

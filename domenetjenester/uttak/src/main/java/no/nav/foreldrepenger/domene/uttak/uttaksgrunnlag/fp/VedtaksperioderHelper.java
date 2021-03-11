@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -37,17 +36,20 @@ public class VedtaksperioderHelper {
     List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                         List<OppgittPeriodeEntitet> søknadsperioder,
                                                         LocalDate endringsdato) {
-        Optional<LocalDate> førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        List<OppgittPeriodeEntitet> vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato);
+        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, endringsdato, førsteSøknadsdato);
 
-        final List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
+        List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
         søknadOgVedtaksperioder.addAll(vedtaksperioder);
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
     }
 
-    private List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat, LocalDate endringsdato, Optional<LocalDate> førsteSøknadsdato) {
-        return uttakResultat.getGjeldendePerioder().getPerioder()
+    private List<OppgittPeriodeEntitet> lagVedtaksperioder(UttakResultatEntitet uttakResultat,
+                                                           LocalDate endringsdato,
+                                                           Optional<LocalDate> førsteSøknadsdato) {
+        return uttakResultat.getGjeldendePerioder()
+            .getPerioder()
             .stream()
             .filter(p -> filtrerUttaksperioder(p, endringsdato, førsteSøknadsdato))
             .filter(this::erPeriodeFraSøknad)
@@ -56,7 +58,9 @@ public class VedtaksperioderHelper {
             .collect(Collectors.toList());
     }
 
-    private boolean filtrerUttaksperioder(UttakResultatPeriodeEntitet periode, LocalDate endringsdato, Optional<LocalDate> førsteSøknadsdatoOptional) {
+    private boolean filtrerUttaksperioder(UttakResultatPeriodeEntitet periode,
+                                          LocalDate endringsdato,
+                                          Optional<LocalDate> førsteSøknadsdatoOptional) {
         Objects.requireNonNull(endringsdato);
 
         if (periode.getTom().isBefore(endringsdato)) {
@@ -70,7 +74,7 @@ public class VedtaksperioderHelper {
         }
 
         if (førsteSøknadsdatoOptional.isPresent()) {
-            LocalDate førsteSøknadsdato = førsteSøknadsdatoOptional.get();
+            var førsteSøknadsdato = førsteSøknadsdatoOptional.get();
             //Perioder som starter på eller etter første søknadsdato skal filtreres bort
             return !periode.getFom().equals(førsteSøknadsdato) && !periode.getFom().isAfter(førsteSøknadsdato);
         }
@@ -78,25 +82,29 @@ public class VedtaksperioderHelper {
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
-        return IkkeOppfyltÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak()) &&
-            PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) &&
-            periode.getAktiviteter().stream().allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
+        return IkkeOppfyltÅrsak.årsakerTilAvslagPgaAnnenpart().contains(periode.getResultatÅrsak())
+            && PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()) && periode.getAktiviteter()
+            .stream()
+            .allMatch(aktivitet -> aktivitet.getTrekkdager().equals(Trekkdager.ZERO));
     }
 
     private boolean erPeriodeFraSøknad(UttakResultatPeriodeEntitet periode) {
         return periode.getPeriodeSøknad().isPresent();
     }
 
-    private Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op, LocalDate endringsdato, Optional<LocalDate> førsteSøknadsdato) {
+    private Stream<OppgittPeriodeEntitet> klipp(OppgittPeriodeEntitet op,
+                                                LocalDate endringsdato,
+                                                Optional<LocalDate> førsteSøknadsdato) {
         Objects.requireNonNull(endringsdato);
 
-        OppgittPeriodeBuilder opb = OppgittPeriodeBuilder.fraEksisterende(op);
-        LocalDate fom = op.getFom();
-        LocalDate tom = op.getTom();
+        var opb = OppgittPeriodeBuilder.fraEksisterende(op);
+        var fom = op.getFom();
+        var tom = op.getTom();
         if (endringsdato.isAfter(fom)) {
             fom = endringsdato;
         }
-        if (førsteSøknadsdato.isPresent() && (førsteSøknadsdato.get().isBefore(tom) || førsteSøknadsdato.get().isEqual(tom))) {
+        if (førsteSøknadsdato.isPresent() && (førsteSøknadsdato.get().isBefore(tom) || førsteSøknadsdato.get()
+            .isEqual(tom))) {
             tom = førsteSøknadsdato.get().minusDays(1);
         }
         if (!fom.isAfter(tom)) {
@@ -106,7 +114,7 @@ public class VedtaksperioderHelper {
     }
 
     OppgittPeriodeEntitet konverter(UttakResultatPeriodeEntitet up) {
-        OppgittPeriodeBuilder builder = OppgittPeriodeBuilder.ny()
+        var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(up.getTidsperiode().getFomDato(), up.getTidsperiode().getTomDato())
             .medPeriodeType(finnPeriodetype(up))
             .medSamtidigUttak(up.isSamtidigUttak())
@@ -155,7 +163,7 @@ public class VedtaksperioderHelper {
     }
 
     private Optional<Arbeidsgiver> finnGradertArbeidsgiver(UttakResultatPeriodeEntitet up) {
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : up.getAktiviteter()) {
+        for (var aktivitet : up.getAktiviteter()) {
             if (aktivitet.isSøktGradering()) {
                 return aktivitet.getUttakAktivitet().getArbeidsgiver();
             }
@@ -164,19 +172,22 @@ public class VedtaksperioderHelper {
     }
 
     private boolean erArbeidstaker(UttakResultatPeriodeEntitet up) {
-        return up.getAktiviteter().stream()
+        return up.getAktiviteter()
+            .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.ORDINÆRT_ARBEID.equals(a.getUttakArbeidType()));
     }
 
     private boolean erFrilans(UttakResultatPeriodeEntitet up) {
-        return up.getAktiviteter().stream()
+        return up.getAktiviteter()
+            .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.FRILANS.equals(a.getUttakArbeidType()));
     }
 
     private boolean erSelvstendig(UttakResultatPeriodeEntitet up) {
-        return up.getAktiviteter().stream()
+        return up.getAktiviteter()
+            .stream()
             .filter(UttakResultatPeriodeAktivitetEntitet::isSøktGradering)
             .anyMatch(a -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(a.getUttakArbeidType()));
     }
@@ -186,11 +197,12 @@ public class VedtaksperioderHelper {
         if (harOppholdÅrsak(uttakResultatPeriode)) {
             return UttakPeriodeType.ANNET;
         }
-        Optional<StønadskontoType> stønadskontoType = uttakResultatPeriode.getAktiviteter().stream()
+        var stønadskontoType = uttakResultatPeriode.getAktiviteter()
+            .stream()
             .max(Comparator.comparing(aktivitet -> aktivitet.getTrekkdager().decimalValue()))
             .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto);
         if (stønadskontoType.isPresent()) {
-            Optional<UttakPeriodeType> uttakPeriodeType = UttakEnumMapper.mapTilYf(stønadskontoType.get());
+            var uttakPeriodeType = UttakEnumMapper.mapTilYf(stønadskontoType.get());
             if (uttakPeriodeType.isPresent()) {
                 return uttakPeriodeType.get();
             }
@@ -206,9 +218,10 @@ public class VedtaksperioderHelper {
     }
 
     private boolean erInnvilgetUtsettelse(UttakResultatPeriodeEntitet uttakResultatPeriode) {
-        UttakUtsettelseType utsettelseType = uttakResultatPeriode.getUtsettelseType();
+        var utsettelseType = uttakResultatPeriode.getUtsettelseType();
         if (utsettelseType != null && !UttakUtsettelseType.UDEFINERT.equals(utsettelseType)) {
-            return uttakResultatPeriode.getAktiviteter().stream()
+            return uttakResultatPeriode.getAktiviteter()
+                .stream()
                 .noneMatch(a -> a.getUtbetalingsgrad().harUtbetaling());
         }
         return false;
@@ -230,7 +243,7 @@ public class VedtaksperioderHelper {
         if (up.getPeriodeSøknad().isEmpty() || up.getPeriodeSøknad().get().getGraderingArbeidsprosent() == null) {
             return Optional.empty();
         }
-        for (UttakResultatPeriodeAktivitetEntitet akt : up.getAktiviteter()) {
+        for (var akt : up.getAktiviteter()) {
             if (akt.isSøktGradering()) {
                 return Optional.ofNullable(up.getPeriodeSøknad().get().getGraderingArbeidsprosent());
             }

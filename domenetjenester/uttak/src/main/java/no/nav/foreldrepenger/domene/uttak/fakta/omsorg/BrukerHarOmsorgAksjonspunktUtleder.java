@@ -68,13 +68,15 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
         }
 
         if (harOppgittOmsorgTilBarnetIHeleSøknadsperioden(ytelseFordelingAggregat) == Utfall.JA) {
-            if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA && !personopplysninger.barnHarSammeBosted(ref)) {
+            if (bekreftetFH.isPresent() && erBarnetFødt(bekreftetFH.get()) == Utfall.JA
+                && !personopplysninger.barnHarSammeBosted(ref)) {
                 return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
             }
         } else {
             if (familieHendelser.gjelderTerminFødsel()) {
                 if (erBrukerMor(ref.getRelasjonsRolleType()) == Utfall.NEI ||
-                    erSøknadsperiodenLengreEnnAntallUkerForbeholdtMorEtterFødselen(familieHendelse, ytelseFordelingAggregat) == Utfall.JA) {
+                    erSøknadsperiodenLengreEnnAntallUkerForbeholdtMorEtterFødselen(familieHendelse,
+                        ytelseFordelingAggregat) == Utfall.JA) {
                     return List.of(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
                 }
             } else {
@@ -90,8 +92,10 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
     }
 
     private Utfall harOppgittOmsorgTilBarnetIHeleSøknadsperioden(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Boolean harOmsorgForBarnetIHelePerioden = ytelseFordelingAggregat.getOppgittRettighet().getHarOmsorgForBarnetIHelePerioden();
-        Objects.requireNonNull(harOmsorgForBarnetIHelePerioden, "harOmsorgForBarnetIHelePerioden må være sett"); //$NON-NLS-1$
+        var harOmsorgForBarnetIHelePerioden = ytelseFordelingAggregat.getOppgittRettighet()
+            .getHarOmsorgForBarnetIHelePerioden();
+        Objects.requireNonNull(harOmsorgForBarnetIHelePerioden,
+            "harOmsorgForBarnetIHelePerioden må være sett"); //$NON-NLS-1$
         return harOmsorgForBarnetIHelePerioden ? Utfall.JA : Utfall.NEI;
     }
 
@@ -106,20 +110,22 @@ public class BrukerHarOmsorgAksjonspunktUtleder implements FaktaUttakAksjonspunk
     private Utfall erSøknadsperiodenLengreEnnAntallUkerForbeholdtMorEtterFødselen(FamilieHendelse familieHendelse,
                                                                                   YtelseFordelingAggregat ytelseFordelingAggregat) {
 
-        Optional<LocalDate> sisteSøknadsDato = finnSisteSøknadsDato(ytelseFordelingAggregat);
+        var sisteSøknadsDato = finnSisteSøknadsDato(ytelseFordelingAggregat);
 
         if (sisteSøknadsDato.isEmpty()) {
             throw new IllegalArgumentException("Fant ikke siste søknads dato");
         }
 
-        LocalDate familiehendelseDato = Stream.of(familieHendelse.getFødselsdato(), familieHendelse.getTermindato())
+        var familiehendelseDato = Stream.of(familieHendelse.getFødselsdato(), familieHendelse.getTermindato())
             .filter(Optional::isPresent)
             .map(Optional::get)
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke familiehendelsedato"));
 
-        return sisteSøknadsDato.filter(søknadsDato -> søknadsDato.isAfter(familiehendelseDato.plus(periodeForbeholdtMorEtterFødsel).minusDays(1)))
-            .map(søknadsDato -> Utfall.JA).orElse(Utfall.NEI);
+        return sisteSøknadsDato.filter(
+            søknadsDato -> søknadsDato.isAfter(familiehendelseDato.plus(periodeForbeholdtMorEtterFødsel).minusDays(1)))
+            .map(søknadsDato -> Utfall.JA)
+            .orElse(Utfall.NEI);
 
     }
 

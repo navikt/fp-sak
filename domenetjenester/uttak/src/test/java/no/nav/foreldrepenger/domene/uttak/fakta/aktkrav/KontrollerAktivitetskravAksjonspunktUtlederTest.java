@@ -33,12 +33,12 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 public class KontrollerAktivitetskravAksjonspunktUtlederTest {
 
-    private final UttakRepositoryProviderForTest repositoryProvider = new UttakRepositoryProviderForTest();
+    private final UttakRepositoryStubProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelseFordelingTjeneste ytelseFordelingTjeneste = new YtelseFordelingTjeneste(
         repositoryProvider.getYtelsesFordelingRepository());
     private final KontrollerAktivitetskravAksjonspunktUtleder utleder = new KontrollerAktivitetskravAksjonspunktUtleder(

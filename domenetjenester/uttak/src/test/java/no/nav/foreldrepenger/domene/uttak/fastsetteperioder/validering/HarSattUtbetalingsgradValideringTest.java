@@ -25,7 +25,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, new Utbetalingsgrad(50));
 
-        HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
+        var validator = new HarSattUtbetalingsgradValidering(opprinnelig);
         assertDoesNotThrow(() -> validator.utfør(nye));
     }
 
@@ -34,7 +34,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var opprinnelig = perioder(PeriodeResultatType.INNVILGET, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
-        HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
+        var validator = new HarSattUtbetalingsgradValidering(opprinnelig);
         assertDoesNotThrow(() -> validator.utfør(nye));
     }
 
@@ -43,7 +43,7 @@ public class HarSattUtbetalingsgradValideringTest {
         var opprinnelig = perioder(PeriodeResultatType.MANUELL_BEHANDLING, null);
         var nye = perioder(PeriodeResultatType.INNVILGET, null);
 
-        HarSattUtbetalingsgradValidering validator = new HarSattUtbetalingsgradValidering(opprinnelig);
+        var validator = new HarSattUtbetalingsgradValidering(opprinnelig);
         assertThrows(TekniskException.class, () -> validator.utfør(nye));
     }
 
@@ -52,7 +52,7 @@ public class HarSattUtbetalingsgradValideringTest {
     }
 
     private ForeldrepengerUttakPeriode periode(PeriodeResultatType resultatType, Utbetalingsgrad utbetalingsgrad) {
-        List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = List.of(
+        var aktiviteter = List.of(
             new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.ZERO)
                 .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))

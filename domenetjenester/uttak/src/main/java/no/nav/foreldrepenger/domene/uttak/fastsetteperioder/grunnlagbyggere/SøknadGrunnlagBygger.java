@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +11,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
@@ -23,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -179,14 +176,14 @@ public class SøknadGrunnlagBygger {
     }
 
     private static void validerIkkeOverlappOppgittePerioder(List<OppgittPeriodeEntitet> søknadPerioder) {
-        int size = søknadPerioder.size();
-        for (int i = 0; i < size; i++) {
-            OppgittPeriodeEntitet periode1 = søknadPerioder.get(i);
+        var size = søknadPerioder.size();
+        for (var i = 0; i < size; i++) {
+            var periode1 = søknadPerioder.get(i);
 
-            SimpleLocalDateInterval p1 = new SimpleLocalDateInterval(periode1.getFom(), periode1.getTom());
-            for (int j = i + 1; j < size; j++) {
-                OppgittPeriodeEntitet periode2 = søknadPerioder.get(j);
-                SimpleLocalDateInterval p2 = new SimpleLocalDateInterval(periode2.getFom(), periode2.getTom());
+            var p1 = new SimpleLocalDateInterval(periode1.getFom(), periode1.getTom());
+            for (var j = i + 1; j < size; j++) {
+                var periode2 = søknadPerioder.get(j);
+                var p2 = new SimpleLocalDateInterval(periode2.getFom(), periode2.getTom());
                 if (p1.overlapper(p2)) {
                     throw new IllegalStateException("Støtter ikke å ha overlappende søknadsperioder, men fikk overlapp mellom periodene " + p1 + " og " + p2);
                 }
@@ -205,8 +202,8 @@ public class SøknadGrunnlagBygger {
     }
 
     private Dokumentasjon.Builder dokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat) {
-        Dokumentasjon.Builder builder = new Dokumentasjon.Builder();
-        Optional<PerioderUttakDokumentasjonEntitet> dokumentasjon = ytelseFordelingAggregat.getPerioderUttakDokumentasjon();
+        var builder = new Dokumentasjon.Builder();
+        var dokumentasjon = ytelseFordelingAggregat.getPerioderUttakDokumentasjon();
         if (dokumentasjon.isPresent()) {
             leggTilDokumentasjon(builder, dokumentasjon.get());
         }
@@ -223,21 +220,21 @@ public class SøknadGrunnlagBygger {
     }
 
     private void leggTilDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, Dokumentasjon.Builder builder) {
-        List<PeriodeUtenOmsorgEntitet> perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().orElseThrow().getPerioder();
-        for (PeriodeUtenOmsorgEntitet periodeUtenOmsorg : perioderUtenOmsorg) {
+        var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().orElseThrow().getPerioder();
+        for (var periodeUtenOmsorg : perioderUtenOmsorg) {
             builder.leggPeriodeUtenOmsorg(new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
                 periodeUtenOmsorg.getPeriode().getTomDato()));
         }
     }
 
     private void leggTilDokumentasjon(Dokumentasjon.Builder builder, PerioderUttakDokumentasjonEntitet dokumentasjon) {
-        for (PeriodeUttakDokumentasjonEntitet periode : dokumentasjon.getPerioder()) {
+        for (var periode : dokumentasjon.getPerioder()) {
             leggTilDokumetasjonPeriode(builder, periode);
         }
     }
 
     private static void leggTilDokumetasjonPeriode(Dokumentasjon.Builder builder, PeriodeUttakDokumentasjonEntitet dokumentasjonPeriode) {
-        DatoIntervallEntitet tidsperiode = dokumentasjonPeriode.getPeriode();
+        var tidsperiode = dokumentasjonPeriode.getPeriode();
         var fom = tidsperiode.getFomDato();
         var tom = tidsperiode.getTomDato();
         var dokumentasjonType = dokumentasjonPeriode.getDokumentasjonType();

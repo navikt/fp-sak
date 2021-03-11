@@ -15,10 +15,8 @@ import java.util.stream.Stream;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 
@@ -30,15 +28,15 @@ public class UttakYrkesaktiviteter {
     }
 
     private List<Yrkesaktivitet> hentYrkesAktiviteterOrdinærtArbeidsforhold(UttakInput input) {
-        InntektArbeidYtelseGrunnlag grunnlag = input.getIayGrunnlag();
+        var grunnlag = input.getIayGrunnlag();
         if (grunnlag == null) {
             return Collections.emptyList();
         }
         var bgStatuser = input.getBeregningsgrunnlagStatuser();
         var ref = input.getBehandlingReferanse();
-        LocalDate skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
-        AktørId aktørId = ref.getAktørId();
+        var aktørId = ref.getAktørId();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
             grunnlag.getAktørArbeidFraRegister(aktørId)).etter(skjæringstidspunkt);
 
@@ -69,7 +67,7 @@ public class UttakYrkesaktiviteter {
     public BigDecimal finnStillingsprosentOrdinærtArbeid(Arbeidsgiver arbeidsgiver,
                                                          InternArbeidsforholdRef arbeidsforholdRef,
                                                          LocalDate dato) {
-        List<Yrkesaktivitet> yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
+        var yrkesAktiviteter = hentYrkesAktiviteterOrdinærtArbeidsforhold(input);
         var ref = input.getBehandlingReferanse();
         return finnStillingsprosentOrdinærtArbeid(arbeidsgiver, arbeidsforholdRef, yrkesAktiviteter, dato,
             ref.getSkjæringstidspunkt());
@@ -89,17 +87,17 @@ public class UttakYrkesaktiviteter {
                                                           Skjæringstidspunkt skjæringstidspunkt) {
 
         var filter0 = new YrkesaktivitetFilter(null, yrkesaktivitetList);
-        List<Yrkesaktivitet> yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiver, ref,
+        var yaMedAnsettelsesperiodePåDato = yaMedAnsettelsesperiodePåDato(filter0, arbeidsgiver, ref,
             yrkesaktivitetList, dato);
 
         var filter = new YrkesaktivitetFilter(null, yaMedAnsettelsesperiodePåDato).etter(
             skjæringstidspunkt.getUtledetSkjæringstidspunkt());
 
-        BigDecimal sum = BigDecimal.ZERO;
-        for (Yrkesaktivitet ya : filter.getAlleYrkesaktiviteter()) {
+        var sum = BigDecimal.ZERO;
+        for (var ya : filter.getAlleYrkesaktiviteter()) {
             var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(ya);
             if (aktivitetsAvtaler.isEmpty()) {
-                String melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
+                var melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
                     + ya.toString() + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(ya).toString()
                     + " og alle aktivitetsavtaler " + aktivitetsAvtaler.toString();
                 throw new IllegalStateException(melding);
@@ -124,7 +122,7 @@ public class UttakYrkesaktiviteter {
     }
 
     private BigDecimal finnStillingsprosent(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
-        AktivitetsAvtale aktivitetPåDato = finnAktivitetPåDato(aktivitetsAvtaler, dato);
+        var aktivitetPåDato = finnAktivitetPåDato(aktivitetsAvtaler, dato);
         if (aktivitetPåDato.getProsentsats() == null) {
             return BigDecimal.ZERO;
         }
@@ -132,7 +130,7 @@ public class UttakYrkesaktiviteter {
     }
 
     private AktivitetsAvtale finnAktivitetPåDato(Collection<AktivitetsAvtale> aktivitetsAvtaler, LocalDate dato) {
-        Optional<AktivitetsAvtale> overlapper = aktivitetsAvtaler.stream()
+        var overlapper = aktivitetsAvtaler.stream()
             .filter(aa -> riktigDato(dato, aa))
             .max(Comparator.comparing(o -> {
                 if (o.getProsentsats() == null) {
@@ -145,8 +143,8 @@ public class UttakYrkesaktiviteter {
         }
 
         // Ingen avtaler finnes på dato. Bruker nærmeste avtale. Kommer av dårlig datakvalitet i registerne
-        List<AktivitetsAvtale> sortert = sortertPåDato(aktivitetsAvtaler);
-        AktivitetsAvtale førsteAktivitetsavtale = sortert.get(0);
+        var sortert = sortertPåDato(aktivitetsAvtaler);
+        var førsteAktivitetsavtale = sortert.get(0);
         // Hull i starten av ansettelsesperioden
         if (dato.isBefore(førsteAktivitetsavtale.getPeriode().getFomDato())) {
             return førsteAktivitetsavtale;
@@ -163,7 +161,7 @@ public class UttakYrkesaktiviteter {
     }
 
     private List<AktivitetsAvtale> ansettelsePeriodeForYrkesaktivitet(YrkesaktivitetFilter filter, Yrkesaktivitet ya) {
-        List<AktivitetsAvtale> ansettelsesPerioder = filter.getAnsettelsesPerioder(ya);
+        var ansettelsesPerioder = filter.getAnsettelsesPerioder(ya);
         if (ansettelsesPerioder.isEmpty()) {
             throw new IllegalStateException("Forventet at alle yrkesaktiviteter har en ansettelsesperiode");
         }

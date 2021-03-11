@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryProviderForTest;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 
 public class GraderingAktivitetUtenBGAksjonspunktUtlederTest {
 
@@ -36,7 +36,7 @@ public class GraderingAktivitetUtenBGAksjonspunktUtlederTest {
         var søknadsperioder = List.of(søknadsperiode);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(søknadsperioder, false));
-        var behandling = scenario.lagre(new UttakRepositoryProviderForTest());
+        var behandling = scenario.lagre(new UttakRepositoryStubProvider());
 
         var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)
             .medFinnesAndelerMedGraderingUtenBeregningsgrunnlag(true);

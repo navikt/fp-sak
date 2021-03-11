@@ -28,13 +28,13 @@ public class WagnerFisherTest {
 
     @Test
     public void skal_gi_tom_liste_når_det_ikke_er_noe_differanse() {
-        List<EditDistanceOperasjon<TestLetter>> operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abc"), tilSekvens("abc"));
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abc"), tilSekvens("abc"));
         assertThat(operasjoner).isEmpty();
     }
 
     @Test
     public void skal_gi_liste_med_inserts_når_det_er_bare_nye_som_skal_legges_til() {
-        List<EditDistanceOperasjon<TestLetter>> operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abc"), tilSekvens("abcdef"));
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abc"), tilSekvens("abcdef"));
         assertThat(operasjoner).containsExactly(
             settInn('d'),
             settInn('e'),
@@ -44,7 +44,7 @@ public class WagnerFisherTest {
 
     @Test
     public void skal_gi_liste_med_deletes_når_det_bare_skal_slettes() {
-        List<EditDistanceOperasjon<TestLetter>> operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abcdef"), tilSekvens("acf"));
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(tilSekvens("abcdef"), tilSekvens("acf"));
 
         assertThat(operasjoner).containsExactly(
             slette('b'),
@@ -55,7 +55,7 @@ public class WagnerFisherTest {
 
     @Test
     public void skal_populere_kostmatrise() {
-        int[][] kostnadsmatrise = WagnerFisher.calculateEditDistanceCost(tilSekvens("abcdef"), tilSekvens("acf"));
+        var kostnadsmatrise = WagnerFisher.calculateEditDistanceCost(tilSekvens("abcdef"), tilSekvens("acf"));
         int[][] forventet = {
             {0, 3, 6, 9},
             {2, 0, 3, 6},
@@ -69,7 +69,7 @@ public class WagnerFisherTest {
 
     @Test
     public void skal_gi_liste_med_endringer() {
-        List<EditDistanceOperasjon<TestLetter>> operasjoner = WagnerFisher.finnEnklesteSekvens(
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(
             tilSekvens("foobar baz"),
             tilSekvens("foobaz baa"));
 
@@ -82,7 +82,7 @@ public class WagnerFisherTest {
 
     @Test
     public void skal_velge_billigste_endring() {
-        List<EditDistanceOperasjon<TestLetter>> operasjoner = WagnerFisher.finnEnklesteSekvens(
+        var operasjoner = WagnerFisher.finnEnklesteSekvens(
             tilSekvens("kitten"),
             tilSekvens("sitting"));
 
@@ -113,7 +113,7 @@ public class WagnerFisherTest {
 
         @Override
         public boolean lik(EditDistanceLetter annen) {
-            char b = ((TestLetter) annen).bokstav;
+            var b = ((TestLetter) annen).bokstav;
             return bokstav == b;
         }
 
@@ -133,7 +133,7 @@ public class WagnerFisherTest {
             if (!(o instanceof TestLetter)) {
                 return false;
             }
-            TestLetter t = (TestLetter) o;
+            var t = (TestLetter) o;
             return bokstav == t.bokstav;
         }
 
@@ -152,7 +152,7 @@ public class WagnerFisherTest {
 
     private static List<TestLetter> tilSekvens(String streng) {
         List<TestLetter> sekvens = new ArrayList<>();
-        for (char c : streng.toCharArray()) {
+        for (var c : streng.toCharArray()) {
             sekvens.add(new TestLetter(c));
         }
         return sekvens;

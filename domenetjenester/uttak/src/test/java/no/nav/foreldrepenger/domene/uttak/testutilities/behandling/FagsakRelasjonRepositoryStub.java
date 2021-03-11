@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-class FagsakRelasjonRepositoryForTest extends FagsakRelasjonRepository {
+class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     private final Map<Long, FagsakRelasjon> relasjonMap = new ConcurrentHashMap<>();
     private final Map<Saksnummer, FagsakRelasjon> relasjonMapSaksnummer = new ConcurrentHashMap<>();

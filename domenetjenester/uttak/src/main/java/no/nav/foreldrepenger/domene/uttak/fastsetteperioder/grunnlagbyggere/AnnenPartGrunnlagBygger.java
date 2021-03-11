@@ -101,7 +101,7 @@ public class AnnenPartGrunnlagBygger {
     }
 
     private boolean erInnvilgetPeriodeEllerHarTrekkdager(UttakResultatPeriodeEntitet p) {
-        boolean harTrekkdager = p.getAktiviteter().stream().anyMatch(akt -> akt.getTrekkdager().merEnn0());
+        var harTrekkdager = p.getAktiviteter().stream().anyMatch(akt -> akt.getTrekkdager().merEnn0());
         return p.isInnvilget() || harTrekkdager;
     }
 }
