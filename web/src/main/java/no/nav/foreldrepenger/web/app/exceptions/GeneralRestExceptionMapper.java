@@ -21,6 +21,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
+import no.nav.vedtak.felles.jpa.TomtResultatException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
@@ -39,7 +40,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         if (cause instanceof Valideringsfeil) {
             return handleValideringsfeil((Valideringsfeil) cause);
         }
-        if (cause instanceof KanIkkeUtledeGjeldendeFødselsdatoException) {
+        if (cause instanceof KanIkkeUtledeGjeldendeFødselsdatoException || cause instanceof TomtResultatException) {
             return handleTomtResultatFeil((TekniskException) cause);
         }
 
@@ -53,10 +54,10 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<ApplicationEx
         return handleGenerellFeil(cause, callId);
     }
 
-    private static Response handleTomtResultatFeil(TekniskException tomtResultatException) {
+    private static Response handleTomtResultatFeil(TekniskException exception) {
         return Response
                 .status(Response.Status.NOT_FOUND)
-                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, tomtResultatException.getMessage()))
+                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, exception.getMessage()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }

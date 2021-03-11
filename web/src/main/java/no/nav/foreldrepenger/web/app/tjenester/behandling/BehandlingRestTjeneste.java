@@ -22,7 +22,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -160,7 +158,7 @@ public class BehandlingRestTjeneste {
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        Optional<String> gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
+        var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
         // sender alltid til poll status slik at vi får sjekket på utestående prosess
         // tasks også.
@@ -182,8 +180,8 @@ public class BehandlingRestTjeneste {
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        String gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
-        Optional<AsyncPollingStatus> prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
+        var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
+        var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
         return Redirect.tilBehandlingEllerPollStatus(behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
     }
 
@@ -199,9 +197,9 @@ public class BehandlingRestTjeneste {
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        AsyncPollingStatus taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
-        UtvidetBehandlingDto dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
-        ResponseBuilder responseBuilder = Response.ok().entity(dto);
+        var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
+        var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
+        var responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();
     }
 
@@ -233,9 +231,9 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public void henleggBehandling(@Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, dto.getBehandlingVersjon());
-        BehandlingResultatType årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
+        var årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
         henleggBehandlingTjeneste.henleggBehandling(behandlingId, årsakKode, dto.getBegrunnelse());
     }
 
@@ -249,8 +247,8 @@ public class BehandlingRestTjeneste {
 
     public Response gjenopptaBehandling(
             @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Long behandlingVersjon = dto.getBehandlingVersjon();
+        var behandlingId = dto.getBehandlingId();
+        var behandlingVersjon = dto.getBehandlingVersjon();
 
         // precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
@@ -258,7 +256,7 @@ public class BehandlingRestTjeneste {
         // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status
         // url under )
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        Optional<String> gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
+        var gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
         return Redirect.tilBehandlingPollStatus(behandling.getUuid(), gruppeOpt);
     }
 
@@ -269,13 +267,13 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
     public void byttBehandlendeEnhet(@Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Long behandlingVersjon = dto.getBehandlingVersjon();
+        var behandlingId = dto.getBehandlingId();
+        var behandlingVersjon = dto.getBehandlingVersjon();
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
 
-        String enhetId = dto.getEnhetId();
-        String enhetNavn = dto.getEnhetNavn();
-        String begrunnelse = dto.getBegrunnelse();
+        var enhetId = dto.getEnhetId();
+        var enhetNavn = dto.getEnhetNavn();
+        var begrunnelse = dto.getBegrunnelse();
         behandlingsutredningTjeneste.byttBehandlendeEnhet(behandlingId, new OrganisasjonsEnhet(enhetId, enhetNavn), begrunnelse,
                 HistorikkAktør.SAKSBEHANDLER);
     }
@@ -290,15 +288,15 @@ public class BehandlingRestTjeneste {
 
     public Response opprettNyBehandling(
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto) {
-        Saksnummer saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
-        Optional<Fagsak> funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
-        BehandlingType kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
+        var saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
+        var funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
+        var kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
 
         if (funnetFagsak.isEmpty()) {
             return notFound(saksnummer);
         }
 
-        Fagsak fagsak = funnetFagsak.get();
+        var fagsak = funnetFagsak.get();
         try {
             if (!behandlingsoppretterTjeneste.kanOppretteNyBehandlingAvType(fagsak.getId(), kode)) {
                 LOG.info("BEHREST opprett behandling får nei for sak {} behandlingtype {}", fagsak.getSaksnummer().getVerdi(), kode.getKode());
@@ -308,21 +306,21 @@ public class BehandlingRestTjeneste {
         }
 
         if (BehandlingType.INNSYN.equals(kode)) {
-            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
-            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
+            var behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
+            var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         }
         if (BehandlingType.ANKE.equals(kode)) {
-            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
-            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
+            var behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
+            var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
-            BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
-            Behandling behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
-            String gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
+            var behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
+            var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
+            var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         }
@@ -336,8 +334,8 @@ public class BehandlingRestTjeneste {
 
         }
         if (BehandlingType.KLAGE.equals(kode)) {
-            Behandling behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
-            String gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
+            var behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
+            var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
 
         }
@@ -364,8 +362,8 @@ public class BehandlingRestTjeneste {
 
     public List<BehandlingDto> hentBehandlinger(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        List<Behandling> behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
+        var saksnummer = new Saksnummer(s.getVerdi());
+        var behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
         return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
     }
 
@@ -379,8 +377,8 @@ public class BehandlingRestTjeneste {
 
     public Response åpneBehandlingForEndringer(
             @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Long behandlingVersjon = dto.getBehandlingVersjon();
+        var behandlingId = dto.getBehandlingId();
+        var behandlingVersjon = dto.getBehandlingVersjon();
 
         // precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
@@ -405,7 +403,7 @@ public class BehandlingRestTjeneste {
 
     public Response hentAnnenPartsGjeldendeBehandling(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var saksnummer = new Saksnummer(s.getVerdi());
 
         return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
             .map(behandlingDtoTjeneste::lagAnnenPartBehandlingDto)
@@ -419,7 +417,7 @@ public class BehandlingRestTjeneste {
     public BehandlingOperasjonerDto hentMenyOpsjoner(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
 
-        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
 
         return lovligeOperasjoner(behandling);
     }
@@ -429,13 +427,13 @@ public class BehandlingRestTjeneste {
             return BehandlingOperasjonerDto.builder(b.getUuid()).build(); // Skal ikke foreta menyvalg lenger
         }
         if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
-            boolean tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
+            var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(SubjectHandler.getSubjectHandler().getUid());
             return BehandlingOperasjonerDto.builder(b.getUuid()).medTilGodkjenning(tilgokjenning).build();
         }
-        boolean kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
+        var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
             !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !b.erKøet() &&
             !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-        boolean totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
+        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b).stream()
             .anyMatch(tt -> !tt.isGodkjent());
         return BehandlingOperasjonerDto.builder(b.getUuid())
             .medTilGodkjenning(false)
