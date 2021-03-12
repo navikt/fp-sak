@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -101,6 +102,7 @@ public class FagsakTjenesteTest {
         assertThat(view).hasSize(1);
         assertThat(view.get(0).getSaksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
         assertThat(view.get(0).getBarnFodt()).isEqualTo(fødselsdato);
+        assertThat(view.get(0).getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
         assertThat(view.get(0).getDekningsgrad()).isEqualTo(Dekningsgrad._100.getVerdi());
     }
 
