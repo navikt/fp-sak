@@ -46,7 +46,7 @@ public class SendBrevForAutopunktEventObserver {
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_FØDSEL)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForVenterPåFødsel(behandling, ap));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER)
-            .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForVenterPåOpptjening(behandling, ap));
+            .ifPresent(ap -> sendBrevForAutopunkt.oppdaterBehandlingsfristForVenterPåOpptjening(behandling, ap));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForEtterkontroll(behandling));
     }

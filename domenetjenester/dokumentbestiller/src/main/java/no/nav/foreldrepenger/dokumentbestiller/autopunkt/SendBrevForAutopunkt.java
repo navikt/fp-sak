@@ -58,9 +58,10 @@ public class SendBrevForAutopunkt {
     }
 
     public void sendBrevForTidligSøknad(Behandling behandling, Aksjonspunkt ap) {
-        var dokumentMalType = DokumentMalType.FORLENGET_TIDLIG_SOK;
-        if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
-            erSøktPåPapir(behandling)) {
+        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.FORLENGET_TIDLIG_SOK : DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG;
+        if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK)
+            && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG)
+            && erSøktPåPapir(behandling)) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
@@ -69,23 +70,18 @@ public class SendBrevForAutopunkt {
 
     public void sendBrevForVenterPåFødsel(Behandling behandling, Aksjonspunkt ap) {
         LocalDate frist = ap.getFristTid().toLocalDate();
-        var dokumentMalType = DokumentMalType.FORLENGET_MEDL_DOK;
+        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.FORLENGET_MEDL_DOK : DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL;
 
-        if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
-            frist.isAfter(LocalDate.now().plusDays(1))) {
+        if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK)
+            && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL)
+            && frist.isAfter(LocalDate.now().plusDays(1))) {
             BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
 
-    public void sendBrevForVenterPåOpptjening(Behandling behandling, Aksjonspunkt ap) {
-        var dokumentMalType = DokumentMalType.FORLENGET_OPPTJENING;
-        if (!harSendtBrevForMal(behandling.getId(), dokumentMalType) &&
-            skalSendeForlengelsesbrevAutomatisk()) { //NOSONAR
-            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
-            dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
-        }
+    public void oppdaterBehandlingsfristForVenterPåOpptjening(Behandling behandling, Aksjonspunkt ap) {
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
     }
 
@@ -118,9 +114,4 @@ public class SendBrevForAutopunkt {
         behandling.setBehandlingstidFrist(nyFrist);
         behandlingRepository.lagre(behandling, lås);
     }
-
-    private boolean skalSendeForlengelsesbrevAutomatisk() {
-        return false;
-    }
-
 }

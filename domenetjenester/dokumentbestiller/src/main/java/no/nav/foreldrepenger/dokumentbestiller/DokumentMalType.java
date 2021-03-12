@@ -15,10 +15,6 @@ public enum DokumentMalType implements Kodeverdi {
     //Mal hos team dokument
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
-    FORLENGET_DOK("FORLEN", "Forlenget saksbehandlingstid"),
-    FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
-    FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    FORLENGET_OPPTJENING("FOROPT", "Forlenget saksbehandlingstid - Venter Opptjening"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
@@ -45,6 +41,9 @@ public enum DokumentMalType implements Kodeverdi {
     INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
     INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
+    FORLENGET_SAKSBEHANDLINGSTID("FORSAK", "Forlenget saksbehandlingstid"),
+    FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED", "Forlenget saksbehandlingstid - medlemskap"),
+    FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID", "Forlenget saksbehandlingstid - Tidlig søknad"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
@@ -71,6 +70,12 @@ public enum DokumentMalType implements Kodeverdi {
     INFO_TIL_ANNEN_FORELDER_DOK("INAFOR", "Informasjonsbrev til den andre forelderen"),
     @Deprecated
     INNSYNSKRAV_SVAR("INSSKR", "Svar på innsynskrav"),
+    @Deprecated
+    FORLENGET_DOK("FORLEN", "Forlenget saksbehandlingstid"),
+    @Deprecated
+    FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
+    @Deprecated
+    FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();

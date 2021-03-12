@@ -82,7 +82,6 @@ public class SendBrevForAutopunktEventObserverTest {
 
     @Test
     public void skalIkkeSendeBrevForAndreAksjonspunkter() {
-
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt), null);
 
         observer.sendBrevForAutopunkt(event);
@@ -90,7 +89,7 @@ public class SendBrevForAutopunktEventObserverTest {
         verify(sendBrevForAutopunkt, times(0)).sendBrevForSøknadIkkeMottatt(any(), any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForVenterPåFødsel(any(), any());
         verify(sendBrevForAutopunkt, times(0)).sendBrevForTidligSøknad(any(), any());
-        verify(sendBrevForAutopunkt, times(0)).sendBrevForVenterPåOpptjening(any(), any());
+        verify(sendBrevForAutopunkt, times(0)).oppdaterBehandlingsfristForVenterPåOpptjening(any(), any());
     }
 
     @Test
@@ -115,10 +114,10 @@ public class SendBrevForAutopunktEventObserverTest {
     }
 
     @Test
-    public void skalSendeBrevForVenterOpptjening() {
+    public void skalOppdatereBehandlingsfristForVenterOpptjening() {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktOpptjening), null);
         observer.sendBrevForAutopunkt(event);
-        verify(sendBrevForAutopunkt, times(1)).sendBrevForVenterPåOpptjening(any(), any());
+        verify(sendBrevForAutopunkt, times(1)).oppdaterBehandlingsfristForVenterPåOpptjening(any(), any());
     }
 
     @Test
