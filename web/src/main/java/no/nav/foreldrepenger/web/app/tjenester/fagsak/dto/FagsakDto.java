@@ -68,6 +68,10 @@ public class FagsakDto {
         return barnFodt;
     }
 
+    public FagsakYtelseType getFagsakYtelseType() {
+        return fagsakYtelseType;
+    }
+
     public RelasjonsRolleType getRelasjonsRolleType() {
         return relasjonsRolleType;
     }
