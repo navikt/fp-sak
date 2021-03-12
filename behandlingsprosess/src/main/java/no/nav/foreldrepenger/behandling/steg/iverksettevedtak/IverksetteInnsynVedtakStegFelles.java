@@ -54,8 +54,7 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
         String begrunnelse = ap.getBegrunnelse();
         String fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
 
-        return Environment.current().isProd() ? new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYNSKRAV_SVAR, fritekst)
-            : new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYN_SVAR, fritekst);
+        return new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYN_SVAR, fritekst);
     }
 
     private boolean nullOrEmpty(String begrunnelse) {
