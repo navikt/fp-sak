@@ -93,6 +93,7 @@ public class BehandlingÅrsak extends BaseEntitet {
 
         public Builder(List<BehandlingÅrsakType> behandlingÅrsakTyper) {
             Objects.requireNonNull(behandlingÅrsakTyper, "behandlingÅrsakTyper");
+            if (behandlingÅrsakTyper.isEmpty()) throw new IllegalArgumentException("Mangler behandlingÅrsakTyper");
             this.behandlingÅrsakTyper = behandlingÅrsakTyper;
         }
 

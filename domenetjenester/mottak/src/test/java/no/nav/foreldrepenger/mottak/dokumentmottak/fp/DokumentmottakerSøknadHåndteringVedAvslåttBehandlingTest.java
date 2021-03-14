@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Dokumentmottaker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerFelles;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerSøknadDefault;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerTestsupport;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
+import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 

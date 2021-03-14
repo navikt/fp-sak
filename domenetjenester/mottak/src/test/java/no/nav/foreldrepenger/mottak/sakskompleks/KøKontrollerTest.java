@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
+package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +59,8 @@ public class KøKontrollerTest {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
-        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingRevurderingRepository, behandlingskontrollTjeneste,
+        when(behandlingRepositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
+        køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
                 behandlingRepositoryProvider, behandlingsoppretter, flytkontroll);
     }
 
@@ -96,14 +97,14 @@ public class KøKontrollerTest {
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
                 .thenReturn(Optional.of(morBerørtBehandling));
-        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
                 .thenReturn(morOppdatertBehandling);
 
         // Act
         køKontroller.dekøFørsteBehandlingISakskompleks(farFgBehandling);
 
         // Assert
-        Mockito.verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(morKøetBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        Mockito.verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(morKøetBehandling);
         Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling.getId());
     }
 

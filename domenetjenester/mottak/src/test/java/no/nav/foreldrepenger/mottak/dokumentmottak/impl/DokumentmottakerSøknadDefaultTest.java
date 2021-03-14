@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -281,6 +282,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Arrange - mock tjenestekall
         Behandling nyBehandling = mock(Behandling.class);
+        doReturn(fagsak.getAktørId()).when(nyBehandling).getAktørId();
         when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean()))
                 .thenReturn(nyBehandling);
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(Boolean.TRUE);
@@ -294,17 +296,19 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Assert - verifiser flyt
         verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
                 behandling, false);
-        verify(behandlingsoppretter).settSomKøet(nyBehandling);
+        verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
     }
 
     @Test
     public void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_ingen_tidligere_behandling_finnes() {
         // Arrange - opprette fagsak uten behandling
-        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var aktørId = AktørId.dummy();
+        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
                 fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - mock tjenestekall
         Behandling nyBehandling = mock(Behandling.class);
+        doReturn(aktørId).when(nyBehandling).getAktørId();
 
         // Act - send inn søknad
         Long fagsakId = fagsak.getId();
@@ -318,7 +322,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Assert - verifiser flyt
         verify(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER, null,
                 false);
-        verify(behandlingsoppretter).settSomKøet(nyBehandling);
+        verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
     }
 
     @Test
@@ -498,9 +502,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(dokumentmottakerFelles).opprettHistorikk(behandling2, mottattDokument);
 
-        verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        verify(køKontroller).dekøFørsteBehandlingISakskompleks(behandling3);
     }
 
     @Test

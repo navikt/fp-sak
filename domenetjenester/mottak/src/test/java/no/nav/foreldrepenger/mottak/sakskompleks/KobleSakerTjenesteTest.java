@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.sakogenhet;
+package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

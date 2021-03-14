@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -109,6 +110,13 @@ public class Behandlingsoppretter {
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, revurderingsÅrsak, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
     }
 
+    public Behandling oppdaterBehandlingViaHenleggelse(Behandling sisteYtelseBehandling) {
+        var årsakstype = sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+            .map(BehandlingÅrsak::getBehandlingÅrsakType)
+            .findFirst().orElse(BehandlingÅrsakType.UDEFINERT);
+        return oppdaterBehandlingViaHenleggelse(sisteYtelseBehandling, årsakstype);
+    }
+
     public Behandling oppdaterBehandlingViaHenleggelse(Behandling sisteYtelseBehandling, BehandlingÅrsakType revurderingsÅrsak) {
         // Ifm køhåndtering - kun relevant for Foreldrepenger. REGSØK har relevant logikk for FØRSTEGANG.
         // Må håndtere revurderinger med åpent aksjonspunkt: Kopier med siste papirsøknad hvis finnes så AP reutledes i REGSØK
@@ -126,11 +134,15 @@ public class Behandlingsoppretter {
         kopierVedlegg(sisteYtelseBehandling, revurdering);
 
         // Kopier behandlingsårsaker fra forrige behandling
-        BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(sisteYtelseBehandling.getBehandlingÅrsaker().stream()
+        var forrigeÅrsaker = sisteYtelseBehandling.getBehandlingÅrsaker().stream()
             .map(BehandlingÅrsak::getBehandlingÅrsakType)
-            .collect(toList()));
-        revurdering.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
-        årsakBuilder.medManueltOpprettet(sisteYtelseBehandling.erManueltOpprettet()).buildFor(revurdering);
+            .filter(bat -> !revurderingsÅrsak.equals(bat))
+            .collect(Collectors.toList());
+        if (!forrigeÅrsaker.isEmpty()) {
+            BehandlingÅrsak.Builder årsakBuilder = BehandlingÅrsak.builder(forrigeÅrsaker);
+            revurdering.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
+            årsakBuilder.medManueltOpprettet(sisteYtelseBehandling.erManueltOpprettet()).buildFor(revurdering);
+        }
 
         BehandlingskontrollKontekst nyKontekst = behandlingskontrollTjeneste.initBehandlingskontroll(revurdering);
         behandlingRepository.lagre(revurdering, nyKontekst.getSkriveLås());

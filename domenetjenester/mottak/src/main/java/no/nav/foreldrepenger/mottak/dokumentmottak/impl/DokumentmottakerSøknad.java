@@ -7,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesrelatertDokument {
 
@@ -43,12 +45,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
         if (dokumentmottakerFelles.harMottattSøknadTidligere(behandling.getId())) { //#S2
             // Oppdatere behandling gjennom henleggelse
             Behandling nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
-            Optional<Behandling> køetBehandlingMedforelder = revurderingRepository.finnKøetBehandlingMedforelder(fagsak).filter(Behandling::erRevurdering);
-            if (køetBehandlingMedforelder.isPresent()) {
-                køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
-            } else {
-                dokumentmottakerFelles.opprettTaskForÅStarteBehandling(nyBehandling);
-            }
+            køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
         } else {
             if (!mottattDokument.getElektroniskRegistrert()) { //#S3a
                 if (kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)) {
@@ -67,7 +64,11 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     public void håndterKøetBehandling(MottattDokument mottattDokument, Behandling køetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         if (dokumentmottakerFelles.harMottattSøknadTidligere(køetBehandling.getId())) { //#S13
             // Oppdatere behandling gjennom henleggelse
-            dokumentmottakerFelles.oppdatereViaHenleggelseEnkø(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            if (BehandlingType.FØRSTEGANGSSØKNAD.equals(køetBehandling.getType())) {
+                dokumentmottakerFelles.oppdatereViaHenleggelse(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            } else {
+                dokumentmottakerFelles.oppdatereViaHenleggelseEnkø(køetBehandling, mottattDokument, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            }
         } else { //#S10, #S11, #S12 og #S14
             // Oppdater køet behandling med søknad
             Optional<LocalDate> søknadsdato = Optional.empty();
@@ -109,7 +110,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     @Override
     protected void opprettKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling sisteAvsluttetBehandling) {
         if (behandlingsoppretter.erBehandlingOgFørstegangsbehandlingHenlagt(fagsak) || sisteAvsluttetBehandling == null || erAvslag(sisteAvsluttetBehandling)) {
-            dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else {
             dokumentmottakerFelles.opprettKøetRevurdering(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         }
@@ -120,7 +121,7 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
         Behandling avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
         boolean harÅpenBehandling = !revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId()).map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.TRUE);
         if (harÅpenBehandling || erAvslag(avsluttetBehandlingMedSøknad) || avsluttetBehandlingMedSøknad.isBehandlingHenlagt()) {
-            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument, opprettSomKøet);
+            dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
         } else {
             Behandling revurdering = dokumentmottakerFelles.opprettManuellRevurdering(fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), opprettSomKøet);
             dokumentmottakerFelles.opprettHistorikk(revurdering, mottattDokument);

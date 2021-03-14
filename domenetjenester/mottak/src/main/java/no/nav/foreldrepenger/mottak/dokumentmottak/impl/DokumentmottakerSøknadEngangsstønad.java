@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.dokumentmottak.es;
+package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,11 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentGruppeRef;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerFelles;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerSøknad;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.Kompletthetskontroller;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.KøKontroller;
+import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("ES")
@@ -49,6 +45,6 @@ public class DokumentmottakerSøknadEngangsstønad extends DokumentmottakerSøkn
     @Override
     public void opprettFraTidligereAvsluttetBehandling(Fagsak fagsak, Long avsluttetMedSøknadBehandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) { //SExx
         Behandling avsluttetBehandlingMedSøknad = behandlingRepository.hentBehandling(avsluttetMedSøknadBehandlingId);
-        dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument, false);
+        dokumentmottakerFelles.opprettNyFørstegangFraBehandlingMedSøknad(fagsak, behandlingÅrsakType, avsluttetBehandlingMedSøknad, mottattDokument);
     }
 }
