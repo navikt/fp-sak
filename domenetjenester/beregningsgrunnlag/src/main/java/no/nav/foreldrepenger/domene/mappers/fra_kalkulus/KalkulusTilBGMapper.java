@@ -39,7 +39,7 @@ public final class KalkulusTilBGMapper {
         builder.medAvvikPromille(fraKalkulus.getAvvikPromilleNy());
         builder.medRapportertPrÅr(fraKalkulus.getRapportertPrÅr());
         builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(),
-            fraKalkulus.getSammenligningsperiodeFom());
+            fraKalkulus.getSammenligningsperiodeTom());
         return builder.build();
     }
 
