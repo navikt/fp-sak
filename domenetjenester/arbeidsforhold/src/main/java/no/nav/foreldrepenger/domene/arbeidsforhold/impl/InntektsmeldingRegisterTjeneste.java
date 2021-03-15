@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashMap;
@@ -116,7 +118,7 @@ public class InntektsmeldingRegisterTjeneste {
         påkrevdeInntektsmeldinger.forEach((key, value) -> {
             String arbeidsforholdReferanser = value.stream().map(InternArbeidsforholdRef::toString).collect(Collectors.joining(","));
             LOG.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.getBehandlingId(),
-                    key.getIdentifikator(),
+                    tilMaskertNummer(key.getIdentifikator()),
                     arbeidsforholdReferanser);
         });
     }

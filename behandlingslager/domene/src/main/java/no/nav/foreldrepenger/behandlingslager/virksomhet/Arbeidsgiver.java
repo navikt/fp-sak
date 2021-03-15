@@ -121,7 +121,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
     @Override
     public String toString() {
         return "Arbeidsgiver{" +
-            "virksomhet=" + OrgNummer.tilMaskertOrgnummer(getOrgnr()) +
+            "virksomhet=" + OrgNummer.tilMaskertNummer(getOrgnr()) +
             ", arbeidsgiverAktørId='" + getAktørId() + '\'' +
             '}';
     }

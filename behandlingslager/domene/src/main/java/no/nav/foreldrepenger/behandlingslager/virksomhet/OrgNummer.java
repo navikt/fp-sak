@@ -81,10 +81,10 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + tilMaskertOrgnummer(orgNummer) + ">";
+        return getClass().getSimpleName() + "<" + tilMaskertNummer(orgNummer) + ">";
     }
 
-    public static String tilMaskertOrgnummer(String orgNummer) {
+    public static String tilMaskertNummer(String orgNummer) {
         if (orgNummer == null) {
             return null;
         }
