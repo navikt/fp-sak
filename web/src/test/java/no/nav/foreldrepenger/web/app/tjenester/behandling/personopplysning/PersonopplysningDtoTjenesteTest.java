@@ -9,11 +9,9 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -28,14 +26,10 @@ public class PersonopplysningDtoTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private PersonopplysningDtoTjeneste tjeneste;
 
-    @Inject
-    private VergeRepository vergeRepository;
-    @Inject
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
 
     @BeforeEach
     public void setUp() {
-        tjeneste = new PersonopplysningDtoTjeneste(this.personopplysningTjeneste, repositoryProvider, vergeRepository, relatertBehandlingTjeneste);
+        tjeneste = new PersonopplysningDtoTjeneste(this.personopplysningTjeneste, repositoryProvider);
     }
 
     @Test

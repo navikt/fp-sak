@@ -46,29 +46,18 @@ public class MedlemskapRepository {
 
     /** Henter et aggregat for Medlemskap, hvis det eksisterer, basert på kun behandlingId */
     public Optional<MedlemskapAggregat> hentMedlemskap(Long behandlingId) {
-        Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag = getAktivtBehandlingsgrunnlag(behandlingId);
-        return hentMedlemskap(optGrunnlag);
+        return getAktivtBehandlingsgrunnlag(behandlingId).map(this::hentMedlemskap);
     }
 
     /**
      * Hent kun {@link VurdertMedlemskap} fra Behandling.
      */
     public Optional<VurdertMedlemskap> hentVurdertMedlemskap(Long behandlingId) {
-        Optional<MedlemskapAggregat> medlemskap = hentMedlemskap(behandlingId);
-        if (medlemskap.isPresent()) {
-            return medlemskap.get().getVurdertMedlemskap();
-        } else {
-            return Optional.empty();
-        }
+        return hentMedlemskap(behandlingId).flatMap(MedlemskapAggregat::getVurdertMedlemskap);
     }
 
     public Optional<VurdertMedlemskapPeriodeEntitet> hentVurdertLøpendeMedlemskap(Long behandlingId) {
-        Optional<MedlemskapAggregat> medlemskap = hentMedlemskap(behandlingId);
-        if (medlemskap.isPresent()) {
-            return medlemskap.get().getVurderingLøpendeMedlemskap();
-        } else {
-            return Optional.empty();
-        }
+        return hentMedlemskap(behandlingId).flatMap(MedlemskapAggregat::getVurderingLøpendeMedlemskap);
     }
 
     public VurdertMedlemskapPeriodeEntitet.Builder hentBuilderFor(Long behandlingId) {
@@ -192,14 +181,8 @@ public class MedlemskapRepository {
         entityManager.flush();
     }
 
-    private Optional<MedlemskapAggregat> hentMedlemskap(Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag) {
-        if (optGrunnlag.isPresent()) {
-            MedlemskapBehandlingsgrunnlagEntitet grunnlag = optGrunnlag.get();
-            MedlemskapAggregat ma = grunnlag.tilAggregat();
-            return Optional.of(ma);
-        } else {
-            return Optional.empty();
-        }
+    private MedlemskapAggregat hentMedlemskap(MedlemskapBehandlingsgrunnlagEntitet grunnlag) {
+        return grunnlag.tilAggregat();
     }
 
     private MedlemskapOppgittTilknytningEntitet kopierHvisEndretOgLagre(
@@ -301,7 +284,7 @@ public class MedlemskapRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getInitilVersjonAvBehandlingsgrunnlag(Long behandlingId) {
+    protected Optional<MedlemskapBehandlingsgrunnlagEntitet> getInitiellVersjonAvBehandlingsgrunnlag(Long behandlingId) {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.
         TypedQuery<MedlemskapBehandlingsgrunnlagEntitet> query = entityManager.createQuery(
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id", //$NON-NLS-1$
@@ -314,8 +297,7 @@ public class MedlemskapRepository {
 
     /** Henter førsteversjon av aggregat for Medlemskap, hvis det eksisterer. */
     public Optional<MedlemskapAggregat> hentFørsteVersjonAvMedlemskap(Long behandlingId) {
-        Optional<MedlemskapBehandlingsgrunnlagEntitet> optGrunnlag = getInitilVersjonAvBehandlingsgrunnlag(behandlingId);
-        return hentMedlemskap(optGrunnlag);
+        return getInitiellVersjonAvBehandlingsgrunnlag(behandlingId).map(this::hentMedlemskap);
     }
 
     public Optional<Long> hentIdPåAktivMedlemskap(Long behandlingId) {

@@ -64,11 +64,13 @@ public class MedlemDtoTjenesteTest {
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
+        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
+
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
@@ -110,6 +112,7 @@ public class MedlemDtoTjenesteTest {
 
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
+        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
         LocalDate endringFraDato = LocalDate.now().minusDays(5);
         var endringsresultatPersonopplysningerForMedlemskap = EndringsresultatPersonopplysningerForMedlemskap.builder()
                 .leggTilEndring(EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt.Adresse,
@@ -118,7 +121,7 @@ public class MedlemDtoTjenesteTest {
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock, personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt.get().getFom()).isEqualTo(endringFraDato);
@@ -132,6 +135,7 @@ public class MedlemDtoTjenesteTest {
         String annenPart = "Tripp, tripp, tripp, det sa";
         AktørId aktørIdSøker = AktørId.dummy();
         AktørId aktørIdAnnenPart = AktørId.dummy();
+        scenario.medBruker(aktørIdSøker);
 
         scenario.leggTilMedlemskapPeriode(new MedlemskapPerioderBuilder().medMedlemskapType(MedlemskapType.ENDELIG).build());
 
@@ -164,15 +168,47 @@ public class MedlemDtoTjenesteTest {
         PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
         MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
+        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
+
         when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
-            medlemTjenesteMock,
-                personopplysningTjenesteMock, mock(PersonopplysningDtoTjeneste.class));
+            medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
 
         var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
         assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
             assertThat(medlemDto.getMedlemskapPerioder()).hasSize(1);
+        });
+    }
+
+    @Test
+    public void dto_før_registerinnhenting() {
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
+
+        PersonInformasjon personInformasjon = scenario.opprettBuilderForRegisteropplysninger().build();
+
+        scenario.medRegisterOpplysninger(personInformasjon);
+
+        Behandling behandling = scenario.lagMocked();
+        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+
+        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
+            new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
+
+        PersonopplysningTjeneste personopplysningTjenesteMock = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
+
+        MedlemTjeneste medlemTjenesteMock = mock(MedlemTjeneste.class);
+        var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+            .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
+        MedlemDtoTjeneste dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
+            medlemTjenesteMock,
+            personopplysningTjenesteMock, personDtoTjeneste);
+
+        var medlemDtoOpt = dtoTjeneste.lagMedlemV2Dto(behandling.getId());
+        assertThat(medlemDtoOpt).hasValueSatisfying(medlemDto -> {
+            assertThat(medlemDto.getMedlemskapPerioder()).isEmpty();
         });
     }
 

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -34,25 +32,20 @@ public class PersonopplysningDtoTjeneste {
 
     private static String UTLAND_NAVN = "Utlandsk personident";
 
-    private VergeRepository vergeRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+
 
     PersonopplysningDtoTjeneste() {
     }
 
     @Inject
     public PersonopplysningDtoTjeneste(PersonopplysningTjeneste personopplysningTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider,
-                                       VergeRepository vergeRepository,
-                                       RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+                                       BehandlingRepositoryProvider repositoryProvider) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.vergeRepository = vergeRepository;
-        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
     }
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
