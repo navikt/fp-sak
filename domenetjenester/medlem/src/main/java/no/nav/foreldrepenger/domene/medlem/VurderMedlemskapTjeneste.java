@@ -65,7 +65,9 @@ public class VurderMedlemskapTjeneste {
         avklarOmErBosatt.utled(behandling, vurderingsdato).ifPresent(resultat::add);
         avklarGyldigPeriode.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
         avklarBarnFødtUtenlands.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
-        avklarOmSøkerOppholderSegINorge.utled(ref, vurderingsdato).ifPresent(resultat::add);
+        if (vurderingsdato.equals(ref.getUtledetSkjæringstidspunkt())) {
+            avklarOmSøkerOppholderSegINorge.utled(ref, vurderingsdato).ifPresent(resultat::add);
+        }
         avklaringFaktaMedlemskap.utled(ref, behandling, vurderingsdato).ifPresent(resultat::add);
         return resultat;
     }

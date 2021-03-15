@@ -17,13 +17,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements AksjonspunktUtleder {
 
     private VurderMedlemskapTjeneste tjeneste;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private static EnumMap<MedlemResultat, AksjonspunktDefinisjon> mapMedlemResulatTilAkDef = new EnumMap<>(MedlemResultat.class);
 
     static {
@@ -39,16 +37,13 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
     }
 
     @Inject
-    public AksjonspunktutlederForMedlemskapSkjæringstidspunkt(VurderMedlemskapTjeneste tjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+    public AksjonspunktutlederForMedlemskapSkjæringstidspunkt(VurderMedlemskapTjeneste tjeneste) {
         this.tjeneste = tjeneste;
-        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        Long behandlingId = param.getBehandlingId();
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         Set<MedlemResultat> resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
         return resultat.stream()
             .map(mr -> opprettForMedlemResultat(param.getRef(), mr))
