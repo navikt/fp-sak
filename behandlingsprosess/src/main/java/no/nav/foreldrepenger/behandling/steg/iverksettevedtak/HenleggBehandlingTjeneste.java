@@ -118,7 +118,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void sendHenleggelsesbrev(long behandlingId, HistorikkAktør aktør) {
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, Environment.current().isProd()? DokumentMalType.HENLEGG_BEHANDLING_DOK : DokumentMalType.INFO_OM_HENLEGGELSE);
+        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.INFO_OM_HENLEGGELSE);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
     }
 

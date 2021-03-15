@@ -14,7 +14,6 @@ public enum DokumentMalType implements Kodeverdi {
 
     //Mal hos team dokument
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
-    HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
@@ -76,6 +75,8 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_MEDL_DOK("FORLME", "Forlenget saksbehandlingstid - medlemskap"),
     @Deprecated
     FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
+    @Deprecated
+    HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
