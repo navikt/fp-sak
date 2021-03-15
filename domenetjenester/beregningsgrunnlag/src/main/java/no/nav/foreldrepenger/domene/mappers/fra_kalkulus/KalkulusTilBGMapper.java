@@ -38,7 +38,8 @@ public final class KalkulusTilBGMapper {
         var builder = Sammenligningsgrunnlag.builder();
         builder.medAvvikPromille(fraKalkulus.getAvvikPromilleNy());
         builder.medRapportertPrÅr(fraKalkulus.getRapportertPrÅr());
-        builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(), fraKalkulus.getSammenligningsperiodeTom());
+        builder.medSammenligningsperiode(fraKalkulus.getSammenligningsperiodeFom(),
+            fraKalkulus.getSammenligningsperiodeTom());
         return builder.build();
     }
 
