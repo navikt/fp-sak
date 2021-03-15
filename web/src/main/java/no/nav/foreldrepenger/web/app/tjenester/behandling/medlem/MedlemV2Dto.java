@@ -2,13 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class MedlemV2Dto {
 
-    private List<MedlemskapPerioderDto> medlemskapPerioder;
-    private Set<MedlemPeriodeDto> perioder;
+    private List<MedlemskapPerioderDto> medlemskapPerioder  = new ArrayList<>();
+    private Set<MedlemPeriodeDto> perioder = new HashSet<>();
     private List<OppholdstillatelseDto> opphold = new ArrayList<>();
     private LocalDate fom; // Opphør fra dato - stp eller senere
 
