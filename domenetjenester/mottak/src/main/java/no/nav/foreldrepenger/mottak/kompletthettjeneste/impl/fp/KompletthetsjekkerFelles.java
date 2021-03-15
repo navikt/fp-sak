@@ -202,7 +202,7 @@ public class KompletthetsjekkerFelles {
     }
 
     private void loggManglendeInntektsmeldinger(Long behandlingId, List<ManglendeVedlegg> manglendeInntektsmeldinger) {
-        String arbgivere = manglendeInntektsmeldinger.stream().map(ManglendeVedlegg::getArbeidsgiver).collect(Collectors.toList()).toString();
+        String arbgivere = manglendeInntektsmeldinger.stream().map(ManglendeVedlegg::getMaskertArbeidsgiverString).collect(Collectors.toList()).toString();
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
     }
 

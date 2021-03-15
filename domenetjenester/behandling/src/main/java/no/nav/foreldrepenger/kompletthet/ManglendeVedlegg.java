@@ -33,6 +33,17 @@ public class ManglendeVedlegg {
         return arbeidsgiver;
     }
 
+    public String getMaskertArbeidsgiverString() {
+        if (arbeidsgiver == null) {
+            return null;
+        }
+        int length = arbeidsgiver.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + arbeidsgiver.substring(length - 4);
+    }
+
     public Boolean getBrukerHarSagtAtIkkeKommer() {
         return brukerHarSagtAtIkkeKommer;
     }
