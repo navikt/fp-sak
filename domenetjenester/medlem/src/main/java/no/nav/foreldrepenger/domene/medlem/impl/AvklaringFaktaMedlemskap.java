@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -26,7 +27,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class AvklaringFaktaMedlemskap {
 
@@ -85,7 +85,7 @@ public class AvklaringFaktaMedlemskap {
                 }
                 var region = statsborgerskap(personopplysninger, vurderingsdato);
                 return switch (region) {
-                    case EØS -> harInntektSiste3mnd(behandling, vurderingsdato) == JA ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
+                    case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
                     case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
                     case NORDISK -> Optional.empty();
                 };
@@ -149,20 +149,26 @@ public class AvklaringFaktaMedlemskap {
      * Skal sjekke om bruker eller andre foreldre har inntekt eller ytelse fra NAV
      * innenfor de 3 siste månedene fra mottattdato
      */
-    private Utfall harInntektSiste3mnd(Behandling behandling, LocalDate vurderingsdato) {
-        AktørId aktørId = behandling.getAktørId();
-        LocalDate mottattDato = søknadRepository.hentSøknad(behandling.getId()).getMottattDato();
-        LocalDate mottattDatoMinus3Mnd = mottattDato.minusMonths(3);
-        DatoIntervallEntitet siste3Mnd = DatoIntervallEntitet.fraOgMedTilOgMed(mottattDatoMinus3Mnd, mottattDato);
-        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(behandling.getId());
+    private Utfall harInntektSiste3mnd(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        DatoIntervallEntitet siste3Mnd = utledInntektsintervall3Mnd(ref, vurderingsdato);
+        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
 
         boolean inntektSiste3M = false;
         if (grunnlag.isPresent()) {
-            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(aktørId)).før(vurderingsdato);
+            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingsdato);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
                 .anyMatch(ip -> siste3Mnd.overlapper(ip.getPeriode()));
         }
         return inntektSiste3M ? JA : NEI;
+    }
+
+    private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.getFagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
+            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.getBehandlingId()).getMottattDato();
+            var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
+            return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
+        }
+        return DatoIntervallEntitet.fraOgMedTilOgMed(vurderingstidspunkt.minusMonths(3), vurderingstidspunkt);
     }
 
     enum Statsborgerskapsregioner {

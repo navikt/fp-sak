@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
@@ -27,6 +26,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class AvklarOmSøkerOppholderSegINorge {
@@ -60,7 +60,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
-        if (harSøkerHattInntektINorgeDeSiste3Mnd(behandlingId, ref.getAktørId(), vurderingstidspunkt) == JA) {
+        if (harSøkerHattInntektINorgeDeSiste3Mnd(ref, vurderingstidspunkt) == JA) {
             return Optional.empty();
         }
         if (!FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.getFagsakYtelseType()) && harTermindatoPassertMed14Dager(behandlingId) == NEI) {
@@ -117,23 +117,31 @@ public class AvklarOmSøkerOppholderSegINorge {
         return NEI;
     }
 
-    private Utfall harSøkerHattInntektINorgeDeSiste3Mnd(Long behandlingId, AktørId aktørId, LocalDate vurderingstidspunkt) {
-        final SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingId);
-        LocalDate mottattDato = søknad.getMottattDato();
-        LocalDate treMndTilbake = mottattDato.minusMonths(3L);
+    private Utfall harSøkerHattInntektINorgeDeSiste3Mnd(BehandlingReferanse ref, LocalDate vurderingstidspunkt) {
+        var intervall3mnd = utledInntektsintervall3Mnd(ref, vurderingstidspunkt);
 
         // OBS: ulike regler for vilkår og autopunkt. For EØS-par skal man vente hvis søker ikke har inntekt siste 3mnd.
-        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(behandlingId);
+        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
 
         boolean inntektSiste3M = false;
         if (grunnlag.isPresent()) {
-            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(aktørId)).før(vurderingstidspunkt);
+            var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingstidspunkt);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
-                .anyMatch(ip -> ip.getPeriode().getFomDato().isBefore(vurderingstidspunkt) && ip.getPeriode().getTomDato().isAfter(treMndTilbake));
+                .anyMatch(ip -> intervall3mnd.overlapper(ip.getPeriode()));
         }
 
         return inntektSiste3M ? JA : NEI;
     }
+
+    private DatoIntervallEntitet utledInntektsintervall3Mnd(BehandlingReferanse referanse, LocalDate vurderingstidspunkt) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(referanse.getFagsakYtelseType()) && LocalDate.now().isBefore(vurderingstidspunkt)) {
+            final var søknadMottattDato = søknadRepository.hentSøknad(referanse.getBehandlingId()).getMottattDato();
+            var brukdato = søknadMottattDato.isBefore(vurderingstidspunkt) ? søknadMottattDato : vurderingstidspunkt;
+            return DatoIntervallEntitet.fraOgMedTilOgMed(brukdato.minusMonths(3), brukdato);
+        }
+        return DatoIntervallEntitet.fraOgMedTilOgMed(vurderingstidspunkt.minusMonths(3), vurderingstidspunkt);
+    }
+
 
     private Utfall harOppholdstilltatelseVed(BehandlingReferanse ref, LocalDate vurderingsdato) {
         if (ref.getUtledetMedlemsintervall().encloses(vurderingsdato)) {
