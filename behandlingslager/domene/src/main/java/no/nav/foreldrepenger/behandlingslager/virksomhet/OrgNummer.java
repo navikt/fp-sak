@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.TraverseValue;
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
- * 
+ *
  * Støtter også kunstige orgnummer (internt definert konstant i fp - orgnummer=342352362)
  */
 @Embeddable
@@ -26,7 +26,7 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
      * (p.t. kun en kunstig organisasjon som holder på arbeidsforhold lagt til av saksbehandler.)
      */
     public static final String KUNSTIG_ORG = "342352362";  // magic constant
-    
+
     @JsonValue
     @Column(name = "org_nummer", updatable = false, length = 50)
     private String orgNummer;  // NOSONAR
@@ -78,13 +78,24 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
     public int hashCode() {
         return Objects.hash(orgNummer);
     }
-    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + orgNummer + ">";
     }
 
-    /** @return false hvis ikke gyldig orgnr. */ 
+    public static String tilMaskertOrgnummer(String orgNummer) {
+        if (orgNummer == null) {
+            return null;
+        }
+        int length = orgNummer.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + orgNummer.substring(length - 4);
+    }
+
+    /** @return false hvis ikke gyldig orgnr. */
     public static boolean erGyldigOrgnr(String ident) {
         return erKunstig(ident) || OrganisasjonsNummerValidator.erGyldig(ident);
     }
