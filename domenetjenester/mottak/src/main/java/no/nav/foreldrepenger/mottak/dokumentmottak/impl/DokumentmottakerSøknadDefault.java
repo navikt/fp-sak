@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")

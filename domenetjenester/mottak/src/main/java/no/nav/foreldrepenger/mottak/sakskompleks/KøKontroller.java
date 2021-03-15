@@ -1,6 +1,7 @@
-package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
+package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -20,6 +21,15 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 
+/*
+ *
+ * Denne tjenesten kalles for å håndtere kø av revurderinger / behandlinger
+ * - Førstegangsbehandlinger skal ikke legges i kø - det skjer evt der man går inn i Uttak
+ * - Endringssøknader skal køhåndteres ved start - andre revurderinger går til synkpunkt ved Uttak
+ * - Nye revuderinger legges i kø hvis  finnes åpen berørt eller annenpart har åpen behandling
+ * - Når revurderinger tas ut av kø må det sjekkes om det har vært en berørt og man trenger ny originalbehandling
+ *
+ */
 @Dependent
 public class KøKontroller {
 
@@ -38,14 +48,13 @@ public class KøKontroller {
 
     @Inject
     public KøKontroller(BehandlingProsesseringTjeneste prosesseringTjeneste,
-                        BehandlingRevurderingRepository behandlingRevurderingRepository,
                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
                         Behandlingsoppretter behandlingsoppretter,
                         BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.behandlingRevurderingRepository = behandlingRevurderingRepository;
+        this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.behandlingsoppretter = behandlingsoppretter;
@@ -56,7 +65,7 @@ public class KøKontroller {
 
     public void dekøFørsteBehandlingISakskompleks(Behandling behandling) {
         Optional<Behandling> køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak());
-        boolean medforelderEndringsSøknad = køetBehandlingMedforelder.map(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).orElse(false);
+        boolean medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
         if (medforelderEndringsSøknad) {
 
             // Legger nyopprettet behandling i kø, siden denne ikke skal behandles nå
@@ -72,6 +81,29 @@ public class KøKontroller {
         behandlingskontrollTjeneste.settBehandlingPåVent(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
+    public void submitBerørtBehandling(Behandling behandling, Optional<Behandling> åpenBehandling) {
+        if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) throw new IllegalArgumentException("Behandling er ikke berørt");
+        åpenBehandling.ifPresent(b -> behandlingskontrollTjeneste.settBehandlingPåVent(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING,
+            null, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
+        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
+    }
+
+    public void håndterSakskompleks(Fagsak fagsak) {
+        Optional<Behandling> køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        Optional<Behandling> køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
+        var nesteBehandling = finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> true));
+        nesteBehandling.ifPresent(this::oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling);
+    }
+
+    private Optional<Behandling> finnTidligstOpprettet(Optional<Behandling> behandling1, Optional<Behandling> behandling2, Predicate<Behandling> filtrert) {
+        var ts1 = behandling1.filter(filtrert).map(Behandling::getOpprettetTidspunkt);
+        var ts2 = behandling2.filter(filtrert).map(Behandling::getOpprettetTidspunkt);
+        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
+        if (ts1.isPresent() && ts2.isPresent()) return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
+        return ts1.isPresent() ? behandling1 : behandling2;
+    }
+
     private void opprettTaskForÅStarteBehandling(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)) {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
@@ -80,33 +112,21 @@ public class KøKontroller {
         }
     }
 
-    //OBS: Endrer du noe her vil du antagelig også ønske å endre det i BerørtBehandlingKontroller.dekøBehandling() - kan disse slås sammen?
-    private void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
-        Optional<Behandling> originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
-        if (behandling.erRevurdering() && originalBehandling.isPresent() && behandling.getOriginalBehandlingId().isPresent()
-            && !behandling.getOriginalBehandlingId().get().equals(originalBehandling.get().getId())) {
-            Behandling oppdatertBehandling = oppdaterOriginalBehandlingVedHenleggelse(behandling);
+    void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
+        var originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).orElse(null);
+
+        if (behandling.erRevurdering() && originalBehandling != null && behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandling.getId())).isPresent()) {
+            Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
                 // Må ha YF fra original ettersom berørt ikke har med evt endringssøknad da den snek i køen.
                 ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), oppdatertBehandling.getId());
                 søknadRepository.kopierGrunnlagFraEksisterendeBehandling(behandling, oppdatertBehandling);
             }
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(oppdatertBehandling);
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         }
-    }
-
-    private Behandling oppdaterOriginalBehandlingVedHenleggelse(Behandling behandling) {
-        BehandlingÅrsakType behandlingÅrsakType;
-        if (!behandling.getBehandlingÅrsaker().isEmpty()) {
-            behandlingÅrsakType = behandling.getBehandlingÅrsaker().stream().findFirst().get().getBehandlingÅrsakType();
-        } else {
-            behandlingÅrsakType = BehandlingÅrsakType.UDEFINERT;
-        }
-        Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsakType);
-        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(oppdatertBehandling);
-        return oppdatertBehandling;
     }
 
     public boolean skalEvtNyBehandlingKøes(Fagsak fagsak) {

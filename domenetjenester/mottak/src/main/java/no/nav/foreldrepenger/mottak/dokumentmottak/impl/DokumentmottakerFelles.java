@@ -193,24 +193,16 @@ public class DokumentmottakerFelles {
         return false;
     }
 
-    public Behandling opprettFørstegangsbehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> tidligereBehandling, boolean opprettSomKøet) {
-        Behandling nyBehandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, tidligereBehandling);
-        if (opprettSomKøet) {
-            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
-        }
-        return nyBehandling;
+    public Behandling opprettFørstegangsbehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> tidligereBehandling) {
+        return behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, tidligereBehandling);
     }
 
-    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument, boolean opprettSomKøet) {
+    public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
             mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
-        if (opprettSomKøet) {
-            leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
-        } else {
-            opprettTaskForÅStarteBehandling(nyBehandling);
-        }
+        opprettTaskForÅStarteBehandling(nyBehandling);
         return nyBehandling;
     }
 
@@ -222,28 +214,12 @@ public class DokumentmottakerFelles {
         opprettHistorikk(behandling, mottattDokument);
     }
 
-    void opprettKøetInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
-        // Opprett ny førstegangsbehandling
-        Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
-        persisterDokumentinnhold(behandling, mottattDokument);
-        opprettHistorikk(behandling, mottattDokument);
-        behandlingsoppretter.settSomKøet(behandling);
-    }
-
     public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
         Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument);
         opprettTaskForÅStarteBehandling(nyBehandling);
         opprettHistorikk(nyBehandling, mottattDokument);
-    }
-
-    public void opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
-        persisterDokumentinnhold(nyBehandling, mottattDokument);
-        opprettHistorikk(nyBehandling, mottattDokument);
-        leggNyBehandlingPåKøOgOpprettHistorikkinnslag(nyBehandling);
     }
 
     private Behandling finnEvtForrigeBehandling(MottattDokument mottattDokument, Fagsak fagsak) {

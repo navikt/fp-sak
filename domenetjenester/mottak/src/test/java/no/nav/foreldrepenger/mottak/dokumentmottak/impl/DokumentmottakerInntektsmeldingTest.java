@@ -277,13 +277,15 @@ public class DokumentmottakerInntektsmeldingTest {
     @Test
     public void skal_opprette_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes() {
         // Arrange - opprette fagsak uten behandling
-        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var aktørId = AktørId.dummy();
+        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
                 fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - sett opp opprettelse av køet behandling
         Behandling behandling = mock(Behandling.class);
         // doReturn(fagsak.getId()).when(behandling).getFagsakId();
         doReturn(fagsak).when(behandling).getFagsak();
+        doReturn(aktørId).when(behandling).getAktørId();
         doReturn(behandling).when(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING,
                 Optional.empty());
         /*
@@ -300,7 +302,7 @@ public class DokumentmottakerInntektsmeldingTest {
 
         // Assert - sjekk flyt
         verify(behandlingsoppretter).opprettFørstegangsbehandling(fagsak, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING, Optional.empty());
-        verify(dokumentmottakerFelles).opprettKøetInitiellFørstegangsbehandling(fagsak, mottattDokument,
+        verify(dokumentmottakerFelles).opprettInitiellFørstegangsbehandling(fagsak, mottattDokument,
                 BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
     }
 

@@ -48,7 +48,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
         } else if (åpenBehandling.isPresent()) {
             håndterÅpenBehandling(fagsak, åpenBehandling.get(), mottattDokument);
-        } else if (skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
+        } else if (skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V3
             dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
         } else {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
@@ -66,14 +66,14 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
         } else if (eksisterendeKøetBehandling.isPresent()) { //#V5
             kompletthetskontroller.persisterKøetDokumentOgVurderKompletthet(eksisterendeKøetBehandling.get(), mottattDokument, Optional.empty());
-        } else if (skalOppretteNyBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V7
-            dokumentmottakerFelles.opprettKøetFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
+        } else if (skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(mottattDokument, fagsak)) { //#V7
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
         } else {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); //#V1 og #V4
         }
     }
 
-    private boolean skalOppretteNyBehandlingSomFølgerAvVedlegget(MottattDokument mottattDokument, Fagsak fagsak) {
+    private boolean skalOppretteNyFørstegangsBehandlingSomFølgerAvVedlegget(MottattDokument mottattDokument, Fagsak fagsak) {
         return dokumentmottakerFelles.skalOppretteNyFørstegangsbehandling(fagsak) && !mottattDokumentHarTypeAnnetEllerUdefinert(mottattDokument);
     }
 

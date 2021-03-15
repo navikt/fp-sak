@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.sakogenhet;
+package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import java.util.ArrayList;
 import java.util.HashSet;

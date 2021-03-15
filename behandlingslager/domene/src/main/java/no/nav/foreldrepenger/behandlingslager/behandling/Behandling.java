@@ -331,13 +331,7 @@ public class Behandling extends BaseEntitet {
 
     public boolean erManueltOpprettet() {
         return getBehandlingÅrsaker().stream()
-                .map(BehandlingÅrsak::erManueltOpprettet)
-                .collect(Collectors.toList())
-                .contains(true);
-    }
-
-    public boolean erManueltOpprettetOgHarÅrsak(BehandlingÅrsakType behandlingÅrsak) {
-        return erManueltOpprettet() && harBehandlingÅrsak(behandlingÅrsak);
+                .anyMatch(BehandlingÅrsak::erManueltOpprettet);
     }
 
     public Long getId() {
