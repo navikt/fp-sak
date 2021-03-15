@@ -78,7 +78,7 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + aktørId + ">";
+        return getClass().getSimpleName() + "<" + maskerAktørId() + ">";
     }
 
     @Override
@@ -89,6 +89,17 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
 
     public static boolean erGyldigAktørId(String aktørId) {
         return aktørId != null && VALID.matcher(aktørId).matches();
+    }
+
+    private String maskerAktørId() {
+        if (aktørId == null) {
+            return "";
+        }
+        int length = aktørId.length();
+        if (length <= 4) {
+            return "*".repeat(length);
+        }
+        return "*".repeat(length - 4) + aktørId.substring(length - 4);
     }
 
     private static AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
