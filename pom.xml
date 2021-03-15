@@ -50,7 +50,7 @@
 
         <fp-kontrakter.version>5.2.2</fp-kontrakter.version>
         <tidsserie.version>2.5.5</tidsserie.version>
-        <kalkulus.version>1.2.23</kalkulus.version>
+        <kalkulus.version>1.2.24</kalkulus.version>
         <abakus-kontrakt.version>1.3.2</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.7</swaggercore.version>
