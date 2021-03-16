@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
+import no.nav.foreldrepenger.behandling.steg.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.VurderSøknadsfristTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -94,7 +95,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         var behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         var dekningsgradTjeneste = new DekningsgradTjeneste(fagsakRelasjonTjeneste, behandlingsresultatRepository);
         var endringsdatoFørstegangsbehandlingUtleder = new EndringsdatoFørstegangsbehandlingUtleder(ytelsesFordelingRepository);
-        var relevanteArbeidsforholdTjeneste = new RelevanteArbeidsforholdTjeneste(uttakRepositoryProvider.getFpUttakRepository());
+        var fpUttakRepository = uttakRepositoryProvider.getFpUttakRepository();
+        var relevanteArbeidsforholdTjeneste = new RelevanteArbeidsforholdTjeneste(
+            fpUttakRepository);
         var endringsdatoRevurderingUtleder = new EndringsdatoRevurderingUtlederImpl(uttakRepositoryProvider, dekningsgradTjeneste,
             relevanteArbeidsforholdTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
@@ -102,7 +105,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(
                 uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, behandlingRepository,
                 new SkalKopiereUttakTjeneste(
-                    relevanteArbeidsforholdTjeneste));
+                    relevanteArbeidsforholdTjeneste), new KopierForeldrepengerUttaktjeneste(fpUttakRepository,
+            behandlingRepository, ytelsesFordelingRepository));
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
     }
 

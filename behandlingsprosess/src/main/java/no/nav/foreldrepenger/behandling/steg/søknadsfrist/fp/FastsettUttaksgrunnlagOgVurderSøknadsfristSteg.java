@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandling.steg.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -41,6 +42,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     private final UttakInputTjeneste uttakInputTjeneste;
     private final BehandlingRepository behandlingRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
+    private final KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
 
     @Inject
     public FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(UttakInputTjeneste uttakInputTjeneste,
@@ -48,13 +50,15 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                                           @FagsakYtelseTypeRef("FP") VurderSøknadsfristTjeneste vurderSøknadsfristTjeneste,
                                                           FastsettUttaksgrunnlagTjeneste fastsettUttaksgrunnlagTjeneste,
                                                           BehandlingRepository behandlingRepository,
-                                                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste) {
+                                                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                                                          KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
         this.vurderSøknadsfristTjeneste = vurderSøknadsfristTjeneste;
         this.fastsettUttaksgrunnlagTjeneste = fastsettUttaksgrunnlagTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
+        this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
     }
 
     @Override
@@ -96,13 +100,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                     BehandlingStegType sisteSteg) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
-            var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId())
-                .getOriginalBehandlingId()
-                .orElseThrow();
-            LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", originalBehandling,
-                kontekst.getBehandlingId());
-            ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandling,
-                kontekst.getBehandlingId());
+            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(kontekst.getBehandlingId());
         }
     }
 

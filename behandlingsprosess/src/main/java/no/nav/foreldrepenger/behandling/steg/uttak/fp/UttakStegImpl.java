@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandling.steg.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -24,10 +25,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettUttakManueltAksjonspunktUtleder;
-import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderRevurderingUtil;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
 
 @BehandlingStegRef(kode = "VURDER_UTTAK")
@@ -48,6 +47,7 @@ public class UttakStegImpl implements UttakSteg {
     private final FagsakRepository fagsakRepository;
     private final BehandlingRepository behandlingRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
+    private final KopierForeldrepengerUttaktjeneste kopierUttaktjeneste;
 
     @Inject
     public UttakStegImpl(BehandlingRepositoryProvider repositoryProvider,
@@ -56,7 +56,8 @@ public class UttakStegImpl implements UttakSteg {
                          UttakInputTjeneste uttakInputTjeneste,
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
                          BehandlingRepository behandlingRepository,
-                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste) {
+                         SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
+                         KopierForeldrepengerUttaktjeneste kopierUttaktjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
         this.fastsettePerioderTjeneste = fastsettePerioderTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
@@ -67,6 +68,7 @@ public class UttakStegImpl implements UttakSteg {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepository;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
+        this.kopierUttaktjeneste = kopierUttaktjeneste;
     }
 
     @Override
@@ -101,26 +103,10 @@ public class UttakStegImpl implements UttakSteg {
                                     BehandlingStegType sisteSteg) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
-            var originalBehandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId())
-                .getOriginalBehandlingId()
-                .orElseThrow();
-            var uttak = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling);
-            if (uttak.isPresent()) {
-                kopierUttak(kontekst.getBehandlingId(), uttak.get());
-            }
+            kopierUttaktjeneste.kopierUttaksresultatFraOriginalBehandling(kontekst.getBehandlingId());
         } else {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());
-        }
-    }
-
-    private void kopierUttak(Long behandlingId, UttakResultatEntitet uttak) {
-        LOG.info("Kopierer uttaksresultat id {}, til behandling {}", uttak.getId(), behandlingId);
-        var kopiertOpprinneligPerioder = FastsettePerioderRevurderingUtil.kopier(uttak.getOpprinneligPerioder());
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, kopiertOpprinneligPerioder);
-        if (uttak.getOverstyrtPerioder() != null) {
-            var kopiertOverstyrtPerioder = FastsettePerioderRevurderingUtil.kopier(uttak.getOverstyrtPerioder());
-            fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandlingId, kopiertOverstyrtPerioder);
         }
     }
 
