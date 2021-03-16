@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum DokumentMalType implements Kodeverdi {
 
     //Mal hos team dokument
-    INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
     AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
@@ -77,6 +76,8 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_TIDLIG_SOK("FORLTS", "Forlenget saksbehandlingstid - Tidlig søknad"),
     @Deprecated
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
+    @Deprecated
+    INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();
