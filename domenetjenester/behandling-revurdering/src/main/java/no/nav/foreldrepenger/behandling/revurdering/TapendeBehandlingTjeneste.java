@@ -81,6 +81,6 @@ public class TapendeBehandlingTjeneste {
     }
 
     private boolean erBerørtBehandling(Behandling behandling) {
-        return behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING);
+        return behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
     }
 }

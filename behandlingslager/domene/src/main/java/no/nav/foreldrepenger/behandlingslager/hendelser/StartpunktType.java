@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.hendelser;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ public enum StartpunktType implements Kodeverdi {
     // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
     BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 8, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG),
     UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 9, BehandlingStegType.KONTROLLER_LØPENDE_MEDLEMSKAP), // OBS: Endrer du startsteg må du flytte køhåndtering ....
+    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 10, BehandlingStegType.BEREGN_YTELSE),
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT),
     ;
@@ -71,34 +71,38 @@ public enum StartpunktType implements Kodeverdi {
 
         // Søkers relasjon
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.SØKERS_RELASJON_TIL_BARNET,
-            new HashSet<>(Collections.singleton(VilkårType.SØKERSOPPLYSNINGSPLIKT)));
+            Set.of(VilkårType.SØKERSOPPLYSNINGSPLIKT));
 
         // Medlemskap
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP).addAll(new HashSet<>(
-            Arrays.asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP)
+            .addAll(Set.of(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
                 VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-                VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)));
+                VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
 
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.OPPTJENING,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.OPPTJENING).addAll(new HashSet<>(
-            Collections.singletonList(VilkårType.MEDLEMSKAPSVILKÅRET)));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.OPPTJENING).add(VilkårType.MEDLEMSKAPSVILKÅRET);
 
         // Beregning
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.BEREGNING,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.BEREGNING).addAll(new HashSet<>(
-            Arrays.asList(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårType.OPPTJENINGSVILKÅRET)));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.BEREGNING)
+            .addAll(Set.of(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårType.OPPTJENINGSVILKÅRET));
+
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.BEREGNING_FORESLÅ,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
 
         // Uttak
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.UTTAKSVILKÅR,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.UTTAKSVILKÅR).addAll(new HashSet<>(
-            Collections.singletonList(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.UTTAKSVILKÅR).add(VilkårType.BEREGNINGSGRUNNLAGVILKÅR);
+
+        // Tilkjent
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.TILKJENT_YTELSE,
+            VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.TILKJENT_YTELSE).add(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
     }
 
     @JsonIgnore

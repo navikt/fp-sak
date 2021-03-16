@@ -42,12 +42,23 @@ public class Feriepengesammenligner {
         this.gjeldendeResultat = gjeldendeResultat;
     }
 
+    public boolean sjekkForAvvik() {
+        Optional<BeregningsresultatFeriepenger> nyttFeriepengegrunnlag = nyttResultat.getBeregningsresultatFeriepenger();
+        Optional<BeregningsresultatFeriepenger> gjeldendeFeriepengegrunnlag = gjeldendeResultat.getBeregningsresultatFeriepenger();
+        if (nyttFeriepengegrunnlag.isPresent() && gjeldendeFeriepengegrunnlag.isPresent()) {
+            return sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
+                gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
+        } else {
+            return nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent();
+        }
+    }
+
     protected boolean finnesAvvik() {
         Optional<BeregningsresultatFeriepenger> nyttFeriepengegrunnlag = nyttResultat.getBeregningsresultatFeriepenger();
         Optional<BeregningsresultatFeriepenger> gjeldendeFeriepengegrunnlag = gjeldendeResultat.getBeregningsresultatFeriepenger();
         if (nyttFeriepengegrunnlag.isPresent() && gjeldendeFeriepengegrunnlag.isPresent()) {
             sammenlignFeriepengeperiode(nyttFeriepengegrunnlag.get(), gjeldendeFeriepengegrunnlag.get());
-            finnesAvvik = sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
+            finnesAvvik = sammenlignFeriepengeandelerMedLogging(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
                 gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
         } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
             // Vet at kun en av de er present
@@ -62,7 +73,7 @@ public class Feriepengesammenligner {
         Optional<BeregningsresultatFeriepenger> nyttFeriepengegrunnlag = nyttResultat.getBeregningsresultatFeriepenger();
         Optional<BeregningsresultatFeriepenger> gjeldendeFeriepengegrunnlag = gjeldendeResultat.getBeregningsresultatFeriepenger();
         if (nyttFeriepengegrunnlag.isPresent() && gjeldendeFeriepengegrunnlag.isPresent()) {
-            finnesAvvik = sammenlignFeriepengeandeler(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
+            finnesAvvik = sammenlignFeriepengeandelerMedLogging(nyttFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe(),
                 gjeldendeFeriepengegrunnlag.get().getBeregningsresultatFeriepengerPrÅrListe());
         } else if (nyttFeriepengegrunnlag.isPresent() || gjeldendeFeriepengegrunnlag.isPresent()) {
             // Vet at kun en av de er present
@@ -75,6 +86,18 @@ public class Feriepengesammenligner {
 
     private boolean sammenlignFeriepengeandeler(List<BeregningsresultatFeriepengerPrÅr> nyeAndeler,
                                                 List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
+        var simulert = sorterteTilkjenteFeriepenger(nyeAndeler);
+        var tilkjent = sorterteTilkjenteFeriepenger(gjeldendeAndeler);
+
+        Map<AndelGruppering, BigDecimal> summert = new LinkedHashMap<>();
+        tilkjent.forEach((key, value) -> summert.put(key, value.getVerdi()));
+        simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
+
+        return summert.values().stream().anyMatch(Feriepengesammenligner::erAvvik);
+    }
+
+    private boolean sammenlignFeriepengeandelerMedLogging(List<BeregningsresultatFeriepengerPrÅr> nyeAndeler,
+                                                          List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
         var simulert = sorterteTilkjenteFeriepenger(nyeAndeler);
         var tilkjent = sorterteTilkjenteFeriepenger(gjeldendeAndeler);
 

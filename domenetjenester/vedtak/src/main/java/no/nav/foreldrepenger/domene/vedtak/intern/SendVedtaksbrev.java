@@ -90,6 +90,11 @@ public class SendVedtaksbrev {
             return;
         }
 
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
+            LOG.info("Sender ikke vedtaksbrev for reberegning av feriepenger: {}", behandlingId); //$NON-NLS-1$
+            return;
+        }
+
         if (behandlingVedtak.isBeslutningsvedtak()) {
             if (harSendtVarselOmRevurdering(behandlingId)) {
                 LOG.info("Sender informasjonsbrev om uendret utfall i behandling: {}", behandlingId); //$NON-NLS-1$
