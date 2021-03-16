@@ -44,6 +44,10 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
         return new DatoIntervallEntitet(fomDato, TIDENES_ENDE);
     }
 
+    public static DatoIntervallEntitet fraOgMedPlusArbeidsdager(LocalDate fom, int antallArbeidsdager) {
+        return DatoIntervallEntitet.fraOgMedTilOgMed(fom, finnTomDato(fom, antallArbeidsdager));
+    }
+
     @Override
     public LocalDate getFomDato() {
         return fomDato;
