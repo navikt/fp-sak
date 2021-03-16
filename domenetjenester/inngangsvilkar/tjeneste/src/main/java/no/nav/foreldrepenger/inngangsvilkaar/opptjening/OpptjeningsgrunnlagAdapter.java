@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
@@ -15,8 +14,11 @@ import no.nav.foreldrepenger.domene.opptjening.VurderingsStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet.ReferanseType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktivitetIdentifikator;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktivitetPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Orgnummer;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -36,7 +38,7 @@ public class OpptjeningsgrunnlagAdapter {
 
     public Opptjeningsgrunnlag mapTilGrunnlag(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter,
                                               Collection<OpptjeningInntektPeriode> opptjeningInntekter) {
-        Opptjeningsgrunnlag opptjeningsGrunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, startDato, sluttDato);
+        var opptjeningsGrunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, startDato, sluttDato);
 
         // legger til alle rapporterte inntekter og aktiviteter hentet opp. håndterer duplikater/overlapp i
         // mellomregning.
@@ -48,36 +50,31 @@ public class OpptjeningsgrunnlagAdapter {
 
     private void leggTilRapporterteInntekter(Collection<OpptjeningInntektPeriode> opptjeningInntekter,
                                              Opptjeningsgrunnlag opptjeningsGrunnlag) {
-        for (OpptjeningInntektPeriode inn : opptjeningInntekter) {
+        for (var inn : opptjeningInntekter) {
             if (!InntektspostType.LØNN.equals(inn.getType())) {
                 continue;
             }
 
-            LocalDateInterval dateInterval = new LocalDateInterval(inn.getFraOgMed(), inn.getTilOgMed());
-            long beløpHeltall = inn.getBeløp() == null ? 0L : inn.getBeløp().longValue();
+            var dateInterval = new LocalDateInterval(inn.getFraOgMed(), inn.getTilOgMed());
+            var beløpHeltall = inn.getBeløp() == null ? 0L : inn.getBeløp().longValue();
 
-            Opptjeningsnøkkel opptjeningsnøkkel = inn.getOpptjeningsnøkkel();
+            var opptjeningsnøkkel = inn.getOpptjeningsnøkkel();
 
-            ReferanseType refType = getAktivtetReferanseType(opptjeningsnøkkel.getType());
+            var refType = getAktivtetReferanseType(opptjeningsnøkkel.getType());
 
             if (refType != null) {
-                if (opptjeningsnøkkel.harType(Opptjeningsnøkkel.Type.ARBEIDSFORHOLD_ID)) {
-                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, getAktivitetReferanseFraNøkkel(opptjeningsnøkkel), refType);
-                    opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
-                } else {
-                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, opptjeningsnøkkel.getVerdi(), refType);
-                    opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
-                }
+                var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, getAktivitetIndentifikator(opptjeningsnøkkel), refType);
+                opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
             }
         }
     }
 
-    private String getAktivitetReferanseFraNøkkel(Opptjeningsnøkkel opptjeningsnøkkel) {
-        String nøkkel = opptjeningsnøkkel.getForType(Opptjeningsnøkkel.Type.ORG_NUMMER);
-        if (nøkkel == null) {
-            nøkkel = opptjeningsnøkkel.getForType(Opptjeningsnøkkel.Type.AKTØR_ID);
+    private AktivitetIdentifikator getAktivitetIndentifikator(Opptjeningsnøkkel opptjeningsnøkkel) {
+        var orgnummer = opptjeningsnøkkel.getForType(Opptjeningsnøkkel.Type.ORG_NUMMER);
+        if (orgnummer != null) {
+            return new Orgnummer(orgnummer);
         }
-        return nøkkel;
+        return new AktørId(opptjeningsnøkkel.getForType(Opptjeningsnøkkel.Type.AKTØR_ID));
     }
 
     private ReferanseType getAktivtetReferanseType(Opptjeningsnøkkel.Type type) {
@@ -85,44 +82,43 @@ public class OpptjeningsgrunnlagAdapter {
         return switch (type) {
             case ARBEIDSFORHOLD_ID, ORG_NUMMER -> ReferanseType.ORGNR;
             case AKTØR_ID -> ReferanseType.AKTØRID;
-            default -> null;
         };
     }
 
     private void leggTilOpptjening(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter, Opptjeningsgrunnlag opptjeningsGrunnlag) {
-        Collection<OpptjeningAktivitetPeriode> opptjeningAktiveterFiltrert = filtrer(opptjeningAktiveter);
+        var opptjeningAktiveterFiltrert = filtrer(opptjeningAktiveter);
 
         for (OpptjeningAktivitetPeriode opp : opptjeningAktiveterFiltrert) {
-            LocalDateInterval dateInterval = new LocalDateInterval(opp.getPeriode().getFomDato(), opp.getPeriode().getTomDato());
-            Opptjeningsnøkkel opptjeningsnøkkel = opp.getOpptjeningsnøkkel();
+            var dateInterval = new LocalDateInterval(opp.getPeriode().getFomDato(), opp.getPeriode().getTomDato());
+            var opptjeningsnøkkel = opp.getOpptjeningsnøkkel();
             if (opptjeningsnøkkel != null) {
-                String identifikator = getIdentifikator(opp).getElement2();
-                Aktivitet opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator, getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
-                AktivitetPeriode aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
+                var identifikator = getIdentifikator(opp).getElement2();
+                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator, getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
+                var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 opptjeningsGrunnlag.leggTil(aktivitetPeriode);
             } else {
-                Aktivitet opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode());
-                AktivitetPeriode aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
+                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode());
+                var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 opptjeningsGrunnlag.leggTil(aktivitetPeriode);
             }
         }
     }
 
     private Collection<OpptjeningAktivitetPeriode> filtrer(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter) {
-        List<OpptjeningAktivitetPeriode> utenNøkkel = opptjeningAktiveter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).collect(Collectors.toList());
+        var utenNøkkel = opptjeningAktiveter.stream().filter(o -> o.getOpptjeningsnøkkel() == null).collect(Collectors.toList());
         //fjerner de uten opptjeningsnøkkel
         opptjeningAktiveter.removeAll(utenNøkkel);
-        List<OpptjeningAktivitetPeriode> resultat = new ArrayList<>(utenNøkkel);
+        var resultat = new ArrayList<>(utenNøkkel);
 
-        Map<Tuple<String, String>, List<OpptjeningAktivitetPeriode>> identifikatorTilAktivitetMap = opptjeningAktiveter.stream()
+        var identifikatorTilAktivitetMap = opptjeningAktiveter.stream()
             .collect(Collectors.groupingBy(this::getIdentifikator));
-        for (Map.Entry<Tuple<String, String>, List<OpptjeningAktivitetPeriode>> entry : identifikatorTilAktivitetMap.entrySet()) {
+        for (var entry : identifikatorTilAktivitetMap.entrySet()) {
             //legger de med ett innslag rett til i listen
             if (entry.getValue().size() == 1) {
                 resultat.add(entry.getValue().get(0));
             } else {
-                List<OpptjeningAktivitetPeriode> aktiviteterPåSammeOrgnummer = entry.getValue();
-                List<LocalDateTimeline<OpptjeningAktivitetPeriode>> tidsserier = aktiviteterPåSammeOrgnummer.stream()
+                var aktiviteterPåSammeOrgnummer = entry.getValue();
+                var tidsserier = aktiviteterPåSammeOrgnummer.stream()
                     .map(a -> new LocalDateSegment<>(a.getPeriode().getFomDato(), a.getPeriode().getTomDato(), a))
                     .map(s -> new LocalDateTimeline<>(List.of(s)))
                     .collect(Collectors.toList());
@@ -142,12 +138,9 @@ public class OpptjeningsgrunnlagAdapter {
         return resultat;
     }
 
-    private Tuple<String, String> getIdentifikator(OpptjeningAktivitetPeriode opp) {
-        String identifikator = opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER);
-        if (identifikator == null) {
-            identifikator = opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.AKTØR_ID);
-        }
-        return new Tuple<>(opp.getOpptjeningAktivitetType().getKode(), identifikator); // NOSONAR
+    private Tuple<String, AktivitetIdentifikator> getIdentifikator(OpptjeningAktivitetPeriode opp) {
+        var aktivitetIndentifikator = getAktivitetIndentifikator(opp.getOpptjeningsnøkkel());
+        return new Tuple<>(opp.getOpptjeningAktivitetType().getKode(), aktivitetIndentifikator); // NOSONAR
     }
 
     private AktivitetPeriode.VurderingsStatus mapStatus(OpptjeningAktivitetPeriode periode) {
@@ -170,8 +163,8 @@ public class OpptjeningsgrunnlagAdapter {
             return lagSegment(di, førsteVersjon.getValue());
         }
 
-        OpptjeningAktivitetPeriode første = førsteVersjon.getValue();
-        OpptjeningAktivitetPeriode siste = sisteVersjon.getValue();
+        var første = førsteVersjon.getValue();
+        var siste = sisteVersjon.getValue();
 
         //FERDIG_VURDERT_UNDERKJENT er nederst
         if (VurderingsStatus.FERDIG_VURDERT_UNDERKJENT.equals(første.getVurderingsStatus()) &&
@@ -190,8 +183,8 @@ public class OpptjeningsgrunnlagAdapter {
     }
 
     private LocalDateSegment<OpptjeningAktivitetPeriode> lagSegment(LocalDateInterval di, OpptjeningAktivitetPeriode siste) {
-        OpptjeningAktivitetPeriode.Builder builder = OpptjeningAktivitetPeriode.Builder.lagNyBasertPå(siste);
-        OpptjeningAktivitetPeriode aktivitetPeriode = builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(di.getFomDato(), di.getTomDato())).build();
+        var builder = OpptjeningAktivitetPeriode.Builder.lagNyBasertPå(siste);
+        var aktivitetPeriode = builder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(di.getFomDato(), di.getTomDato())).build();
         return new LocalDateSegment<>(di, aktivitetPeriode);
     }
 }

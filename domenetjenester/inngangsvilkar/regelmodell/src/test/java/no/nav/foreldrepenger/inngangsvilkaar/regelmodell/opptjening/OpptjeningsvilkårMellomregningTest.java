@@ -15,7 +15,7 @@ public class OpptjeningsvilkårMellomregningTest {
     @Test
     public void skal_håndtere_overlappende_perioder() {
         final Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(LocalDate.now(), LocalDate.now().minusMonths(10), LocalDate.now());
-        final Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, "123", Aktivitet.ReferanseType.ORGNR);
+        final Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, new Orgnummer("123"), Aktivitet.ReferanseType.ORGNR);
 
         grunnlag.leggTil(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(8), Period.ofWeeks(6)), aktivitet);
         grunnlag.leggTil(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(7), Period.ofMonths(6)), aktivitet);

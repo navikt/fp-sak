@@ -14,7 +14,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public class OpptjeningVilkårMellomliggendePerioderTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
-    private final Aktivitet aktivitet = new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet aktivitet = new Aktivitet(ARBEID, new Orgnummer("BigCorp"), Aktivitet.ReferanseType.ORGNR);
 
     @Test
     public void skal_anse_mellomliggende_periode_mindre_enn_angitt_maks_med_foregående_periode_lenger_enn_anngitt_min_for_godtatt() throws Exception {

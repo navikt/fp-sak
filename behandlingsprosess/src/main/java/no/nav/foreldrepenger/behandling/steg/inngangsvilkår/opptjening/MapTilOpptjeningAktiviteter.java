@@ -26,7 +26,7 @@ public class MapTilOpptjeningAktiviteter {
             for (LocalDateSegment<Boolean> seg : entry.getValue().toSegments()) {
                 Aktivitet key = entry.getKey();
                 OpptjeningAktivitetType aktType = OpptjeningAktivitetType.fraKode(key.getAktivitetType());
-                String aktivitetReferanse = key.getAktivitetReferanse();
+                String aktivitetReferanse = key.getAktivitetReferanse().value();
                 ReferanseType refType = getAktivitetReferanseType(aktivitetReferanse, key);
 
                 OpptjeningAktivitet oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering,

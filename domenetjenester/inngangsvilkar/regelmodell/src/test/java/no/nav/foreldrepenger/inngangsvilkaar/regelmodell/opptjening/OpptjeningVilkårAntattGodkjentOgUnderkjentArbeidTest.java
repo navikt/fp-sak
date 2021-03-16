@@ -16,9 +16,9 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
 
-    private final Aktivitet bigCorp=new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
-    private final Aktivitet smallCorp = new Aktivitet(ARBEID, "SmallCorp", Aktivitet.ReferanseType.ORGNR);
-    private final Aktivitet noCorp = new Aktivitet(ARBEID, "NoCorp", Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet bigCorp=new Aktivitet(ARBEID, new Orgnummer("BigCorp"), Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet smallCorp = new Aktivitet(ARBEID, new Orgnummer("SmallCorp"), Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet noCorp = new Aktivitet(ARBEID, new Orgnummer("NoCorp"), Aktivitet.ReferanseType.ORGNR);
 
     @Test
     public void skal_beregne_underkjente_perioder_med_arbeid_ved_sammenligning_med_inntekt_grunnlag() throws Exception {

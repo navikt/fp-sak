@@ -9,17 +9,17 @@ public class Aktivitet {
 
     public enum ReferanseType {
         ORGNR,
-        AKTØRID;
+        AKTØRID
     }
 
     //OpptjeningAktivitetType.ARBEID
-    static private String ARBEID = "ARBEID";
+    private static String ARBEID = "ARBEID";
 
     @JsonProperty("aktivitetType")
     private String aktivitetType;
 
     @JsonProperty("aktivitetReferanse")
-    private String aktivitetReferanse;
+    private AktivitetIdentifikator aktivitetReferanse;
 
     @JsonProperty("referanseType")
     private ReferanseType referanseType;
@@ -29,7 +29,7 @@ public class Aktivitet {
         // for json
     }
 
-    public Aktivitet(String aktivitetType, String aktivitetReferanse, ReferanseType referanseType) {
+    public Aktivitet(String aktivitetType, AktivitetIdentifikator aktivitetReferanse, ReferanseType referanseType) {
         Objects.requireNonNull(aktivitetType, "aktivitetType må være satt");
         Objects.requireNonNull(aktivitetReferanse, "aktivitetReferanse må være satt");
         Objects.requireNonNull(referanseType, "referanseType må være satt");
@@ -53,7 +53,7 @@ public class Aktivitet {
         return aktivitetType;
     }
 
-    public String getAktivitetReferanse() {
+    public AktivitetIdentifikator getAktivitetReferanse() {
         return aktivitetReferanse;
     }
 
@@ -83,6 +83,5 @@ public class Aktivitet {
                 + (aktivitetReferanse == null ? "" : ", referanse=" + aktivitetReferanse) //$NON-NLS-1$ //$NON-NLS-2$
                 + (referanseType == null ? "" : ", referanseType=" + referanseType) //$NON-NLS-1$ //$NON-NLS-2$
                 + ">"; //$NON-NLS-1$
-
     }
 }

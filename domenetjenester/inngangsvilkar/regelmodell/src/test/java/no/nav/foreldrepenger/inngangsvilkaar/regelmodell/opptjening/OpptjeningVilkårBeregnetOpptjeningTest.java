@@ -18,7 +18,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public class OpptjeningVilkårBeregnetOpptjeningTest {
 
     private final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
-    private final Aktivitet aktivitet = new Aktivitet(ARBEID, "BigCorp", Aktivitet.ReferanseType.ORGNR);
+    private final Aktivitet aktivitet = new Aktivitet(ARBEID, new Orgnummer("BigCorp"), Aktivitet.ReferanseType.ORGNR);
 
     @Test
     public void skal_få_ikke_godkjent_for_beregnet_opptjening_med_mellomliggende_periode_og_for_kort_varighet() throws Exception {
@@ -72,7 +72,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         EvaluationSummary summary = new EvaluationSummary(evaluation);
         Collection<Evaluation> total = summary.leafEvaluations();
         assertThat(total).hasSize(1);
-        assertThat(total.stream().map(e -> e.result())).containsOnly(forventet);
+        assertThat(total.stream().map(Evaluation::result)).containsOnly(forventet);
     }
 
     @Test
