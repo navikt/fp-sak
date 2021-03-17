@@ -136,6 +136,7 @@ public class BerørtBehandlingKontroller {
     }
 
     private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder) {
+        if (true) return false; //TODO: remove når det nedenfor tåler en commit Tx
         if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
         var gjeldendeTilkjent = tilkjentRepository.hentUtbetBeregningsresultat(sisteVedtatteMedForelder.getId()).orElse(null);
         if (gjeldendeTilkjent == null) return false;
