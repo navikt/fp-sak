@@ -40,6 +40,13 @@ class FellesStartpunktUtlederLogger {
     }
 
     static void skrivLoggStartpunktIM(String klasseNavn, String endring, Long behandlingId, String orgnr) {
-        LOG.info("{}: Inntektsmelding endring {}. Behandling: {}, orgnr: {}", klasseNavn, endring, behandlingId, orgnr);// NOSONAR //$NON-NLS-1$
+        LOG.info("{}: Inntektsmelding endring {}. Behandling: {}, orgnr: {}", klasseNavn, endring, behandlingId, tilMaskertOrgnummer(orgnr));// NOSONAR //$NON-NLS-1$
+    }
+
+    private static String tilMaskertOrgnummer(String umaskertOrgnummer) {
+        if (umaskertOrgnummer == null) {
+            return "";
+        }
+        return umaskertOrgnummer.replaceAll("^\\d{5}", "*****");
     }
 }

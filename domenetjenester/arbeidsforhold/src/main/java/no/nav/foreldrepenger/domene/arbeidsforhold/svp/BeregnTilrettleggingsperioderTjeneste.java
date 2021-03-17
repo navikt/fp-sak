@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -95,8 +96,8 @@ public class BeregnTilrettleggingsperioderTjeneste {
                                 .filter(p -> p.getPermisjonsbeskrivelseType().equals(PermisjonsbeskrivelseType.VELFERDSPERMISJON))
                                 .collect(Collectors.toList());
 
-                        LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}", a.getArbeidsgiver().get().getOrgnr(),
-                                aktivitetsAvtalerForArbeid);
+                        LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
+                            OrgNummer.tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
                         return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
                     })
                     .collect(Collectors.toList());

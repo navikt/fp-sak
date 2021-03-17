@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -121,7 +123,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
     @Override
     public String toString() {
         return "Arbeidsgiver{" +
-            "virksomhet=" + OrgNummer.tilMaskertNummer(getOrgnr()) +
+            "virksomhet=" + tilMaskertNummer(getOrgnr()) +
             ", arbeidsgiverAktørId='" + getAktørId() + '\'' +
             '}';
     }
