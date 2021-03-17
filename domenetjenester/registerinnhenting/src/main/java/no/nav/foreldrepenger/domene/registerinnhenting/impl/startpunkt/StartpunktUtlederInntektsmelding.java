@@ -88,7 +88,7 @@ class StartpunktUtlederInntektsmelding {
 
     private StartpunktType finnStartpunktForNyIm(BehandlingReferanse ref, Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> origIm) {
         if (erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, nyIm)) {
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
         if (erStartpunktForNyImBeregning(nyIm, origIm, ref)) {
@@ -108,20 +108,20 @@ class StartpunktUtlederInntektsmelding {
     private boolean erStartpunktForNyImBeregning(Inntektsmelding nyIm, List<Inntektsmelding> origIm, BehandlingReferanse ref) {
         Inntektsmelding origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, origIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return true;
         }
 
         if (nyIm.getInntektBeløp().compareTo(origIM.getInntektBeløp()) != 0) {
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "beløp", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "beløp", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return true;
         }
         if (erEndringPåNaturalYtelser(nyIm, origIM)) {
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "natural", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "natural", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return true;
         }
         if (erEndringPåRefusjon(nyIm, origIM)) {
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "refusjon", ref.getBehandlingId(), nyIm.getArbeidsgiver().getIdentifikator());
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "refusjon", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return true;
         }
         return false;

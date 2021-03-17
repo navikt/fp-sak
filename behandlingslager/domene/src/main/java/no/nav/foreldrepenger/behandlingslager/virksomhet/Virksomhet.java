@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.virksomhet;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -63,7 +65,7 @@ public class Virksomhet {
     public String toString() {
         return "Virksomhet{" +
             "navn=" + navn +
-            ", orgnr=" + orgnr +
+            ", orgnr=" + tilMaskertNummer(orgnr) +
             '}';
     }
 

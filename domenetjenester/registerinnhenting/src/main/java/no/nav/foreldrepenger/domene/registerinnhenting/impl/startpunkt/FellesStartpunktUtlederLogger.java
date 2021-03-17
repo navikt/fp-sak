@@ -39,7 +39,7 @@ class FellesStartpunktUtlederLogger {
         LOG.info("{}: Setter ikke startpunkt for endring i {}. GrunnlagId1: {}, grunnlagId2: {}", klasseNavn, endring, id1, id2);// NOSONAR //$NON-NLS-1$
     }
 
-    static void skrivLoggStartpunktIM(String klasseNavn, String endring, Long behandlingId, String orgnr) {
-        LOG.info("{}: Inntektsmelding endring {}. Behandling: {}, orgnr: {}", klasseNavn, endring, behandlingId, orgnr);// NOSONAR //$NON-NLS-1$
+    static void skrivLoggStartpunktIM(String klasseNavn, String endring, Long behandlingId, String kanalreferanse) {
+        LOG.info("{}: Inntektsmelding endring {}. Behandling: {}, kanalreferanse: {}", klasseNavn, endring, behandlingId, kanalreferanse);// NOSONAR //$NON-NLS-1$
     }
 }

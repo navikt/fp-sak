@@ -128,14 +128,9 @@ public class EndringsresultatDiff {
             ", grunnlagId1=" + grunnlagId1 +
             ", grunnlagId2=" + grunnlagId2 +
             ", erSporedeFeltEndret=" + erSporedeFeltEndret +
-            ", førsteFeltOppdatering=" + Optional.ofNullable(diffResult)
-                .map(DiffResult::getLeafDifferences)
-                .filter(diff -> !diff.isEmpty())
-                .map(diff -> diff.entrySet().iterator().next().toString())
-                .orElse("ingen_oppdatering") +
             ", antallFeltEndringer=" + Optional.ofNullable(diffResult)
-                .map(diff -> diff.getLeafDifferences().size())
-                .orElse(0) +
+            .map(diff -> diff.getLeafDifferences().size())
+            .orElse(0) +
             ", type=" + (children.isEmpty() ? "løvnode" : "rotnode") +
             (children.isEmpty() ? "" : (", children=" + children)) +
             '}' + "\n";
