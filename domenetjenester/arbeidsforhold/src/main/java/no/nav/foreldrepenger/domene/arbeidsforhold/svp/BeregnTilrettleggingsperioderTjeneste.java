@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
+import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
+
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -97,7 +99,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
                                 .collect(Collectors.toList());
 
                         LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
-                            OrgNummer.tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
+                            tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
                         return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
                     })
                     .collect(Collectors.toList());
