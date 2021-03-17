@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
