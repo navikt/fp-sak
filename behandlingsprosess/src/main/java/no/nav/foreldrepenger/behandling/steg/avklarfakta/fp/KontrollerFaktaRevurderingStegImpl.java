@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -52,17 +49,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -75,36 +73,23 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private static final StartpunktType DEFAULT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
 
-    private static final Set<AksjonspunktDefinisjon> AKSJONSPUNKT_SKAL_KOPIERES = Set.of(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
-
     private static final Set<AktivitetStatus> SN_REGULERING = Set.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
             AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN);
 
     private BehandlingRepository behandlingRepository;
-
     private KontrollerFaktaTjeneste tjeneste;
-
     private BehandlingRepositoryProvider repositoryProvider;
-
     private HentOgLagreBeregningsgrunnlagTjeneste hentBeregningsgrunnlagTjeneste;
-
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
-
     private StartpunktTjeneste startpunktTjeneste;
-
     private BehandlingÅrsakTjeneste behandlingÅrsakTjeneste;
-
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     private BehandlingsresultatRepository behandlingsresultatRepository;
-
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
-
     private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -120,7 +105,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             MottatteDokumentTjeneste mottatteDokumentTjeneste,
-            ForeldrepengerUttakTjeneste uttakTjeneste) {
+            ForeldrepengerUttakTjeneste uttakTjeneste,
+            KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -134,6 +120,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.uttakTjeneste = uttakTjeneste;
+        this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
     }
 
     @Override
@@ -156,36 +143,13 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         behandling.setStartpunkt(startpunkt);
 
         // Kopier aksjonspunkter
-        List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
-        aksjonspunktResultater.addAll(kopierOverstyringerTilHøyreForStartpunkt(behandling, ref, startpunkt));
-        aksjonspunktResultater.addAll(tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt));
-        kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+        List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
+            tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
+        kopierResultaterAvhengigAvStartpunkt(behandling, ref, kontekst);
 
         TransisjonIdentifikator transisjon = TransisjonIdentifikator
                 .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
         return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunktResultater);
-    }
-
-    private List<AksjonspunktResultat> kopierOverstyringerTilHøyreForStartpunkt(Behandling behandling, BehandlingReferanse ref,
-            StartpunktType startpunkt) {
-        var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).orElse(null);
-        List<Aksjonspunkt> resultater = new ArrayList<>();
-        if ((original == null) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            return Collections.emptyList();
-        } else if (original.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            resultater.addAll(behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling).map(Behandling::getAksjonspunkter)
-                    .orElse(Collections.emptySet()));
-        } else {
-            resultater.addAll(original.getAksjonspunkter());
-        }
-        // Manuelle til høyre for startpunkt
-        return resultater.stream()
-                .filter(Aksjonspunkt::erUtført)
-                .map(Aksjonspunkt::getAksjonspunktDefinisjon)
-                .filter(AKSJONSPUNKT_SKAL_KOPIERES::contains)
-                .filter(apDef -> tjeneste.skalOverstyringLøsesTilHøyreForStartpunkt(ref, startpunkt, apDef))
-                .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .collect(Collectors.toList());
     }
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
@@ -194,7 +158,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er
             // revurdering av avslåtte behandlinger
             if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-                startpunkt = StartpunktType.UTTAKSVILKÅR;
+                startpunkt = revurdering.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ? StartpunktType.TILKJENT_YTELSE : StartpunktType.UTTAKSVILKÅR;
                 return startpunkt;
             } else {
                 var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
@@ -329,7 +293,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .anyMatch(a -> a.mottarYtelse().orElse(false));
     }
 
-    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
+    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingReferanse ref, BehandlingskontrollKontekst kontekst) {
         Behandling origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
@@ -341,11 +305,15 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     revurdering.getId());
         }
 
-        if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt())) {
+        if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
             beregningsgrunnlagKopierOgLagreTjeneste.kopierBeregningsresultatFraOriginalBehandling(origBehandling.getId(), revurdering.getId());
         }
 
-        tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
+        if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
+            kopierForeldrepengerUttaktjeneste.kopierUttakFraOriginalBehandling(ref);
+        } else {
+            tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
+        }
     }
 
     private Behandling finnBehandlingSomHarKjørtBeregning(Behandling behandling) {

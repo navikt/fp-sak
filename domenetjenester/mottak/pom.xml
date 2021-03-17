@@ -27,6 +27,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>beregning-ytelse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>dokumentarkiv</artifactId>
         </dependency>
         <dependency>

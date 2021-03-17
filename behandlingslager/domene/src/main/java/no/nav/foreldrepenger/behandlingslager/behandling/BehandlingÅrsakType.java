@@ -54,6 +54,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_ENDRING_FRA_BRUKER("RE-END-FRA-BRUKER", "Endringssøknad fra bruker"),
     RE_ENDRET_INNTEKTSMELDING("RE-END-INNTEKTSMELD", "Mottatt ny inntektsmelding"),
     BERØRT_BEHANDLING("BERØRT-BEHANDLING", "Endring i den andre forelderens uttak"),
+    REBEREGN_FERIEPENGER("REBEREGN-FERIEPENGER", "Skal reberegne feriepenger for den andre foreldren"),
 
     // G-regulering
     RE_SATS_REGULERING("RE-SATS-REGULERING", "Regulering av grunnbeløp"),

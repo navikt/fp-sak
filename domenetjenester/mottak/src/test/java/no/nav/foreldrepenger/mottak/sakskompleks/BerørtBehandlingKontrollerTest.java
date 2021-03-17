@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -11,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -31,6 +35,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -43,13 +50,16 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class BerørtBehandlingKontrollerTest {
 
     private BerørtBehandlingKontroller berørtBehandlingKontroller;
 
-    @Inject
+    @Mock
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
@@ -63,6 +73,8 @@ public class BerørtBehandlingKontrollerTest {
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
     @Mock
+    private BeregningsresultatRepository beregningsresultatRepository;
+    @Mock
     private FpUttakRepository fpUttakRepository;
     @Mock
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -74,6 +86,8 @@ public class BerørtBehandlingKontrollerTest {
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     @Mock
     private SøknadRepository søknadRepository;
+    @Mock
+    private BeregnFeriepenger beregnFeriepenger;
 
     private Fagsak fagsak;
     private Fagsak fagsakMedforelder;
@@ -100,10 +114,8 @@ public class BerørtBehandlingKontrollerTest {
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);
         when(repositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
+        when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);
 
-        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste,
-            behandlingskontrollTjeneste, repositoryProvider, behandlingsoppretter, null);
-        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, berørtBehandlingTjeneste, behandlingsoppretter, køkontroller);
 
         fBehandling = lagBehandling();
         fagsak = fBehandling.getFagsak();
@@ -120,6 +132,7 @@ public class BerørtBehandlingKontrollerTest {
         when(behandlingRepository.hentBehandling(køetBehandling.getId())).thenReturn(køetBehandling);
         when(behandlingRepository.hentBehandling(køetBehandlingMedforelder.getId())).thenReturn(køetBehandlingMedforelder);
         when(behandlingRepository.hentBehandling(berørtMedforelder.getId())).thenReturn(berørtMedforelder);
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())).thenReturn(List.of(køetBehandlingMedforelder));
 
         when(behandlingsresultatRepository.hent(fBehandling.getId())).thenReturn(Behandlingsresultat.builder().build());
 
@@ -135,6 +148,10 @@ public class BerørtBehandlingKontrollerTest {
         when(behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId())).thenReturn(Optional.empty());
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsakMedforelder)).thenReturn(Optional.empty());
 
+
+        var køkontroller = new KøKontroller(behandlingProsesseringTjeneste,
+            behandlingskontrollTjeneste, repositoryProvider, behandlingsoppretter, null);
+        berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, berørtBehandlingTjeneste, behandlingsoppretter, beregnFeriepenger, køkontroller);
     }
 
     @Test

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -44,9 +45,9 @@ public class TapendeBehandlingTjenesteTest {
         var tjeneste = tjeneste();
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(morSøknadMottattDato.plusWeeks(1), morBehandling);
-        ScenarioFarSøkerForeldrepenger berørtBehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(morSøknadMottattDato.plusWeeks(1), morBehandling);
+        var berørtBehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         berørtBehandlingScenario.medOriginalBehandling(farBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         var berørtBehandling = berørtBehandlingScenario.lagre(repositoryProvider);
 
@@ -55,13 +56,32 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     @Test
+    public void ikke_tapende_berørtBehandling_og_reberegne_feriepenger() {
+        var tjeneste = tjeneste();
+
+        var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var søknadMottattDato = morSøknadMottattDato.plusWeeks(1);
+        var farBehandling = farFørstegangsbehandling(søknadMottattDato, morBehandling);
+        var berørtBehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        berørtBehandlingScenario.medOriginalBehandling(farBehandling, List.of(BehandlingÅrsakType.BERØRT_BEHANDLING,
+            BehandlingÅrsakType.REBEREGN_FERIEPENGER), false);
+        berørtBehandlingScenario.medSøknad().medMottattDato(søknadMottattDato);
+
+        var berørtBehandling = berørtBehandlingScenario.lagre(repositoryProvider);
+
+        var tapende = tjeneste.erTapendeBehandling(berørtBehandling);
+        assertThat(tapende).isFalse();
+    }
+
+    @Test
     public void tapende_endringssøknadErMottattHosAnnenpartEtterSøkersSøknad() {
         var tjeneste = tjeneste();
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var farSøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
 
@@ -95,8 +115,8 @@ public class TapendeBehandlingTjenesteTest {
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var farSøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
         var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
@@ -112,8 +132,8 @@ public class TapendeBehandlingTjenesteTest {
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var farSøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
         var manuellRevurderingFar = opprettManuellRevurderingFar(farBehandling,
@@ -129,8 +149,8 @@ public class TapendeBehandlingTjenesteTest {
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var farSøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         opprettBehandlingAvEndringssøknadMor(morBehandling, farSøknadMottattDato.plusWeeks(1));
 
@@ -145,9 +165,9 @@ public class TapendeBehandlingTjenesteTest {
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var morEndringssøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
         var farSøknadMottattDato = morEndringssøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
         opprettBehandlingAvEndringssøknadMor(morBehandling, morEndringssøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
         var tapende = tjeneste.erTapendeBehandling(farBehandling);
         assertThat(tapende).isFalse();
@@ -158,8 +178,8 @@ public class TapendeBehandlingTjenesteTest {
         var tjeneste = tjeneste();
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(morSøknadMottattDato.plusWeeks(1), morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(morSøknadMottattDato.plusWeeks(1), morBehandling);
 
         var tapende = tjeneste.erTapendeBehandling(farBehandling);
         assertThat(tapende).isFalse();
@@ -168,7 +188,7 @@ public class TapendeBehandlingTjenesteTest {
     @Test
     public void ikkeTapende_farUtenMor() {
         var tjeneste = tjeneste();
-        Behandling farBehandling = farFørstegangsbehandlingUtenMor(LocalDate.of(2019, 10, 1).plusWeeks(1));
+        var farBehandling = farFørstegangsbehandlingUtenMor(LocalDate.of(2019, 10, 1).plusWeeks(1));
 
         var tapende = tjeneste.erTapendeBehandling(farBehandling);
         assertThat(tapende).isFalse();
@@ -180,10 +200,10 @@ public class TapendeBehandlingTjenesteTest {
 
         var morSøknadMottattDato = LocalDate.of(2019, 9, 30);
         var farSøknadMottattDato = morSøknadMottattDato.plusWeeks(1);
-        Behandling morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
-        Behandling farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
+        var morBehandling = morFørstegangsbehandling(morSøknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(farSøknadMottattDato, morBehandling);
 
-        ScenarioMorSøkerForeldrepenger morEndringssøknadScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var morEndringssøknadScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         morEndringssøknadScenario.medOriginalBehandling(morBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         morEndringssøknadScenario.medSøknad().medMottattDato(farSøknadMottattDato.plusWeeks(1));
         morEndringssøknadScenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -198,15 +218,15 @@ public class TapendeBehandlingTjenesteTest {
     }
 
     private Behandling farFørstegangsbehandlingUtenMor(LocalDate søknadMottattDato) {
-        Behandling farBehandling = farFørstegangsbehandling(søknadMottattDato);
+        var farBehandling = farFørstegangsbehandling(søknadMottattDato);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(farBehandling.getFagsak(), Dekningsgrad._100);
         return farBehandling;
     }
 
-    private Behandling farFørstegangsbehandling(LocalDate søknadMottattDato, Behandling morBehandling) {
-        Behandling farBehandling = farFørstegangsbehandling(søknadMottattDato);
+    private Behandling farFørstegangsbehandling(LocalDate søknadMottattDato, Behandling behandling) {
+        var farBehandling = farFørstegangsbehandling(søknadMottattDato);
         repositoryProvider.getFagsakRelasjonRepository()
-                .kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
+                .kobleFagsaker(behandling.getFagsak(), farBehandling.getFagsak(), behandling);
         return farBehandling;
     }
 
@@ -226,14 +246,14 @@ public class TapendeBehandlingTjenesteTest {
 
     private Behandling opprettBehandlingAvEndringssøknadMor(Behandling originalBehandling,
             LocalDate søknadMottattDato) {
-        ScenarioMorSøkerForeldrepenger endringBehandlingMor = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var endringBehandlingMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         endringBehandlingMor.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         endringBehandlingMor.medSøknad().medMottattDato(søknadMottattDato);
         return avsluttMedVedtak(endringBehandlingMor);
     }
 
     private Behandling opprettManuellRevurderingFar(Behandling originalBehandling, BehandlingÅrsakType årsak) {
-        ScenarioFarSøkerForeldrepenger manuellRevurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var manuellRevurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
         manuellRevurdering.medOriginalBehandling(originalBehandling, årsak);
         var behandling = avsluttMedVedtak(manuellRevurdering);
         repositoryProvider.getSøknadRepository()

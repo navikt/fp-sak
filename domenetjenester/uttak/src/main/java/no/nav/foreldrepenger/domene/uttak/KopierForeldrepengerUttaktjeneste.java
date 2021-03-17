@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling.steg;
+package no.nav.foreldrepenger.domene.uttak;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -18,15 +19,12 @@ public class KopierForeldrepengerUttaktjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(KopierForeldrepengerUttaktjeneste.class);
 
     private FpUttakRepository fpUttakRepository;
-    private BehandlingRepository behandlingRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
 
     @Inject
     public KopierForeldrepengerUttaktjeneste(FpUttakRepository fpUttakRepository,
-                                             BehandlingRepository behandlingRepository,
                                              YtelsesFordelingRepository ytelsesFordelingRepository) {
         this.fpUttakRepository = fpUttakRepository;
-        this.behandlingRepository = behandlingRepository;
         this.ytelsesFordelingRepository = ytelsesFordelingRepository;
     }
 
@@ -34,28 +32,19 @@ public class KopierForeldrepengerUttaktjeneste {
         //CDI
     }
 
-    public void kopierUttakFraOriginalBehandling(Long behandlingId) {
-        kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(behandlingId);
-        kopierUttaksresultatFraOriginalBehandling(behandlingId);
+    public void kopierUttakFraOriginalBehandling(BehandlingReferanse referanse) {
+        kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(referanse);
+        kopierUttaksresultatFraOriginalBehandling(referanse);
     }
 
-    public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(Long behandlingId) {
-        var originalBehandling = finnOriginalBehandling(behandlingId);
-        LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", originalBehandling, behandlingId);
-        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandling, behandlingId);
+    public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(BehandlingReferanse ref) {
+        LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", ref.getOriginalBehandlingId(), ref.getBehandlingId());
+        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.getBehandlingId());
     }
 
-    public void kopierUttaksresultatFraOriginalBehandling(Long behandlingId) {
-        var originalBehandling = finnOriginalBehandling(behandlingId);
-        fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling)
-            .ifPresent(uttak -> kopierUttaksresultat(behandlingId, uttak));
-    }
-
-    private Long finnOriginalBehandling(Long behandlingId) {
-        return behandlingRepository.hentBehandling(behandlingId)
-            .getOriginalBehandlingId()
-            .orElseThrow(
-                () -> new IllegalArgumentException("Finner ikke original behandling for behandling " + behandlingId));
+    public void kopierUttaksresultatFraOriginalBehandling(BehandlingReferanse referanse) {
+        fpUttakRepository.hentUttakResultatHvisEksisterer(referanse.getOriginalBehandlingId().orElseThrow())
+            .ifPresent(uttak -> kopierUttaksresultat(referanse.getBehandlingId(), uttak));
     }
 
     private void kopierUttaksresultat(Long behandlingId, UttakResultatEntitet uttak) {

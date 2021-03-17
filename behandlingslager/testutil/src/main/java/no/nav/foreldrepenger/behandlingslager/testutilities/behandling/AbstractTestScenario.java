@@ -175,7 +175,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private List<PersonInformasjon> personer;
 
     private Behandling originalBehandling;
-    private BehandlingÅrsakType behandlingÅrsakType;
+    private List<BehandlingÅrsakType> behandlingÅrsakTyper;
     private BehandlingRepositoryProvider repositoryProvider;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
@@ -968,7 +968,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             behandlingBuilder = Behandling.nyBehandlingFor(fagsak, behandlingType);
         } else {
             behandlingBuilder = Behandling.fraTidligereBehandling(originalBehandling, behandlingType)
-                    .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakType).medManueltOpprettet(manueltOpprettet)
+                    .medBehandlingÅrsak(BehandlingÅrsak.builder(behandlingÅrsakTyper).medManueltOpprettet(manueltOpprettet)
                             .medOriginalBehandlingId(originalBehandling.getId()));
         }
 
@@ -1382,13 +1382,13 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     public S medOriginalBehandling(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsakType) {
-        return medOriginalBehandling(originalBehandling, behandlingÅrsakType, false);
+        return medOriginalBehandling(originalBehandling, List.of(behandlingÅrsakType), false);
     }
 
     @SuppressWarnings("unchecked")
-    public S medOriginalBehandling(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsakType, boolean manueltOpprettet) {
+    public S medOriginalBehandling(Behandling originalBehandling, List<BehandlingÅrsakType> behandlingÅrsakType, boolean manueltOpprettet) {
         this.originalBehandling = originalBehandling;
-        this.behandlingÅrsakType = behandlingÅrsakType;
+        this.behandlingÅrsakTyper = behandlingÅrsakType;
         this.manueltOpprettet = manueltOpprettet;
         this.behandlingType = BehandlingType.REVURDERING;
         return (S) this;
