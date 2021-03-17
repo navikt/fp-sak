@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
@@ -124,10 +126,14 @@ public class FastsettePerioderRegelResultatKonverterer {
     private UttakAktivitetEntitet riktigUttakAktivitet(AktivitetIdentifikator aktivitet,
                                                        Set<UttakAktivitetEntitet> uttakAktiviteter) {
         return uttakAktiviteter.stream()
-            .filter(uttakAktivitet -> Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType())
-                && Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().getReferanse())
-                && Objects.equals(aktivitet.getArbeidsgiverIdentifikator(),
-                uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
+            .filter(uttakAktivitet -> {
+                var identifikator = Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator())
+                    .map(ai -> ai.value())
+                    .orElse(null);
+                return Objects.equals(lagArbeidType(aktivitet), uttakAktivitet.getUttakArbeidType())
+                    && Objects.equals(aktivitet.getArbeidsforholdId(), uttakAktivitet.getArbeidsforholdRef().getReferanse())
+                    && Objects.equals(identifikator, uttakAktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null));
+            })
             .findFirst()
             .orElse(null);
     }
@@ -233,16 +239,14 @@ public class FastsettePerioderRegelResultatKonverterer {
             var arbeidsforholdRef =
                 aktivitetIdentifikator.getArbeidsforholdId() == null ? null : InternArbeidsforholdRef.ref(
                     aktivitetIdentifikator.getArbeidsforholdId());
-            if (Objects.equals(aktivitetIdentifikator.getArbeidsgiverType(),
-                AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET)) {
-                builder.medArbeidsforhold(Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator), arbeidsforholdRef);
-            } else if (Objects.equals(aktivitetIdentifikator.getArbeidsgiverType(),
-                AktivitetIdentifikator.ArbeidsgiverType.PERSON)) {
-                builder.medArbeidsforhold(Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator)),
+            if (arbeidsgiverIdentifikator instanceof Orgnummer) {
+                builder.medArbeidsforhold(Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value()), arbeidsforholdRef);
+            } else if (arbeidsgiverIdentifikator instanceof no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId) {
+                builder.medArbeidsforhold(Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value())),
                     arbeidsforholdRef);
             } else {
                 throw new IllegalStateException(
-                    "Støtter ikke arbeidsgiver type " + aktivitetIdentifikator.getArbeidsgiverType());
+                    "Støtter ikke arbeidsgiver type " + aktivitetIdentifikator.getArbeidsgiverIdentifikator().getClass());
             }
         }
 

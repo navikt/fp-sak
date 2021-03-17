@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.FastsettePeriodeResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak;
@@ -76,7 +77,7 @@ public class FastsettePerioderRegelResultatKonvertererTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, InternArbeidsforholdRef.nullRef());
 
         var aktivitet = new UttakPeriodeAktivitet(
-            AktivitetIdentifikator.forArbeid(arbeidsgiver.getIdentifikator(), null), Utbetalingsgrad.TEN,
+            AktivitetIdentifikator.forArbeid(new Orgnummer(arbeidsgiver.getIdentifikator()), null), Utbetalingsgrad.TEN,
             Trekkdager.ZERO, false);
         var uttakPeriode = new UttakPeriode(periodeFom, periodeTom, Perioderesultattype.INNVILGET, null,
             InnvilgetÅrsak.UTSETTELSE_GYLDIG_PGA_100_PROSENT_ARBEID, null, Set.of(aktivitet), false, null, null, null,

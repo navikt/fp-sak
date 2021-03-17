@@ -74,7 +74,9 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppgittPeriode;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Stønadskontotype;
 
@@ -91,18 +93,15 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         repositoryProvider = new UttakRepositoryStubProvider();
         grunnlagBygger = new FastsettePerioderRegelGrunnlagBygger(
             new AnnenPartGrunnlagBygger(repositoryProvider.getFpUttakRepository()),
-            new ArbeidGrunnlagBygger(repositoryProvider),
-            new BehandlingGrunnlagBygger(),
-            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()),
-            new MedlemskapGrunnlagBygger(),
-            new RettOgOmsorgGrunnlagBygger(repositoryProvider, new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
-            new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(), repositoryProvider.getFpUttakRepository()),
+            new ArbeidGrunnlagBygger(repositoryProvider), new BehandlingGrunnlagBygger(),
+            new DatoerGrunnlagBygger(new PersonopplysningerForUttakStub()), new MedlemskapGrunnlagBygger(),
+            new RettOgOmsorgGrunnlagBygger(repositoryProvider,
+                new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository())),
+            new RevurderingGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository(),
+                repositoryProvider.getFpUttakRepository()),
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
-            new InngangsvilkårGrunnlagBygger(repositoryProvider),
-            new OpptjeningGrunnlagBygger(),
-            new AdopsjonGrunnlagBygger(),
-            new KontoerGrunnlagBygger(repositoryProvider)
-        );
+            new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
+            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(repositoryProvider));
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {
@@ -111,7 +110,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
     @Test
     public void oppgittPeriodeSkalFåRiktigArbeidsprosent() {
-        var aktivitet = AktivitetIdentifikator.forArbeid(OrgNummer.KUNSTIG_ORG, InternArbeidsforholdRef.nyRef().getReferanse());
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer(OrgNummer.KUNSTIG_ORG),
+            InternArbeidsforholdRef.nyRef().getReferanse());
 
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(10);
@@ -129,7 +129,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var behandling = setup(oppgittPeriode, virksomhet, BigDecimal.valueOf(100), aktivitet.getArbeidsforholdId(),
             fom.minusYears(1));
 
-        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
+            InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
 
         var input = lagInput(behandling);
         var grunnlag = grunnlagBygger.byggGrunnlag(input);
@@ -142,14 +143,17 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     private UttakInput lagInput(Behandling behandling) {
         var ref = lagRef(behandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
-        var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2), List.of(new Barn()), 1);
-        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse));
-        return new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
+        var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
+            List.of(new Barn()), 1);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse));
+        return new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
+            beregningsandelTjeneste.hentStatuser());
     }
 
     @Test
     public void skalLeggeTilFlereGraderteAktiviteterIUttakPeriodeVedFlereGraderteAktiviterISammeVirksomhet() {
-        var orgnr = OrgNummer.KUNSTIG_ORG;
+        var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
         var aktivitet1 = AktivitetIdentifikator.forArbeid(orgnr, InternArbeidsforholdRef.nyRef().getReferanse());
         var aktivitet2 = AktivitetIdentifikator.forArbeid(orgnr, InternArbeidsforholdRef.nyRef().getReferanse());
 
@@ -175,8 +179,10 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             List.of(aktivitet1.getArbeidsforholdId(), aktivitet2.getArbeidsforholdId()), fom.minusYears(1));
 
 
-        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet1.getArbeidsforholdId()));
-        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet2.getArbeidsforholdId()));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
+            InternArbeidsforholdRef.ref(aktivitet1.getArbeidsforholdId()));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
+            InternArbeidsforholdRef.ref(aktivitet2.getArbeidsforholdId()));
         var input = lagInput(behandling);
         var grunnlag = grunnlagBygger.byggGrunnlag(input);
 
@@ -188,8 +194,10 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(gradertAktivitetMedIdentifikator(aktivitet2, gradertOppgittPeriode.orElseThrow())).isPresent();
     }
 
-    private Optional<AktivitetIdentifikator> gradertAktivitetMedIdentifikator(AktivitetIdentifikator aktivitetIdentifikator, OppgittPeriode gradertOppgittPeriode) {
-        return gradertOppgittPeriode.getGradertAktiviteter().stream()
+    private Optional<AktivitetIdentifikator> gradertAktivitetMedIdentifikator(AktivitetIdentifikator aktivitetIdentifikator,
+                                                                              OppgittPeriode gradertOppgittPeriode) {
+        return gradertOppgittPeriode.getGradertAktiviteter()
+            .stream()
             .filter(a -> a.getArbeidsgiverIdentifikator().equals(aktivitetIdentifikator.getArbeidsgiverIdentifikator()))
             .filter(a -> a.getArbeidsforholdId().equals(aktivitetIdentifikator.getArbeidsforholdId()))
             .findFirst();
@@ -206,7 +214,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
     @Test
     public void skalLeggeTilGradertFrilansUtenOrgnrISøknadSomGradertPeriode() {
-        var orgnr = OrgNummer.KUNSTIG_ORG;
+        var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
 
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(10);
@@ -229,12 +237,19 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         assertThat(grunnlag.getSøknad().getOppgittePerioder()).hasSize(1);
         assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
-        assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getGradertAktiviteter().stream().findFirst().orElseThrow().getAktivitetType()).isEqualTo(AktivitetType.FRILANS);
+        assertThat(grunnlag.getSøknad()
+            .getOppgittePerioder()
+            .get(0)
+            .getGradertAktiviteter()
+            .stream()
+            .findFirst()
+            .orElseThrow()
+            .getAktivitetType()).isEqualTo(AktivitetType.FRILANS);
     }
 
     @Test
     public void gradertArbeidsforholdArbeidstakerMedSamtUgradertFrilansSkalBareGiEnGradertAktivitet() {
-        var orgnr = OrgNummer.KUNSTIG_ORG;
+        var orgnr = new Orgnummer(OrgNummer.KUNSTIG_ORG);
 
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusDays(10);
@@ -253,12 +268,12 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var builder = lagYrkesAktiviter(behandling, arbeidsgiver,
-            Collections.singletonList(arbeidsforholdId.getReferanse()), BigDecimal.valueOf(100), LocalDate.now().minusWeeks(1));
+            Collections.singletonList(arbeidsforholdId.getReferanse()), BigDecimal.valueOf(100),
+            LocalDate.now().minusWeeks(1));
 
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
-        var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(arbeidsgiver,
-            BigDecimal.valueOf(100), LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1),
-            arbeidsforholdId,
+        var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(arbeidsgiver, BigDecimal.valueOf(100),
+            LocalDate.now().minusWeeks(1), LocalDate.now().plusMonths(1), arbeidsforholdId,
             ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -273,7 +288,13 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(grunnlag.getSøknad().getOppgittePerioder()).hasSize(1);
         assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getArbeidsprosent()).isEqualTo(arbeidsprosent);
         assertThat(grunnlag.getSøknad().getOppgittePerioder().get(0).getGradertAktiviteter()).hasSize(1);
-        var aktivitetIdentifikator1 = grunnlag.getSøknad().getOppgittePerioder().get(0).getGradertAktiviteter().stream().findFirst().orElseThrow();
+        var aktivitetIdentifikator1 = grunnlag.getSøknad()
+            .getOppgittePerioder()
+            .get(0)
+            .getGradertAktiviteter()
+            .stream()
+            .findFirst()
+            .orElseThrow();
         assertThat(aktivitetIdentifikator1.getAktivitetType()).isEqualTo(AktivitetType.ARBEID);
         assertThat(aktivitetIdentifikator1.getArbeidsgiverIdentifikator()).isEqualTo(orgnr);
     }
@@ -288,55 +309,60 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
 
         // Uttak periode 1
-        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(fødselsdato,
+            fødselsdato.plusWeeks(6).minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
 
-        var morsArbeidsgiver = lagVirksomhetArbeidsgiver("3333");
-        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).medArbeidsforhold(morsArbeidsgiver, InternArbeidsforholdRef.nyRef())
+        var morsArbeidsgiver = lagVirksomhetArbeidsgiver(new Orgnummer("3333"));
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .medArbeidsforhold(morsArbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakMødrekvote, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(30))
             .medTrekkonto(StønadskontoType.MØDREKVOTE)
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
 
         perioder.leggTilPeriode(uttakMødrekvote);
 
         // Uttak periode 2
-        var uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(10).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(6),
+            fødselsdato.plusWeeks(10).minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(uttakFellesperiode, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.FELLESPERIODE)
             .medUtbetalingsgrad(Utbetalingsgrad.TEN)
-            .medArbeidsprosent(BigDecimal.valueOf(10)).build();
+            .medArbeidsprosent(BigDecimal.valueOf(10))
+            .build();
 
         perioder.leggTilPeriode(uttakFellesperiode);
 
         //Utsettelse
-        var utsettelse = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(11).minusDays(1))
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .build();
+        var utsettelse = new UttakResultatPeriodeEntitet.Builder(fødselsdato.plusWeeks(10),
+            fødselsdato.plusWeeks(11).minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
 
         UttakResultatPeriodeAktivitetEntitet.builder(utsettelse, arbeidsforhold1)
             .medTrekkdager(new Trekkdager(20))
             .medTrekkonto(StønadskontoType.UDEFINERT)
             .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
-            .medArbeidsprosent(BigDecimal.ZERO).build();
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
 
         perioder.leggTilPeriode(utsettelse);
 
-        repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(morsBehandling.getId(), perioder);
 
         lagreStønadskontoer(morsBehandling, repositoryProvider.getFagsakRelasjonRepository());
 
         // Arrange - fars behandling
-        var aktivitet = AktivitetIdentifikator.forArbeid("1111", InternArbeidsforholdRef.nyRef().getReferanse());
+        var aktivitet = AktivitetIdentifikator.forArbeid(new Orgnummer("1111"),
+            InternArbeidsforholdRef.nyRef().getReferanse());
         var virksomhet = lagVirksomhetArbeidsgiver(aktivitet.getArbeidsgiverIdentifikator());
         var uttakFPFar = OppgittPeriodeBuilder.ny()
             .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(20).minusDays(1))
@@ -346,7 +372,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medErArbeidstaker(true)
             .build();
 
-        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato).build();
+        var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(fødselsdato)
+            .build();
         var scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(Collections.singletonList(uttakFPFar), true))
             .medAvklarteUttakDatoer(avklarteUttakDatoerEntitet)
@@ -354,26 +381,30 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         var farsBehandling = lagre(scenarioFarSøkerForeldrepenger);
 
-        repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        repositoryProvider.getFagsakRelasjonRepository()
+            .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), farsBehandling.getId());
         lagreYrkesAktiviter(farsBehandling, virksomhet, Collections.singletonList(aktivitet.getArbeidsforholdId()),
             BigDecimal.valueOf(100), fødselsdato.minusYears(1));
 
-        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
+            InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
         // Act
         var ref = lagRef(farsBehandling);
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
-        var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2), List.of(new Barn()), 1);
-        var fpGrunnlag = new ForeldrepengerGrunnlag()
-            .medFamilieHendelser(new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
+        var bekreftetFamilieHendelse = FamilieHendelse.forFødsel(null, LocalDate.now().minusWeeks(2),
+            List.of(new Barn()), 1);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
+            new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
             .medAnnenpart(new Annenpart(false, morsBehandling.getId()));
-        var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag)
-            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser());
+        var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
+            beregningsandelTjeneste.hentStatuser());
         var grunnlag = grunnlagBygger.byggGrunnlag(input);
 
         // Assert
-        var forventetAktivitetIdentifikator = AktivitetIdentifikator.forArbeid(arbeidsforhold1.getArbeidsgiver().get().getIdentifikator(),
+        var forventetOrgnr = new Orgnummer(arbeidsforhold1.getArbeidsgiver().orElseThrow().getIdentifikator());
+        var forventetAktivitetIdentifikator = AktivitetIdentifikator.forArbeid(forventetOrgnr,
             arbeidsforhold1.getArbeidsforholdRef().getReferanse());
 
         var uttakPerioderAnnenPart = grunnlag.getAnnenPart().getUttaksperioder();
@@ -387,8 +418,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var aktivitetMødrekvote = annenPartGrunnlag.getAktiviteter().stream().findFirst().orElseThrow();
         assertThat(aktivitetMødrekvote.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
         assertThat(aktivitetMødrekvote.getStønadskontotype()).isEqualTo(Stønadskontotype.MØDREKVOTE);
-        assertThat(new Trekkdager(aktivitetMødrekvote.getTrekkdager().decimalValue()))
-            .isEqualTo(uttakMødrekvote.getAktiviteter().get(0).getTrekkdager());
+        assertThat(new Trekkdager(aktivitetMødrekvote.getTrekkdager().decimalValue())).isEqualTo(
+            uttakMødrekvote.getAktiviteter().get(0).getTrekkdager());
 
         var mappedFellesperiode = uttakPerioderAnnenPart.get(1);
         assertThat(mappedFellesperiode.getFom()).isEqualTo(uttakFellesperiode.getFom());
@@ -398,13 +429,13 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var aktivitetFellesperiode = mappedFellesperiode.getAktiviteter().stream().findFirst().orElseThrow();
         assertThat(aktivitetFellesperiode.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
         assertThat(aktivitetFellesperiode.getStønadskontotype()).isEqualTo(Stønadskontotype.FELLESPERIODE);
-        assertThat(new Trekkdager(aktivitetFellesperiode.getTrekkdager().decimalValue()))
-            .isEqualTo(uttakFellesperiode.getAktiviteter().get(0).getTrekkdager());
+        assertThat(new Trekkdager(aktivitetFellesperiode.getTrekkdager().decimalValue())).isEqualTo(
+            uttakFellesperiode.getAktiviteter().get(0).getTrekkdager());
     }
 
     @Test
     public void testeSamtidigUttak() {
-        var orgnr1 = OrgNummer.KUNSTIG_ORG;
+        var orgnr1 = new Orgnummer(OrgNummer.KUNSTIG_ORG);
         var aktivitet = AktivitetIdentifikator.forArbeid(orgnr1, InternArbeidsforholdRef.nyRef().getReferanse());
 
         var fom = LocalDate.now();
@@ -425,7 +456,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             BigDecimal.valueOf(100), fom.minusYears(1));
 
 
-        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet,
+            InternArbeidsforholdRef.ref(aktivitet.getArbeidsforholdId()));
 
         var input = lagInput(behandling);
         var grunnlag = grunnlagBygger.byggGrunnlag(input);
@@ -435,7 +467,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var oppittePerioder = grunnlag.getSøknad().getOppgittePerioder();
 
         assertThat(oppittePerioder).isNotEmpty();
-        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent().decimalValue()).isEqualTo(SamtidigUttaksprosent.TEN.decimalValue());
+        assertThat(oppittePerioder.get(0).getSamtidigUttaksprosent().decimalValue()).isEqualTo(
+            SamtidigUttaksprosent.TEN.decimalValue());
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
@@ -447,7 +480,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
                              BigDecimal stillingsprosent,
                              String arbeidsforholdId,
                              LocalDate startdatoArbeidsgiver) {
-        return setup(Collections.singletonList(oppgittPeriode), arbeidsgiver, stillingsprosent, List.of(arbeidsforholdId), startdatoArbeidsgiver);
+        return setup(Collections.singletonList(oppgittPeriode), arbeidsgiver, stillingsprosent,
+            List.of(arbeidsforholdId), startdatoArbeidsgiver);
     }
 
     private Behandling setup(List<OppgittPeriodeEntitet> oppgittPeriode,
@@ -468,24 +502,33 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
 
     private void lagreUttaksperiodegrense(UttaksperiodegrenseRepository repository, Long behandlingId) {
         var br = repositoryProvider.getBehandlingsresultatRepository().hent(behandlingId);
-        var grense = new Uttaksperiodegrense.Builder(br)
-            .medFørsteLovligeUttaksdag(LocalDate.now().minusMonths(6)).medMottattDato(LocalDate.now().minusWeeks(2)).build();
+        var grense = new Uttaksperiodegrense.Builder(br).medFørsteLovligeUttaksdag(LocalDate.now().minusMonths(6))
+            .medMottattDato(LocalDate.now().minusWeeks(2))
+            .build();
         repository.lagre(behandlingId, grense);
     }
 
-    private Arbeidsgiver lagVirksomhetArbeidsgiver(String orgnr) {
-        return Arbeidsgiver.virksomhet(orgnr);
+    private Arbeidsgiver lagVirksomhetArbeidsgiver(ArbeidsgiverIdentifikator arbeidsgiverIdentifikator) {
+        return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
     }
 
     private void lagreStønadskontoer(Behandling behandling, FagsakRelasjonRepository fagsakRelasjonRepository) {
-        var mødrekvote = Stønadskonto.builder().medStønadskontoType(StønadskontoType.MØDREKVOTE)
-            .medMaxDager(30).build();
-        var fellesperiode = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FELLESPERIODE)
-            .medMaxDager(15).build();
-        var fedrekvote = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FEDREKVOTE)
-            .medMaxDager(50).build();
-        var foreldrepengerFørFødsel = Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
-            .medMaxDager(130).build();
+        var mødrekvote = Stønadskonto.builder()
+            .medStønadskontoType(StønadskontoType.MØDREKVOTE)
+            .medMaxDager(30)
+            .build();
+        var fellesperiode = Stønadskonto.builder()
+            .medStønadskontoType(StønadskontoType.FELLESPERIODE)
+            .medMaxDager(15)
+            .build();
+        var fedrekvote = Stønadskonto.builder()
+            .medStønadskontoType(StønadskontoType.FEDREKVOTE)
+            .medMaxDager(50)
+            .build();
+        var foreldrepengerFørFødsel = Stønadskonto.builder()
+            .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .medMaxDager(130)
+            .build();
 
         var stønadskontoberegning = Stønadskontoberegning.builder()
             .medStønadskonto(mødrekvote)
@@ -521,10 +564,8 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
 
         for (var arbeidsforholdId : arbeidsforholdIdList) {
-            var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(virksomhet, stillingsprosent,
-                fom, LocalDate.MAX,
-                InternArbeidsforholdRef.ref(arbeidsforholdId),
-                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+            var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(virksomhet, stillingsprosent, fom,
+                LocalDate.MAX, InternArbeidsforholdRef.ref(arbeidsforholdId), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
 
             aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
             iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -538,8 +579,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
     }
 
     private InntektArbeidYtelseAggregatBuilder lagYrkesAktivitFrilans(Behandling behandling, Arbeidsgiver virksomhet) {
-        var builder = InntektArbeidYtelseAggregatBuilder
-            .oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
 
         var fraOgMed = LocalDate.now().minusWeeks(1);
         var tilOgMed = LocalDate.now().plusMonths(1);
@@ -547,25 +587,26 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
 
-        var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(virksomhet, BigDecimal.valueOf(100),
-            fraOgMed, tilOgMed, null, ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
+        var yrkesaktivitetBuilder = lagYrkesAktivitetForArbeidsforhold(virksomhet, BigDecimal.valueOf(100), fraOgMed,
+            tilOgMed, null, ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
 
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
-        var yrkesaktivitetBuilder2 = lagYrkesAktivitetForFrilansOverordnet(fraOgMed, tilOgMed, ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
+        var yrkesaktivitetBuilder2 = lagYrkesAktivitetForFrilansOverordnet(fraOgMed, tilOgMed,
+            ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
 
         aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder2);
         return builder;
     }
 
-    private YrkesaktivitetBuilder lagYrkesAktivitetForFrilansOverordnet(LocalDate fraOgMed, LocalDate tilOgMed, ArbeidType arbeidType) {
+    private YrkesaktivitetBuilder lagYrkesAktivitetForFrilansOverordnet(LocalDate fraOgMed,
+                                                                        LocalDate tilOgMed,
+                                                                        ArbeidType arbeidType) {
         var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
         var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
 
-        var aktivitetsAvtale = aktivitetsAvtaleBuilder
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
-        yrkesaktivitetBuilder
-            .medArbeidType(arbeidType)
-            .leggTilAktivitetsAvtale(aktivitetsAvtale);
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(
+            DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
+        yrkesaktivitetBuilder.medArbeidType(arbeidType).leggTilAktivitetsAvtale(aktivitetsAvtale);
 
         return yrkesaktivitetBuilder;
     }
@@ -584,8 +625,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             .medSisteLønnsendringsdato(fraOgMed);
         var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed));
-        yrkesaktivitetBuilder
-            .medArbeidType(arbeidType)
+        yrkesaktivitetBuilder.medArbeidType(arbeidType)
             .medArbeidsgiver(virksomhet)
             .medArbeidsforholdId(arbeidsforholdId)
             .leggTilAktivitetsAvtale(aktivitetsAvtale)
@@ -598,8 +638,12 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(new OppgittFordelingEntitet(oppgittPerioder, true));
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        var førsteUttaksdag = oppgittPerioder.stream().min(Comparator.comparing(OppgittPeriodeEntitet::getFom)).get().getFom();
-        scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(førsteUttaksdag).build());
+        var førsteUttaksdag = oppgittPerioder.stream()
+            .min(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .get()
+            .getFom();
+        scenario.medAvklarteUttakDatoer(
+            new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(førsteUttaksdag).build());
 
         var behandling = lagre(scenario);
         lagreUttaksperiodegrense(repositoryProvider.getUttaksperiodegrenseRepository(), behandling.getId());

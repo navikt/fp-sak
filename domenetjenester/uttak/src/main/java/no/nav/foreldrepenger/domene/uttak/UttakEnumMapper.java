@@ -11,9 +11,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -36,6 +36,8 @@ import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Perioderesultattype;
@@ -96,14 +98,14 @@ public final class UttakEnumMapper {
             return AktivitetIdentifikator.annenAktivitet();
         }
         if (uttakArbeidType.equals(UttakArbeidType.ORDINÆRT_ARBEID)) {
-            AktivitetIdentifikator.ArbeidsgiverType arbeidsgiverType = arbeidsgiver.map(a -> {
+            ArbeidsgiverIdentifikator arbeidsgiverIdentifikator = arbeidsgiver.map(a -> {
+                var identifikator = a.getIdentifikator();
                 if (a.getErVirksomhet()) {
-                    return AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET;
+                    return new Orgnummer(identifikator);
                 }
-                return AktivitetIdentifikator.ArbeidsgiverType.PERSON;
+                return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId(identifikator);
             }).orElse(null);
-            return AktivitetIdentifikator.forArbeid(arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null),
-                ref.getReferanse(), arbeidsgiverType);
+            return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, ref.getReferanse());
         }
         throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
     }
@@ -350,12 +352,11 @@ public final class UttakEnumMapper {
         if (aktivitetIdentifikator == null || aktivitetIdentifikator.getArbeidsgiverIdentifikator() == null) {
             throw new IllegalArgumentException("Arbeidsgiver ident kan ikke være null");
         }
-        return erVirksomhet(aktivitetIdentifikator) ? Arbeidsgiver.virksomhet(aktivitetIdentifikator.getArbeidsgiverIdentifikator())
-            : Arbeidsgiver.person(new AktørId(aktivitetIdentifikator.getArbeidsgiverIdentifikator()));
-    }
-
-    private static boolean erVirksomhet(AktivitetIdentifikator aktivitetIdentifikator) {
-        return aktivitetIdentifikator.getArbeidsgiverType().equals(AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET);
+        var arbeidsgiverIdentifikator = aktivitetIdentifikator.getArbeidsgiverIdentifikator();
+        if (arbeidsgiverIdentifikator instanceof Orgnummer) {
+            return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
+        }
+        return Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value()));
     }
 
     public static Optional<UttakPeriodeType> mapTilYf(StønadskontoType stønadskontoType) {

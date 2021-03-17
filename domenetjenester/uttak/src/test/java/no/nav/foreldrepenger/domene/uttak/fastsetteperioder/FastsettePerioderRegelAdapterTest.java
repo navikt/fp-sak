@@ -93,6 +93,8 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarS�
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.Manuellbehandlingårsak;
 import no.nav.foreldrepenger.regler.uttak.konfig.Konfigurasjon;
 import no.nav.foreldrepenger.regler.uttak.konfig.Parametertype;
@@ -113,7 +115,7 @@ public class FastsettePerioderRegelAdapterTest {
         Parametertype.UTTAK_MØDREKVOTE_ETTER_FØDSEL_UKER, fødselsdato);
     private final int maxDagerForeldrepengerFørFødsel = 15;
 
-    private final AktivitetIdentifikator arbeidsforhold = AktivitetIdentifikator.forArbeid("1234", "123");
+    private final AktivitetIdentifikator arbeidsforhold = AktivitetIdentifikator.forArbeid(new Orgnummer("1234"), "123");
 
     private UttakRepositoryProvider repositoryProvider;
     private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste;
@@ -895,8 +897,8 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void graderingSkalSettesRiktigEtterKjøringAvRegler() {
         var arbeidsprosent = BigDecimal.valueOf(50);
-        var virksomhetSomGradereresHos = virksomhet("orgnr1");
-        var annenVirksomhet = virksomhet("orgnr2");
+        var virksomhetSomGradereresHos = virksomhet(new Orgnummer("orgnr1"));
+        var annenVirksomhet = virksomhet(new Orgnummer("orgnr2"));
         var fødselsdato = LocalDate.of(2018, 10, 1);
         var oppgittFPFF = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
@@ -1100,8 +1102,8 @@ public class FastsettePerioderRegelAdapterTest {
         return virksomhet(arbeidsforhold.getArbeidsgiverIdentifikator());
     }
 
-    private Arbeidsgiver virksomhet(String orgnr) {
-        return Arbeidsgiver.virksomhet(orgnr);
+    private Arbeidsgiver virksomhet(ArbeidsgiverIdentifikator arbeidsgiverIdentifikator) {
+        return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator.value());
     }
 
     @Test
@@ -1497,9 +1499,9 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void tilkommet_i_løpet_av_aktivitet_skal_arve_saldo() {
         var fødselsdato = LocalDate.of(2018, 6, 22);
-        var arbeidsgiver1 = virksomhet("123");
-        var arbeidsgiver2 = virksomhet("456");
-        var arbeidsgiver3 = virksomhet("789");
+        var arbeidsgiver1 = virksomhet(new Orgnummer("123"));
+        var arbeidsgiver2 = virksomhet(new Orgnummer("456"));
+        var arbeidsgiver3 = virksomhet(new Orgnummer("789"));
 
         var mk1 = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
