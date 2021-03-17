@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.steg.KopierForeldrepengerUttaktjeneste;
+import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -103,7 +103,7 @@ public class UttakStegImpl implements UttakSteg {
                                     BehandlingStegType sisteSteg) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
-            kopierUttaktjeneste.kopierUttaksresultatFraOriginalBehandling(kontekst.getBehandlingId());
+            kopierUttaktjeneste.kopierUttaksresultatFraOriginalBehandling(uttakInput.getBehandlingReferanse());
         } else {
             ryddUttak(kontekst.getBehandlingId());
             ryddStønadskontoberegning(kontekst.getBehandlingId(), kontekst.getFagsakId());

@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
+import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -202,6 +204,23 @@ public class KontrollerFaktaRevurderingStegImplTest {
         assertThat(aggregat.getOppgittFordeling().getErAnnenForelderInformert()).isTrue();
     }
 
+    @Test
+    public void feriepenge_berørt_hopper_til_tilkjent() {
+        var behandling = opprettRevurdering(List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        Fagsak fagsak = behandling.getFagsak();
+        // Arrange
+        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var expectedTransisjon =  TransisjonIdentifikator
+            .forId(FellesTransisjoner.SPOLFREM_PREFIX + StartpunktType.TILKJENT_YTELSE.getBehandlingSteg().getKode());
+
+        // Act
+        var stegResultat = steg.utførSteg(kontekst);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(expectedTransisjon);
+    }
+
     private Behandling opprettRevurderingPgaEndringsSøknad(Behandling originalBehandling, LocalDate fom, LocalDate tom) {
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(originalBehandling, LocalDate.now().minusYears(1), LocalDate.now(),
                 false);
@@ -340,6 +359,10 @@ public class KontrollerFaktaRevurderingStegImplTest {
     }
 
     private Behandling opprettRevurdering() {
+        return opprettRevurdering(List.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL));
+    }
+
+    private Behandling opprettRevurdering(List<BehandlingÅrsakType> årsaker) {
         LocalDate fødselsdato = LocalDate.now().minusYears(20);
         AktørId aktørId = AktørId.dummy();
 
@@ -409,7 +432,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         ScenarioMorSøkerForeldrepenger revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
                 .medRegisterOpplysninger(personopplysningBuilder.build())
-                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+                .medOriginalBehandling(originalBehandling, årsaker, false);
         revurderingScenario.medDefaultOppgittTilknytning();
 
         revurderingScenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(LocalDate.now()).build());

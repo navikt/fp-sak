@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandling.steg.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
 
@@ -100,7 +100,8 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                     BehandlingStegType sisteSteg) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
-            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(kontekst.getBehandlingId());
+            var ref = uttakInput.getBehandlingReferanse();
+            kopierForeldrepengerUttaktjeneste.kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(ref);
         }
     }
 

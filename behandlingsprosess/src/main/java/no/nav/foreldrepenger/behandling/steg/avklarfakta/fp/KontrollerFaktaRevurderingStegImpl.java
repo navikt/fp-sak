@@ -60,6 +60,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -88,6 +89,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
+    private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
 
     KontrollerFaktaRevurderingStegImpl() {
         // for CDI proxy
@@ -103,7 +105,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             BehandlingÅrsakTjeneste behandlingÅrsakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             MottatteDokumentTjeneste mottatteDokumentTjeneste,
-            ForeldrepengerUttakTjeneste uttakTjeneste) {
+            ForeldrepengerUttakTjeneste uttakTjeneste,
+            KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste) {
         this.repositoryProvider = repositoryProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -117,6 +120,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.uttakTjeneste = uttakTjeneste;
+        this.kopierForeldrepengerUttaktjeneste = kopierForeldrepengerUttaktjeneste;
     }
 
     @Override
@@ -141,7 +145,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         // Kopier aksjonspunkter
         List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.OPPTJENING.getRangering() ?
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
-        kopierResultaterAvhengigAvStartpunkt(behandling, kontekst);
+        kopierResultaterAvhengigAvStartpunkt(behandling, ref, kontekst);
 
         TransisjonIdentifikator transisjon = TransisjonIdentifikator
                 .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
@@ -289,7 +293,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                 .anyMatch(a -> a.mottarYtelse().orElse(false));
     }
 
-    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingskontrollKontekst kontekst) {
+    private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingReferanse ref, BehandlingskontrollKontekst kontekst) {
         Behandling origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
@@ -306,7 +310,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            // TODO: Ny tjeneste for kopiering av uttaksresultat
+            kopierForeldrepengerUttaktjeneste.kopierUttakFraOriginalBehandling(ref);
         } else {
             tilbakestillOppgittFordelingBasertPåBehandlingType(revurdering);
         }

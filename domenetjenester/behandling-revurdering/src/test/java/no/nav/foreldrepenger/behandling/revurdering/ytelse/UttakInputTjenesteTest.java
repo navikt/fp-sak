@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -56,7 +57,7 @@ public class UttakInputTjenesteTest {
                 .lagre(repositoryProvider);
         var årsak = BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(originalBehandling, årsak, false)
+                .medOriginalBehandling(originalBehandling, List.of(årsak), false)
                 .medDefaultFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
 
@@ -71,7 +72,7 @@ public class UttakInputTjenesteTest {
         var originalBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
         var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT, true)
+                .medOriginalBehandling(originalBehandling, List.of(BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT), true)
                 .medDefaultFordeling(LocalDate.of(2019, 11, 6)).medDefaultSøknadTerminbekreftelse()
                 .lagre(repositoryProvider);
 
