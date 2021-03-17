@@ -128,14 +128,9 @@ public class EndringsresultatDiff {
             ", grunnlagId1=" + grunnlagId1 +
             ", grunnlagId2=" + grunnlagId2 +
             ", erSporedeFeltEndret=" + erSporedeFeltEndret +
-            ", førsteFeltOppdatering=" + Optional.ofNullable(diffResult)
-                .map(DiffResult::getLeafDifferences)
-                .filter(diff -> !diff.isEmpty())
-                .map(diff -> maskerData(diff.entrySet().iterator().next().toString()))
-                .orElse("ingen_oppdatering") +
             ", antallFeltEndringer=" + Optional.ofNullable(diffResult)
-                .map(diff -> diff.getLeafDifferences().size())
-                .orElse(0) +
+            .map(diff -> diff.getLeafDifferences().size())
+            .orElse(0) +
             ", type=" + (children.isEmpty() ? "løvnode" : "rotnode") +
             (children.isEmpty() ? "" : (", children=" + children)) +
             '}' + "\n";
@@ -164,11 +159,5 @@ public class EndringsresultatDiff {
 
     public Object getGrunnlagId2() {
         return grunnlagId2;
-    }
-
-    private String maskerData(String input) {
-        return input.replaceAll("\\[virksomhet::\\d{5}", "[virksomhet::*****")
-            .replaceAll("register.aktørYtelse.\\[\\d{9}", "register.aktørYtelse.[*********")
-            .replaceAll("registrertePersonopplysninger.personopplysninger.\\[\\d{9}", "registrertePersonopplysninger.personopplysninger.[*********");
     }
 }
