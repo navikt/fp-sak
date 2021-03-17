@@ -83,9 +83,10 @@ public class AvklaringFaktaMedlemskap {
                 if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
                     return Optional.empty();
                 }
+                var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
                 var region = statsborgerskap(personopplysninger, vurderingsdato);
                 return switch (region) {
-                    case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
+                    case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
                     case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
                     case NORDISK -> Optional.empty();
                 };
