@@ -35,19 +35,6 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
     /**
      * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
      */
-    @Deprecated
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId) {
-        return Optional.empty();
-    }
-
-    /**
-     * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
-     */
     @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
         return opprettOppdrag(input, false);
@@ -58,22 +45,21 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
         return opprettOppdrag(input, true);
     }
 
+    @Override
+    public Optional<Oppdragskontroll> opprettOppdrag(final Long behandlingId, final Long prosessTaskId) {
+        return Optional.empty();
+    }
+
     /**
      * Brukes ved simulering. Finner tidligste endringstidspunkt på tvers av mottakere, og sender alt for alle mottakere f.o.m. det felles endringstidspunktet.
      * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
      */
-    @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    private Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
         Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
             OppdragskontrollPostConditionCheck.valider(oppdragskontroll);
             return Optional.of(oppdragskontroll);
         }
-        return Optional.empty();
-    }
-
-    @Deprecated
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
         return Optional.empty();
     }
 

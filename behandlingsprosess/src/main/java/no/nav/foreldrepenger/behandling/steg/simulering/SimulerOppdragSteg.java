@@ -107,7 +107,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private void startSimulering(Behandling behandling) {
-        List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), behandling.getFagsakYtelseType());
+        List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
         simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
     }
 

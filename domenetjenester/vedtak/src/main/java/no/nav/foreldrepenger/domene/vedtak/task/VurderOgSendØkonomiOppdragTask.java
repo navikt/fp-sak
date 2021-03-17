@@ -9,16 +9,13 @@ import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
@@ -34,36 +31,25 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
-    private OppdragskontrollTjeneste oppdragskontrollEngangsstønadTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
-    private OppdragKjerneimplementasjonToggle toggle;
     private OppdragInputTjeneste oppdragInputTjeneste;
-    private BehandlingRepository behandlingRepository;
 
     VurderOgSendØkonomiOppdragTask() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderOgSendØkonomiOppdragTask(@Named("oppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
-                                          @Named("oppdragEngangstønadTjeneste") OppdragskontrollTjeneste oppdragskontrollTjenesteEngangsstønad,
-                                          ProsessTaskRepository prosessTaskRepository,
+    public VurderOgSendØkonomiOppdragTask(ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          @Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
+                                          @Named("nyOppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
-                                          OppdragKjerneimplementasjonToggle toggle,
                                           OppdragInputTjeneste oppdragInputTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
-        this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.prosessTaskRepository = prosessTaskRepository;
-        this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
+        this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
-        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.oppdragskontrollEngangsstønadTjeneste = oppdragskontrollTjenesteEngangsstønad;
         this.oppdragInputTjeneste = oppdragInputTjeneste;
-        this.toggle = toggle;
     }
 
     @Override
@@ -79,22 +65,9 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void vurderSendingAvOppdrag(ProsessTaskData prosessTaskData, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-
-        Optional<Oppdragskontroll> oppdragskontrollOpt;
-
-        if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
-            LOG.info("Simulerer engangsstønad for behandlingId: {}", behandlingId);
-            oppdragskontrollOpt = oppdragskontrollEngangsstønadTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
-        } else {
-            if (toggle.brukNyImpl()) {
-                LOG.info("Bruker ny implementasjon av kjernen i modulen fpsak.okonomistotte for behandlingId={}", behandlingId);
-                var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
-                oppdragskontrollOpt = nyOppdragskontrollTjeneste.opprettOppdrag(input);
-            } else {
-                oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(behandlingId, prosessTaskData.getId());
-            }
-        }
+        LOG.info("Produserer oppdrag for behandlingId: {}", behandlingId);
+        var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
+        var oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(input);
 
         if (oppdragskontrollOpt.isPresent()) {
             LOG.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,7 @@ public class SimulerOppdragDto {
         Objects.requireNonNull(råXml, "Rå XML kan ikke være null");
         List<String> encoded = råXml.stream()
             .map(str -> Base64.getEncoder()
-                .encodeToString(str.getBytes(Charset.forName("UTF-8"))))
+                .encodeToString(str.getBytes(StandardCharsets.UTF_8)))
             .collect(Collectors.toList());
         return new SimulerOppdragDto(behandlingId, encoded);
     }

@@ -85,12 +85,10 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         return Optional.empty();
     }
 
-    @Override
     public Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId) {
         return opprettOppdrag(behandlingId, DUMMY_PT_ID_SIMULERING);
     }
 
-    @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
         return opprettOppdrag(behandlingId, prosessTaskId);
     }
@@ -105,7 +103,6 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         throw new IllegalStateException("Ikke støttet ennå.");
     }
 
-    @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
         throw new IllegalStateException("Ikke støttet ennå.");
     }

@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 @Named("oppdragEngangstønadTjeneste")
 public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OppdragskontrollEngangsstønadTjeneste.class);
     private static final Long DUMMY_PT_ID_SIMULERING = -1L;
 
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -69,12 +68,10 @@ public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollT
         return Optional.empty();
     }
 
-    @Override
     public Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId) {
         return opprettOppdrag(behandlingId, DUMMY_PT_ID_SIMULERING);
     }
 
-    @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
         return opprettOppdrag(behandlingId, DUMMY_PT_ID_SIMULERING);
     }
@@ -89,7 +86,6 @@ public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollT
         throw new IllegalStateException("Støttes ikke ennå.");
     }
 
-    @Override
     public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
         throw new IllegalStateException("Støttes ikke ennå.");
     }

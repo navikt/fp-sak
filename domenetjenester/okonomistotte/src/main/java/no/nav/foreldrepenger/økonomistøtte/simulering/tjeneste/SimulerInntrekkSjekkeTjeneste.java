@@ -55,7 +55,7 @@ public class SimulerInntrekkSjekkeTjeneste {
         }
         Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         if (tilbakekrevingValg.filter(valg -> valg.getVidereBehandling().equals(TilbakekrevingVidereBehandling.INNTREKK)).isPresent()) {
-            List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId(), behandling.getFagsakYtelseType());
+            List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
             simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
 
             Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
