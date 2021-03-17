@@ -34,17 +34,6 @@ public class FeriepengeRegeregnTjeneste {
         this.behandlingRepository = behandlingRepository;
     }
 
-    public boolean harDiff(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
-        Optional<BeregningsresultatEntitet> gjeldendeResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(ref.getBehandlingId());
-        if (gjeldendeResultat.isEmpty()) {
-            return false;
-        }
-        BeregningsresultatEntitet nyttResultat = utledNyttResultat(ref, behandling, gjeldendeResultat);
-        return new Feriepengesammenligner(ref.getBehandlingId(), ref.getSaksnummer(), nyttResultat, gjeldendeResultat.get()).finnesAvvik();
-    }
-
     public boolean harDiffUtenomPeriode(Long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
@@ -52,14 +41,11 @@ public class FeriepengeRegeregnTjeneste {
         if (gjeldendeResultat.isEmpty()) {
             return false;
         }
-        BeregningsresultatEntitet nyttResultat = utledNyttResultat(ref, behandling, gjeldendeResultat);
-        return new Feriepengesammenligner(ref.getBehandlingId(), ref.getSaksnummer(), nyttResultat, gjeldendeResultat.get()).finnesAvvikUtenomPeriode();
+        return utledNyttResultat(ref, behandling, gjeldendeResultat.get());
     }
 
-    private BeregningsresultatEntitet utledNyttResultat(BehandlingReferanse ref, Behandling behandling, Optional<BeregningsresultatEntitet> gjeldendeResultat) {
+    private boolean utledNyttResultat(BehandlingReferanse ref, Behandling behandling, BeregningsresultatEntitet gjeldendeResultat) {
         BeregnFeriepengerTjeneste feriepengetjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjenesteInstance, ref.getFagsakYtelseType()).orElseThrow();
-        BeregningsresultatEntitet kopi = BeregningsresultatEntitet.builder(gjeldendeResultat).build();
-        feriepengetjeneste.beregnFeriepenger(behandling, kopi);
-        return kopi;
+        return feriepengetjeneste.avvikBeregnetFeriepengerBeregningsresultat(behandling, gjeldendeResultat, true);
     }
 }

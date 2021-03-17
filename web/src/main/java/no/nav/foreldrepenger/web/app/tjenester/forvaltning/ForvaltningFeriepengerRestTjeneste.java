@@ -63,7 +63,7 @@ public class ForvaltningFeriepengerRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response reberegnFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
-        boolean avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiff(behandlingId);
+        boolean avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(behandlingId);
         String melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
         return Response.ok(melding).build();
     }
