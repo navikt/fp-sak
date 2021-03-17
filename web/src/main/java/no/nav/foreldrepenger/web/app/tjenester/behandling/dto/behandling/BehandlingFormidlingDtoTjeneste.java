@@ -134,7 +134,6 @@ public class BehandlingFormidlingDtoTjeneste {
 
         SaksnummerDto saksnummerDto = new SaksnummerDto(behandling.getFagsak().getSaksnummer());
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
-        dto.leggTil(get(FagsakRestTjeneste.FAGSAK_BACKEND_PATH, "fagsak-backend", saksnummerDto));
 
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
@@ -174,7 +173,6 @@ public class BehandlingFormidlingDtoTjeneste {
     private BehandlingFormidlingDto utvideBehandlingDto(Behandling behandling, BehandlingFormidlingDto dto) {
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
         dto.leggTil(get(DokumentRestTjeneste.MOTTATT_DOKUMENTER_PATH, "mottattdokument", uuidDto));
 
@@ -185,7 +183,6 @@ public class BehandlingFormidlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
-            dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
             dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
         }
 

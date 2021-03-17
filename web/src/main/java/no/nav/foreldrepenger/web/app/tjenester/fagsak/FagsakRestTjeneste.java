@@ -55,8 +55,6 @@ public class FagsakRestTjeneste {
     static final String BASE_PATH = "/fagsak";
     private static final String FAGSAK_PART_PATH = "";
     public static final String FAGSAK_PATH = BASE_PATH;
-    private static final String FAGSAK_BACKEND_PART_PATH = "/backend";
-    public static final String FAGSAK_BACKEND_PATH = BASE_PATH + FAGSAK_BACKEND_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String PERSONER_PART_PATH = "/personer";
@@ -135,20 +133,6 @@ public class FagsakRestTjeneste {
     public List<FagsakDto> søkFagsaker(
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString());
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(FAGSAK_BACKEND_PART_PATH)
-    @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
-        @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentFagsakBackend(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        var saksnummer = new Saksnummer(s.getVerdi());
-        return fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer).map(f -> Response.ok(f).build())
-            .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @GET
