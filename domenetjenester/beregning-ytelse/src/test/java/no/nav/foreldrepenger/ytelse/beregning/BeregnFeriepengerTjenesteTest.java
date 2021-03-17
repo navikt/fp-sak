@@ -80,6 +80,40 @@ public class BeregnFeriepengerTjenesteTest {
     }
 
     @Test
+    public void skalSjekkeFeriepengerMedAvvik() {
+        Behandling farsBehandling = lagBehandlingFar();
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medDefaultOppgittDekningsgrad();
+        Behandling morsBehandling = scenario.lagre(repositoryProvider);
+        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        fagsakRelasjonRepository.kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
+        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_FAR,
+            Inntektskategori.ARBEIDSTAKER);
+
+        // Act
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP, false);
+
+        // Assert
+        assertThat(avvik).isTrue();
+    }
+
+    @Test
+    public void skalSjekkeFeriepengerUtenAvvik() {
+        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        scenario.medDefaultOppgittDekningsgrad();
+        Behandling morsBehandling = scenario.lagre(repositoryProvider);
+        fagsakRelasjonRepository.opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
+        BeregningsresultatEntitet morsBeregningsresultatFP = lagBeregningsresultatFP(SKJÆRINGSTIDSPUNKT_MOR, SKJÆRINGSTIDSPUNKT_MOR.plusMonths(6),
+            Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
+
+        // Act
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP,false);
+
+        // Assert
+        assertThat(avvik).isFalse();
+    }
+
+    @Test
     public void skalIkkeBeregneFeriepenger() {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultOppgittDekningsgrad();

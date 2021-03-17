@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.ytelse.beregning.Feriepengesammenligner;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
 
 /*
@@ -140,9 +138,7 @@ public class BerørtBehandlingKontroller {
         if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
         var gjeldendeTilkjent = tilkjentRepository.hentUtbetBeregningsresultat(sisteVedtatteMedForelder.getId()).orElse(null);
         if (gjeldendeTilkjent == null) return false;
-        BeregningsresultatEntitet kopi = BeregningsresultatEntitet.builder(gjeldendeTilkjent).build();
-        beregnFeriepenger.beregnFeriepenger(sisteVedtatteMedForelder, kopi);
-        return new Feriepengesammenligner(sisteVedtatteMedForelder.getId(), fagsakMedforelder.getSaksnummer(), kopi, gjeldendeTilkjent).sjekkForAvvik();
+        return beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(sisteVedtatteMedForelder, gjeldendeTilkjent, false);
     }
 
     private void håndterKø(Fagsak fagsak) {

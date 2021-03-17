@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
+import no.nav.foreldrepenger.ytelse.beregning.adapter.SammenlignBeregningsresultatFeriepengerMedRegelResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger.RegelBeregnFeriepenger;
 import no.nav.vedtak.exception.TekniskException;
@@ -67,6 +68,26 @@ public abstract class BeregnFeriepengerTjeneste {
         var sporing = RegelmodellOversetter.getSporing(evaluation);
 
         MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
+    }
+
+    public boolean avvikBeregnetFeriepengerBeregningsresultat(Behandling behandling, BeregningsresultatEntitet beregningsresultat, boolean loggAvvik) {
+
+        var annenPartsBehandling = finnAnnenPartsBehandling(behandling);
+        var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
+            .flatMap(beregningsresultatRepository::hentBeregningsresultat);
+        var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak())
+            .getGjeldendeDekningsgrad();
+
+        var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
+            antallDagerFeriepenger);
+
+        var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
+        regelBeregnFeriepenger.evaluer(regelModell);
+        if (loggAvvik) {
+            SammenlignBeregningsresultatFeriepengerMedRegelResultat.loggAvvik(behandling.getFagsak().getSaksnummer(), behandling.getId(), beregningsresultat, regelModell);
+        }
+
+        return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, regelModell);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
