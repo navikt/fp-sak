@@ -97,12 +97,14 @@ public class SaldoerDtoTjeneste {
                 var aktivitetIdentifikatorDto = mapToDto(aktivitet);
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
             }
-            var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(), fpGrunnlag.isTapendeBehandling());
+            var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(),
+                fpGrunnlag.isTapendeBehandling());
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
-            stønadskontoMap.put(stønadskontotype.name(), new StønadskontoDto(stønadskontotype.name(),
-                saldoUtregning.getMaxDager(stønadskontotype), saldoUtregning.saldo(stønadskontotype), aktivitetSaldoListe,
-                saldoValideringResultat.isGyldig(), kontoUtvidelser.orElse(null)));
+            stønadskontoMap.put(stønadskontotype.name(),
+                new StønadskontoDto(stønadskontotype.name(), saldoUtregning.getMaxDager(stønadskontotype),
+                    saldoUtregning.saldo(stønadskontotype), aktivitetSaldoListe, saldoValideringResultat.isGyldig(),
+                    kontoUtvidelser.orElse(null)));
         }
         var tapteDagerFpff = finnTapteDagerFpff(input);
         return new SaldoerDto(maksDatoUttakTjeneste.beregnMaksDatoUttak(input), stønadskontoMap, tapteDagerFpff);
@@ -124,12 +126,14 @@ public class SaldoerDtoTjeneste {
                                                           Stønadskontotype stønadskonto,
                                                           Optional<ForeldrepengerUttak> annenpart,
                                                           ForeldrepengerGrunnlag fpGrunnlag) {
-        if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
+        if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(
+            stønadskonto)) {
             return Optional.empty();
         }
         YtelseFordelingAggregat yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
         FagsakRelasjon fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
-        StønadskontoResultat stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat, fagsakRelasjon, annenpart, fpGrunnlag);
+        StønadskontoResultat stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat,
+            fagsakRelasjon, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();
 
@@ -140,8 +144,7 @@ public class SaldoerDtoTjeneste {
     }
 
     private FastsattUttakPeriode map(UttakResultatPeriodeLagreDto dto) {
-        return new FastsattUttakPeriode.Builder()
-            .medSamtidigUttak(dto.isSamtidigUttak())
+        return new FastsattUttakPeriode.Builder().medSamtidigUttak(dto.isSamtidigUttak())
             .medOppholdÅrsak(UttakEnumMapper.map(dto.getOppholdÅrsak()))
             .medFlerbarnsdager(dto.isFlerbarnsdager())
             .medAktiviteter(map(dto.getAktiviteter()))
@@ -155,14 +158,14 @@ public class SaldoerDtoTjeneste {
     }
 
     private FastsattUttakPeriodeAktivitet map(UttakResultatPeriodeAktivitetLagreDto dto) {
-        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(dto.getTrekkdagerDesimaler()), UttakEnumMapper.map(dto.getStønadskontoType()),
+        return new FastsattUttakPeriodeAktivitet(UttakEnumMapper.map(dto.getTrekkdagerDesimaler()),
+            UttakEnumMapper.map(dto.getStønadskontoType()),
             UttakEnumMapper.map(dto.getUttakArbeidType(), dto.getArbeidsgiver(), dto.getArbeidsforholdId()));
     }
 
     private AktivitetIdentifikatorDto mapToDto(AktivitetIdentifikator aktivitet) {
-        return new AktivitetIdentifikatorDto(
-            UttakEnumMapper.map(aktivitet.getAktivitetType()),
-            aktivitet.getArbeidsgiverIdentifikator(),
+        return new AktivitetIdentifikatorDto(UttakEnumMapper.map(aktivitet.getAktivitetType()),
+            Optional.ofNullable(aktivitet.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null),
             aktivitet.getArbeidsforholdId());
     }
 

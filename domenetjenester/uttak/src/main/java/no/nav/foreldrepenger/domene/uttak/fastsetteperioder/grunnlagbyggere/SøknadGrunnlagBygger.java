@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,7 +140,8 @@ public class SøknadGrunnlagBygger {
             return aktivieterMedType(aktiviter, AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
         }
         return aktivieterMedType(aktiviter, AktivitetType.ARBEID).stream()
-            .filter(aktivitetIdentifikator -> Objects.equals(oppgittPeriode.getArbeidsgiver().getIdentifikator(), aktivitetIdentifikator.getArbeidsgiverIdentifikator()))
+            .filter(aktivitetIdentifikator -> Objects.equals(oppgittPeriode.getArbeidsgiver().getIdentifikator(),
+                Optional.ofNullable(aktivitetIdentifikator.getArbeidsgiverIdentifikator()).map(ai -> ai.value()).orElse(null)))
             .collect(Collectors.toSet());
     }
 

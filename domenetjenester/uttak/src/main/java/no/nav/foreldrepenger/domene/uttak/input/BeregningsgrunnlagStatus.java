@@ -7,6 +7,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 
 public class BeregningsgrunnlagStatus {
 
@@ -30,20 +32,17 @@ public class BeregningsgrunnlagStatus {
     public AktivitetIdentifikator toUttakAktivitetIdentifikator() {
         if (erArbeidstaker()) {
             var arbeidsgiver = getArbeidsgiver();
-            var arbeidsgiverIdentifikator = arbeidsgiver.map(Arbeidsgiver::getIdentifikator).orElse(null);
+            var arbeidsgiverIdentifikator = arbeidsgiver.map(a -> a.getErVirksomhet() ?
+                new Orgnummer(a.getIdentifikator()) : new AktørId(a.getIdentifikator()))
+                .orElse(null);
             var arbeidsforholdId = getArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse).orElse(null);
-            var arbeidsgiverType = arbeidsgiver.map(this::arbeidsgiverType).orElse(null);
-            return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, arbeidsforholdId, arbeidsgiverType);
+            return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, arbeidsforholdId);
         } else if (erFrilanser()) {
             return AktivitetIdentifikator.forFrilans();
         } else if (erSelvstendigNæringsdrivende()) {
             return AktivitetIdentifikator.forSelvstendigNæringsdrivende();
         }
         return AktivitetIdentifikator.annenAktivitet();
-    }
-
-    private AktivitetIdentifikator.ArbeidsgiverType arbeidsgiverType(Arbeidsgiver arbeidsgiver) {
-        return arbeidsgiver.getErVirksomhet() ? AktivitetIdentifikator.ArbeidsgiverType.VIRKSOMHET : AktivitetIdentifikator.ArbeidsgiverType.PERSON;
     }
 
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
