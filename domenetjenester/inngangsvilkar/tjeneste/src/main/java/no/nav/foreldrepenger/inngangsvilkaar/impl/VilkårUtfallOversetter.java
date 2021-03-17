@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
@@ -22,8 +19,6 @@ import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VilkårUtfallOversetter {
-
-    private static final Logger LOG = LoggerFactory.getLogger(VilkårUtfallOversetter.class);
 
     public VilkårUtfallOversetter() {
     }
@@ -41,9 +36,6 @@ public class VilkårUtfallOversetter {
             throw new TekniskException("FP-384257", "Kunne ikke serialisere regelinput "
                 + "for vilkår: " + vilkårType.getKode(), e);
         }
-        // kan hende det ikke burde ligge som info, men er veldig greit i de tilfellene FP ruller tilbake databasen for da har vi fortsatt regel
-        // input!!
-        LOG.info("json grunnlag for " + vilkårType.getKode() + ": " + jsonGrunnlag); // NOSONAR
 
         VilkårUtfallType vilkårUtfallType = getVilkårUtfallType(summary);
 
