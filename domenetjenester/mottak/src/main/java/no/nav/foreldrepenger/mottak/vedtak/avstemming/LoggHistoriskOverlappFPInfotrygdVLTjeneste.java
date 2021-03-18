@@ -113,7 +113,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     }
 
     private LocalDateTimeline<Boolean> hentPerioderSVP(Long behandlingId) {
-        var segments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        var segments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), Boolean.TRUE))

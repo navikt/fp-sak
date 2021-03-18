@@ -161,7 +161,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> getTidslinjeForBehandlingFP(Long behandlingId) {
-        var segments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        var segments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p.getKalkulertUtbetalingsgrad()))
@@ -179,7 +179,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
             .collect(Collectors.toList());
-        List<LocalDateSegment<BigDecimal>> resultatsegments = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        List<LocalDateSegment<BigDecimal>> resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))

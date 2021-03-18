@@ -673,7 +673,7 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     }
 
     private List<BeregningsresultatAndel> hentAndeler() {
-        BeregningsresultatEntitet beregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId()).orElseThrow(() ->
+        BeregningsresultatEntitet beregningsresultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).orElseThrow(() ->
             new IllegalStateException("Mangler Beregningsresultat for behandling " + behandling.getId()));
         List<BeregningsresultatPeriode> brPeriodeListe = beregningsresultat.getBeregningsresultatPerioder().stream()
             .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)).collect(Collectors.toList());

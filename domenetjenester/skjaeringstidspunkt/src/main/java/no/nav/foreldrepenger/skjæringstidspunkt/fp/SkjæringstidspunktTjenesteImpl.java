@@ -210,23 +210,21 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
-        final Optional<UttakResultatEntitet> uttakResultat = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling).getId());
-        List<UttakResultatPeriodeEntitet> uttakResultatPerioder = uttakResultat.map(UttakResultatEntitet::getGjeldendePerioder)
+        List<UttakResultatPeriodeEntitet> uttakResultatPerioder = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling).getId())
+            .map(UttakResultatEntitet::getGjeldendePerioder)
             .map(UttakResultatPerioderEntitet::getPerioder)
             .orElse(Collections.emptyList());
         if (erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(uttakResultatPerioder)) {
             return uttakResultatPerioder
                 .stream()
-                .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
                 .map(UttakResultatPeriodeEntitet::getFom)
-                .findFirst();
+                .min(Comparator.naturalOrder());
         }
         return uttakResultatPerioder
             .stream()
             .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
-            .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(UttakResultatPeriodeEntitet::getFom)
-            .findFirst();
+            .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnSisteDatoIUttakResultat(Behandling behandling) {
@@ -236,9 +234,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .orElse(Collections.emptyList())
             .stream()
             .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
-            .sorted(Comparator.comparing(UttakResultatPeriodeEntitet::getFom))
             .map(UttakResultatPeriodeEntitet::getTom)
-            .findFirst();
+            .max(Comparator.naturalOrder());
     }
 
     private boolean erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(List<UttakResultatPeriodeEntitet> uttakResultatPerioder) {

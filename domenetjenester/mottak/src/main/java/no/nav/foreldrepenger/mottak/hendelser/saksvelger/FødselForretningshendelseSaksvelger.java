@@ -97,7 +97,7 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
             LocalDate fødselsdato = forretningshendelse.getFødselsdato();
 
             Optional<BeregningsresultatEntitet> beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
-                .hentBeregningsresultat(b.getId()));
+                .hentUtbetBeregningsresultat(b.getId()));
             Optional<LocalDate> tilkjentYtelseTom = beregningsresultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                     .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
                     .max(Comparator.naturalOrder());

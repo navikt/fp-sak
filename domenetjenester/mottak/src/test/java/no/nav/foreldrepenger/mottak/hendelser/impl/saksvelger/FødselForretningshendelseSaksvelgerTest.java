@@ -205,7 +205,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentBeregningsresultat(any()))
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.plusDays(2))));
         when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
@@ -229,7 +229,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentBeregningsresultat(any()))
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO)));
         when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
@@ -252,7 +252,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
-        when(beregningsresultatRepository.hentBeregningsresultat(any()))
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.minusDays(2))));
         FødselForretningshendelse hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 

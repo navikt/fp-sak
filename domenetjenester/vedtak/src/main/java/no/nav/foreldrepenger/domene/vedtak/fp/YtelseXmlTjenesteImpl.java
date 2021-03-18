@@ -47,7 +47,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     @Override
     public void setYtelse(Beregningsresultat beregningsresultat, Behandling behandling) {
         YtelseForeldrepenger ytelseForeldrepenger = ytelseObjectFactory.createYtelseForeldrepenger();
-        Optional<BeregningsresultatEntitet> beregningsresultatOptional = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        Optional<BeregningsresultatEntitet> beregningsresultatOptional = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         if (beregningsresultatOptional.isPresent()) {
             setBeregningsresultat(ytelseForeldrepenger, beregningsresultatOptional.get().getBeregningsresultatPerioder());
         }

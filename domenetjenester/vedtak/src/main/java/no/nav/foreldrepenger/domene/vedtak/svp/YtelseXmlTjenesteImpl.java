@@ -43,7 +43,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
 
         YtelseSvangerskapspenger ytelseSvangerskapspenger = ytelseObjectFactory.createYtelseSvangerskapspenger();
 
-        Optional<BeregningsresultatEntitet> beregningsresultatOptional = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        Optional<BeregningsresultatEntitet> beregningsresultatOptional = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         if (beregningsresultatOptional.isPresent()) {
             setBeregningsresultat(ytelseSvangerskapspenger, beregningsresultatOptional.get().getBeregningsresultatPerioder());
         }
