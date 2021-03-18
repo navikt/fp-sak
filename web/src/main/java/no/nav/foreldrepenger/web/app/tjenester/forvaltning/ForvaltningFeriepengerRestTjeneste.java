@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,11 +24,18 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.foreldrepenger.ytelse.beregning.FeriepengeRegeregnTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.FeriepengeReberegnTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.feriepengeavstemming.Feriepengeavstemmer;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.util.Tuple;
@@ -39,16 +47,28 @@ public class ForvaltningFeriepengerRestTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningFeriepengerRestTjeneste.class);
 
-    private FeriepengeRegeregnTjeneste feriepengeRegeregnTjeneste;
+    private FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste;
     private InformasjonssakRepository repository;
+    private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
+    private Behandlingsoppretter behandlingsoppretter;
+    private BehandlingProsesseringTjeneste prosesseringTjeneste;
     private Feriepengeavstemmer feriepengeavstemmer;
 
     @Inject
-    public ForvaltningFeriepengerRestTjeneste(FeriepengeRegeregnTjeneste feriepengeRegeregnTjeneste,
+    public ForvaltningFeriepengerRestTjeneste(FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste,
                                               InformasjonssakRepository repository,
+                                              FagsakRepository fagsakRepository,
+                                              BehandlingRepository behandlingRepository,
+                                              Behandlingsoppretter behandlingsoppretter,
+                                              BehandlingProsesseringTjeneste prosesseringTjeneste,
                                               Feriepengeavstemmer feriepengeavstemmer) {
         this.feriepengeRegeregnTjeneste = feriepengeRegeregnTjeneste;
         this.repository = repository;
+        this.fagsakRepository = fagsakRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingsoppretter = behandlingsoppretter;
+        this.prosesseringTjeneste = prosesseringTjeneste;
         this.feriepengeavstemmer = feriepengeavstemmer;
     }
 
@@ -61,7 +81,7 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Reberegner feriepenger og sammenligner resultatet mot aktivt feriepengegrunnlag på behandlingen", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response reberegnFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+    public Response kontrollerFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
         boolean avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(behandlingId);
         String melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
@@ -75,7 +95,7 @@ public class ForvaltningFeriepengerRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response avstemFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
-        boolean avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId);
+        boolean avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId, true);
         String melding = "Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
         return Response.ok(melding).build();
     }
@@ -106,6 +126,46 @@ public class ForvaltningFeriepengerRestTjeneste {
         repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
             .map(Tuple::getElement2)
             .forEach(feriepengeavstemmer::avstem);
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/reberegnFeriepenger")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Operation(description = "Reberegner feriepenger for angitt sak", tags = "FORVALTNING-feriepenger")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response reberegnFeriepenger(@BeanParam @Valid SaksnummerDto dto) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getVerdi()), true).orElseThrow();
+        var sisteAvsluttet = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
+        var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
+        if (!åpneBehandlinger.isEmpty()) return Response.ok("Det finnes åpne behandlinger på saken").build();
+        if (feriepengeRegeregnTjeneste.skalReberegneFeriepenger(sisteAvsluttet.getId()) || feriepengeavstemmer.avstem(sisteAvsluttet.getId(), false)) {
+            var revurdering = behandlingsoppretter.opprettRevurderingMultiÅrsak(fagsak,
+                List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+            prosesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+            return Response.ok(String.format("Opprettet revurdering %s", revurdering.getId())).build();
+        }
+        return Response.ok("Ingen avvik å rebergne").build();
+    }
+
+    @POST
+    @Path("/reberegnPeriodeFeriepenger")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Sjekker avvik feriepenger mellom tilkjent og simulering", tags = "FORVALTNING-feriepenger")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response reberegnPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
+        repository.finnSakerForReberegningFeriepenger(dto.getFom(), dto.getTom()).stream()
+            .map(Tuple::getElement2)
+            .map(behandlingRepository::hentBehandling)
+            .filter(behandling -> behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).isEmpty())
+            .filter(behandling -> feriepengeRegeregnTjeneste.skalReberegneFeriepenger(behandling.getId()) || feriepengeavstemmer.avstem(behandling.getId(), false))
+            .forEach(behandling -> {
+                var revurdering = behandlingsoppretter.opprettRevurderingMultiÅrsak(behandling.getFagsak(),
+                    List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+                prosesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+            });
 
         return Response.ok().build();
     }

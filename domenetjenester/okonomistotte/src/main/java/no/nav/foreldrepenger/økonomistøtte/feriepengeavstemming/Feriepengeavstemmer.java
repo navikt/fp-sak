@@ -57,6 +57,10 @@ public class Feriepengeavstemmer {
     }
 
     public boolean avstem(long behandlingId) {
+        return avstem(behandlingId, true);
+    }
+
+    public boolean avstem(long behandlingId, boolean logging) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
         if (behandling == null || beregningsresultatOpt.isEmpty()) {
@@ -68,23 +72,24 @@ public class Feriepengeavstemmer {
             .orElse(Collections.emptyList());
         List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
-        var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag);
+        var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag, logging);
         var tilkjent = sorterteTilkjenteFeriepenger(feriepengerAndeler);
         Map<GrupperingNøkkel, BigDecimal> summert = new LinkedHashMap<>();
         oppdrag.forEach(summert::put);
         tilkjent.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
 
-        Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
-        oppdrag.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value)));
-        tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
+        if (logging) {
+            Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
+            oppdrag.forEach((key, value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value)));
+            tilkjent.forEach((key, value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
 
-        summert.entrySet().stream()
-            .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-            .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
-                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
-                saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
-                oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
-
+            summert.entrySet().stream()
+                .filter(e -> Math.abs(e.getValue().longValue()) > 3)
+                .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
+                    AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
+                    saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                    oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
+        }
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
     }
 
@@ -111,7 +116,7 @@ public class Feriepengeavstemmer {
                 Collectors.reducing(Beløp.ZERO, BeregningsresultatFeriepengerPrÅr::getÅrsbeløp, Beløp::adder)));
     }
 
-    private static Map<GrupperingNøkkel, BigDecimal> sorterteOppdragFeriepenger(List<Oppdrag110> oppdrag110Liste) {
+    private static Map<GrupperingNøkkel, BigDecimal> sorterteOppdragFeriepenger(List<Oppdrag110> oppdrag110Liste, boolean notQuiet) {
         Map<GrupperingNøkkel, BigDecimal> gjeldendeOL = new HashMap<>();
 
         for (Oppdragslinje150 linje : sorterEtterDatoFP(oppdrag110Liste)) {
@@ -119,10 +124,10 @@ public class Feriepengeavstemmer {
             var forrige = gjeldendeOL.get(nøkkel);
             if (linje.gjelderOpphør()) {
                 if (forrige == null) {
-                    LOG.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
+                    if (notQuiet) LOG.warn("Opphør uten noe å opphøre: delytelse {} klasseKode {} fom {} opphørsdato {} tidligste {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getDatoStatusFom(), forrige);
                 } else if (forrige.intValue() != linje.getSats().getVerdi()) {
-                    LOG.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
+                    if (notQuiet) LOG.warn("Avvik gjeldende beløp: delytelse {} klasseKode {} fom {} opphørt {} gjeldende {}",
                         linje.getDelytelseId(), linje.getKodeKlassifik(), linje.getDatoVedtakFom(), linje.getSats(), forrige);
                 } else {
                     gjeldendeOL.remove(nøkkel);
