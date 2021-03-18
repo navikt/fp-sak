@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @ActivateRequestContext
-@Transactional
 public class SimulerOppdragTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
@@ -41,7 +40,7 @@ public class SimulerOppdragTjeneste {
      * @return En liste med XMLer som kan sendes over til oppdrag
      */
     public List<String> simulerOppdrag(Long behandlingId) {
-        LOG.info("Simulerer fp/svp for behandlingId: {}", behandlingId);
+        LOG.info("Simulerer behandlingId: {}", behandlingId);
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
         var oppdragskontrollOpt = nyOppdragskontrollTjeneste.simulerOppdrag(input);
 

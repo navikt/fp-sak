@@ -39,20 +39,20 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
         return opprettOppdrag(input, false);
     }
 
+    /**
+     * Brukes ved simulering. Finner tidligste endringstidspunkt på tvers av mottakere, og sender alt for alle mottakere f.o.m. det felles endringstidspunktet.
+     * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
+     */
     @Override
     public Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input) {
         return opprettOppdrag(input, true);
     }
 
     @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(final Long behandlingId, final Long prosessTaskId) {
-        return Optional.empty();
+    public void lagre(Oppdragskontroll oppdragskontroll) {
+        økonomioppdragRepository.lagre(oppdragskontroll);
     }
 
-    /**
-     * Brukes ved simulering. Finner tidligste endringstidspunkt på tvers av mottakere, og sender alt for alle mottakere f.o.m. det felles endringstidspunktet.
-     * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
-     */
     private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
@@ -60,10 +60,5 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
             return Optional.of(oppdragskontroll);
         }
         return Optional.empty();
-    }
-
-    @Override
-    public void lagre(Oppdragskontroll oppdragskontroll) {
-        økonomioppdragRepository.lagre(oppdragskontroll);
     }
 }

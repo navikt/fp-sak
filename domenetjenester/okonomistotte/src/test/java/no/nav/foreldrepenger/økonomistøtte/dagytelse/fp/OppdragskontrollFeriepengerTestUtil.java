@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase;
 
 public class OppdragskontrollFeriepengerTestUtil {
 
@@ -138,7 +139,7 @@ public class OppdragskontrollFeriepengerTestUtil {
     static List<Oppdragslinje150> getOppdragslinje150Feriepenger(Oppdragskontroll oppdrag) {
         return oppdrag.getOppdrag110Liste()
             .stream()
-            .map(OppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
+            .map(NyOppdragskontrollTjenesteTestBase::getOppdragslinje150Feriepenger)
             .flatMap(List::stream)
             .collect(Collectors.toList());
     }

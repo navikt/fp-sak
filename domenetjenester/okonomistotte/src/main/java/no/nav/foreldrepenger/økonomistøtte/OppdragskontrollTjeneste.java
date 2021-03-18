@@ -11,8 +11,5 @@ public interface OppdragskontrollTjeneste {
 
     Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input);
 
-    @Deprecated
-    Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId);
-
     void lagre(Oppdragskontroll oppdragskontroll);
 }

@@ -16,15 +16,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteTestBase;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdrag110.KodeFagområdeTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.KodeFagområdeTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
-public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTestBase {
+public class OppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
 
     @Override
     @BeforeEach
@@ -33,26 +36,33 @@ public class OppdragskontrollTjenesteImplTest extends OppdragskontrollTjenesteTe
     }
 
     @Test
-    //TODO (KY): Tilkjent ytelse er ikke implementert for SVP ennå. Derfor tar i bruk testen TY for FP men det skal endres etterpå.
     public void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
-        Behandling behandlingSVP = opprettOgLagreBehandling(FamilieYtelseType.SVANGERSKAPSPENGER);
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
-        BeregningsresultatAndel andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatAndel andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
+        var andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
+
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+
+        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 10000L, LocalDate.of(2018, 12, 31));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 10000L, LocalDate.of(2018, 12, 31));
-        beregningsresultatRepository.lagre(behandlingSVP, beregningsresultat);
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+
+        var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
         //Act
-        Oppdragskontroll oppdrag = oppdragskontrollTjeneste.opprettOppdrag(behandlingSVP.getId(), 123L).get();
+        var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(builder.build());
 
         //Assert
+        assertThat(oppdragskontroll).isPresent();
+        var oppdrag = oppdragskontroll.get();
         assertThat(oppdrag).isNotNull();
         List<Oppdrag110> oppdrag110List = oppdrag.getOppdrag110Liste();
         assertThat(oppdrag110List).hasSize(2);

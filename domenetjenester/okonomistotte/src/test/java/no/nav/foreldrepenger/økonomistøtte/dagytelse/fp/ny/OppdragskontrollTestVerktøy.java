@@ -1,6 +1,6 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
+package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
 
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollTjenesteTestBase.I_ÅR;
+import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase.I_ÅR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -88,7 +88,7 @@ public class OppdragskontrollTestVerktøy {
         List<Oppdragslinje150> revurderingOppdr150Liste = getOppdragslinje150Liste(revurderingOppdrag);
         List<Oppdragslinje150> revurderingOppdr150ListeBruker = revurderingOppdr150Liste.stream().filter(opp150 -> opp150.getOppdrag110().getKodeFagomrade().equals(KodeFagområde.FORELDREPENGER_BRUKER))
             .filter(opp150 -> !opp150.getKodeKlassifik().equals(KodeKlassifik.FERIEPENGER_BRUKER)).filter(opp150 -> opp150.getKodeEndringLinje().equals(KodeEndringLinje.NY))
-            .filter(opp150 -> opp150.getDatoVedtakFom().equals(OppdragskontrollTjenesteTestBase.DAGENS_DATO.plusDays(8))).collect(Collectors.toList());
+            .filter(opp150 -> opp150.getDatoVedtakFom().equals(LocalDate.now().plusDays(8))).collect(Collectors.toList());
 
         assertThat(originaltOppdr150ListeBruker).hasSize(1);
         assertThat(revurderingOppdr150ListeBruker).hasSize(1);
