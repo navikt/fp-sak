@@ -22,6 +22,10 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BeregningsgrunnlagFormidlingDtoTjenesteTest {
+    private static final BigDecimal NAT_BORTFALT = BigDecimal.valueOf(3232);
+    private static final BigDecimal NAT_TILKOMMET = BigDecimal.valueOf(2120);
+    private static final BigDecimal BRUTTO = BigDecimal.valueOf(444432);
+
 
 
     @Test
@@ -38,14 +42,14 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
         assertThat(dto).isNotNull();
         assertThat(dto.getHjemmel()).isEqualTo(Hjemmel.F_14_7_8_28_8_30);
         assertThat(dto.isErBesteberegnet()).isFalse();
-        assertThat(dto.getGrunnbeløp()).isEqualByComparingTo(BigDecimal.valueOf(91425));
+        assertThat(dto.getGrunnbeløp()).isEqualByComparingTo(BigDecimal.valueOf(100000));
         assertThat(dto.getAktivitetstatusListe()).hasSize(1);
         assertThat(dto.getBeregningsgrunnlagperioder()).hasSize(1);
 
         BeregningsgrunnlagPeriode førstePeriode = gr.getBeregningsgrunnlag().get().getBeregningsgrunnlagPerioder().get(0);
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagperiodeFom()).isEqualTo(førstePeriode.getBeregningsgrunnlagPeriodeFom());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagperiodeTom()).isEqualTo(førstePeriode.getBeregningsgrunnlagPeriodeTom());
-        assertThat(dto.getBeregningsgrunnlagperioder().get(0).getAvkortetPrÅr()).isEqualByComparingTo(førstePeriode.getAvkortetPrÅr());
+        assertThat(dto.getBeregningsgrunnlagperioder().get(0).getAvkortetPrÅr()).isEqualByComparingTo(BRUTTO.add(NAT_BORTFALT).subtract(NAT_TILKOMMET));
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getDagsats()).isEqualTo(førstePeriode.getDagsats());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBruttoPrÅr()).isEqualByComparingTo(førstePeriode.getBruttoPrÅr());
 
@@ -68,9 +72,9 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
         return BeregningsgrunnlagPeriode.ny()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
-            .medBruttoPrÅr(BigDecimal.valueOf(534343.55))
-            .medAvkortetPrÅr(BigDecimal.valueOf(223421.33))
-            .medRedusertPrÅr(BigDecimal.valueOf(23412.32))
+            .medBruttoPrÅr(BigDecimal.valueOf(500000))
+            .medAvkortetPrÅr(BigDecimal.valueOf(500000))
+            .medRedusertPrÅr(BigDecimal.valueOf(500000))
             .medRegelEvaluering("input1", "clob1", BeregningsgrunnlagPeriodeRegelType.FORESLÅ)
             .medRegelEvaluering("input2", "clob2", BeregningsgrunnlagPeriodeRegelType.FASTSETT)
             .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
@@ -81,15 +85,15 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
         BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
-            .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))
-            .medNaturalytelseTilkommetPrÅr(BigDecimal.valueOf(3234532.32))
+            .medNaturalytelseBortfaltPrÅr(NAT_BORTFALT)
+            .medNaturalytelseTilkommetPrÅr(NAT_TILKOMMET)
             .medArbeidsperiodeFom(LocalDate.now().minusYears(1))
             .medArbeidsperiodeTom(LocalDate.now().plusYears(2));
         return BeregningsgrunnlagPrStatusOgAndel.builder()
             .medBGAndelArbeidsforhold(bga)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medBeregningsperiode(LocalDate.now().minusDays(10), LocalDate.now().minusDays(5))
-            .medOverstyrtPrÅr(BigDecimal.valueOf(4444432.32))
+            .medOverstyrtPrÅr(BRUTTO)
             .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
             .build(beregningsgrunnlagPeriode);
@@ -98,7 +102,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
         BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
-            .medGrunnbeløp(BigDecimal.valueOf(91425))
+            .medGrunnbeløp(BigDecimal.valueOf(100000))
             .medRegelloggSkjæringstidspunkt("input1", "clob1")
             .medRegelloggBrukersStatus("input2", "clob2")
             .medRegelinputPeriodisering("input3")

@@ -8,11 +8,13 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BgAndelArbeidsforholdDto;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -67,13 +69,29 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
         List<BeregningsgrunnlagAndelDto> andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(this::mapAndel)
             .collect(Collectors.toList());
+        BigDecimal bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+            .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal::add)
+            .orElse(null);
         return new BeregningsgrunnlagPeriodeDto(bgPeriode.getDagsats(),
             bgPeriode.getBruttoPrÅr(),
-            bgPeriode.getAvkortetPrÅr(),
+            bgPeriode.getAvkortetPrÅr() == null
+                ? null
+                : finnAvkortetUtenGraderingPrÅr(bruttoInkludertBortfaltNaturalytelsePrAar,
+                grunnlag.getBeregningsgrunnlag().orElseThrow().getGrunnbeløp()),
             bgPeriode.getPeriodeÅrsaker(),
             bgPeriode.getBeregningsgrunnlagPeriodeFom(),
             bgPeriode.getBeregningsgrunnlagPeriodeTom(),
             andeler);
+    }
+
+    private BigDecimal finnAvkortetUtenGraderingPrÅr(BigDecimal bruttoInkludertBortfaltNaturalytelsePrAar, Beløp grunnbeløp) {
+        if (bruttoInkludertBortfaltNaturalytelsePrAar == null) {
+            return null;
+        }
+        BigDecimal seksG = grunnbeløp.multipliser(6).getVerdi();
+        return bruttoInkludertBortfaltNaturalytelsePrAar.compareTo(seksG) > 0 ? seksG : bruttoInkludertBortfaltNaturalytelsePrAar;
     }
 
     private BeregningsgrunnlagAndelDto mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
@@ -95,4 +113,5 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
             bga.getNaturalytelseBortfaltPrÅr().orElse(null),
             bga.getNaturalytelseTilkommetPrÅr().orElse(null));
     }
+
 }
