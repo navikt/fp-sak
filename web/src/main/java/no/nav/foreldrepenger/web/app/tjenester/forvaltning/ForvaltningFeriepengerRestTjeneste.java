@@ -10,11 +10,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -135,7 +137,7 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Reberegner feriepenger for angitt sak", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response reberegnFeriepenger(@BeanParam @Valid SaksnummerDto dto) {
+    public Response reberegnFeriepenger(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getVerdi()), true).orElseThrow();
         var sisteAvsluttet = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
@@ -153,7 +155,7 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Path("/reberegnPeriodeFeriepenger")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Sjekker avvik feriepenger mellom tilkjent og simulering", tags = "FORVALTNING-feriepenger")
+    @Operation(description = "Reberegning av feriepenger for saker opprettet i periode", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response reberegnPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
         repository.finnSakerForReberegningFeriepenger(dto.getFom(), dto.getTom()).stream()
