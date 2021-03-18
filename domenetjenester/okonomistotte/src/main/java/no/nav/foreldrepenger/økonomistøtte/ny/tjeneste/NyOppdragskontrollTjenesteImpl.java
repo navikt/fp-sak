@@ -6,11 +6,10 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
@@ -36,12 +35,12 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
      * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
      */
     @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input) {
         return opprettOppdrag(input, false);
     }
 
     @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Input input) {
+    public Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input) {
         return opprettOppdrag(input, true);
     }
 
@@ -54,7 +53,7 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
      * Brukes ved simulering. Finner tidligste endringstidspunkt på tvers av mottakere, og sender alt for alle mottakere f.o.m. det felles endringstidspunktet.
      * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
      */
-    private Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
             OppdragskontrollPostConditionCheck.valider(oppdragskontroll);

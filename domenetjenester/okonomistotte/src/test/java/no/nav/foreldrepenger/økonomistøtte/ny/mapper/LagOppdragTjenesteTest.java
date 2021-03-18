@@ -57,7 +57,7 @@ public class LagOppdragTjenesteTest {
         TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        OppdragInput input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
         List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
@@ -86,7 +86,7 @@ public class LagOppdragTjenesteTest {
         TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        Input input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        OppdragInput input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
         List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
@@ -119,13 +119,13 @@ public class LagOppdragTjenesteTest {
         assertThat(input.getDelytelseId()).isEqualTo(fasit.getDelytelseId());
     }
 
-    Input lagTomInput() {
+    OppdragInput lagTomInput() {
         GruppertYtelse tomtResultat = GruppertYtelse.builder().build();
         return lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tomtResultat);
     }
 
-    Input lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, GruppertYtelse tilkjentYtelse) {
-        return Input.builder()
+    OppdragInput lagInput(FagsakYtelseType ytelseType, FamilieYtelseType familieYtelseType, GruppertYtelse tilkjentYtelse) {
+        return OppdragInput.builder()
             .medFagsakYtelseType(ytelseType)
             .medTilkjentYtelse(tilkjentYtelse)
             .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)

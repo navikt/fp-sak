@@ -42,7 +42,7 @@ public class SimulerOppdragTjeneste {
      */
     public List<String> simulerOppdrag(Long behandlingId) {
         LOG.info("Simulerer fp/svp for behandlingId: {}", behandlingId);
-        var input = oppdragInputTjeneste.lagInput(behandlingId);
+        var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
         var oppdragskontrollOpt = nyOppdragskontrollTjeneste.simulerOppdrag(input);
 
         return oppdragskontrollOpt.map(new ØkonomioppdragMapper()::generateOppdragXML).orElse(Collections.emptyList());

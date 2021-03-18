@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
@@ -76,8 +76,8 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     protected String virksomhet3 = ARBEIDSFORHOLD_ID_3;
     protected String virksomhet4 = ARBEIDSFORHOLD_ID_4;
 
-    protected Input.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
-        return Input.builder()
+    protected OppdragInput.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
+        return OppdragInput.builder()
             .medTilkjentYtelse(gruppertYtelse)
             .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
             .medBrukerFnr(BRUKER_FNR)

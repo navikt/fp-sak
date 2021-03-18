@@ -31,12 +31,12 @@ import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
 public class OppdragMapper {
 
-    private final Input input;
+    private final OppdragInput input;
     private final String fnrBruker;
     private final String ansvarligSaksbehandler;
     private final OverordnetOppdragKjedeOversikt tidligereOppdrag;
 
-    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, Input input) {
+    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, OppdragInput input) {
         this.fnrBruker = fnrBruker;
         this.tidligereOppdrag = tidligereOppdrag;
         this.input = input;

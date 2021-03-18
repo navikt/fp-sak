@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 
 public class OppdragMedPositivKvitteringTestUtil {
     public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, Behandling behandling) {
@@ -12,7 +12,7 @@ public class OppdragMedPositivKvitteringTestUtil {
         return oppdragskontroll;
     }
 
-    public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, Input input) {
+    public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, OppdragInput input) {
         Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(input).get();
         oppdragskontrollTjeneste.lagre(oppdragskontroll);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);

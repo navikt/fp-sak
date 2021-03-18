@@ -60,7 +60,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 
-public class RestApiInputValideringDtoTest extends RestApiTester {
+public class RestApiOppdragInputValideringDtoTest extends RestApiTester {
 
     /**
      * IKKE ignorer eller fjern denne testen, den sørger for at inputvalidering er i orden for REST-grensesnittene

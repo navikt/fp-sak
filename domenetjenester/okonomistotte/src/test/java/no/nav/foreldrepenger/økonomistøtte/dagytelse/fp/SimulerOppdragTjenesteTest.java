@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 
 @CdiDbAwareTest
 public class SimulerOppdragTjenesteTest {
@@ -44,8 +44,8 @@ public class SimulerOppdragTjenesteTest {
         Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
-        when(oppdragInputTjeneste.lagInput(anyLong())).thenReturn(mockInput(saksnummer));
-        when(oppdragskontrollTjeneste.simulerOppdrag(any(Input.class))).thenReturn(Optional.ofNullable(oppdragskontroll));
+        when(oppdragInputTjeneste.lagSimuleringInput(anyLong())).thenReturn(mockInput(saksnummer));
+        when(oppdragskontrollTjeneste.simulerOppdrag(any(OppdragInput.class))).thenReturn(Optional.ofNullable(oppdragskontroll));
 
         var simulerOppdragTjeneste = new SimulerOppdragTjeneste(oppdragskontrollTjeneste, oppdragInputTjeneste);
 
@@ -56,8 +56,8 @@ public class SimulerOppdragTjenesteTest {
         assertThat(resultat).hasSize(1);
     }
 
-    private Input mockInput(final Saksnummer saksnummer) {
-        return Input.builder()
+    private OppdragInput mockInput(final Saksnummer saksnummer) {
+        return OppdragInput.builder()
             .medTilkjentYtelse(GruppertYtelse.TOM)
             .medSaksnummer(saksnummer)
             .medBehandlingId(1L)

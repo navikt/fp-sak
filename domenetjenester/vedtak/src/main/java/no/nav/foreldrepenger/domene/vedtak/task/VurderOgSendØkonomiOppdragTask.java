@@ -66,7 +66,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private void vurderSendingAvOppdrag(ProsessTaskData prosessTaskData, Long behandlingId) {
         LOG.info("Produserer oppdrag for behandlingId: {}", behandlingId);
-        var input = oppdragInputTjeneste.lagInput(behandlingId, prosessTaskData.getId());
+        var input = oppdragInputTjeneste.lagOppdragInput(behandlingId, prosessTaskData.getId());
         var oppdragskontrollOpt = oppdragskontrollTjeneste.opprettOppdrag(input);
 
         if (oppdragskontrollOpt.isPresent()) {

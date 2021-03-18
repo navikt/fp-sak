@@ -4,12 +4,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 
-public class Input {
+public class OppdragInput {
     private GruppertYtelse tilkjentYtelse;
     private OverordnetOppdragKjedeOversikt tidligereOppdrag;
     private String brukerFnr;
@@ -21,7 +20,7 @@ public class Input {
     private boolean brukInntrekk;
     private Long prosessTaskId;
 
-    private Input() {
+    private OppdragInput() {
     }
 
     public static Builder builder() {
@@ -69,9 +68,9 @@ public class Input {
     }
 
     public static class Builder {
-        private Input kladd = new Input();
+        private OppdragInput kladd = new OppdragInput();
 
-        public Input build() {
+        public OppdragInput build() {
             Objects.requireNonNull(kladd.tilkjentYtelse);
             Objects.requireNonNull(kladd.saksnummer);
             Objects.requireNonNull(kladd.behandlingId);

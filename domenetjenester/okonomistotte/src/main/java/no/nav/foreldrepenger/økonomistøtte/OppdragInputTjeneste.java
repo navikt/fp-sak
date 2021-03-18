@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 @Dependent
@@ -79,59 +79,71 @@ public class OppdragInputTjeneste {
         this.beregningRepository = beregningRepository;
     }
 
-    public Input lagInput(long behandlingId) {
-        return lagInput(behandlingId, DUMMY_PT_SIMULERING_ID);
+    public OppdragInput lagSimuleringInput(long behandlingId) {
+        return lagOppdragInput(behandlingId, DUMMY_PT_SIMULERING_ID, true);
     }
 
-    public Input lagInput(long behandlingId, long prosessTaskId) {
+    public OppdragInput lagOppdragInput(long behandlingId, long prosessTaskId) {
+        return lagOppdragInput(behandlingId, prosessTaskId, false);
+    }
+
+    private OppdragInput lagOppdragInput(long behandlingId, long prosessTaskId, boolean erSimulering) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsak = behandling.getFagsak();
         var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
-
-        var tidligereOppdragskontroll = hentTidligereOppdragskontroll(fagsak.getSaksnummer());
+        var tidligereOppdrag = hentTidligereOppdrag(fagsak.getSaksnummer());
         var ytelseType = fagsak.getYtelseType();
 
-        var vedtaksdato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(LocalDate.now());
+        LocalDate vedtaksdato;
+        if (erSimulering) {
+            vedtaksdato = LocalDate.now();
+        } else {
+            vedtaksdato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElseThrow();
+        }
 
-        var inputBuilder = Input.builder()
+        var inputBuilder = OppdragInput.builder()
             .medBehandlingId(behandlingId)
             .medSaksnummer(fagsak.getSaksnummer())
             .medFagsakYtelseType(ytelseType)
             .medVedtaksdato(vedtaksdato)
             .medAnsvarligSaksbehandler(behandlingVedtak.map(BehandlingVedtak::getAnsvarligSaksbehandler).orElse(finnSaksbehandlerFra(behandling)))
             .medBrukerFnr(hentFnrBruker(behandling))
-            .medTidligereOppdrag(mapTidligereOppdrag(tidligereOppdragskontroll))
-            .medTilkjentYtelse(ytelseType.equals(FagsakYtelseType.ENGANGSTØNAD)
-                ? grupperYtelseEngangsstønad(behandlingId, vedtaksdato, tidligereOppdragskontroll)
-                : grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak)))
-            .medBrukInntrekk(hentBrukInntrekk(behandlingId))
-            .medProsessTaskId(prosessTaskId)
-            ;
+            .medTidligereOppdrag(mapTidligereOppdrag(tidligereOppdrag))
+            .medProsessTaskId(prosessTaskId);
+
+        if (ytelseType.equals(FagsakYtelseType.ENGANGSTØNAD)) {
+            inputBuilder
+                .medTilkjentYtelse(grupperYtelseEngangsstønad(behandlingId, vedtaksdato, tidligereOppdrag));
+        } else {
+            inputBuilder
+                .medTilkjentYtelse(grupperYtelse(hentTilkjentYtelse(behandlingId), getFamilieYtelseType(behandlingId, fagsak)))
+                .medBrukInntrekk(hentBrukInntrekk(behandlingId));
+        }
+
         return inputBuilder.build();
     }
 
-    private GruppertYtelse grupperYtelseEngangsstønad(long behandlingId, final LocalDate vedtaksdato, List<Oppdragskontroll> tidligereOppdragskontroll) {
+    private GruppertYtelse grupperYtelseEngangsstønad(long behandlingId, final LocalDate vedtaksdato, List<Oppdragskontroll> tidligereOppdrag) {
         var sats = hentSatsFraBehandling(behandlingId);
         if (sats.isEmpty()) {
            return GruppertYtelse.TOM;
         }
-        var forrigeOppdrag = finnTidligereUtbetaltOppdrag(tidligereOppdragskontroll);
+        var førsteOppdrag = finnFørsteUtbetaling(tidligereOppdrag);
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
                 KjedeNøkkel.lag(gjelderFødsel(behandlingId) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON, Betalingsmottaker.BRUKER),
                 Ytelse.builder()
-                    .leggTilPeriode(lagPeriode(forrigeOppdrag.map(Oppdragslinje150::getDatoVedtakFom).orElse(vedtaksdato), Satsen.engang(sats.get())))
+                    .leggTilPeriode(lagPeriode(førsteOppdrag.map(Oppdragslinje150::getDatoVedtakFom).orElse(vedtaksdato), Satsen.engang(sats.get())))
                     .build());
         return gruppertYtelse.build();
     }
 
-    private Optional<Oppdragslinje150> finnTidligereUtbetaltOppdrag(final List<Oppdragskontroll> tidligereOppdragskontroll) {
-        return tidligereOppdragskontroll.stream()
+    private Optional<Oppdragslinje150> finnFørsteUtbetaling(final List<Oppdragskontroll> tidligereOppdrag) {
+        return tidligereOppdrag.stream()
             .flatMap(ok -> ok.getOppdrag110Liste().stream())
-            .filter(Oppdrag110::erKvitteringMottatt)
+            .filter(OppdragKvitteringTjeneste::harPositivKvittering)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
-            .sorted()
-            .findFirst();
+            .min((Comparator.comparing(Oppdragslinje150::getDelytelseId)));
     }
 
     protected YtelsePeriode lagPeriode(LocalDate referanseDato, Satsen sats) {
@@ -151,7 +163,7 @@ public class OppdragInputTjeneste {
         return aktørTjeneste.hentPersonIdentForAktørId(behandling.getAktørId()).orElseThrow().getIdent();
     }
 
-    private List<Oppdragskontroll> hentTidligereOppdragskontroll(Saksnummer saksnummer) {
+    private List<Oppdragskontroll> hentTidligereOppdrag(Saksnummer saksnummer) {
         return økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
     }
 

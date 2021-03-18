@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -47,11 +47,11 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public static final LocalDate VEDTAKSDATO = LocalDate.now();
     public static final long SATS_ES = 63330L;
 
-    protected NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    protected NyOppdragskontrollTjenesteImpl oppdragskontrollTjeneste;
 
     @BeforeEach
     public void setUp() {
-        nyOppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
+        oppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
-        var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
+        var oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         // Assert
         assertThat(oppdragskontroll).isPresent();
@@ -79,7 +79,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
-        var oppdragskontroll = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
+        var oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         // Assert
         assertThat(oppdragskontroll).isPresent();
@@ -103,7 +103,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
-        var originaltOppdrag = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
+        var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
@@ -112,7 +112,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         GruppertYtelse.Builder gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES * 2);
         var inputBuilder2 = getInputStandardBuilder(gruppertYtelseBuilder2.build()).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag.get())));
 
-        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
+        var oppdragRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
@@ -132,7 +132,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
-        var originaltOppdrag = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
+        var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
         Oppdrag110 originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
@@ -140,7 +140,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         // Arrange 2: Revurdering
         var inputBuilder2 = getInputStandardBuilder(GruppertYtelse.TOM).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag.get())));
 
-        var oppdragRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
+        var oppdragRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
@@ -159,21 +159,21 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
-        var originaltOppdrag = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
+        var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
         assertThat(originaltOppdrag).isPresent();
         var førsteOppdrag = originaltOppdrag.get();
         // Arrange 2: Første revurdering
         GruppertYtelse.Builder gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);
         var inputBuilder2 = getInputStandardBuilder(gruppertYtelseBuilder2.build()).medTidligereOppdrag(mapTidligereOppdrag(List.of(førsteOppdrag)));
 
-        var oppdragFørsteRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
+        var oppdragFørsteRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
 
         assertThat(oppdragFørsteRevurdering).isNotPresent();
 
         // Arrange 3: Andre revurdering
         var inputBuilder3 = getInputStandardBuilder(GruppertYtelse.TOM).medTidligereOppdrag(mapTidligereOppdrag(List.of(førsteOppdrag)));
 
-        var oppdragAndreRevurdering = nyOppdragskontrollTjeneste.opprettOppdrag(inputBuilder3.build());
+        var oppdragAndreRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder3.build());
 
         // Assert 3: Revurdering
         assertThat(oppdragAndreRevurdering).isPresent();
@@ -284,8 +284,8 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         return Long.valueOf(result);
     }
 
-    private Input.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
-        return Input.builder()
+    private OppdragInput.Builder getInputStandardBuilder(GruppertYtelse gruppertYtelse) {
+        return OppdragInput.builder()
             .medTilkjentYtelse(gruppertYtelse)
             .medTidligereOppdrag(OverordnetOppdragKjedeOversikt.TOM)
             .medBrukerFnr(BRUKER_FNR)

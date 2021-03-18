@@ -7,9 +7,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.es.UtledVedtakResultatTypeES;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -22,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.kontantytelse.es.OppdragskontrollEngangsstønad;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 
 @Dependent
 @FagsakYtelseTypeRef("ES")
@@ -77,16 +74,16 @@ public class OppdragskontrollEngangsstønadTjeneste implements OppdragskontrollT
     }
 
     @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input) {
         throw new IllegalStateException("Støttes ikke ennå.");
     }
 
     @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Input input) {
+    public Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input) {
         throw new IllegalStateException("Støttes ikke ennå.");
     }
 
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         throw new IllegalStateException("Støttes ikke ennå.");
     }
 

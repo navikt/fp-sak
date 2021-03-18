@@ -14,16 +14,14 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.SjekkOmDetFinnesTilkjentYtelse;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.adapter.BehandlingTilOppdragMapperTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.endring.OppdragskontrollEndring;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.førstegangsoppdrag.OppdragskontrollFørstegang;
 import no.nav.foreldrepenger.økonomistøtte.dagytelse.opphør.OppdragskontrollOpphør;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 
 @Dependent
 @FagsakYtelseTypeRef("FP")
@@ -77,7 +75,7 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
         var oppdragManager = hentTjeneste(behandling, tidligereOppdragFinnes);
 
         if (oppdragManager.isPresent()) {
-            OppdragInput oppdragInput = behandlingTilOppdragMapperTjeneste.map(behandling);
+            no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragInput oppdragInput = behandlingTilOppdragMapperTjeneste.map(behandling);
             Oppdragskontroll oppdrag = oppdragManager.get().opprettØkonomiOppdrag(oppdragInput, oppdragskontroll);
             OppdragskontrollPostConditionCheck.valider(oppdrag);
             return Optional.of(oppdrag);
@@ -94,16 +92,16 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     }
 
     @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input) {
         throw new IllegalStateException("Ikke støttet ennå.");
     }
 
     @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Input input) {
+    public Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input) {
         throw new IllegalStateException("Ikke støttet ennå.");
     }
 
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         throw new IllegalStateException("Ikke støttet ennå.");
     }
 
