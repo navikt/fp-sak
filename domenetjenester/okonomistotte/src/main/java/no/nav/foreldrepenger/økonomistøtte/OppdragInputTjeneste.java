@@ -95,10 +95,14 @@ public class OppdragInputTjeneste {
         var ytelseType = fagsak.getYtelseType();
 
         LocalDate vedtaksdato;
+        String ansvarligSaksbehandler;
+
         if (erSimulering) {
             vedtaksdato = LocalDate.now();
+            ansvarligSaksbehandler = finnSaksbehandlerFra(behandling);
         } else {
             vedtaksdato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElseThrow();
+            ansvarligSaksbehandler = behandlingVedtak.map(BehandlingVedtak::getAnsvarligSaksbehandler).orElseThrow();
         }
 
         var inputBuilder = OppdragInput.builder()
@@ -106,7 +110,7 @@ public class OppdragInputTjeneste {
             .medSaksnummer(fagsak.getSaksnummer())
             .medFagsakYtelseType(ytelseType)
             .medVedtaksdato(vedtaksdato)
-            .medAnsvarligSaksbehandler(behandlingVedtak.map(BehandlingVedtak::getAnsvarligSaksbehandler).orElse(finnSaksbehandlerFra(behandling)))
+            .medAnsvarligSaksbehandler(ansvarligSaksbehandler)
             .medBrukerFnr(hentFnrBruker(behandling))
             .medTidligereOppdrag(mapTidligereOppdrag(tidligereOppdrag))
             .medProsessTaskId(prosessTaskId);
