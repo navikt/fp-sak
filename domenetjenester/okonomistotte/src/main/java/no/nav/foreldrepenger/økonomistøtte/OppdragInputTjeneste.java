@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -109,14 +108,7 @@ public class OppdragInputTjeneste {
     }
 
     private BeregningsresultatEntitet hentTilkjentYtelse(Long behandlingId) {
-        BehandlingBeregningsresultatEntitet beregningsresultatAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId).orElse(null);
-        if (beregningsresultatAggregat == null) {
-            return null;
-        }
-        if (beregningsresultatAggregat.getUtbetBeregningsresultatFP() != null) {
-            return beregningsresultatAggregat.getUtbetBeregningsresultatFP();
-        }
-        return beregningsresultatAggregat.getBgBeregningsresultatFP();
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId).orElse(null);
     }
 
     private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType) {

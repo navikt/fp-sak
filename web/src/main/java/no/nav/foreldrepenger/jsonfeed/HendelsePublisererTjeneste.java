@@ -206,7 +206,7 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDate> finnMinsteUtbetDato(Long behandlingId) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
 
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                 .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
@@ -216,7 +216,7 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDate> finnSisteUtbetDato(Long behandlingId) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                 .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)

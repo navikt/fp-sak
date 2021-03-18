@@ -58,7 +58,7 @@ public class Feriepengeavstemmer {
 
     public boolean avstem(long behandlingId) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+        Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
         if (behandling == null || beregningsresultatOpt.isEmpty()) {
             return false;
         }

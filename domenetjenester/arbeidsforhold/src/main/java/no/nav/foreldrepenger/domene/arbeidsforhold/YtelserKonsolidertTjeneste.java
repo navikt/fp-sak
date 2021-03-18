@@ -112,11 +112,11 @@ public class YtelserKonsolidertTjeneste {
             return tilgrensendeYtelserDto;
         }
         behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).ifPresent(b -> {
-            var min = tilkjentYtelseRepository.hentBeregningsresultat(b.getId())
+            var min = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
                     .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                     .map(p -> VirkedagUtil.fomVirkedag(p.getBeregningsresultatPeriodeFom()))
                     .min(Comparator.naturalOrder()).orElse(periodeDato);
-            var max = tilkjentYtelseRepository.hentBeregningsresultat(b.getId())
+            var max = tilkjentYtelseRepository.hentUtbetBeregningsresultat(b.getId())
                     .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                     .map(p -> VirkedagUtil.tomVirkedag(p.getBeregningsresultatPeriodeTom()))
                     .max(Comparator.naturalOrder()).orElse(periodeDato);

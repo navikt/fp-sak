@@ -208,7 +208,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
-        List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentBeregningsresultat(behandling.getId())
+        List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId())
                 .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                 .filter(p -> p.getDagsats() > 0)
                 .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))

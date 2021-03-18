@@ -41,11 +41,9 @@ public class BeregningsresultatRepository {
     }
 
     public Optional<BeregningsresultatEntitet> hentUtbetBeregningsresultat(Long behandlingId) {
-        Optional<BehandlingBeregningsresultatEntitet> aggregat = hentBeregningsresultatAggregat(behandlingId);
-        Optional<BeregningsresultatEntitet> utbet = aggregat
-            .map(BehandlingBeregningsresultatEntitet::getUtbetBeregningsresultatFP);
-
-        return utbet.isPresent() ? utbet : aggregat.map(BehandlingBeregningsresultatEntitet::getBgBeregningsresultatFP);
+        var aggregat = hentBeregningsresultatAggregat(behandlingId);
+        return aggregat.map(BehandlingBeregningsresultatEntitet::getUtbetBeregningsresultatFP)
+            .or(() -> aggregat.map(BehandlingBeregningsresultatEntitet::getBgBeregningsresultatFP));
     }
 
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {

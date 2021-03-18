@@ -70,6 +70,6 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
     }
 
     private Optional<BeregningsresultatEntitet> hentResultatFP(Long behandlingId) {
-        return beregningsresultatRepository.hentBeregningsresultat(behandlingId);
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
     }
 }

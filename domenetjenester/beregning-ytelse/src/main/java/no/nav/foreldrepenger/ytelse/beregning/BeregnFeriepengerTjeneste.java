@@ -52,7 +52,7 @@ public abstract class BeregnFeriepengerTjeneste {
         var annenPartsBeregningsresultat = annenPartsBehandling.flatMap(beh -> {
             if (BehandlingResultatType.getAlleInnvilgetKoder()
                 .contains(getBehandlingsresultat(beh.getId()).getBehandlingResultatType())) {
-                return beregningsresultatRepository.hentBeregningsresultat(beh.getId());
+                return beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId());
             }
             return Optional.empty();
         });
@@ -74,7 +74,7 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
-            .flatMap(beregningsresultatRepository::hentBeregningsresultat);
+            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
         var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak())
             .getGjeldendeDekningsgrad();
 

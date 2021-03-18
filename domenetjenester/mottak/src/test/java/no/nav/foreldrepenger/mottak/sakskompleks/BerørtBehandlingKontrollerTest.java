@@ -1,14 +1,12 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -16,13 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.stubbing.Answer;
 
 import no.nav.foreldrepenger.behandling.revurdering.BerørtBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -50,9 +45,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 public class BerørtBehandlingKontrollerTest {
@@ -96,6 +89,7 @@ public class BerørtBehandlingKontrollerTest {
     private Behandling fBehandlingMedforelder;
     private Behandling køetBehandlingMedforelder;
     private Behandling berørt;
+    private Behandling berørtFeriepenger;
 
     @BeforeEach
     public void setUp() {
@@ -125,6 +119,7 @@ public class BerørtBehandlingKontrollerTest {
         fagsakMedforelder = fBehandlingMedforelder.getFagsak();
         køetBehandlingMedforelder = lagRevurdering(fBehandlingMedforelder, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         Behandling berørtMedforelder = lagRevurdering(fBehandlingMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
+        berørtFeriepenger = lagRevurdering(fBehandlingMedforelder, List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
 
         when(behandlingRepository.hentBehandling(fBehandling.getId())).thenReturn(fBehandling);
         when(behandlingRepository.hentBehandling(fBehandlingMedforelder.getId())).thenReturn(fBehandlingMedforelder);
@@ -132,6 +127,7 @@ public class BerørtBehandlingKontrollerTest {
         when(behandlingRepository.hentBehandling(køetBehandling.getId())).thenReturn(køetBehandling);
         when(behandlingRepository.hentBehandling(køetBehandlingMedforelder.getId())).thenReturn(køetBehandlingMedforelder);
         when(behandlingRepository.hentBehandling(berørtMedforelder.getId())).thenReturn(berørtMedforelder);
+        when(behandlingRepository.hentBehandling(berørtFeriepenger.getId())).thenReturn(berørtFeriepenger);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())).thenReturn(List.of(køetBehandlingMedforelder));
 
         when(behandlingsresultatRepository.hent(fBehandling.getId())).thenReturn(Behandlingsresultat.builder().build());
@@ -221,7 +217,7 @@ public class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
             Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
@@ -263,8 +259,12 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     private Behandling lagRevurdering(Behandling behandling, BehandlingÅrsakType årsakType) {
+        return lagRevurdering(behandling, List.of(årsakType));
+    }
+
+    private Behandling lagRevurdering(Behandling behandling, List<BehandlingÅrsakType> årsakType) {
         ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medOriginalBehandling(behandling, årsakType)
+            .medOriginalBehandling(behandling, årsakType, false)
             .medBehandlingType(BehandlingType.REVURDERING);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         scenario.medFagsakId(behandling.getId()).medSaksnummer(behandling.getFagsak().getSaksnummer());
@@ -303,7 +303,7 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
             Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
@@ -338,7 +338,7 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
             Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
@@ -359,6 +359,24 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     @Test
+    public void ingenKøSkalOppretteFerieBerørt() {
+        // Arrange
+        settOppAvsluttetBehandlingBruker();
+        settOppAvsluttetBehandlingAnnenpart();
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
+        when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any(), anyBoolean())).thenReturn(true);
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(new BeregningsresultatEntitet()));
+        when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
+        when(behandlingsoppretter.opprettRevurderingMultiÅrsak(any(), any())).thenReturn(berørtFeriepenger);
+        // Act
+        berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
+        // Assert opprett berørt (for medforelder)
+        verify(behandlingsoppretter).opprettRevurderingMultiÅrsak(fagsakMedforelder,
+            List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+        verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
+    }
+
+    @Test
     public void køBeggeParterSkalIkkeOppretteBerørtHvisIkkeRelevant() {
         // Arrange
         settOppAvsluttetBehandlingBruker();
@@ -369,7 +387,7 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - dekø fra medforelders kø
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
             Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
@@ -385,7 +403,7 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert  - dekø fra medforelders kø
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
 
@@ -401,7 +419,7 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert dekø fra egen kø
-        verifyZeroInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingsoppretter);
         verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
             Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
     }
@@ -417,8 +435,8 @@ public class BerørtBehandlingKontrollerTest {
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - skal ikke skje noe
-        verifyZeroInteractions(behandlingsoppretter);
-        verifyZeroInteractions(behandlingProsesseringTjeneste);
+        verifyNoMoreInteractions(behandlingsoppretter);
+        verifyNoMoreInteractions(behandlingProsesseringTjeneste);
     }
 }
 

@@ -290,7 +290,7 @@ public class VurderOpphørAvYtelser  {
         if (henlagtEllerOpphørFomFørsteUttak(behandlingId))
             return Tid.TIDENES_ENDE;
 
-        Optional<LocalDate> minFom = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        Optional<LocalDate> minFom = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
             .min(Comparator.naturalOrder())
@@ -308,7 +308,7 @@ public class VurderOpphørAvYtelser  {
     }
 
     private LocalDate finnMaxDato(Long behandlingId) {
-        Optional<LocalDate> maxTom = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        Optional<LocalDate> maxTom = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
             .max(Comparator.naturalOrder())
@@ -317,7 +317,7 @@ public class VurderOpphørAvYtelser  {
     }
 
     private LocalDate finnMaxDatoUtenAvslåtte(Long behandlingId) {
-        Optional<LocalDate> maxTom = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        Optional<LocalDate> maxTom = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
@@ -328,7 +328,7 @@ public class VurderOpphørAvYtelser  {
 
     private boolean erFullUtbetalingSistePeriode(Long fagsakId) {
         var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentBeregningsresultat(behandling.map(Behandling::getId).orElse(null));
+        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.map(Behandling::getId).orElse(null));
 
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)

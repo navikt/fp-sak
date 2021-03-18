@@ -56,7 +56,7 @@ public class VedtattYtelseTjenesteTest {
         var bg = lagBG();
         var br = lagBR();
         when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId())).thenReturn(Optional.of(bg));
-        when(beregningsresultatRepository.hentBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
+        when(beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())).thenReturn(Optional.of(br));
         when(behandlingVedtakRepository.hentForBehandling(behandling.getId())).thenReturn(vedtak);
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
         var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository);

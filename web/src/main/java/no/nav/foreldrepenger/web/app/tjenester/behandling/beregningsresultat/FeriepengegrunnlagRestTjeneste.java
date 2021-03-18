@@ -1,18 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.FeriepengegrunnlagMapper;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
-import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.util.env.Environment;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,9 +14,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.Optional;
 
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandling.UuidDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.FeriepengegrunnlagMapper;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
+import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path(FeriepengegrunnlagRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -60,8 +58,7 @@ public class FeriepengegrunnlagRestTjeneste {
     public FeriepengegrunnlagDto hentFeriepenger(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        Optional<BehandlingBeregningsresultatEntitet> beregningsresultat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
-        Optional<FeriepengegrunnlagDto> dto = beregningsresultat.map(BehandlingBeregningsresultatEntitet::getBgBeregningsresultatFP)
+        Optional<FeriepengegrunnlagDto> dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
             .flatMap(FeriepengegrunnlagMapper::map);
         return dto.orElse(null);
     }
