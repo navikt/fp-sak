@@ -316,6 +316,24 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     @Test
+    public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_vurdering_etter_stp() {
+        // Arrange
+        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
+        scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
+        Behandling behandling = lagre(scenario);
+        var ref = lagRef(behandling);
+
+        // Act
+        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL.plusMonths(1));
+
+
+        // Assert
+        assertThat(resultat).isEmpty();
+    }
+
+    @Test
     public void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_annen() {
         // Arrange
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();

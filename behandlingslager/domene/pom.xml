@@ -15,10 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threeten-extra</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
         </dependency>

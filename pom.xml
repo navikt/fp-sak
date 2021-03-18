@@ -589,11 +589,6 @@
                 <version>${jupiter.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.threeten</groupId>
-                <artifactId>threeten-extra</artifactId>
-                <version>1.5.0</version>
-            </dependency>
-            <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>jakarta.el</artifactId>
                 <version>3.0.3</version>
