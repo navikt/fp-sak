@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
@@ -603,12 +602,12 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
             assertThat(oppdrag110List).hasSize(2);
             //Oppdrag110 - Bruker
             Optional<Oppdrag110> oppdrag110_Bruker = oppdrag110List.stream()
-                .filter(o110 -> KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+                .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
                 .findFirst();
             assertThat(oppdrag110_Bruker).isPresent();
             //Oppdrag110 - Arbeidsgiver
             Optional<Oppdrag110> oppdrag110_Arbeidsgiver = oppdrag110List.stream()
-                .filter(o110 -> !KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+                .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
                 .findFirst();
             assertThat(oppdrag110_Arbeidsgiver).isPresent();
             //Oppdragslinje150 - Bruker

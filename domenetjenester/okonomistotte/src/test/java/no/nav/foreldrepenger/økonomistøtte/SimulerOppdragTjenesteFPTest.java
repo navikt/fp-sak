@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
+package no.nav.foreldrepenger.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjene
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class SimulerOppdragTjenesteTest {
+public class SimulerOppdragTjenesteFPTest {
     @Mock
     private OppdragInputTjeneste oppdragInputTjeneste;
     @Mock

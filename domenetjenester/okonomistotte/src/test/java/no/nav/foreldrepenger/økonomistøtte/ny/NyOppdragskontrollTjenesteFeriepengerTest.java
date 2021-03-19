@@ -1,13 +1,13 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.getOppdr150ForFeriepengerForEnMottaker;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserFeriepengeår;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOpp150NårEndringGjelderEttFeriepengeår;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOpp150NårEttFPÅretOpphørerOgAndreIkkeEndrerSeg;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150MedEttFeriepengeårKunIRevurdering;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårDetErEndringForToFeriepengeår;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårDetIkkeErFeriepengerIRevurdering;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårEttFeriepengeårSkalOpphøre;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.getOppdr150ForFeriepengerForEnMottaker;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserFeriepengeår;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOpp150NårEndringGjelderEttFeriepengeår;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOpp150NårEttFPÅretOpphørerOgAndreIkkeEndrerSeg;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150MedEttFeriepengeårKunIRevurdering;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårDetErEndringForToFeriepengeår;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårDetIkkeErFeriepengerIRevurdering;
+import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårEttFeriepengeårSkalOpphøre;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -26,8 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.OppdragskontrollFeriepengerTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.KodeFagområdeTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
@@ -884,7 +883,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         //Bruker
         Oppdrag110 oppdrag110Bruker = oppdrag.getOppdrag110Liste()
             .stream()
-            .filter(o110 -> KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(o110))
+            .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst()
             .get();
         List<Oppdragslinje150> opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
@@ -893,7 +892,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         // Arbeidsgiver
         Oppdrag110 oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
             .stream()
-            .filter(o110 -> !KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(o110))
+            .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst()
             .get();
         List<Oppdragslinje150> opp150FeriepengerArbeidsgiver = getOppdragslinje150Feriepenger(oppdrag110Arbeidsgiver);

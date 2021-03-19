@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp;
+package no.nav.foreldrepenger.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase;
+import no.nav.foreldrepenger.økonomistøtte.ny.NyOppdragskontrollTjenesteTestBase;
 
 public class OppdragskontrollFeriepengerTestUtil {
 

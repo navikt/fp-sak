@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.svp;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,23 +11,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.KodeFagområdeTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase;
+import no.nav.foreldrepenger.økonomistøtte.ny.NyOppdragskontrollTjenesteTestBase;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
-public class OppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenesteTestBase {
+public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjenesteTestBase {
 
     @Override
     @BeforeEach
@@ -68,12 +61,12 @@ public class OppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjeneste
         assertThat(oppdrag110List).hasSize(2);
         //Oppdrag110 - Bruker
         Optional<Oppdrag110> oppdrag110_Bruker = oppdrag110List.stream()
-            .filter(o110 -> KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+            .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst();
         assertThat(oppdrag110_Bruker).isPresent();
         //Oppdrag110 - Arbeidsgiver
         Optional<Oppdrag110> oppdrag110_Arbeidsgiver = oppdrag110List.stream()
-            .filter(o110 -> !KodeFagområdeTjeneste.forSvangerskapspenger().gjelderBruker(o110))
+            .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst();
         assertThat(oppdrag110_Arbeidsgiver).isPresent();
         //Oppdragslinje150 - Bruker

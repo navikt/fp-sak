@@ -1,8 +1,8 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.OppdragskontrollTestVerktøy.endreTilElleveSiffer;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy;
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt;
+import static no.nav.foreldrepenger.økonomistøtte.ny.OppdragskontrollTestVerktøy.endreTilElleveSiffer;
+import static no.nav.foreldrepenger.økonomistøtte.ny.OppdragskontrollTestVerktøy.verifiserOppdr150SomErNy;
+import static no.nav.foreldrepenger.økonomistøtte.ny.OppdragskontrollTestVerktøy.verifiserOppdr150SomErOpphørt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.KodeFagområdeTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
@@ -235,7 +234,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
     private List<Oppdragslinje150> getOppdragslinje150ForMottaker(Oppdragskontroll oppdragRevurdering, boolean erBruker) {
         return oppdragRevurdering.getOppdrag110Liste()
             .stream()
-            .filter(oppdrag110 -> KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110) == erBruker)
+            .filter(oppdrag110 -> !oppdrag110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver() == erBruker)
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
     }
@@ -1893,7 +1892,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForBruker = opp110ListeForRevurdering.get(0);
-        assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForBruker)).isTrue();
+        assertThat(!oppdrag110ForBruker.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).isTrue();
         //Oppdragslinje150
         List<Oppdragslinje150> opp150ListeForBruker = oppdrag110ForBruker.getOppdragslinje150Liste();
         assertThat(opp150ListeForBruker).hasSize(2);
@@ -1961,7 +1960,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForArbeidsgiver = opp110ListeForRevurdering.get(0);
-        assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForArbeidsgiver)).isFalse();
+        assertThat(oppdrag110ForArbeidsgiver.getKodeFagomrade()).isNotEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
         //Oppdragslinje150
         List<Oppdragslinje150> opp150ListeForArbeidsgiver = oppdrag110ForArbeidsgiver.getOppdragslinje150Liste();
         assertThat(opp150ListeForArbeidsgiver).hasSize(2);
@@ -2033,7 +2032,7 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         List<Oppdrag110> opp110ListeForRevurdering = oppdragRevurdering.getOppdrag110Liste();
         assertThat(opp110ListeForRevurdering).hasSize(1);
         Oppdrag110 oppdrag110ForArbeidsgiver = opp110ListeForRevurdering.get(0);
-        assertThat(KodeFagområdeTjeneste.forForeldrepenger().gjelderBruker(oppdrag110ForArbeidsgiver)).isFalse();
+        assertThat(!oppdrag110ForArbeidsgiver.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver()).isFalse();
         //Oppdragslinje150
         List<Oppdragslinje150> opp150ListeForArbeidsgiver = oppdrag110ForArbeidsgiver.getOppdragslinje150Liste();
         assertThat(opp150ListeForArbeidsgiver).hasSize(2);

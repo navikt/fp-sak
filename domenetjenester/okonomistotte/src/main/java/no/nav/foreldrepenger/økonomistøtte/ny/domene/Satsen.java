@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.økonomistøtte.ny.domene;
 import java.util.Objects;
 
 public class Satsen {
-    private SatsType satsType;
-    private long sats;
+    private final SatsType satsType;
+    private final long sats;
 
     public static Satsen dagsats(long sats) {
         return new Satsen(SatsType.DAG, sats);

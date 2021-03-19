@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.økonomistøtte.es;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,6 +1,6 @@
-package no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny;
+package no.nav.foreldrepenger.økonomistøtte.ny;
 
-import static no.nav.foreldrepenger.økonomistøtte.dagytelse.fp.ny.NyOppdragskontrollTjenesteTestBase.I_ÅR;
+import static no.nav.foreldrepenger.økonomistøtte.ny.NyOppdragskontrollTjenesteTestBase.I_ÅR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
