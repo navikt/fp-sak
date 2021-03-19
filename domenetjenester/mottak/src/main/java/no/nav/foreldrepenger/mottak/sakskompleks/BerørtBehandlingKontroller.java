@@ -90,8 +90,8 @@ public class BerørtBehandlingKontroller {
             if (skalBerørtBehandlingOpprettes) {
                 opprettBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
             } else {
-                if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteYtelsesbehandlingMedforelder.get())) {
-                    LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder, behandlingIdBruker);
+                if (skalFeriepengerReberegnesForMedForelder(fagsakMedforelder, sistVedtatteYtelsesbehandlingMedforelder.get(), behandlingIdBruker)) {
+                    LOG.info("REBEREGN FERIEPENGER oppretter reberegning av sak {} pga behandling {}", fagsakMedforelder.getSaksnummer(), behandlingIdBruker);
                     opprettFerieBerørtBehandling(fagsakMedforelder, avsluttetBehandlingsresultatBruker);
                 } else {
                     håndterKø(fagsakMedforelder);
@@ -133,7 +133,9 @@ public class BerørtBehandlingKontroller {
         køKontroller.submitBerørtBehandling(berørtBehandling, Optional.empty());
     }
 
-    private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder) {
+    private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder, Long behandlingIdBruker) {
+        // TODO: fjerne neste linje etter batchkjøring av feriepenger. Den er for "avoid cascade"
+        if (behandlingRepository.hentBehandling(behandlingIdBruker).harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) return false;
         if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
         var gjeldendeTilkjent = tilkjentRepository.hentUtbetBeregningsresultat(sisteVedtatteMedForelder.getId()).orElse(null);
         if (gjeldendeTilkjent == null) return false;
