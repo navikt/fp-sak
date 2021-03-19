@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -43,8 +43,8 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private HåndterMottattDokumentTask håndterMottattDokumentTask;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private final DokumentPersistererTjeneste dokumentPersistererTjeneste =
-        new DokumentPersistererTjeneste(mock(MottattDokumentPersistertPubliserer.class));
+    private final MottattDokumentPersisterer mottattDokumentPersisterer =
+        new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -55,9 +55,9 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var fristInnsendingPeriode = Period.ofWeeks(6);
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, dokumentPersistererTjeneste,
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, mottattDokumentPersisterer,
             mottatteDokumentRepository, repositoryProvider);
-        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, dokumentPersistererTjeneste,
+        håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, mottattDokumentPersisterer,
             mottatteDokumentTjeneste, repositoryProvider);
         fagsakRepository = new FagsakRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

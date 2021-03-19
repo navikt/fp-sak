@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Gradering;
@@ -29,7 +28,6 @@ import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.InntektsmeldingFeil;
@@ -41,51 +39,48 @@ import no.nav.inntektsmelding.xml.kodeliste._2018xxyy.ÅrsakUtsettelseKodeliste;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
 import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
-import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.EndringIRefusjonsListe;
-import no.seres.xsd.nav.inntektsmelding_m._20181211.GraderingIForeldrepenger;
-import no.seres.xsd.nav.inntektsmelding_m._20181211.NaturalytelseDetaljer;
-import no.seres.xsd.nav.inntektsmelding_m._20181211.Periode;
-import no.seres.xsd.nav.inntektsmelding_m._20181211.UtsettelseAvForeldrepenger;
 
 @NamespaceRef(InntektsmeldingConstants.NAMESPACE)
 @ApplicationScoped
-public class MottattDokumentOversetterInntektsmelding implements MottattDokumentOversetter<MottattDokumentWrapperInntektsmelding> {
+public class InntektsmeldingOversetter implements MottattDokumentOversetter<InntektsmeldingWrapper> {
 
     private static final LocalDate TIDENES_BEGYNNELSE = LocalDate.of(1, Month.JANUARY, 1);
-    private static Map<ÅrsakInnsendingKodeliste, InntektsmeldingInnsendingsårsak> innsendingsårsakMap;
+    private static final Map<ÅrsakInnsendingKodeliste, InntektsmeldingInnsendingsårsak> INNSENDINGSÅRSAK_MAP;
 
     static {
-        innsendingsårsakMap = new EnumMap<>(ÅrsakInnsendingKodeliste.class);
-        innsendingsårsakMap.put(ÅrsakInnsendingKodeliste.ENDRING, InntektsmeldingInnsendingsårsak.ENDRING);
-        innsendingsårsakMap.put(ÅrsakInnsendingKodeliste.NY, InntektsmeldingInnsendingsårsak.NY);
+        INNSENDINGSÅRSAK_MAP = new EnumMap<>(ÅrsakInnsendingKodeliste.class);
+        INNSENDINGSÅRSAK_MAP.put(ÅrsakInnsendingKodeliste.ENDRING, InntektsmeldingInnsendingsårsak.ENDRING);
+        INNSENDINGSÅRSAK_MAP.put(ÅrsakInnsendingKodeliste.NY, InntektsmeldingInnsendingsårsak.NY);
     }
 
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
-    MottattDokumentOversetterInntektsmelding() {
+    InntektsmeldingOversetter() {
         // for CDI proxy
     }
 
     @Inject
-    public MottattDokumentOversetterInntektsmelding(InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                                    VirksomhetTjeneste virksomhetTjeneste,
-                                                    PersoninfoAdapter personinfoAdapter) {
+    public InntektsmeldingOversetter(InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                     VirksomhetTjeneste virksomhetTjeneste,
+                                     PersoninfoAdapter personinfoAdapter) {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
     }
 
     @Override
-    public void trekkUtDataOgPersister(MottattDokumentWrapperInntektsmelding wrapper, MottattDokument mottattDokument, Behandling behandling, Optional<LocalDate> gjelderFra) {
-        String aarsakTilInnsending = wrapper.getSkjema().getSkjemainnhold().getAarsakTilInnsending();
-        InntektsmeldingInnsendingsårsak innsendingsårsak = aarsakTilInnsending.isEmpty() ?
-            InntektsmeldingInnsendingsårsak.UDEFINERT :
-            innsendingsårsakMap.get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
+    public void trekkUtDataOgPersister(InntektsmeldingWrapper wrapper,
+                                       MottattDokument mottattDokument,
+                                       Behandling behandling,
+                                       Optional<LocalDate> gjelderFra) {
+        var aarsakTilInnsending = wrapper.getSkjema().getSkjemainnhold().getAarsakTilInnsending();
+        var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP
+            .get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
 
-        InntektsmeldingBuilder builder = InntektsmeldingBuilder.builder();
+        var builder = InntektsmeldingBuilder.builder();
 
         builder.medYtelse(wrapper.getYtelse());
 
@@ -108,14 +103,16 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
         mapUtsettelse(wrapper, builder);
         mapRefusjon(wrapper, builder);
 
-        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(), builder);
+        inntektsmeldingTjeneste.lagreInntektsmelding(behandling.getFagsak().getSaksnummer(), behandling.getId(),
+            builder);
     }
 
-    private void mapArbeidsforholdOgBeløp(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
-        final Optional<Arbeidsforhold> arbeidsforhold = wrapper.getArbeidsforhold();
+    private void mapArbeidsforholdOgBeløp(InntektsmeldingWrapper wrapper,
+                                          InntektsmeldingBuilder builder) {
+        final var arbeidsforhold = wrapper.getArbeidsforhold();
         if (arbeidsforhold.isPresent()) {
-            final Arbeidsforhold arbeidsforholdet = arbeidsforhold.get();
-            final JAXBElement<String> arbeidsforholdId = arbeidsforholdet.getArbeidsforholdId();
+            final var arbeidsforholdet = arbeidsforhold.get();
+            final var arbeidsforholdId = arbeidsforholdet.getArbeidsforholdId();
             if (arbeidsforholdId != null) {
                 var arbeidsforholdRef = EksternArbeidsforholdRef.ref(arbeidsforholdId.getValue());
                 builder.medArbeidsforholdId(arbeidsforholdRef);
@@ -127,22 +124,25 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
         }
     }
 
-    private void mapArbeidsgiver(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
+    private void mapArbeidsgiver(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         if (wrapper.getArbeidsgiver().isPresent()) {
-            String orgNummer = wrapper.getArbeidsgiver().get().getVirksomhetsnummer();
-            @SuppressWarnings("unused")
-            Virksomhet virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
+            var orgNummer = wrapper.getArbeidsgiver().get().getVirksomhetsnummer();
+            @SuppressWarnings("unused") var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgNummer);
             builder.medArbeidsgiver(Arbeidsgiver.virksomhet(orgNummer));
         } else if (wrapper.getArbeidsgiverPrivat().isPresent()) {
-            AktørId aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(new PersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr()))
-                .orElseThrow(() -> new TekniskException("FP-159641", "Fant ikke personident for arbeidsgiver som er privatperson i TPS"));
+            var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(
+                new PersonIdent(wrapper.getArbeidsgiverPrivat().get().getArbeidsgiverFnr()))
+                .orElseThrow(() -> new TekniskException("FP-159641",
+                    "Fant ikke personident for arbeidsgiver som er privatperson i TPS"));
             builder.medArbeidsgiver(Arbeidsgiver.person(aktørIdArbeidsgiver));
         } else {
             throw new TekniskException("FP-183452", "Fant ikke informasjon om arbeidsgiver på inntektsmelding");
         }
     }
 
-    private void mapInnsendingstidspunkt(MottattDokumentWrapperInntektsmelding wrapper, MottattDokument mottattDokument, InntektsmeldingBuilder builder) {
+    private void mapInnsendingstidspunkt(InntektsmeldingWrapper wrapper,
+                                         MottattDokument mottattDokument,
+                                         InntektsmeldingBuilder builder) {
         if (wrapper.getInnsendingstidspunkt().isPresent()) { // LPS
             builder.medInnsendingstidspunkt(wrapper.getInnsendingstidspunkt().get());
         } else if (mottattDokument.getMottattTidspunkt() != null) { // Altinn
@@ -152,7 +152,7 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
         }
     }
 
-    private void mapRefusjon(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
+    private void mapRefusjon(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         var optionalRefusjon = wrapper.getRefusjon();
         if (optionalRefusjon.isPresent()) {
             var refusjon = optionalRefusjon.get();
@@ -168,51 +168,50 @@ public class MottattDokumentOversetterInntektsmelding implements MottattDokument
                 .map(JAXBElement::getValue)
                 .map(EndringIRefusjonsListe::getEndringIRefusjon)
                 .orElse(Collections.emptyList())
-                .stream()
-                .forEach(eir -> builder.leggTil(new Refusjon(eir.getRefusjonsbeloepPrMnd().getValue(), eir.getEndringsdato().getValue())));
+                .forEach(eir -> builder.leggTil(
+                    new Refusjon(eir.getRefusjonsbeloepPrMnd().getValue(), eir.getEndringsdato().getValue())));
 
         }
     }
 
-    private void mapUtsettelse(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
-        for (UtsettelseAvForeldrepenger detaljer : wrapper.getUtsettelser()) {
+    private void mapUtsettelse(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+        for (var detaljer : wrapper.getUtsettelser()) {
             // FIXME (weak reference)
-            ÅrsakUtsettelseKodeliste årsakUtsettelse = ÅrsakUtsettelseKodeliste.fromValue(detaljer.getAarsakTilUtsettelse().getValue());
-            final UtsettelseÅrsak årsak = UtsettelseÅrsak.fraKode(årsakUtsettelse.name());
+            var årsakUtsettelse = ÅrsakUtsettelseKodeliste.fromValue(detaljer.getAarsakTilUtsettelse().getValue());
+            final var årsak = UtsettelseÅrsak.fraKode(årsakUtsettelse.name());
             builder.leggTil(UtsettelsePeriode.utsettelse(detaljer.getPeriode().getValue().getFom().getValue(),
                 detaljer.getPeriode().getValue().getTom().getValue(), årsak));
         }
     }
 
-    private void mapFerie(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
-        for (Periode periode : wrapper.getAvtaltFerie()) {
+    private void mapFerie(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+        for (var periode : wrapper.getAvtaltFerie()) {
             builder.leggTil(UtsettelsePeriode.ferie(periode.getFom().getValue(), periode.getTom().getValue()));
         }
     }
 
-    private void mapNaturalYtelser(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
+    private void mapNaturalYtelser(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         // Ved gjenopptakelse gjelder samme beløp
         Map<NaturalYtelseType, BigDecimal> beløp = new HashMap<>();
-        for (NaturalytelseDetaljer detaljer : wrapper.getOpphørelseAvNaturalytelse()) {
-            NaturalytelseKodeliste naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
-            final NaturalYtelseType ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
+        for (var detaljer : wrapper.getOpphørelseAvNaturalytelse()) {
+            var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
+            final var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
             beløp.put(ytelseType, detaljer.getBeloepPrMnd().getValue());
-            LocalDate bortfallFom = detaljer.getFom().getValue();
-            LocalDate naturalytelseTom = bortfallFom.minusDays(1);
-            builder.leggTil(new NaturalYtelse(TIDENES_BEGYNNELSE, naturalytelseTom,
-                beløp.get(ytelseType), ytelseType));
+            var bortfallFom = detaljer.getFom().getValue();
+            var naturalytelseTom = bortfallFom.minusDays(1);
+            builder.leggTil(new NaturalYtelse(TIDENES_BEGYNNELSE, naturalytelseTom, beløp.get(ytelseType), ytelseType));
         }
 
-        for (NaturalytelseDetaljer detaljer : wrapper.getGjenopptakelserAvNaturalytelse()) {
-            NaturalytelseKodeliste naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
-            final NaturalYtelseType ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
-            builder.leggTil(new NaturalYtelse(detaljer.getFom().getValue(), Tid.TIDENES_ENDE,
-                beløp.get(ytelseType), ytelseType));
+        for (var detaljer : wrapper.getGjenopptakelserAvNaturalytelse()) {
+            var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
+            final var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());
+            builder.leggTil(
+                new NaturalYtelse(detaljer.getFom().getValue(), Tid.TIDENES_ENDE, beløp.get(ytelseType), ytelseType));
         }
     }
 
-    private void mapGradering(MottattDokumentWrapperInntektsmelding wrapper, InntektsmeldingBuilder builder) {
-        for (GraderingIForeldrepenger detaljer : wrapper.getGradering()) {
+    private void mapGradering(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
+        for (var detaljer : wrapper.getGradering()) {
             builder.leggTil(new Gradering(detaljer.getPeriode().getValue().getFom().getValue(),
                 detaljer.getPeriode().getValue().getTom().getValue(),
                 new BigDecimal(detaljer.getArbeidstidprosent().getValue())));

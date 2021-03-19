@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
 import static no.nav.foreldrepenger.domene.typer.PersonIdent.erGyldigFnr;
-import static no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.MottattDokumentOversetterSøknad.finnLandkode;
+import static no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter.finnLandkode;
 
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public class AnnenPartOversetter {
         //CDI
     }
 
-    Optional<OppgittAnnenPartEntitet> oversett(MottattDokumentWrapperSøknad skjema, AktørId aktørIdSøker) {
+    Optional<OppgittAnnenPartEntitet> oversett(SøknadWrapper skjema, AktørId aktørIdSøker) {
         return extractAnnenForelder(skjema).map(annenForelder -> {
             if (annenForelder instanceof AnnenForelderMedNorskIdent) {
                 var annenForelderMedNorskIdent = (AnnenForelderMedNorskIdent) annenForelder;
@@ -68,7 +68,7 @@ public class AnnenPartOversetter {
         return new OppgittAnnenPartBuilder().medAktørId(new AktørId(annenForelderMedNorskIdent.getAktoerId())).build();
     }
 
-    private static Optional<AnnenForelder> extractAnnenForelder(MottattDokumentWrapperSøknad søknad) {
+    private static Optional<AnnenForelder> extractAnnenForelder(SøknadWrapper søknad) {
         AnnenForelder annenForelder = null;
         if (søknad.getOmYtelse() instanceof Foreldrepenger) {
             annenForelder = ((Foreldrepenger) søknad.getOmYtelse()).getAnnenForelder();

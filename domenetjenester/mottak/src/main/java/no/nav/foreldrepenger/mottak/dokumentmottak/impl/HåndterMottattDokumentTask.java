@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -33,18 +33,18 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private BehandlingRepository behandlingRepository;
-    private DokumentPersistererTjeneste dokumentPersistererTjeneste;
+    private MottattDokumentPersisterer mottattDokumentPersisterer;
 
     HåndterMottattDokumentTask() {
         // for CDI proxy
     }
 
     @Inject
-    public HåndterMottattDokumentTask(InnhentDokumentTjeneste innhentDokumentTjeneste, DokumentPersistererTjeneste dokumentPersistererTjeneste,
+    public HåndterMottattDokumentTask(InnhentDokumentTjeneste innhentDokumentTjeneste, MottattDokumentPersisterer mottattDokumentPersisterer,
                                       MottatteDokumentTjeneste mottatteDokumentTjeneste, BehandlingRepositoryProvider repositoryProvider) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.innhentDokumentTjeneste = innhentDokumentTjeneste;
-        this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
+        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
     }
@@ -61,7 +61,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
             innhentDokumentTjeneste.opprettFraTidligereBehandling(behandlingId, mottattDokument, behandlingÅrsakType);
         } else {
             if (mottattDokument.getPayloadXml() != null) {
-                dokumentPersistererTjeneste.xmlTilWrapper(mottattDokument);
+                mottattDokumentPersisterer.xmlTilWrapper(mottattDokument);
             }
             innhentDokumentTjeneste.utfør(mottattDokument, behandlingÅrsakType);
         }

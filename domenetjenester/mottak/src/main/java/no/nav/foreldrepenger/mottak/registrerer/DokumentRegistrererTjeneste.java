@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 
@@ -18,7 +18,7 @@ public class DokumentRegistrererTjeneste {
     private MottatteDokumentRepository mottatteDokumentRepository;
     private OppgaveTjeneste oppgaveTjeneste;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private DokumentPersistererTjeneste dokumentPersistererTjeneste;
+    private MottattDokumentPersisterer mottattDokumentPersisterer;
 
     DokumentRegistrererTjeneste() {
         // CDI
@@ -28,15 +28,16 @@ public class DokumentRegistrererTjeneste {
     public DokumentRegistrererTjeneste(MottatteDokumentRepository mottatteDokumentRepository,
                                        OppgaveTjeneste oppgaveTjeneste,
                                        OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-                                       DokumentPersistererTjeneste dokumentPersistererTjeneste) {
+                                       MottattDokumentPersisterer mottattDokumentPersisterer) {
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
-        this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
+        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
     }
 
     public Optional<AksjonspunktDefinisjon> aksjonspunktManuellRegistrering(Behandling behandling, ManuellRegistreringAksjonspunktDto adapter) {
-        return new ManuellRegistreringAksjonspunkt(mottatteDokumentRepository, oppgaveTjeneste, oppgaveBehandlingKoblingRepository, dokumentPersistererTjeneste)
+        return new ManuellRegistreringAksjonspunkt(mottatteDokumentRepository, oppgaveTjeneste, oppgaveBehandlingKoblingRepository,
+            mottattDokumentPersisterer)
             .oppdater(behandling, adapter);
     }
 

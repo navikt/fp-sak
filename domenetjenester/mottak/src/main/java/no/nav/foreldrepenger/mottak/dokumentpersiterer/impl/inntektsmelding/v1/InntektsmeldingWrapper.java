@@ -25,14 +25,14 @@ import no.seres.xsd.nav.inntektsmelding_m._20180924.Refusjon;
 import no.seres.xsd.nav.inntektsmelding_m._20180924.UtsettelseAvForeldrepenger;
 import no.seres.xsd.nav.inntektsmelding_m._20180924.UtsettelseAvForeldrepengerListe;
 
-public class MottattDokumentWrapperInntektsmelding extends MottattDokumentWrapper<InntektsmeldingM> {
+public class InntektsmeldingWrapper extends MottattDokumentWrapper<InntektsmeldingM> {
 
-    public MottattDokumentWrapperInntektsmelding(InntektsmeldingM skjema) {
+    public InntektsmeldingWrapper(InntektsmeldingM skjema) {
         super(skjema, InntektsmeldingConstants.NAMESPACE);
     }
 
     public FagsakYtelseType getYtelse() {
-        String ytelse = getSkjema().getSkjemainnhold().getYtelse();
+        var ytelse = getSkjema().getSkjemainnhold().getYtelse();
         if (ytelse.toLowerCase().matches("foreldrepenger")) {
             return FagsakYtelseType.FORELDREPENGER;
         }
@@ -84,12 +84,15 @@ public class MottattDokumentWrapperInntektsmelding extends MottattDokumentWrappe
     }
 
     public Optional<LocalDate> getStartDatoPermisjon() {
-        FagsakYtelseType ytelseType = getYtelse();
+        var ytelseType = getYtelse();
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return Optional.ofNullable(getSkjema().getSkjemainnhold().getStartdatoForeldrepengeperiode().getValue());
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
-            var førsteFraværsdag = getSkjema().getSkjemainnhold().getArbeidsforhold().getValue().getFoersteFravaersdag();
+            var førsteFraværsdag = getSkjema().getSkjemainnhold()
+                .getArbeidsforhold()
+                .getValue()
+                .getFoersteFravaersdag();
             return Optional.ofNullable(førsteFraværsdag != null ? førsteFraværsdag.getValue() : null);
         }
         return Optional.empty();

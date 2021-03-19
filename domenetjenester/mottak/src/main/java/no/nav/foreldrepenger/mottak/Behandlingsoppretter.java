@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 @Dependent
@@ -44,7 +44,7 @@ public class Behandlingsoppretter {
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingOpprettingTjeneste behandlingOpprettingTjeneste;
-    private DokumentPersistererTjeneste dokumentPersistererTjeneste;
+    private MottattDokumentPersisterer mottattDokumentPersisterer;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
@@ -60,12 +60,12 @@ public class Behandlingsoppretter {
     public Behandlingsoppretter(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                     BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                     BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
-                                    DokumentPersistererTjeneste dokumentPersistererTjeneste,
+                                    MottattDokumentPersisterer mottattDokumentPersisterer,
                                     MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                     BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) { // NOSONAR
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
-        this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
+        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
@@ -165,7 +165,7 @@ public class Behandlingsoppretter {
             hentAlleInntektsmeldingdokumenter(nyBehandling.getFagsakId()).stream()
                 .sorted(MottattDokumentSorterer.sorterMottattDokument())
                 .forEach(mottattDokument ->
-                    dokumentPersistererTjeneste.persisterDokumentinnhold(mottattDokument, nyBehandling));
+                    mottattDokumentPersisterer.persisterDokumentinnhold(mottattDokument, nyBehandling));
 
     }
 
