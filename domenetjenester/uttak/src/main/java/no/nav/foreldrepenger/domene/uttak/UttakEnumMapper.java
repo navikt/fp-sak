@@ -359,8 +359,8 @@ public final class UttakEnumMapper {
         return Arbeidsgiver.person(new AktørId(arbeidsgiverIdentifikator.value()));
     }
 
-    public static Optional<UttakPeriodeType> mapTilYf(StønadskontoType stønadskontoType) {
-        return PERIODE_TYPE_MAPPER.map(stønadskontoType);
+    public static UttakPeriodeType mapTilYf(StønadskontoType stønadskontoType) {
+        return PERIODE_TYPE_MAPPER.map(stønadskontoType).orElseThrow(() -> new IllegalArgumentException("Ukjent stønadskontoType " + stønadskontoType));
     }
 
     public static Optional<UtsettelseÅrsak> mapTilYf(UttakUtsettelseType utsettelseType) {

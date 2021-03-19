@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering;
 
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -35,5 +36,12 @@ final class OverstyrUttakValideringFeil {
 
     static TekniskException perioderFørEndringsdatoKanIkkeEndres() {
         return new TekniskException("FP-999187", "Perioder før endringsdato kan ikke endres");
+    }
+
+    static TekniskException trekkerDagerFraSøktKontoVedAvslagAvOverføring(ForeldrepengerUttakPeriode periode) {
+        var msg = String.format("""
+            Kan ikke trekke dager fra søkt kvote ved avslag av overføring. Dette gjelder periode %s - %s
+            """, periode.getFom(), periode.getTom());
+        return new TekniskException("FP-135672", msg);
     }
 }
