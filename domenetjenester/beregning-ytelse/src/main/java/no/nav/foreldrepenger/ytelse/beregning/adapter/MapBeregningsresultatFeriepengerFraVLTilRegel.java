@@ -71,6 +71,7 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
     private static Set<Inntektskategori> mapInntektskategorier(BeregningsresultatEntitet beregningsresultat) {
         return beregningsresultat.getBeregningsresultatPerioder().stream()
             .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
+            .filter(andel -> andel.getDagsats() > 0)
             .map(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel::getInntektskategori)
             .map(MapInntektskategoriFraBehandlingslagerTilBeregningsgrunnlag::mapInntektskategori)
             .map(InntektskategoriMapper::fraVLTilRegel)
