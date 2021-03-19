@@ -6,12 +6,11 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @Dependent
@@ -35,27 +34,9 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
     /**
      * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
      */
-    @Deprecated
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId) {
-        return Optional.empty();
-    }
-
     @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId) {
-        return Optional.empty();
-    }
-
-    /**
-     * Brukes ved iverksettelse. Sender over kun nødvendige endringer til oppdragssystemet.
-     */
-    @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input) {
+    public Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input) {
         return opprettOppdrag(input, false);
-    }
-
-    @Override
-    public Optional<Oppdragskontroll> simulerOppdrag(Input input) {
-        return opprettOppdrag(input, true);
     }
 
     /**
@@ -63,22 +44,21 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
      * Det gjør at simuleringsvisningen får data for alle mottakere og inntektskategorier, og ikke bare for de som er endret.
      */
     @Override
-    public Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    public Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input) {
+        return opprettOppdrag(input, true);
+    }
+
+    @Override
+    public void lagre(Oppdragskontroll oppdragskontroll) {
+        økonomioppdragRepository.lagre(oppdragskontroll);
+    }
+
+    private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
             OppdragskontrollPostConditionCheck.valider(oppdragskontroll);
             return Optional.of(oppdragskontroll);
         }
         return Optional.empty();
-    }
-
-    @Deprecated
-    public Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void lagre(Oppdragskontroll oppdragskontroll) {
-        økonomioppdragRepository.lagre(oppdragskontroll);
     }
 }

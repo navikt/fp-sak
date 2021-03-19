@@ -21,7 +21,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
 @Transactional
 public class BehandleØkonomioppdragKvittering {
 
-    private AlleMottakereHarPositivKvitteringProvider alleMottakereHarPositivKvitteringProvider;
     private ProsessTaskHendelseMottak hendelsesmottak;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandleNegativeKvitteringTjeneste behandleNegativeKvittering;
@@ -33,11 +32,9 @@ public class BehandleØkonomioppdragKvittering {
     }
 
     @Inject
-    public BehandleØkonomioppdragKvittering(AlleMottakereHarPositivKvitteringProvider alleMottakereHarPositivKvitteringProvider,
-                                            ProsessTaskHendelseMottak hendelsesmottak,
+    public BehandleØkonomioppdragKvittering(ProsessTaskHendelseMottak hendelsesmottak,
                                             ØkonomioppdragRepository økonomioppdragRepository,
                                             BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste) {
-        this.alleMottakereHarPositivKvitteringProvider = alleMottakereHarPositivKvitteringProvider;
         this.hendelsesmottak = hendelsesmottak;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandleNegativeKvittering = behandleNegativeKvitteringTjeneste;
@@ -79,7 +76,7 @@ public class BehandleØkonomioppdragKvittering {
 
             if (oppdaterProsesstask) {
                 //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
-                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(behandlingId, oppdragskontroll);
+                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(oppdragskontroll.getOppdrag110Liste());
                 if (alleViserPositivtResultat) {
                     LOG.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
                     hendelsesmottak.mottaHendelse(oppdragskontroll.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
@@ -95,12 +92,16 @@ public class BehandleØkonomioppdragKvittering {
     }
 
     private boolean sjekkAlleKvitteringMottatt(List<Oppdrag110> oppdrag110Liste) {
+        if (oppdrag110Liste.isEmpty()) {
+            throw new IllegalStateException("Det forventes at oppdrag110 finnes.");
+        }
         return oppdrag110Liste.stream().noneMatch(Oppdrag110::venterKvittering);
     }
 
-    private boolean erAlleKvitteringerMedPositivtResultat(Long behandlingId, Oppdragskontroll oppdrag) {
-        AlleMottakereHarPositivKvittering tjeneste = alleMottakereHarPositivKvitteringProvider.getTjeneste(behandlingId);
-        return tjeneste.vurder(oppdrag);
+    private boolean erAlleKvitteringerMedPositivtResultat(List<Oppdrag110> oppdrag110Liste) {
+        if (oppdrag110Liste.isEmpty()) {
+            throw new IllegalStateException("Det forventes at oppdrag110 finnes.");
+        }
+        return oppdrag110Liste.stream().allMatch(OppdragKvitteringTjeneste::harPositivKvittering);
     }
-
 }

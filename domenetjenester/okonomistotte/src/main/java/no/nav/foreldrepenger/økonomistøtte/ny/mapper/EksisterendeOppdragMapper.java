@@ -26,8 +26,8 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
 import no.nav.vedtak.util.env.Environment;
 
 
@@ -39,7 +39,7 @@ public class EksisterendeOppdragMapper {
         return oppdragTilKjeder(oppdragskontroll.stream().flatMap(ok -> ok.getOppdrag110Liste().stream()).collect(Collectors.toList()));
     }
 
-    public static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
+    private static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
         List<Oppdrag110> godkjenteOppdrag = sorterOgVelgKunGyldige(tidligereOppdrag);
         var buildere = lagOppdragskjedeBuildere(godkjenteOppdrag);
         return build(buildere);

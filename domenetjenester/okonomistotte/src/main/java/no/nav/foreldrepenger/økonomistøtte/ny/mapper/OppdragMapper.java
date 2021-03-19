@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
@@ -27,16 +26,17 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.MottakerOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
+import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
 public class OppdragMapper {
 
-    private final Input input;
+    private final OppdragInput input;
     private final String fnrBruker;
     private final String ansvarligSaksbehandler;
     private final OverordnetOppdragKjedeOversikt tidligereOppdrag;
 
-    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, Input input) {
+    public OppdragMapper(String fnrBruker, OverordnetOppdragKjedeOversikt tidligereOppdrag, OppdragInput input) {
         this.fnrBruker = fnrBruker;
         this.tidligereOppdrag = tidligereOppdrag;
         this.input = input;
@@ -117,7 +117,7 @@ public class OppdragMapper {
             Refusjonsinfo156.builder()
                 .medMaksDato(maxdatoRefusjon)
                 .medDatoFom(vedtaksdato)
-                .medRefunderesId(Oppdragslinje150Util.endreTilElleveSiffer(mottaker.getOrgnr()))
+                .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()))
                 .medOppdragslinje150(oppdragslinje150)
                 .build();
         }

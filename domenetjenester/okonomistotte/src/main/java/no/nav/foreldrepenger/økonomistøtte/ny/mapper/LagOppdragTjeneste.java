@@ -16,7 +16,7 @@ public class LagOppdragTjeneste {
 
     public LagOppdragTjeneste() { }
 
-    public Oppdragskontroll lagOppdrag(Input input, boolean brukFellesEndringstidspunkt) {
+    public Oppdragskontroll lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         GruppertYtelse målbilde = input.getTilkjentYtelse();
         OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
 
@@ -37,7 +37,7 @@ public class LagOppdragTjeneste {
         return oppdragskontroll;
     }
 
-    public static List<Oppdrag> lagOppdrag(Input input) {
+    public static List<Oppdrag> lagOppdrag(OppdragInput input) {
         GruppertYtelse målbilde = input.getTilkjentYtelse();
         OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
 

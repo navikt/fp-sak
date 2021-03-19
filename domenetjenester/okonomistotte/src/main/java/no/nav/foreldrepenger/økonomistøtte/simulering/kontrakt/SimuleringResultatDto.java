@@ -9,8 +9,7 @@ public class SimuleringResultatDto {
     private Long sumInntrekk;
     private boolean slåttAvInntrekk;
 
-    public SimuleringResultatDto() {
-    }
+    public SimuleringResultatDto() {}
 
     public SimuleringResultatDto(Long sumFeilutbetaling, Long sumInntrekk, boolean slåttAvInntrekk) {
         this.sumFeilutbetaling = sumFeilutbetaling;

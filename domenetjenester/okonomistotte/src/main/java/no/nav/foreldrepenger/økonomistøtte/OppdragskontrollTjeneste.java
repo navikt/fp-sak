@@ -2,26 +2,14 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.Input;
+import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 
 public interface OppdragskontrollTjeneste {
 
-    Optional<Oppdragskontroll> opprettOppdrag(Input input);
+    Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input);
 
-    Optional<Oppdragskontroll> simulerOppdrag(Input input);
-
-    Optional<Oppdragskontroll> opprettOppdrag(Input input, boolean brukFellesEndringstidspunkt);
-
-    @Deprecated
-    Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId);
-
-    @Deprecated
-    Optional<Oppdragskontroll> simulerOppdrag(Long behandlingId);
-
-    @Deprecated
-    Optional<Oppdragskontroll> opprettOppdrag(Long behandlingId, Long prosessTaskId, boolean brukFellesEndringstidspunkt);
+    Optional<Oppdragskontroll> simulerOppdrag(OppdragInput input);
 
     void lagre(Oppdragskontroll oppdragskontroll);
 }

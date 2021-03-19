@@ -40,7 +40,7 @@ public class BehandleNegativeKvitteringTjeneste {
     public void nullstilleØkonomioppdragTask(Long prosessTaskId) {
         try {
             ProsessTaskData prosessTaskData = repository.finn(prosessTaskId);
-            if(prosessTaskData == null) {
+            if (prosessTaskData == null) {
                 throw new IllegalStateException(String.format("Prosess task med prossess task id = %d finnes ikke", prosessTaskId));
             }
 
@@ -63,7 +63,7 @@ public class BehandleNegativeKvitteringTjeneste {
     }
 
     public static class NegativeKvitteringFeil {
-        private String feilmelding;
+        private final String feilmelding;
 
         NegativeKvitteringFeil(String feilmelding) {
             this.feilmelding = feilmelding;

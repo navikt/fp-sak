@@ -23,8 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
+import no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt.SimuleringResultatDto;
 
 public class SimulerInntrekkSjekkeTjenesteTest {
 
@@ -52,7 +52,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(Optional.empty());
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), any());
+        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(tilbakekrevingRepository.hent(anyLong())).thenReturn(opprettTilbakekrevingValg(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong(), any());
+        verify(simulerOppdragTjeneste, never()).simulerOppdrag(anyLong());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(0L, -2345L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(tilbakekrevingRepository, times(1)).hent(anyLong());
-        verify(simulerOppdragTjeneste, times(1)).simulerOppdrag(anyLong(), any());
+        verify(simulerOppdragTjeneste, times(1)).simulerOppdrag(anyLong());
         verify(tilbakekrevingRepository, never()).lagre(any(Behandling.class), any(TilbakekrevingValg.class));
     }
 

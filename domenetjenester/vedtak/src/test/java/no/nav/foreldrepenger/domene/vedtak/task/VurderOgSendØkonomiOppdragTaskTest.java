@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.task;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.toggle.OppdragKjerneimplementasjonToggle;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -52,7 +50,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private ProsessTaskData prosessTaskData;
 
     @Mock
-    private OppdragskontrollTjeneste oppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste esOppdragskontrollTjeneste;
 
     @Mock
     private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
@@ -63,9 +61,6 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     @Mock
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
 
-    @Mock
-    private OppdragKjerneimplementasjonToggle toggle;
-
     private VurderOgSendØkonomiOppdragTask task;
 
     @BeforeEach
@@ -74,8 +69,9 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         lenient().when(prosessTaskData.getAktørId()).thenReturn(AKTØR_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
-        lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID)).thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
-        task = new VurderOgSendØkonomiOppdragTask(oppdragskontrollTjeneste, oppdragskontrollTjeneste, repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, toggle, oppdragInputTjeneste);
+        lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID))
+            .thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
+        task = new VurderOgSendØkonomiOppdragTask(repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, oppdragInputTjeneste);
     }
 
     @Test
@@ -83,11 +79,11 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         // Arrange
         Oppdragskontroll oppdragskontroll = Oppdragskontroll.builder()
             .medBehandlingId(BEHANDLING_ID)
-            .medProsessTaskId(BEHANDLING_ID)
+            .medProsessTaskId(1L)
             .medVenterKvittering(true)
             .medSaksnummer(new Saksnummer(BEHANDLING_ID.toString()))
             .build();
-        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(
+        when(nyOppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(
             Optional.ofNullable(oppdragskontroll));
         when(prosessTaskData.getHendelse()).thenReturn(Optional.empty());
 
@@ -102,7 +98,6 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     @Test
     public void testSkalIkkeSendeOppdrag() {
         // Arrange
-        when(oppdragskontrollTjeneste.opprettOppdrag(anyLong(), anyLong())).thenReturn(Optional.empty());
         when(prosessTaskData.getHendelse()).thenReturn(Optional.empty());
 
         // Act
@@ -126,7 +121,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         task.doTask(prosessTaskData);
 
         // Assert
-        verify(oppdragskontrollTjeneste, never()).opprettOppdrag(anyLong(), anyLong());
+        verify(nyOppdragskontrollTjeneste, never()).opprettOppdrag(any());
         verify(prosessTaskData, never()).venterPåHendelse(any());
         verify(repo, never()).lagre(any(ProsessTaskData.class));
     }

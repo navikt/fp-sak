@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class HentOppdragMedPositivKvitteringTest {
 
     private HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering;
-    private ØkonomioppdragRepository økonomioppdragRepository;
 
     private Behandling behandling;
     private Oppdragskontroll oppdragskontroll;
@@ -37,7 +36,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     private void mockRepository(Oppdragskontroll oppdragskontroll) {
-        økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
+        final ØkonomioppdragRepository økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
         when(økonomioppdragRepository.finnOppdragForBehandling(eq(behandling.getId()))).thenReturn(Optional.of(oppdragskontroll));
         when(økonomioppdragRepository.finnAlleOppdragForSak(eq(saksnummer))).thenReturn(Collections.singletonList(oppdragskontroll));
         hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);

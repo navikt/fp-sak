@@ -1,24 +1,20 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.assertj.core.api.ThrowableAssert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
-public class BehandleNegativeKvitteringTjenesteTest extends EntityManagerAwareTest {
+public class BehandleNegativeKvitteringTjenesteTest {
 
     private final static String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
     private final static Long BEHANDLING_ID = 100010010L;
@@ -26,22 +22,25 @@ public class BehandleNegativeKvitteringTjenesteTest extends EntityManagerAwareTe
     private final static String AKTØR_ID = "AA-BB-CC-DD-EE";
 
     private ProsessTaskRepository prosessTaskRepository;
+
     private BehandleNegativeKvitteringTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
-        prosessTaskRepository = spy(new ProsessTaskRepositoryImpl(getEntityManager(), null, null));
+        prosessTaskRepository = mock(ProsessTaskRepository.class);
         tjeneste = new BehandleNegativeKvitteringTjeneste(prosessTaskRepository);
     }
 
     @Test
     public void skal_nullstille_hendelse() {
-        ProsessTaskData taskData = lagreØkonomioppragTaskPåVent();
+        ProsessTaskData taskData = lagØkonomioppragTaskPåVent();
+
+        when(prosessTaskRepository.finn(taskData.getId())).thenReturn(taskData);
 
         tjeneste.nullstilleØkonomioppdragTask(taskData.getId());
 
-        taskData = prosessTaskRepository.finn(taskData.getId());
-        verify(prosessTaskRepository, times(2)).lagre(any(ProsessTaskData.class));
+        verify(prosessTaskRepository).lagre(taskData);
+
         assertThat(taskData.getStatus()).isEqualTo(ProsessTaskStatus.FEILET);
         assertThat(taskData.getSisteFeil()).isEqualTo("{\"feilmelding\":\"Det finnes negativ kvittering for minst en av oppdragsmottakerne.\"}");
         assertThat(taskData.getHendelse()).isEmpty();
@@ -49,16 +48,17 @@ public class BehandleNegativeKvitteringTjenesteTest extends EntityManagerAwareTe
 
     @Test
     public void skal_kaste_IllegalStateException_hvis_task_finnes_ikke() {
-        ThrowableAssert.ThrowingCallable throwingCallable = () -> tjeneste.nullstilleØkonomioppdragTask(0L);
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(throwingCallable).hasMessageContaining("Prosess task med prossess task id = 0 finnes ikke");
+        var thrown = Assertions.assertThrows(
+            IllegalStateException.class,
+            () -> tjeneste.nullstilleØkonomioppdragTask(0L));
+
+        Assertions.assertTrue(thrown.getMessage().contains("Prosess task med prossess task id = 0 finnes ikke"));
     }
 
-    private ProsessTaskData lagreØkonomioppragTaskPåVent() {
+    private ProsessTaskData lagØkonomioppragTaskPåVent() {
         ProsessTaskData taskData = new ProsessTaskData(TASKTYPE);
         taskData.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID);
         taskData.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
-        prosessTaskRepository.lagre(taskData);
         return taskData;
     }
 }

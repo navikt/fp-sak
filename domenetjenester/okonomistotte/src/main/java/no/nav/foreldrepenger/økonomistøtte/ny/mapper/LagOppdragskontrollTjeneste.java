@@ -4,7 +4,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 
 class LagOppdragskontrollTjeneste {
 
-    static Oppdragskontroll lagOppdragskontroll(Input input) {
+    static Oppdragskontroll lagOppdragskontroll(OppdragInput input) {
         return Oppdragskontroll.builder()
             .medSaksnummer(input.getSaksnummer())
             .medBehandlingId(input.getBehandlingId())

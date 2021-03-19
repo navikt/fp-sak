@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
-import static no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimulerOppdragIntegrasjonTjenesteFeil.*;
+import static no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste.SimulerOppdragIntegrasjonTjenesteFeil.startSimuleringFeiletMedFeilmelding;
 
 import java.util.List;
 import java.util.Objects;

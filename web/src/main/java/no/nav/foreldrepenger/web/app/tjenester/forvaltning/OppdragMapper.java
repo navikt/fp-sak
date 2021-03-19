@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
-import no.nav.foreldrepenger.økonomistøtte.dagytelse.oppdragslinje150.Oppdragslinje150Util;
+import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
 class OppdragMapper {
@@ -79,7 +79,7 @@ class OppdragMapper {
         if (!dto.erBrukerMottaker()) {
             Refusjonsinfo156.builder()
                 .medOppdragslinje150(oppdragslinje)
-                .medRefunderesId(Oppdragslinje150Util.endreTilElleveSiffer(dto.getArbeidsgiverOrgNr()))
+                .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(dto.getArbeidsgiverOrgNr()))
                 .medDatoFom(behandlingVedtak.getVedtaksdato())
                 .medMaksDato(finnSisteDato())
                 .build();
