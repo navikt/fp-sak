@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.mottak.publiserer.publish.MottattDokumentPersistertPubliserer;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
@@ -56,10 +56,11 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     public void setUp() {
         behandlingRepository = new BehandlingRepository(getEntityManager());
         MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        DokumentPersistererTjeneste dokumentPersistererTjeneste = new DokumentPersistererTjeneste(mock(MottattDokumentPersistertPubliserer.class));
+        MottattDokumentPersisterer mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
 
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        MottatteDokumentTjeneste mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE, dokumentPersistererTjeneste,
+        MottatteDokumentTjeneste mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,
+            mottattDokumentPersisterer,
                 mottatteDokumentRepository, behandlingRepositoryProvider);
 
         var familieTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());

@@ -13,17 +13,17 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Spraakkode;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
-public class MottattDokumentWrapperSøknad extends MottattDokumentWrapper<Soeknad> {
+public class SøknadWrapper extends MottattDokumentWrapper<Soeknad> {
 
-    public MottattDokumentWrapperSøknad(Soeknad skjema) {
+    public SøknadWrapper(Soeknad skjema) {
         super(skjema, SøknadConstants.NAMESPACE);
         sjekkNødvendigeFeltEksisterer(getSkjema());
     }
 
     public static void sjekkNødvendigeFeltEksisterer(Soeknad søknad) {
         if (søknad.getMottattDato() == null || søknad.getOmYtelse() == null || søknad.getSoeker() == null) {
-            throw new TekniskException("FP-921156", "Kjenner ikke igjen format på søknad XML med namespace "
-                + søknad.getClass().getCanonicalName());
+            throw new TekniskException("FP-921156",
+                "Kjenner ikke igjen format på søknad XML med namespace " + søknad.getClass().getCanonicalName());
         }
     }
 
@@ -53,9 +53,12 @@ public class MottattDokumentWrapperSøknad extends MottattDokumentWrapper<Soekna
 
     public Ytelse getOmYtelse() {
         sjekkNødvendigeFeltEksisterer(getSkjema());
-        return getSkjema().getOmYtelse().getAny().stream()
+        return getSkjema().getOmYtelse()
+            .getAny()
+            .stream()
             .filter(o -> o instanceof JAXBElement)
             .map(o -> (Ytelse) ((JAXBElement<?>) o).getValue())
-            .findFirst().orElse(null);
+            .findFirst()
+            .orElse(null);
     }
 }

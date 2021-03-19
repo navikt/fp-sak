@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.DokumentPersistererTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -31,7 +31,7 @@ public class MottatteDokumentTjeneste {
 
     private Period fristForInnsendingAvDokumentasjon;
 
-    private DokumentPersistererTjeneste dokumentPersistererTjeneste;
+    private MottattDokumentPersisterer mottattDokumentPersisterer;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingRepositoryProvider behandlingRepositoryProvider;
 
@@ -45,11 +45,11 @@ public class MottatteDokumentTjeneste {
      */
     @Inject
     public MottatteDokumentTjeneste(@KonfigVerdi(value = "sak.frist.innsending.dok", defaultVerdi = "P6W") Period fristForInnsendingAvDokumentasjon,
-                                    DokumentPersistererTjeneste dokumentPersistererTjeneste,
+                                    MottattDokumentPersisterer mottattDokumentPersisterer,
                                     MottatteDokumentRepository mottatteDokumentRepository,
                                     BehandlingRepositoryProvider behandlingRepositoryProvider) {
         this.fristForInnsendingAvDokumentasjon = fristForInnsendingAvDokumentasjon;
-        this.dokumentPersistererTjeneste = dokumentPersistererTjeneste;
+        this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingRepositoryProvider = behandlingRepositoryProvider;
     }
@@ -58,8 +58,8 @@ public class MottatteDokumentTjeneste {
         oppdaterMottattDokumentMedBehandling(dokument, behandling.getId());
         if (dokument.getPayloadXml() != null) {
             @SuppressWarnings("rawtypes")
-            MottattDokumentWrapper dokumentWrapper = dokumentPersistererTjeneste.xmlTilWrapper(dokument);
-            dokumentPersistererTjeneste.persisterDokumentinnhold(dokumentWrapper, dokument, behandling, gjelderFra);
+            MottattDokumentWrapper dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
+            mottattDokumentPersisterer.persisterDokumentinnhold(dokumentWrapper, dokument, behandling, gjelderFra);
         }
     }
 

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.util.TypeLiteral;
 import javax.inject.Inject;
@@ -21,15 +20,15 @@ import no.nav.vedtak.exception.TekniskException;
 
 @SuppressWarnings("rawtypes")
 @ApplicationScoped
-public class DokumentPersistererTjeneste {
+public class MottattDokumentPersisterer {
 
     private MottattDokumentPersistertPubliserer publiserer;
 
-    DokumentPersistererTjeneste() {
+    MottattDokumentPersisterer() {
     }
 
     @Inject
-    public DokumentPersistererTjeneste(MottattDokumentPersistertPubliserer publiserer) {
+    public MottattDokumentPersisterer(MottattDokumentPersistertPubliserer publiserer) {
         this.publiserer = publiserer;
     }
 
@@ -48,22 +47,21 @@ public class DokumentPersistererTjeneste {
     }
 
     public void persisterDokumentinnhold(MottattDokument dokument, Behandling behandling) {
-        MottattDokumentWrapper dokumentWrapper = xmlTilWrapper(dokument);
+        var dokumentWrapper = xmlTilWrapper(dokument);
         persisterDokumentinnhold(dokumentWrapper, dokument, behandling, Optional.empty());
     }
 
     private MottattDokumentOversetter<?> getDokumentOversetter(String namespace) {
-        NamespaceRef.NamespaceRefLiteral annotationLiteral = new NamespaceRef.NamespaceRefLiteral(namespace);
+        var annotationLiteral = new NamespaceRef.NamespaceRefLiteral(namespace);
 
-        Instance<MottattDokumentOversetter<?>> instance = CDI.current()
-            .select(new TypeLiteralMottattDokumentOversetter(), annotationLiteral);
+        var instance = CDI.current().select(new TypeLiteralMottattDokumentOversetter(), annotationLiteral);
 
         if (instance.isAmbiguous()) {
             throw new TekniskException("FP-947148", "Mer enn en implementasjon funnet for skjematype " + namespace);
         } else if (instance.isUnsatisfied()) {
             throw MottattDokumentFeil.ukjentSkjemaType(namespace);
         }
-        MottattDokumentOversetter<?> minInstans = instance.get();
+        var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup "
                 + "dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());

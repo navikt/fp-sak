@@ -40,11 +40,11 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.MottattDokumentOversetterInntektsmelding;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.MottattDokumentWrapperInntektsmelding;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingOversetter;
+import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingWrapper;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.xml.MottattDokumentXmlParser;
 
-public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerAwareTest {
+public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
     private final VirksomhetTjeneste virksomhetTjeneste = mock(VirksomhetTjeneste.class);
     private final FileToStringUtil fileToStringUtil = new FileToStringUtil();
@@ -52,7 +52,7 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
-    private MottattDokumentOversetterInntektsmelding oversetter;
+    private InntektsmeldingOversetter oversetter;
 
     @BeforeEach
     public void setUp() {
@@ -63,7 +63,7 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
             .build()));
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
-        oversetter = new MottattDokumentOversetterInntektsmelding(inntektsmeldingTjeneste, virksomhetTjeneste);
+        oversetter = new InntektsmeldingOversetter(inntektsmeldingTjeneste, virksomhetTjeneste);
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
     }
@@ -113,7 +113,7 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
 
-        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+        final InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
         // Act
@@ -140,10 +140,10 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
         // Arrange
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+        InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
-        MottattDokumentWrapperInntektsmelding wrapperSpied = Mockito.spy(wrapper);
+        InntektsmeldingWrapper wrapperSpied = Mockito.spy(wrapper);
 
         LocalDateTime nyereDato = LocalDateTime.now();
         LocalDateTime eldreDato = nyereDato.minusMinutes(1);
@@ -181,10 +181,10 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
         // Arrange
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+        InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
-        MottattDokumentWrapperInntektsmelding wrapperSpied = Mockito.spy(wrapper);
+        InntektsmeldingWrapper wrapperSpied = Mockito.spy(wrapper);
 
         LocalDateTime nyereDato = LocalDateTime.now();
         LocalDateTime eldreDato = nyereDato.minusMinutes(1);
@@ -220,7 +220,7 @@ public class MottattDokumentOversetterInntektsmeldingTest extends EntityManagerA
         final Behandling behandling = opprettBehandling();
         MottattDokument mottattDokument = opprettDokument(behandling, inntektsmeldingFilnavn);
 
-        final MottattDokumentWrapperInntektsmelding wrapper = (MottattDokumentWrapperInntektsmelding) MottattDokumentXmlParser
+        final InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());

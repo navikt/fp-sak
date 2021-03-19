@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.xml.bind.JAXBElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +64,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
@@ -94,17 +92,14 @@ import no.nav.vedtak.felles.xml.soeknad.felles.v3.Periode;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Termin;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Vedlegg;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Ytelse;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.AnnenOpptjening;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.EgenNaering;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Frilans;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.NorskOrganisasjon;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Opptjening;
-import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Regnskapsfoerer;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskArbeidsforhold;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.UtenlandskOrganisasjon;
-import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.AnnenOpptjeningTyper;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Innsendingstype;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Omsorgsovertakelseaarsaker;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Virksomhetstyper;
@@ -112,7 +107,6 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsforhold;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
-import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
@@ -123,9 +117,9 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
-public class MottattDokumentOversetterSøknad implements MottattDokumentOversetter<MottattDokumentWrapperSøknad> { // NOSONAR - (essv)kan akseptere lang mapperklasse
+public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapper> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MottattDokumentOversetterSøknad.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SøknadOversetter.class);
 
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningRepository personopplysningRepository;
@@ -143,13 +137,13 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private AnnenPartOversetter annenPartOversetter;
 
     @Inject
-    public MottattDokumentOversetterSøknad(BehandlingRepositoryProvider repositoryProvider,
-                                           VirksomhetTjeneste virksomhetTjeneste,
-                                           InntektArbeidYtelseTjeneste iayTjeneste,
-                                           PersoninfoAdapter personinfoAdapter,
-                                           DatavarehusTjeneste datavarehusTjeneste,
-                                           OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste,
-                                           AnnenPartOversetter annenPartOversetter) {
+    public SøknadOversetter(BehandlingRepositoryProvider repositoryProvider,
+                            VirksomhetTjeneste virksomhetTjeneste,
+                            InntektArbeidYtelseTjeneste iayTjeneste,
+                            PersoninfoAdapter personinfoAdapter,
+                            DatavarehusTjeneste datavarehusTjeneste,
+                            OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste,
+                            AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = repositoryProvider.getSøknadRepository();
@@ -166,17 +160,16 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         this.annenPartOversetter = annenPartOversetter;
     }
 
-    MottattDokumentOversetterSøknad() {
+    SøknadOversetter() {
         // for CDI proxy
     }
 
     @Override
-    public void trekkUtDataOgPersister(MottattDokumentWrapperSøknad wrapper,
+    public void trekkUtDataOgPersister(SøknadWrapper wrapper,
                                        MottattDokument mottattDokument,
                                        Behandling behandling,
                                        Optional<LocalDate> gjelderFra) {
-        if (wrapper.getOmYtelse() instanceof Endringssoeknad && !erEndring(
-            mottattDokument)) { // NOSONAR - ok måte å finne riktig JAXB-type
+        if (wrapper.getOmYtelse() instanceof Endringssoeknad && !erEndring(mottattDokument)) {
             throw new IllegalArgumentException("Kan ikke sende inn en Endringssøknad uten å angi "
                 + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.getKode() + " samtidig. Fikk "
                 + mottattDokument.getDokumentType());
@@ -193,24 +186,22 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private SøknadEntitet.Builder kopierSøknad(Behandling behandling) {
         SøknadEntitet.Builder søknadBuilder;
-        Optional<Long> originalBehandlingIdOpt = behandling.getOriginalBehandlingId();
+        var originalBehandlingIdOpt = behandling.getOriginalBehandlingId();
         if (originalBehandlingIdOpt.isPresent()) {
-            Long behandlingId = behandling.getId();
-            Long originalBehandlingId = originalBehandlingIdOpt.get();
-            SøknadEntitet originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
+            var behandlingId = behandling.getId();
+            var originalBehandlingId = originalBehandlingIdOpt.get();
+            var originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
             søknadBuilder = new SøknadEntitet.Builder(originalSøknad, false);
 
-            personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(originalBehandlingId)
-                .ifPresent(oap -> {
-                    OppgittAnnenPartBuilder oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder(oap);
-                    personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
-                });
+            personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(originalBehandlingId).ifPresent(oap -> {
+                var oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder(oap);
+                personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
+            });
 
-            MedlemskapOppgittTilknytningEntitet oppgittTilknytning = medlemskapRepository.hentMedlemskap(behandlingId)
+            var oppgittTilknytning = medlemskapRepository.hentMedlemskap(behandlingId)
                 .flatMap(MedlemskapAggregat::getOppgittTilknytning)
                 .orElseThrow();
-            MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder(
-                oppgittTilknytning);
+            var oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder(oppgittTilknytning);
             medlemskapRepository.lagreOppgittTilkytning(behandlingId, oppgittTilknytningBuilder.build());
         } else {
             søknadBuilder = new SøknadEntitet.Builder();
@@ -219,43 +210,43 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return søknadBuilder;
     }
 
-    private void persisterEndringssøknad(MottattDokumentWrapperSøknad wrapper,
+    private void persisterEndringssøknad(SøknadWrapper wrapper,
                                          MottattDokument mottattDokument,
                                          Behandling behandling,
                                          Optional<LocalDate> gjelderFra) {
-        LocalDate mottattDato = mottattDokument.getMottattDato();
-        boolean elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
+        var mottattDato = mottattDokument.getMottattDato();
+        var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
 
         //Kopier og oppdater søknadsfelter.
-        final SøknadEntitet.Builder søknadBuilder = kopierSøknad(behandling);
+        final var søknadBuilder = kopierSøknad(behandling);
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, gjelderFra);
-        List<Behandling> henlagteBehandlingerEtterInnvilget = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
+        var henlagteBehandlingerEtterInnvilget = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
             behandling.getFagsakId());
         if (!henlagteBehandlingerEtterInnvilget.isEmpty()) {
             søknadBuilder.medSøknadsdato(
                 søknadRepository.hentSøknad(henlagteBehandlingerEtterInnvilget.get(0).getId()).getSøknadsdato());
         }
 
-        if (wrapper.getOmYtelse() instanceof Endringssoeknad) { // NOSONAR
-            final Endringssoeknad omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
+        if (wrapper.getOmYtelse() instanceof Endringssoeknad) {
+            final var omYtelse = (Endringssoeknad) wrapper.getOmYtelse();
             byggYtelsesSpesifikkeFelterForEndringssøknad(omYtelse, behandling, mottattDato);
         }
         søknadBuilder.medErEndringssøknad(true);
-        final SøknadEntitet søknad = søknadBuilder.build();
+        final var søknad = søknadBuilder.build();
 
         søknadRepository.lagreOgFlush(behandling, søknad);
     }
 
-    private void persisterSøknad(MottattDokumentWrapperSøknad wrapper,
+    private void persisterSøknad(SøknadWrapper wrapper,
                                  MottattDokument mottattDokument,
                                  Behandling behandling) {
-        LocalDate mottattDato = mottattDokument.getMottattDato();
-        boolean elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
-        final FamilieHendelseBuilder hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
-        final SøknadEntitet.Builder søknadBuilder = new SøknadEntitet.Builder();
+        var mottattDato = mottattDokument.getMottattDato();
+        var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
+        final var hendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling);
+        final var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
-        Long behandlingId = behandling.getId();
-        AktørId aktørId = behandling.getAktørId();
+        var behandlingId = behandling.getId();
+        var aktørId = behandling.getAktørId();
         if (wrapper.getOmYtelse() != null) {
             byggMedlemskap(wrapper, behandlingId, mottattDato);
         }
@@ -265,12 +256,12 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         if (wrapper.getOmYtelse() instanceof Svangerskapspenger) {
             byggFamilieHendelseForSvangerskap((Svangerskapspenger) wrapper.getOmYtelse(), hendelseBuilder);
         } else {
-            SoekersRelasjonTilBarnet soekersRelasjonTilBarnet = getSoekersRelasjonTilBarnet(wrapper);
-            if (soekersRelasjonTilBarnet instanceof Foedsel) { // NOSONAR
+            var soekersRelasjonTilBarnet = getSoekersRelasjonTilBarnet(wrapper);
+            if (soekersRelasjonTilBarnet instanceof Foedsel) {
                 byggFødselsrelaterteFelter((Foedsel) soekersRelasjonTilBarnet, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Termin) { // NOSONAR
+            } else if (soekersRelasjonTilBarnet instanceof Termin) {
                 byggTerminrelaterteFelter((Termin) soekersRelasjonTilBarnet, hendelseBuilder);
-            } else if (soekersRelasjonTilBarnet instanceof Adopsjon) { // NOSONAR
+            } else if (soekersRelasjonTilBarnet instanceof Adopsjon) {
                 byggAdopsjonsrelaterteFelter((Adopsjon) soekersRelasjonTilBarnet, hendelseBuilder);
             } else if (soekersRelasjonTilBarnet instanceof Omsorgsovertakelse) {
                 byggOmsorgsovertakelsesrelaterteFelter((Omsorgsovertakelse) soekersRelasjonTilBarnet, hendelseBuilder,
@@ -279,18 +270,18 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
         familieHendelseRepository.lagre(behandling, hendelseBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        final RelasjonsRolleType relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
-        final SøknadEntitet søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
+        final var relasjonsRolleType = utledRolle(wrapper.getBruker(), behandlingId, aktørId);
+        final var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
     }
 
     private void byggFamilieHendelseForSvangerskap(Svangerskapspenger omYtelse,
                                                    FamilieHendelseBuilder hendelseBuilder) {
-        LocalDate termindato = omYtelse.getTermindato();
+        var termindato = omYtelse.getTermindato();
         Objects.requireNonNull(termindato, "Termindato må være oppgitt");
         hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato));
-        LocalDate fødselsdato = omYtelse.getFødselsdato();
+        var fødselsdato = omYtelse.getFødselsdato();
         if (fødselsdato != null) {
             hendelseBuilder.erFødsel().medFødselsDato(fødselsdato);
         }
@@ -298,7 +289,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private RelasjonsRolleType utledRolle(Bruker bruker, Long behandlingId, AktørId aktørId) {
-        NavBrukerKjønn kjønn = personinfoAdapter.hentBrukerKjønnForAktør(aktørId)
+        var kjønn = personinfoAdapter.hentBrukerKjønnForAktør(aktørId)
             .map(PersoninfoKjønn::getKjønn)
             .orElseThrow(() -> {
                 var msg = String.format("Søknad på behandling %s mangler RelasjonsRolleType", behandlingId);
@@ -317,7 +308,6 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         if (ForeldreType.MEDMOR.getKode().equals(bruker.getSoeknadsrolle().getKode()) && erKvinne(kjønn)) {
             return RelasjonsRolleType.MEDMOR;
         }
-        // TODO: Mangler annen-omsorgsperson ..
         return NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
     }
 
@@ -344,14 +334,15 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
-    private void byggYtelsesSpesifikkeFelter(MottattDokumentWrapperSøknad skjemaWrapper,
+    private void byggYtelsesSpesifikkeFelter(SøknadWrapper skjemaWrapper,
                                              Behandling behandling,
                                              SøknadEntitet.Builder søknadBuilder) {
-        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) { // NOSONAR - ok måte å finne riktig JAXB-type
+        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) {
             var omYtelse = (Foreldrepenger) skjemaWrapper.getOmYtelse();
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
                 .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
-                .medOppgittFordeling(oversettFordeling(behandling, omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
+                .medOppgittFordeling(
+                    oversettFordeling(behandling, omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
             oversettRettighet(omYtelse).ifPresent(r -> yfBuilder.medOppgittRettighet(r));
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
@@ -364,14 +355,14 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                                 SøknadEntitet.Builder søknadBuilder,
                                                 Behandling behandling) {
 
-        SvpGrunnlagEntitet.Builder svpBuilder = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId());
+        var svpBuilder = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId());
         List<SvpTilretteleggingEntitet> tilrettelegginger = new ArrayList<>();
 
-        List<Tilrettelegging> tilretteleggingListe = svangerskapspenger.getTilretteleggingListe().getTilrettelegging();
+        var tilretteleggingListe = svangerskapspenger.getTilretteleggingListe().getTilrettelegging();
 
-        for (Tilrettelegging tilrettelegging : tilretteleggingListe) {
+        for (var tilrettelegging : tilretteleggingListe) {
 
-            SvpTilretteleggingEntitet.Builder builder = new SvpTilretteleggingEntitet.Builder();
+            var builder = new SvpTilretteleggingEntitet.Builder();
             builder.medBehovForTilretteleggingFom(tilrettelegging.getBehovForTilretteleggingFom())
                 .medKopiertFraTidligereBehandling(false)
                 .medMottattTidspunkt(behandling.getOpprettetTidspunkt());
@@ -392,10 +383,9 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                         ingenTilrettelegging.getSlutteArbeidFom()));
             }
 
-            for (JAXBElement<Object> element : tilrettelegging.getVedlegg()) {
-                Vedlegg vedlegg = (Vedlegg) element.getValue();
-                SøknadVedleggEntitet.Builder vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(
-                    true)
+            for (var element : tilrettelegging.getVedlegg()) {
+                var vedlegg = (Vedlegg) element.getValue();
+                var vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(true)
                     .medInnsendingsvalg(tolkInnsendingsvalg(vedlegg.getInnsendingstype()))
                     .medSkjemanummer(vedlegg.getSkjemanummer())
                     .medTilleggsinfo(vedlegg.getTilleggsinformasjon());
@@ -406,8 +396,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             tilrettelegginger.add(builder.build());
         }
 
-        Optional<SvpGrunnlagEntitet> eksisterendeGrunnlag = svangerskapspengerRepository.hentGrunnlag(
-            behandling.getId());
+        var eksisterendeGrunnlag = svangerskapspengerRepository.hentGrunnlag(behandling.getId());
         eksisterendeGrunnlag.ifPresent(eg -> {
             List<SvpTilretteleggingEntitet> gamle =
                 eg.getOpprinneligeTilrettelegginger() != null ? eg.getOpprinneligeTilrettelegginger()
@@ -421,7 +410,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                 });
         });
 
-        SvpGrunnlagEntitet svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(tilrettelegginger).build();
+        var svpGrunnlag = svpBuilder.medOpprinneligeTilrettelegginger(tilrettelegginger).build();
         svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
     }
 
@@ -440,20 +429,21 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
 
-        if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) { //NOSONAR: ok å bruke instanceof ved xml parsing
+        if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) {
             builder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
             no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver;
 
             if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) {
-                String orgnr = ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) arbeidsforhold).getIdentifikator();
+                var orgnr = ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) arbeidsforhold).getIdentifikator();
                 virksomhetTjeneste.hentOrganisasjon(orgnr);
                 arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
             } else {
-                PersonIdent arbeidsgiverIdent = new PersonIdent(
+                var arbeidsgiverIdent = new PersonIdent(
                     ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) arbeidsforhold).getIdentifikator());
-                Optional<AktørId> aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
+                var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
                 if (aktørIdArbeidsgiver.isEmpty()) {
-                    throw new TekniskException("FP-545381", "Fant ikke personident for arbeidsgiver som er privatperson i TPS");
+                    throw new TekniskException("FP-545381",
+                        "Fant ikke personident for arbeidsgiver som er privatperson i TPS");
                 }
                 arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
             }
@@ -474,19 +464,19 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         }
     }
 
-    private void byggOpptjeningsspesifikkeFelter(MottattDokumentWrapperSøknad skjemaWrapper, Long behandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
+    private void byggOpptjeningsspesifikkeFelter(SøknadWrapper skjemaWrapper, Long behandlingId) {
+        var iayGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
         if (iayGrunnlag.isPresent() && iayGrunnlag.get().getOppgittOpptjening().isPresent()) {
             // TFP-1671: Abakus støtter ikke at oppgitt opptjening endres
             return;
         }
 
         Opptjening opptjening = null;
-        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) { // NOSONAR - ok måte å finne riktig JAXB-type
-            final Foreldrepenger omYtelse = (Foreldrepenger) skjemaWrapper.getOmYtelse();
+        if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger) {
+            final var omYtelse = (Foreldrepenger) skjemaWrapper.getOmYtelse();
             opptjening = omYtelse.getOpptjening();
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
-            final Svangerskapspenger omYtelse = (Svangerskapspenger) skjemaWrapper.getOmYtelse();
+            final var omYtelse = (Svangerskapspenger) skjemaWrapper.getOmYtelse();
             opptjening = omYtelse.getOpptjening();
         }
 
@@ -541,7 +531,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         var sorted = oppgittPerioder.stream()
             .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
             .collect(Collectors.toList());
-        for (OppgittPeriodeEntitet oppgittPeriode : sorted) {
+        for (var oppgittPeriode : sorted) {
             if (seEtterMottattDatoIOriginalBehandling) {
                 var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling,
                     oppgittPeriode);
@@ -563,7 +553,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private boolean hentAnnenForelderErInformert(Behandling behandling) {
         //Papirsøknad frontend støtter ikke å sette annenForelderErInformert. Kopierer fra førstegangsbehandling
-        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+        var originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalArgumentException("Utviklerfeil: Endringssøknad må ha original behandling"));
         return ytelsesFordelingRepository.hentAggregat(originalBehandlingId)
             .getOppgittFordeling()
@@ -584,22 +574,22 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
         var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
-        if (lukketPeriode instanceof Uttaksperiode) { // NOSONAR
-            final Uttaksperiode periode = (Uttaksperiode) lukketPeriode;
+        if (lukketPeriode instanceof Uttaksperiode) {
+            final var periode = (Uttaksperiode) lukketPeriode;
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
-        } else if (lukketPeriode instanceof Oppholdsperiode) { // NOSONAR
+        } else if (lukketPeriode instanceof Oppholdsperiode) {
             oppgittPeriodeBuilder.medÅrsak(
                 OppholdÅrsak.fraKode(((Oppholdsperiode) lukketPeriode).getAarsak().getKode()));
             oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(UttakPeriodeType.ANNET.getKode()));
-        } else if (lukketPeriode instanceof Overfoeringsperiode) { // NOSONAR
+        } else if (lukketPeriode instanceof Overfoeringsperiode) {
             oppgittPeriodeBuilder.medÅrsak(
                 OverføringÅrsak.fraKode(((Overfoeringsperiode) lukketPeriode).getAarsak().getKode()));
             oppgittPeriodeBuilder.medPeriodeType(
                 UttakPeriodeType.fraKode(((Overfoeringsperiode) lukketPeriode).getOverfoeringAv().getKode()));
-        } else if (lukketPeriode instanceof Utsettelsesperiode) { // NOSONAR
-            Utsettelsesperiode utsettelsesperiode = (Utsettelsesperiode) lukketPeriode;
+        } else if (lukketPeriode instanceof Utsettelsesperiode) {
+            var utsettelsesperiode = (Utsettelsesperiode) lukketPeriode;
             oversettUtsettelsesperiode(oppgittPeriodeBuilder, utsettelsesperiode);
-        } else { // NOSONAR
+        } else {
             throw new IllegalStateException("Ukjent periodetype.");
         }
         return oppgittPeriodeBuilder.build();
@@ -643,10 +633,9 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private void oversettGradering(OppgittPeriodeBuilder oppgittPeriodeBuilder, Gradering gradering) {
-        no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver arbeidsgiverFraSøknad = gradering.getArbeidsgiver();
+        var arbeidsgiverFraSøknad = gradering.getArbeidsgiver();
         if (arbeidsgiverFraSøknad != null) {
-            no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver = oversettArbeidsgiver(
-                arbeidsgiverFraSøknad);
+            var arbeidsgiver = oversettArbeidsgiver(arbeidsgiverFraSøknad);
             oppgittPeriodeBuilder.medArbeidsgiver(arbeidsgiver);
         }
 
@@ -661,15 +650,14 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver oversettArbeidsgiver(no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver arbeidsgiverFraSøknad) {
-        if (arbeidsgiverFraSøknad instanceof Person) { // NOSONAR
-            Optional<AktørId> aktørId = personinfoAdapter.hentAktørForFnr(
-                PersonIdent.fra(arbeidsgiverFraSøknad.getIdentifikator()));
-            if (!aktørId.isPresent()) {
+        if (arbeidsgiverFraSøknad instanceof Person) {
+            var aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(arbeidsgiverFraSøknad.getIdentifikator()));
+            if (aktørId.isEmpty()) {
                 throw new IllegalStateException("Finner ikke arbeidsgiver");
             }
             return Arbeidsgiver.person(aktørId.get());
-        } else if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) { // NOSONAR
-            String orgnr = arbeidsgiverFraSøknad.getIdentifikator();
+        } else if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) {
+            var orgnr = arbeidsgiverFraSøknad.getIdentifikator();
             virksomhetTjeneste.hentOrganisasjon(orgnr);
             return Arbeidsgiver.virksomhet(orgnr);
         } else {
@@ -678,7 +666,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private OppgittOpptjeningBuilder mapOppgittOpptjening(Opptjening opptjening) {
-        OppgittOpptjeningBuilder builder = OppgittOpptjeningBuilder.ny();
+        var builder = OppgittOpptjeningBuilder.ny();
         opptjening.getAnnenOpptjening()
             .forEach(annenOpptjening -> builder.leggTilAnnenAktivitet(mapAnnenAktivitet(annenOpptjening)));
         opptjening.getEgenNaering().forEach(egenNaering -> builder.leggTilEgneNæringer(mapEgenNæring(egenNaering)));
@@ -695,13 +683,12 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private OppgittFrilans mapFrilansOpplysninger(Frilans frilans) {
-        OppgittFrilans frilansEntitet = new OppgittFrilans();
+        var frilansEntitet = new OppgittFrilans();
         frilansEntitet.setErNyoppstartet(frilans.isErNyoppstartet());
         frilansEntitet.setHarInntektFraFosterhjem(frilans.isHarInntektFraFosterhjem());
         frilansEntitet.setHarNærRelasjon(frilans.isNaerRelasjon());
         frilansEntitet.setFrilansoppdrag(frilans.getFrilansoppdrag().stream().map(fo -> {
-            OppgittFrilansoppdrag frilansoppdragEntitet = new OppgittFrilansoppdrag(fo.getOppdragsgiver(),
-                mapPeriode(fo.getPeriode()));
+            var frilansoppdragEntitet = new OppgittFrilansoppdrag(fo.getOppdragsgiver(), mapPeriode(fo.getPeriode()));
             frilansoppdragEntitet.setFrilans(frilansEntitet);
             return frilansoppdragEntitet;
         }).collect(Collectors.toList()));
@@ -710,29 +697,28 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder mapOppgittUtenlandskArbeidsforhold(
         UtenlandskArbeidsforhold utenlandskArbeidsforhold) {
-        OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder builder = OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder
-            .ny();
-        Landkoder landkode = finnLandkode(utenlandskArbeidsforhold.getArbeidsland().getKode());
+        var builder = OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny();
+        var landkode = finnLandkode(utenlandskArbeidsforhold.getArbeidsland().getKode());
         builder.medUtenlandskVirksomhet(
             new OppgittUtenlandskVirksomhet(landkode, utenlandskArbeidsforhold.getArbeidsgiversnavn()));
         builder.medErUtenlandskInntekt(true);
         builder.medArbeidType(ArbeidType.UTENLANDSK_ARBEIDSFORHOLD);
 
-        DatoIntervallEntitet periode = mapPeriode(utenlandskArbeidsforhold.getPeriode());
+        var periode = mapPeriode(utenlandskArbeidsforhold.getPeriode());
         builder.medPeriode(periode);
         return builder;
     }
 
     private OppgittAnnenAktivitet mapFrilansPeriode(Periode periode) {
-        DatoIntervallEntitet datoIntervallEntitet = mapPeriode(periode);
+        var datoIntervallEntitet = mapPeriode(periode);
         return new OppgittAnnenAktivitet(datoIntervallEntitet, ArbeidType.FRILANSER);
     }
 
     private OppgittAnnenAktivitet mapAnnenAktivitet(AnnenOpptjening annenOpptjening) {
-        DatoIntervallEntitet datoIntervallEntitet = mapPeriode(annenOpptjening.getPeriode());
-        AnnenOpptjeningTyper type = annenOpptjening.getType();
+        var datoIntervallEntitet = mapPeriode(annenOpptjening.getPeriode());
+        var type = annenOpptjening.getType();
 
-        ArbeidType arbeidType = ArbeidType.fraKode(type.getKode());
+        var arbeidType = ArbeidType.fraKode(type.getKode());
         return new OppgittAnnenAktivitet(datoIntervallEntitet, arbeidType);
     }
 
@@ -745,24 +731,24 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
     private OppgittOpptjeningBuilder.EgenNæringBuilder mapEgenNæringForType(EgenNaering egenNæring,
                                                                             Virksomhetstyper virksomhettype) {
-        OppgittOpptjeningBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
+        var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
         if (egenNæring instanceof NorskOrganisasjon) {
-            NorskOrganisasjon norskOrganisasjon = (NorskOrganisasjon) egenNæring;
-            String orgNr = norskOrganisasjon.getOrganisasjonsnummer();
+            var norskOrganisasjon = (NorskOrganisasjon) egenNæring;
+            var orgNr = norskOrganisasjon.getOrganisasjonsnummer();
             virksomhetTjeneste.hentOrganisasjon(orgNr);
             egenNæringBuilder.medVirksomhet(orgNr);
         } else {
-            UtenlandskOrganisasjon utenlandskOrganisasjon = (UtenlandskOrganisasjon) egenNæring;
-            Landkoder landkode = finnLandkode(utenlandskOrganisasjon.getRegistrertILand().getKode());
+            var utenlandskOrganisasjon = (UtenlandskOrganisasjon) egenNæring;
+            var landkode = finnLandkode(utenlandskOrganisasjon.getRegistrertILand().getKode());
             egenNæringBuilder.medUtenlandskVirksomhet(
                 new OppgittUtenlandskVirksomhet(landkode, utenlandskOrganisasjon.getNavn()));
         }
 
         // felles
-        VirksomhetType virksomhetType = VirksomhetType.fraKode(virksomhettype.getKode());
+        var virksomhetType = VirksomhetType.fraKode(virksomhettype.getKode());
         egenNæringBuilder.medPeriode(mapPeriode(egenNæring.getPeriode())).medVirksomhetType(virksomhetType);
 
-        Optional<Regnskapsfoerer> regnskapsfoerer = Optional.ofNullable(egenNæring.getRegnskapsfoerer());
+        var regnskapsfoerer = Optional.ofNullable(egenNæring.getRegnskapsfoerer());
         regnskapsfoerer.ifPresent(
             r -> egenNæringBuilder.medRegnskapsførerNavn(r.getNavn()).medRegnskapsførerTlf(r.getTelefon()));
 
@@ -779,8 +765,8 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private DatoIntervallEntitet mapPeriode(Periode periode) {
-        LocalDate fom = periode.getFom();
-        LocalDate tom = periode.getTom();
+        var fom = periode.getFom();
+        var tom = periode.getTom();
         if (tom == null) {
             return DatoIntervallEntitet.fraOgMed(fom);
         }
@@ -792,14 +778,14 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             throw new IllegalArgumentException("Utviklerfeil: Ved fødsel skal det være eksakt én fødselsdato");
         }
 
-        LocalDate fødselsdato = fødsel.getFoedselsdato();
+        var fødselsdato = fødsel.getFoedselsdato();
         if (fødsel.getTermindato() != null) {
             hendelseBuilder.medTerminbekreftelse(
                 hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(fødsel.getTermindato()));
         }
-        int antallBarn = fødsel.getAntallBarn();
+        var antallBarn = fødsel.getAntallBarn();
         hendelseBuilder.tilbakestillBarn().medAntallBarn(antallBarn);
-        for (int i = 1; i <= antallBarn; i++) {
+        for (var i = 1; i <= antallBarn; i++) {
             hendelseBuilder.leggTilBarn(fødselsdato);
         }
     }
@@ -816,12 +802,12 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     private void byggOmsorgsovertakelsesrelaterteFelter(Omsorgsovertakelse omsorgsovertakelse,
                                                         FamilieHendelseBuilder hendelseBuilder,
                                                         SøknadEntitet.Builder søknadBuilder) {
-        List<LocalDate> fødselsdatoene = omsorgsovertakelse.getFoedselsdato();
+        var fødselsdatoene = omsorgsovertakelse.getFoedselsdato();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(omsorgsovertakelse.getAntallBarn());
-        final FamilieHendelseBuilder.AdopsjonBuilder familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
+        final var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
-        for (LocalDate localDate : fødselsdatoene) {
+        for (var localDate : fødselsdatoene) {
             hendelseBuilder.leggTilBarn(localDate);
         }
         hendelseBuilder.erOmsorgovertagelse();
@@ -837,32 +823,31 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
 
 
     private void byggAdopsjonsrelaterteFelter(Adopsjon adopsjon, FamilieHendelseBuilder hendelseBuilder) {
-        List<LocalDate> fødselsdatoene = adopsjon.getFoedselsdato();
+        var fødselsdatoene = adopsjon.getFoedselsdato();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(adopsjon.getAntallBarn());
-        final FamilieHendelseBuilder.AdopsjonBuilder familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
+        final var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
             .medAnkomstDato(adopsjon.getAnkomstdato())
             .medErEktefellesBarn(adopsjon.isAdopsjonAvEktefellesBarn())
             .medOmsorgsovertakelseDato(adopsjon.getOmsorgsovertakelsesdato());
-        for (LocalDate localDate : fødselsdatoene) {
+        for (var localDate : fødselsdatoene) {
             hendelseBuilder.leggTilBarn(localDate);
         }
         hendelseBuilder.medAdopsjon(familieHendelseAdopsjon);
     }
 
-    private void byggMedlemskap(MottattDokumentWrapperSøknad skjema, Long behandlingId, LocalDate forsendelseMottatt) {
+    private void byggMedlemskap(SøknadWrapper skjema, Long behandlingId, LocalDate forsendelseMottatt) {
         Medlemskap medlemskap;
-        Ytelse omYtelse = skjema.getOmYtelse();
-        LocalDate mottattDato = skjema.getSkjema().getMottattDato();
-        MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder()
-            .medOppholdNå(true)
+        var omYtelse = skjema.getOmYtelse();
+        var mottattDato = skjema.getSkjema().getMottattDato();
+        var oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder().medOppholdNå(true)
             .medOppgittDato(forsendelseMottatt);
 
-        if (omYtelse instanceof Engangsstønad) { // NOSONAR - ok måte å finne riktig JAXB-type
+        if (omYtelse instanceof Engangsstønad) {
             medlemskap = ((Engangsstønad) omYtelse).getMedlemskap();
-        } else if (omYtelse instanceof Foreldrepenger) { // NOSONAR - ok måte å finne riktig JAXB-type
+        } else if (omYtelse instanceof Foreldrepenger) {
             medlemskap = ((Foreldrepenger) omYtelse).getMedlemskap();
-        } else if (omYtelse instanceof Svangerskapspenger) { // NOSONAR - ok måte å finne riktig JAXB-type
+        } else if (omYtelse instanceof Svangerskapspenger) {
             medlemskap = ((Svangerskapspenger) omYtelse).getMedlemskap();
         } else {
             throw new IllegalStateException("Ytelsestype er ikke støttet");
@@ -881,7 +866,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                            LocalDate mottattDato,
                                            MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder) {
         medlemskap.getOppholdUtlandet().forEach(opphUtl -> {
-            boolean tidligereOpphold = opphUtl.getPeriode().getFom().isBefore(mottattDato);
+            var tidligereOpphold = opphUtl.getPeriode().getFom().isBefore(mottattDato);
             oppgittTilknytningBuilder.leggTilOpphold(byggUtlandsopphold(opphUtl, tidligereOpphold));
         });
     }
@@ -899,9 +884,9 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
                                           LocalDate mottattDato,
                                           MedlemskapOppgittTilknytningEntitet.Builder oppgittTilknytningBuilder) {
         medlemskap.getOppholdNorge().forEach(opphNorge -> {
-            boolean tidligereOpphold = opphNorge.getPeriode().getFom().isBefore(mottattDato);
-            MedlemskapOppgittLandOppholdEntitet oppholdNorgeSistePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder()
-                .erTidligereOpphold(tidligereOpphold)
+            var tidligereOpphold = opphNorge.getPeriode().getFom().isBefore(mottattDato);
+            var oppholdNorgeSistePeriode = new MedlemskapOppgittLandOppholdEntitet.Builder().erTidligereOpphold(
+                tidligereOpphold)
                 .medLand(Landkoder.NOR)
                 .medPeriode(opphNorge.getPeriode().getFom(), opphNorge.getPeriode().getTom())
                 .build();
@@ -909,12 +894,12 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         });
     }
 
-    private SoekersRelasjonTilBarnet getSoekersRelasjonTilBarnet(MottattDokumentWrapperSøknad skjema) {
+    private SoekersRelasjonTilBarnet getSoekersRelasjonTilBarnet(SøknadWrapper skjema) {
         SoekersRelasjonTilBarnet relasjonTilBarnet = null;
-        Ytelse omYtelse = skjema.getOmYtelse();
-        if (omYtelse instanceof Foreldrepenger) { // NOSONAR
+        var omYtelse = skjema.getOmYtelse();
+        if (omYtelse instanceof Foreldrepenger) {
             relasjonTilBarnet = ((Foreldrepenger) omYtelse).getRelasjonTilBarnet();
-        } else if (omYtelse instanceof Engangsstønad) { // NOSONAR
+        } else if (omYtelse instanceof Engangsstønad) {
             relasjonTilBarnet = ((Engangsstønad) omYtelse).getSoekersRelasjonTilBarnet();
         }
 
@@ -922,15 +907,15 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
         return relasjonTilBarnet;
     }
 
-    private Språkkode getSpraakValg(MottattDokumentWrapperSøknad skjema) {
+    private Språkkode getSpraakValg(SøknadWrapper skjema) {
         return Språkkode.defaultNorsk(skjema.getSpråkvalg() == null ? null : skjema.getSpråkvalg().getKode());
     }
 
-    private SøknadEntitet.Builder byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder,
-                                                               MottattDokumentWrapperSøknad skjemaWrapper,
-                                                               Boolean elektroniskSøknad,
-                                                               LocalDate forsendelseMottatt,
-                                                               Optional<LocalDate> gjelderFra) {
+    private void byggFelleselementerForSøknad(SøknadEntitet.Builder søknadBuilder,
+                                              SøknadWrapper skjemaWrapper,
+                                              Boolean elektroniskSøknad,
+                                              LocalDate forsendelseMottatt,
+                                              Optional<LocalDate> gjelderFra) {
         søknadBuilder.medElektroniskRegistrert(elektroniskSøknad)
             .medMottattDato(forsendelseMottatt)
             .medBegrunnelseForSenInnsending(skjemaWrapper.getBegrunnelseForSenSoeknad())
@@ -938,18 +923,17 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
             .medSøknadsdato(gjelderFra.orElse(forsendelseMottatt))
             .medSpråkkode(getSpraakValg(skjemaWrapper));
 
-        for (Vedlegg vedlegg : skjemaWrapper.getPåkrevdVedleggListe()) {
+        for (var vedlegg : skjemaWrapper.getPåkrevdVedleggListe()) {
             byggSøknadVedlegg(søknadBuilder, vedlegg, true);
         }
 
-        for (Vedlegg vedlegg : skjemaWrapper.getIkkePåkrevdVedleggListe()) {
+        for (var vedlegg : skjemaWrapper.getIkkePåkrevdVedleggListe()) {
             byggSøknadVedlegg(søknadBuilder, vedlegg, false);
         }
 
-        return søknadBuilder;
     }
 
-    private void lagreAnnenPart(MottattDokumentWrapperSøknad skjema, Behandling behandling) {
+    private void lagreAnnenPart(SøknadWrapper skjema, Behandling behandling) {
         var oppgittAnnenPart = annenPartOversetter.oversett(skjema, behandling.getAktørId());
         oppgittAnnenPart.ifPresent(ap -> personopplysningRepository.lagre(behandling.getId(), ap));
     }
@@ -959,8 +943,7 @@ public class MottattDokumentOversetterSøknad implements MottattDokumentOversett
     }
 
     private void byggSøknadVedlegg(SøknadEntitet.Builder søknadBuilder, Vedlegg vedlegg, boolean påkrevd) {
-        SøknadVedleggEntitet.Builder vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(
-            påkrevd)
+        var vedleggBuilder = new SøknadVedleggEntitet.Builder().medErPåkrevdISøknadsdialog(påkrevd)
             .medInnsendingsvalg(tolkInnsendingsvalg(vedlegg.getInnsendingstype()))
             .medSkjemanummer(vedlegg.getSkjemanummer())
             .medTilleggsinfo(vedlegg.getTilleggsinformasjon());
