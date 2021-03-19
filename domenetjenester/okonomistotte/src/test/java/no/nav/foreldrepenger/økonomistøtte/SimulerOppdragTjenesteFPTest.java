@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.økonomistøtte;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -25,17 +24,10 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringL
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
-import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.SimulerOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
-import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteFPTest {
