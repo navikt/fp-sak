@@ -3,8 +3,10 @@ package no.nav.foreldrepenger.web.app.exceptions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import javax.ws.rs.core.MediaType;
@@ -18,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
-import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
@@ -29,11 +30,17 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var constraintViolations = exception.getConstraintViolations();
 
         if (constraintViolations.isEmpty() && exception instanceof ResteasyViolationException) {
-            var message = ((ResteasyViolationException) exception).getException().getMessage();
-            LOG.error(message);
-            return lagResponse(new FeilDto(FeilType.GENERELL_FEIL, "Det oppstod en serverfeil: Validering er feilkonfigurert."));
+            return håndterFeilKonfigurering((ResteasyViolationException) exception);
         }
+        log(exception);
+        return lagResponse(constraintViolations);
+    }
 
+    private void log(ConstraintViolationException exception) {
+        LOG.warn("Det oppstod en valideringsfeil: {}", toString(exception));
+    }
+
+    private Response lagResponse(Set<ConstraintViolation<?>> constraintViolations) {
         Collection<FeltFeilDto> feilene = new ArrayList<>();
         for (var constraintViolation : constraintViolations) {
             var kode = getKode(constraintViolation.getLeafBean());
@@ -41,32 +48,30 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage(), kode));
         }
         var feltNavn = feilene.stream().map(FeltFeilDto::getNavn).collect(Collectors.toList());
-
-        var feilmelding = feilmelding(feltNavn);
-        LOG.warn(feilmelding);
-        return lagResponse(new FeilDto(feilmelding, feilene));
+        var feilmelding = String.format(
+            "Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
+            feltNavn);
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new FeilDto(feilmelding, feilene))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
-    private String feilmelding(List<String> feltNavn) {
-        if (erServerkall()) {
-            return String.format("Det oppstod en valideringsfeil på felt %s ved kall fra server. "
-                + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
-        }
-        return String.format("Det oppstod en valideringsfeil på felt %s. "
-            + "Vennligst kontroller at alle feltverdier er korrekte.", feltNavn);
+    private Response håndterFeilKonfigurering(ResteasyViolationException exception) {
+        var message = exception.getException().getMessage();
+        LOG.error(message);
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new FeilDto(FeilType.GENERELL_FEIL, "Det oppstod en serverfeil: Validering er feilkonfigurert."))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
-    private static boolean erServerkall() {
-        var brukerUuid = SubjectHandler.getSubjectHandler().getUid();
-        return brukerUuid != null && brukerUuid.startsWith("srv");
-    }
-
-    private static Response lagResponse(FeilDto entity) {
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity(entity)
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+    private List<String> toString(ConstraintViolationException exception) {
+        return exception.getConstraintViolations()
+            .stream()
+            .map(cv -> cv.getRootBeanClass().getSimpleName() + " - " + cv.getLeafBean().getClass().getSimpleName()
+                + " - " + cv.getMessage())
+            .collect(Collectors.toList());
     }
 
     private String getKode(Object leafBean) {
