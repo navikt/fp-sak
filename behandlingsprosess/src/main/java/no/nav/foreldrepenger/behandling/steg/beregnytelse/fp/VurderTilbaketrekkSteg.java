@@ -75,7 +75,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         }
 
         if (bleLøstIForrigeBehandling(ref)) {
-            return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+            // Kopierer valget som ble tatt sist og oppretter ikke aksjonspunkt
+            kopierLøsningFraForrigeBehandling(ref);
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
         // Hvis en sak ikke hadde aksjonspunktet i forrige behandling skal den ikke få det, da alle nye
@@ -86,6 +88,15 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
                 "men forrige behandling med id {} gjorde ingen slik vurdering.", ref.getSaksnummer().getVerdi(),
             ref.getBehandlingId(), ref.getOriginalBehandlingId().orElse(null));
         return BehandleStegResultat.utførtUtenAksjonspunkter();
+    }
+
+    private void kopierLøsningFraForrigeBehandling(BehandlingReferanse ref) {
+        Boolean originalBeslutning = ref.getOriginalBehandlingId()
+            .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid))
+            .flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk)
+            .orElseThrow();
+        Behandling behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        beregningsresultatRepository.lagreMedTilbaketrekk(behandling, originalBeslutning);
     }
 
     private boolean bleLøstIForrigeBehandling(BehandlingReferanse ref) {
