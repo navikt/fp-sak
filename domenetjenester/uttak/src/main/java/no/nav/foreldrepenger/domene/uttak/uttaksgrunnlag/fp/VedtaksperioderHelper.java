@@ -202,10 +202,7 @@ public class VedtaksperioderHelper {
             .max(Comparator.comparing(aktivitet -> aktivitet.getTrekkdager().decimalValue()))
             .map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto);
         if (stønadskontoType.isPresent()) {
-            var uttakPeriodeType = UttakEnumMapper.mapTilYf(stønadskontoType.get());
-            if (uttakPeriodeType.isPresent()) {
-                return uttakPeriodeType.get();
-            }
+            return UttakEnumMapper.mapTilYf(stønadskontoType.get());
         }
         throw new IllegalStateException("Uttaksperiode mangler stønadskonto");
     }

@@ -58,6 +58,7 @@ public class ForeldrepengerUttakTjeneste {
             .medFlerbarnsdager(entitet.isFlerbarnsdager())
             .medUtsettelseType(entitet.getUtsettelseType())
             .medOppholdÅrsak(entitet.getOppholdÅrsak())
+            .medOverføringÅrsak(entitet.getOverføringÅrsak())
             .medSamtidigUttak(entitet.isSamtidigUttak())
             .medGraderingInnvilget(entitet.isGraderingInnvilget())
             .medGraderingAvslagÅrsak(entitet.getGraderingAvslagÅrsak())

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.GraderingAvslagÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.ManuellBehandlingÅrsak;
@@ -28,6 +29,7 @@ public class ForeldrepengerUttakPeriode {
     private GraderingAvslagÅrsak graderingAvslagÅrsak = GraderingAvslagÅrsak.UKJENT;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak = ManuellBehandlingÅrsak.UKJENT;
     private OppholdÅrsak oppholdÅrsak = OppholdÅrsak.UDEFINERT;
+    private OverføringÅrsak overføringÅrsak;
     private UttakPeriodeType søktKonto;
     private boolean opprinneligSendtTilManuellBehandling;
     private String begrunnelse;
@@ -67,6 +69,7 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.getGraderingAvslagÅrsak(), getGraderingAvslagÅrsak())
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
+            && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 
@@ -93,9 +96,8 @@ public class ForeldrepengerUttakPeriode {
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
         if (graderingAvslagÅrsak == null || graderingInnvilget) {
             return GraderingAvslagÅrsak.UKJENT;
-        } else {
-            return graderingAvslagÅrsak;
         }
+        return graderingAvslagÅrsak;
     }
 
     public String getBegrunnelse() {
@@ -104,6 +106,10 @@ public class ForeldrepengerUttakPeriode {
 
     public OppholdÅrsak getOppholdÅrsak() {
         return oppholdÅrsak == null ? OppholdÅrsak.UDEFINERT : oppholdÅrsak;
+    }
+
+    public OverføringÅrsak getOverføringÅrsak() {
+        return overføringÅrsak;
     }
 
     public boolean isSamtidigUttak() {
@@ -174,6 +180,14 @@ public class ForeldrepengerUttakPeriode {
         return mottattDato;
     }
 
+    public boolean isOverføringAvslått() {
+        return !isInnvilget() && isSøktOverføring();
+    }
+
+    private boolean isSøktOverføring() {
+        return getOverføringÅrsak() != null;
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
@@ -188,6 +202,7 @@ public class ForeldrepengerUttakPeriode {
             ", graderingAvslagÅrsak=" + graderingAvslagÅrsak +
             ", manuellBehandlingÅrsak=" + manuellBehandlingÅrsak +
             ", oppholdÅrsak=" + oppholdÅrsak +
+            ", overføringÅrsak=" + overføringÅrsak +
             ", søktKonto=" + søktKonto +
             ", opprinneligSendtTilManuellBehandling=" + opprinneligSendtTilManuellBehandling +
             ", manueltBehandlet=" + manueltBehandlet +
@@ -264,6 +279,11 @@ public class ForeldrepengerUttakPeriode {
 
         public Builder medOppholdÅrsak(OppholdÅrsak oppholdÅrsak) {
             kladd.oppholdÅrsak = oppholdÅrsak;
+            return this;
+        }
+
+        public Builder medOverføringÅrsak(OverføringÅrsak overføringÅrsak) {
+            kladd.overføringÅrsak = overføringÅrsak;
             return this;
         }
 

@@ -17,7 +17,8 @@ public final class UttakPerioderMapper {
     private UttakPerioderMapper() {
     }
 
-    public static List<ForeldrepengerUttakPeriode> map(List<UttakResultatPeriodeLagreDto> dtoPerioder, List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
+    public static List<ForeldrepengerUttakPeriode> map(List<UttakResultatPeriodeLagreDto> dtoPerioder,
+                                                       List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
         return dtoPerioder.stream().map(p -> map(p, gjeldenePerioder)).collect(Collectors.toList());
     }
 
@@ -27,12 +28,14 @@ public final class UttakPerioderMapper {
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
         for (UttakResultatPeriodeAktivitetLagreDto nyAktivitet : dtoPeriode.getAktiviteter()) {
             var matchendeGjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldenePerioder,
-                periodeInterval, nyAktivitet.getArbeidsgiver().orElse(null), nyAktivitet.getArbeidsforholdId(), nyAktivitet.getUttakArbeidType());
+                periodeInterval, nyAktivitet.getArbeidsgiver().orElse(null), nyAktivitet.getArbeidsforholdId(),
+                nyAktivitet.getUttakArbeidType());
             aktiviteter.add(map(nyAktivitet, matchendeGjeldendeAktivitet));
 
         }
 
-        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldenePerioder, new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()));
+        var gjeldendePeriode = EndreUttakUtil.finnGjeldendePeriodeFor(gjeldenePerioder,
+            new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()));
         return new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom()))
             .medResultatType(dtoPeriode.getPeriodeResultatType())
@@ -45,6 +48,7 @@ public final class UttakPerioderMapper {
             .medGraderingAvslagÅrsak(dtoPeriode.getGraderingAvslagÅrsak())
             .medUtsettelseType(gjeldendePeriode.getUtsettelseType())
             .medOppholdÅrsak(dtoPeriode.getOppholdÅrsak())
+            .medOverføringÅrsak(gjeldendePeriode.getOverføringÅrsak())
             .medAktiviteter(aktiviteter)
             .build();
     }
