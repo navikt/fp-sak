@@ -16,7 +16,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
@@ -319,6 +321,49 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         Oppdragslinje150 oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
             .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst().get();
         assertThat(oppdragslinje150Opphørt.getDatoStatusFom()).isEqualTo(førsteDatoVedtakFom);
+    }
+
+    @Test
+    public void retest_av_sak_fagsystem_160364_k27_opplyser_ikke_rett_refusjons_maksdato() {
+        // Arrange
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(false, true);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+
+        // Tilkyent ytelse i revurdering
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
+            .medRegelInput("clob1")
+            .medRegelSporing("clob2")
+            .build();
+        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
+        BeregningsresultatAndel andel1 = buildBeregningsresultatAndel(brPeriode1, false, 1500,
+            BigDecimal.valueOf(100), virksomhet);
+        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 17); // 3 dager tidligere
+        buildBeregningsresultatAndel(brPeriode2, false, 1500, BigDecimal.valueOf(100), virksomhet);
+
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 20000L, List.of(DAGENS_DATO));
+
+
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+
+        //Assert
+        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
+            .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst();
+        assertThat(oppdragslinje150Opphørt).isPresent();
+
+        var sisteOppdragsDatoTom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom);
+        assertThat(sisteOppdragsDatoTom).isPresent();
+
+        assertThat(oppdragslinje150Opphørt.get().getRefusjonsinfo156().getMaksDato()).isEqualTo(sisteOppdragsDatoTom.get());
     }
 
     @Test
