@@ -69,9 +69,17 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
     private List<String> toString(ConstraintViolationException exception) {
         return exception.getConstraintViolations()
             .stream()
-            .map(cv -> cv.getRootBeanClass().getSimpleName() + " - " + cv.getLeafBean().getClass().getSimpleName()
-                + " - " + cv.getMessage())
+            .map(cv -> cv.getRootBeanClass().getSimpleName() + "." + cv.getLeafBean().getClass().getSimpleName()
+                + "." + fieldName(cv) + " - " + cv.getMessage())
             .collect(Collectors.toList());
+    }
+
+    private String fieldName(ConstraintViolation<?> cv) {
+        String field = null;
+        for (Path.Node node : cv.getPropertyPath()) {
+            field = node.getName();
+        }
+        return field;
     }
 
     private String getKode(Object leafBean) {
