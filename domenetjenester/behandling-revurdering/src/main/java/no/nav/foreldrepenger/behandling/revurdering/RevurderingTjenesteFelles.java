@@ -66,7 +66,7 @@ public class RevurderingTjenesteFelles {
         BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(revurderingÅrsakTyper)
                 .medOriginalBehandlingId(opprinneligBehandling.getId())
                 .medManueltOpprettet(manueltOpprettet);
-        if (revurderingÅrsakTyper.contains(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (revurderingÅrsakTyper.contains(BehandlingÅrsakType.BERØRT_BEHANDLING) && !revurderingÅrsakTyper.contains(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) {
             var basis = behandlingRevurderingRepository.finnSisteVedtatteIkkeHenlagteBehandlingForMedforelder(opprinneligBehandling.getFagsak())
                     .orElseThrow(() -> new IllegalStateException(
                             "Berørt behandling må ha en tilhørende avlsuttet behandling for medforelder - skal ikke skje")); // NOSONAR
