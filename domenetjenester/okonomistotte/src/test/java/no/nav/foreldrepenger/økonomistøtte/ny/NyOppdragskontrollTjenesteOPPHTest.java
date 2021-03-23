@@ -21,15 +21,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
@@ -326,28 +332,37 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
     @Test
     public void retest_av_sak_fagsystem_160364_k27_opplyser_ikke_rett_refusjons_maksdato() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatEntenForBrukerEllerArbgvr(false, true);
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
-        var builder = getInputStandardBuilder(gruppertYtelse);
+        var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(Boolean.FALSE).build();
+        var oppdragAg = Oppdrag110.builder()
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)
+            .medFagSystemId(Long.parseLong(SAKSNUMMER.getVerdi() + "100"))
+            .medOppdragGjelderId(BRUKER_FNR)
+            .medSaksbehId(ANSVARLIG_SAKSBEHANDLER)
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(originaltOppdrag)
+            .build();
+        var oppdragLinjeAg = Oppdragslinje150.builder()
+            .medKodeEndringLinje(KodeEndringLinje.NY)
+            .medKodeKlassifik(KodeKlassifik.FPF_REFUSJON_AG)
+            .medVedtakFomOgTom(LocalDate.now(), LocalDate.now().plusDays(10))
+            .medSats(Sats.på(1500))
+            .medTypeSats(TypeSats.DAGLIG)
+            .medDelytelseId(Long.parseLong(SAKSNUMMER.getVerdi() + "100100"))
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
+            .medOppdrag110(oppdragAg).build();
 
-        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+        Refusjonsinfo156.builder().medMaksDato(LocalDate.now().plusDays(10)).medDatoFom(LocalDate.now()).medRefunderesId(virksomhet).medOppdragslinje150(oppdragLinjeAg).build();
+        OppdragKvitteringTestUtil.lagPositivKvitting(oppdragAg);
 
         // Tilkyent ytelse i revurdering
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
-            .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
-        BeregningsresultatAndel andel1 = buildBeregningsresultatAndel(brPeriode1, false, 1500,
-            BigDecimal.valueOf(100), virksomhet);
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 17); // 3 dager tidligere
-        buildBeregningsresultatAndel(brPeriode2, false, 1500, BigDecimal.valueOf(100), virksomhet);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
+            .medRegelSporing("clob2").build();
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
-        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 20000L, List.of(DAGENS_DATO));
+        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 0, 7);
+        buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
 
-
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
         GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
