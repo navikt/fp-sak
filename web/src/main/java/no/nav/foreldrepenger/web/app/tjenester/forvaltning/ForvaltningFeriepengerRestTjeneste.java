@@ -111,21 +111,6 @@ public class ForvaltningFeriepengerRestTjeneste {
     }
 
     @POST
-    @Path("/kontrollerPeriodeFeriepenger")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Sjekker avvik feriepenger mellom tilkjent og simulering", tags = "FORVALTNING-feriepenger")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response kontrollerPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey())).orElseThrow();
-        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
-            .map(Tuple::getElement2)
-            .forEach(feriepengeRegeregnTjeneste::harDiffUtenomPeriode);
-
-        return Response.ok().build();
-    }
-
-    @POST
     @Path("/avstemPeriodeFeriepenger")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -135,7 +120,10 @@ public class ForvaltningFeriepengerRestTjeneste {
         var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey())).orElseThrow();
         repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
             .map(Tuple::getElement2)
-            .forEach(feriepengeavstemmer::avstem);
+            .forEach(b -> {
+                feriepengeRegeregnTjeneste.harDiffUtenomPeriode(b);
+                feriepengeavstemmer.avstem(b, true);
+            });
 
         return Response.ok().build();
     }
