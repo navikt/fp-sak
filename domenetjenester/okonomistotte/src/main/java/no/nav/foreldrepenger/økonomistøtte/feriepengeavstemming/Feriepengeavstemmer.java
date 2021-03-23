@@ -56,10 +56,6 @@ public class Feriepengeavstemmer {
         this.beregningsresultatRepository = beregningsresultatRepository;
     }
 
-    public boolean avstem(long behandlingId) {
-        return avstem(behandlingId, true);
-    }
-
     public boolean avstem(long behandlingId, boolean logging) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
         Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
@@ -85,9 +81,9 @@ public class Feriepengeavstemmer {
 
             summert.entrySet().stream()
                 .filter(e -> Math.abs(e.getValue().longValue()) > 3)
-                .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} oppdrag {} tilkjent {}",
+                .forEach(e -> LOG.info("{}:{}:saksnummer:{}:år:{}:mottaker:{}:diff:{}:oppdrag:{}:tilkjent:{}",
                     AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
-                    saksnummer.getVerdi(), behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                    saksnummer.getVerdi(), e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
                     oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
         }
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);

@@ -112,9 +112,9 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
 
         summert.entrySet().stream()
             .filter(e -> erAvvik(e.getValue()))
-            .forEach(e -> LOG.info("{} andel {} saksnummer {} behandling {} år {} mottaker {} diff {} gammel {} ny {}",
+            .forEach(e -> LOG.info("{}:{}:Saksnummer:{}:år:{}:mottaker:{}:diff:{}:gammel:{}:ny:{}",
                 AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "tilkjent-simulert" : "omfordelt",
-                saksnummer, behandlingId, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                saksnummer, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
                 tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
                 simulert.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
 
