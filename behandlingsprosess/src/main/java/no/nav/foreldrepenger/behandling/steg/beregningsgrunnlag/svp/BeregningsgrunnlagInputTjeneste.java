@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.svp;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -42,11 +43,13 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     }
 
     @Override
-    public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
+    public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref, LocalDate behandlingOpprettetTidspunkt) {
         var tilretteleggingMedUtbelingsgrad = tilrettleggingsperioderTjeneste.beregnPerioder(ref);
 
-        return new SvangerskapspengerGrunnlag(
-                TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
+        SvangerskapspengerGrunnlag svpGrunnlag = new SvangerskapspengerGrunnlag(
+            TilretteleggingMapperTilKalkulus.mapTilretteleggingerMedUtbetalingsgrad(tilretteleggingMedUtbelingsgrad));
+        svpGrunnlag.setBehandlingstidspunkt(behandlingOpprettetTidspunkt);
+        return svpGrunnlag;
     }
 
 }

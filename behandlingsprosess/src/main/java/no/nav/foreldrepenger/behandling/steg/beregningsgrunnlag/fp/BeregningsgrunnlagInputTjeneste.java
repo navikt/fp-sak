@@ -6,6 +6,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
@@ -18,6 +19,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @ApplicationScoped
@@ -27,6 +29,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private BeregningUttakTjeneste beregningUttakTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     protected BeregningsgrunnlagInputTjeneste() {
         // CDI proxy
@@ -49,7 +52,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
     }
 
     @Override
-    public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref) {
+    public YtelsespesifiktGrunnlag getYtelsespesifiktGrunnlag(BehandlingReferanse ref, LocalDate behandlingOpprettetTidspunkt) {
         var aktivitetGradering = beregningUttakTjeneste.finnAktivitetGraderinger(ref);
         var saksnummer = ref.getSaksnummer();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(saksnummer);
@@ -58,6 +61,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         boolean kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
         ForeldrepengerGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag(dekningsgrad.getVerdi(), kvalifisererTilBesteberegning, aktivitetGradering);
         beregningUttakTjeneste.finnSisteTilnærmedeUttaksdato(ref).ifPresent(fpGrunnlag::setSisteSøkteUttaksdag);
+        fpGrunnlag.setBehandlingstidspunkt(behandlingOpprettetTidspunkt);
         return fpGrunnlag;
     }
 }
