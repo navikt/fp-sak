@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -159,8 +160,14 @@ public class ForvaltningFeriepengerRestTjeneste {
             .map(Tuple::getElement2)
             .map(behandlingRepository::hentBehandling)
             .filter(behandling -> behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).isEmpty())
-            .filter(behandling -> feriepengeRegeregnTjeneste.skalReberegneFeriepenger(behandling.getId()) || feriepengeavstemmer.avstem(behandling.getId(), false))
-            .forEach(behandling -> opprettReberegningTask(behandling.getFagsakId(), behandling.getAktørId(), callId));
+            .forEach(behandling -> {
+                var avvik1 = feriepengeRegeregnTjeneste.skalReberegneFeriepengerBatch(behandling.getId());
+                var avvik2 = feriepengeavstemmer.sjekkReberegnFeriepenger(behandling.getId());
+                if ((AvvikReberegningFeriepenger.AVVIK_ANDRE.equals(avvik1) || AvvikReberegningFeriepenger.AVVIK_ANDRE.equals(avvik2)) &&
+                    !AvvikReberegningFeriepenger.AVVIK_BRUKER_2019.equals(avvik1) && !AvvikReberegningFeriepenger.AVVIK_BRUKER_2019.equals(avvik2)) {
+                    opprettReberegningTask(behandling.getFagsakId(), behandling.getAktørId(), callId);
+                }
+            });
 
         return Response.ok().build();
     }
