@@ -95,6 +95,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
             .flatMap(oid -> beregningsresultatRepository.hentBeregningsresultatAggregat(oid))
             .flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk)
             .orElseThrow();
+        LOGGER.info("FP-584197: Saksnummer {}. Behandling med id {} fikk utledet aksjonspunkt 5090, " +
+                "kopierer valget som ble tatt i  forrige behandling med id {} der valget var {}.", ref.getSaksnummer().getVerdi(),
+            ref.getBehandlingId(), ref.getOriginalBehandlingId().orElse(null), originalBeslutning);
         Behandling behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
         beregningsresultatRepository.lagreMedTilbaketrekk(behandling, originalBeslutning);
     }
