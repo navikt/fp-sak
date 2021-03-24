@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
@@ -61,13 +62,27 @@ public class OppdragMapper {
 
         Oppdrag110 oppdrag110 = builder.build();
 
-        LocalDate maxdatoRefusjon = getMaxdatoRefusjon(oppdrag);
-
         for (Map.Entry<KjedeNøkkel, OppdragKjedeFortsettelse> entry : oppdrag.getKjeder().entrySet()) {
+            var kjedeNøkkel = entry.getKey();
+            var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel);
             for (OppdragLinje oppdragLinje : entry.getValue().getOppdragslinjer()) {
-                mapTilOppdragslinje150(oppdrag110, entry.getKey(), oppdragLinje, maxdatoRefusjon, input.getVedtaksdato(), input.getBehandlingId());
+                var oppdragslinje150 = mapTilOppdragslinje150(oppdrag110, kjedeNøkkel, oppdragLinje, input.getVedtaksdato());
+                refusjonsinfoBuilder.map(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
             }
         }
+    }
+
+    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel) {
+        Refusjonsinfo156.Builder refusjonsinfoBuilder = null;
+        if (kjedeNøkkel.getBetalingsmottaker().erArbeidsgiver()) {
+            Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
+            var gjelderFeriepenger = kjedeNøkkel.getKlassekode().gjelderFeriepenger();
+            refusjonsinfoBuilder = Refusjonsinfo156.builder()
+                .medDatoFom(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 1) : hentFørsteUtbetalingsdato(oppdrag))
+                .medMaksDato(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 31) : hentSisteUtbetalingsdato(oppdrag))
+                .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()));
+        }
+        return Optional.ofNullable(refusjonsinfoBuilder);
     }
 
     private boolean oppdragErTilNyMottaker(Oppdrag oppdrag) {
@@ -81,7 +96,7 @@ public class OppdragMapper {
         return KodeEndring.ENDRING;
     }
 
-    Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate maxdatoRefusjon, LocalDate vedtaksdato, Long behandlingId) {
+    Oppdragslinje150 mapTilOppdragslinje150(Oppdrag110 oppdrag110, KjedeNøkkel kjedeNøkkel, OppdragLinje linje, LocalDate vedtaksdato) {
         var builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medDelytelseId(Long.valueOf(linje.getDelytelseId().toString()))
@@ -110,18 +125,7 @@ public class OppdragMapper {
             builder.medUtbetalingsgrad(Utbetalingsgrad.prosent(linje.getUtbetalingsgrad().getUtbetalingsgrad()));
         }
 
-        Oppdragslinje150 oppdragslinje150 = builder.build();
-
-        if (kjedeNøkkel.getBetalingsmottaker() instanceof Betalingsmottaker.ArbeidsgiverOrgnr) {
-            Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
-            Refusjonsinfo156.builder()
-                .medMaksDato(maxdatoRefusjon)
-                .medDatoFom(vedtaksdato)
-                .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()))
-                .medOppdragslinje150(oppdragslinje150)
-                .build();
-        }
-        return oppdragslinje150;
+        return builder.build();
     }
 
     private Ompostering116 opprettOmpostering116(Oppdrag oppdrag, boolean brukInntrekk) {
@@ -136,13 +140,13 @@ public class OppdragMapper {
 
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
         LocalDate endringsdato = oppdrag.getEndringsdato();
-        LocalDate korrigeringsdato = hentFørsteUttaksdato(oppdrag);
+        LocalDate korrigeringsdato = hentFørsteUtbetalingsdato(oppdrag);
         return korrigeringsdato.isAfter(endringsdato)
             ? korrigeringsdato
             : endringsdato;
     }
 
-    public LocalDate hentFørsteUttaksdato(Oppdrag nyttOppdrag) {
+    private LocalDate hentFørsteUtbetalingsdato(Oppdrag nyttOppdrag) {
         MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
         MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
         LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
@@ -172,8 +176,7 @@ public class OppdragMapper {
         return førsteUtetalingsdato;
     }
 
-
-    private LocalDate getMaxdatoRefusjon(Oppdrag nyttOppdrag) {
+    private LocalDate hentSisteUtbetalingsdato(Oppdrag nyttOppdrag) {
         MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
         MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
         LocalDate sisteUtbetalingsdato = hentSisteUtbetalingsdato(utvidetMedNyttOppdrag);

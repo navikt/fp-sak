@@ -16,18 +16,26 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
+import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
@@ -319,6 +327,84 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         Oppdragslinje150 oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
             .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst().get();
         assertThat(oppdragslinje150Opphørt.getDatoStatusFom()).isEqualTo(førsteDatoVedtakFom);
+    }
+
+    @Test
+    public void retest_av_sak_fagsystem_160364_k27_opplyser_ikke_rett_refusjons_maksdato() {
+        // Arrange
+        var stønadsdatoFom = LocalDate.now().plusDays(3);
+        var stønadsdatoTom = stønadsdatoFom.plusDays(10);
+
+        var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(Boolean.FALSE).build();
+        var oppdragAg = Oppdrag110.builder()
+            .medKodeEndring(KodeEndring.NY)
+            .medKodeFagomrade(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER)
+            .medFagSystemId(Long.parseLong(SAKSNUMMER.getVerdi() + "100"))
+            .medOppdragGjelderId(BRUKER_FNR)
+            .medSaksbehId(ANSVARLIG_SAKSBEHANDLER)
+            .medAvstemming(Avstemming.ny())
+            .medOppdragskontroll(originaltOppdrag)
+            .build();
+        var oppdragLinjeAg = Oppdragslinje150.builder()
+            .medKodeEndringLinje(KodeEndringLinje.NY)
+            .medKodeKlassifik(KodeKlassifik.FPF_REFUSJON_AG)
+            .medVedtakFomOgTom(stønadsdatoFom, stønadsdatoTom)
+            .medSats(Sats.på(1500))
+            .medTypeSats(TypeSats.DAGLIG)
+            .medDelytelseId(Long.parseLong(SAKSNUMMER.getVerdi() + "100100"))
+            .medUtbetalingsgrad(Utbetalingsgrad._100)
+            .medOppdrag110(oppdragAg).build();
+
+        Refusjonsinfo156.builder().medMaksDato(stønadsdatoTom).medDatoFom(stønadsdatoFom).medRefunderesId(virksomhet).medOppdragslinje150(oppdragLinjeAg).build();
+        OppdragKvitteringTestUtil.lagPositivKvitting(oppdragAg);
+
+        // Tilkyent ytelse i revurdering
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
+            .medRegelSporing("clob2").build();
+
+        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 3, 10);
+        var andelArb = buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
+
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArb, 20000L, List.of(stønadsdatoFom));
+
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+
+        //Assert
+        var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
+            .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst();
+        assertThat(oppdragslinje150Opphørt).isPresent();
+
+        var oppdragslinje150Feriepenger = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
+            .stream()).filter(o150 -> !o150.gjelderOpphør()).findFirst();
+        assertThat(oppdragslinje150Feriepenger).isPresent();
+
+        var sisteOppdragsDatoTom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom);
+        assertThat(sisteOppdragsDatoTom).isPresent();
+
+        var førsteOppdragsDatoFom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().min(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom);
+        assertThat(førsteOppdragsDatoFom).isPresent();
+
+        var oppdragslinje150 = oppdragslinje150Opphørt.get();
+        var refusjonsinfo156 = oppdragslinje150.getRefusjonsinfo156();
+        assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
+        assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(sisteOppdragsDatoTom.get());
+        assertThat(refusjonsinfo156.getDatoFom()).isEqualTo(førsteOppdragsDatoFom.get());
+
+        var feriepengerFom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 1);
+        var feriepengerTom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 31);
+        var oppdragslinje150Ferie = oppdragslinje150Feriepenger.get();
+        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getDatoFom()).isEqualTo(feriepengerFom);
+        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getMaksDato()).isEqualTo(feriepengerTom);
+        assertThat(oppdragslinje150Ferie.getDatoVedtakFom()).isEqualTo(feriepengerFom);
+        assertThat(oppdragslinje150Ferie.getDatoVedtakTom()).isEqualTo(feriepengerTom);
     }
 
     @Test

@@ -5,6 +5,8 @@ import static no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeK
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
@@ -44,8 +46,6 @@ public class EksisterendeOppdragMapperTest {
     DelytelseId delytelseId1 = DelytelseId.parse("1100100");
     DelytelseId delytelseId2 = delytelseId1.neste();
     DelytelseId delytelseId3 = delytelseId2.neste();
-    DelytelseId delytelseId4 = delytelseId3.neste();
-    DelytelseId delytelseId5 = delytelseId4.neste();
 
     @Test
     public void skal_mappe_eksisterende_oppdrag() {
@@ -71,7 +71,7 @@ public class EksisterendeOppdragMapperTest {
         lagOrdinærLinje(oppdrag110, delytelseId1, p1, Satsen.dagsats(100), null);
         lagOrdinærLinje(oppdrag110, delytelseId2, p2, Satsen.dagsats(150), null); // denne peker ikke til forrige, slik den egentlig skal
 
-        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(Arrays.asList(oppdragskontroll));
+        Map<KjedeNøkkel, OppdragKjede> kjeder = EksisterendeOppdragMapper.tilKjeder(List.of(oppdragskontroll));
         KjedeNøkkel kjedeNøkkel = KjedeNøkkel.lag(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
         KjedeNøkkel kjedeNøkkelKnektKjede = KjedeNøkkel.builder(FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER).medKnektKjedeDel(1).build();
         Assertions.assertThat(kjeder.keySet()).containsOnly(kjedeNøkkel, kjedeNøkkelKnektKjede);
