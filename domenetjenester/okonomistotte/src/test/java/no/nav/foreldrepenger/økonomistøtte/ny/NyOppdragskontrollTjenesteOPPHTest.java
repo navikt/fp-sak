@@ -363,7 +363,10 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
             .medRegelSporing("clob2").build();
 
         BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 3, 10);
-        buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
+        var andelArb = buildBeregningsresultatAndel(brPeriode1, false, 1500, BigDecimal.valueOf(100), virksomhet);
+
+        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultatRevurderingFP);
+        buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArb, 20000L, List.of(stønadsdatoFom));
 
         TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
         GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
@@ -376,6 +379,10 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragslinje150Opphørt = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
             .stream()).filter(Oppdragslinje150::gjelderOpphør).findFirst();
         assertThat(oppdragslinje150Opphørt).isPresent();
+
+        var oppdragslinje150Feriepenger = oppdragRevurdering.getOppdrag110Liste().stream().flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste()
+            .stream()).filter(o150 -> !o150.gjelderOpphør()).findFirst();
+        assertThat(oppdragslinje150Feriepenger).isPresent();
 
         var sisteOppdragsDatoTom = beregningsresultatRevurderingFP.getBeregningsresultatPerioder().stream().max(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom))
             .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom);
@@ -390,6 +397,14 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
         assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(sisteOppdragsDatoTom.get());
         assertThat(refusjonsinfo156.getDatoFom()).isEqualTo(førsteOppdragsDatoFom.get());
+
+        var feriepengerFom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 1);
+        var feriepengerTom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 31);
+        var oppdragslinje150Ferie = oppdragslinje150Feriepenger.get();
+        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getDatoFom()).isEqualTo(feriepengerFom);
+        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getMaksDato()).isEqualTo(feriepengerTom);
+        assertThat(oppdragslinje150Ferie.getDatoVedtakFom()).isEqualTo(feriepengerFom);
+        assertThat(oppdragslinje150Ferie.getDatoVedtakTom()).isEqualTo(feriepengerTom);
     }
 
     @Test

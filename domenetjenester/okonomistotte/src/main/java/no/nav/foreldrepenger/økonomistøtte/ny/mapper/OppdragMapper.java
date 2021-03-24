@@ -64,7 +64,7 @@ public class OppdragMapper {
 
         for (Map.Entry<KjedeNøkkel, OppdragKjedeFortsettelse> entry : oppdrag.getKjeder().entrySet()) {
             var kjedeNøkkel = entry.getKey();
-            var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel.getBetalingsmottaker());
+            var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel);
             for (OppdragLinje oppdragLinje : entry.getValue().getOppdragslinjer()) {
                 var oppdragslinje150 = mapTilOppdragslinje150(oppdrag110, kjedeNøkkel, oppdragLinje, input.getVedtaksdato());
                 refusjonsinfoBuilder.map(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
@@ -72,13 +72,14 @@ public class OppdragMapper {
         }
     }
 
-    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final Betalingsmottaker betalingsmottaker) {
+    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel) {
         Refusjonsinfo156.Builder refusjonsinfoBuilder = null;
-        if (betalingsmottaker.erArbeidsgiver()) {
-            Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) betalingsmottaker;
+        if (kjedeNøkkel.getBetalingsmottaker().erArbeidsgiver()) {
+            Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
+            var gjelderFeriepenger = kjedeNøkkel.getKlassekode().gjelderFeriepenger();
             refusjonsinfoBuilder = Refusjonsinfo156.builder()
-                .medDatoFom(hentFørsteUtbetalingsdato(oppdrag))
-                .medMaksDato(hentSisteUtbetalingsdato(oppdrag))
+                .medDatoFom(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 1) : hentFørsteUtbetalingsdato(oppdrag))
+                .medMaksDato(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 31) : hentSisteUtbetalingsdato(oppdrag))
                 .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()));
         }
         return Optional.ofNullable(refusjonsinfoBuilder);
