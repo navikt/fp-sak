@@ -21,6 +21,8 @@ public interface Betalingsmottaker {
         return ((ArbeidsgiverOrgnr) a).compareTo((ArbeidsgiverOrgnr) b);
     };
 
+    boolean erArbeidsgiver();
+
     default Betalingsmottaker bruker() {
         return BRUKER;
     }
@@ -39,6 +41,10 @@ public interface Betalingsmottaker {
             return "Bruker";
         }
 
+        @Override
+        public boolean erArbeidsgiver() {
+            return false;
+        }
     }
 
     class ArbeidsgiverOrgnr implements Betalingsmottaker, Comparable<ArbeidsgiverOrgnr> {
@@ -80,6 +86,11 @@ public interface Betalingsmottaker {
         @Override
         public int compareTo(ArbeidsgiverOrgnr o) {
             return orgnr.compareTo(o.orgnr);
+        }
+
+        @Override
+        public boolean erArbeidsgiver() {
+            return true;
         }
     }
 
