@@ -28,7 +28,7 @@ jobs:
       - name: Image-cache
         uses: actions/cache@v2
         with:
-          path: ~/image-cache
+          path: oracle.tar
           key: image-cache-${{ runner.os }}
 
       - if: steps.image-cache.outputs.cache-hit != 'true'
@@ -36,10 +36,10 @@ jobs:
           echo  $GH_ACCESS_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
 
           docker-compose -f oracle/docker-compose.yml pull oracle
-          docker save docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened > ~/image-cache/oracle.tar
+          docker save docker.pkg.github.com/navikt/fpsak-autotest/oracle-flattened > oracle.tar
 
       - if: steps.image-cache.outputs.cache-hit == 'true'
-        run: docker load < ~/image-cache/oracle.tar
+        run: docker load < oracle.tar
 
       - uses: actions/setup-java@v1
         with:
