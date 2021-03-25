@@ -73,6 +73,7 @@ public class KøKontrollerTest {
         Behandling farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(Optional.of(morFgBehandling));
+        when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
 
         // Act
         køKontroller.dekøFørsteBehandlingISakskompleks(farFgBehandling);
@@ -97,6 +98,7 @@ public class KøKontrollerTest {
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
                 .thenReturn(Optional.of(morBerørtBehandling));
+        when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
                 .thenReturn(morOppdatertBehandling);
 
