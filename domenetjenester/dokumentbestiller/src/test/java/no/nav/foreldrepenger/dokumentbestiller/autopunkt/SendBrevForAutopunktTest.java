@@ -136,7 +136,7 @@ public class SendBrevForAutopunktTest {
 
     @Test
     public void sendBrevForTidligSøknadBareEnGang() {
-        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK);
+        doReturn(true).when(dokumentBehandlingTjeneste).erDokumentBestilt(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
         sendBrevForAutopunkt.sendBrevForTidligSøknad(behandling, aksjonspunkt);
         Mockito.verify(dokumentBestillerTjeneste, times(0)).bestillDokument(Mockito.any(), Mockito.eq(HistorikkAktør.VEDTAKSLØSNINGEN),
                 Mockito.anyBoolean());

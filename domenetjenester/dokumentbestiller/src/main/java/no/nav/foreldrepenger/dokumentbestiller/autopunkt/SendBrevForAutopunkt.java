@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class SendBrevForAutopunkt {
@@ -58,11 +57,10 @@ public class SendBrevForAutopunkt {
     }
 
     public void sendBrevForTidligSøknad(Behandling behandling, Aksjonspunkt ap) {
-        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.FORLENGET_TIDLIG_SOK : DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG;
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG)
             && erSøktPåPapir(behandling)) {
-            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
+            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
@@ -70,12 +68,10 @@ public class SendBrevForAutopunkt {
 
     public void sendBrevForVenterPåFødsel(Behandling behandling, Aksjonspunkt ap) {
         LocalDate frist = ap.getFristTid().toLocalDate();
-        var dokumentMalType = Environment.current().isProd() ? DokumentMalType.FORLENGET_MEDL_DOK : DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL;
-
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL)
             && frist.isAfter(LocalDate.now().plusDays(1))) {
-            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
+            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
