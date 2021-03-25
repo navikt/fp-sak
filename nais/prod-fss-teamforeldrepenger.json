@@ -6,7 +6,6 @@
   "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
   "fpsakserviceuser": "serviceuser/data/prod/srvengangsstonad",
   "ldapserviceuser": "serviceuser/data/prod/srvssolinux",
-  "azureadsecret": "/azuread/data/prod/creds/fp-sak",
   "minReplicas": "4",
   "maxReplicas": "9",
   "ingresses": [
@@ -64,9 +63,8 @@
     "PDL_BASE_URL" : "http://pdl-api.default/graphql",
     "SAF_BASE_URL" : "https://saf.nais.adeo.no",
     "KODEVERK_V2_URL": "https://kodeverk.nais.adeo.no/ws/kodeverk/v2",
-    "AZURE_V2_TOKEN_ENDPOINT": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/oauth2/v2.0/token",
     "AZURE_HTTP_PROXY": "http://webproxy.nais:8088",
-    "SPOKELSE_GRUNNLAG_SCOPES": "2cfc9652-f3c7-4b23-a43b-e8844f49aeca/.default",
+    "SPOKELSE_GRUNNLAG_SCOPES": "api://prod-fss.tbd.spokelse/.default",
     "SPOKELSE_GRUNNLAG_URL": "http://spokelse.tbd/grunnlag"
   }
 }

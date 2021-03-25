@@ -38,6 +38,9 @@ spec:
     requests: 
       cpu: "500m"
       memory: "2800Mi" # utregnet fra maxheap + non-heap-usage + litt å gå på. maxheap(2147 MB fra grafana) + non-heap usage (450 MB fra grafana) + litt å gå på (203 MB)
+  azure:
+    application:
+      enabled: true
   vault:
     enabled: true
     paths:
@@ -53,8 +56,6 @@ spec:
         kvPath: {{ldapserviceuser}}
       - mountPath: /var/run/secrets/nais.io/vault
         kvPath: /kv/{{cluster}}/fss/fpsak/{{namespace}}
-      - mountPath: /var/run/secrets/nais.io/azuread
-        kvPath: {{azureadsecret}}
   env:
   {{#each env}}
    - name: {{@key}}
