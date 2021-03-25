@@ -33,9 +33,9 @@ public class SpokelseKlient {
     public SpokelseKlient(
         @KonfigVerdi(value = "SPOKELSE_GRUNNLAG_URL", defaultVerdi = SPOKELSE_GRUNNLAG_DEFAULT_URL) URI uri,
         @KonfigVerdi(value = "SPOKELSE_GRUNNLAG_SCOPES", defaultVerdi = "spokelse/.default") String scopesCsv,
-        @KonfigVerdi(value = "AZURE_CLIENT_ID", defaultVerdi = "fp-sak") String clientId,
-        @KonfigVerdi(value = "AZURE_CLIENT_SECRET", defaultVerdi = "fp-sak") String clientSecret,
-        @KonfigVerdi(value = "AZURE_V2_TOKEN_ENDPOINT", defaultVerdi = AZURE_V2_TOKEN_ENDPOINT_PROD) URI tokenEndpoint,
+        @KonfigVerdi(value = "AZURE_APP_CLIENT_ID", defaultVerdi = "fp-sak") String clientId,
+        @KonfigVerdi(value = "AZURE_APP_CLIENT_SECRET", defaultVerdi = "fp-sak") String clientSecret,
+        @KonfigVerdi(value = "AZURE_OPENID_CONFIG_TOKEN_ENDPOINT", defaultVerdi = AZURE_V2_TOKEN_ENDPOINT_PROD) URI tokenEndpoint,
         @KonfigVerdi(value = "AZURE_HTTP_PROXY", required = false) URI httpProxy) {
         this.restClient = OAuth2RestClient.builder()
             .clientId(clientId)
