@@ -68,12 +68,12 @@ public class SimulerOppdragTjenesteESTest {
         when(beregningRepository.getSisteBeregning(behandlingId))
             .thenReturn(Optional.of(new LegacyESBeregning(15000, 1, 15000, LocalDateTime.now())));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
-        when(familieHendelseRepository.hentAggregat(behandlingId))
-            .thenReturn(familieHendelseGrunnlag);
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId))
+            .thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);
         when(familieHendelseGrunnlag.getGjeldendeVersjon())
             .thenReturn(familieHendelse);
-        when(familieHendelse.getGjelderFødsel()).thenReturn(true);
+        when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
         OppdragInputTjeneste oppdragInputTjeneste = new OppdragInputTjeneste(
             behandlingRepository,

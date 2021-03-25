@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingInntrekkEntitet;
@@ -135,7 +137,7 @@ public class OppdragInputTjeneste {
         var førsteOppdrag = finnFørsteUtbetaling(tidligereOppdrag);
         var gruppertYtelse = GruppertYtelse.builder()
             .leggTilKjede(
-                KjedeNøkkel.lag(gjelderFødsel(behandlingId) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON, Betalingsmottaker.BRUKER),
+                KjedeNøkkel.lag(FamilieYtelseType.FØDSEL.equals(gjelderFødsel(behandlingId)) ? KodeKlassifik.ES_FØDSEL : KodeKlassifik.ES_ADOPSJON, Betalingsmottaker.BRUKER),
                 Ytelse.builder()
                     .leggTilPeriode(lagPeriode(førsteOppdrag.map(Oppdragslinje150::getDatoVedtakFom).orElse(vedtaksdato), Satsen.engang(sats.get())))
                     .build());
@@ -193,9 +195,7 @@ public class OppdragInputTjeneste {
 
     private FamilieYtelseType finnFamilieYtelseType(long behandlingId, FagsakYtelseType fagsakYtelseType) {
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            return gjelderFødsel(behandlingId)
-                ? FamilieYtelseType.FØDSEL
-                : FamilieYtelseType.ADOPSJON;
+            return gjelderFødsel(behandlingId);
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return FamilieYtelseType.SVANGERSKAPSPENGER;
         } else {
@@ -203,9 +203,11 @@ public class OppdragInputTjeneste {
         }
     }
 
-    private boolean gjelderFødsel(Long behandlingId) {
-        return familieHendelseRepository.hentAggregat(behandlingId)
-            .getGjeldendeVersjon().getGjelderFødsel();
+    private FamilieYtelseType gjelderFødsel(Long behandlingId) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .filter(FamilieHendelseEntitet::getGjelderAdopsjon)
+            .map(fh -> FamilieYtelseType.ADOPSJON).orElse(FamilieYtelseType.FØDSEL);
     }
 
     private static String finnSaksbehandlerFra(Behandling behandling) {
