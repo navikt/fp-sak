@@ -116,7 +116,9 @@ public class KøKontroller {
         var originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).orElse(null);
 
         if (behandling.erRevurdering() && originalBehandling != null && behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandling.getId())).isPresent()) {
-            behandlingRepository.taSkriveLås(behandling);
+            // Ensure strict locking
+            var lås = behandlingRepository.taSkriveLås(behandling);
+            behandlingRepository.verifiserBehandlingLås(lås);
             Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

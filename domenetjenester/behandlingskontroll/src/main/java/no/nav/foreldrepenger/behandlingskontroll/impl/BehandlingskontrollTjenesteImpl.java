@@ -276,7 +276,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public BehandlingskontrollKontekst initBehandlingskontroll(Behandling behandling) {
         Objects.requireNonNull(behandling, "behandling"); //$NON-NLS-1$
         // først lås
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        BehandlingLås lås = serviceProvider.taLås(behandling.getId());
 
         // så les
         return new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås);
@@ -346,6 +346,12 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     public void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, BehandlingStegType behandlingStegType,
             List<Aksjonspunkt> aksjonspunkter) {
         Behandling behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
+        lagreAksjonspunkterAvbrutt(kontekst, behandling, behandlingStegType, aksjonspunkter);
+    }
+
+    private void lagreAksjonspunkterAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling,
+                                            BehandlingStegType behandlingStegType, List<Aksjonspunkt> aksjonspunkter) {
+
         List<Aksjonspunkt> avbrutte = new ArrayList<>();
         aksjonspunkter.stream().filter(ap -> !ap.erAvbrutt()).forEach(ap -> {
             aksjonspunktKontrollRepository.setTilAvbrutt(ap);
@@ -447,7 +453,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     private void settAutopunkterTilAvbrutt(BehandlingskontrollKontekst kontekst, Behandling behandling) {
         List<Aksjonspunkt> åpneAutopunkter = behandling.getÅpneAksjonspunkter(AksjonspunktType.AUTOPUNKT);
-        lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), åpneAutopunkter);
+        lagreAksjonspunkterAvbrutt(kontekst, behandling, behandling.getAktivtBehandlingSteg(), åpneAutopunkter);
     }
 
     @Override
