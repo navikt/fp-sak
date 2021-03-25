@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,6 +39,8 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
 public class FamilieHendelseTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FamilieHendelseTjeneste.class);
 
     private static final Period REGISTRERING_FRIST_ETTER_TERMIN = Period.parse("P25D");
     private static final Period REGISTRERING_FRIST_ETTER_FØDSEL = Period.parse("P14D");
@@ -130,11 +135,15 @@ public class FamilieHendelseTjeneste {
     }
 
     public void oppdaterFødselPåGrunnlag(Behandling behandling, List<FødtBarnInfo> bekreftetTps) {
-        if (bekreftetTps.isEmpty()) {
-            return;
-        }
 
         LocalDate tidligereRegistrertFødselsdato = hentRegisterFødselsdato(behandling.getId()).orElse(null);
+
+        if (bekreftetTps.isEmpty()) {
+            if (tidligereRegistrertFødselsdato != null) {
+                LOG.warn("Ungt Barn Forsvunnet fra Register for sak {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
+            }
+            return;
+        }
 
         final FamilieHendelseBuilder hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling)
             .tilbakestillBarn();
