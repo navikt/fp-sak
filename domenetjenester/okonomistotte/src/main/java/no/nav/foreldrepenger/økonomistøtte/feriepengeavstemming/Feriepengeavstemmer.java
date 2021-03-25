@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
@@ -89,6 +90,31 @@ public class Feriepengeavstemmer {
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
     }
 
+    public AvvikReberegningFeriepenger sjekkReberegnFeriepenger(long behandlingId) {
+        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
+        if (behandling == null || beregningsresultatOpt.isEmpty()) {
+            return AvvikReberegningFeriepenger.INGEN_AVVIK;
+        }
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler = beregningsresultatOpt.get().getBeregningsresultatFeriepenger()
+            .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
+            .orElse(Collections.emptyList());
+        List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
+
+        var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag, false);
+        var tilkjent = sorterteTilkjenteFeriepenger(feriepengerAndeler);
+        Map<GrupperingNøkkel, BigDecimal> summert = new LinkedHashMap<>();
+        oppdrag.forEach(summert::put);
+        tilkjent.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
+
+
+        var erAvvikBrukerFør2020 = summert.entrySet().stream().anyMatch(e -> GrupperingNøkkel.BRUKER_FØR_2020.equals(e.getKey()) && erAvvik(e.getValue()));
+        if (erAvvikBrukerFør2020) return AvvikReberegningFeriepenger.AVVIK_BRUKER_2019;
+        var erAvvik = summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
+        return erAvvik ? AvvikReberegningFeriepenger.AVVIK_ANDRE : AvvikReberegningFeriepenger.INGEN_AVVIK;
+    }
+
     private static boolean erAvvik(BigDecimal diff) {
         return Math.abs(diff.longValue()) > 3;
     }
@@ -155,6 +181,8 @@ public class Feriepengeavstemmer {
             this.opptjent = opptjent;
             this.mottaker = mottaker;
         }
+
+        static GrupperingNøkkel BRUKER_FØR_2020 = new GrupperingNøkkel(Year.of(2019), BRUKER);
 
         public Year getOpptjent() {
             return opptjent;

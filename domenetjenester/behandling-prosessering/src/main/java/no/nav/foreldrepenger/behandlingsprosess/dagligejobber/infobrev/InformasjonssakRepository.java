@@ -368,13 +368,9 @@ public class InformasjonssakRepository {
              where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
            on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
         join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=beh.id and grbr.aktiv='J')
-        join BR_feriepenger brf on brf.BEREGNINGSRESULTAT_FP_ID = grbr.bg_beregningsresultat_fp_id
         where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
         and fs.opprettet_tid >= :fomdato and fs.opprettet_tid <= :tomdato
         and fs.ytelse_type = :foreldrepenger
-        and grbr.utbet_beregningsresultat_fp_id is null
-        and brf.id in (select BR_FERIEPENGER_ID from BR_FERIEPENGER_PR_AAR where OPPTJENINGSAAR >= :cutoffdato)
-        and brf.id not in (select BR_FERIEPENGER_ID from BR_FERIEPENGER_PR_AAR where OPPTJENINGSAAR < :cutoffdato)
         """;
 
     public List<Tuple<String, Long>> finnSakerForReberegningFeriepenger(LocalDate fom, LocalDate tom) {
