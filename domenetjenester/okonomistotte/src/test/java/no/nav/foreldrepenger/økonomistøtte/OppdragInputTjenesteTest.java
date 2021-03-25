@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -85,12 +86,12 @@ class OppdragInputTjenesteTest {
         when(aktørTjeneste.hentPersonIdentForAktørId(any()))
             .thenReturn(Optional.of(PersonIdent.fra("0987654321")));
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
-        when(familieHendelseRepository.hentAggregat(behandlingId))
-            .thenReturn(familieHendelseGrunnlag);
+        when(familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId))
+            .thenReturn(Optional.of(familieHendelseGrunnlag));
         var familieHendelse = mock(FamilieHendelseEntitet.class);
         when(familieHendelseGrunnlag.getGjeldendeVersjon())
             .thenReturn(familieHendelse);
-        when(familieHendelse.getGjelderFødsel()).thenReturn(true);
+        when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
         oppdragInputTjeneste = new OppdragInputTjeneste(
             behandlingRepository,
