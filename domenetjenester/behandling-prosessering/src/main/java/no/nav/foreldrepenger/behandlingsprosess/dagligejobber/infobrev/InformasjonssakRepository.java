@@ -383,7 +383,6 @@ public class InformasjonssakRepository {
         query = entityManager.createNativeQuery(QUERY_REBERGN_FERIE); //$NON-NLS-1$
         query.setParameter("fomdato", fom); //$NON-NLS-1$
         query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
-        query.setParameter("cutoffdato", LocalDate.of(2020,1,1)); //$NON-NLS-1$
 
         query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
         query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
