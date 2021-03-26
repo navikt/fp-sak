@@ -109,18 +109,15 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         AnkeVurdering ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
         AnkeVurderingOmgjør ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
             ? AnkeVurderingOmgjør.fraKode(dto.getAnkeVurderingOmgjoer().getKode()) : null;
-        AnkeOmgjørÅrsak omgjørÅrsak = null;
-        if (dto.getAnkeOmgjoerArsak() != null) {
-            omgjørÅrsak = dto.getAnkeOmgjoerArsak();
-        }
+        AnkeOmgjørÅrsak omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
 
         HistorikkResultatType resultat = konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
         HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder();
 
         if (!endreAnke) {
-            historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat.getKode());
+            historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat != null ? resultat.getNavn() : null);
             if (dto.getAnkeOmgjoerArsak() != null && omgjørÅrsak != null) {
-                historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_OMGJØR_ÅRSAK, null, omgjørÅrsak.getKode());
+                historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_OMGJØR_ÅRSAK, null, omgjørÅrsak.getNavn());
             } else if (dto.erAnkerIkkePart() || dto.erFristIkkeOverholdt() || dto.erIkkeKonkret() || dto.erIkkeSignert()) {
                 historiebygger
                     .medEndretFelt(HistorikkEndretFeltType.ER_ANKER_IKKE_PART, null, dto.erAnkerIkkePart())
