@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -79,9 +81,10 @@ public class TilkjentYtelseTjeneste {
     }
 
     private boolean gjelderAdopsjon(Long behandlingId) {
-        return familieHendelseRepository.hentAggregat(behandlingId)
-            .getGjeldendeVersjon()
-            .getGjelderAdopsjon();
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .filter(FamilieHendelseEntitet::getGjelderAdopsjon)
+            .isPresent();
     }
 
 }
