@@ -14,7 +14,11 @@ public class VergeBuilder {
     }
 
     public VergeBuilder gyldigPeriode(LocalDate gyldigFom, LocalDate gyldigTom) {
-        kladd.gyldigPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(gyldigFom, gyldigTom);
+        if (gyldigTom != null) {
+            kladd.gyldigPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(gyldigFom, gyldigTom);
+        } else {
+            kladd.gyldigPeriode = DatoIntervallEntitet.fraOgMed(gyldigFom);
+        }
         return this;
     }
 

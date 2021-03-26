@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -53,7 +52,6 @@ public class VergeOppdatererTest {
 
     @BeforeEach
     public void oppsett() {
-
         ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
         @SuppressWarnings("unused")
@@ -63,14 +61,6 @@ public class VergeOppdatererTest {
 
         lenient().when(personinfoAdapter.hentAktørForFnr(Mockito.any())).thenReturn(Optional.of(AktørId.dummy()));
         lenient().when(brukerTjeneste.hentEllerOpprettFraAktørId(Mockito.any())).thenReturn(vergeBruker);
-    }
-
-    @Test
-    public void lagre_verge() {
-        new VergeBuilder()
-            .medVergeType(VergeType.BARN)
-            .medBruker(vergeBruker)
-            .build();
     }
 
     @Test
