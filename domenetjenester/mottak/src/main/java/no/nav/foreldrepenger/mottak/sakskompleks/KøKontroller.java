@@ -93,7 +93,10 @@ public class KøKontroller {
         Optional<Behandling> køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
         var nesteBehandling = finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> true));
-        nesteBehandling.ifPresent(this::oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling);
+        nesteBehandling.ifPresent(b -> {
+            behandlingskontrollTjeneste.initBehandlingskontroll(b.getId());
+            oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(b);
+        });
     }
 
     private Optional<Behandling> finnTidligstOpprettet(Optional<Behandling> behandling1, Optional<Behandling> behandling2, Predicate<Behandling> filtrert) {
@@ -114,11 +117,9 @@ public class KøKontroller {
 
     void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
         var originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).orElse(null);
+        behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         if (behandling.erRevurdering() && originalBehandling != null && behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandling.getId())).isPresent()) {
-            // Ensure strict locking
-            var lås = behandlingRepository.taSkriveLås(behandling);
-            behandlingRepository.verifiserBehandlingLås(lås);
             Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
