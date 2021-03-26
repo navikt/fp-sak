@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -242,9 +244,7 @@ public class OppdragPostConditionTjeneste {
     private FamilieYtelseType finnFamilieYtelseType(Behandling behandling) {
         FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            return gjelderFødsel(behandling.getId())
-                ? FamilieYtelseType.FØDSEL
-                : FamilieYtelseType.ADOPSJON;
+            return gjelderFødsel(behandling.getId());
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return FamilieYtelseType.SVANGERSKAPSPENGER;
         } else {
@@ -252,8 +252,10 @@ public class OppdragPostConditionTjeneste {
         }
     }
 
-    private boolean gjelderFødsel(Long behandlingId) {
-        return familieHendelseRepository.hentAggregat(behandlingId)
-            .getGjeldendeVersjon().getGjelderFødsel();
+    private FamilieYtelseType gjelderFødsel(Long behandlingId) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            .filter(FamilieHendelseEntitet::getGjelderAdopsjon)
+            .map(fh -> FamilieYtelseType.ADOPSJON).orElse(FamilieYtelseType.FØDSEL);
     }
 }
