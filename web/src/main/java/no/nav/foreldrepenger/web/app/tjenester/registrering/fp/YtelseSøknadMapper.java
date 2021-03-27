@@ -51,7 +51,6 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
-import no.nav.vedtak.util.StringUtils;
 
 @FagsakYtelseTypeRef("FP")
 @BehandlingTypeRef
@@ -195,7 +194,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         uttaksperiodetyper.setKode(dto.getPeriodeType().getKode());
         uttaksperiode.setType(uttaksperiodetyper);
 
-        if ((!isNull(morsAktivitet)) && (!StringUtils.nullOrEmpty(morsAktivitet.getKode()))) {
+        if ((!isNull(morsAktivitet)) && (morsAktivitet.getKode() != null && !morsAktivitet.getKode().isEmpty())) {
             MorsAktivitetsTyper morsAktivitetsTyper = new MorsAktivitetsTyper();
             morsAktivitetsTyper.setKode(morsAktivitet.getKode());
             uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);

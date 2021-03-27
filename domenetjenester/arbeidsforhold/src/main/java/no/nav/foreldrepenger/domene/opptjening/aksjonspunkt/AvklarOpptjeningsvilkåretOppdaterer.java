@@ -7,17 +7,13 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarOpptjeningsvilkåretDto;
@@ -29,9 +25,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdaterer<AvklarOpptjeningsvilkåretDto> {
 
     private OpptjeningRepository opptjeningRepository;
-    private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-    private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private HistorikkTjenesteAdapter historikkAdapter;
 
     AvklarOpptjeningsvilkåretOppdaterer() {
@@ -40,48 +33,30 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
 
     @Inject
     public AvklarOpptjeningsvilkåretOppdaterer(OpptjeningRepository opptjeningRepository,
-            BehandlingRepository behandlingRepository,
-            BehandlingsresultatRepository behandlingsresultatRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             HistorikkTjenesteAdapter historikkAdapter) {
 
         this.opptjeningRepository = opptjeningRepository;
-        this.behandlingRepository = behandlingRepository;
-        this.behandlingsresultatRepository = behandlingsresultatRepository;
-        this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.historikkAdapter = historikkAdapter;
     }
 
     @Override
     public OppdateringResultat oppdater(AvklarOpptjeningsvilkåretDto dto, AksjonspunktOppdaterParameter param) {
         var nyttUtfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        var vilkårResultat = behandlingsresultatRepository.hent(param.getBehandlingId()).getVilkårResultat();
-
-        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         lagHistorikkInnslag(param, nyttUtfall, dto.getBegrunnelse());
 
-        if (nyttUtfall.equals(VilkårUtfallType.OPPFYLT)) {
+        if (VilkårUtfallType.OPPFYLT.equals(nyttUtfall)) {
             sjekkOmVilkåretKanSettesTilOppfylt(param.getBehandlingId());
-            oppdaterUtfallOgLagre(behandling, vilkårResultat, nyttUtfall);
-            return OppdateringResultat.utenOveropp();
-        }
-
-        oppdaterUtfallOgLagre(behandling, vilkårResultat, nyttUtfall);
-
-        return OppdateringResultat.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR);
-    }
-
-    private void oppdaterUtfallOgLagre(Behandling behandling, VilkårResultat vilkårResultat, VilkårUtfallType utfallType) {
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
-        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-        if (utfallType.equals(VilkårUtfallType.OPPFYLT)) {
-            builder.leggTilVilkårResultatManueltOppfylt(VilkårType.OPPTJENINGSVILKÅRET);
+            return new OppdateringResultat.Builder()
+                .leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .build();
         } else {
-            builder.leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
+            return OppdateringResultat.utenTransisjon()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+                .leggTilAvslåttVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
-        var resultat = builder.buildFor(behandling);
-        behandlingRepository.lagre(resultat, kontekst.getSkriveLås());
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+
     }
 
     private void sjekkOmVilkåretKanSettesTilOppfylt(Long behandlingId) {

@@ -64,7 +64,6 @@ import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Spraakkode;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Virksomhetstyper;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.StringUtils;
 
 public class SøknadMapperFelles {
 
@@ -89,10 +88,10 @@ public class SøknadMapperFelles {
         if (TRUE.equals(annenForelderDto.getKanIkkeOppgiAnnenForelder())) {
             AnnenForelderDto.KanIkkeOppgiBegrunnelse oppgittBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
             String utenlandskFoedselsnummer = oppgittBegrunnelse.getUtenlandskFoedselsnummer();
-            if (!StringUtils.isBlank(utenlandskFoedselsnummer)) {
+            if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank()) {
                 AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = new AnnenForelderUtenNorskIdent();
                 annenForelderUtenNorskIdent.setUtenlandskPersonidentifikator(utenlandskFoedselsnummer);
-                if (!StringUtils.isBlank(oppgittBegrunnelse.getLand())) {
+                if (oppgittBegrunnelse.getLand() != null && !oppgittBegrunnelse.getLand().isBlank()) {
                     annenForelderUtenNorskIdent.setLand(getLandkode(oppgittBegrunnelse.getLand()));
                 }
                 return annenForelderUtenNorskIdent;

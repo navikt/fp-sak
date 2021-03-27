@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.impl;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.vedtak.util.StringUtils;
 
 public class FinnAnsvarligSaksbehandler {
 
@@ -12,9 +11,9 @@ public class FinnAnsvarligSaksbehandler {
     }
 
     public static String finn(Behandling behandling) {
-        if (!StringUtils.isBlank(behandling.getAnsvarligBeslutter())) {
+        if (behandling.getAnsvarligBeslutter() != null && !behandling.getAnsvarligBeslutter().isBlank()) {
             return behandling.getAnsvarligBeslutter();
-        } else if (!StringUtils.isBlank(behandling.getAnsvarligSaksbehandler())) {
+        } else if (behandling.getAnsvarligSaksbehandler() != null && !behandling.getAnsvarligSaksbehandler().isBlank()) {
             return behandling.getAnsvarligSaksbehandler();
         }
         return DEFAULT_ANSVARLIG_SAKSBEHANDLER;

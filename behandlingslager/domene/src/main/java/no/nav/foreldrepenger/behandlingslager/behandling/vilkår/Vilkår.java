@@ -231,13 +231,11 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     }
 
     void setMerknadParametere(Properties merknadParametere) {
-        if (merknadParametere != null) {
+        if (merknadParametere != null && !merknadParametere.isEmpty()) {
             this.merknadParametere.clear();
-            final Properties mineParametere = this.merknadParametere;
-            // FIXME (FC): quick-fix, støtter ikke merkand parmetere som ikke er string p.t. da det skrives i property file format
             merknadParametere.entrySet().stream()
-                .filter(e -> e.getValue() instanceof String) // ikke annet enn string
-                .forEach(e -> mineParametere.setProperty((String) e.getKey(), (String) e.getValue()));
+                .filter(e -> e.getValue() instanceof String) // Tillat andre typer dersom de skal lagres
+                .forEach(e -> this.merknadParametere.setProperty((String) e.getKey(), (String) e.getValue()));
         }
     }
 
