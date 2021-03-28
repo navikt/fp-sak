@@ -20,6 +20,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 /*
  *
@@ -41,6 +43,7 @@ public class KøKontroller {
     private Behandlingsoppretter behandlingsoppretter;
     private SøknadRepository søknadRepository;
     private BehandlingFlytkontroll flytkontroll;
+    private ProsessTaskRepository prosessTaskRepository;
 
     public KøKontroller() {
         // For CDI proxy
@@ -50,6 +53,7 @@ public class KøKontroller {
     public KøKontroller(BehandlingProsesseringTjeneste prosesseringTjeneste,
                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
+                        ProsessTaskRepository prosessTaskRepository,
                         Behandlingsoppretter behandlingsoppretter,
                         BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
@@ -57,6 +61,7 @@ public class KøKontroller {
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+        this.prosessTaskRepository = prosessTaskRepository;
         this.behandlingsoppretter = behandlingsoppretter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.flytkontroll = flytkontroll;
@@ -94,8 +99,11 @@ public class KøKontroller {
         var nesteBehandling = finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> true));
         nesteBehandling.ifPresent(b -> {
-            behandlingskontrollTjeneste.initBehandlingskontroll(b.getId());
-            oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(b);
+            if (skalOppdatereKøetBehandling(b)) {
+                lagreOppdaterKøetProsesstask(b);
+            } else {
+                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            }
         });
     }
 
@@ -115,11 +123,15 @@ public class KøKontroller {
         }
     }
 
-    void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
-        var originalBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId()).orElse(null);
-        behandling = behandlingRepository.hentBehandling(behandling.getId());
+    public void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Long behandlingId) {
+        behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(behandling);
+    }
 
-        if (behandling.erRevurdering() && originalBehandling != null && behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandling.getId())).isPresent()) {
+    void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
+
+        if (skalOppdatereKøetBehandling(behandling)) {
             Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
@@ -131,6 +143,20 @@ public class KøKontroller {
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         }
+    }
+
+    private boolean skalOppdatereKøetBehandling(Behandling behandling) {
+        var originalBehandlingId = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId())
+            .map(Behandling::getId).orElse(null);
+        return behandling.erRevurdering() && originalBehandlingId != null &&
+            behandling.getOriginalBehandlingId().filter(ob -> !ob.equals(originalBehandlingId)).isPresent();
+    }
+
+    void lagreOppdaterKøetProsesstask(Behandling behandling) {
+        ProsessTaskData data = new ProsessTaskData(GjenopptaKøetBehandlingTask.TASKTYPE);
+        data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        data.setCallIdFraEksisterende();
+        prosessTaskRepository.lagre(data);
     }
 
     public boolean skalEvtNyBehandlingKøes(Fagsak fagsak) {

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class KøKontrollerTest {
@@ -50,6 +53,8 @@ public class KøKontrollerTest {
     private Behandlingsoppretter behandlingsoppretter;
     @Mock
     private BehandlingFlytkontroll flytkontroll;
+    @Mock
+    private ProsessTaskRepository prosessTaskRepository;
 
     private KøKontroller køKontroller;
 
@@ -61,7 +66,7 @@ public class KøKontrollerTest {
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);
         when(behandlingRepositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         køKontroller = new KøKontroller(behandlingProsesseringTjeneste, behandlingskontrollTjeneste,
-                behandlingRepositoryProvider, behandlingsoppretter, flytkontroll);
+                behandlingRepositoryProvider, prosessTaskRepository, behandlingsoppretter, flytkontroll);
     }
 
     @Test
@@ -73,7 +78,6 @@ public class KøKontrollerTest {
         Behandling farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId())).thenReturn(Optional.of(morFgBehandling));
-        when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
 
         // Act
         køKontroller.dekøFørsteBehandlingISakskompleks(farFgBehandling);
@@ -98,7 +102,6 @@ public class KøKontrollerTest {
         when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
                 .thenReturn(Optional.of(morBerørtBehandling));
-        when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
                 .thenReturn(morOppdatertBehandling);
 
@@ -150,6 +153,52 @@ public class KøKontrollerTest {
 
         // Assert
         assertThat(skalKøes).isTrue();
+    }
+
+    @Test
+    public void sakskompleks_lagre_oppdater_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
+        // Arrange
+        Behandling morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        Behandling morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        morKøetBehandling.setOpprettetTidspunkt(LocalDateTime.now().minusHours(1));
+        Behandling morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
+        Behandling farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
+        when(behandlingRevurderingRepository.finnKøetBehandlingMedforelder(farFgBehandling.getFagsak())).thenReturn(Optional.of(morKøetBehandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
+            .thenReturn(Optional.of(morBerørtBehandling));
+
+        // Act
+        køKontroller.håndterSakskompleks(farFgBehandling.getFagsak());
+
+        // Assert
+        Mockito.verify(prosessTaskRepository).lagre(any(ProsessTaskData.class));
+    }
+
+    @Test
+    public void sakskompleks_skal_oppdatere_når_original_behandling_ikke_er_siste_vedtak_og_kopiere_ytelsesfordeling() {
+        // Arrange
+        Behandling morFgBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        Behandling morKøetBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        Behandling morBerørtBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
+        Behandling morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
+            .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
+        Behandling farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
+            .thenReturn(Optional.of(morBerørtBehandling));
+        when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);
+        when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(morKøetBehandling))
+            .thenReturn(morOppdatertBehandling);
+
+        // Act
+        køKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(morKøetBehandling.getId());
+
+        // Assert
+        Mockito.verify(behandlingsoppretter).oppdaterBehandlingViaHenleggelse(morKøetBehandling);
+        Mockito.verify(ytelsesFordelingRepository).kopierGrunnlagFraEksisterendeBehandling(morKøetBehandling.getId(), morOppdatertBehandling.getId());
     }
 
 }
