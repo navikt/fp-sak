@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.StringUtils;
 
 @ApplicationScoped
 public class DokumentKafkaBestiller {
@@ -41,7 +40,7 @@ public class DokumentKafkaBestiller {
 
     public void bestillBrevFraKafka(BestillBrevDto bestillBrevDto, HistorikkAktør aktør) {
         RevurderingVarslingÅrsak årsak = null;
-        if (!StringUtils.nullOrEmpty(bestillBrevDto.getÅrsakskode())) {
+        if (bestillBrevDto.getÅrsakskode() != null && !bestillBrevDto.getÅrsakskode().isEmpty()) {
             årsak = RevurderingVarslingÅrsak.fraKode(bestillBrevDto.getÅrsakskode());
         }
         Behandling behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());

@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.StringUtils;
 
 @ApplicationScoped
 public class TilkjentYtelseMeldingProducer {
@@ -74,7 +73,7 @@ public class TilkjentYtelseMeldingProducer {
     }
 
     void setUsernameAndPassword(String username, String password, Properties properties) {
-        if (!StringUtils.nullOrEmpty(username) && !StringUtils.nullOrEmpty(password)) {
+        if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
             String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             String jaasCfg = String.format(jaasTemplate, username, password);
             properties.setProperty("sasl.jaas.config", jaasCfg);
@@ -88,7 +87,7 @@ public class TilkjentYtelseMeldingProducer {
     }
 
     void setSecurity(String username, Properties properties) {
-        if (!StringUtils.nullOrEmpty(username)) {
+        if (username != null && !username.isEmpty()) {
             properties.setProperty("security.protocol", "SASL_SSL");
             properties.setProperty("sasl.mechanism", "PLAIN");
         }

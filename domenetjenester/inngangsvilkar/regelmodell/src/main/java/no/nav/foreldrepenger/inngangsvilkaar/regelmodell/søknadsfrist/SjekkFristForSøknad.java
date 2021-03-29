@@ -72,7 +72,7 @@ public class SjekkFristForSøknad extends LeafSpecification<SoeknadsfristvilkarG
         } else {
             SingleEvaluation kanIkkeVurdere = kanIkkeVurdere(IKKE_OPPFYLT_ETTER_FRIST, søknadsDato, diffFrist, fristFørSøknad,
                     skjæringstidspunktDato);
-            kanIkkeVurdere.setEvaluationProperty(DAGER_FOR_SENT_PROPERTY, Math.toIntExact(diffFrist));
+            kanIkkeVurdere.setEvaluationProperty(DAGER_FOR_SENT_PROPERTY, String.valueOf(diffFrist));
             return kanIkkeVurdere;
         }
 

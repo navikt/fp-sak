@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil.Periode;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
-import no.nav.vedtak.util.StringUtils;
 
 public class ManuellRegistreringFellesValidator {
 
@@ -243,7 +242,7 @@ public class ManuellRegistreringFellesValidator {
 
         if (!isNull(annenForelder) && (TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder()))) {
             AnnenForelderDto.KanIkkeOppgiBegrunnelse kanIkkeOppgiBegrunnelse = annenForelder.getKanIkkeOppgiBegrunnelse();
-            if (isNull(kanIkkeOppgiBegrunnelse) || StringUtils.isBlank(kanIkkeOppgiBegrunnelse.getArsak())) {
+            if (isNull(kanIkkeOppgiBegrunnelse) || kanIkkeOppgiBegrunnelse.getArsak().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
         }
@@ -261,7 +260,7 @@ public class ManuellRegistreringFellesValidator {
                 return Optional.empty();
             }
             String utenlandskFoedselsnummer = kanIkkeOppgiBegrunnelse.getUtenlandskFoedselsnummer();
-            if (!StringUtils.isBlank(utenlandskFoedselsnummer) && erStoerreEnnTillatt(tillattLengde, utenlandskFoedselsnummer)) {
+            if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank() && erStoerreEnnTillatt(tillattLengde, utenlandskFoedselsnummer)) {
                 return Optional.of(new FeltFeilDto(feltnavn, MINDRE_ELLER_LIK_LENGDE + tillattLengde));
             }
         }
@@ -272,7 +271,7 @@ public class ManuellRegistreringFellesValidator {
         String feltnavn = "foedselsnummer";
         AnnenForelderDto annenForelder = registreringDto.getAnnenForelder();
         if (!isNull(annenForelder) && (!TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder()))) {
-            if (StringUtils.isBlank(annenForelder.getFoedselsnummer())) {
+            if (annenForelder.getFoedselsnummer() == null || annenForelder.getFoedselsnummer().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
             if (!PersonIdent.erGyldigFnr(annenForelder.getFoedselsnummer())) {
