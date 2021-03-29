@@ -5,10 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -116,14 +117,14 @@ public class DokumentArkivSafTest {
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(
             createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
-            createJournalpost(Variantformat.ARKIV, YESTERDAY.minusDays(1), Journalposttype.I)));
+            createJournalpost(Variantformat.ARKIV, YESTERDAY.minusHours(1), Journalposttype.I)));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
         List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
         assertThat(arkivDokuments.get(0).getTidspunkt()).isEqualTo(NOW);
         assertThat(arkivDokuments.get(0).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.UT);
-        assertThat(arkivDokuments.get(1).getTidspunkt()).isEqualTo(YESTERDAY.minusDays(1));
+        assertThat(arkivDokuments.get(1).getTidspunkt()).isEqualTo(YESTERDAY.minusHours(1));
         assertThat(arkivDokuments.get(1).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.INN);
     }
 
@@ -194,14 +195,14 @@ public class DokumentArkivSafTest {
 
     private Journalpost createJournalpost(Variantformat variantFormatKonst, LocalDateTime sendt,
                                           Journalposttype kommunikasjonsretning) {
-
+        ZoneId zone = ZoneId.systemDefault();
         Journalpost journalpost = new Journalpost();
         journalpost.setJournalpostId(JOURNAL_ID.getVerdi());
         journalpost.setTema(Tema.FOR);
         journalpost.setJournalstatus(Journalstatus.JOURNALFOERT);
         journalpost.setJournalposttype(kommunikasjonsretning);
         journalpost.setTittel(SØK_ENG_FØDSEL.getNavn());
-        journalpost.setDatoOpprettet(Date.from(sendt.toInstant(ZoneOffset.ofHours(1))));
+        journalpost.setDatoOpprettet(Date.from(Instant.from(sendt.toInstant(zone.getRules().getOffset(sendt)))));
         journalpost.setDokumenter(new ArrayList<>());
         journalpost.getDokumenter().add(createDokumentinfo(variantFormatKonst,
             NAVSkjema.SKJEMA_ENGANGSSTØNAD_FØDSEL.getOffisiellKode(), SØK_ENG_FØDSEL.getNavn()));

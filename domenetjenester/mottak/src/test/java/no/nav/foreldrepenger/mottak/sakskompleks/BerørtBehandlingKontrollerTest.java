@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -146,7 +145,7 @@ public class BerørtBehandlingKontrollerTest {
 
 
         var køkontroller = new KøKontroller(behandlingProsesseringTjeneste,
-            behandlingskontrollTjeneste, repositoryProvider, behandlingsoppretter, null);
+            behandlingskontrollTjeneste, repositoryProvider, null, behandlingsoppretter, null);
         berørtBehandlingKontroller = new BerørtBehandlingKontroller(repositoryProvider, berørtBehandlingTjeneste, behandlingsoppretter, beregnFeriepenger, køkontroller);
     }
 
