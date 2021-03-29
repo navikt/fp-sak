@@ -98,8 +98,10 @@ public class OpprettProsessTaskIverksett {
     }
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
-        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+        if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             taskGruppe.addNesteSekvensiell(getProsesstaskFor(VurderOppgaveArenaTask.TASKTYPE));
+        }
+        if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE));
             taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE));
         }
