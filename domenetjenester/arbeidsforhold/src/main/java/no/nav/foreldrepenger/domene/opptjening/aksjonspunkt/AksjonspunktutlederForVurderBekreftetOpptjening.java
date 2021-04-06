@@ -30,8 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -72,11 +70,6 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
         if (finnesDetArbeidsforholdMedStillingsprosentLik0(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode,
                 skjæringstidspunkt) == JA) {
             LOG.info("Utleder AP 5051 fra stillingsprosent 0: behandlingId={}", behandlingId);
-            return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
-        }
-
-        if (finnesDetBekreftetFrilans(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode, skjæringstidspunkt) == JA) {
-            LOG.info("Utleder AP 5051 fra bekreftet frilans: behandlingId={}", behandlingId);
             return opprettListeForAksjonspunkt(VURDER_PERIODER_MED_OPPTJENING);
         }
 
@@ -138,40 +131,6 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
             }
         }
         return yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(yrkesaktivitet.getArbeidsgiver().getOrgnr());
-    }
-
-    private Utfall finnesDetBekreftetFrilans(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, DatoIntervallEntitet opptjeningPeriode,
-            LocalDate skjæringstidspunkt) {
-
-        var filterInntekt = grunnlag.getAktørInntektFraRegister(aktørId)
-                .map(ai -> new InntektFilter(ai).før(skjæringstidspunkt).filterPensjonsgivende()).orElse(InntektFilter.EMPTY);
-
-        var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
-                .før(skjæringstidspunkt);
-        for (Yrkesaktivitet yrkesaktivitet : filter.getFrilansOppdrag()) {
-            if (harFrilansavtaleForPeriode(yrkesaktivitet, opptjeningPeriode)
-                    && harInntektFraVirksomhetForPeriode(filterInntekt, yrkesaktivitet, opptjeningPeriode)) {
-                return JA;
-            }
-        }
-        return NEI;
-    }
-
-    private boolean harFrilansavtaleForPeriode(Yrkesaktivitet frilans, DatoIntervallEntitet opptjeningsPeriode) {
-        return new YrkesaktivitetFilter(null, List.of(frilans)).getAktivitetsAvtalerForArbeid().stream()
-                .anyMatch(aa -> opptjeningsPeriode.overlapper(aa.getPeriode()));
-    }
-
-    private boolean harInntektFraVirksomhetForPeriode(InntektFilter filterInntekt, Yrkesaktivitet yrkesaktivitet,
-            DatoIntervallEntitet opptjeningsPeriode) {
-        return filterInntekt.filterPensjonsgivende()
-                .filter(yrkesaktivitet.getArbeidsgiver())
-                .getFiltrertInntektsposter().stream()
-                .anyMatch(i -> harInntektpostForPeriode(i, opptjeningsPeriode));
-    }
-
-    private boolean harInntektpostForPeriode(Inntektspost ip, DatoIntervallEntitet opptjeningsPeriode) {
-        return opptjeningsPeriode.overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(ip.getPeriode().getFomDato(), ip.getPeriode().getTomDato()));
     }
 
     boolean girAksjonspunktForArbeidsforhold(YrkesaktivitetFilter filter, Long behandlingId, Yrkesaktivitet registerAktivitet,

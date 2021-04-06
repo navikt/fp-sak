@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import java.util.Optional;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -47,13 +47,11 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
     @Override
     protected void precondition(Behandling behandling, OverstyringOpptjeningsvilkåretDto dto) {
         if (dto.getErVilkarOk()) {
-            final Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
-            if (opptjening.isPresent()) {
-                final long antall = opptjening.get().getOpptjeningAktivitet().stream()
-                    .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)).count();
-                if (antall > 0) {
-                    return;
-                }
+            var ant = opptjeningRepository.finnOpptjening(behandling.getId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+                .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
+                .count();
+            if (ant > 0) {
+                return;
             }
             throw new FunksjonellException( "FP-093923",
                 "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.",

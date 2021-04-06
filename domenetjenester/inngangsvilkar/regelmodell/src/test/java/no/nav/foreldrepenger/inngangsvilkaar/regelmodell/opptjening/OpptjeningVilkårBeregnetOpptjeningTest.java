@@ -44,7 +44,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
 
         // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -100,7 +100,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
 
         // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -152,7 +152,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
 
         // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();

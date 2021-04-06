@@ -10,7 +10,7 @@
   }, {
     "datoIntervall" : [ "2018-05-13", "2019-03-12" ],
     "aktivitet" : {
-      "aktivitetType" : "FRILANS",
+      "aktivitetType" : "FRILOPP",
       "aktivitetReferanse" : null,
       "referanseType" : null
     },
@@ -22,7 +22,7 @@
   "inntektPerioder" : [ {
     "datoIntervall" : [ "2018-11-01", "2018-11-30" ],
     "aktivitet" : {
-      "aktivitetType" : "ARBEID",
+      "aktivitetType" : "LØNN",
       "aktivitetReferanse" : "342352362",
       "referanseType" : "ORGNR"
     },

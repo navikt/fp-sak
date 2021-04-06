@@ -306,6 +306,24 @@ public class YrkesaktivitetFilter {
     }
 
     /**
+     * Gir alle ansettelsesperioden for et arbeidsforhold.
+     * <p>
+     * NB! Gjelder kun arbeidsforhold.
+     *
+     * @return perioden
+     */
+    public List<AktivitetsAvtale> getAnsettelsesPerioderFrilans(Yrkesaktivitet ya) {
+        if (ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(ya.getArbeidType())) {
+            List<AktivitetsAvtale> ansettelsesAvtaler = ya.getAlleAktivitetsAvtaler().stream()
+                .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+                .collect(Collectors.toList());
+            List<AktivitetsAvtale> filtrert = List.copyOf(filterAktivitetsAvtaleOverstyring(ya, ansettelsesAvtaler));
+            return filtrert;
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * @see #getAktivitetsAvtalerForArbeid(Yrkesaktivitet)
      */
     public Collection<AktivitetsAvtale> getAktivitetsAvtalerForArbeid(Collection<Yrkesaktivitet> yrkesaktiviteter) {

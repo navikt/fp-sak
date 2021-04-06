@@ -40,8 +40,8 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         grunnlag.leggTil(new LocalDateInterval(dt2, dt4), noCorp);
 
         // inntekt
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt3, dt4), bigCorp, 1L);
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(o1, o2), bigCorp, 0L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
@@ -74,7 +74,7 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         LocalDate sisteArbeidsdagSmallCorp = dt4;
         grunnlag.leggTil(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp);
 
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt3), bigCorp, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);

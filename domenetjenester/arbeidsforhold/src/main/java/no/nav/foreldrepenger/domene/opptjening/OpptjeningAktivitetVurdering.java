@@ -19,4 +19,12 @@ public interface OpptjeningAktivitetVurdering {
             Yrkesaktivitet overstyrtAktivitet,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             boolean harVærtSaksbehandlet);
+
+    default boolean skalInkludereAkkumulertFrilans() {
+        return false;
+    }
+
+    default boolean skalInkludereDetaljertFrilansOppdrag() {
+        return false;
+    }
 }

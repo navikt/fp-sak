@@ -102,11 +102,10 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
 
     private static Stillingsprosent finnStillingsprosent(Yrkesaktivitet registerAktivitet) {
         final Stillingsprosent defaultStillingsprosent = new Stillingsprosent(0);
-        if (registerAktivitet.erArbeidsforhold()) {
+        if (registerAktivitet.erArbeidsforhold() || ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(registerAktivitet.getArbeidType())) {
             var filter = new YrkesaktivitetFilter(null, List.of(registerAktivitet));
             return filter.getAktivitetsAvtalerForArbeid()
                     .stream()
-                    .filter(aa -> aa.getProsentsats() != null)
                     .map(AktivitetsAvtale::getProsentsats)
                     .filter(Objects::nonNull)
                     .max(Comparator.comparing(Stillingsprosent::getVerdi))
@@ -122,6 +121,11 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
         Yrkesaktivitet gjeldendeAktivitet = gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet);
         if (registerAktivitet.erArbeidsforhold()) {
             return MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, gjeldendeAktivitet);
+        }
+        if (ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(registerAktivitet.getArbeidType())) {
+            // Inntil videre antar vi at man ikke velger bruk permisjon på frilans-permisjoner. Stortinget har en spesiell praksis
+            return new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon().orElse(null), gjeldendeAktivitet).før(skjæringstidspunktForOpptjening)
+                .getAnsettelsesPerioderFrilans(gjeldendeAktivitet);
         }
         return new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon().orElse(null), gjeldendeAktivitet).før(skjæringstidspunktForOpptjening)
                 .getAktivitetsAvtalerForArbeid();

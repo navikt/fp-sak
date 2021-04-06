@@ -14,9 +14,11 @@ public class OpptjeningsaktiviteterPerYtelse {
 
     private static final Map<FagsakYtelseType, Set<OpptjeningAktivitetType>> EKSKLUDERTE_AKTIVITETER_PER_YTELSE = Map.of(
         FagsakYtelseType.FORELDREPENGER, Set.of(
+            OpptjeningAktivitetType.FRILOPP,
             OpptjeningAktivitetType.VIDERE_ETTERUTDANNING,
             OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD),
         FagsakYtelseType.SVANGERSKAPSPENGER, Set.of(
+            OpptjeningAktivitetType.FRILOPP,
             OpptjeningAktivitetType.VIDERE_ETTERUTDANNING,
             OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD,
             OpptjeningAktivitetType.DAGPENGER,

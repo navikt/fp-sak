@@ -62,10 +62,10 @@ public class OpptjeningsgrunnlagAdapter {
 
             if (refType != null) {
                 if (opptjeningsnøkkel.harType(Opptjeningsnøkkel.Type.ARBEIDSFORHOLD_ID)) {
-                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, getAktivitetReferanseFraNøkkel(opptjeningsnøkkel), refType);
+                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.LØNN, getAktivitetReferanseFraNøkkel(opptjeningsnøkkel), refType);
                     opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
                 } else {
-                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.ARBEID, opptjeningsnøkkel.getVerdi(), refType);
+                    Aktivitet aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.LØNN, opptjeningsnøkkel.getVerdi(), refType);
                     opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
                 }
             }

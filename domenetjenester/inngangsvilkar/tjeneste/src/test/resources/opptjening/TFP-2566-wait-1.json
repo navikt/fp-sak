@@ -14,7 +14,7 @@
   "inntektPerioder" : [ {
     "datoIntervall" : [ "2019-12-01", "2019-12-31" ],
     "aktivitet" : {
-      "aktivitetType" : "ARBEID",
+      "aktivitetType" : "LØNN",
       "aktivitetReferanse" : "342352362",
       "referanseType" : "ORGNR"
     },

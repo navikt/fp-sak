@@ -22,6 +22,11 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
     }
 
     @Override
+    public boolean skalInkludereDetaljertFrilansOppdrag() {
+        return true;
+    }
+
+    @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
             BehandlingReferanse behandlingReferanse,
             Yrkesaktivitet overstyrtAktivitet,
