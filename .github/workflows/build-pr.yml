@@ -1,9 +1,11 @@
 name: Bygg pull request
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - master    # Push events on master branch
 
 env:
-  GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
   TZ: "Europe/Oslo"
 
 jobs:
@@ -17,26 +19,30 @@ jobs:
         run: |
           echo "CACHE_KEY=$(expr $(date +%V) - 1 + 1)" >> $GITHUB_ENV
           echo "PREVIOUS_CACHE_KEY=$(expr $(date +%V) - 1)" >> $GITHUB_ENV
+
       - name: Henter maven avhengigheter som er cachet
         uses: actions/cache@v2.1.4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
-          restore-keys: |
-            ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
+          restore-keys: ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
 
       - uses: actions/setup-java@v1
         with:
           java-version: 1.15
 
+      - name: Log into ghcr registry
+        # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752
+        run: echo "${{ secrets.GH_ACCESS_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+
       - name: Hent og start Oracle image
         id: oracle
         shell: bash
         run: |
-          echo  $GH_ACCESS_TOKEN | docker login --username "x-access-token" --password-stdin https://docker.pkg.github.com
           echo "Henter og starter Oracle image"
-          cd oracle
-          docker-compose up --quiet-pull > nohup.out 2>&1 &
+          cd .oracle
+          docker-compose pull
+          docker-compose up > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
       - name: Set build version
@@ -46,7 +52,7 @@ jobs:
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           echo "Building $BUILD_VERSION"

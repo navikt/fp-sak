@@ -5,8 +5,7 @@ on:
     branches:
       - master    # Push events on master branch
 env:
-  GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-  IMAGE_BASE: docker.pkg.github.com/${{ github.repository }}/fpsak
+  IMAGE_BASE_CR: ghcr.io/${{ github.repository }}
   TZ: "Europe/Oslo"
 
 jobs:
@@ -14,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # Brukes ukenummer i cache_key da pomene endrer seg alt for ofte.
-      # Alternative key med cache fra forrige uke som blir lagret etterpå under CACHE_KEY.
+
       - name: Set cache key
         run: |
           echo "CACHE_KEY=$(expr $(date +%V) - 1 + 1)" >> $GITHUB_ENV
           echo "PREVIOUS_CACHE_KEY=$(expr $(date +%V) - 1)" >> $GITHUB_ENV
+
       - name: Henter maven avhengigheter som er cachet
         uses: actions/cache@v2.1.4
         with:
@@ -32,13 +31,15 @@ jobs:
         with:
           java-version: 1.15
 
+      - name: Log into ghcr registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Hent og start Oracle image
         id: oracle
         shell: bash
         run: |
-          echo  $GH_ACCESS_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
           echo "Henter og starter Oracle image"
-          cd oracle
+          cd .oracle
           docker-compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
@@ -49,7 +50,6 @@ jobs:
       - name: Build artifacts & deploy
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
@@ -67,14 +67,12 @@ jobs:
       - name: Bygg, tag og push Docker image
         run: |
           docker build --pull --tag ${IMAGE_BASE}:${TAG} --tag ${IMAGE_BASE}:latest .
-          echo  $GH_ACCESS_TOKEN | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE_BASE}:${TAG}
-          docker push ${IMAGE_BASE}:latest
+          docker push ${IMAGE_BASE_CR} --all-tags
 
       - name: Lukk gamle deployment-issues
         uses: actions/github-script@v3
         with:
-          github-token: ${{ secrets.GH_ACCESS_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.issues.listForRepo({
               owner: context.repo.owner,
@@ -97,7 +95,7 @@ jobs:
          if: success()
          uses: actions/github-script@v3
          with:
-           github-token: ${{secrets.GH_ACCESS_TOKEN}}
+           github-token: ${{secrets.GITHUB_TOKEN}}
            script: |
                github.issues.create( {
                  owner: context.issue.owner,
@@ -108,11 +106,17 @@ jobs:
                        core.setOutput('number', response.data.number);
                 });
 
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.FP_PRIVATE_KEY }}
+          app-id: ${{ secrets.FP_APP_ID }}
+
       - name: Trigger autotest for fpsak
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          token: ${{ steps.get-token.outputs.token }}
           repository: navikt/fpsak-autotest
           event-type: fpsak-autotest
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
@@ -121,7 +125,7 @@ jobs:
         if: success()
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ secrets.GH_ACCESS_TOKEN }}
+          token: ${{ steps.get-token.outputs.token }}
           repository: navikt/fpsak-autotest
           event-type: fpsak-verdikjede
           client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
