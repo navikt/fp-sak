@@ -31,6 +31,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
     public static final String ID = SjekkInntektSamsvarerMedArbeidAktivitet.class.getSimpleName();
 
     private static final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
+    private static final String FRILANSREGISTER = OpptjeningsvilkårForeldrepenger.FRILANSREGISTER;
 
     public SjekkInntektSamsvarerMedArbeidAktivitet() {
         super(ID);
@@ -81,7 +82,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         UnderkjennPerioder underkjennPerioder = new UnderkjennPerioder(inntekter, grunnlag.getMinsteInntekt());
 
         aktiviteter.entrySet().stream()
-            .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
+            .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()) || FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
             .forEach(underkjennPerioder::underkjennPeriode);
 
         return underkjennPerioder.getUnderkjentePerioder();
@@ -105,7 +106,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         }
 
         void underkjennPeriode(Entry<Aktivitet, LocalDateTimeline<Boolean>> e) {
-            Aktivitet key = e.getKey();
+            Aktivitet key = e.getKey().forInntekt();
             LocalDateTimeline<Boolean> arbeid = e.getValue();
             LocalDateTimeline<AktivitetStatus> periode;
             if (!inntekter.containsKey(key)) {
@@ -126,7 +127,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
                 periode = underkjentArbeid.mapValue(a -> AktivitetStatus.IKKE_GODKJENT);
             }
 
-            underkjentePerioder.put(key, periode);
+            underkjentePerioder.put(e.getKey(), periode);
 
         }
 
@@ -138,7 +139,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
     }
 
     /**
-     * FYll antatt godkjente intervaller for arbeid som har blitt underkjent inngen angitt interval.
+     * FYll antatt godkjente intervaller for arbeid som har blitt underkjent innen angitt interval.
      */
     private static class AntaGodkjent {
         /**
@@ -158,6 +159,14 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
             aktiviteter.entrySet().stream()
                 .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
                 .forEach(this::fyllAntattGodkjent);
+
+            // Denne er for å få med underkjente (aktiviteter)
+            // Frilansperioder uten inntekt blir ikke antatt godkjent - inntil videre
+            // Obs på 1) ytelser som godkjenner antatt og 2) vent på inntektsreg (kon arbeid)
+            aktiviteter.entrySet().stream()
+                .filter(e -> FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
+                .filter(e -> !e.getValue().isEmpty())
+                .forEach(e -> medAntattGodkjentFramforIkkeGodkjent.put(e.getKey(), e.getValue()));
 
         }
 

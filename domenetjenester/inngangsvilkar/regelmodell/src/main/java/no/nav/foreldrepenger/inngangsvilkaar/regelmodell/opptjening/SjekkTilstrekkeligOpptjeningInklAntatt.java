@@ -37,6 +37,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
     public static final RuleReasonRefImpl IKKE_TILSTREKKELIG_OPPTJENING = new RuleReasonRefImpl(IKKE_TILSTREKKELIG_OPPTJENING_ID,
         "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
 
+    static final String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
     static final String LEGG_PÅ_VENT_ID = "7006";
     static final RuleReasonRefImpl LEGG_PÅ_VENT = new RuleReasonRefImpl(LEGG_PÅ_VENT_ID,
         "Ikke p.t. tilstrekkelig opptjening, men kan oppnå hvis det sjekkes senere. Har opptjening: {0}, frist for innsending: {1}");
@@ -117,6 +118,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         Map<Aktivitet, LocalDateTimeline<Boolean>> åpneArbeidsforhold;
         åpneArbeidsforhold = data.getAktivitetTidslinjer(true, true)
             .entrySet().stream()
+            .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
             .filter(e -> e.getValue().getMaxLocalDate().isAfter(sisteDatoIOpptjening))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -131,7 +133,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> mulighetForInntekt = new LinkedHashMap<>();
         data.getInntektTidslinjer().entrySet()
-            .stream().filter(e -> åpneArbeidsforhold.containsKey(e.getKey()))
+            .stream().filter(e -> åpneArbeidsforhold.containsKey(e.getKey().forArbeid()))
             .forEach(e -> {
                 LocalDateTimeline<Long> inntektSisteTid = e.getValue().intersection(sisteParMåneder);
                 LocalDateTimeline<Boolean> muligInntektRapportering = manglendeOpptjeningPerioder.disjoint(inntektSisteTid, StandardCombinators::leftOnly);

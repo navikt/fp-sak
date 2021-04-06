@@ -248,4 +248,71 @@ public class InngangsvilkårOpptjeningTest {
         assertThat(output.getBekreftetGodkjentePerioder()).isEmpty();
     }
 
+    @Test
+    public void oppfylt_med_nok_arbeid_frilans() {
+        VilkårJsonObjectMapper jsonMapper = new VilkårJsonObjectMapper();
+
+        URL resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-nok-frilans.json");
+        Opptjeningsgrunnlag grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+
+        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+
+        VilkårUtfallOversetter vilkårUtfallOversetter = new VilkårUtfallOversetter();
+        VilkårData vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+
+        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+
+        assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
+        assertThat(output.getUnderkjentePerioder()).hasSize(1);
+        assertThat(output.getBekreftetGodkjentePerioder()).hasSize(2);
+        assertThat(output.getResultatTidslinje().getMinLocalDate()).isEqualTo(LocalDate.parse("2020-07-01"));
+        assertThat(output.getResultatTidslinje().getMaxLocalDate()).isEqualTo(LocalDate.parse("2021-02-28"));
+    }
+
+
+    @Test
+    public void avslag_mangler_arbeid_frilans() {
+        VilkårJsonObjectMapper jsonMapper = new VilkårJsonObjectMapper();
+
+        URL resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-mangler-frilans.json");
+        Opptjeningsgrunnlag grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+
+        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+
+        VilkårUtfallOversetter vilkårUtfallOversetter = new VilkårUtfallOversetter();
+        VilkårData vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+
+        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+
+        assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
+        assertThat(output.getUnderkjentePerioder()).hasSize(1);
+        assertThat(output.getBekreftetGodkjentePerioder()).hasSize(2);
+        assertThat(output.getResultatTidslinje().getMinLocalDate()).isEqualTo(LocalDate.parse("2020-07-01"));
+        assertThat(output.getResultatTidslinje().getMaxLocalDate()).isEqualTo(LocalDate.parse("2021-02-28"));
+    }
+
+    @Test
+    public void aapen_frilans_mangler_maaned_deny() {
+        VilkårJsonObjectMapper jsonMapper = new VilkårJsonObjectMapper();
+
+        URL resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-aapen-frilans-deny.json");
+        Opptjeningsgrunnlag grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+
+        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+
+        VilkårUtfallOversetter vilkårUtfallOversetter = new VilkårUtfallOversetter();
+        VilkårData vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+
+        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+
+        assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
+        assertThat(output.getUnderkjentePerioder()).hasSize(1);
+        assertThat(output.getBekreftetGodkjentePerioder()).hasSize(1);
+        assertThat(output.getResultatTidslinje().getMinLocalDate()).isEqualTo(LocalDate.parse("2020-10-01"));
+        assertThat(output.getResultatTidslinje().getMaxLocalDate()).isEqualTo(LocalDate.parse("2021-02-28"));
+    }
+
 }

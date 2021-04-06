@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetKlassifisering;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateSegmentCombinator;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 class MergeOverlappendePeriodeHjelp {
@@ -18,21 +19,12 @@ class MergeOverlappendePeriodeHjelp {
     }
 
     static List<FastsattOpptjeningAktivitetDto> mergeOverlappenePerioder(List<OpptjeningAktivitet> opptjeningAktivitet) {
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> godkjent = behandleBekrefetGodkjent(opptjeningAktivitet
-                .stream()
-                .filter(oa -> oa.getKlassifisering().equals(OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT))
-                .collect(Collectors.toList()));
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> godkjentOgMellomliggende = behandleMellomliggende_perioder(godkjent, opptjeningAktivitet
-                .stream()
-                .filter(oa -> oa.getKlassifisering().equals(OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE))
-                .collect(Collectors.toList()));
+        LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidslinje = new LocalDateTimeline<>(Collections.emptyList());
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, MergeOverlappendePeriodeHjelp::mergeGodkjente);
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE, MergeOverlappendePeriodeHjelp::mergeMellomliggende);
+        tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST, MergeOverlappendePeriodeHjelp::mergeBekreftAvvist);
+        return lagDtoer(tidslinje);
 
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> resultat = behandleBekreftetAvvist(godkjentOgMellomliggende, opptjeningAktivitet
-                .stream()
-                .filter(oa -> oa.getKlassifisering().equals(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST))
-                .collect(Collectors.toList()));
-
-        return lagDtoer(resultat);
     }
 
     private static List<FastsattOpptjeningAktivitetDto> lagDtoer(LocalDateTimeline<OpptjeningAktivitetKlassifisering> resultatInn) {
@@ -51,46 +43,15 @@ class MergeOverlappendePeriodeHjelp {
         return resultat;
     }
 
-    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> behandleBekrefetGodkjent(List<OpptjeningAktivitet> opptjeningAktivitet) {
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie = null;
-        for (OpptjeningAktivitet aktivitet : opptjeningAktivitet) {
-            if (tidsserie == null) {
-                tidsserie = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(), OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-            } else {
-                LocalDateTimeline<OpptjeningAktivitetKlassifisering> timeline = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(),
-                        OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-                tidsserie = tidsserie.combine(timeline, MergeOverlappendePeriodeHjelp::mergeGodkjente, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-            }
-        }
-        return tidsserie != null ? tidsserie.compress() : null;
-    }
+    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> slåSammenTidslinje(
+        LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet, OpptjeningAktivitetKlassifisering filter,
+        LocalDateSegmentCombinator<OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering> combinator) {
 
-    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> behandleMellomliggende_perioder(
-            LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet) {
-        for (OpptjeningAktivitet aktivitet : opptjeningAktivitet) {
-            if (tidsserie == null) {
-                tidsserie = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(), OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE);
-            } else {
-                LocalDateTimeline<OpptjeningAktivitetKlassifisering> timeline = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(),
-                        OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE);
-                tidsserie = tidsserie.combine(timeline, MergeOverlappendePeriodeHjelp::mergeMellomliggende, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-            }
+        for (OpptjeningAktivitet aktivitet : opptjeningAktivitet.stream().filter(oa -> filter.equals(oa.getKlassifisering())).collect(Collectors.toList())) {
+            LocalDateTimeline<OpptjeningAktivitetKlassifisering> timeline = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(), filter);
+            tidsserie = tidsserie.combine(timeline, combinator, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         }
-        return tidsserie != null ? tidsserie.compress() : null;
-    }
-
-    private static LocalDateTimeline<OpptjeningAktivitetKlassifisering> behandleBekreftetAvvist(
-            LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet) {
-        for (OpptjeningAktivitet aktivitet : opptjeningAktivitet) {
-            if (tidsserie == null) {
-                tidsserie = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(), OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-            } else {
-                LocalDateTimeline<OpptjeningAktivitetKlassifisering> timeline = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(),
-                        OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-                tidsserie = tidsserie.combine(timeline, MergeOverlappendePeriodeHjelp::mergeBekreftAvvist, LocalDateTimeline.JoinStyle.CROSS_JOIN);
-            }
-        }
-        return tidsserie != null ? tidsserie.compress() : null;
+        return tidsserie.compress();
     }
 
     private static LocalDateSegment<OpptjeningAktivitetKlassifisering> mergeMellomliggende(LocalDateInterval di,

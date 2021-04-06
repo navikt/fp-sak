@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,6 +11,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -60,13 +63,11 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
     }
 
     private void sjekkOmVilkåretKanSettesTilOppfylt(Long behandlingId) {
-        final var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
-        if (opptjening.isPresent()) {
-            final var antall = opptjening.get().getOpptjeningAktivitet().stream()
-                    .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)).count();
-            if (antall > 0) {
-                return;
-            }
+        var ant = opptjeningRepository.finnOpptjening(behandlingId).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+            .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
+            .count();
+        if (ant > 0) {
+            return;
         }
         throw new FunksjonellException("FP-093922", "Kan ikke sette opptjeningsvilkåret til oppfylt."
             + " Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne settets til oppfylt.",

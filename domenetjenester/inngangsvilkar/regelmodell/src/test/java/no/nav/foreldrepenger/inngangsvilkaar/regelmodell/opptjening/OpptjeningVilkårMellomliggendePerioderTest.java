@@ -39,7 +39,7 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
 
         // sikre inntekt
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt4), aktivitet, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt4), aktivitet.forInntekt(), 1L);
 
         // Act
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -76,7 +76,7 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
 
         // sikre inntekt
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt4), aktivitet, 1L);
+        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt4), aktivitet.forInntekt(), 1L);
 
         // Act
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();

@@ -1,0 +1,85 @@
+{
+  "aktivitetPerioder" : [ {
+    "datoIntervall" : [ "2021-01-01", "-" ],
+    "aktivitet" : {
+      "aktivitetType" : "ARBEID",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "TIL_VURDERING"
+  }, {
+    "datoIntervall" : [ "2020-07-01", "2020-07-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "FRILOPP",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "TIL_VURDERING"
+  }, {
+    "datoIntervall" : [ "2020-09-03", "2020-12-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "FRILOPP",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "vurderingsStatus" : "TIL_VURDERING"
+  } ],
+  "behandlingsDato" : "2021-03-19",
+  "forsteDatoOpptjening" : "2020-06-01",
+  "sisteDatoForOpptjening" : "2021-03-31",
+  "inntektPerioder" : [ {
+    "datoIntervall" : [ "2021-01-01", "2021-01-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2021-02-01", "2021-02-28" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2020-07-01", "2020-07-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2020-12-01", "2020-12-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2020-10-01", "2020-10-31" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  }, {
+    "datoIntervall" : [ "2020-09-01", "2020-09-30" ],
+    "aktivitet" : {
+      "aktivitetType" : "LØNN",
+      "aktivitetReferanse" : "900050001",
+      "referanseType" : "ORGNR"
+    },
+    "inntektBelop" : 40000,
+    "inntektValuta" : "NOK"
+  } ]
+}

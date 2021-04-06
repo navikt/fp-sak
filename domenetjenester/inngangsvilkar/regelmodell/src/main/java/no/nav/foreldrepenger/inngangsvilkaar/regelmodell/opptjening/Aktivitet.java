@@ -5,6 +5,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
+
 public class Aktivitet {
 
     public enum ReferanseType {
@@ -13,7 +15,9 @@ public class Aktivitet {
     }
 
     //OpptjeningAktivitetType.ARBEID
-    static private String ARBEID = "ARBEID";
+    static private String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
+    static private String FRILANSREG = OpptjeningsvilkårForeldrepenger.FRILANSREGISTER;
+    static private String LØNN = OpptjeningsvilkårForeldrepenger.LØNN;
 
     @JsonProperty("aktivitetType")
     private String aktivitetType;
@@ -39,8 +43,8 @@ public class Aktivitet {
     }
 
     public Aktivitet(String aktivitetType) {
-        if (ARBEID.equals(aktivitetType)) {
-            throw new IllegalArgumentException("Utvikler-feil: aktivitet ARBEID må ha referanse");
+        if (ARBEID.equals(aktivitetType) || FRILANSREG.equals(aktivitetType) || LØNN.equals(aktivitetType)) {
+            throw new IllegalArgumentException("Utvikler-feil: aktivitet ARBEID/FRILOPP/LØNN må ha referanse");
         }
         this.aktivitetType = aktivitetType;
     }
@@ -55,6 +59,14 @@ public class Aktivitet {
 
     public String getAktivitetReferanse() {
         return aktivitetReferanse;
+    }
+
+    public Aktivitet forInntekt() {
+        return new Aktivitet(LØNN, aktivitetReferanse, referanseType);
+    }
+
+    public Aktivitet forArbeid() {
+        return new Aktivitet(ARBEID, aktivitetReferanse, referanseType);
     }
 
     @Override

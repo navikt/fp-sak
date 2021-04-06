@@ -76,6 +76,8 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
 
     /// TODO (FC) Konstant for AAReg Arbeid
     public static final String ARBEID = "ARBEID";
+    public static final String FRILANSREGISTER = "FRILOPP";
+    public static final String LØNN = "LØNN";
     public static final String UTLAND = "UTENLANDSK_ARBEIDSFORHOLD";
 
     /** Evaluation property: Frist for innsending av opptjeningopplysninger (eks. Inntekt). */

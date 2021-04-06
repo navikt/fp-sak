@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
@@ -120,9 +119,8 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
-                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
         // Assert
         assertThat(perioder).hasSize(2);
@@ -161,9 +159,8 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
-                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
         // Assert
         assertThat(perioder).hasSize(3);
@@ -203,9 +200,8 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Act
         BehandlingReferanse behandlingRef = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste
-                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef, Optional.of(iayGrunnlag));
+                .hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingRef);
 
         // Assert
         assertThat(perioder).hasSize(3);
@@ -347,14 +343,16 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Act 1
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
+        List<OpptjeningsperiodeForSaksbehandling> perioderVilkår = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-                .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
-                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
         assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
 
         // Act 2
         InntektArbeidYtelseAggregatBuilder saksbehandlet = opprettOverstyrtOppgittOpptjening(periode1,
@@ -363,10 +361,10 @@ public class OpptjeningsperioderTjenesteTest {
         perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-                .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList()))
-                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.GODKJENT)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).hasSize(1);
     }
 
@@ -395,14 +393,17 @@ public class OpptjeningsperioderTjenesteTest {
 
         // Act 1
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref);
+        List<OpptjeningsperiodeForSaksbehandling> perioderVilkår = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
-                .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList()))
-                .hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING)).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT)).collect(Collectors.toList())).hasSize(1);
         assertThat(perioder.stream().filter(OpptjeningsperiodeForSaksbehandling::getErManueltRegistrert).collect(Collectors.toList())).isEmpty();
         assertThat(perioder.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(1);
+        assertThat(perioderVilkår.stream().filter(o -> !o.getErManueltRegistrert()).collect(Collectors.toList())).hasSize(2);
 
         // Act 2
         InntektArbeidYtelseAggregatBuilder saksbehandlet = InntektArbeidYtelseAggregatBuilder
@@ -443,9 +444,9 @@ public class OpptjeningsperioderTjenesteTest {
         List<OpptjeningsperiodeForSaksbehandling> perioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForVilkårVurdering(ref);
 
         // Assert
-        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILANS)).collect(Collectors.toList()))
+        assertThat(perioder.stream().filter(p -> p.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.FRILOPP)).collect(Collectors.toList()))
                 .hasSize(1);
-        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.FERDIG_VURDERT_UNDERKJENT))
+        assertThat(perioder.stream().filter(p -> p.getVurderingsStatus().equals(VurderingsStatus.TIL_VURDERING))
                 .collect(Collectors.toList()))
                         .hasSize(1);
 
@@ -587,15 +588,13 @@ public class OpptjeningsperioderTjenesteTest {
         YrkesaktivitetBuilder yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
                 new Opptjeningsnøkkel(ref, virksomhet1.getIdentifikator(), null), type);
 
-        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder();
+        AktivitetsAvtaleBuilder aktivitetsAvtaleBuilder = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, false);
         PermisjonBuilder permisjonBuilder = yrkesaktivitetBuilder.getPermisjonBuilder();
 
         AktivitetsAvtaleBuilder aktivitetsAvtale = aktivitetsAvtaleBuilder
-                .medPeriode(periode)
                 .medProsentsats(prosentsats)
                 .medBeskrivelse("Ser greit ut");
-        AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-                .medPeriode(periode);
+        AktivitetsAvtaleBuilder ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(periode, true);
 
         Permisjon permisjon = permisjonBuilder
                 .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.UTDANNINGSPERMISJON)

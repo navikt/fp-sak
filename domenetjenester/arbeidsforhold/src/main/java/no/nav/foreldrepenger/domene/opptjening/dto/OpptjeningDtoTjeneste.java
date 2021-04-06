@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,13 +10,10 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperioderTjeneste;
@@ -30,7 +26,6 @@ import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 public class OpptjeningDtoTjeneste {
     private OpptjeningsperioderTjeneste forSaksbehandlingTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     OpptjeningDtoTjeneste() {
         // CDI
@@ -38,11 +33,9 @@ public class OpptjeningDtoTjeneste {
 
     @Inject
     public OpptjeningDtoTjeneste(OpptjeningsperioderTjeneste forSaksbehandlingTjeneste,
-            ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-            InntektArbeidYtelseTjeneste iayTjeneste) {
+            ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.forSaksbehandlingTjeneste = forSaksbehandlingTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
-        this.iayTjeneste = iayTjeneste;
     }
 
     public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref) {
@@ -50,17 +43,13 @@ public class OpptjeningDtoTjeneste {
         Optional<Opptjening> fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
         OpptjeningDto resultat = new OpptjeningDto();
-        if (fastsattOpptjening.isPresent() && fastsattOpptjening.get().getAktiv()) {
-            List<OpptjeningAktivitet> opptjeningAktivitet = fastsattOpptjening.get().getOpptjeningAktivitet();
-            resultat.setFastsattOpptjening(new FastsattOpptjeningDto(fastsattOpptjening.get().getFom(),
-                    fastsattOpptjening.get().getTom(), mapFastsattOpptjening(fastsattOpptjening.get()),
-                    MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(opptjeningAktivitet)));
-        }
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
+        fastsattOpptjening.filter(Opptjening::getAktiv).ifPresent(fastsatt ->
+            resultat.setFastsattOpptjening(new FastsattOpptjeningDto(fastsatt.getFom(), fastsatt.getTom(),
+                mapFastsattOpptjening(fastsatt), MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));
 
         if (fastsattOpptjening.isPresent()) {
             resultat.setOpptjeningAktivitetList(
-                    forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref, inntektArbeidYtelseGrunnlagOpt)
+                    forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(ref)
                             .stream()
                             .map(this::lagDtoFraOAPeriode)
                             .collect(Collectors.toList()));

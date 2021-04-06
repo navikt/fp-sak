@@ -21,6 +21,11 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
     }
 
     @Override
+    public boolean skalInkludereAkkumulertFrilans() {
+        return true;
+    }
+
+    @Override
     public VurderingsStatus vurderStatus(OpptjeningAktivitetType type,
             BehandlingReferanse behandlingReferanse,
             Yrkesaktivitet overstyrtAktivitet,
