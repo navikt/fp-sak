@@ -306,9 +306,9 @@ public class YrkesaktivitetFilter {
     }
 
     /**
-     * Gir alle ansettelsesperioden for et arbeidsforhold.
+     * Gir alle ansettelsesperioden for et frilansforhold.
      * <p>
-     * NB! Gjelder kun arbeidsforhold.
+     * NB! Gjelder kun yrkesaktiviteter med arbeidtype frilanser_oppdragstaker_mm
      *
      * @return perioden
      */

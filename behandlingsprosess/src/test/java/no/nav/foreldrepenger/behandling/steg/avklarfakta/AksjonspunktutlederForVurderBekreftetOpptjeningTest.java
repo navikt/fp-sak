@@ -80,53 +80,6 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     @Test
-    public void skal_opprette_aksjonspunkt_dersom_bekreftet_frilansoppdrag() {
-        AktørId aktørId1 = AktørId.dummy();
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-
-        LocalDate fraOgMed = LocalDate.now().minusMonths(1);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("52");
-
-        Behandling behandling = lagre(scenario);
-
-        var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
-        var aktørArbeid = builder.getAktørArbeidBuilder(aktørId1);
-        aktørArbeid.leggTilYrkesaktivitet(
-                YrkesaktivitetBuilder.oppdatere(empty())
-                        .medArbeidType(ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER)
-                        .medArbeidsforholdId(arbeidsforholdId)
-                        .medArbeidsgiver(arbeidsgiver)
-                        .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                                .medProsentsats(BigDecimal.ONE)
-                                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed.plusDays(5), fraOgMed.plusDays(6))))
-                        .build());
-        builder.leggTilAktørArbeid(aktørArbeid);
-
-        var aktørInntekt = builder.getAktørInntektBuilder(aktørId1);
-        aktørInntekt.leggTilInntekt(InntektBuilder.oppdatere(empty())
-                .medArbeidsgiver(arbeidsgiver)
-                .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING)
-                .leggTilInntektspost(InntektspostBuilder.ny()
-                        .medBeløp(BigDecimal.TEN)
-                        .medInntektspostType(InntektspostType.LØNN)
-                        .medPeriode(fraOgMed.plusDays(5), fraOgMed.plusDays(6))));
-        builder.leggTilAktørInntekt(aktørInntekt);
-
-        iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
-
-        lagreOpptjeningsPeriode(behandling, tilOgMed);
-
-        // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
-
-        // Assert
-        assertThat(aksjonspunktResultater).hasSize(1);
-        assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
-    }
-
-    @Test
     public void skal_ikke_opprette_aksjonspunkt_når_ingen_arbeidsavtaler_har_0_stillingsprosent() {
         // Arrange
         AktørId aktørId1 = AktørId.dummy();

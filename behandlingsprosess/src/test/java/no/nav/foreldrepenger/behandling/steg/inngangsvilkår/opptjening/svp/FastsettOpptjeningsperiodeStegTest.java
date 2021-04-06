@@ -104,9 +104,8 @@ public class FastsettOpptjeningsperiodeStegTest {
 
         assertThat(opptjening.getFom()).isEqualTo(jordmorsdato.minusDays(28));
         assertThat(opptjening.getTom()).isEqualTo(jordmorsdato.minusDays(1));
-        // between tar -> the start date, inclusive, not null & the end date, exclusive,
-        // not null
-        assertThat(Period.between(opptjening.getFom(), opptjening.getTom().plusDays(1)).getDays())
+        // between tar -> the start date, inclusive, not null & the end date, exclusive, not null
+        assertThat(Period.between(opptjening.getFom(), opptjening.getTom()).getDays() + 1)
                 .isEqualTo(ANTALL_DAGER_SVANGERSKAP_SKAL_SJEKKE_FOR_OPPTJENING);
     }
 
