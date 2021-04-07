@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,7 +19,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -63,24 +61,6 @@ public class KontrollRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling).orElse(null);
-    }
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent kontrollresultatet for en behandling", tags = "kontroll", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KontrollresultatDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Path(KONTROLLRESULTAT_V2_PART_PATH)
-    public KontrollresultatDto hentKontrollresultatV2(
-            @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-
-        return kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling)
-                .orElse(null);
     }
 
     @GET

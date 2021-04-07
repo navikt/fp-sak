@@ -155,7 +155,6 @@ public class BehandlingDtoTjeneste {
                                                   BehandlingRepository behandlingRepository) {
         BehandlingDto dto = new BehandlingDto();
         UuidDto uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingIdDto idDto = new BehandlingIdDto(behandling.getId());
         BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
         dto.setSpråkkode(getSpråkkode(behandling, søknadRepository, behandlingRepository));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
@@ -169,7 +168,7 @@ public class BehandlingDtoTjeneste {
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", idDto));
+            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", uuidDto));
             dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_RISIKO_PATH, "risikoklassifisering-aksjonspunkt", uuidDto));
         }
 
@@ -345,6 +344,10 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V2_PATH, "soeker-medlemskap-v2", uuidDto));
+
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            dto.leggTil(get(KontrollRestTjeneste.KONTROLLRESULTAT_V2_PATH, "kontrollresultat", uuidDto));
+        }
 
         if (behandlingHarVergeAksjonspunkt(behandling)) {
             dto.leggTil(get(PersonRestTjeneste.VERGE_PATH, "soeker-verge", uuidDto));
