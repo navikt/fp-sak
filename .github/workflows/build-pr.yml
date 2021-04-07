@@ -41,8 +41,7 @@ jobs:
         run: |
           echo "Henter og starter Oracle image"
           cd .oracle
-          docker-compose pull
-          docker-compose up > nohup.out 2>&1 &
+          docker-compose up --quiet-pull > nohup.out 2>&1 &
           sh -c 'tail -n +0 -f nohup.out | { sed "/Disconnected/q" && kill $$; }' || true
 
       - name: Set build version
