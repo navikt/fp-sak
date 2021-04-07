@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -281,6 +282,17 @@ public class VurderFagsystemFellesUtils {
             .filter(Objects::nonNull)
             .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
             .collect(Collectors.toList());
+        if (behandlinger.isEmpty() && sakerTilVurdering.isEmpty()) {
+            LOG.info("VFS-KLAGE ingen saker i VL");
+        } else if (behandlinger.isEmpty()) {
+            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var sakerMedÅpenBehandling = sakerTilVurdering.stream().filter(f -> !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(f.getId()).isEmpty()).count();
+            LOG.info("VFS-KLAGE ingen vedtak - antall saker {} saker med åpen behandling {} saksnummer {}", sakerTilVurdering.size(), sakerMedÅpenBehandling, saker);
+        } else if (behandlinger.size() > 1) {
+            var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+            var sakerMedKlage = sakerTilVurdering.stream().filter(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).isPresent()).count();
+            LOG.info("VFS-KLAGE flere saker - antall saker {} saker med klage {} saksnummer {}", sakerTilVurdering.size(), sakerMedKlage, saker);
+        }
         return behandlinger.size() != 1 ? Optional.empty() :
             Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(behandlinger.get(0).getFagsak().getSaksnummer()));
     }
