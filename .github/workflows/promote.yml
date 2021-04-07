@@ -4,7 +4,6 @@ on:
     types: [created]
 env:
   NAMESPACE: teamforeldrepenger
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   IMAGE_BASE: ghcr.io/${{ github.repository }}
 
 jobs:
