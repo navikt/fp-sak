@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.AksjonspunktutlederTilbaketrekk;
+import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.KopierUtbetResultatTjeneste;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,7 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
     private BehandlingRepository behandlingRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private KopierUtbetResultatTjeneste kopierUtbetResultatTjeneste;
 
     VurderTilbaketrekkSteg() {
         // for CDI proxy
@@ -48,11 +51,13 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
     public VurderTilbaketrekkSteg(AksjonspunktutlederTilbaketrekk aksjonspunktutlederTilbaketrekk,
                                   BehandlingRepository behandlingRepository,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                  BeregningsresultatRepository beregningsresultatRepository) {
+                                  BeregningsresultatRepository beregningsresultatRepository,
+                                  KopierUtbetResultatTjeneste kopierUtbetResultatTjeneste) {
         this.aksjonspunktutlederTilbaketrekk = aksjonspunktutlederTilbaketrekk;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
+        this.kopierUtbetResultatTjeneste = kopierUtbetResultatTjeneste;
     }
 
     @Override
@@ -71,6 +76,13 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
         List<AksjonspunktResultat> aksjonspunkter = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref));
 
         if (aksjonspunkter.isEmpty()) {
+            // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan
+            // omfordele igjen pga tilkommede arbeidsforhold, i slike tilfeller må vi sjekke om foreslått
+            // resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
+            if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)
+                && kopierUtbetResultatTjeneste.kanKopiereUtbetResultat(ref)) {
+                kopierUtbetResultatTjeneste.kopierOgLagreUtbetBeregningsresultat(ref);
+            }
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 
