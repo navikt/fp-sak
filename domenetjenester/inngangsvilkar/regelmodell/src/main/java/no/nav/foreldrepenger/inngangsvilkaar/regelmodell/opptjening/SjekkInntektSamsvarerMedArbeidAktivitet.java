@@ -162,7 +162,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
             // Denne er for å få med underkjente (aktiviteter)
             // Frilansperioder uten inntekt blir ikke antatt godkjent - inntil videre
-            // Obs på 1) ytelser som godkjenner antatt og 2) vent på inntektsreg (kon arbeid)
+            // Obs på 1) ytelser som godkjenner antatt o
             aktiviteter.entrySet().stream()
                 .filter(e -> FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
                 .filter(e -> !e.getValue().isEmpty())

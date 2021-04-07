@@ -40,9 +40,6 @@ public class OpptjeningsvilkårMellomregning {
      */
     private Opptjeningsgrunnlag grunnlag;
 
-    /** Frist for å motta opptjening opplysninger (henger sammen med Aksjonspunkt 7006 "Venter på Opptjeningsopplysninger"). */
-    private LocalDate opptjeningOpplysningerFrist;
-
     public OpptjeningsvilkårMellomregning(Opptjeningsgrunnlag grunnlag) {
         this.grunnlag = grunnlag;
         LocalDateInterval maxIntervall = grunnlag.getOpptjeningPeriode();
@@ -198,15 +195,6 @@ public class OpptjeningsvilkårMellomregning {
 
         /* hvis Oppfylt/Ikke Oppfylt (men ikke "Ikke Vurdert"), så angis total opptjening som er kalkulert. */
         outputResultat.setTotalOpptjening(this.getTotalOpptjening());
-        outputResultat.setFrist(this.getOpptjeningOpplysningerFrist());
-    }
-
-    LocalDate getOpptjeningOpplysningerFrist() {
-        return opptjeningOpplysningerFrist;
-    }
-
-    void setOpptjeningOpplysningerFrist(LocalDate opptjeningOpplysningerFrist) {
-        this.opptjeningOpplysningerFrist = opptjeningOpplysningerFrist;
     }
 
     public void setAntattOpptjening(OpptjentTidslinje antattOpptjening) {
@@ -230,15 +218,6 @@ public class OpptjeningsvilkårMellomregning {
 
     void setUnderkjentePerioder(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder) {
         perioder.forEach((key, value) -> mellomregning.get(key).setAktivitetUnderkjent(value));
-    }
-
-    /**
-     * Sjekker om opptjening er nok til å legge på vent ifht. konfigurert minste periode for vent.
-     */
-    boolean sjekkErInnenforMinsteGodkjentePeriodeForVent(Period opptjeningPeriode) {
-        int minsteAntallMåneder = grunnlag.getMinsteAntallMånederForVent();
-        int minsteAntallDager = grunnlag.getMinsteAntallDagerForVent();
-        return sjekkErErOverAntallPåkrevd(opptjeningPeriode, minsteAntallMåneder, minsteAntallDager);
     }
 
     /**

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
 import java.util.Map;
@@ -27,9 +26,6 @@ public class OpptjeningsvilkårResultat {
 
     /** Resultatstruktur - perioder underkjent i vurderingen, gruppert etter aktivitet. */
     private Map<Aktivitet, LocalDateTimeline<Boolean>> underkjentePerioder;
-
-    /** Frist for å vente på opptjeningsopplysninger, hvis nødvendig. */
-    private LocalDate frist;
 
     public OpptjeningsvilkårResultat() {
     }
@@ -79,12 +75,5 @@ public class OpptjeningsvilkårResultat {
         this.underkjentePerioder = underkjentePerioder;
     }
 
-    public void setFrist(LocalDate frist) {
-        this.frist = frist;
-    }
-
-    public LocalDate getFrist() {
-        return frist;
-    }
 
 }

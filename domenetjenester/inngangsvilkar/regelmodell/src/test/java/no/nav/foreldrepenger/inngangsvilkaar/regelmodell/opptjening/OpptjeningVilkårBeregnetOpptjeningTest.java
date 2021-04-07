@@ -76,7 +76,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
     }
 
     @Test
-    public void skal_få_ikke_vurdert_og_lagt_på_vent_når_bekreftet_opptjening_er_5mnd_og_antatt_opptjening_er_6mnd() throws Exception {
+    public void skal_få_avslag_når_bekreftet_opptjening_er_5mnd_og_antatt_opptjening_er_6mnd() throws Exception {
         int maksMellomliggendeDager = 14;
         int minForegåendeDager = 4*7;
 
@@ -106,7 +106,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
         Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
-        Resultat forventet = Resultat.IKKE_VURDERT;
+        Resultat forventet = Resultat.NEI;
         assertForventetResultat(evaluation, forventet);
 
         // Assert
@@ -120,8 +120,7 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
 
         assertThat(output.getAkseptertMellomliggendePerioder()).containsEntry(aktivitet, new LocalDateTimeline<>(dt2.plusDays(1), dt3.minusDays(1), Boolean.TRUE));
 
-        assertThat(output.getResultatTidslinje()).isNull();
-        assertThat(output.getResultatOpptjent()).isNull();
+        assertThat(output.getResultatTidslinje()).isEqualTo(new LocalDateTimeline<>(dt1, endOfInntekt, Boolean.TRUE));
 
     }
 

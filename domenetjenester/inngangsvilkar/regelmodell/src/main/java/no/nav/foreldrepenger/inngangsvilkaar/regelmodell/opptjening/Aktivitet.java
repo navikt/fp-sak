@@ -14,7 +14,7 @@ public class Aktivitet {
         AKTØRID;
     }
 
-    //OpptjeningAktivitetType.ARBEID
+    //OpptjeningAktivitetType.ARBEID , FRILOPP
     static private String ARBEID = OpptjeningsvilkårForeldrepenger.ARBEID;
     static private String FRILANSREG = OpptjeningsvilkårForeldrepenger.FRILANSREGISTER;
     static private String LØNN = OpptjeningsvilkårForeldrepenger.LØNN;
@@ -63,10 +63,6 @@ public class Aktivitet {
 
     public Aktivitet forInntekt() {
         return new Aktivitet(LØNN, aktivitetReferanse, referanseType);
-    }
-
-    public Aktivitet forArbeid() {
-        return new Aktivitet(ARBEID, aktivitetReferanse, referanseType);
     }
 
     @Override

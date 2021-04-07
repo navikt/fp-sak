@@ -80,9 +80,6 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
     public static final String LØNN = "LØNN";
     public static final String UTLAND = "UTENLANDSK_ARBEIDSFORHOLD";
 
-    /** Evaluation property: Frist for innsending av opptjeningopplysninger (eks. Inntekt). */
-    public static final String EVAL_RESULT_FRIST_FOR_OPPTJENING_OPPLYSNINGER = "fristInnsendingOpptjeningopplysninger";
-
     @Override
     public Evaluation evaluer(Opptjeningsgrunnlag grunnlag, Object output) {
         OpptjeningsvilkårMellomregning grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag);

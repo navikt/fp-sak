@@ -165,7 +165,6 @@ public class InngangsvilkårStegImplTest {
         ekstra.setBekreftetGodkjentAktivitet(emptyMap());
         ekstra.setAntattGodkjentePerioder(emptyMap());
         ekstra.setAkseptertMellomliggendePerioder(emptyMap());
-        ekstra.setFrist(LocalDate.now().minusDays(1));
         return new RegelResultat(behandling.getBehandlingsresultat().getVilkårResultat(), emptyList(),
                 Map.of(VilkårType.OPPTJENINGSVILKÅRET, ekstra));
     }

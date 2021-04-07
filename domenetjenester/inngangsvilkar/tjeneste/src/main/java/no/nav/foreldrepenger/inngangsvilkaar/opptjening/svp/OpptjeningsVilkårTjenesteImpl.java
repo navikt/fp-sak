@@ -59,8 +59,6 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         //TODO(OJR) overstyrer konfig for fp... burde blitt flyttet ut til konfig verdier.. både for FP og for SVP???
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         //TODO(OJR) denne burde kanskje endres til false i en revurdering-kontekts i etterkant?
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
