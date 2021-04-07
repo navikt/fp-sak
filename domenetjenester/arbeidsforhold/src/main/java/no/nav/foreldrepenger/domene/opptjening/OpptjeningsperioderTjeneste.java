@@ -416,7 +416,7 @@ public class OpptjeningsperioderTjeneste {
         var opptjeningsperiodeTimeline = new LocalDateTimeline<>(opptjeningsperiode.getFomDato(), opptjeningsperiode.getTomDato(), Boolean.TRUE);
         var timeline = new LocalDateTimeline<>(aktivitetsperioder, StandardCombinators::alwaysTrueForMatch).intersection(opptjeningsperiodeTimeline).compress();
         var mindato = timeline.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(skjæringstidspunkt);
-        var maxdato = timeline.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).max(Comparator.naturalOrder()).orElse(skjæringstidspunkt);
+        var maxdato = timeline.getLocalDateIntervals().stream().map(LocalDateInterval::getTomDato).max(Comparator.naturalOrder()).orElse(skjæringstidspunkt);
 
         if (mindato.equals(skjæringstidspunkt) || maxdato.equals(skjæringstidspunkt)) return Optional.empty();
         var brukType = utledOpptjeningType(mapArbeidOpptjening, ArbeidType.FRILANSER);
