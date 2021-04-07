@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 1.15
+          java-version: 15
 
       - name: Log into ghcr registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
