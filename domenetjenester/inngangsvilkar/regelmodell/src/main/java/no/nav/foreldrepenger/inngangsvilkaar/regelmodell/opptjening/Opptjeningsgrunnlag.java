@@ -54,24 +54,10 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
     private Period minForegåendeForMellomliggendePeriodeForArbeidsforhold = Period.ofWeeks(4);
 
     /**
-     * Minste antall dager med bekreftet opptjening for å kunne legge på vent (sees i sammenheng med
-     * {@link #minsteAntallMånederForVent}.
-     */
-    @JsonIgnore
-    private int minsteAntallDagerForVent = 0;
-
-    /**
      * Minste antall dager som kreves godkjent dersom det er færre enn ({@link #minsteAntallMånederGodkjent}+1 måneder .
      */
     @JsonIgnore
     private int minsteAntallDagerGodkjent = 26;
-
-    /**
-     * Minste antall måneder med bekreftet opptjening for å kunne legge på vent (sees i sammenheng med
-     * {@link #minsteAntallDagerForVent}.
-     */
-    @JsonIgnore
-    private int minsteAntallMånederForVent = 4;
 
     /**
      * Minste antall måneder som kreves godkjent. Hvis eksakt samme, så sjekkes også {@link #minsteAntallDagerGodkjent}.
@@ -128,16 +114,8 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
         return minForegåendeForMellomliggendePeriodeForArbeidsforhold;
     }
 
-    public int getMinsteAntallDagerForVent() {
-        return minsteAntallDagerForVent;
-    }
-
     public int getMinsteAntallDagerGodkjent() {
         return minsteAntallDagerGodkjent;
-    }
-
-    public int getMinsteAntallMånederForVent() {
-        return minsteAntallMånederForVent;
     }
 
     public int getMinsteAntallMånederGodkjent() {
@@ -194,16 +172,8 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
         this.minForegåendeForMellomliggendePeriodeForArbeidsforhold = minForegåendeForMellomliggendePeriodeForArbeidsforhold;
     }
 
-    public void setMinsteAntallDagerForVent(int minsteAntallDagerForVent) {
-        this.minsteAntallDagerForVent = minsteAntallDagerForVent;
-    }
-
     public void setMinsteAntallDagerGodkjent(int minsteAntallDagerGodkjent) {
         this.minsteAntallDagerGodkjent = minsteAntallDagerGodkjent;
-    }
-
-    public void setMinsteAntallMånederForVent(int minsteAntallMånederForVent) {
-        this.minsteAntallMånederForVent = minsteAntallMånederForVent;
     }
 
     public void setMinsteAntallMånederGodkjent(int minsteAntallMånederGodkjent) {

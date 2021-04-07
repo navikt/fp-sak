@@ -34,8 +34,6 @@ public class InngangsvilkårOpptjeningTest {
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -62,8 +60,6 @@ public class InngangsvilkårOpptjeningTest {
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -90,8 +86,6 @@ public class InngangsvilkårOpptjeningTest {
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -118,8 +112,6 @@ public class InngangsvilkårOpptjeningTest {
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
@@ -148,8 +140,6 @@ public class InngangsvilkårOpptjeningTest {
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setMinsteAntallDagerForVent(0);
-        grunnlag.setMinsteAntallMånederForVent(0);
         grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,13 +42,12 @@ public class BehandlingPåVentTest {
         assertFalse(behandling.isBehandlingPåVent());
     }
 
-    @Test // TODO PKMANTIS-1137 Har satt midlertidig frist, må endres når dynamisk frist
-          // er implementert
+    @Test
     public void testErPåVentNårVenterPåOpptjeningsopplysninger() {
         Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER);
+        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING);
         assertTrue(behandling.isBehandlingPåVent());
-        assertEquals(behandling.getOpprettetDato().plusWeeks(2).toLocalDate(), aksjonspunkt.getFristTid().toLocalDate());
+        assertEquals(behandling.getOpprettetDato().plusWeeks(4).toLocalDate(), aksjonspunkt.getFristTid().toLocalDate());
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
         assertFalse(behandling.isBehandlingPåVent());
     }

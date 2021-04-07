@@ -54,7 +54,6 @@ public class SendBrevForAutopunktEventObserverTest {
         AksjonspunktDefinisjon autopunktDefinisjonIngenSøknad = AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
         AksjonspunktDefinisjon autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
         AksjonspunktDefinisjon autopunktDefinisjonVentFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
-        AksjonspunktDefinisjon autopunktDefinisjonOpptjening = AksjonspunktDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER;
         AksjonspunktDefinisjon autopunktDefinisjonEtterkontroll = AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
 
         AksjonspunktDefinisjon manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
@@ -64,7 +63,6 @@ public class SendBrevForAutopunktEventObserverTest {
         lenient().when(autopunktIngenSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonIngenSøknad);
         lenient().when(autopunktVentFødsel.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonVentFødsel);
         lenient().when(autopunktTidligSøknad.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonTidligSøknad);
-        lenient().when(autopunktOpptjening.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonOpptjening);
         lenient().when(autopunktEtterkontroll.getAksjonspunktDefinisjon()).thenReturn(autopunktDefinisjonEtterkontroll);
 
         lenient().when(manuellpunkt.erOpprettet()).thenReturn(true);
@@ -111,13 +109,6 @@ public class SendBrevForAutopunktEventObserverTest {
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktVentFødsel), null);
         observer.sendBrevForAutopunkt(event);
         verify(sendBrevForAutopunkt, times(1)).sendBrevForVenterPåFødsel(any(), any());
-    }
-
-    @Test
-    public void skalOppdatereBehandlingsfristForVenterOpptjening() {
-        var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(autopunktOpptjening), null);
-        observer.sendBrevForAutopunkt(event);
-        verify(sendBrevForAutopunkt, times(1)).oppdaterBehandlingsfristForVenterPåOpptjening(any(), any());
     }
 
     @Test
