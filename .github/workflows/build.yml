@@ -113,23 +113,15 @@ jobs:
           private-key: ${{ secrets.FP_PRIVATE_KEY }}
           app-id: ${{ secrets.FP_APP_ID }}
 
-      - name: Trigger autotest for fpsak
-        if: success()
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ steps.get-token.outputs.token }}
-          repository: navikt/fpsak-autotest
-          event-type: fpsak-autotest
-          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
-
-      - name: Trigger verdikjedetestene i fpsak-autotest prosjektet
-        if: success()
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ steps.get-token.outputs.token }}
-          repository: navikt/fpsak-autotest
-          event-type: fpsak-verdikjede
-          client-payload: '{ "trigger": "${{ github.repository }}", "version": "${{ env.TAG }}", "issue-number": "${{ steps.createdeployissue.outputs.number }}" }'
-
-
-
+      - name: Trigger tester for FP
+        shell: bash
+        run: |
+          curl -XPOST -u "x-access-token:${{ steps.get-token.outputs.token }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/navikt/fpsak-autotest/actions/workflows/trigger.yml/dispatches \
+          -d '{"ref":"master",
+                  "inputs":{
+                      "trigger": "${{ github.repository }}",
+                      "version": "${{ env.TAG }}",
+                      "issue_number": "${{ steps.createdeployissue.outputs.number }}"
+                  }}'
