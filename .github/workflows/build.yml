@@ -51,7 +51,7 @@ jobs:
       - name: Build artifacts & deploy
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha denne fordi vi henter artifakt fra fp-felles.
         shell: bash
         run: |
           echo "Building artifacts $BUILD_VERSION"
