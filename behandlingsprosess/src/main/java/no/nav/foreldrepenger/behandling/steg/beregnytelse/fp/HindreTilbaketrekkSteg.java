@@ -77,6 +77,13 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         BehandlingBeregningsresultatEntitet aggregatTY = beregningsresultatRepository.hentBeregningsresultatAggregat(behandlingId)
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
 
+        if (aggregatTY.getUtbetBeregningsresultatFP() != null) {
+            // I enkelte tilfeller kopieres utbet resultat i vurder tilbaketrekk steget,
+            // isåfall skal vi bare bruke dette og ikke reberegne noe mer her
+            // TFP-4279
+            return BehandleStegResultat.utførtUtenAksjonspunkter();
+        }
+
         if (aggregatTY.skalHindreTilbaketrekk().orElse(false)) {
             BeregningsresultatEntitet revurderingTY = aggregatTY.getBgBeregningsresultatFP();
             BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling);
