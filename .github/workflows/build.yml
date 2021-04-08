@@ -51,7 +51,7 @@ jobs:
       - name: Build artifacts & deploy
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
         shell: bash
         run: |
           echo "Building artifacts $BUILD_VERSION"
@@ -114,7 +114,6 @@ jobs:
           app-id: ${{ secrets.FP_APP_ID }}
 
       - name: Trigger tester for FP
-        shell: bash
         run: |
           curl -XPOST -u "x-access-token:${{ steps.get-token.outputs.token }}" \
           -H "Accept: application/vnd.github.v3+json" \
