@@ -38,16 +38,15 @@ public class UttakPeriodeEndringDtoTjeneste {
             aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING)) {
             if (totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getYtelseFordelingGrunnlagEntitetId).isPresent()) {
                 return avklarFaktaUttakTjeneste.finnEndringMellomOppgittOgGjeldendePerioder(
-                    totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getYtelseFordelingGrunnlagEntitetId).get()); // NOSONAR
+                    totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getYtelseFordelingGrunnlagEntitetId).get());
             }
             return avklarFaktaUttakTjeneste.finnEndringMellomOppgittOgGjeldendePerioderForBehandling(behandling.getId());
         }
         if (aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER) ||
-            aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER) ||
-            aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.TILKNYTTET_STORTINGET)) {
+            aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER)) {
             if (totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getUttakResultatEntitetId).isPresent()) {
-                return fastsettePerioderEndringTjeneste
-                    .finnEndringerMellomOpprinneligOgOverstyrt(totrinnresultatgrunnlag.flatMap(Totrinnresultatgrunnlag::getUttakResultatEntitetId).get()); // NOSONAR
+                return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrt(totrinnresultatgrunnlag
+                        .flatMap(Totrinnresultatgrunnlag::getUttakResultatEntitetId).get());
             }
             return fastsettePerioderEndringTjeneste.finnEndringerMellomOpprinneligOgOverstyrtForBehandling(behandling.getId());
         }

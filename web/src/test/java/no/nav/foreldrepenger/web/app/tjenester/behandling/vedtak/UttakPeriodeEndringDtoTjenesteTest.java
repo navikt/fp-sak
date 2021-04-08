@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +24,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
@@ -42,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.UttakPeriodeEndringDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.UttakPeriodeEndringDtoTjeneste;
 
@@ -61,71 +59,70 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     private FpUttakRepository fpUttakRepository;
 
     @BeforeEach
-    public void setUp(EntityManager em) {
+    public void setUp() {
         ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         dato = LocalDate.of(2018, 8, 1);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagre(repositoryProvider);
-        em.persist(behandling.getBehandlingsresultat()); // Hvorfor er dette nødvendig?
     }
 
     @Test
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_avklar_fakta_uttak_finn_en_endret_periode_en_avklart_periode_og_en_slettet_periode() {
 
         // Legg til 3 gamle perioder
-        OppgittPeriodeEntitet gammelPeriode1 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(3), dato.minusMonths(2))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
-        OppgittPeriodeEntitet gammelPeriode2 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(2).plusDays(1), dato.minusMonths(1).plusDays(1))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
-        OppgittPeriodeEntitet gammelPeriode3 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(1).plusDays(2), dato.plusDays(2))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
-        ArrayList<OppgittPeriodeEntitet> gamlePerioder = new ArrayList<>();
+        var gammelPeriode1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(3), dato.minusMonths(2))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
+        var gammelPeriode2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(2).plusDays(1), dato.minusMonths(1).plusDays(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
+        var gammelPeriode3 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(1).plusDays(2), dato.plusDays(2))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
+        var gamlePerioder = new ArrayList<OppgittPeriodeEntitet>();
         gamlePerioder.add(gammelPeriode1);
         gamlePerioder.add(gammelPeriode2);
         gamlePerioder.add(gammelPeriode3);
-        OppgittFordelingEntitet gammelFordeling = new OppgittFordelingEntitet(gamlePerioder, true);
+        var gammelFordeling = new OppgittFordelingEntitet(gamlePerioder, true);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittFordeling(gammelFordeling);
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         // Legg til 2 ny periode
-        OppgittPeriodeEntitet nyPeriode1 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(2).plusWeeks(1), dato.minusMonths(1).plusWeeks(1))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
-        OppgittPeriodeEntitet nyPeriode2 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(1).plusWeeks(1).plusDays(1), dato.plusWeeks(1).plusDays(1))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
-                .build();
-        ArrayList<OppgittPeriodeEntitet> nyePerioder = new ArrayList<>();
+        var nyPeriode1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(2).plusWeeks(1), dato.minusMonths(1).plusWeeks(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
+        var nyPeriode2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(1).plusWeeks(1).plusDays(1), dato.plusWeeks(1).plusDays(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
+            .build();
+        var nyePerioder = new ArrayList<OppgittPeriodeEntitet>();
         nyePerioder.add(nyPeriode1);
         nyePerioder.add(nyPeriode2);
-        OppgittFordelingEntitet nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
+        var nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
         var nyYfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOverstyrtFordeling(nyFordeling);
         ytelsesFordelingRepository.lagre(behandling.getId(), nyYfBuilder.build());
 
         // Legg til data i totrinnsvurdering.
-        Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
-                AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
-        Totrinnsvurdering ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
+        var ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
+            AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
+        var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        List<UttakPeriodeEndringDto> uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-                Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
+            Optional.empty());
 
         assertThat(uttakPeriodeEndringer).hasSize(3);
 
@@ -150,52 +147,52 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_avklar_fakta_uttak_finn_en_endret_periode_en_lagt_til_periode_og_filtrer_ut_en_periode() {
 
         // Legg til 1 gammel perioder
-        OppgittPeriodeEntitet gammelPeriode = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(2), dato.minusMonths(1))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
+        var gammelPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(2), dato.minusMonths(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
         var gammelFordeling = new OppgittFordelingEntitet(List.of(gammelPeriode), true);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittFordeling(gammelFordeling);
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         // Legg til 2 ny periode
-        OppgittPeriodeEntitet nyPeriode1 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(3).plusDays(3), dato.minusMonths(2).plusDays(3))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .build();
-        OppgittPeriodeEntitet nyPeriode2 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(2).plusDays(4), dato.minusMonths(1).plusDays(4))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
-                .build();
-        OppgittPeriodeEntitet nyPeriode3 = OppgittPeriodeBuilder.ny()
-                .medPeriode(dato.minusMonths(1).plusDays(5), dato.plusDays(5))
-                .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                .medErArbeidstaker(false)
-                .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK) // Denne burde bli ignorert pga. kilde
-                .build();
-        ArrayList<OppgittPeriodeEntitet> nyePerioder = new ArrayList<>();
+        var nyPeriode1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(3).plusDays(3), dato.minusMonths(2).plusDays(3))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .build();
+        var nyPeriode2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(2).plusDays(4), dato.minusMonths(1).plusDays(4))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .medBegrunnelse("Dette er en kort begrunnelse for hvorfor denne ble avklart.")
+            .build();
+        var nyPeriode3 = OppgittPeriodeBuilder.ny()
+            .medPeriode(dato.minusMonths(1).plusDays(5), dato.plusDays(5))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medErArbeidstaker(false)
+            .medPeriodeKilde(FordelingPeriodeKilde.TIDLIGERE_VEDTAK) // Denne burde bli ignorert pga. kilde
+            .build();
+        var nyePerioder = new ArrayList<OppgittPeriodeEntitet>();
         nyePerioder.add(nyPeriode1);
         nyePerioder.add(nyPeriode2);
         nyePerioder.add(nyPeriode3);
-        OppgittFordelingEntitet nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
+        var nyFordeling = new OppgittFordelingEntitet(nyePerioder, true);
 
         var nyYfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOverstyrtFordeling(nyFordeling);
         ytelsesFordelingRepository.lagre(behandling.getId(), nyYfBuilder.build());
 
         // Legg til data i totrinnsvurdering.
-        Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
-                AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
-        Totrinnsvurdering ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
+        var ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
+            AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
+        var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        List<UttakPeriodeEndringDto> uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-                Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
+            Optional.empty());
 
         assertThat(uttakPeriodeEndringer).hasSize(3);
 
@@ -215,26 +212,27 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_fastsett_uttakperioder_finn_endret_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
-        UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-                StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
+        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato,
+            dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+        var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
-        UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1),
-                StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
+        var overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato, dato.plusMonths(1),
+            StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+        var overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
 
         // Legg til data i totrinnsvurdering.
-        Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
-        Totrinnsvurdering ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
+        var ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
+            AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER);
+        var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        List<UttakPeriodeEndringDto> uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-                Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
+            Optional.empty());
 
         assertThat(uttakPeriodeEndringer).hasSize(1);
         assertThat(uttakPeriodeEndringer.get(0).getErEndret()).isTrue();
@@ -247,26 +245,28 @@ public class UttakPeriodeEndringDtoTjenesteTest {
     public void hent_endring_på_uttak_perioder_med_aksjonspunkt_overstyring_av_uttakperioder_finn_lagt_til_utakk_resultat_periode() {
 
         // Legg til opprinnelig periode
-        UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-                StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
+        var opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato,
+            dato.plusMonths(1), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
+        var opprinneligFordeling = new UttakResultatPerioderEntitet();
         opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
 
         // Legg til overstyrende periode
-        UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato.plusWeeks(2),
-                dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
+        var overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato.plusWeeks(2),
+            dato.plusMonths(1).plusWeeks(2), StønadskontoType.FORELDREPENGER, new BigDecimal("100"),
+            new Utbetalingsgrad(100));
+        var overstyrendeFordeling = new UttakResultatPerioderEntitet();
         overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
         fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
 
         // Legg til data i totrinnsvurdering.
-        Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
-        Totrinnsvurdering ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
+        var ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling,
+            AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
+        var ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
 
         // Hent endring på perioder
-        List<UttakPeriodeEndringDto> uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-                Optional.empty());
+        var uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
+            Optional.empty());
 
         assertThat(uttakPeriodeEndringer).hasSize(1);
         assertThat(uttakPeriodeEndringer.get(0).getErLagtTil()).isTrue();
@@ -275,78 +275,37 @@ public class UttakPeriodeEndringDtoTjenesteTest {
 
     }
 
-    @Test
-    public void hent_endring_på_uttak_perioder_med_aksjonspunkt_tilknyttet_stortinget_finn_slettet_utakk_resultat_periode() {
-
-        // Legg til opprinnelig periode
-        UttakResultatPeriodeEntitet opprinneligPeriode = opprettUttakResultatPeriode(PeriodeResultatType.IKKE_FASTSATT, dato, dato.plusMonths(1),
-                StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet opprinneligFordeling = new UttakResultatPerioderEntitet();
-        opprinneligFordeling.leggTilPeriode(opprinneligPeriode);
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), opprinneligFordeling);
-
-        // Legg til overstyrende periode
-        UttakResultatPeriodeEntitet overstyrendePeriode = opprettUttakResultatPeriode(PeriodeResultatType.INNVILGET, dato,
-                dato.plusMonths(1).minusDays(1),
-                StønadskontoType.FORELDREPENGER, new BigDecimal("100"), new Utbetalingsgrad(100));
-        UttakResultatPerioderEntitet overstyrendeFordeling = new UttakResultatPerioderEntitet();
-        overstyrendeFordeling.leggTilPeriode(overstyrendePeriode);
-        fpUttakRepository.lagreOverstyrtUttakResultatPerioder(behandling.getId(), overstyrendeFordeling);
-
-        // Legg til data i totrinnsvurdering.
-        Totrinnsvurdering.Builder ttvurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.TILKNYTTET_STORTINGET);
-        Totrinnsvurdering ttvurdering = ttvurderingBuilder.medGodkjent(false).medBegrunnelse("").build();
-
-        // Hent endring på perioder
-        List<UttakPeriodeEndringDto> uttakPeriodeEndringer = uttakPeriodeEndringDtoTjeneste.hentEndringPåUttakPerioder(ttvurdering, behandling,
-                Optional.empty());
-
-        assertThat(uttakPeriodeEndringer).hasSize(2);
-        assertThat(uttakPeriodeEndringer.get(0).getFom()).isEqualTo(uttakPeriodeEndringer.get(1).getFom());
-        assertThat(uttakPeriodeEndringer.get(1).getTom()).isBefore(uttakPeriodeEndringer.get(0).getTom());
-
-        assertThat(uttakPeriodeEndringer.get(0).getErSlettet()).isTrue();
-        assertThat(uttakPeriodeEndringer.get(0).getFom()).isEqualTo(LocalDate.of(2018, 8, 1));
-        assertThat(uttakPeriodeEndringer.get(0).getTom()).isEqualTo(LocalDate.of(2018, 9, 1));
-
-        assertThat(uttakPeriodeEndringer.get(1).getErLagtTil()).isTrue();
-        assertThat(uttakPeriodeEndringer.get(1).getFom()).isEqualTo(LocalDate.of(2018, 8, 1));
-        assertThat(uttakPeriodeEndringer.get(1).getTom()).isEqualTo(LocalDate.of(2018, 8, 31));
-
-    }
-
     private UttakResultatPeriodeEntitet opprettUttakResultatPeriode(PeriodeResultatType resultat,
-            LocalDate fom,
-            LocalDate tom,
-            StønadskontoType stønadskontoType,
-            BigDecimal graderingArbeidsprosent,
-            Utbetalingsgrad ubetalingsgrad) {
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
-                .medArbeidsforhold(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG), InternArbeidsforholdRef.nyRef())
-                .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-                .build();
-        UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-                .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
-                .medGraderingArbeidsprosent(graderingArbeidsprosent)
-                .medSamtidigUttak(true)
-                .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
-                .build();
-        UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
-                .medRegelInput(" ")
-                .medRegelEvaluering(" ")
-                .build();
-        UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-                .medDokRegel(dokRegel)
-                .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
-                .medPeriodeSoknad(periodeSøknad)
-                .build();
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
-                uttakAktivitet)
-                .medTrekkonto(stønadskontoType)
-                .medTrekkdager(new Trekkdager(10))
-                .medArbeidsprosent(graderingArbeidsprosent)
-                .medUtbetalingsgrad(ubetalingsgrad)
-                .build();
+                                                                    LocalDate fom,
+                                                                    LocalDate tom,
+                                                                    StønadskontoType stønadskontoType,
+                                                                    BigDecimal graderingArbeidsprosent,
+                                                                    Utbetalingsgrad ubetalingsgrad) {
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
+            .medArbeidsforhold(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG), InternArbeidsforholdRef.nyRef())
+            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
+            .build();
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
+            .medUttakPeriodeType(UttakPeriodeType.FELLESPERIODE)
+            .medGraderingArbeidsprosent(graderingArbeidsprosent)
+            .medSamtidigUttak(true)
+            .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
+            .build();
+        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
+            .medRegelInput(" ")
+            .medRegelEvaluering(" ")
+            .build();
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medDokRegel(dokRegel)
+            .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
+            .medPeriodeSoknad(periodeSøknad)
+            .build();
+        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode, uttakAktivitet)
+            .medTrekkonto(stønadskontoType)
+            .medTrekkdager(new Trekkdager(10))
+            .medArbeidsprosent(graderingArbeidsprosent)
+            .medUtbetalingsgrad(ubetalingsgrad)
+            .build();
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         return uttakResultatPeriode;
     }
