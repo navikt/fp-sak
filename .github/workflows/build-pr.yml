@@ -58,7 +58,7 @@ jobs:
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ steps.get-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.get-token.outputs.token }}
         run: |
           echo "Building $BUILD_VERSION"
           mvn package --quiet --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION}
