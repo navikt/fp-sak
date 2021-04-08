@@ -54,6 +54,7 @@ jobs:
         with:
           private-key: ${{ secrets.FP_PRIVATE_KEY }}
           app-id: ${{ secrets.FP_APP_ID }}
+          repo: navikt/fp-felles
 
       - name: Build
         env:
