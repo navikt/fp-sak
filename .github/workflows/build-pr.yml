@@ -32,10 +32,17 @@ jobs:
           distribution: 'adopt'
           java-version: 15
 
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.FP_PRIVATE_KEY }}
+          app-id: ${{ secrets.FP_APP_ID }}
+
+
       - name: Log into ghcr registry
         # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752
         # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
-        run: echo "${{ secrets.GH_ACCESS_TOKEN }}" | docker login --username "x-access-token" --password-stdin ghcr.io
+        run: echo "${{ steps.get-token.outputs.token }}" | docker login --username "x-access-token" --password-stdin ghcr.io
 
       - name: Hent og start Oracle image
         id: oracle
