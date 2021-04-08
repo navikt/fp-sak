@@ -211,6 +211,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
         return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
             && Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef())
             && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType())
+            && Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
             && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
             && Objects.equals(this.erBrukerMottaker(), other.erBrukerMottaker())
             && Objects.equals(this.getDagsats(), other.getDagsats())

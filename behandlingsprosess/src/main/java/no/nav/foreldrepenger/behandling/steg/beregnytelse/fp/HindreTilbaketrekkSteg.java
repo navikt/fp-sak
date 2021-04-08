@@ -80,6 +80,7 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         if (aggregatTY.getUtbetBeregningsresultatFP() != null) {
             // I enkelte tilfeller kopieres utbet resultat i vurder tilbaketrekk steget,
             // isåfall skal vi bare bruke dette og ikke reberegne noe mer her
+            // TFP-4279
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 

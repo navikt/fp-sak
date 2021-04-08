@@ -79,8 +79,9 @@ public class VurderTilbaketrekkSteg implements BehandlingSteg {
             // I saker som er opprettet pga feriepenger må reberegnes kan det komme tilfeller der vi ikke kan
             // omfordele igjen pga tilkommede arbeidsforhold, i slike tilfeller må vi sjekke om foreslått
             // resultat er likt og om det finnes et utbet. resultat vi kan kopiere, og isåfall kopiere dette
+            // TFP-4279
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)
-                && kopierUtbetResultatTjeneste.kanKopiereUtbetResultat(ref)) {
+                && kopierUtbetResultatTjeneste.kanKopiereForrigeUtbetResultat(ref)) {
                 kopierUtbetResultatTjeneste.kopierOgLagreUtbetBeregningsresultat(ref);
             }
             return BehandleStegResultat.utførtUtenAksjonspunkter();

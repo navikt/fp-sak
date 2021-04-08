@@ -73,7 +73,7 @@ class SammenlignBeregningsresultatTest {
             .medEndringsdato(stp);
         BeregningsresultatEntitet beregningsresultat1 = builder1.build();
         BeregningsresultatPeriode brPeriode1 = BeregningsresultatPeriode.builder()
-            .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15))
+            .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15)) // ulik
             .build(beregningsresultat1);
         BeregningsresultatAndel.builder()
             .medBrukerErMottaker(true)
@@ -129,7 +129,7 @@ class SammenlignBeregningsresultatTest {
             .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
             .medDagsats(2160)
             .medDagsatsFraBg(2160)
-            .medUtbetalingsgrad(BigDecimal.valueOf(99))
+            .medUtbetalingsgrad(BigDecimal.valueOf(99)) // ulik
             .medStillingsprosent(BigDecimal.valueOf(100))
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
