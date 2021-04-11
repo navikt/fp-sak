@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
 @ApplicationScoped
@@ -67,7 +66,7 @@ public class HistorikkinnslagTjeneste {
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
 
-        leggTilHistorikkinnslagDokumentlinker(behandling.getFagsak().getSaksnummer(), behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
+        leggTilHistorikkinnslagDokumentlinker(behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
 
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET);
@@ -100,11 +99,11 @@ public class HistorikkinnslagTjeneste {
         return false;
     }
 
-    void leggTilHistorikkinnslagDokumentlinker(Saksnummer saksnummer, BehandlingType behandlingType, JournalpostId journalpostId,
+    void leggTilHistorikkinnslagDokumentlinker(BehandlingType behandlingType, JournalpostId journalpostId,
                                                Historikkinnslag historikkinnslag, boolean elektronisk, boolean erIM) {
         List<HistorikkinnslagDokumentLink> dokumentLinker = new ArrayList<>();
         if (journalpostId != null) {
-            dokumentArkivTjeneste.hentJournalpostForSak(saksnummer, journalpostId).ifPresent(jp -> {
+            dokumentArkivTjeneste.hentJournalpostForSak(journalpostId).ifPresent(jp -> {
                 leggTilSøknadDokumentLenke(behandlingType, journalpostId, historikkinnslag, dokumentLinker, jp.getHovedDokument(), elektronisk, erIM);
                 jp.getAndreDokument().forEach(ad -> dokumentLinker.add(lagHistorikkInnslagDokumentLink(ad, journalpostId, historikkinnslag, VEDLEGG)));
             });
@@ -156,7 +155,7 @@ public class HistorikkinnslagTjeneste {
         historikkinnslag.setType(HistorikkinnslagType.VEDLEGG_MOTTATT);
         historikkinnslag.setFagsakId(fagsak.getId());
 
-        leggTilHistorikkinnslagDokumentlinker(fagsak.getSaksnummer(), BehandlingType.UDEFINERT, journalpostId, historikkinnslag,
+        leggTilHistorikkinnslagDokumentlinker(BehandlingType.UDEFINERT, journalpostId, historikkinnslag,
             elektronisk, DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
 
         HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()

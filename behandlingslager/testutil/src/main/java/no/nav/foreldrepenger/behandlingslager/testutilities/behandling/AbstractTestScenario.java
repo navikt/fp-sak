@@ -740,11 +740,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
             personer.stream().filter(a -> a.getType().equals(PersonopplysningVersjonType.OVERSTYRT))
                     .findFirst().ifPresent(b -> {
-                        if (personer.stream().noneMatch(c -> c.getType().equals(PersonopplysningVersjonType.REGISTRERT))) {
-                            // Sjekker om overstyring er ok, mao om registeropplysninger finnes
-                            personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
-                        }
-                        lagrePersoninfo(behandling, b, personopplysningRepository);
+                        throw new IllegalArgumentException("Overstyrt personinfo er kun legacy");
                     });
 
         } else {
@@ -773,16 +769,12 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         if (personInformasjon.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
             lagreRegisterPersoninfo(behandling, personInformasjon, repository);
         } else {
-            lagreOverstyrtPersoninfo(behandling, personInformasjon, repository);
+            throw new IllegalArgumentException("Overstyrt personopplysning er legacy");
         }
     }
 
     private void lagreRegisterPersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
         lagrePersoninfo(behandling, repository.opprettBuilderForRegisterdata(behandling.getId()), personInformasjon, repository);
-    }
-
-    private void lagreOverstyrtPersoninfo(Behandling behandling, PersonInformasjon personInformasjon, PersonopplysningRepository repository) {
-        lagrePersoninfo(behandling, repository.opprettBuilderForOverstyring(behandling.getId()), personInformasjon, repository);
     }
 
     private void lagrePersoninfo(Behandling behandling, PersonInformasjonBuilder personInformasjonBuilder, PersonInformasjon personInformasjon,
@@ -1441,7 +1433,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 oppdatere.medRegistrertVersjon(builder);
             }
             if (builder.getType().equals(PersonopplysningVersjonType.OVERSTYRT)) {
-                oppdatere.medOverstyrtVersjon(builder);
+                throw new IllegalArgumentException("Overstyrt personopplysning er legacy");
             }
             personopplysningMap.put(behandlingId, oppdatere.build());
         }
@@ -1452,13 +1444,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
-        }
-
-        @Override
-        public PersonInformasjonBuilder opprettBuilderForOverstyring(Long behandlingId) {
-            final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
-            return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getOverstyrtVersjon),
-                    PersonopplysningVersjonType.OVERSTYRT);
         }
 
         @Override

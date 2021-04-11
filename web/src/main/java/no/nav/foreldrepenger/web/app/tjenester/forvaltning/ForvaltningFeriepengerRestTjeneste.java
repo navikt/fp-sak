@@ -27,24 +27,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
-import no.nav.foreldrepenger.mottak.sakskompleks.OpprettReberegnFeriepengerTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeReberegnTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.feriepengeavstemming.Feriepengeavstemmer;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.util.Tuple;
 
@@ -62,14 +56,12 @@ public class ForvaltningFeriepengerRestTjeneste {
     private Behandlingsoppretter behandlingsoppretter;
     private BehandlingProsesseringTjeneste prosesseringTjeneste;
     private Feriepengeavstemmer feriepengeavstemmer;
-    private ProsessTaskRepository prosessTaskRepository;
 
     @Inject
     public ForvaltningFeriepengerRestTjeneste(FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste,
                                               InformasjonssakRepository repository,
                                               FagsakRepository fagsakRepository,
                                               BehandlingRepository behandlingRepository,
-                                              ProsessTaskRepository prosessTaskRepository,
                                               Behandlingsoppretter behandlingsoppretter,
                                               BehandlingProsesseringTjeneste prosesseringTjeneste,
                                               Feriepengeavstemmer feriepengeavstemmer) {
@@ -80,7 +72,6 @@ public class ForvaltningFeriepengerRestTjeneste {
         this.behandlingsoppretter = behandlingsoppretter;
         this.prosesseringTjeneste = prosesseringTjeneste;
         this.feriepengeavstemmer = feriepengeavstemmer;
-        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     public ForvaltningFeriepengerRestTjeneste() {
@@ -146,37 +137,5 @@ public class ForvaltningFeriepengerRestTjeneste {
             return Response.ok(String.format("Opprettet revurdering %s", revurdering.getId())).build();
         }
         return Response.ok("Ingen avvik å rebergne").build();
-    }
-
-    @POST
-    @Path("/reberegnPeriodeFeriepenger")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Reberegning av feriepenger for saker opprettet i periode", tags = "FORVALTNING-feriepenger")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response reberegnPeriodeForTilkjent(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        var callId = MDCOperations.getCallId();
-        repository.finnSakerForReberegningFeriepenger(dto.getFom(), dto.getTom()).stream()
-            .map(Tuple::getElement2)
-            .map(behandlingRepository::hentBehandling)
-            .filter(behandling -> behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsak().getId()).isEmpty())
-            .forEach(behandling -> {
-                var avvik1 = feriepengeRegeregnTjeneste.skalReberegneFeriepengerBatch(behandling.getId());
-                var avvik2 = feriepengeavstemmer.sjekkReberegnFeriepenger(behandling.getId());
-                if ((AvvikReberegningFeriepenger.AVVIK_ANDRE.equals(avvik1) || AvvikReberegningFeriepenger.AVVIK_ANDRE.equals(avvik2)) &&
-                    !AvvikReberegningFeriepenger.AVVIK_BRUKER_2019.equals(avvik1) && !AvvikReberegningFeriepenger.AVVIK_BRUKER_2019.equals(avvik2)) {
-                    opprettReberegningTask(behandling.getFagsakId(), behandling.getAktørId(), callId);
-                }
-            });
-
-        return Response.ok().build();
-    }
-
-    private void opprettReberegningTask(Long fagsakId, AktørId aktørId, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettReberegnFeriepengerTask.TASKTYPE);
-        prosessTaskData.setFagsak(fagsakId, aktørId.getId());
-        prosessTaskData.setPrioritet(50);
-        prosessTaskData.setCallId(callId + fagsakId);
-        prosessTaskRepository.lagre(prosessTaskData);
     }
 }

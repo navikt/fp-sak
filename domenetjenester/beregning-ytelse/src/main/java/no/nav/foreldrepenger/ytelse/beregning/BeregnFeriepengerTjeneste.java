@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -87,23 +86,6 @@ public abstract class BeregnFeriepengerTjeneste {
         if (loggAvvik) {
             SammenlignBeregningsresultatFeriepengerMedRegelResultat.loggAvvik(behandling.getFagsak().getSaksnummer(), behandling.getId(), beregningsresultat, regelModell);
         }
-
-        return !AvvikReberegningFeriepenger.INGEN_AVVIK.equals(SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, regelModell));
-    }
-
-    public AvvikReberegningFeriepenger avvikBeregnetFeriepengerBeregningsresultatBatch(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
-
-        var annenPartsBehandling = finnAnnenPartsBehandling(behandling);
-        var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
-            .flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
-        var gjeldendeDekningsgrad = fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak())
-            .getGjeldendeDekningsgrad();
-
-        var regelModell = mapFra(behandling, beregningsresultat, annenPartsBeregningsresultat, gjeldendeDekningsgrad,
-            antallDagerFeriepenger);
-
-        var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
-        regelBeregnFeriepenger.evaluer(regelModell);
 
         return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, regelModell);
     }

@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostVurderingDto;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.tjeneste.virksomhet.behandleforeldrepengesak.v1.binding.BehandleForeldrepengesakV1;
@@ -31,7 +34,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import no.nav.vedtak.util.env.Environment;
 
 /**
  * Webservice for å opprette sak i VL ved manuelle journalføringsoppgaver.
@@ -52,8 +54,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettSakService.class);
 
     private OpprettSakOrchestrator opprettSakOrchestrator;
-    private FpfordelRestKlient fordelKlient;
-    private boolean isEnvStable;
+    private DokumentArkivTjeneste dokumentArkivTjeneste;
 
     public OpprettSakService() {
         // NOSONAR: cdi
@@ -61,18 +62,9 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
     @Inject
     public OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
-            FpfordelRestKlient fordelKlient) {
+                             DokumentArkivTjeneste dokumentArkivTjeneste) {
         this.opprettSakOrchestrator = opprettSakOrchestrator;
-        this.fordelKlient = fordelKlient;
-        this.isEnvStable = Environment.current().isProd();
-    }
-
-    OpprettSakService(OpprettSakOrchestrator opprettSakOrchestrator,
-            FpfordelRestKlient fordelKlient,
-            boolean envForTest) {
-        this.opprettSakOrchestrator = opprettSakOrchestrator;
-        this.fordelKlient = fordelKlient;
-        this.isEnvStable = envForTest;
+        this.dokumentArkivTjeneste = dokumentArkivTjeneste;
     }
 
     @Override
@@ -101,24 +93,40 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
     }
 
     private void validerJournalpostId(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) throws OpprettSakUgyldigInput {
-        if (!isEnvStable)
-            return;
-        JournalpostVurderingDto vurdering = fordelKlient.utledYtelestypeFor(journalpostId);
-        var btVurdering = BehandlingTema.finnForKodeverkEiersKode(vurdering.getBehandlingstemaOffisiellKode());
-        var btOppgitt = BehandlingTema.fraFagsakHendelse(behandlingTema.getFagsakYtelseType(), null);
-        LOG.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", btVurdering, btOppgitt);
-        if (btVurdering.equals(btOppgitt) && (vurdering.getErFørstegangssøknad() || vurdering.getErInntektsmelding())) {
-            if (vurdering.getErInntektsmelding() && BehandlingTema.FORELDREPENGER.equals(btVurdering)
-                    && opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
-                UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
-                throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
+
+        var journalpost = dokumentArkivTjeneste.hentJournalpostForSak(journalpostId);
+        var hoveddokument = journalpost.map(ArkivJournalPost::getHovedDokument);
+        var journalpostYtelseType = FagsakYtelseType.UDEFINERT;
+        if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId::erSøknadType).isPresent()) {
+            var hovedtype = hoveddokument.map(ArkivDokument::getDokumentType).orElseThrow();
+            journalpostYtelseType = switch (hovedtype) {
+                case SØKNAD_ENGANGSSTØNAD_ADOPSJON -> FagsakYtelseType.ENGANGSTØNAD;
+                case SØKNAD_ENGANGSSTØNAD_FØDSEL -> FagsakYtelseType.ENGANGSTØNAD;
+                case SØKNAD_FORELDREPENGER_ADOPSJON -> FagsakYtelseType.FORELDREPENGER;
+                case SØKNAD_FORELDREPENGER_FØDSEL -> FagsakYtelseType.FORELDREPENGER;
+                case SØKNAD_SVANGERSKAPSPENGER ->  FagsakYtelseType.SVANGERSKAPSPENGER;
+                default -> FagsakYtelseType.UDEFINERT;
+            };
+            if (behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) return;
+        } else if (hoveddokument.map(ArkivDokument::getDokumentType).filter(DokumentTypeId.INNTEKTSMELDING::equals).isPresent()) {
+            var original = dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
+            if (original.contains("ytelse>foreldrepenger<")) {
+                if (opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
+                    UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
+                    throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
+                }
+                journalpostYtelseType = FagsakYtelseType.FORELDREPENGER;
+            } else if (original.contains("ytelse>svangerskapspenger<")) {
+                journalpostYtelseType = FagsakYtelseType.SVANGERSKAPSPENGER;
             }
-        } else if (BehandlingTema.UDEFINERT.equals(btVurdering) || btVurdering.equals(btOppgitt)) {
-            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
-                "Journalføre dokument på annen sak");
-        } else {
+        }
+        LOG.info("FPSAK vurdering FPFORDEL ytelsedok {} vs ytelseoppgitt {}", journalpostYtelseType, behandlingTema.getFagsakYtelseType());
+        if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");
+        } else if (FagsakYtelseType.UDEFINERT.equals(journalpostYtelseType)) {
+            throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
+                "Journalføre dokument på annen sak");
         }
     }
 

@@ -358,41 +358,4 @@ public class InformasjonssakRepository {
             .map(res -> new Tuple<>((String) res[0], ((BigDecimal) res[1]).longValue()))
             .collect(Collectors.toList());
     }
-
-    private static final String QUERY_REBERGN_FERIE = """
-        select distinct fs.saksnummer, beh.id
-        from fagsak fs join behandling beh on fagsak_id=fs.id
-        join behandling_resultat br on (br.behandling_id=beh.id and br.behandling_resultat_type in (:restyper))
-        join (select beh1.fagsak_id fsmax, max(br1.opprettet_tid) maxbr from behandling beh1
-             join behandling_resultat br1 on (br1.behandling_id=beh1.id and br1.behandling_resultat_type in (:restyper))
-             where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
-           on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
-        join BR_RESULTAT_BEHANDLING grbr on (grbr.behandling_id=beh.id and grbr.aktiv='J')
-        where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-        and fs.opprettet_tid >= :fomdato and fs.opprettet_tid <= :tomdato
-        and fs.ytelse_type = :foreldrepenger
-        """;
-
-    public List<Tuple<String, Long>> finnSakerForReberegningFeriepenger(LocalDate fom, LocalDate tom) {
-        /*
-         * Plukker behandlingId for senest avsluttetde behandling for fagsaker opprettet innen gitt tidsrom
-         */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
-            .collect(Collectors.toList());
-        Query query;
-        query = entityManager.createNativeQuery(QUERY_REBERGN_FERIE); //$NON-NLS-1$
-        query.setParameter("fomdato", fom); //$NON-NLS-1$
-        query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
-
-        query.setParameter("foreldrepenger", FagsakYtelseType.FORELDREPENGER.getKode()); //$NON-NLS-1$
-        query.setParameter("restyper", List.of(BehandlingResultatType.INNVILGET.getKode(), BehandlingResultatType.INGEN_ENDRING.getKode(),
-            BehandlingResultatType.FORELDREPENGER_ENDRET.getKode(), BehandlingResultatType.OPPHØR.getKode()));
-        query.setParameter("avsluttet", avsluttendeStatus); //$NON-NLS-1$
-        query.setParameter("behtyper", List.of(BehandlingType.FØRSTEGANGSSØKNAD.getKode(), BehandlingType.REVURDERING.getKode())); //$NON-NLS-1$
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream()
-            .map(res -> new Tuple<>((String) res[0], ((BigDecimal) res[1]).longValue()))
-            .collect(Collectors.toList());
-    }
 }

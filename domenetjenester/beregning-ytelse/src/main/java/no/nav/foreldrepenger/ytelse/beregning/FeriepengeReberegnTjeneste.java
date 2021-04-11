@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -46,19 +45,9 @@ public class FeriepengeReberegnTjeneste {
         return gjeldendeResultat.map(r -> utledNyttResultat(behandling, r, false)).orElse(false);
     }
 
-    public AvvikReberegningFeriepenger skalReberegneFeriepengerBatch(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<BeregningsresultatEntitet> gjeldendeResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
-        return gjeldendeResultat.map(r -> testReberegneFeriepengerBatch(behandling, r)).orElse(AvvikReberegningFeriepenger.INGEN_AVVIK);
-    }
-
     private boolean utledNyttResultat(Behandling behandling, BeregningsresultatEntitet gjeldendeResultat, boolean loggAvvik) {
         BeregnFeriepengerTjeneste feriepengetjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjenesteInstance, behandling.getFagsakYtelseType()).orElseThrow();
         return feriepengetjeneste.avvikBeregnetFeriepengerBeregningsresultat(behandling, gjeldendeResultat, loggAvvik);
     }
 
-    private AvvikReberegningFeriepenger testReberegneFeriepengerBatch(Behandling behandling, BeregningsresultatEntitet gjeldendeResultat) {
-        BeregnFeriepengerTjeneste feriepengetjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjenesteInstance, behandling.getFagsakYtelseType()).orElseThrow();
-        return feriepengetjeneste.avvikBeregnetFeriepengerBeregningsresultatBatch(behandling, gjeldendeResultat);
-    }
 }

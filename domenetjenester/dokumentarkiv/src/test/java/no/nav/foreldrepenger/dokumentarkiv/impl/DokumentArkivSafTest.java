@@ -91,7 +91,7 @@ public class DokumentArkivSafTest {
 
         when(saf.hentJournalpostInfo(any(), any())).thenReturn(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.I));
 
-        Optional<ArkivJournalPost> arkivDokument = dokumentApplikasjonTjeneste.hentJournalpostForSak(SAF_SAK, JOURNAL_ID);
+        Optional<ArkivJournalPost> arkivDokument = dokumentApplikasjonTjeneste.hentJournalpostForSak(JOURNAL_ID);
 
         assertThat(arkivDokument).isPresent();
         assertThat(arkivDokument.get().getAndreDokument()).isEmpty();
