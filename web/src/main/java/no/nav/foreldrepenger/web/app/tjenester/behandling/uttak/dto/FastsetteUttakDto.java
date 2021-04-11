@@ -100,33 +100,4 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
         }
 
     }
-
-    @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET_KODE)
-    public static class FastsetteUttakKontrollerTilstøtendeYtelserInnvilgetDto extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused") // NOSONAR
-        private FastsetteUttakKontrollerTilstøtendeYtelserInnvilgetDto() {
-            // For Jackson
-        }
-
-        public FastsetteUttakKontrollerTilstøtendeYtelserInnvilgetDto(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-    }
-
-    @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT_KODE)
-    public static class FastsetteUttakKontrollerTilstøtendeYtelserOpphørtDto extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused") // NOSONAR
-        private FastsetteUttakKontrollerTilstøtendeYtelserOpphørtDto() {
-            // For Jackson
-        }
-
-        public FastsetteUttakKontrollerTilstøtendeYtelserOpphørtDto(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-
-    }
 }

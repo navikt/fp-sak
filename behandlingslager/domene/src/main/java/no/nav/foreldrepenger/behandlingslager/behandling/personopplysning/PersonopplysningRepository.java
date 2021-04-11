@@ -230,12 +230,6 @@ public class PersonopplysningRepository {
     }
 
 
-    public PersonInformasjonBuilder opprettBuilderForOverstyring(Long behandlingId) {
-        final PersonopplysningGrunnlagEntitet aktivtGrunnlag = getAktivtGrunnlag(behandlingId).orElseThrow(IllegalStateException::new);
-        return PersonInformasjonBuilder.oppdater(aktivtGrunnlag.getOverstyrtVersjon(),
-            PersonopplysningVersjonType.OVERSTYRT);
-    }
-
     private Optional<PersonopplysningGrunnlagEntitet> getInitiellVersjonAvPersonopplysningBehandlingsgrunnlag(
                                                                                                               Long behandlingId) {
         // må også sortere på id da opprettetTidspunkt kun er til nærmeste millisekund og ikke satt fra db.

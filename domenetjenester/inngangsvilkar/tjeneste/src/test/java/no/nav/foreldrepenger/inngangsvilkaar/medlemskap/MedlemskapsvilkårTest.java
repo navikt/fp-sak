@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -442,23 +441,14 @@ public class MedlemskapsvilkårTest {
      * (FP_VK_2.2.1) = NEI
      */
     @Test
-    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_har_avklar_som_ikke_bosatt_og_ingen_relevant_arbeid_og_inntekt() {
+    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_utva_og_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
 
-        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UREG);
+        var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
 
         Behandling behandling = lagre(scenario);
-
-        Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository()
-                .opprettBuilderForOverstyring(behandlingId);
-        LocalDate utvandretDato = LocalDate.now().minusYears(10);
-        personInformasjonBuilder
-                .leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
-                        .medPersonstatus(PersonstatusType.UTVA));
-        repositoryProvider.getPersonopplysningRepository().lagre(behandlingId, personInformasjonBuilder);
 
         // Act
         VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
@@ -474,7 +464,7 @@ public class MedlemskapsvilkårTest {
      * (FP_VK_2.2.1) = JA
      */
     @Test
-    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_saksbehandler_setter_personstatus_til_utvandert_og_relevant_arbeid_og_inntekt_finnes() {
+    public void skal_få_medlemskapsvilkåret_satt_til_ikke_oppfylt_når_ureg_og_relevant_arbeid_og_inntekt_finnes() {
         // Arrange
 
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UREG);
@@ -486,14 +476,6 @@ public class MedlemskapsvilkårTest {
 
         opprettArbeidOgInntektForBehandling(behandling, SKJÆRINGSTIDSPUNKT.minusMonths(5), SKJÆRINGSTIDSPUNKT.plusDays(2));
 
-        Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder personInformasjonBuilder = repositoryProvider.getPersonopplysningRepository()
-                .opprettBuilderForOverstyring(behandlingId);
-        LocalDate utvandretDato = LocalDate.now().minusYears(10);
-        personInformasjonBuilder
-                .leggTil(personInformasjonBuilder.getPersonstatusBuilder(behandling.getAktørId(), DatoIntervallEntitet.fraOgMed(utvandretDato))
-                        .medPersonstatus(PersonstatusType.UTVA));
-        repositoryProvider.getPersonopplysningRepository().lagre(behandlingId, personInformasjonBuilder);
 
         // Act
         VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));

@@ -11,7 +11,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENTER_PÅ_KOMPLETT_SØKNAD_KODE = "7003";
     public static final String AUTO_SATT_PÅ_VENT_REVURDERING_KODE = "7005";
     public static final String AUTO_VENT_PÅ_FØDSELREGISTRERING_KODE = "7002";
-    public static final String AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER_KODE = "7006";
     public static final String AUTO_VENT_KOMPLETT_OPPDATERING_KODE = "7009";
     public static final String AUTO_KØET_BEHANDLING_KODE = "7011";
     public static final String AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE = "7014";
@@ -35,7 +34,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE = "7034";
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
-    public static final String AVKLAR_FAKTA_FOR_PERSONSTATUS_KODE = "5022";
     public static final String AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE = "5021";
     public static final String AVKLAR_LOVLIG_OPPHOLD_KODE = "5019";
     public static final String AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN_KODE = "5005";
@@ -137,7 +135,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FASTSETT_UTTAKPERIODER_KODE = "5071";
     public static final String AVKLAR_FØRSTE_UTTAKSDATO_KODE = "5081";
     public static final String ANNEN_FORELDER_IKKE_RETT_OG_LØPENDE_VEDTAK_KODE = "5088";
-    public static final String TILKNYTTET_STORTINGET_KODE = "5072";
     public static final String OVERSTYRING_AV_UTTAKPERIODER_KODE = "6008";
     public static final String AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT_KODE = "5086";
 
@@ -145,8 +142,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String KONTROLLER_OPPLYSNINGER_OM_FORDELING_AV_STØNADSPERIODEN_KODE = "5075";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";
     public static final String KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST_KODE = "5077";
-    public static final String KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET_KODE = "5078";
-    public static final String KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT_KODE = "5079";
 
     public static final String VURDER_PERIODER_MED_OPPTJENING_KODE = "5051";
     public static final String VURDER_ARBEIDSFORHOLD_KODE = "5080";

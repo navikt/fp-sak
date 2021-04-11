@@ -94,10 +94,6 @@ public final class PersonInformasjon {
 
     }
 
-    public static Builder buildOverstyrt() {
-        return new Builder(PersonopplysningVersjonType.OVERSTYRT);
-    }
-
     public static Builder buildRegistrert() {
         return new Builder(PersonopplysningVersjonType.REGISTRERT);
     }

@@ -39,7 +39,6 @@ public class BehandlendeFagsystem {
     public enum BehandlendeSystem {
         VEDTAKSLØSNING,
         VURDER_INFOTRYGD,
-        MANUELL_VURDERING,
-        PRØV_IGJEN
+        MANUELL_VURDERING
     }
 }

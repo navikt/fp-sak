@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 
 public class HistorikkinnslagTjenesteTest {
@@ -58,7 +57,7 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
 
         // Act
@@ -89,7 +88,7 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
@@ -113,7 +112,7 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
@@ -137,7 +136,7 @@ public class HistorikkinnslagTjenesteTest {
         Behandling behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(any(), eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
@@ -181,7 +180,7 @@ public class HistorikkinnslagTjenesteTest {
         historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, null, false, false, false);
 
         // Assert
-        verify(dokumentArkivTjeneste, times(0)).hentJournalpostForSak(any(Saksnummer.class), any(JournalpostId.class));
+        verify(dokumentArkivTjeneste, times(0)).hentJournalpostForSak(any(JournalpostId.class));
         ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository, times(1)).lagre(captor.capture());
         Historikkinnslag historikkinnslag = captor.getValue();

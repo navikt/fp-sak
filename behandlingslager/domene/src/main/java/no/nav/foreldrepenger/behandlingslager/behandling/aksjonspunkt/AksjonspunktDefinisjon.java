@@ -459,22 +459,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     _7021("7021", AksjonspunktType.AUTOPUNKT, "Endring i fordeling av ytelse bakover i tid (UTGÅTT)"),
     @Deprecated
-    _5078(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_INNVILGET_KODE, AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
+    _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
     @Deprecated
-    _5079(AksjonspunktKodeDefinisjon.KONTROLLER_TILSTØTENDE_YTELSER_OPPHØRT_KODE, AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
+    _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
     @Deprecated
-    TILKNYTTET_STORTINGET(AksjonspunktKodeDefinisjon.TILKNYTTET_STORTINGET_KODE,
-        AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget", BehandlingStegType.VURDER_UTTAK,
-        VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
+    _5072("5072", AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget"),
     @Deprecated
-    AVKLAR_FAKTA_FOR_PERSONSTATUS(
-        AksjonspunktKodeDefinisjon.AVKLAR_FAKTA_FOR_PERSONSTATUS_KODE, AksjonspunktType.MANUELL, "Avklar fakta for status på person.",
-        BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER,
-        ENTRINN, EnumSet.of(ES, FP, SVP)),
+    _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
-    AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_OPPTJENINGSOPPLYSNINGER_KODE, AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger",
-        BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.FAKTA_FOR_OPPTJENING,
-        ENTRINN, TILBAKE, "P2W", EnumSet.of(FP, SVP)),
+    _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     ;
 
     static final String KODEVERK = "AKSJONSPUNKT_DEF";

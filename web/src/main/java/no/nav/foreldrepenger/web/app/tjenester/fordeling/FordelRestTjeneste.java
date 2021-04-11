@@ -239,10 +239,6 @@ public class FordelRestTjeneste {
             case VEDTAKSLØSNING -> dto.setBehandlesIVedtaksløsningen(true);
             case VURDER_INFOTRYGD -> dto.setSjekkMotInfotrygd(true);
             case MANUELL_VURDERING -> dto.setManuellVurdering(true);
-            case PRØV_IGJEN -> {
-                dto.setPrøvIgjen(true);
-                dto.setPrøvIgjenTidspunkt(behandlendeFagsystem.getPrøvIgjenTidspunkt());
-            }
             default -> throw new IllegalArgumentException("Utviklerfeil, manglende mapping");
         }
         return dto;

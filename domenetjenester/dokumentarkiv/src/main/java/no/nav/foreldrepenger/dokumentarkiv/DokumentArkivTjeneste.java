@@ -67,6 +67,11 @@ public class DokumentArkivTjeneste {
         return safKlient.hentDokument(query);
     }
 
+    public String hentStrukturertDokument(JournalpostId journalpostId, String dokumentId) {
+        var query = new HentDokumentQuery(journalpostId.getVerdi(), dokumentId, VariantFormat.ORIGINAL.getOffisiellKode());
+        return new String(safKlient.hentDokument(query));
+    }
+
     public List<ArkivJournalPost> hentAlleDokumenterForVisning(Saksnummer saksnummer) {
         return hentAlleJournalposterForSak(saksnummer).stream()
             .map(this::kopiMedKunArkivdokument)
@@ -120,7 +125,7 @@ public class DokumentArkivTjeneste {
         return journalposter;
     }
 
-    public Optional<ArkivJournalPost> hentJournalpostForSak(@SuppressWarnings("unused") Saksnummer saksnummer, JournalpostId journalpostId) {
+    public Optional<ArkivJournalPost> hentJournalpostForSak(JournalpostId journalpostId) {
         var query = new JournalpostQueryRequest();
         query.setJournalpostId(journalpostId.getVerdi());
 

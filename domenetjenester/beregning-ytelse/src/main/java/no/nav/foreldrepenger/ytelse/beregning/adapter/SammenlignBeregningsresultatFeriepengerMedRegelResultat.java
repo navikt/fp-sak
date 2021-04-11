@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AvvikReberegningFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -36,14 +35,14 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         // unused
     }
 
-    public static AvvikReberegningFeriepenger erAvvik(BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell) {
+    public static boolean erAvvik(BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell) {
 
         if (regelModell.getFeriepengerPeriode() == null) {
             var tilkjent = resultat.getBeregningsresultatFeriepenger()
                 .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()).stream()
                 .map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp)
                 .reduce(new Beløp(BigDecimal.ZERO), Beløp::adder);
-            return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK ? AvvikReberegningFeriepenger.AVVIK_ANDRE : AvvikReberegningFeriepenger.INGEN_AVVIK;
+            return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK;
         }
 
         List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> andelerFraRegelKjøring =
@@ -53,7 +52,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
                 .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
                 .collect(Collectors.toList());
 
-        return sammenlignFeriepengeandeler(andelerFraRegelKjøring,
+        return sammenlignFeriepengeandelerHarAvvik(andelerFraRegelKjøring,
             resultat.getBeregningsresultatFeriepenger().map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()));
     }
 
@@ -84,8 +83,8 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         return årsbeløp != 0L;
     }
 
-    private static AvvikReberegningFeriepenger sammenlignFeriepengeandeler(List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> nyeAndeler,
-                                                                           List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
+    private static boolean sammenlignFeriepengeandelerHarAvvik(List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> nyeAndeler,
+                                                               List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
         var simulert = sorterteTilkjenteRegelFeriepenger(nyeAndeler);
         var tilkjent = sorterteTilkjenteFeriepenger(gjeldendeAndeler);
 
@@ -93,10 +92,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         tilkjent.forEach((key, value) -> summert.put(key, value.getVerdi()));
         simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
 
-        var avvikBruker2019 = summert.entrySet().stream().anyMatch(e -> AndelGruppering.BRUKER_FØR_2020.equals(e.getKey()) && erAvvik(e.getValue()));
-        if (avvikBruker2019) return AvvikReberegningFeriepenger.AVVIK_BRUKER_2019;
-        var erAvvik = summert.values().stream().anyMatch(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvvik);
-        return erAvvik ? AvvikReberegningFeriepenger.AVVIK_ANDRE : AvvikReberegningFeriepenger.INGEN_AVVIK;
+        return summert.values().stream().anyMatch(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvvik);
     }
 
     private static boolean sammenlignFeriepengerLogg(Saksnummer saksnummer, Long behandlingId,
@@ -160,8 +156,6 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
             this.opptjent = opptjent;
             this.mottaker = mottaker;
         }
-
-        static AndelGruppering BRUKER_FØR_2020 = new AndelGruppering(Year.of(2019), BRUKER);
 
         public Year getOpptjent() {
             return opptjent;

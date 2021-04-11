@@ -10,11 +10,9 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppholdstillatelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
@@ -95,21 +93,6 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     private PersonopplysningRepository getPersonopplysningRepository() {
         return personopplysningRepository;
-    }
-
-
-
-    public void lagreAvklartPersonstatus(Long behandlingId, AktørId aktørId, PersonstatusType personstatusType, DatoIntervallEntitet intervall) {
-        if (!PersonstatusType.personstatusTyperFortsattBehandling().contains(personstatusType)) {
-            throw new IllegalArgumentException("har ikke avklart personsstatus");
-        }
-        PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForOverstyring(behandlingId);
-        PersonInformasjonBuilder.PersonstatusBuilder medPersonstatus = builder.getPersonstatusBuilder(aktørId, intervall)
-            .medAktørId(aktørId)
-            .medPeriode(intervall)
-            .medPersonstatus(personstatusType);
-        builder.leggTil(medPersonstatus);
-        personopplysningRepository.lagre(behandlingId, builder);
     }
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
