@@ -24,12 +24,9 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE = "7032";
     public static final String AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE = "7033";
     public static final String AUTO_VENT_FEIL_ENDRINGSSØKNAD= "7035";
-    public static final String AUTO_VENT_PÅ_MANGLENDE_ARBEIDSFORHOLD_KOMMUNEREFORM_KODE = "7036";
     public static final String AUTO_VENT_PÅ_SYKEMELDING_KODE = "7037";
 
 
-    public static final String AUTO_VENT_ULIKE_STARTDATOER_SVP_KODE = "7026";
-    public static final String AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP_KODE = "7027";
     public static final String AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP_KODE = "7031";
     public static final String AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE = "7034";
 
