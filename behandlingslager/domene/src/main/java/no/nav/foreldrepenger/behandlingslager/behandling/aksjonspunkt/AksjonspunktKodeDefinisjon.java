@@ -14,24 +14,12 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_KOMPLETT_OPPDATERING_KODE = "7009";
     public static final String AUTO_KØET_BEHANDLING_KODE = "7011";
     public static final String AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE = "7014";
-    public static final String AUTO_VENT_PÅ_REGLER_FOR_DØDFØDSEL_80P_DEKNINGSGRAD_KODE = "7018";
-    public static final String AUTO_VENT_GRADERING_UTEN_BEREGNINGSGRUNNLAG_KODE = "7019";
     public static final String AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT_KODE = "7020";
-    public static final String AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID_KODE = "7022";
-    public static final String AUTO_VENT_MILITÆR_OG_BG_UNDER_3G_KODE = "7023";
-    public static final String AUTO_VENT_GRADERING_FLERE_ARBEIDSFORHOLD_KODE = "7025";
     public static final String AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE = "7030";
     public static final String AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE = "7032";
     public static final String AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE = "7033";
-    public static final String AUTO_VENT_FEIL_ENDRINGSSØKNAD= "7035";
-    public static final String AUTO_VENT_PÅ_MANGLENDE_ARBEIDSFORHOLD_KOMMUNEREFORM_KODE = "7036";
     public static final String AUTO_VENT_PÅ_SYKEMELDING_KODE = "7037";
 
-
-    public static final String AUTO_VENT_ULIKE_STARTDATOER_SVP_KODE = "7026";
-    public static final String AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP_KODE = "7027";
-    public static final String AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP_KODE = "7031";
-    public static final String AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE = "7034";
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
     public static final String AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE_KODE = "5021";

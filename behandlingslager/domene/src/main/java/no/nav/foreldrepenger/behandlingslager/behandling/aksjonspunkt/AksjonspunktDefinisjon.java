@@ -398,42 +398,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             "P3W", EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_INNTEKT_RAPPORTERINGSFRIST_KODE, AksjonspunktType.AUTOPUNKT, "Vent på rapporteringsfrist for inntekt",
             BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_PÅ_REGLER_FOR_DØDFØDSEL_80P_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_REGLER_FOR_DØDFØDSEL_80P_DEKNINGSGRAD_KODE, AksjonspunktType.AUTOPUNKT,
-            "Autopunkt dødfødsel 80% dekningsgrad",
-            BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_GRADERING_UTEN_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.AUTO_VENT_GRADERING_UTEN_BEREGNINGSGRUNNLAG_KODE, AksjonspunktType.AUTOPUNKT,
-            "Autopunkt gradering uten beregningsgrunnlag",
-            BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT_KODE, AksjonspunktType.AUTOPUNKT,
             "Vent på siste meldekort for AAP eller DP-mottaker", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID(AksjonspunktKodeDefinisjon.AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID_KODE, AksjonspunktType.AUTOPUNKT,
-            "Vent på ny inntektsmelding med gyldig arbeidsforholdId", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_MILITÆR_OG_BG_UNDER_3G(AksjonspunktKodeDefinisjon.AUTO_VENT_MILITÆR_OG_BG_UNDER_3G_KODE, AksjonspunktType.AUTOPUNKT,
-            "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G", BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG,
-            VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_GRADERING_FLERE_ARBEIDSFORHOLD(AksjonspunktKodeDefinisjon.AUTO_VENT_GRADERING_FLERE_ARBEIDSFORHOLD_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt gradering flere arbeidsforhold",
-            BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_ULIKE_STARTDATOER_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_ULIKE_STARTDATOER_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt ulike startdatoer svangerskapspenger",
-            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_DELVIS_TILRETTELEGGING_OG_REFUSJON_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt delvis SVP og refusjon",
-            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ETTERLYST_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på etterlyst inntektsmelding",
             BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(FP, SVP)),
-    AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_AAP_DP_ENESTE_AKTIVITET_SVP_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt AAP/DP eneste aktivitet SVP",
-            BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker",
             BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, FORBLI, "P3W", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke oversendt til Trygderetten",
             BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P2Y", EnumSet.of(ES, FP, SVP)),
-    AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP(AksjonspunktKodeDefinisjon.AUTO_VENT_FLERE_ARBEIDSFORHOLD_SAMME_ORG_SVP_KODE, AksjonspunktType.AUTOPUNKT,
-            "Autopunkt Flere arbeidsforhold i samme virksomhet SVP", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
-        UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_FEIL_ENDRINGSSØKNAD(AksjonspunktKodeDefinisjon.AUTO_VENT_FEIL_ENDRINGSSØKNAD, AksjonspunktType.AUTOPUNKT, "Potensielt feil i endringssøknad, kontakt bruker",
-            BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(ES, FP, SVP)),
-    AUTO_VENT_PÅ_MANGLENDE_ARBEIDSFORHOLD_KOMMUNEREFORM(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_MANGLENDE_ARBEIDSFORHOLD_KOMMUNEREFORM_KODE, AksjonspunktType.AUTOPUNKT, "Vent på manglende arbeidsforhold",
-        BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
         "Vent på siste sykemelding fra søker som mottar sykepenger basert på dagpenger", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
@@ -468,6 +441,26 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
     _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
+    @Deprecated
+    _7018("7018", AksjonspunktType.AUTOPUNKT, "Autopunkt dødfødsel 80% dekningsgrad."),
+    @Deprecated
+    _7019("7019", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering uten beregningsgrunnlag."),
+    @Deprecated
+    _7022("7022", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ny inntektsmelding med gyldig arbeidsforholdId."),
+    @Deprecated
+    _7023("7023", AksjonspunktType.AUTOPUNKT, "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G."),
+    @Deprecated
+    _7025("7025", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering flere arbeidsforhold."),
+    @Deprecated
+    _7026("7026", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ulike startdatoer i SVP."),
+    @Deprecated
+    _7027("7027", AksjonspunktType.AUTOPUNKT, "Autopunkt vent delvis tilrettelegging og refusjon SVP."),
+    @Deprecated
+    _7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
+    @Deprecated
+    _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
+    @Deprecated
+    _7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
     ;
 
     static final String KODEVERK = "AKSJONSPUNKT_DEF";
