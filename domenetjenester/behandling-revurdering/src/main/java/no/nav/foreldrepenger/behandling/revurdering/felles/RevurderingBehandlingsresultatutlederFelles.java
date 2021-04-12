@@ -108,14 +108,14 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         }
 
         var utfall = medlemTjeneste.utledVilkårUtfall(revurdering);
-        if (!utfall.getElement1().equals(VilkårUtfallType.OPPFYLT)) {
+        if (!utfall.vilkårUtfallType().equals(VilkårUtfallType.OPPFYLT)) {
             var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
             var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
             behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.OPPHØR);
             behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_IKKE_RETT_TIL_FP);
             behandlingsresultatBuilder.leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER);
             behandlingsresultatBuilder.medVedtaksbrev(Vedtaksbrev.AUTOMATISK);
-            behandlingsresultat.setAvslagsårsak(utfall.getElement2());
+            behandlingsresultat.setAvslagsårsak(utfall.avslagsårsak());
             return behandlingsresultatBuilder.buildFor(revurdering);
         }
 

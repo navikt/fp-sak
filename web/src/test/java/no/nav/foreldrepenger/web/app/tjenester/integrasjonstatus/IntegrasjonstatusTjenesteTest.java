@@ -37,10 +37,10 @@ public class IntegrasjonstatusTjenesteTest {
         List<SystemNedeDto> systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
 
         assertThat(systemerSomErNede).hasSize(1);
-        assertThat(systemerSomErNede.get(0).getSystemNavn()).isEqualTo("fpsak");
-        assertThat(systemerSomErNede.get(0).getFeilmelding()).isEqualTo("test nede");
-        assertThat(systemerSomErNede.get(0).getEndepunkt()).isEqualTo("test");
-        assertThat(systemerSomErNede.get(0).getStackTrace()).isNull();
+        assertThat(systemerSomErNede.get(0).systemNavn()).isEqualTo("fpsak");
+        assertThat(systemerSomErNede.get(0).feilmelding()).isEqualTo("test nede");
+        assertThat(systemerSomErNede.get(0).endepunkt()).isEqualTo("test");
+        assertThat(systemerSomErNede.get(0).stackTrace()).isNull();
     }
 
     @Test
@@ -53,9 +53,9 @@ public class IntegrasjonstatusTjenesteTest {
         List<SystemNedeDto> systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
 
         assertThat(systemerSomErNede).hasSize(1);
-        assertThat(systemerSomErNede.get(0).getSystemNavn()).isEqualTo("fpsak");
-        assertThat(systemerSomErNede.get(0).getFeilmelding()).isEqualTo("test");
-        assertThat(systemerSomErNede.get(0).getEndepunkt()).isEqualTo("test");
-        assertThat(systemerSomErNede.get(0).getStackTrace()).isNull();
+        assertThat(systemerSomErNede.get(0).systemNavn()).isEqualTo("fpsak");
+        assertThat(systemerSomErNede.get(0).feilmelding()).isEqualTo("test");
+        assertThat(systemerSomErNede.get(0).endepunkt()).isEqualTo("test");
+        assertThat(systemerSomErNede.get(0).stackTrace()).isNull();
     }
 }

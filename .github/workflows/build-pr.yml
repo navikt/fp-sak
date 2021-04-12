@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 15
+          java-version: 16
 
       - name: Log into ghcr registry
         # GITHUB_TOKEN fungere ikke for PR enda... https://github.community/t/cant-authenticate-with-actions-token-for-pr-event/170752

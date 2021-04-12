@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class MedlemTjeneste {
@@ -262,7 +261,9 @@ public class MedlemTjeneste {
         return startDato.isAfter(LocalDate.now()) ? LocalDate.now() : startDato;
     }
 
-    public Tuple<VilkårUtfallType, Avslagsårsak> utledVilkårUtfall(Behandling revurdering) {
+    public static record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {}
+
+    public VilkårUtfallMedÅrsak utledVilkårUtfall(Behandling revurdering) {
         Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
         Optional<Vilkår> medlemOpt = behandlingsresultat.getVilkårResultat()
             .getVilkårene()
@@ -273,7 +274,7 @@ public class MedlemTjeneste {
         if (medlemOpt.isPresent()) {
             Vilkår medlem = medlemOpt.get();
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return new Tuple<>(medlem.getGjeldendeVilkårUtfall(), Avslagsårsak.fraKode(medlem.getVilkårUtfallMerknad().getKode()));
+                return new VilkårUtfallMedÅrsak(medlem.getGjeldendeVilkårUtfall(), Avslagsårsak.fraKode(medlem.getVilkårUtfallMerknad().getKode()));
             } else {
                 Optional<Vilkår> løpendeOpt = behandlingsresultat.getVilkårResultat()
                     .getVilkårene()
@@ -283,14 +284,14 @@ public class MedlemTjeneste {
                 if (løpendeOpt.isPresent()) {
                     Vilkår løpende = løpendeOpt.get();
                     if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && !løpende.erOverstyrt()) {
-                        return new Tuple<>(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.fraKode(løpende.getVilkårUtfallMerknad().getKode()));
+                        return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.fraKode(løpende.getVilkårUtfallMerknad().getKode()));
                     } else if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
                         Avslagsårsak avslagsårsak = løpende.getAvslagsårsak();
-                        return new Tuple<>(VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
+                        return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
                     }
                 }
             }
-            return new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
+            return new VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
         }
         throw new IllegalStateException("Kan ikke utlede vilkår utfall type når medlemskapsvilkåret ikke finnes");
     }

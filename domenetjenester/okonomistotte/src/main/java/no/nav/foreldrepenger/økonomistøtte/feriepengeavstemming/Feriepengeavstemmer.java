@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -76,14 +75,14 @@ public class Feriepengeavstemmer {
 
         if (logging) {
             Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
-            oppdrag.forEach((key, value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value)));
-            tilkjent.forEach((key, value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
+            oppdrag.forEach((key, value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).add(value)));
+            tilkjent.forEach((key, value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
 
             summert.entrySet().stream()
                 .filter(e -> Math.abs(e.getValue().longValue()) > 3)
                 .forEach(e -> LOG.info("{}:{}:saksnummer:{}:år:{}:mottaker:{}:diff:{}:oppdrag:{}:tilkjent:{}",
-                    AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "oppdrag-tilkjent" : "omfordelt",
-                    saksnummer.getVerdi(), e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                    AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().opptjent())) ? "oppdrag-tilkjent" : "omfordelt",
+                    saksnummer.getVerdi(), e.getKey().opptjent(), e.getKey().mottaker(), e.getValue().longValue(),
                     oppdrag.getOrDefault(e.getKey(), BigDecimal.ZERO).longValue(), tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
         }
         return summert.values().stream().anyMatch(Feriepengeavstemmer::erAvvik);
@@ -145,39 +144,7 @@ public class Feriepengeavstemmer {
             .collect(Collectors.toList());
     }
 
-
-    public static class GrupperingNøkkel {
-
-        private final Year opptjent;
-        private final String mottaker;
-
-        public GrupperingNøkkel(Year opptjent, String mottaker) {
-            this.opptjent = opptjent;
-            this.mottaker = mottaker;
-        }
-
-        public Year getOpptjent() {
-            return opptjent;
-        }
-
-        public String getMottaker() {
-            return mottaker;
-        }
-
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            GrupperingNøkkel that = (GrupperingNøkkel) o;
-            return Objects.equals(opptjent, that.opptjent) && Objects.equals(mottaker, that.mottaker);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(opptjent, mottaker);
-        }
+    private static record GrupperingNøkkel(Year opptjent, String mottaker) {
     }
-
 
 }

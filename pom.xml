@@ -31,9 +31,9 @@
     </modules>
 
     <properties>
-        <java.version>15</java.version>
+        <java.version>16</java.version>
         <!-- default argLine for surefire-plugin -->
-        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding} -Dillegal-access=permit</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
         <revision>4.0.0</revision>
