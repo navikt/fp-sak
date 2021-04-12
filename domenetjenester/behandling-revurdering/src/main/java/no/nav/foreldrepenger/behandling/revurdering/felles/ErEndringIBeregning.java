@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
@@ -38,7 +39,8 @@ public class ErEndringIBeregning {
     }
 
     public static boolean vurderUgunst(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag,
-            Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
+                                       Optional<BeregningsgrunnlagEntitet> originaltGrunnlag,
+                                       LocalDate sisteDagMedUttak) {
         if (revurderingsGrunnlag.isEmpty()) {
             return originaltGrunnlag.isPresent();
         }
@@ -48,7 +50,11 @@ public class ErEndringIBeregning {
         List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
 
-        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
+        // Sjekker kun ugunst i perioden frem til siste uttaksdato
+        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder)
+            .stream()
+            .filter(dato -> !dato.isAfter(sisteDagMedUttak))
+            .collect(Collectors.toSet());
 
         for (LocalDate dato : allePeriodeDatoer) {
             Long dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
