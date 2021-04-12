@@ -25,7 +25,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private HarEtablertYtelseFP harEtablertYtelse;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private UgunstTjenesteFP ugunstTjenesteFP;
+    private BehandlingsresultatBeregningTjenesteFP ugunstTjenesteFP;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
@@ -35,7 +35,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                                                  @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                  MedlemTjeneste medlemTjeneste,
                                                  ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                                 @FagsakYtelseTypeRef("FP") UgunstTjenesteFP ugunstTjenesteFP) {
+                                                 @FagsakYtelseTypeRef("FP") BehandlingsresultatBeregningTjenesteFP ugunstTjenesteFP) {
         super(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 medlemTjeneste,

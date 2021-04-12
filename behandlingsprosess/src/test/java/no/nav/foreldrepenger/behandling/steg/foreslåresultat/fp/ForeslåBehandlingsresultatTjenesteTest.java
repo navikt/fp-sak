@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UgunstTjenesteFP;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BehandlingsresultatBeregningTjenesteFP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -71,7 +71,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private final UgunstTjenesteFP ugunstTjeneste = mock(UgunstTjenesteFP.class);
+    private final BehandlingsresultatBeregningTjenesteFP ugunstTjeneste = mock(BehandlingsresultatBeregningTjenesteFP.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository;

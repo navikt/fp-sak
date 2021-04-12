@@ -26,7 +26,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     private SvangerskapspengerUttakResultatRepository uttakRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private UgunstTjenesteSVP ugunstTjenesteSVP;
+    private BehandlingsresultatBeregningTjenesteSVP ugunstTjenesteSVP;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
@@ -34,7 +34,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                                                  OpphørUttakTjeneste opphørUttakTjeneste,
                                                  @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                  MedlemTjeneste medlemTjeneste,
-                                                 @FagsakYtelseTypeRef("SVP") UgunstTjenesteSVP ugunstTjenesteSVP) {
+                                                 @FagsakYtelseTypeRef("SVP") BehandlingsresultatBeregningTjenesteSVP ugunstTjenesteSVP) {
         super(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 medlemTjeneste,

@@ -10,8 +10,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIBeregning;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UgunstTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.BehandlingsresultatBeregningTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 
 @BehandlingStegRef(kode = "FORVEDSTEG")
 @BehandlingTypeRef("BT-004") // Revurdering
@@ -41,7 +39,7 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     private BehandlingRepository behandlingRepository;
     private ForeslåVedtakTjeneste foreslåVedtakTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private Instance<UgunstTjeneste> ugunstTjenester;
+    private Instance<BehandlingsresultatBeregningTjeneste> ugunstTjenester;
 
 
     ForeslåVedtakRevurderingStegImpl() {
@@ -51,7 +49,7 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     ForeslåVedtakRevurderingStegImpl(ForeslåVedtakTjeneste foreslåVedtakTjeneste,
             HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
             BehandlingRepositoryProvider repositoryProvider,
-            @Any Instance<UgunstTjeneste> ugunstTjenester) {
+            @Any Instance<BehandlingsresultatBeregningTjeneste> ugunstTjenester) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.foreslåVedtakTjeneste = foreslåVedtakTjeneste;
@@ -71,13 +69,13 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
             return behandleStegResultat;
         }
 
-        UgunstTjeneste ugunstTjeneste = FagsakYtelseTypeRef.Lookup.find(ugunstTjenester, revurdering.getFagsakYtelseType())
+        BehandlingsresultatBeregningTjeneste behandlingsresultatBeregningTjeneste = FagsakYtelseTypeRef.Lookup.find(ugunstTjenester, revurdering.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Finner ingen matcende implementasjon av" +
                 " UgunstTjeneste for ytelse av typen " + revurdering.getFagsakYtelseType().getKode()));
 
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn
         // orginal
-        if (ugunstTjeneste.erUgunst(BehandlingReferanse.fra(revurdering))) {
+        if (behandlingsresultatBeregningTjeneste.erUgunst(BehandlingReferanse.fra(revurdering))) {
             List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktResultater().stream()
                     .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);

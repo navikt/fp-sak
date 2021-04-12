@@ -121,7 +121,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Mock
     private OpphørUttakTjeneste opphørUttakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-    private UgunstTjenesteSVP ugunstTjenesteSVP;
+    private BehandlingsresultatBeregningTjenesteSVP ugunstTjenesteSVP;
 
     @BeforeEach
     public void setUp() {
@@ -136,7 +136,7 @@ public class RevurderingBehandlingsresultatutlederTest {
                 .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
-        ugunstTjenesteSVP = new UgunstTjenesteSVP(hentBeregningsgrunnlagTjeneste, uttakRepository);
+        ugunstTjenesteSVP = new BehandlingsresultatBeregningTjenesteSVP(hentBeregningsgrunnlagTjeneste, uttakRepository);
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 hentBeregningsgrunnlagTjeneste,

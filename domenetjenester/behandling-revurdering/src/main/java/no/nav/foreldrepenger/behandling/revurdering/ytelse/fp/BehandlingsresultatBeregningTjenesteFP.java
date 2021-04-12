@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIBeregning;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UgunstTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.BehandlingsresultatBeregningTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
@@ -20,17 +20,17 @@ import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
-public class UgunstTjenesteFP implements UgunstTjeneste {
+public class BehandlingsresultatBeregningTjenesteFP implements BehandlingsresultatBeregningTjeneste {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
 
-    public UgunstTjenesteFP() {
+    public BehandlingsresultatBeregningTjenesteFP() {
         // CDI
     }
 
     @Inject
-    public UgunstTjenesteFP(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                            ForeldrepengerUttakTjeneste uttakTjeneste) {
+    public BehandlingsresultatBeregningTjenesteFP(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                  ForeldrepengerUttakTjeneste uttakTjeneste) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.uttakTjeneste = uttakTjeneste;
     }

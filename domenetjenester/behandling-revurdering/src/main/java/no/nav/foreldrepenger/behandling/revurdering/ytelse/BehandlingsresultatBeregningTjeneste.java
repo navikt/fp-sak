@@ -5,7 +5,7 @@ import no.nav.foreldrepenger.domene.uttak.input.YtelsespesifiktGrunnlag;
 
 import java.util.Optional;
 
-public interface UgunstTjeneste {
+public interface BehandlingsresultatBeregningTjeneste {
 
     boolean erUgunst(BehandlingReferanse ref);
 

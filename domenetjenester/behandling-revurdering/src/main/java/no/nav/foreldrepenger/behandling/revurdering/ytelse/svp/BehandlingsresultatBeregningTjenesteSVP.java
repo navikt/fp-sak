@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.svp;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.ErEndringIBeregning;
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UgunstTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.BehandlingsresultatBeregningTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
@@ -16,17 +16,17 @@ import java.util.Optional;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
-public class UgunstTjenesteSVP implements UgunstTjeneste {
+public class BehandlingsresultatBeregningTjenesteSVP implements BehandlingsresultatBeregningTjeneste {
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
-    public UgunstTjenesteSVP() {
+    public BehandlingsresultatBeregningTjenesteSVP() {
         // CDI
     }
 
     @Inject
-    public UgunstTjenesteSVP(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-                             SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository) {
+    public BehandlingsresultatBeregningTjenesteSVP(HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                   SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository) {
         this.beregningsgrunnlagTjeneste = beregningsgrunnlagTjeneste;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
     }

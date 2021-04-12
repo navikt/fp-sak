@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UgunstTjenesteSVP;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.BehandlingsresultatBeregningTjenesteSVP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -68,7 +68,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private final EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
-    private final UgunstTjenesteSVP ugunstTjeneste = mock(UgunstTjenesteSVP.class);
+    private final BehandlingsresultatBeregningTjenesteSVP ugunstTjeneste = mock(BehandlingsresultatBeregningTjenesteSVP.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
