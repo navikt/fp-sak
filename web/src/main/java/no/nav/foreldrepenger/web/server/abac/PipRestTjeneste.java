@@ -26,11 +26,15 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
-@Path("/pip")
+@Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class PipRestTjeneste {
+
+    protected static final String PIP_BASE_PATH = "/pip";
+    private static final String PIPDATA_FOR_BEHANDLING = "/pipdata-for-behandling";
+    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak";
 
     private PipRepository pipRepository;
 
@@ -44,7 +48,7 @@ public class PipRestTjeneste {
     }
 
     @GET
-    @Path("/aktoer-for-sak")
+    @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
@@ -53,7 +57,7 @@ public class PipRestTjeneste {
     }
 
     @GET
-    @Path("/pipdata-for-behandling")
+    @Path(PIPDATA_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
     public PipDto hentAktørIdListeTilknyttetBehandling(@NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
