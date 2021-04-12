@@ -457,8 +457,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     _7027("7027", AksjonspunktType.AUTOPUNKT, "Autopunkt vent delvis tilrettelegging og refusjon SVP."),
     @Deprecated
-    _7031("7031", AksjonspunktType.AUTOPUNKT, "Autopunkt AAP/DP eneste aktivitet SVP."),
-    @Deprecated
     _7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
     @Deprecated
     _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
