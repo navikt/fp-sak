@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface UgunstTjeneste {
 
     boolean erUgunst(BehandlingReferanse ref);
+
+    boolean erEndring(BehandlingReferanse ref);
 }
+

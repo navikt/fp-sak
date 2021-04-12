@@ -11,22 +11,29 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
+import no.nav.vedtak.konfig.Tid;
 
 public class ErEndringIBeregning {
     private ErEndringIBeregning() {
     }
 
-    public static boolean vurder(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag, Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
+    public static boolean vurder(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag,
+                                 Optional<BeregningsgrunnlagEntitet> originaltGrunnlag,
+                                 Optional<LocalDate> sisteUttaksdagOpt) {
         if (!revurderingsGrunnlag.isPresent() && !originaltGrunnlag.isPresent()) {
             return false;
         } else if (!revurderingsGrunnlag.isPresent() || !originaltGrunnlag.isPresent()) {
             return true;
         }
-
+        LocalDate sisteUttaksdag = sisteUttaksdagOpt.orElse(Tid.TIDENES_ENDE);
         List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.get().getBeregningsgrunnlagPerioder();
         List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.get().getBeregningsgrunnlagPerioder();
 
-        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
+        // Sjekker kun ugunst i perioden frem til siste uttaksdato
+        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder)
+            .stream()
+            .filter(dato -> !dato.isAfter(sisteUttaksdag))
+            .collect(Collectors.toSet());
 
         for (LocalDate dato : allePeriodeDatoer) {
             Long dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
@@ -40,11 +47,11 @@ public class ErEndringIBeregning {
 
     public static boolean vurderUgunst(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag,
                                        Optional<BeregningsgrunnlagEntitet> originaltGrunnlag,
-                                       LocalDate sisteDagMedUttak) {
+                                       Optional<LocalDate> sisteDagMedUttakOpt) {
         if (revurderingsGrunnlag.isEmpty()) {
             return originaltGrunnlag.isPresent();
         }
-
+        LocalDate sisteDagMedUttak = sisteDagMedUttakOpt.orElse(Tid.TIDENES_ENDE);
         List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
         List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)

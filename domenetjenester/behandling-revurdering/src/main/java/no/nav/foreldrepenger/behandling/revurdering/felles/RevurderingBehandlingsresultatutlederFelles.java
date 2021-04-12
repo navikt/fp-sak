@@ -63,6 +63,10 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
+    protected abstract UttakResultatHolder getUttakResultat(Long behandlingId);
+
+    protected abstract boolean erEndringIBeregning(BehandlingReferanse ref);
+
     public Behandlingsresultat bestemBehandlingsresultatForRevurdering(BehandlingReferanse revurderingRef,
                                                                        boolean erVarselOmRevurderingSendt) {
         var revurdering = behandlingRepository.hentBehandling(revurderingRef.getBehandlingId());
@@ -77,8 +81,6 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             behandlingRepository.hentBehandling(originalBehandlingId), revurderingUttak, originalBehandlingUttak,
             erVarselOmRevurderingSendt);
     }
-
-    protected abstract UttakResultatHolder getUttakResultat(Long behandlingId);
 
     private Behandlingsresultat bestemBehandlingsresultatForRevurderingCore(BehandlingReferanse revurderingRef,
                                                                             Behandling revurdering,
@@ -132,7 +134,7 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
             originalBehandling.getId());
 
         var erEndringISkalHindreTilbaketrekk = erEndringISkalHindreTilbaketrekk(revurdering, originalBehandling);
-        var erEndringIBeregning = ErEndringIBeregning.vurder(revurderingsGrunnlagOpt, originalGrunnlagOpt);
+        var erEndringIBeregning = erEndringIBeregning(revurderingRef);
         var erKunEndringIFordelingAvYtelsen = ErKunEndringIFordelingAvYtelsen.vurder(erEndringIBeregning,
             erEndringIUttakFraEndringstidspunkt, revurderingsGrunnlagOpt, originalGrunnlagOpt,
             erEndringISkalHindreTilbaketrekk);

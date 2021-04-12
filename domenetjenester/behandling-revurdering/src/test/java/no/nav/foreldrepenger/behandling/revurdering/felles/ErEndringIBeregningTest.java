@@ -29,7 +29,7 @@ public class ErEndringIBeregningTest {
         BeregningsgrunnlagEntitet revurderingGrunnlag = byggOgLagreBeregningsgrunnlagForBehandling(false, true, bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isFalse();
@@ -44,7 +44,7 @@ public class ErEndringIBeregningTest {
                 bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.empty());
+        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.empty(), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isTrue();
@@ -53,7 +53,7 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_når_vi_mangler_begge_beregningsgrunnlag() {
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.empty(), Optional.empty());
+        boolean endring = ErEndringIBeregning.vurder(Optional.empty(), Optional.empty(), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isFalse();
@@ -75,7 +75,7 @@ public class ErEndringIBeregningTest {
                 bgPerioderNyttGrunnlag);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isFalse();
@@ -97,7 +97,7 @@ public class ErEndringIBeregningTest {
                 bgPerioderNyttGrunnlag);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isFalse();
@@ -113,7 +113,7 @@ public class ErEndringIBeregningTest {
                 bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         // Assert
         assertThat(endring).isTrue();
@@ -126,7 +126,7 @@ public class ErEndringIBeregningTest {
         byggPeriode(revurderingGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), 1000L);
         byggPeriode(originaltGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), 1000L);
 
-        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10));
+        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         assertThat(erUgunst).isFalse();
     }
@@ -138,7 +138,7 @@ public class ErEndringIBeregningTest {
         byggPeriode(revurderingGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), 900L);
         byggPeriode(originaltGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), 1000L);
 
-        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10));
+        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
 
         assertThat(erUgunst).isTrue();
@@ -153,7 +153,7 @@ public class ErEndringIBeregningTest {
         byggPeriode(originaltGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10), 1000L);
         byggPeriode(originaltGrunnlag, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15), 1000L);
 
-        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10));
+        boolean erUgunst = ErEndringIBeregning.vurderUgunst(Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), Optional.of(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
 
         assertThat(erUgunst).isFalse();
     }

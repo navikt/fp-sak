@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -24,15 +25,17 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private HarEtablertYtelseFP harEtablertYtelse;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private UgunstTjenesteFP ugunstTjenesteFP;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
-            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-            OpphørUttakTjeneste opphørUttakTjeneste,
-            HarEtablertYtelseFP harEtablertYtelse,
-            @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            MedlemTjeneste medlemTjeneste,
-            ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste) {
+                                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                 OpphørUttakTjeneste opphørUttakTjeneste,
+                                                 HarEtablertYtelseFP harEtablertYtelse,
+                                                 @FagsakYtelseTypeRef("FP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                 MedlemTjeneste medlemTjeneste,
+                                                 ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                                                 @FagsakYtelseTypeRef("FP") UgunstTjenesteFP ugunstTjenesteFP) {
         super(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 medlemTjeneste,
@@ -41,12 +44,18 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.harEtablertYtelse = harEtablertYtelse;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.ugunstTjenesteFP = ugunstTjenesteFP;
     }
 
     @Override
     protected UttakResultatHolder getUttakResultat(Long behandlingId) {
         var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         return new UttakResultatHolderFP(foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandlingId), vedtak.orElse(null));
+    }
+
+    @Override
+    protected boolean erEndringIBeregning(BehandlingReferanse ref) {
+        return ugunstTjenesteFP.erEndring(ref);
     }
 
     @Override

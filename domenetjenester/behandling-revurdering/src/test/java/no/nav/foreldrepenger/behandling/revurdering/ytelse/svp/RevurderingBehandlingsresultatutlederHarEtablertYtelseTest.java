@@ -41,7 +41,7 @@ public class RevurderingBehandlingsresultatutlederHarEtablertYtelseTest {
         revurderingTestUtil = new BeregningRevurderingTestUtil(repositoryProvider);
         uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         resultatUtleder = new RevurderingBehandlingsresultatutleder(repositoryProvider, null,
-                null, null, null);
+                null, null, null, null);
     }
 
     private Behandling opprettBehandling() {

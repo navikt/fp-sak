@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -25,13 +26,15 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
 
     private SvangerskapspengerUttakResultatRepository uttakRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private UgunstTjenesteSVP ugunstTjenesteSVP;
 
     @Inject
     public RevurderingBehandlingsresultatutleder(BehandlingRepositoryProvider repositoryProvider, // NOSONAR
-            HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
-            OpphørUttakTjeneste opphørUttakTjeneste,
-            @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-            MedlemTjeneste medlemTjeneste) {
+                                                 HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste,
+                                                 OpphørUttakTjeneste opphørUttakTjeneste,
+                                                 @FagsakYtelseTypeRef("SVP") SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                                 MedlemTjeneste medlemTjeneste,
+                                                 @FagsakYtelseTypeRef("SVP") UgunstTjenesteSVP ugunstTjenesteSVP) {
         super(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 medlemTjeneste,
@@ -39,6 +42,7 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
                 skjæringstidspunktTjeneste);
         this.uttakRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.ugunstTjenesteSVP = ugunstTjenesteSVP;
     }
 
     @Override
@@ -55,4 +59,10 @@ public class RevurderingBehandlingsresultatutleder extends RevurderingBehandling
         }
         return finnesInnvilgetIkkeOpphørtVedtak;
     }
+
+    @Override
+    protected boolean erEndringIBeregning(BehandlingReferanse ref) {
+        return ugunstTjenesteSVP.erEndring(ref);
+    }
+
 }

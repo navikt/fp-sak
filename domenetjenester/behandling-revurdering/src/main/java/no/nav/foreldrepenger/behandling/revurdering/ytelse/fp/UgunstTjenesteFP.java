@@ -40,10 +40,15 @@ public class UgunstTjenesteFP implements UgunstTjeneste {
         Optional<BeregningsgrunnlagEntitet> revurderingBG = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
         Optional<BeregningsgrunnlagEntitet> forrigeBG = ref.getOriginalBehandlingId().flatMap(beregningsgrunnlagTjeneste::hentBeregningsgrunnlagEntitetForBehandling);
         Optional<LocalDate> sisteDagMedFP = finnSisteUttaksdato(ref);
-        if (sisteDagMedFP.isEmpty()) {
-            return false;
-        }
-        return ErEndringIBeregning.vurderUgunst(revurderingBG, forrigeBG, sisteDagMedFP.get());
+        return ErEndringIBeregning.vurderUgunst(revurderingBG, forrigeBG, sisteDagMedFP);
+    }
+
+    @Override
+    public boolean erEndring(BehandlingReferanse ref) {
+        Optional<BeregningsgrunnlagEntitet> revurderingBG = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
+        Optional<BeregningsgrunnlagEntitet> forrigeBG = ref.getOriginalBehandlingId().flatMap(beregningsgrunnlagTjeneste::hentBeregningsgrunnlagEntitetForBehandling);
+        Optional<LocalDate> sisteDagMedFP = finnSisteUttaksdato(ref);
+        return ErEndringIBeregning.vurder(revurderingBG, forrigeBG, sisteDagMedFP);
     }
 
     private Optional<LocalDate> finnSisteUttaksdato(BehandlingReferanse ref) {

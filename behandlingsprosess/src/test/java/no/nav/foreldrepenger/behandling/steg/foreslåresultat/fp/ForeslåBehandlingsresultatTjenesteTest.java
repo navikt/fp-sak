@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.UgunstTjenesteFP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -70,6 +71,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private final RelatertBehandlingTjeneste relatertBehandlingTjeneste = mock(RelatertBehandlingTjeneste.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+    private final UgunstTjenesteFP ugunstTjeneste = mock(UgunstTjenesteFP.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
     private ForeslåBehandlingsresultatTjenesteImpl tjeneste;
     private BehandlingRepository behandlingRepository;
@@ -81,6 +83,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     public void setup() {
         AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
+        when(ugunstTjeneste.erEndring(any())).thenReturn(false);
         var entityManager = getEntityManager();
         StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
                 entityManager));
@@ -101,7 +104,8 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
                         uttakTjeneste, repositoryProvider.getBehandlingVedtakRepository()),
                 skjæringstidspunktTjeneste,
                 medlemTjeneste,
-                uttakTjeneste));
+                uttakTjeneste,
+            ugunstTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
                 new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
                 avslagsårsakTjeneste,

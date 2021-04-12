@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.UgunstTjenesteSVP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -67,6 +68,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private final DokumentBehandlingTjeneste dokumentBehandlingTjeneste = mock(DokumentBehandlingTjeneste.class);
     private final EndringsdatoRevurderingUtlederImpl endringsdatoRevurderingUtlederImpl = mock(EndringsdatoRevurderingUtlederImpl.class);
+    private final UgunstTjenesteSVP ugunstTjeneste = mock(UgunstTjenesteSVP.class);
     private final OpphørUttakTjeneste opphørUttakTjeneste = mock(OpphørUttakTjeneste.class);
     private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
     private RevurderingBehandlingsresultatutleder revurderingBehandlingsresultatutleder;
@@ -80,16 +82,18 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     public void setup() {
         AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new Tuple<>(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
+        when(ugunstTjeneste.erEndring(any())).thenReturn(false);
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(entityManager);
+
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 beregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
-                medlemTjeneste));
+                medlemTjeneste, ugunstTjeneste));
 
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
                 avslagsårsakTjeneste,

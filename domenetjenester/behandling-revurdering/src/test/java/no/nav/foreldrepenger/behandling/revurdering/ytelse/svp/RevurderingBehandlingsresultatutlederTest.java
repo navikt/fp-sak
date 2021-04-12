@@ -121,6 +121,7 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Mock
     private OpphørUttakTjeneste opphørUttakTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+    private UgunstTjenesteSVP ugunstTjenesteSVP;
 
     @BeforeEach
     public void setUp() {
@@ -135,12 +136,13 @@ public class RevurderingBehandlingsresultatutlederTest {
                 .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
+        ugunstTjenesteSVP = new UgunstTjenesteSVP(hentBeregningsgrunnlagTjeneste, uttakRepository);
 
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutleder(repositoryProvider,
                 hentBeregningsgrunnlagTjeneste,
                 opphørUttakTjeneste,
                 skjæringstidspunktTjeneste,
-                medlemTjeneste);
+                medlemTjeneste, ugunstTjenesteSVP);
 
         BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
@@ -150,6 +152,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
+
     }
 
     // Case 1
@@ -377,7 +380,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Endring i beregning
         List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
+                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(endringsdato, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, true, false, bgPeriode);
 

@@ -37,10 +37,16 @@ public class UgunstTjenesteSVP implements UgunstTjeneste {
         Optional<BeregningsgrunnlagEntitet> forrigeBG = ref.getOriginalBehandlingId().flatMap(beregningsgrunnlagTjeneste::hentBeregningsgrunnlagEntitetForBehandling);
         Optional<SvangerskapspengerUttakResultatEntitet> svpUttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(ref.getBehandlingId());
         Optional<LocalDate> sisteDagMedSVP = svpUttak.flatMap(SvangerskapspengerUttakResultatEntitet::finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad);
-        if (sisteDagMedSVP.isEmpty()) {
-            return false;
-        }
-        return ErEndringIBeregning.vurderUgunst(revurderingBG, forrigeBG, sisteDagMedSVP.get());
+        return ErEndringIBeregning.vurderUgunst(revurderingBG, forrigeBG, sisteDagMedSVP);
+    }
+
+    @Override
+    public boolean erEndring(BehandlingReferanse ref) {
+        Optional<BeregningsgrunnlagEntitet> revurderingBG = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForBehandling(ref.getBehandlingId());
+        Optional<BeregningsgrunnlagEntitet> forrigeBG = ref.getOriginalBehandlingId().flatMap(beregningsgrunnlagTjeneste::hentBeregningsgrunnlagEntitetForBehandling);
+        Optional<SvangerskapspengerUttakResultatEntitet> svpUttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        Optional<LocalDate> sisteDagMedSVP = svpUttak.flatMap(SvangerskapspengerUttakResultatEntitet::finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad);
+        return ErEndringIBeregning.vurder(revurderingBG, forrigeBG, sisteDagMedSVP);
     }
 
 }
