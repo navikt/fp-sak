@@ -146,8 +146,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
     private void ryddOppAksjonspunktHvisEksisterer(BehandlingReferanse behandlingReferanse) {
         Behandling behandling = behandlingRepository.hentBehandling(behandlingReferanse.getId());
         List<Aksjonspunkt> aksjonspunkter = behandling.getAksjonspunkter().stream()
-            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD)
-                || ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID))
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD))
             .filter(Aksjonspunkt::erÅpentAksjonspunkt)
             .collect(Collectors.toList());
 

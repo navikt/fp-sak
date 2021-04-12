@@ -401,9 +401,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT_KODE, AksjonspunktType.AUTOPUNKT,
             "Vent på siste meldekort for AAP eller DP-mottaker", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
-    AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID(AksjonspunktKodeDefinisjon.AUTO_VENT_INNTEKTSMELDING_MED_UGYLDIG_ARBEIDSFORHOLDID_KODE, AksjonspunktType.AUTOPUNKT,
-            "Vent på ny inntektsmelding med gyldig arbeidsforholdId", BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD, VurderingspunktType.UT, UTEN_VILKÅR,
-        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP, SVP)),
     AUTO_VENT_ETTERLYST_INNTEKTSMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING_KODE, AksjonspunktType.AUTOPUNKT, "Vent på etterlyst inntektsmelding",
             BehandlingStegType.INREG_AVSL, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P3W", EnumSet.of(FP, SVP)),
     AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER(AksjonspunktKodeDefinisjon.AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE, AksjonspunktType.AUTOPUNKT, "Autopunkt anke venter på merknader fra bruker",
@@ -448,6 +445,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _7018("7018", AksjonspunktType.AUTOPUNKT, "Autopunkt dødfødsel 80% dekningsgrad."),
     @Deprecated
     _7019("7019", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering uten beregningsgrunnlag."),
+    @Deprecated
+    _7022("7022", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ny inntektsmelding med gyldig arbeidsforholdId."),
     @Deprecated
     _7023("7023", AksjonspunktType.AUTOPUNKT, "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G."),
     @Deprecated
