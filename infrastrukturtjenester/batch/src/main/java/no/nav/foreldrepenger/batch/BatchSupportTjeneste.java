@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -72,15 +73,20 @@ public class BatchSupportTjeneste {
         if (ptdList.isEmpty()) {
             return;
         }
+
+        var filtrerteTask = ptdList.stream()
+            .filter(ptd -> !ptd.getTaskType().equals("iverksetteVedtak.oppdragTilØkonomi"))
+            .collect(Collectors.toList());
+
         LocalDateTime nå = LocalDateTime.now();
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
-        ptdList.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
+        filtrerteTask.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {
                 int forsøk = prosessTaskRepository.finnProsessTaskType(tasktype).map(ProsessTaskTypeInfo::getMaksForsøk).orElse(1);
                 taskTypesMaxForsøk.put(tasktype, forsøk);
             }
         });
-        ptdList.forEach((ptd) -> {
+        filtrerteTask.forEach((ptd) -> {
             ptd.setStatus(ProsessTaskStatus.KLAR);
             ptd.setNesteKjøringEtter(nå);
             ptd.setSisteFeilKode(null);
