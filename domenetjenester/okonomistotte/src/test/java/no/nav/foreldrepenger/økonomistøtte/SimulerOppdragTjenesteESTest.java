@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class SimulerOppdragTjenesteESTest {
@@ -84,7 +84,7 @@ public class SimulerOppdragTjenesteESTest {
             aktørTjeneste, økonomioppdragRepository, beregningRepository);
 
         simulerOppdragTjeneste = new SimulerOppdragTjeneste(
-            new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
+            new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), økonomioppdragRepository),
             oppdragInputTjeneste);
     }
 

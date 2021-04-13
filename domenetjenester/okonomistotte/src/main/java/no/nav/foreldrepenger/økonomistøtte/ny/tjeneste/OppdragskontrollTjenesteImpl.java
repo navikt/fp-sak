@@ -14,19 +14,18 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 @Dependent
-@Named("nyOppdragTjeneste")
-public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
+public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private LagOppdragTjeneste lagOppdragTjeneste;
 
-    NyOppdragskontrollTjenesteImpl() {
+    OppdragskontrollTjenesteImpl() {
         //for cdi proxy
     }
 
     @Inject
-    public NyOppdragskontrollTjenesteImpl(LagOppdragTjeneste lagOppdragTjeneste,
-                                          ØkonomioppdragRepository økonomioppdragRepository) {
+    public OppdragskontrollTjenesteImpl(LagOppdragTjeneste lagOppdragTjeneste,
+                                        ØkonomioppdragRepository økonomioppdragRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.lagOppdragTjeneste = lagOppdragTjeneste;
     }
@@ -56,9 +55,21 @@ public class NyOppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste 
     private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
         Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
-            OppdragskontrollPostConditionCheck.valider(oppdragskontroll);
-            return Optional.of(oppdragskontroll);
+            var oppdragKontroll = brukOppdragFraFørOmFinnes(input, oppdragskontroll);
+            OppdragskontrollPostConditionCheck.valider(oppdragKontroll);
+            return Optional.of(oppdragKontroll);
         }
         return Optional.empty();
+    }
+
+    private Oppdragskontroll brukOppdragFraFørOmFinnes(final OppdragInput input, final Oppdragskontroll oppdragskontroll) {
+        var oppdragFraFør = økonomioppdragRepository.finnOppdragForBehandling(input.getBehandlingId());
+        if (oppdragFraFør.isPresent()) {
+            var tidligereOppdrag = oppdragFraFør.get();
+            tidligereOppdrag.setVenterKvittering(Boolean.FALSE);
+            tidligereOppdrag.getOppdrag110Liste().addAll(oppdragskontroll.getOppdrag110Liste());
+            return tidligereOppdrag;
+        }
+        return oppdragskontroll;
     }
 }

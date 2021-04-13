@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public abstract class NyOppdragskontrollTjenesteTestBase {
@@ -68,7 +68,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         DAGENS_DATO.plusYears(2).getYear());
 
     protected ØkonomioppdragRepository økonomioppdragRepository;
-    protected NyOppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
+    protected OppdragskontrollTjenesteImpl nyOppdragskontrollTjeneste;
 
     protected String virksomhet = ARBEIDSFORHOLD_ID;
     protected String virksomhet2 = ARBEIDSFORHOLD_ID_2;
@@ -94,7 +94,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     public void setUp() {
-        nyOppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
+        nyOppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
     }
 
    protected GruppertYtelse buildTilkjentYtelseFP() {
