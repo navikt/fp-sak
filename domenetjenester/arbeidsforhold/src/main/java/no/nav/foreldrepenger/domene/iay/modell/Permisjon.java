@@ -108,7 +108,7 @@ public class Permisjon extends BaseEntitet implements IndexKey {
         return getClass().getSimpleName() + "{" +
                 "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType +
                 ", fraOgMed=" + periode.getFomDato() +
-                ", tilOgMed=" + periode.getTomDato()
+                ", tilOgMed=" + periode.getTomDato() +
                 ", prosentsats=" + prosentsats + 
                 '}';
     }
