@@ -6,7 +6,6 @@ import java.time.Year;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -106,14 +105,14 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
 
         Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
-        tilkjent.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).add(value.getVerdi())));
-        simulert.forEach((key,value) -> summertÅr.put(key.getOpptjent(), summertÅr.getOrDefault(key.getOpptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
+        tilkjent.forEach((key,value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).add(value.getVerdi())));
+        simulert.forEach((key,value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
 
         summert.entrySet().stream()
             .filter(e -> erAvvik(e.getValue()))
             .forEach(e -> LOG.info("{}:{}:Saksnummer:{}:år:{}:mottaker:{}:diff:{}:gammel:{}:ny:{}",
-                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().getOpptjent())) ? "tilkjent-simulert" : "omfordelt",
-                saksnummer, e.getKey().getOpptjent(), e.getKey().getMottaker(), e.getValue().longValue(),
+                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().opptjent())) ? "tilkjent-simulert" : "omfordelt",
+                saksnummer, e.getKey().opptjent(), e.getKey().mottaker(), e.getValue().longValue(),
                 tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
                 simulert.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
 
@@ -126,64 +125,28 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
 
     private static Map<AndelGruppering, Beløp> sorterteTilkjenteFeriepenger(List<BeregningsresultatFeriepengerPrÅr> feriepenger) {
         return feriepenger.stream()
-            .collect(Collectors.groupingBy(AndelGruppering::new,
+            .collect(Collectors.groupingBy(AndelGruppering::fraBeregningEntitet,
                 Collectors.reducing(new Beløp(BigDecimal.ZERO), BeregningsresultatFeriepengerPrÅr::getÅrsbeløp, Beløp::adder)));
     }
 
     private static Map<AndelGruppering, Beløp> sorterteTilkjenteRegelFeriepenger(List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> feriepenger) {
         return feriepenger.stream()
-            .collect(Collectors.groupingBy(AndelGruppering::new,
+            .collect(Collectors.groupingBy(AndelGruppering::fraBeregningRegel,
                 Collectors.reducing(new Beløp(BigDecimal.ZERO), prÅr -> new Beløp(prÅr.getÅrsbeløp()), Beløp::adder)));
     }
 
-    private static class AndelGruppering {
-        Year opptjent;
-        String mottaker;
+    private static record AndelGruppering(Year opptjent, String mottaker) {
 
-        AndelGruppering(BeregningsresultatFeriepengerPrÅr andel) {
-            this.opptjent = Year.from(andel.getOpptjeningsår());
-            this.mottaker = andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
-                andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER);
+        static AndelGruppering fraBeregningEntitet(BeregningsresultatFeriepengerPrÅr andel) {
+            return new AndelGruppering(Year.from(andel.getOpptjeningsår()),
+                andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
+                    andel.getBeregningsresultatAndel().getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(ARBGIVER));
         }
 
-        AndelGruppering(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr andel) {
-            this.opptjent = Year.from(andel.getOpptjeningÅr());
-            this.mottaker = andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
-                Optional.ofNullable(andel.getBeregningsresultatAndel().getArbeidsgiverId()).orElse(ARBGIVER);
-        }
-
-        private AndelGruppering(Year opptjent, String mottaker) {
-            this.opptjent = opptjent;
-            this.mottaker = mottaker;
-        }
-
-        public Year getOpptjent() {
-            return opptjent;
-        }
-
-        public String getMottaker() {
-            return mottaker;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AndelGruppering that = (AndelGruppering) o;
-            return Objects.equals(opptjent, that.opptjent) && Objects.equals(mottaker, that.mottaker);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(opptjent, mottaker);
-        }
-
-        @Override
-        public String toString() {
-            return "AndelGruppering{" +
-                "år=" + opptjent +
-                ", mottaker='" + mottaker + '\'' +
-                '}';
+        static AndelGruppering fraBeregningRegel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr andel) {
+            return new AndelGruppering(Year.from(andel.getOpptjeningÅr()),
+                andel.getBeregningsresultatAndel().erBrukerMottaker() ? BRUKER :
+                    Optional.ofNullable(andel.getBeregningsresultatAndel().getArbeidsgiverId()).orElse(ARBGIVER));
         }
     }
 }
