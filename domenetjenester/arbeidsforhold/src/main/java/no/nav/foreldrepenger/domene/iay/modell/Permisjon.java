@@ -92,24 +92,24 @@ public class Permisjon extends BaseEntitet implements IndexKey {
         } else if (!(obj instanceof Permisjon)) {
             return false;
         }
-        Permisjon other = (Permisjon) obj;
-        return Objects.equals(this.getPermisjonsbeskrivelseType(), other.getPermisjonsbeskrivelseType())
-                && Objects.equals(this.getFraOgMed(), other.getFraOgMed())
-                && Objects.equals(this.getTilOgMed(), other.getTilOgMed());
+        var other = (Permisjon) obj;
+        return Objects.equals(this.permisjonsbeskrivelseType, other.permisjonsbeskrivelseType)
+                && Objects.equals(this.prosentsats, other.prosentsats)
+                && Objects.equals(this.periode, other.periode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(permisjonsbeskrivelseType, periode);
+        return Objects.hash(permisjonsbeskrivelseType, periode, prosentsats);
     }
 
     @Override
     public String toString() {
-        return "Adopsjon{" + //$NON-NLS-1$
-                "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType + //$NON-NLS-1$
-                ", fraOgMed=" + periode.getFomDato() + //$NON-NLS-1$
-                ", tilOgMed=" + periode.getTomDato() + //$NON-NLS-1$
-                ", v=" + prosentsats + //$NON-NLS-1$
+        return getClass().getSimpleName() + "{" +
+                "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType +
+                ", fraOgMed=" + periode.getFomDato() +
+                ", tilOgMed=" + periode.getTomDato() +
+                ", prosentsats=" + prosentsats + 
                 '}';
     }
 
