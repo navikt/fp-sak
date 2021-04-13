@@ -33,7 +33,7 @@ public class ØkonomioppdragRepository {
     }
 
     @Inject
-    public ØkonomioppdragRepository( EntityManager entityManager) {
+    public ØkonomioppdragRepository(EntityManager entityManager) {
         Objects.requireNonNull(entityManager, "entityManager"); //$NON-NLS-1$
         this.entityManager = entityManager;
     }

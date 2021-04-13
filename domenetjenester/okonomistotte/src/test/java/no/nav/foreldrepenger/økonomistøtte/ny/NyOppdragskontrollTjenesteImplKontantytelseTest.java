@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdr
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.EksisterendeOppdragMapper;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.LagOppdragTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
-import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.NyOppdragskontrollTjenesteImpl;
+import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragskontrollTjenesteImpl;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 
 public class NyOppdragskontrollTjenesteImplKontantytelseTest {
@@ -47,11 +47,11 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public static final LocalDate VEDTAKSDATO = LocalDate.now();
     public static final long SATS_ES = 63330L;
 
-    protected NyOppdragskontrollTjenesteImpl oppdragskontrollTjeneste;
+    protected OppdragskontrollTjenesteImpl oppdragskontrollTjeneste;
 
     @BeforeEach
     public void setUp() {
-        oppdragskontrollTjeneste = new NyOppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
+        oppdragskontrollTjeneste = new OppdragskontrollTjenesteImpl(new LagOppdragTjeneste(), mock(ØkonomioppdragRepository.class));
     }
 
     @Test

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ public class SimulerOppdragTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimulerOppdragTjeneste.class);
 
-    private OppdragskontrollTjeneste nyOppdragskontrollTjeneste;
+    private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private OppdragInputTjeneste oppdragInputTjeneste;
 
     SimulerOppdragTjeneste() {
@@ -25,9 +24,9 @@ public class SimulerOppdragTjeneste {
     }
 
     @Inject
-    public SimulerOppdragTjeneste(@Named("nyOppdragTjeneste") OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
+    public SimulerOppdragTjeneste(OppdragskontrollTjeneste nyOppdragskontrollTjeneste,
                                   OppdragInputTjeneste oppdragInputTjeneste) {
-        this.nyOppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
+        this.oppdragskontrollTjeneste = nyOppdragskontrollTjeneste;
         this.oppdragInputTjeneste = oppdragInputTjeneste;
     }
 
@@ -41,7 +40,7 @@ public class SimulerOppdragTjeneste {
     public List<String> simulerOppdrag(Long behandlingId) {
         LOG.info("Simulerer behandlingId: {}", behandlingId);
         var input = oppdragInputTjeneste.lagSimuleringInput(behandlingId);
-        var oppdragskontrollOpt = nyOppdragskontrollTjeneste.simulerOppdrag(input);
+        var oppdragskontrollOpt = oppdragskontrollTjeneste.simulerOppdrag(input);
 
         return oppdragskontrollOpt.map(new ØkonomioppdragMapper()::generateOppdragXML).orElse(Collections.emptyList());
     }

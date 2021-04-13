@@ -42,7 +42,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     @Inject
     public VurderOgSendØkonomiOppdragTask(ProsessTaskRepository prosessTaskRepository,
                                           BehandlingRepositoryProvider repositoryProvider,
-                                          @Named("nyOppdragTjeneste") OppdragskontrollTjeneste oppdragskontrollTjeneste,
+                                          OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
                                           OppdragInputTjeneste oppdragInputTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
