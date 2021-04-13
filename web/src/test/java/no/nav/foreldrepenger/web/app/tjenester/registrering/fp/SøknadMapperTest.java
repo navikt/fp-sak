@@ -62,8 +62,6 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
@@ -91,15 +89,12 @@ public class SøknadMapperTest {
     private DatavarehusTjeneste datavarehusTjeneste;
 
     private SøknadMapper ytelseSøknadMapper;
-    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDato;
     private PersoninfoKjønn kvinne;
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     public void before(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        oppgittPeriodeMottattDato = new OppgittPeriodeMottattDatoTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
 
         kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID)
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
@@ -431,7 +426,7 @@ public class SøknadMapperTest {
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
         var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+            personinfoAdapter, datavarehusTjeneste, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
@@ -487,7 +482,7 @@ public class SøknadMapperTest {
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
         var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+            personinfoAdapter, datavarehusTjeneste, new AnnenPartOversetter(personinfoAdapter));
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
@@ -606,7 +601,7 @@ public class SøknadMapperTest {
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
         var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+            personinfoAdapter, datavarehusTjeneste, new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister(
             (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(),
@@ -648,7 +643,7 @@ public class SøknadMapperTest {
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
         var oversetter = new SøknadOversetter(repositoryProvider, virksomhetTjeneste, iayTjeneste,
-            personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+            personinfoAdapter, datavarehusTjeneste, new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister(
             (SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(),

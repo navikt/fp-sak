@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,7 +73,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
@@ -133,7 +131,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private FagsakRepository fagsakRepository;
-    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste;
     private AnnenPartOversetter annenPartOversetter;
 
     @Inject
@@ -142,7 +139,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                             InntektArbeidYtelseTjeneste iayTjeneste,
                             PersoninfoAdapter personinfoAdapter,
                             DatavarehusTjeneste datavarehusTjeneste,
-                            OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste,
                             AnnenPartOversetter annenPartOversetter) {
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -156,7 +152,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
-        this.oppgittPeriodeMottattDatoTjeneste = oppgittPeriodeMottattDatoTjeneste;
         this.annenPartOversetter = annenPartOversetter;
     }
 
@@ -330,7 +325,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var perioder = omYtelse.getFordeling().getPerioder();
         var annenForelderErInformert = hentAnnenForelderErInformert(behandling);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato));
+            .medOppgittFordeling(lagOppgittFordeling(perioder, annenForelderErInformert, mottattDato));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
@@ -342,7 +337,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
                 .medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medOppgittFordeling(
-                    oversettFordeling(behandling, omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
+                    oversettFordeling(omYtelse, skjemaWrapper.getSkjema().getMottattDato()));
             oversettRettighet(omYtelse).ifPresent(r -> yfBuilder.medOppgittRettighet(r));
             ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger) {
@@ -497,16 +492,14 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         return Optional.empty();
     }
 
-    private OppgittFordelingEntitet oversettFordeling(Behandling behandling,
-                                                      Foreldrepenger omYtelse,
+    private OppgittFordelingEntitet oversettFordeling(Foreldrepenger omYtelse,
                                                       LocalDate mottattDato) {
         var perioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
         var annenForelderErInformert = omYtelse.getFordeling().isAnnenForelderErInformert();
-        return lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato);
+        return lagOppgittFordeling(perioder, annenForelderErInformert, mottattDato);
     }
 
-    private OppgittFordelingEntitet lagOppgittFordeling(Behandling behandling,
-                                                        List<LukketPeriodeMedVedlegg> perioder,
+    private OppgittFordelingEntitet lagOppgittFordeling(List<LukketPeriodeMedVedlegg> perioder,
                                                         boolean annenForelderErInformert,
                                                         LocalDate mottattDatoFraSøknad) {
         List<OppgittPeriodeEntitet> oppgittPerioder = new ArrayList<>();
@@ -515,7 +508,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             var oppgittPeriode = oversettPeriode(lukketPeriode);
             oppgittPerioder.add(oppgittPeriode);
         }
-        oppdaterMedMottattDato(oppgittPerioder, behandling, mottattDatoFraSøknad);
+        oppdaterMedMottattDato(oppgittPerioder, mottattDatoFraSøknad);
         if (!inneholderVirkedager(oppgittPerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
@@ -523,27 +516,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void oppdaterMedMottattDato(List<OppgittPeriodeEntitet> oppgittPerioder,
-                                        Behandling behandling,
                                         LocalDate mottattDatoFraSøknad) {
-        //Fra og med første endret periode skal mottatt dato være satt til mottatt dato fra søknad selv om etterfølgene
-        //perioder er søkt om i tidligere søknader
-        var seEtterMottattDatoIOriginalBehandling = true;
-        var sorted = oppgittPerioder.stream()
-            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-            .collect(Collectors.toList());
-        for (var oppgittPeriode : sorted) {
-            if (seEtterMottattDatoIOriginalBehandling) {
-                var eksisterendeMottattDato = oppgittPeriodeMottattDatoTjeneste.finnMottattDatoForPeriode(behandling,
-                    oppgittPeriode);
-                if (eksisterendeMottattDato.isPresent()) {
-                    oppgittPeriode.setMottattDato(eksisterendeMottattDato.get());
-                } else {
-                    oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
-                    seEtterMottattDatoIOriginalBehandling = false;
-                }
-            } else {
-                oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
-            }
+        for (var oppgittPeriode : oppgittPerioder) {
+            oppgittPeriode.setMottattDato(mottattDatoFraSøknad);
         }
     }
 

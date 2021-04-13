@@ -27,8 +27,6 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
@@ -47,15 +45,12 @@ public class EndringssøknadSøknadMapperTest {
     private VirksomhetTjeneste virksomhetTjeneste;
     @Mock
     private DatavarehusTjeneste datavarehusTjeneste;
-    private OppgittPeriodeMottattDatoTjeneste oppgittPeriodeMottattDatoTjeneste;
     private final SøknadMapper ytelseSøknadMapper = new EndringssøknadSøknadMapper();
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     public void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeMottattDatoTjeneste(
-            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
     }
 
     @Test
@@ -66,7 +61,7 @@ public class EndringssøknadSøknadMapperTest {
         Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
         SøknadOversetter oversetter = new SøknadOversetter(repositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste,
+            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste,
             new AnnenPartOversetter(personinfoAdapter));
 
         Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
