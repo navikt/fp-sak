@@ -84,7 +84,7 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
 
     @Override
     public int compareTo(HistorikkinnslagDto that) {
-        int comparatorValue = that.getOpprettetTidspunkt().compareTo(this.getOpprettetTidspunkt());
+        var comparatorValue = that.getOpprettetTidspunkt().compareTo(this.getOpprettetTidspunkt());
         if ((comparatorValue == 0) && that.getType().equals(HistorikkinnslagType.REVURD_OPPR)) {
             return -1;
         }
@@ -99,7 +99,7 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
         if (!(o instanceof HistorikkinnslagDto)) {
             return false;
         }
-        HistorikkinnslagDto that = (HistorikkinnslagDto) o;
+        var that = (HistorikkinnslagDto) o;
         return Objects.equals(getBehandlingId(), that.getBehandlingId()) &&
                 Objects.equals(getType(), that.getType()) &&
                 Objects.equals(getAktoer(), that.getAktoer()) &&

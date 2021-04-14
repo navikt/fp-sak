@@ -17,11 +17,9 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEven
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -62,29 +60,29 @@ public class BehandlingskontrollEventPublisererTest {
 
     @Test
     public void skal_fyre_event_for_aksjonspunkt_funnet_ved_prosessering() throws Exception {
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
 
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
 
-        BehandlingStegType stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
+        var stegType = BehandlingStegType.SØKERS_RELASJON_TIL_BARN;
 
-        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
+        var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling,
                 AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, stegType);
         kontrollTjeneste.aksjonspunkterEndretStatus(kontekst, stegType, List.of(aksjonspunkt));
 
-        AksjonspunktDefinisjon[] ads = { AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT };
+        var ads = new AksjonspunktDefinisjon[]{AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT};
         TestEventObserver.containsExactly(ads);
     }
 
     @Test
     public void skal_fyre_event_for_behandlingskontroll_startet_stoppet_ved_prosessering() throws Exception {
         // Arrange
-        TestScenario scenario = nyttScenario(STEG_1);
+        var scenario = nyttScenario(STEG_1);
 
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var behandling = scenario.lagre(serviceProvider);
 
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -100,30 +98,30 @@ public class BehandlingskontrollEventPublisererTest {
     @Test
     public void skal_fyre_event_for_behandlingskontroll_behandlingsteg_status_endring_ved_prosessering() throws Exception {
         // Arrange
-        TestScenario scenario = nyttScenario(STEG_1);
+        var scenario = nyttScenario(STEG_1);
 
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var behandling = scenario.lagre(serviceProvider);
 
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
 
         // Assert
 
-        BehandlingStegStatusEvent steg1StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_1, null,
+        var steg1StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_1, null,
                 BehandlingStegStatus.STARTET);
-        BehandlingStegStatusEvent steg1StatusEvent1 = new BehandlingStegStatusEvent(kontekst, STEG_1, BehandlingStegStatus.STARTET,
+        var steg1StatusEvent1 = new BehandlingStegStatusEvent(kontekst, STEG_1, BehandlingStegStatus.STARTET,
                 BehandlingStegStatus.UTFØRT);
-        BehandlingStegStatusEvent steg2StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
+        var steg2StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
                 BehandlingStegStatus.STARTET);
-        BehandlingStegStatusEvent steg2StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_2, BehandlingStegStatus.STARTET,
+        var steg2StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_2, BehandlingStegStatus.STARTET,
                 BehandlingStegStatus.UTFØRT);
-        BehandlingStegStatusEvent steg3StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
+        var steg3StatusEvent0 = new BehandlingStegStatusEvent(kontekst, STEG_2, null,
                 BehandlingStegStatus.STARTET);
-        BehandlingStegStatusEvent steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET,
+        var steg3StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_3, BehandlingStegStatus.STARTET,
                 BehandlingStegStatus.UTFØRT);
-        BehandlingStegStatusEvent steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
+        var steg4StatusEvent = new BehandlingStegStatusEvent(kontekst, STEG_4, null,
                 BehandlingStegStatus.INNGANG);
         TestEventObserver.containsExactly(steg1StatusEvent0, steg1StatusEvent1 //
                 , steg2StatusEvent0, steg2StatusEvent//
@@ -135,12 +133,12 @@ public class BehandlingskontrollEventPublisererTest {
     @Test
     public void skal_fyre_event_for_behandlingskontroll_tilbakeføring_ved_prosessering() throws Exception {
         // Arrange
-        TestScenario scenario = nyttScenario(STEG_3);
+        var scenario = nyttScenario(STEG_3);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, STEG_4);
 
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var behandling = scenario.lagre(serviceProvider);
 
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
@@ -149,32 +147,32 @@ public class BehandlingskontrollEventPublisererTest {
         // TODO (essv): Vanskelig å overstyre SUT til å gjøre tilbakehopp i riktig
         // retning, her gjøres det fremover.
         // Den trenger et åpent aksjonspunkt som ligger før startsteget
-        BehandlingStegOvergangEvent tilbakeføring3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
+        var tilbakeføring3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
         TestEventObserver.containsExactly(tilbakeføring3_4);
     }
 
     @Test
     public void skal_fyre_event_for_behandlingskontroll_behandlingsteg_overgang_ved_prosessering() throws Exception {
         // Arrange
-        TestScenario scenario = nyttScenario(STEG_1);
+        var scenario = nyttScenario(STEG_1);
 
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var behandling = scenario.lagre(serviceProvider);
 
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling.getId());
 
         // Act
         kontrollTjeneste.prosesserBehandling(kontekst);
 
         // Assert
 
-        BehandlingStegOvergangEvent overgang1_2 = nyOvergangEvent(kontekst, STEG_1, BehandlingStegStatus.UTFØRT, STEG_2, null);
-        BehandlingStegOvergangEvent overgang2_3 = nyOvergangEvent(kontekst, STEG_2, BehandlingStegStatus.UTFØRT, STEG_3, null);
-        BehandlingStegOvergangEvent overgang3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
+        var overgang1_2 = nyOvergangEvent(kontekst, STEG_1, BehandlingStegStatus.UTFØRT, STEG_2, null);
+        var overgang2_3 = nyOvergangEvent(kontekst, STEG_2, BehandlingStegStatus.UTFØRT, STEG_3, null);
+        var overgang3_4 = nyOvergangEvent(kontekst, STEG_3, BehandlingStegStatus.UTFØRT, STEG_4, null);
         TestEventObserver.containsExactly(overgang1_2, overgang2_3, overgang3_4);
     }
 
     protected TestScenario nyttScenario(BehandlingStegType startSteg) {
-        TestScenario scenario = TestScenario.forEngangsstønad();
+        var scenario = TestScenario.forEngangsstønad();
         scenario.medBehandlingStegStart(startSteg);
         return scenario;
     }
@@ -192,19 +190,19 @@ public class BehandlingskontrollEventPublisererTest {
 
     private BehandlingModellImpl byggModell() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        AksjonspunktDefinisjon a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        AksjonspunktDefinisjon a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        AksjonspunktDefinisjon a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        AksjonspunktDefinisjon a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
-        AksjonspunktDefinisjon a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-        AksjonspunktDefinisjon a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
+        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
+        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
+        var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
+        var a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
 
-        DummySteg steg = new DummySteg();
-        DummySteg steg0 = new DummySteg(opprettForAksjonspunkt(a2_0));
-        DummySteg steg1 = new DummySteg();
-        DummySteg steg2 = new DummySteg();
+        var steg = new DummySteg();
+        var steg0 = new DummySteg(opprettForAksjonspunkt(a2_0));
+        var steg1 = new DummySteg();
+        var steg2 = new DummySteg();
 
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),

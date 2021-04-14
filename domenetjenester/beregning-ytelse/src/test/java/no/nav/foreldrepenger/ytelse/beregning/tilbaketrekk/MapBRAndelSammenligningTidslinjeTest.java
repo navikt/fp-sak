@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class MapBRAndelSammenligningTidslinjeTest {
 
@@ -32,20 +31,20 @@ public class MapBRAndelSammenligningTidslinjeTest {
     public void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_ingenting_er_utbetalt() {
         // Arrange
         var dagensdato = STP.minusDays(1);
-        BeregningsresultatPeriode periode = lagResultatMedPeriode(STP, STP.plusDays(15));
-        BeregningsresultatPeriode periode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(29));
-        BeregningsresultatPeriode periode3 = lagResultatMedPeriode(STP.plusDays(30), STP.plusDays(40));
-        BeregningsresultatAndel andel = lagAndelForPeriode(periode, AG1, REF1);
+        var periode = lagResultatMedPeriode(STP, STP.plusDays(15));
+        var periode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(29));
+        var periode3 = lagResultatMedPeriode(STP.plusDays(30), STP.plusDays(40));
+        var andel = lagAndelForPeriode(periode, AG1, REF1);
         lagAndelForPeriode(periode2, AG1, REF1);
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+        var tidslinje = MapBRAndelSammenligningTidslinje
                 .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(3);
-        ArrayList<LocalDateSegment<BRAndelSammenligning>> segmenter = new ArrayList<>(tidslinje.toSegments());
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(andel), Collections.emptyList());
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(29), Collections.singletonList(andel), Collections.emptyList());
@@ -56,20 +55,20 @@ public class MapBRAndelSammenligningTidslinjeTest {
     public void skal_teste_at_tidslinje_lages_korrekt_når_begge_resultat_er_like_og_noe_er_utbetalt() {
         // Arrange
         var dagensdato = STP.plusDays(20);
-        BeregningsresultatPeriode periode = lagResultatMedPeriode(STP, STP.plusDays(15));
-        BeregningsresultatPeriode periode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
-        BeregningsresultatPeriode periode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
-        BeregningsresultatAndel andel = lagAndelForPeriode(periode, AG1, REF1);
+        var periode = lagResultatMedPeriode(STP, STP.plusDays(15));
+        var periode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
+        var periode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
+        var andel = lagAndelForPeriode(periode, AG1, REF1);
         lagAndelForPeriode(periode2, AG1, REF1);
         lagAndelForPeriode(periode3, AG1, REF1);
 
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+        var tidslinje = MapBRAndelSammenligningTidslinje
                 .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
-        ArrayList<LocalDateSegment<BRAndelSammenligning>> segmenter = new ArrayList<>(tidslinje.toSegments());
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(andel), Collections.singletonList(andel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Collections.singletonList(andel), Collections.singletonList(andel));
@@ -83,30 +82,30 @@ public class MapBRAndelSammenligningTidslinjeTest {
         var dagensdato = STP.plusDays(20);
 
         // Gammelt resultat
-        BeregningsresultatPeriode gammelPeriode = lagResultatMedPeriode(STP, STP.plusDays(15));
-        BeregningsresultatPeriode gammelPeriode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
-        BeregningsresultatPeriode gammelPeriode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
-        BeregningsresultatAndel gammelAndel = lagAndelForPeriode(gammelPeriode, AG1, REF1);
+        var gammelPeriode = lagResultatMedPeriode(STP, STP.plusDays(15));
+        var gammelPeriode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
+        var gammelPeriode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
+        var gammelAndel = lagAndelForPeriode(gammelPeriode, AG1, REF1);
         lagAndelForPeriode(gammelPeriode2, AG1, REF1);
         lagAndelForPeriode(gammelPeriode3, AG1, REF1);
 
         // Nytt resultat
-        BeregningsresultatPeriode nyPeriode = lagResultatMedPeriode(STP, STP.plusDays(15));
-        BeregningsresultatPeriode nyPeriode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
-        BeregningsresultatPeriode nyPeriode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
-        BeregningsresultatAndel nyAndel = lagAndelForPeriode(nyPeriode, AG1, REF1);
+        var nyPeriode = lagResultatMedPeriode(STP, STP.plusDays(15));
+        var nyPeriode2 = lagResultatMedPeriode(STP.plusDays(16), STP.plusDays(25));
+        var nyPeriode3 = lagResultatMedPeriode(STP.plusDays(26), STP.plusDays(40));
+        var nyAndel = lagAndelForPeriode(nyPeriode, AG1, REF1);
         lagAndelForPeriode(nyPeriode2, AG1, REF1);
-        BeregningsresultatAndel nyAndel2 = lagAndelForPeriode(nyPeriode2, AG2, REF2);
+        var nyAndel2 = lagAndelForPeriode(nyPeriode2, AG2, REF2);
         lagAndelForPeriode(nyPeriode3, AG1, REF1);
 
         // Act
-        LocalDateTimeline<BRAndelSammenligning> tidslinje = MapBRAndelSammenligningTidslinje
+        var tidslinje = MapBRAndelSammenligningTidslinje
                 .opprettTidslinjeTest(Arrays.asList(gammelPeriode, gammelPeriode2, gammelPeriode3), Arrays.asList(nyPeriode, nyPeriode2, nyPeriode3),
                         dagensdato);
 
         // Assert
         assertThat(tidslinje.toSegments()).hasSize(4);
-        ArrayList<LocalDateSegment<BRAndelSammenligning>> segmenter = new ArrayList<>(tidslinje.toSegments());
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(nyAndel), Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Arrays.asList(nyAndel, nyAndel2), Collections.singletonList(gammelAndel));
@@ -120,8 +119,8 @@ public class MapBRAndelSammenligningTidslinjeTest {
         assertThat(segment.getFom()).isEqualTo(fom);
         assertThat(segment.getTom()).isEqualTo(tom);
 
-        List<BeregningsresultatAndel> nyeAndeler = segment.getValue().getBgAndeler();
-        List<BeregningsresultatAndel> forrigeAndeler = segment.getValue().getForrigeAndeler();
+        var nyeAndeler = segment.getValue().getBgAndeler();
+        var forrigeAndeler = segment.getValue().getForrigeAndeler();
 
         // Listene skal inneholde de samme elementene (rekkefølge er ikke viktig)
         assertThat(nyeAndeler.containsAll(nyeForventedeAndeler)).isTrue();
@@ -144,7 +143,7 @@ public class MapBRAndelSammenligningTidslinjeTest {
     }
 
     private BeregningsresultatPeriode lagResultatMedPeriode(LocalDate fom, LocalDate tom) {
-        BeregningsresultatEntitet resultat = BeregningsresultatEntitet.builder().medRegelInput("test").medRegelSporing("test").build();
+        var resultat = BeregningsresultatEntitet.builder().medRegelInput("test").medRegelSporing("test").build();
         return BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(fom, tom)
                 .build(resultat);

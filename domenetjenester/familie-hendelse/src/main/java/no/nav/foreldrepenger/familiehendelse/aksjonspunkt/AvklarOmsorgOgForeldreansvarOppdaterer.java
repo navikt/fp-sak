@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -68,32 +66,31 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
-        boolean totrinn = håndterEndringHistorikk(dto, param);
+        var behandlingId = param.getBehandlingId();
+        var totrinn = håndterEndringHistorikk(dto, param);
 
-        final LocalDate forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
 
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        var builder = OppdateringResultat.utenTransisjon();
 
         oppdaterAksjonspunktGrunnlag(dto, param, builder);
 
-        boolean skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
+        var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         // Aksjonspunkter
         settNyttVilkårOgAvbrytAndreOmsorgsovertakelseVilkårOgAksjonspunkter(dto, param, builder);
 
         if (skalReinnhenteRegisteropplysninger) {
             return builder.medTotrinnHvis(totrinn).medOppdaterGrunnlag().build();
-        } else {
-            return builder.medTotrinnHvis(totrinn).build();
         }
+        return builder.medTotrinnHvis(totrinn).build();
     }
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param,
                                               OppdateringResultat.Builder builder) {
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
 
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
 
         var data = new AvklarOmsorgOgForeldreansvarAksjonspunktData(dto.getVilkårType().getKode(),
             aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato());
@@ -106,13 +103,13 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                                                                                      OppdateringResultat.Builder builder) {
 
         // Omsorgsovertakelse
-        OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType = OmsorgsovertakelseVilkårType.fraKode(dto.getVilkårType().getKode());
+        var omsorgsovertakelseVilkårType = OmsorgsovertakelseVilkårType.fraKode(dto.getVilkårType().getKode());
         // Vilkår
-        VilkårType vilkårType = VilkårType.fraKode(dto.getVilkårType().getKode());
+        var vilkårType = VilkårType.fraKode(dto.getVilkårType().getKode());
 
         builder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT);
 
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
         // Rydd opp i eventuelle omsorgsvilkår som er tidligere lagt til
         var behandlingResultat = getBehandlingsresultat(param.getBehandlingId());
 
@@ -123,7 +120,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                 .filter(vilkår -> !vilkår.getVilkårType().getKode().equals(omsorgsovertakelseVilkårType.getKode()))
                 .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType()));
         }
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         behandling.getAksjonspunkter().stream()
             .filter(ap -> OmsorgsvilkårKonfigurasjon.getOmsorgsovertakelseAksjonspunkter().contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !Objects.equals(ap.getAksjonspunktDefinisjon(), aksjonspunktDefinisjon)) // ikke avbryte seg selv
@@ -133,16 +130,16 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     private boolean håndterEndringHistorikk(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         boolean erEndret;
 
-        Long behandlingId = param.getBehandlingId();
-        Behandling behandling = param.getBehandling();
-        final FamilieHendelseGrunnlagEntitet hendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
+        var behandlingId = param.getBehandlingId();
+        var behandling = param.getBehandling();
+        final var hendelseGrunnlag = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId);
 
-        Optional<LocalDate> orginalOmsorgsovertakelseDato = getOriginalOmsorgsovertakelseDato(hendelseGrunnlag);
+        var orginalOmsorgsovertakelseDato = getOriginalOmsorgsovertakelseDato(hendelseGrunnlag);
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO,
             orginalOmsorgsovertakelseDato.orElse(null), dto.getOmsorgsovertakelseDato());
 
-        VilkårType vilkårType = dto.getVilkårType();
-        List<VilkårType> vilkårTyper = getBehandlingsresultat(behandlingId).getVilkårResultat().getVilkårene().stream()
+        var vilkårType = dto.getVilkårType();
+        var vilkårTyper = getBehandlingsresultat(behandlingId).getVilkårResultat().getVilkårene().stream()
             .map(Vilkår::getVilkårType)
             .collect(Collectors.toList());
         if (!vilkårTyper.contains(vilkårType)) {
@@ -163,9 +160,11 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
     private HistorikkEndretFeltVerdiType finnTekstBasertPåOmsorgsvilkår(VilkårType vilkårType) {
         if (VilkårType.OMSORGSVILKÅRET.equals(vilkårType)) {
             return HistorikkEndretFeltVerdiType.OMSORGSVILKARET_TITTEL;
-        } else if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType)) {
+        }
+        if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType)) {
             return HistorikkEndretFeltVerdiType.FORELDREANSVAR_2_TITTEL;
-        } else if (VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
+        }
+        if (VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
             return HistorikkEndretFeltVerdiType.FORELDREANSVAR_4_TITTEL;
         }
         return null;

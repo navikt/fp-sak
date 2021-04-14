@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -87,9 +86,9 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskGrunnbelopReguleringBatchArguments.REVURDER_KEY, "True");
-        AutomatiskGrunnbelopReguleringBatchArguments batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(
+        var batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(
                 arguments);
-        String svar = tjeneste.launch(batchArgs);
+        var svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-1");
         assertThat(
                 prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
@@ -103,7 +102,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
                 .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
-        String svar = tjeneste.launch(null);
+        var svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-0");
     }
 
@@ -124,7 +123,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 4 * gammelSats,
                 cutoff.plusDays(5)); // Ikke avkortet
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, nySats, 6 * nySats, cutoff.plusDays(5)); // Ny sats
-        String svar = tjeneste.launch(null);
+        var svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-2");
         assertThat(
                 prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
@@ -143,37 +142,37 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
             long avkortet,
             LocalDate uttakFom,
             int dagsatsUtbet) {
-        LocalDate terminDato = uttakFom.plusWeeks(3);
+        var terminDato = uttakFom.plusWeeks(3);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
 
         scenario.medBehandlingsresultat(
                 Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
             behandling.avsluttBehandling();
         }
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(terminDato.minusWeeks(3L)).medGrunnbeløp(BigDecimal.valueOf(sats)).build();
         BeregningsgrunnlagAktivitetStatus.builder().medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
                 .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
+        var periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3)).medBruttoPrÅr(BigDecimal.valueOf(avkortet))
                 .medAvkortetPrÅr(BigDecimal.valueOf(avkortet)).build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
+        var brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
                 .medRegelSporing("clob2").build();
-        BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
+        var brFPper = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
                 .medBeregningsresultatAndeler(Collections.emptyList()).build(brFP);
         BeregningsresultatAndel.builder().medDagsats(dagsatsUtbet).medDagsatsFraBg(1000).medBrukerErMottaker(true)

@@ -65,7 +65,7 @@ public class OppdragPatchDto implements AbacDto {
 
     @AssertTrue
     boolean isEntenBrukerMottakerEllerArbeidsgiverOppgitt() {
-        boolean arbeidsgiverOppgitt = arbeidsgiverOrgNr != null;
+        var arbeidsgiverOppgitt = arbeidsgiverOrgNr != null;
         return brukerErMottaker != arbeidsgiverOppgitt;
     }
 
@@ -77,7 +77,7 @@ public class OppdragPatchDto implements AbacDto {
     @AssertTrue
     boolean isAntallDagerSannsynlig() {
         long sum = 0;
-        for (OppdragslinjePatchDto dto : oppdragslinjer) {
+        for (var dto : oppdragslinjer) {
             sum += ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
         }
         return sum < 365;
@@ -86,11 +86,11 @@ public class OppdragPatchDto implements AbacDto {
     @AssertTrue
     boolean isSumBeløpSannsynlig() {
         long estimertSum = 0;
-        for (OppdragslinjePatchDto dto : oppdragslinjer) {
+        for (var dto : oppdragslinjer) {
             if ("ENG".equals(dto.getSatsType())) {
                 estimertSum += dto.getSats();
             } else {
-                long dager = ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
+                var dager = ChronoUnit.DAYS.between(dto.getFom(), dto.getTom()) + 1;
                 estimertSum += dager * dto.getSats();
             }
         }

@@ -48,14 +48,14 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        BeregningsresultatEntitet revurderingResultat = BeregningsresultatEntitet.builder()
+        var revurderingResultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
         revurderingPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2))
                 .build(revurderingResultat);
-        BeregningsresultatEntitet originalResultat = BeregningsresultatEntitet.builder()
+        var originalResultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
@@ -67,22 +67,22 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_arbeidsforhold() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
+        var revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
+        var originaleNøkler = List.of(originalNøkkel);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -93,26 +93,26 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_arbeidsforhold_der_bortfalt_har_fleire_tidligere_avtaler() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nyRef());
-        Yrkesaktivitet avsluttetGammelAktivitet = lagYrkesaktivitet(
+        var avsluttetGammelAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(5)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nyRef());
 
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(avsluttetGammelAktivitet, eksisterendeAktivitet, tilkommetAktivitet);
+        var revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
+        var originaleNøkler = List.of(originalNøkkel);
+        var yrkesaktiviteter = List.of(avsluttetGammelAktivitet, eksisterendeAktivitet, tilkommetAktivitet);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -123,22 +123,22 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_ikkje_finne_tilbaketrekk_når_det_ikkje_skal_gjerast_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER2, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
+        var revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel);
+        var originaleNøkler = List.of(originalNøkkel);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -148,27 +148,27 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_avsluttede_og_en_tilkommet_refusjon_mindre_enn_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel, revurderingNøkkel2);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel, originalNøkkel2);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2);
+        var revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel, revurderingNøkkel2);
+        var originaleNøkler = List.of(originalNøkkel, originalNøkkel2);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -181,32 +181,32 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_tre_avsluttede_og_en_tilkommet_tilbaketrekk_mindre_enn_refusjon() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(
+        var eksisterendeAktivitet3 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(1)),
                 ARBEIDSGIVER4, InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
-        BRNøkkelMedAndeler originalNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER4, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(3 * DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
+        var originalNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER4, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var revurderingNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(3 * DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel, revurderingNøkkel2, revurderingNøkkel3);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel, originalNøkkel2, originalNøkkel3);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2, eksisterendeAktivitet3);
+        var revurderingNøkler = List.of(tilkommetNøkkel, revurderingNøkkel, revurderingNøkkel2, revurderingNøkkel3);
+        var originaleNøkler = List.of(originalNøkkel, originalNøkkel2, originalNøkkel3);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2, eksisterendeAktivitet3);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -219,40 +219,40 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_tre_avsluttede_og_tre_tilkommet_men_kun_deler_av_settet_er_med_i_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(16)), ARBEIDSGIVER1,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(
+        var eksisterendeAktivitet3 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER4,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2,
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5,
+        var tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5,
                 InternArbeidsforholdRef.nullRef());
-        Yrkesaktivitet tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)),
+        var tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)),
                 ARBEIDSGIVER6, InternArbeidsforholdRef.nullRef());
 
-        BRNøkkelMedAndeler originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(50, ARBEIDSGIVER1, originalPeriode);
-        BRNøkkelMedAndeler originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(80, ARBEIDSGIVER3, originalPeriode);
-        BRNøkkelMedAndeler originalNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(100, ARBEIDSGIVER4, originalPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        BRNøkkelMedAndeler revurderingNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(100, ARBEIDSGIVER2, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(60, ARBEIDSGIVER5, revurderingPeriode);
-        BRNøkkelMedAndeler tilkommetNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(120, ARBEIDSGIVER6, revurderingPeriode);
+        var originalNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(50, ARBEIDSGIVER1, originalPeriode);
+        var originalNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(80, ARBEIDSGIVER3, originalPeriode);
+        var originalNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(100, ARBEIDSGIVER4, originalPeriode);
+        var revurderingNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var revurderingNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
+        var tilkommetNøkkel = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(100, ARBEIDSGIVER2, revurderingPeriode);
+        var tilkommetNøkkel2 = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(60, ARBEIDSGIVER5, revurderingPeriode);
+        var tilkommetNøkkel3 = lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(120, ARBEIDSGIVER6, revurderingPeriode);
 
-        List<BRNøkkelMedAndeler> revurderingNøkler = List.of(tilkommetNøkkel, tilkommetNøkkel2, tilkommetNøkkel3, revurderingNøkkel,
+        var revurderingNøkler = List.of(tilkommetNøkkel, tilkommetNøkkel2, tilkommetNøkkel3, revurderingNøkkel,
                 revurderingNøkkel2, revurderingNøkkel3);
-        List<BRNøkkelMedAndeler> originaleNøkler = List.of(originalNøkkel, originalNøkkel2, originalNøkkel3);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, tilkommetAktivitet2, tilkommetAktivitet3,
+        var originaleNøkler = List.of(originalNøkkel, originalNøkkel2, originalNøkkel3);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, tilkommetAktivitet2, tilkommetAktivitet3,
                 eksisterendeAktivitet2, eksisterendeAktivitet3);
 
         // Act
-        Optional<TilbaketrekkForTilkommetArbeidEntry> tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
+        var tilbaketrekkForTilkommetArbeidEntry = finnStørsteTilbaketrekkForTilkomneArbeidsforhold(
                 revurderingNøkler, originaleNøkler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -272,7 +272,7 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
 
     private BRNøkkelMedAndeler lagNøkkelForAndelerMedFullUtbetalingTilBruker(int dagsats, Arbeidsgiver arbeidsgiver,
             BeregningsresultatPeriode periode) {
-        BeregningsresultatAndel brukersAndel = BeregningsresultatAndel.builder()
+        var brukersAndel = BeregningsresultatAndel.builder()
                 .medDagsats(dagsats)
                 .medBrukerErMottaker(true)
                 .medArbeidsgiver(arbeidsgiver)
@@ -283,14 +283,14 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
                 .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
                 .medDagsatsFraBg(dagsats)
                 .build(periode);
-        BRNøkkelMedAndeler nøkkel = new BRNøkkelMedAndeler(new AktivitetOgArbeidsgiverNøkkel(brukersAndel));
+        var nøkkel = new BRNøkkelMedAndeler(new AktivitetOgArbeidsgiverNøkkel(brukersAndel));
         nøkkel.leggTilAndel(brukersAndel);
         return nøkkel;
     }
 
     private BRNøkkelMedAndeler lagNøkkelForAndelerMedFullUtbetalingTilArbeidsgiver(int dagsats, Arbeidsgiver arbeidsgiver,
             BeregningsresultatPeriode periode) {
-        BeregningsresultatAndel brukersAndel = BeregningsresultatAndel.builder()
+        var brukersAndel = BeregningsresultatAndel.builder()
                 .medDagsats(0)
                 .medBrukerErMottaker(true)
                 .medArbeidsgiver(arbeidsgiver)
@@ -301,7 +301,7 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
                 .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
                 .medDagsatsFraBg(0)
                 .build(periode);
-        BeregningsresultatAndel arbeidsgiversAndel = BeregningsresultatAndel.builder()
+        var arbeidsgiversAndel = BeregningsresultatAndel.builder()
                 .medDagsats(dagsats)
                 .medBrukerErMottaker(false)
                 .medArbeidsgiver(arbeidsgiver)
@@ -312,7 +312,7 @@ public class TilbaketrekkVedTilkommetArbeidsforholdTjenesteTest {
                 .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
                 .medDagsatsFraBg(dagsats)
                 .build(periode);
-        BRNøkkelMedAndeler nøkkel = new BRNøkkelMedAndeler(new AktivitetOgArbeidsgiverNøkkel(brukersAndel));
+        var nøkkel = new BRNøkkelMedAndeler(new AktivitetOgArbeidsgiverNøkkel(brukersAndel));
         nøkkel.leggTilAndel(brukersAndel);
         nøkkel.leggTilAndel(arbeidsgiversAndel);
         return nøkkel;

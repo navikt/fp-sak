@@ -53,7 +53,7 @@ public class OppdragKjedeFortsettelse {
 
         public Builder medOppdragslinje(OppdragLinje linje) {
             if (!oppdragslinjer.isEmpty()) {
-                OppdragLinje siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
+                var siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
                 if (linje.getOpphørFomDato() == null) {
                     validerLinjeUtenOpphør(linje, siste);
                 } else {

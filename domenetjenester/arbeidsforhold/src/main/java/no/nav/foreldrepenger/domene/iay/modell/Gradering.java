@@ -91,7 +91,7 @@ public class Gradering extends BaseEntitet implements IndexKey, Comparable<Grade
         if ((o == null) || !(o instanceof Gradering)) {
             return false;
         }
-        Gradering that = (Gradering) o;
+        var that = (Gradering) o;
         return Objects.equals(periode, that.periode);
     }
 

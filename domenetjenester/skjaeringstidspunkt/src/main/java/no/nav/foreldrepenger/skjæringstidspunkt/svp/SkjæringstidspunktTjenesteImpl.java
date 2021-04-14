@@ -4,14 +4,12 @@ import static no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettlegging
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -56,7 +54,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
-        LocalDate skjæringstidspunkt = utledSkjæringstidspunkt(behandlingId);
+        var skjæringstidspunkt = utledSkjæringstidspunkt(behandlingId);
         return Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(skjæringstidspunkt)
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
@@ -71,15 +69,15 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDate utledSkjæringstidspunkt(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<Opptjening> opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
 
         // Ved revurderinger beregner vi alltid skjæringstidspunkt på nytt
         if (opptjeningOpt.isPresent() && !behandling.erRevurdering()) {
             return opptjeningOpt.get().getTom().plusDays(1);
         }
 
-        Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
         //TODO(OJR) en svakhet?
         // Dagens dato blir gitt når grunnlag ikke finnes for at DTOer skal fungere.
         return svpGrunnlagOpt.map(this::utledBasertPåGrunnlag).orElse(LocalDate.now());
@@ -106,10 +104,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDate utledSkjæringstidspunktRegisterinnhenting(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
         if (svpGrunnlagOpt.isPresent()) {
-            SvpGrunnlagEntitet grunnlag = svpGrunnlagOpt.get();
+            var grunnlag = svpGrunnlagOpt.get();
             // Bruk "jordmordato" som stabil referanse
             var tidligsteTilretteleggingsDatoOpt = new TilretteleggingFilter(grunnlag)
                 .getAktuelleTilretteleggingerFiltrert().stream()
@@ -119,7 +117,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
                 return tidligsteTilretteleggingsDatoOpt.get();
             }
         }
-        Optional<Opptjening> opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
+        var opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
         if (!behandling.erRevurdering() && opptjeningOpt.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return opptjeningOpt.get().getTom().plusDays(1);
         }

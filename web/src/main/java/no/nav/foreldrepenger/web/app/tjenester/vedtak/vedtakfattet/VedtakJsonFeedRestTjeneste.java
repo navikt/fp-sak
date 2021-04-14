@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.jsonfeed.VedtakFattetTjeneste;
-import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.HendelseTypeParam;
@@ -67,7 +66,7 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
-        final VedtakDto dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
+        final var dto = tjeneste.hentFpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
         LOG.info("VedtakFeed FP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
                 hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());
@@ -87,7 +86,7 @@ public class VedtakJsonFeedRestTjeneste {
             @DefaultValue("100") @QueryParam("maxAntall") @Parameter(description = "max antall returnert") @Valid MaxAntallParam maxAntallParam,
             @DefaultValue("") @QueryParam("type") @Parameter(description = "Filtrerer på type hendelse") @Valid HendelseTypeParam hendelseTypeParam,
             @DefaultValue("") @QueryParam("aktoerId") @Parameter(description = "aktoerId") @Valid AktørParam aktørParam) {
-        final VedtakDto dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
+        final var dto = tjeneste.hentSvpVedtak(sistLesteSekvensIdParam.get(), maxAntallParam.get(), hendelseTypeParam.get(), aktørParam.get());
         LOG.info("VedtakFeed SVP sekvens {} max {} type {} aktør {} antall {}", sistLesteSekvensIdParam.get(), maxAntallParam.get(),
                 hendelseTypeParam.get() == null ? "notype" : hendelseTypeParam.get(), aktørParam.get().isPresent() ? "angitt" : "tom",
                 dto.getElementer().size());

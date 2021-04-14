@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftFaktaForOmsorgVurderingAksjonspunktDto;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
@@ -49,12 +48,12 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
 
     @Override
     public OppdateringResultat oppdater(BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
-        YtelseFordelingAggregat ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
-        Optional<PerioderUtenOmsorgEntitet> perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg();
+        var behandlingId = param.getBehandlingId();
+        var ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
+        var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg();
         List<PeriodeDto> periodeUtenOmsorgListe = new ArrayList<>();
 
-        Boolean harOmsorgForBarnetSokVersjon = ytelseFordelingAggregat
+        var harOmsorgForBarnetSokVersjon = ytelseFordelingAggregat
             .getOppgittRettighet().getHarOmsorgForBarnetIHelePerioden();
 
         Boolean harOmsorgForBarnetBekreftetVersjon = null;
@@ -63,17 +62,17 @@ public class BekreftOmsorgOppdaterer implements AksjonspunktOppdaterer<BekreftFa
             periodeUtenOmsorgListe = PeriodeKonverter.mapUtenOmsorgperioder(perioderUtenOmsorg.get().getPerioder());
         }
 
-        boolean erEndret = opprettHistorikkInnslagForOmsorg(dto, periodeUtenOmsorgListe, harOmsorgForBarnetBekreftetVersjon);
+        var erEndret = opprettHistorikkInnslagForOmsorg(dto, periodeUtenOmsorgListe, harOmsorgForBarnetBekreftetVersjon);
 
-        boolean avkreftet = avkrefterBrukersOpplysninger(harOmsorgForBarnetSokVersjon, dto.getOmsorg());
+        var avkreftet = avkrefterBrukersOpplysninger(harOmsorgForBarnetSokVersjon, dto.getOmsorg());
 
-        boolean totrinn = setToTrinns(perioderUtenOmsorg, erEndret, avkreftet);
+        var totrinn = setToTrinns(perioderUtenOmsorg, erEndret, avkreftet);
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
 
-        final BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
+        final var adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
             dto.getOmsorg(), PeriodeKonverter.mapIkkeOmsorgsperioder(dto.getIkkeOmsorgPerioder(), dto.getOmsorg()));
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, adapter);
 

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,11 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -61,15 +57,15 @@ public class SendVedtaksbrev {
     }
 
     void sendVedtaksbrev(Long behandlingId) {
-        Optional<BehandlingVedtak> behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingVedtakOpt.isEmpty()) {
             LOG.info("Det foreligger ikke vedtak i behandling: {}, kan ikke sende vedtaksbrev", behandlingId); //$NON-NLS-1$
             return;
         }
-        BehandlingVedtak behandlingVedtak = behandlingVedtakOpt.get();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingVedtak = behandlingVedtakOpt.get();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        boolean fritekstVedtaksbrev = Vedtaksbrev.FRITEKST.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev());
+        var fritekstVedtaksbrev = Vedtaksbrev.FRITEKST.equals(behandlingVedtak.getBehandlingsresultat().getVedtaksbrev());
         if (Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde()) && !fritekstVedtaksbrev) {
             LOG.info("Sender ikke vedtaksbrev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", behandling.getId());
             return;
@@ -118,16 +114,16 @@ public class SendVedtaksbrev {
         if (behandling.erRevurdering() && erBehandlingEtterKlage(behandling)) {
             return false;
         }
-        Optional<KlageVurderingResultat> vurderingOpt = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        var vurderingOpt = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
         return vurderingOpt.isPresent();
     }
 
     private boolean skalSendeVedtaksbrevEtterAnke(Behandling behandling) {
-        Behandling anke = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.ANKE).orElse(null);
+        var anke = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(behandling.getFagsakId(), BehandlingType.ANKE).orElse(null);
         if (anke == null) {
             return true;
         }
-        AnkeVurderingResultatEntitet vurdering = ankeRepository.hentAnkeVurderingResultat(anke.getId()).orElse(null);
+        var vurdering = ankeRepository.hentAnkeVurderingResultat(anke.getId()).orElse(null);
         // henlagt eller ikke avsluttet
         if (vurdering == null) {
             return false;
@@ -138,12 +134,12 @@ public class SendVedtaksbrev {
 
     private boolean skalSendeVedtaksbrevEtterKlage(Behandling behandling) {
 
-        Behandling klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
+        var klage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(behandling.getFagsakId(), BehandlingType.KLAGE).orElse(null);
 
         if (klage == null) {
             return true;
         }
-        KlageVurderingResultat vurdering = klageRepository.hentGjeldendeKlageVurderingResultat(klage).orElse(null);
+        var vurdering = klageRepository.hentGjeldendeKlageVurderingResultat(klage).orElse(null);
         // henlagt eller ikke avsluttet
         return vurdering == null;
     }

@@ -12,21 +12,20 @@ import no.nav.abakus.iaygrunnlag.Organisasjon;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonskravDatoerDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 
 public class MapRefusjonskravDatoerTest {
 
     @Test
     public void skal_mappe_refusjonskravdato() {
         // Arrange
-        LocalDate førsteInnsendingAvRefusjonskrav = LocalDate.now().minusDays(10);
-        LocalDate førsteDagMedRefusjonskrav = LocalDate.now().minusDays(20);
-        String orgnr = KUNSTIG_ORG;
-        RefusjonskravDatoerDto dto = new RefusjonskravDatoerDto(List.of(new RefusjonskravDatoDto(new Organisasjon(orgnr),
+        var førsteInnsendingAvRefusjonskrav = LocalDate.now().minusDays(10);
+        var førsteDagMedRefusjonskrav = LocalDate.now().minusDays(20);
+        var orgnr = KUNSTIG_ORG;
+        var dto = new RefusjonskravDatoerDto(List.of(new RefusjonskravDatoDto(new Organisasjon(orgnr),
                 førsteInnsendingAvRefusjonskrav, førsteDagMedRefusjonskrav, true)));
 
         // Act
-        List<RefusjonskravDato> refusjonskravDatoer = MapRefusjonskravDatoer.map(dto);
+        var refusjonskravDatoer = MapRefusjonskravDatoer.map(dto);
 
         // Assert
         assertThat(refusjonskravDatoer).hasSize(1);

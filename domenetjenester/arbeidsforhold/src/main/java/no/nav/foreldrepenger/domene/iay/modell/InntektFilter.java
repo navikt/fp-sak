@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 /**
  * Filter for å hente inntekter og inntektsposter fra grunnlag. Tilbyr
@@ -216,13 +215,12 @@ public class InntektFilter {
             return false;
         }
         if (skjæringstidspunkt != null) {
-            DatoIntervallEntitet periode = inntektspost.getPeriode();
+            var periode = inntektspost.getPeriode();
             if (venstreSideASkjæringstidspunkt) {
                 return periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1));
-            } else {
-                return periode.getFomDato().isAfter(skjæringstidspunkt) ||
-                        (periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt));
             }
+            return periode.getFomDato().isAfter(skjæringstidspunkt) ||
+                    (periode.getFomDato().isBefore(skjæringstidspunkt.plusDays(1)) && periode.getTomDato().isAfter(skjæringstidspunkt));
         }
         return true;
     }

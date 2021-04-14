@@ -42,23 +42,23 @@ public class EndringsresultatDiff {
 
     // Oppretter Composite-rotnode
     public static EndringsresultatDiff opprett() {
-        boolean støtterSporingsendringer = false;
+        var støtterSporingsendringer = false;
         return new EndringsresultatDiff(støtterSporingsendringer);
     }
 
     public static EndringsresultatDiff opprettForSporingsendringer() {
-        boolean støtterSporingsendringer = true;
+        var støtterSporingsendringer = true;
         return new EndringsresultatDiff(støtterSporingsendringer);
     }
 
     // Oppretter Composite-løvnode
     public static EndringsresultatDiff medDiff(Class<?> grunnlagKlasse, Object grunnlagId1, Object grunnlagId2) {
-        boolean støtterSporingsendringer = false;
+        var støtterSporingsendringer = false;
         return new EndringsresultatDiff(grunnlagKlasse, grunnlagId1, grunnlagId2, støtterSporingsendringer, false, null);
     }
 
     public static EndringsresultatDiff medDiffPåSporedeFelt(EndringsresultatDiff diff, boolean erSporedeFeltEndret, DiffResult diffResultat) {
-        boolean støtterSporingsendringer = true;
+        var støtterSporingsendringer = true;
         return new EndringsresultatDiff(diff.grunnlagKlasse, diff.grunnlagId1, diff.grunnlagId2, støtterSporingsendringer, erSporedeFeltEndret, diffResultat);
     }
 
@@ -101,8 +101,8 @@ public class EndringsresultatDiff {
     public EndringsresultatDiff leggTilSporetEndring(EndringsresultatDiff endringsresultat, Supplier<DiffResult> sporedeFeltSjekkSupplier) {
         boolean erSporetFeltEndret;
         DiffResult diffResultat = null;
-        Object id1 = endringsresultat.getGrunnlagId1();
-        Object id2 = endringsresultat.getGrunnlagId2();
+        var id1 = endringsresultat.getGrunnlagId1();
+        var id2 = endringsresultat.getGrunnlagId2();
 
         if (Objects.equals(id1, id2)) {
             // Sporede felt kan ikke være endret dersom id-er er like
@@ -116,7 +116,7 @@ public class EndringsresultatDiff {
             erSporetFeltEndret = !diffResultat.isEmpty();
         }
 
-        EndringsresultatDiff diff = EndringsresultatDiff.medDiffPåSporedeFelt(endringsresultat, erSporetFeltEndret, diffResultat);
+        var diff = EndringsresultatDiff.medDiffPåSporedeFelt(endringsresultat, erSporetFeltEndret, diffResultat);
         getChildren().add(diff);
         return this;
     }
@@ -141,7 +141,7 @@ public class EndringsresultatDiff {
         if (this == o) return true;
         if (!(o instanceof EndringsresultatDiff)) return false;
 
-        EndringsresultatDiff that = (EndringsresultatDiff) o;
+        var that = (EndringsresultatDiff) o;
 
         return Objects.equals(grunnlagKlasse, that.grunnlagKlasse)
             && Objects.equals(grunnlagId1, that.grunnlagId1)

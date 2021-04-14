@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Optional;
-
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,17 +11,13 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
@@ -61,7 +54,7 @@ public class VurderDekningsgradOppdatererTest {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, BEGRUNNELSE);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -70,32 +63,32 @@ public class VurderDekningsgradOppdatererTest {
     @Test
     public void skal_ikke_lage_historikkinnslag_hvis_ingen_endring() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
-        int dekningsgradFraDto = 80;
+        var lagretDekningsgrad = Dekningsgrad._80;
+        var dekningsgradFraDto = 80;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto(BEGRUNNELSE, dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto(BEGRUNNELSE, dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).isEmpty();
     }
 
     @Test
     public void skal_lage_historikkinnslag_hvis_endring_i_begrunnelse() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
-        int dekningsgradFraDto = 80;
+        var lagretDekningsgrad = Dekningsgrad._80;
+        var dekningsgradFraDto = 80;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).hasSize(1);
-        List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
+        var deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("en endret begrunnelse"));
         assertThat(deler.get(0).getSkjermlenke())
@@ -109,17 +102,17 @@ public class VurderDekningsgradOppdatererTest {
     @Test
     public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
-        int dekningsgradFraDto = 100;
+        var lagretDekningsgrad = Dekningsgrad._80;
+        var dekningsgradFraDto = 100;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto(BEGRUNNELSE, dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto(BEGRUNNELSE, dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).hasSize(1);
-        List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
+        var deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo(BEGRUNNELSE));
         assertThat(deler.get(0).getSkjermlenke())
@@ -133,17 +126,17 @@ public class VurderDekningsgradOppdatererTest {
     @Test
     public void skal_lage_historikkinnslag_hvis_endring_i_dekningsgrad_og_begrunnelse() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
-        int dekningsgradFraDto = 100;
+        var lagretDekningsgrad = Dekningsgrad._80;
+        var dekningsgradFraDto = 100;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).hasSize(1);
-        List<HistorikkinnslagDel> deler = historikk.get(0).getHistorikkinnslagDeler();
+        var deler = historikk.get(0).getHistorikkinnslagDeler();
         assertThat(deler).hasSize(1);
         assertThat(deler.get(0).getBegrunnelse()).hasValueSatisfying(begrunnelse -> assertThat(begrunnelse).isEqualTo("en endret begrunnelse"));
         assertThat(deler.get(0).getSkjermlenke())
@@ -157,14 +150,14 @@ public class VurderDekningsgradOppdatererTest {
     @Test
     public void skal_lagre_hvis_dekningsgrad_er_endret() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._80;
-        int dekningsgradFraDto = 100;
+        var lagretDekningsgrad = Dekningsgrad._80;
+        var dekningsgradFraDto = 100;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi()).isEqualTo(100);
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getDekningsgrad().getVerdi()).isNotEqualTo(100);
         assertThat(behandlingsresultat).hasValueSatisfying(r -> assertThat(r.isEndretDekningsgrad()).isTrue());
@@ -173,14 +166,14 @@ public class VurderDekningsgradOppdatererTest {
     @Test
     public void skal_ikke_endre_lagret_verdier_hvis_dekningsgrad_ikke_er_endret() {
         // Arrange
-        Dekningsgrad lagretDekningsgrad = Dekningsgrad._100;
-        int dekningsgradFraDto = 100;
+        var lagretDekningsgrad = Dekningsgrad._100;
+        var dekningsgradFraDto = 100;
         fagsakRelasjonRepository.opprettRelasjon(behandling.getFagsak(), lagretDekningsgrad);
-        VurderDekningsgradDto dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
+        var dto = new VurderDekningsgradDto("en endret begrunnelse", dekningsgradFraDto);
         // Act
         vurderDekningsgradOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         // Assert
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad().getVerdi()).isEqualTo(100);
         assertThat(fagsakRelasjonRepository.finnRelasjonFor(behandling.getFagsak()).getDekningsgrad().getVerdi()).isEqualTo(100);
         assertThat(behandlingsresultat).hasValueSatisfying(r -> assertThat(r.isEndretDekningsgrad()).isFalse());

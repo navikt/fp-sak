@@ -60,7 +60,7 @@ class VilkårBuilder {
     }
 
     Vilkår build() {
-        Vilkår vilkår = new Vilkår();
+        var vilkår = new Vilkår();
         Objects.requireNonNull(vilkårType, "vilkårType");
         vilkår.setVilkårType(vilkårType);
         vilkår.setVilkårUtfall(vilkårUtfall);

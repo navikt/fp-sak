@@ -49,7 +49,7 @@ public @interface GrunnlagRef {
             return navn;
         }
     }
-    
+
 
     @SuppressWarnings("unchecked")
     public static final class Lookup {
@@ -66,7 +66,7 @@ public @interface GrunnlagRef {
         }
 
         private static String getName(Class<?> aggregat) {
-            String aggrNavn = aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name()  : aggregat.getSimpleName();
+            var aggrNavn = aggregat.isAnnotationPresent(Entity.class) ? aggregat.getAnnotation(Entity.class).name()  : aggregat.getSimpleName();
             return aggrNavn;
         }
 
@@ -89,10 +89,9 @@ public @interface GrunnlagRef {
                 var inst = select(cls, instances, new GrunnlagRefLiteral(fagsakLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
-                } else {
-                    if (inst.isAmbiguous()) {
-                        throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
-                    }
+                }
+                if (inst.isAmbiguous()) {
+                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
                 }
             }
 
@@ -121,7 +120,7 @@ public @interface GrunnlagRef {
 
     /**
      * container for repeatable annotations.
-     * 
+     *
      * @see https://docs.oracle.com/javase/tutorial/java/annotations/repeating.html
      */
     @Inherited

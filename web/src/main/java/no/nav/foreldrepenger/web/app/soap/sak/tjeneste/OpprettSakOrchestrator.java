@@ -28,14 +28,14 @@ public class OpprettSakOrchestrator {
     }
 
     public Saksnummer opprettSak(BehandlingTema behandlingTema, AktørId aktørId) {
-        FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
-        Fagsak fagsak = opprettSakTjeneste.opprettSakVL(aktørId, ytelseType);
+        var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
+        var fagsak = opprettSakTjeneste.opprettSakVL(aktørId, ytelseType);
         return fagsak.getSaksnummer();
     }
 
     public Saksnummer opprettSak(JournalpostId journalpostId, BehandlingTema behandlingTema, AktørId aktørId) {
-        FagsakYtelseType ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
-        Fagsak fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, aktørId);
+        var ytelseType = opprettSakTjeneste.utledYtelseType(behandlingTema);
+        var fagsak = finnEllerOpprettFagSak(journalpostId, ytelseType, aktørId);
         return fagsak.getSaksnummer();
     }
 

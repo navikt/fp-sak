@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 
 @BehandlingStegRef(kode = "INSØK")
@@ -36,7 +35,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(kontekst.getFagsakId());
+        var fagsak = fagsakRepository.finnEksaktFagsak(kontekst.getFagsakId());
         if (!fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).isPresent()) {
             fagsakRelasjonTjeneste.opprettRelasjon(fagsak, Dekningsgrad._100);
         }

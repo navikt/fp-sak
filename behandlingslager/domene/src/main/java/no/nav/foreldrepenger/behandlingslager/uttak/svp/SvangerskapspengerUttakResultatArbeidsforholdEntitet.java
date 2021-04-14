@@ -101,7 +101,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
         }
 
         private void validerIkkeOverlapp(SvangerskapspengerUttakResultatPeriodeEntitet p2) {
-            for (SvangerskapspengerUttakResultatPeriodeEntitet p1 : kladd.perioder) {
+            for (var p1 : kladd.perioder) {
                 if (p1.getTidsperiode().overlapper(p2.getTidsperiode())) {
                     throw new IllegalArgumentException("UttakResultatPerioder kan ikke overlappe " + p2 + p1);
                 }

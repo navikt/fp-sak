@@ -22,7 +22,7 @@ public class FpoppdragSystembrukerRestKlient {
     @Inject
     public FpoppdragSystembrukerRestKlient(SystemUserOidcRestClient restClient) {
         this.restClient = restClient;
-        String fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
+        var fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
 
         uriKansellerSimulering = URI.create(fpoppdragBaseUrl + FPOPPDRAG_KANSELLER_SIMULERING);
     }

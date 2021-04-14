@@ -8,7 +8,7 @@ public class BehandlingDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_behandlingDvh() {
-        BehandlingDvh behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
+        var behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
 
         assertThat(behandlingDvh.getAnsvarligBeslutter()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_BESLUTTER);
         assertThat(behandlingDvh.getAnsvarligSaksbehandler()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_SAKSBEHANDLER);

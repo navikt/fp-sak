@@ -39,10 +39,10 @@ public class OpptjeningDtoTjeneste {
     }
 
     public Optional<OpptjeningDto> mapFra(BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
-        Optional<Opptjening> fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
+        var behandlingId = ref.getBehandlingId();
+        var fastsattOpptjening = forSaksbehandlingTjeneste.hentOpptjeningHvisFinnes(behandlingId);
 
-        OpptjeningDto resultat = new OpptjeningDto();
+        var resultat = new OpptjeningDto();
         fastsattOpptjening.filter(Opptjening::getAktiv).ifPresent(fastsatt ->
             resultat.setFastsattOpptjening(new FastsattOpptjeningDto(fastsatt.getFom(), fastsatt.getTom(),
                 mapFastsattOpptjening(fastsatt), MergeOverlappendePeriodeHjelp.mergeOverlappenePerioder(fastsatt.getOpptjeningAktivitet()))));

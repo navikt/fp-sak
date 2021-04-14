@@ -103,10 +103,11 @@ public class OppgaveBehandlingKobling extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof OppgaveBehandlingKobling)) {
+        }
+        if (!(obj instanceof OppgaveBehandlingKobling)) {
             return false;
         }
-        OppgaveBehandlingKobling other = (OppgaveBehandlingKobling) obj;
+        var other = (OppgaveBehandlingKobling) obj;
         return Objects.equals(getOppgaveId(), other.getOppgaveId())
             && Objects.equals(getOppgaveÅrsak(), other.getOppgaveÅrsak())
             && Objects.equals(behandlingId, other.behandlingId);

@@ -41,7 +41,7 @@ public class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     public void skal_returnerer_tilgrensende_ytelser_for_soker() {
-        List<Ytelse> ytelser = List.of(
+        var ytelser = List.of(
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
@@ -49,7 +49,7 @@ public class BehandlingRelaterteYtelserMapperTest {
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
                         null));
 
-        List<TilgrensendeYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
+        var resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
 
         assertThat(resultatListe).hasSize(3);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER.getKode());
@@ -60,7 +60,7 @@ public class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     public void skal_returnerer_tilgrensende_ytelser_for_annen_forelder() {
-        List<Ytelse> ytelser = List.of(
+        var ytelser = List.of(
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(265),
@@ -70,7 +70,7 @@ public class BehandlingRelaterteYtelserMapperTest {
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.ENSLIG_FORSØRGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
                         null));
 
-        List<TilgrensendeYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
+        var resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);
 
         assertThat(resultatListe).hasSize(4);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER.getKode());
@@ -83,7 +83,7 @@ public class BehandlingRelaterteYtelserMapperTest {
     public void skal_mapper_fagsak_til_tilgrensendeYtelserdto() {
         fagsakFødsel.setAvsluttet();
 
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsakFødsel, I_DAG.minusDays(5));
+        var tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsakFødsel, I_DAG.minusDays(5));
 
         assertThat(tilgrensendeYtelserDto.getRelatertYtelseType()).isEqualTo(RelatertYtelseType.ENGANGSSTØNAD.getKode());
         assertThat(tilgrensendeYtelserDto.getStatus()).isEqualTo(FagsakStatus.AVSLUTTET.getKode());
@@ -120,7 +120,7 @@ public class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     public void skal_returnerer_sortert_tilgrensende_ytelser_for_soker() {
-        List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos = List.of(
+        var tilgrensendeYtelserDtos = List.of(
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(365), I_DAG.plusDays(360)),
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
@@ -136,14 +136,14 @@ public class BehandlingRelaterteYtelserMapperTest {
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseTilstand.AVSLUTTET,
                         I_DAG.minusDays(500), I_DAG.plusDays(400)));
 
-        List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,
+        var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,
                 RELATERT_YTELSE_TYPER_FOR_SØKER);
 
         assertThat(resultatListe).hasSize(11);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getKode());
         assertThat(resultatListe.get(0).getTilgrensendeYtelserListe()).hasSize(1);
         assertThat(resultatListe.get(2).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.SYKEPENGER.getKode());
-        final List<TilgrensendeYtelserDto> sykepengerYtelserListe = resultatListe.get(2).getTilgrensendeYtelserListe();
+        final var sykepengerYtelserListe = resultatListe.get(2).getTilgrensendeYtelserListe();
         assertThat(sykepengerYtelserListe).hasSize(6);
         assertThat(sykepengerYtelserListe.get(0).getPeriodeFraDato()).isNull();
         assertThat(sykepengerYtelserListe.get(1).getPeriodeFraDato()).isEqualTo(I_DAG.minusDays(5));
@@ -157,7 +157,7 @@ public class BehandlingRelaterteYtelserMapperTest {
 
     @Test
     public void skal_returnerer_sortert_tilgrensende_ytelser_for_annen_forelder() {
-        List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos = List.of(
+        var tilgrensendeYtelserDtos = List.of(
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.SYKEPENGER, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(365),
                         I_DAG.plusDays(360)),
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.AVSLUTTET,
@@ -173,12 +173,12 @@ public class BehandlingRelaterteYtelserMapperTest {
                 opprettTilgrensendeYtelserDto(SAKSNUMMER_42, RelatertYtelseType.ENGANGSSTØNAD, RelatertYtelseTilstand.AVSLUTTET, I_DAG.minusDays(500),
                         I_DAG.plusDays(400)));
 
-        List<RelaterteYtelserDto> resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,
+        var resultatListe = BehandlingRelaterteYtelserMapper.samleYtelserBasertPåYtelseType(tilgrensendeYtelserDtos,
                 RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER);
 
         assertThat(resultatListe).hasSize(2);
         assertThat(resultatListe.get(0).getRelatertYtelseType()).isEqualTo(RelatertYtelseType.FORELDREPENGER.getKode());
-        final List<TilgrensendeYtelserDto> foreldrepengerYtelserListe = resultatListe.get(0).getTilgrensendeYtelserListe();
+        final var foreldrepengerYtelserListe = resultatListe.get(0).getTilgrensendeYtelserListe();
         assertThat(foreldrepengerYtelserListe).hasSize(6);
         assertThat(foreldrepengerYtelserListe.get(0).getPeriodeFraDato()).isNull();
         assertThat(foreldrepengerYtelserListe.get(1).getPeriodeFraDato()).isEqualTo(I_DAG.plusMonths(5));
@@ -220,7 +220,7 @@ public class BehandlingRelaterteYtelserMapperTest {
             RelatertYtelseTilstand ytelseTilstand,
             LocalDate iverksettelsesDato,
             LocalDate opphoerFomDato) {
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
+        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
         tilgrensendeYtelserDto.setRelatertYtelseType(ytelseType.getKode());
         tilgrensendeYtelserDto.setStatus(ytelseTilstand.getKode());
         tilgrensendeYtelserDto.setSaksNummer(saksnummer);

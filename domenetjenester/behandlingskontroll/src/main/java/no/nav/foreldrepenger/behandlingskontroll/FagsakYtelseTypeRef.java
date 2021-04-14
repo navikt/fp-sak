@@ -109,11 +109,10 @@ public @interface FagsakYtelseTypeRef {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
-                } else {
-                    if (inst.isAmbiguous()) {
-                        throw new IllegalStateException(
-                                "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
-                    }
+                }
+                if (inst.isAmbiguous()) {
+                    throw new IllegalStateException(
+                            "Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType=" + fagsakLiteral);
                 }
             }
 

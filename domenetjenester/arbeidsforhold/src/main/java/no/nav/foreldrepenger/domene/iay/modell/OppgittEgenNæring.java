@@ -180,7 +180,7 @@ public class OppgittEgenNæring extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof OppgittEgenNæring)) {
             return false;
         }
-        OppgittEgenNæring that = (OppgittEgenNæring) o;
+        var that = (OppgittEgenNæring) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(virksomhetOrgnr, that.virksomhetOrgnr) &&
                 Objects.equals(nyoppstartet, that.nyoppstartet) &&

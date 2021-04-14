@@ -16,7 +16,7 @@ public enum PersonStatusType {
     }
 
     public static PersonStatusType hentPersonStatusType(String kode) {
-        for (PersonStatusType personStatusType : values()) {
+        for (var personStatusType : values()) {
             if (personStatusType.kode.equals(kode)) {
                 return personStatusType;
             }

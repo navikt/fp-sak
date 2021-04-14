@@ -21,8 +21,6 @@ import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -32,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -40,7 +37,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -53,9 +49,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -92,12 +85,12 @@ public class InngangsvilkårOversetterTest {
 
     @Test
     public void skal_mappe_fra_domenefødsel_til_regelfødsel() {
-        LocalDate now = LocalDate.now();
-        LocalDate søknadsdato = now;
-        LocalDate fødselFødselsdato = now.plusDays(7);
-        Behandling behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.MORA);
+        var now = LocalDate.now();
+        var søknadsdato = now;
+        var fødselFødselsdato = now.plusDays(7);
+        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.MORA);
 
-        FødselsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.KVINNE);
@@ -111,12 +104,12 @@ public class InngangsvilkårOversetterTest {
 
     @Test
     public void skal_mappe_fra_domenefødsel_til_regelfødsel_dersom_søker_er_medmor() {
-        LocalDate now = LocalDate.now();
-        LocalDate søknadsdato = now;
-        LocalDate fødselFødselsdato = now.plusDays(7);
-        Behandling behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.FARA);
+        var now = LocalDate.now();
+        var søknadsdato = now;
+        var fødselFødselsdato = now.plusDays(7);
+        var behandling = opprettBehandlingForFødsel(now, søknadsdato, fødselFødselsdato, RelasjonsRolleType.FARA);
 
-        FødselsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.KVINNE); // snodig, men søker er kvinne her med rolle FARA
@@ -130,7 +123,7 @@ public class InngangsvilkårOversetterTest {
     private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
             RelasjonsRolleType rolle) {
         // Arrange
-        LocalDate søknadFødselsdato = now.plusDays(2);
+        var søknadFødselsdato = now.plusDays(2);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
@@ -145,16 +138,16 @@ public class InngangsvilkårOversetterTest {
                 .medAntallBarn(1);
 
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId barnAktørId = AktørId.dummy();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon fødtBarn = builderForRegisteropplysninger
+        var fødtBarn = builderForRegisteropplysninger
                 .medPersonas()
                 .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
                 .relasjonTil(søkerAktørId, rolle, null)
                 .build();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
                 .statsborgerskap(Landkoder.NOR)
@@ -169,9 +162,9 @@ public class InngangsvilkårOversetterTest {
     @Test
     public void skal_mappe_fra_domeneadoosjon_til_regeladopsjon() {
         // Arrange
-        LocalDate søknadsdato = LocalDate.now().plusDays(1);
-        LocalDate søknadFødselsdato = LocalDate.now().plusDays(2);
-        LocalDate fødselAdopsjonsdatoFraSøknad = LocalDate.now().plusDays(8);
+        var søknadsdato = LocalDate.now().plusDays(1);
+        var søknadFødselsdato = LocalDate.now().plusDays(2);
+        var fødselAdopsjonsdatoFraSøknad = LocalDate.now().plusDays(8);
         Map<Integer, LocalDate> map = new HashMap<>();
         map.put(1, fødselAdopsjonsdatoFraSøknad);
 
@@ -190,16 +183,16 @@ public class InngangsvilkårOversetterTest {
                 // Adosjon
                 .build();
 
-        PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
+        var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
                 .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT, Region.NORDEN)
                 .statsborgerskap(Landkoder.NOR)
                 .build();
         scenario.medRegisterOpplysninger(søker);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        AdopsjonsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellAdopsjon(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellAdopsjon(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.MANN);
@@ -213,24 +206,24 @@ public class InngangsvilkårOversetterTest {
     public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap() {
         // Arrange
 
-        LocalDate skjæringstidspunkt = LocalDate.now();
+        var skjæringstidspunkt = LocalDate.now();
 
         var scenario = oppsett(skjæringstidspunkt);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.plusMonths(4), true);
 
-        VurdertMedlemskap vurdertMedlemskap = new VurdertMedlemskapBuilder()
+        var vurdertMedlemskap = new VurdertMedlemskapBuilder()
                 .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM)
                 .medBosattVurdering(true)
                 .medLovligOppholdVurdering(true)
                 .medOppholdsrettVurdering(true)
                 .build();
-        MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        var medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         medlemskapRepository.lagreMedlemskapVurdering(behandling.getId(), vurdertMedlemskap);
 
         // Act
-        MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.isBrukerAvklartBosatt()).isTrue();
@@ -246,13 +239,13 @@ public class InngangsvilkårOversetterTest {
     public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_ingen_relevant_arbeid_og_inntekt() {
 
         // Arrange
-        LocalDate skjæringstidspunkt = LocalDate.now();
+        var skjæringstidspunkt = LocalDate.now();
         var scenario = oppsett(skjæringstidspunkt);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.minusDays(1), true);
 
         // Act
-        MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
@@ -262,13 +255,13 @@ public class InngangsvilkårOversetterTest {
     public void skal_mappe_fra_domenemedlemskap_til_regelmedlemskap_med_relevant_arbeid_og_ingen_pensjonsgivende_inntekt() {
 
         // Arrange
-        LocalDate skjæringstidspunkt = LocalDate.now();
+        var skjæringstidspunkt = LocalDate.now();
         var scenario = oppsett(skjæringstidspunkt);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidOgInntektForBehandling(behandling, skjæringstidspunkt.minusMonths(5), skjæringstidspunkt.plusDays(10), false);
 
         // Act
-        MedlemskapsvilkårGrunnlag grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
+        var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isFalse();
@@ -281,7 +274,7 @@ public class InngangsvilkårOversetterTest {
         scenario.medSøknad()
                 .medMottattDato(LocalDate.of(2017, 3, 15));
 
-        PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
+        var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
                 .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
                 .personstatus(PersonstatusType.BOSA)
@@ -294,12 +287,12 @@ public class InngangsvilkårOversetterTest {
     private void opprettArbeidOgInntektForBehandling(Behandling behandling, LocalDate fom, LocalDate tom,
             boolean harPensjonsgivendeInntekt) {
 
-        String orgnr = "42";
+        var orgnr = "42";
 
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        AktørId aktørId = behandling.getAktørId();
+        var aktørId = behandling.getAktørId();
         lagAktørArbeid(aggregatBuilder, aktørId, orgnr, fom, tom, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, Optional.empty());
-        for (LocalDate dt = fom; dt.isBefore(tom); dt = dt.plusMonths(1)) {
+        for (var dt = fom; dt.isBefore(tom); dt = dt.plusMonths(1)) {
             lagInntekt(aggregatBuilder, aktørId, orgnr, dt, dt.plusMonths(1), harPensjonsgivendeInntekt);
         }
 
@@ -312,7 +305,7 @@ public class InngangsvilkårOversetterTest {
                 .getAktørArbeidBuilder(aktørId);
 
         Opptjeningsnøkkel opptjeningsnøkkel;
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
         if (arbeidsforholdRef.isPresent()) {
             opptjeningsnøkkel = new Opptjeningsnøkkel(arbeidsforholdRef.get(), arbeidsgiver.getIdentifikator(), null);
         } else {
@@ -350,8 +343,8 @@ public class InngangsvilkårOversetterTest {
         }
 
         inntektsKildeStream.forEach(kilde -> {
-            InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
-            InntektspostBuilder inntektspost = InntektspostBuilder.ny()
+            var inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
+            var inntektspost = InntektspostBuilder.ny()
                     .medBeløp(BigDecimal.valueOf(35000))
                     .medPeriode(fom, tom)
                     .medInntektspostType(InntektspostType.LØNN);

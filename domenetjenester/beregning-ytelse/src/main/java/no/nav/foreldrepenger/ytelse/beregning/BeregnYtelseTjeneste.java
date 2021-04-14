@@ -8,9 +8,7 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraVLTilRegel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 
 @ApplicationScoped
 public class BeregnYtelseTjeneste {
@@ -35,13 +33,13 @@ public class BeregnYtelseTjeneste {
     }
 
     public BeregningsresultatEntitet beregnYtelse(BehandlingReferanse referanse) {
-        Long behandlingId = referanse.getBehandlingId();
+        var behandlingId = referanse.getBehandlingId();
         var input = uttakInputTjeneste.lagInput(behandlingId);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
 
         // Map til regelmodell
-        BeregningsresultatRegelmodell regelmodell = mapBeregningsresultatFraVLTilRegel.mapFra(beregningsgrunnlag, input);
+        var regelmodell = mapBeregningsresultatFraVLTilRegel.mapFra(beregningsgrunnlag, input);
 
         // Verifiser input til regel
         if (andelerIBeregningMåLiggeIUttak(referanse)) {
@@ -51,7 +49,7 @@ public class BeregnYtelseTjeneste {
         }
 
         // Kalle regeltjeneste
-        BeregningsresultatEntitet beregningsresultat = fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
+        var beregningsresultat = fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
 
         // Verifiser beregningsresultat
         BeregningsresultatOutputVerifiserer.verifiserOutput(beregningsresultat);

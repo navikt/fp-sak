@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -17,8 +15,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public final class VurderPermisjonTjeneste {
 
@@ -37,12 +33,12 @@ public final class VurderPermisjonTjeneste {
     public static void leggTilArbeidsforholdMedRelevantPermisjon(BehandlingReferanse behandlingReferanse,
             Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
             InntektArbeidYtelseGrunnlag grunnlag) {
-        LocalDate stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        AktørId aktørId = behandlingReferanse.getAktørId();
+        var stp = behandlingReferanse.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var aktørId = behandlingReferanse.getAktørId();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId)).før(stp);
 
-        for (Yrkesaktivitet ya : filter.getYrkesaktiviteter()) {
+        for (var ya : filter.getYrkesaktiviteter()) {
             Collection<PermisjonDto> utledetPermisjoner = UtledPermisjonSomFørerTilAksjonspunkt.utled(filter, ya, stp);
             if (utledetPermisjoner.isEmpty()) {
                 continue;
@@ -63,9 +59,9 @@ public final class VurderPermisjonTjeneste {
     }
 
     private static boolean harFortsattUgyldigePerioder(ArbeidsforholdOverstyring ov, Collection<PermisjonDto> utledetPermisjoner) {
-        Optional<BekreftetPermisjon> bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
+        var bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
         if (bekreftetPermisjonOpt.isPresent()) {
-            BekreftetPermisjon bekreftetPermisjon = bekreftetPermisjonOpt.get();
+            var bekreftetPermisjon = bekreftetPermisjonOpt.get();
             return Objects.equals(bekreftetPermisjon.getStatus(), BekreftetPermisjonStatus.UGYLDIGE_PERIODER)
                     && (utledetPermisjoner.size() > 1);
         }
@@ -73,16 +69,16 @@ public final class VurderPermisjonTjeneste {
     }
 
     private static boolean harSammePermisjonsperiode(Yrkesaktivitet ya, ArbeidsforholdOverstyring ov) {
-        Optional<BekreftetPermisjon> bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
+        var bekreftetPermisjonOpt = ov.getBekreftetPermisjon();
         if (bekreftetPermisjonOpt.isPresent()) {
-            BekreftetPermisjon bekreftetPermisjon = bekreftetPermisjonOpt.get();
+            var bekreftetPermisjon = bekreftetPermisjonOpt.get();
             return ya.getPermisjon().stream().anyMatch(permisjon -> harSammeFomOgTom(bekreftetPermisjon, permisjon));
         }
         return false;
     }
 
     private static boolean harSammeFomOgTom(BekreftetPermisjon bekreftetPermisjon, Permisjon permisjon) {
-        DatoIntervallEntitet bekreftetPermisjonPeriode = bekreftetPermisjon.getPeriode();
+        var bekreftetPermisjonPeriode = bekreftetPermisjon.getPeriode();
         return (bekreftetPermisjonPeriode != null)
                 && Objects.equals(permisjon.getFraOgMed(), bekreftetPermisjonPeriode.getFomDato())
                 && Objects.equals(permisjon.getTilOgMed(), bekreftetPermisjonPeriode.getTomDato());

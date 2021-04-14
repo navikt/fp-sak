@@ -4,7 +4,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -91,13 +90,13 @@ public class KlageRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getKlageVurdering(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        KlagebehandlingDto dto = mapFra(behandling);
-        CacheControl cc = new CacheControl();
+        var dto = mapFra(behandling);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -122,9 +121,9 @@ public class KlageRestTjeneste {
     public Response mellomlagreKlage(
             @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid KlageVurderingResultatAksjonspunktMellomlagringDto apDto) { // NOSONAR
 
-        KlageVurdertAv vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
+        var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
                 : KlageVurdertAv.NK;
-        Behandling behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
         if ((KlageVurdertAv.NK.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK)) ||
@@ -152,8 +151,8 @@ public class KlageRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public MottattKlagedokumentDto getMottattKlagedokument(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingIdDto.getBehandlingId());
-        Optional<MottattDokument> mottattDokument = mottatteDokumenter.stream()
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingIdDto.getBehandlingId());
+        var mottattDokument = mottatteDokumenter.stream()
             .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
             .min(Comparator.comparing(MottattDokument::getMottattDato));
 
@@ -168,27 +167,27 @@ public class KlageRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public MottattKlagedokumentDto getMottattKlagedokument(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return getMottattKlagedokument(new BehandlingIdDto(behandling.getId()));
     }
 
     private static MottattKlagedokumentDto mapMottattKlagedokumentDto(Optional<MottattDokument> mottattDokument) {
-        MottattKlagedokumentDto mottattKlagedokumentDto = new MottattKlagedokumentDto();
+        var mottattKlagedokumentDto = new MottattKlagedokumentDto();
         mottattDokument.map(MottattDokument::getMottattDato).ifPresent(mottattKlagedokumentDto::setMottattDato);
         return mottattKlagedokumentDto;
     }
 
     private KlagebehandlingDto mapFra(Behandling behandling) {
-        KlagebehandlingDto dto = new KlagebehandlingDto();
+        var dto = new KlagebehandlingDto();
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var påklagdBehandling = klageResultat.getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
-        Optional<KlageVurderingResultatDto> nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
+        var nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
                 .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
-        Optional<KlageVurderingResultatDto> nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
+        var nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
                 .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
-        Optional<KlageFormkravResultatDto> nfpFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
+        var nfpFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
                 .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
-        Optional<KlageFormkravResultatDto> kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
+        var kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
                 .map(fk -> KlageRestTjeneste.mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
         if (nfpVurdering.isEmpty() && nkVurdering.isEmpty() && nfpFormkrav.isEmpty() && kaFormkrav.isEmpty()) {
@@ -202,7 +201,7 @@ public class KlageRestTjeneste {
     }
 
     private static KlageVurderingResultatDto mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
-        KlageVurderingResultatDto dto = new KlageVurderingResultatDto();
+        var dto = new KlageVurderingResultatDto();
 
         dto.setKlageVurdering(klageVurderingResultat.getKlageVurdering());
         dto.setKlageVurderingOmgjoer(klageVurderingResultat.getKlageVurderingOmgjør());
@@ -215,10 +214,10 @@ public class KlageRestTjeneste {
     }
 
     private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav, Optional<Behandling> påklagdBehandling, FptilbakeRestKlient fptilbakeRestKlient) {
-        Optional<UUID> paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
-        KlageFormkravResultatDto dto = new KlageFormkravResultatDto();
+        var paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
+        var dto = new KlageFormkravResultatDto();
         if (påklagdBehandling.isEmpty() && paKlagdEksternBehandlingUuid.isPresent()) {
-            Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
+            var tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
             if (tilbakekrevingVedtakDto.isPresent()) {
                 dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getId());
                 dto.setPaklagdBehandlingType(tilbakekrevingVedtakDto.get().getType());

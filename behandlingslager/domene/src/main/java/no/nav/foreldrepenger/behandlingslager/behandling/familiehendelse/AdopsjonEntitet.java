@@ -149,10 +149,11 @@ public class AdopsjonEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof AdopsjonEntitet)) {
+        }
+        if (!(obj instanceof AdopsjonEntitet)) {
             return false;
         }
-        AdopsjonEntitet other = (AdopsjonEntitet) obj;
+        var other = (AdopsjonEntitet) obj;
         return Objects.equals(this.getOmsorgsovertakelseDato(), other.getOmsorgsovertakelseDato())
                 && Objects.equals(this.getAnkomstNorgeDato(), other.getAnkomstNorgeDato())
                 && Objects.equals(this.getErEktefellesBarn(), other.getErEktefellesBarn())

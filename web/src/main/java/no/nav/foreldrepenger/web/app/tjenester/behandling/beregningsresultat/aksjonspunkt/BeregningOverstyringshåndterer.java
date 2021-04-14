@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.aksjonspunkt;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,7 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -53,9 +50,9 @@ public class BeregningOverstyringshåndterer extends AbstractOverstyringshåndte
     }
 
     private void lagHistorikkInnslagForOverstyrtBeregning(Long behandlingId, String begrunnelse, Long tilBeregning) {
-        Optional<LegacyESBeregning> sisteBeregning = beregningRepository.getSisteBeregning(behandlingId);
+        var sisteBeregning = beregningRepository.getSisteBeregning(behandlingId);
         if (sisteBeregning.isPresent()) {
-            Long fraBeregning = sisteBeregning.get().getOpprinneligBeregnetTilkjentYtelse();
+            var fraBeregning = sisteBeregning.get().getOpprinneligBeregnetTilkjentYtelse();
             getHistorikkAdapter().tekstBuilder()
                 .medHendelse(HistorikkinnslagType.OVERSTYRT)
                 .medBegrunnelse(begrunnelse)

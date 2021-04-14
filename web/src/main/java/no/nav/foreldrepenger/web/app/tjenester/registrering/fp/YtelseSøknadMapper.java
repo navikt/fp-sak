@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -25,15 +24,12 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Rettigheter;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Dekningsgrad;
-import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.ObjectFactory;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.Dekningsgrader;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
@@ -49,7 +45,6 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
-import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @FagsakYtelseTypeRef("FP")
@@ -71,12 +66,12 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
     @Override
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
-        Soeknad søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
+        var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
 
-        Foreldrepenger foreldrepenger = new ObjectFactory().createForeldrepenger();
+        var foreldrepenger = new ObjectFactory().createForeldrepenger();
 
         var dto = (ManuellRegistreringForeldrepengerDto)registreringDto;
-        SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto); // Fødsel, termin, adopsjon eller omsorg
+        var søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto); // Fødsel, termin, adopsjon eller omsorg
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         foreldrepenger.setRettigheter(mapRettigheter(dto));
         foreldrepenger.setMedlemskap(SøknadMapperFelles.mapMedlemskap(registreringDto));
@@ -85,7 +80,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         foreldrepenger.setFordeling(mapFordeling(dto));
         foreldrepenger.setOpptjening(SøknadMapperFelles.mapOpptjening(dto, virksomhetTjeneste));
 
-        OmYtelse omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
+        var omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
         omYtelse.getAny().add(new ObjectFactory().createForeldrepenger(foreldrepenger));
         søknad.setOmYtelse(omYtelse);
         søknad.setTilleggsopplysninger(registreringDto.getTilleggsopplysninger());
@@ -98,8 +93,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
             return null;
         }
 
-        Dekningsgrad dekningsgrad = new Dekningsgrad();
-        Dekningsgrader dekningsgrader = new Dekningsgrader();
+        var dekningsgrad = new Dekningsgrad();
+        var dekningsgrader = new Dekningsgrader();
         dekningsgrader.setKode(registreringDto.getDekningsgrad().getValue());
         dekningsgrad.setDekningsgrad(dekningsgrader);
 
@@ -107,14 +102,14 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Fordeling mapFordelingEndringssøknad(ManuellRegistreringEndringsøknadDto registreringDto) {
-        Fordeling fordeling = new Fordeling();
-        List<LukketPeriodeMedVedlegg> perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
+        var fordeling = new Fordeling();
+        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
         return fordeling;
     }
 
     static Fordeling mapFordeling(ManuellRegistreringForeldrepengerDto registreringDto) {
-        Fordeling fordeling = new Fordeling();
+        var fordeling = new Fordeling();
 
         if (isNull(registreringDto.getAnnenForelderInformert())) {
             // setter denne default til true om annenForelderInformert ikke er satt
@@ -123,7 +118,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
             fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
         }
 
-        List<LukketPeriodeMedVedlegg> perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
+        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
 
         return fordeling;
@@ -168,10 +163,10 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     private static Oppholdsperiode mapOppholdPeriode(OppholdDto oppholdDto) {
-        Oppholdsperiode oppholdPeriode = new Oppholdsperiode();
+        var oppholdPeriode = new Oppholdsperiode();
         oppholdPeriode.setFom(oppholdDto.getPeriodeFom());
         oppholdPeriode.setTom(oppholdDto.getPeriodeTom());
-        Oppholdsaarsaker oppholdsaarsaker = new Oppholdsaarsaker();
+        var oppholdsaarsaker = new Oppholdsaarsaker();
         oppholdsaarsaker.setKode(oppholdDto.getÅrsak().getKode());
         oppholdsaarsaker.setKodeverk(oppholdDto.getÅrsak().getKodeverk());
         oppholdPeriode.setAarsak(oppholdsaarsaker);
@@ -179,8 +174,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Uttaksperiode mapPermisjonPeriodeDto(PermisjonPeriodeDto dto) {
-        MorsAktivitet morsAktivitet = dto.getMorsAktivitet();
-        Uttaksperiode uttaksperiode = new Uttaksperiode();
+        var morsAktivitet = dto.getMorsAktivitet();
+        var uttaksperiode = new Uttaksperiode();
         uttaksperiode.setFom(dto.getPeriodeFom());
         uttaksperiode.setTom(dto.getPeriodeTom());
         uttaksperiode.setOenskerSamtidigUttak(dto.getHarSamtidigUttak());
@@ -190,12 +185,12 @@ public class YtelseSøknadMapper implements SøknadMapper {
             uttaksperiode.setSamtidigUttakProsent(dto.getSamtidigUttaksprosent().doubleValue());
         }
 
-        Uttaksperiodetyper uttaksperiodetyper = new Uttaksperiodetyper();
+        var uttaksperiodetyper = new Uttaksperiodetyper();
         uttaksperiodetyper.setKode(dto.getPeriodeType().getKode());
         uttaksperiode.setType(uttaksperiodetyper);
 
         if ((!isNull(morsAktivitet)) && (morsAktivitet.getKode() != null && !morsAktivitet.getKode().isEmpty())) {
-            MorsAktivitetsTyper morsAktivitetsTyper = new MorsAktivitetsTyper();
+            var morsAktivitetsTyper = new MorsAktivitetsTyper();
             morsAktivitetsTyper.setKode(morsAktivitet.getKode());
             uttaksperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
         }
@@ -204,11 +199,11 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Uttaksperiode mapGraderingsperiode(GraderingDto dto) {
-        Gradering gradering = new Gradering();
+        var gradering = new Gradering();
         gradering.setArbeidsforholdSomSkalGraderes(TRUE.equals(dto.getSkalGraderes()));
 
         if (dto.getArbeidsgiverIdentifikator() != null) {
-            Arbeidsgiver arbeidsgiver = mapArbeidsgiver(dto.getArbeidsgiverIdentifikator());
+            var arbeidsgiver = mapArbeidsgiver(dto.getArbeidsgiverIdentifikator());
             gradering.setArbeidsgiver(arbeidsgiver);
         }
 
@@ -228,7 +223,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
             gradering.setSamtidigUttakProsent(dto.getSamtidigUttaksprosent().doubleValue());
         }
 
-        Uttaksperiodetyper uttaksperiodetyper = new Uttaksperiodetyper();
+        var uttaksperiodetyper = new Uttaksperiodetyper();
         uttaksperiodetyper.setKode(dto.getPeriodeForGradering().getKode());
         gradering.setType(uttaksperiodetyper);
 
@@ -236,10 +231,10 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Rettigheter mapRettigheter(ManuellRegistreringForeldrepengerDto registreringDto) {
-        TidsromPermisjonDto tidsromPermisjon = registreringDto.getTidsromPermisjon();
-        AnnenForelderDto annenForelder = registreringDto.getAnnenForelder();
+        var tidsromPermisjon = registreringDto.getTidsromPermisjon();
+        var annenForelder = registreringDto.getAnnenForelder();
         if (!isNull(tidsromPermisjon)) {
-            Rettigheter rettighet = new Rettigheter();
+            var rettighet = new Rettigheter();
             if (!isNull(annenForelder)) {
                 rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
                 rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
@@ -269,15 +264,15 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Utsettelsesperiode mapUtsettelsesperiode(UtsettelseDto utsettelserDto) {
-        Utsettelsesperiode utsettelsesperiode = new Utsettelsesperiode();
+        var utsettelsesperiode = new Utsettelsesperiode();
         if (!isNull(utsettelserDto.getArsakForUtsettelse())) {
-            Utsettelsesaarsaker årsak = new Utsettelsesaarsaker();
+            var årsak = new Utsettelsesaarsaker();
             årsak.setKode(utsettelserDto.getArsakForUtsettelse().getKode());
             utsettelsesperiode.setAarsak(årsak);
         }
 
         if (!isNull(utsettelserDto.getPeriodeForUtsettelse())) {
-            Uttaksperiodetyper uttaksperiodetyper = new Uttaksperiodetyper();
+            var uttaksperiodetyper = new Uttaksperiodetyper();
             uttaksperiodetyper.setKode(utsettelserDto.getPeriodeForUtsettelse().getKode());
             utsettelsesperiode.setUtsettelseAv(uttaksperiodetyper);
         }
@@ -285,7 +280,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         utsettelsesperiode.setTom(utsettelserDto.getPeriodeTom());
         utsettelsesperiode.setErArbeidstaker(utsettelserDto.isErArbeidstaker());
         if (!isNull(utsettelserDto.getMorsAktivitet())) {
-            MorsAktivitetsTyper morsAktivitetsTyper = new MorsAktivitetsTyper();
+            var morsAktivitetsTyper = new MorsAktivitetsTyper();
             morsAktivitetsTyper.setKode(utsettelserDto.getMorsAktivitet().getKode());
             utsettelsesperiode.setMorsAktivitetIPerioden(morsAktivitetsTyper);
         }
@@ -297,8 +292,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     static Overfoeringsperiode mapOverføringsperiode(OverføringsperiodeDto overføringsperiode, ForeldreType soker) {
-        Overfoeringsperiode overfoeringsperiode = new Overfoeringsperiode();
-        Uttaksperiodetyper uttaksperiodetyper = new Uttaksperiodetyper();
+        var overfoeringsperiode = new Overfoeringsperiode();
+        var uttaksperiodetyper = new Uttaksperiodetyper();
 
         if (soker.equals(ForeldreType.MOR)) {
             uttaksperiodetyper.setKode(UttakPeriodeType.FEDREKVOTE.getKode());
@@ -310,7 +305,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         overfoeringsperiode.setFom(overføringsperiode.getPeriodeFom());
         overfoeringsperiode.setTom(overføringsperiode.getPeriodeTom());
 
-        Overfoeringsaarsaker årsak = new Overfoeringsaarsaker();
+        var årsak = new Overfoeringsaarsaker();
         årsak.setKode(overføringsperiode.getOverforingArsak().getKode());
         årsak.setKodeverk(overføringsperiode.getOverforingArsak().getKodeverk());
         overfoeringsperiode.setAarsak(årsak);

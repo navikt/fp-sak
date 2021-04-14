@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -56,15 +55,15 @@ public class HendelserRestTjenesteTest {
 
     @Test
     public void skal_ta_imot_fødselshendelse_og_opprette_prosesstask() {
-        List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
-        LocalDate fødselsdato = LocalDate.now();
+        var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
+        var fødselsdato = LocalDate.now();
         var hendelse = lagFødselHendelse(aktørIdForeldre, fødselsdato);
 
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
-        List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
+        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
         assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
         assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
@@ -73,15 +72,15 @@ public class HendelserRestTjenesteTest {
 
     @Test
     public void skal_ta_imot_dødfødselhendelse_og_opprette_prosesstask() {
-        List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
-        LocalDate dødfødseldato = LocalDate.now();
+        var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
+        var dødfødseldato = LocalDate.now();
         var hendelse = lagDødfødselHendelse(aktørIdForeldre, dødfødseldato);
 
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
-        List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        ProsessTaskData task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
+        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
         assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
         assertThat(task.getPayloadAsString()).isEqualTo(JsonMapper.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
@@ -91,12 +90,12 @@ public class HendelserRestTjenesteTest {
     @Test
     public void skal_ikke_opprette_prosess_task_når_hendelse_med_samme_uid_tidligere_er_mottatt() {
         hendelsemottakRepository.registrerMottattHendelse(HENDELSE_ID);
-        List<AktørId> aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
-        LocalDate fødselsdato = LocalDate.now();
+        var aktørIdForeldre = List.of(AktørId.dummy(), AktørId.dummy());
+        var fødselsdato = LocalDate.now();
 
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
 
-        List<ProsessTaskData> tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         assertThat(tasks).allSatisfy(d -> assertThat(d.getTaskType()).isNotEqualTo(KlargjørHendelseTask.TASKTYPE));
     }
 
@@ -104,7 +103,7 @@ public class HendelserRestTjenesteTest {
     public void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
         when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(Collections.emptyList());
 
-        List<String> resultat = hendelserRestTjeneste.grovSorter(List.of(new AbacAktørIdDto("0000000000000")));
+        var resultat = hendelserRestTjeneste.grovSorter(List.of(new AbacAktørIdDto("0000000000000")));
 
         assertThat(resultat).isEmpty();
     }
@@ -124,14 +123,14 @@ public class HendelserRestTjenesteTest {
         sorter.add(new AbacAktørIdDto("0000000000001"));
         sorter.add(new AbacAktørIdDto("0000000000002"));
 
-        List<String> resultat = hendelserRestTjeneste.grovSorter(sorter);
+        var resultat = hendelserRestTjeneste.grovSorter(sorter);
 
         assertThat(resultat).hasSameSizeAs(harSak);
         assertThat(resultat).isEqualTo(harSak.stream().map(AktørId::getId).collect(Collectors.toList()));
     }
 
     private FødselHendelseDto lagFødselHendelse(List<AktørId> aktørIdForeldre, LocalDate fødselsdato) {
-        FødselHendelseDto hendelse = new FødselHendelseDto();
+        var hendelse = new FødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
         hendelse.setAktørIdForeldre(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
         hendelse.setFødselsdato(fødselsdato);
@@ -139,7 +138,7 @@ public class HendelserRestTjenesteTest {
     }
 
     private DødfødselHendelseDto lagDødfødselHendelse(List<AktørId> aktørIdForeldre, LocalDate dødfødseldato) {
-        DødfødselHendelseDto hendelse = new DødfødselHendelseDto();
+        var hendelse = new DødfødselHendelseDto();
         hendelse.setId(HENDELSE_ID);
         hendelse.setAktørId(aktørIdForeldre.stream().map(AktørId::getId).map(AktørIdDto::new).collect(Collectors.toList()));
         hendelse.setDødfødselsdato(dødfødseldato);

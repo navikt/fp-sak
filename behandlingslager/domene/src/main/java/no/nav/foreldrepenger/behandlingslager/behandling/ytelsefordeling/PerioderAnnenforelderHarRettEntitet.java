@@ -35,7 +35,7 @@ public class PerioderAnnenforelderHarRettEntitet extends DokumentasjonPerioderEn
     }
 
     private void leggTil(PeriodeAnnenforelderHarRettEntitet periode) {
-        final PeriodeAnnenforelderHarRettEntitet entitet = new PeriodeAnnenforelderHarRettEntitet(periode);
+        final var entitet = new PeriodeAnnenforelderHarRettEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }

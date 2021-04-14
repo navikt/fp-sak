@@ -105,7 +105,7 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        OppholdstillatelseEntitet entitet = (OppholdstillatelseEntitet) o;
+        var entitet = (OppholdstillatelseEntitet) o;
         return Objects.equals(aktørId, entitet.aktørId) &&
                 Objects.equals(periode, entitet.periode) &&
                 Objects.equals(tillatelse, entitet.tillatelse);

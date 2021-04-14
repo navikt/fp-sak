@@ -12,7 +12,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -55,7 +54,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private static PersonadresseDto lagDto(PersonAdresseEntitet adresse, String navn) {
-        PersonadresseDto dto = new PersonadresseDto();
+        var dto = new PersonadresseDto();
         dto.setAdresselinje1(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje1()));
         dto.setAdresselinje2(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje2()));
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
@@ -69,7 +68,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     public PersonopplysningTilbakeDto lagPersonopplysningTilbakeDto(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var antallBarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
@@ -88,13 +87,13 @@ public class PersonopplysningDtoTjeneste {
     }
 
     public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt)
             .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat));
     }
 
     public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), tidspunkt)
             .flatMap(this::mapAnnenpartMedlemskap);
     }
@@ -108,7 +107,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonopplysningMedlemDto enkelUtenlandskAnnenPartMappingMedlemskap(OppgittAnnenPartEntitet oppgittAnnenPart) {
-        PersonopplysningMedlemDto dto = new PersonopplysningMedlemDto();
+        var dto = new PersonopplysningMedlemDto();
         var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         dto.setPersonstatus(PersonstatusType.UREG);
@@ -117,7 +116,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        PersonopplysningMedlemDto dto = new PersonopplysningMedlemDto();
+        var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
         Optional.ofNullable(personopplysning.getRegion()).ifPresent(dto::setRegion);
@@ -128,7 +127,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     public Optional<PersonoversiktDto> lagPersonversiktDto(Long behandlingId, LocalDate tidspunkt) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), tidspunkt)
             .filter(a -> a.getSøker() != null)
             .map(this::mapPersonoversikt);

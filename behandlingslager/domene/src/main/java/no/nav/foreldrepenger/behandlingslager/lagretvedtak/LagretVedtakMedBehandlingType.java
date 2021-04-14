@@ -36,7 +36,7 @@ public class LagretVedtakMedBehandlingType {
             return false;
         }
 
-        LagretVedtakMedBehandlingType that = (LagretVedtakMedBehandlingType) o;
+        var that = (LagretVedtakMedBehandlingType) o;
         return Objects.equals(id, that.id);
     }
 

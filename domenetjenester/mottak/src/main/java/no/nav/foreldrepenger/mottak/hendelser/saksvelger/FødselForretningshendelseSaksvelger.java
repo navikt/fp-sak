@@ -9,13 +9,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -93,12 +91,12 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
                 // ANNULLERT-hendelser inneholder ikke fødselsdato og videre sjekk er derfor unødvendig
                 return true;
             }
-            Optional<Behandling> behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
-            LocalDate fødselsdato = forretningshendelse.getFødselsdato();
+            var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
+            var fødselsdato = forretningshendelse.getFødselsdato();
 
-            Optional<BeregningsresultatEntitet> beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
+            var beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
                 .hentUtbetBeregningsresultat(b.getId()));
-            Optional<LocalDate> tilkjentYtelseTom = beregningsresultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+            var tilkjentYtelseTom = beregningsresultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                     .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
                     .max(Comparator.naturalOrder());
             return tilkjentYtelseTom.map(d -> fødselsdato.minusDays(1).isBefore(d)).orElse(Boolean.FALSE);

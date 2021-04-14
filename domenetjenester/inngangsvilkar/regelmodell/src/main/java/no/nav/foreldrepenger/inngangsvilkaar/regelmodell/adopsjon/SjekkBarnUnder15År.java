@@ -18,7 +18,7 @@ class SjekkBarnUnder15År extends LeafSpecification<AdopsjonsvilkårGrunnlag> {
 
     @Override
     public Evaluation evaluate(AdopsjonsvilkårGrunnlag grunnlag) {
-        long antBarn = antallBarnUnder15År(grunnlag);
+        var antBarn = antallBarnUnder15År(grunnlag);
         if (antBarn > 0) {
             return ja();
         }

@@ -27,22 +27,21 @@ public final class ArbeidsforholdMapper {
         if (AktivitetStatus.FRILANSER.equals(AktivitetStatus.fraKode(andel.getAktivitetStatus().getKode()))) {
             return Arbeidsforhold.frilansArbeidsforhold();
         }
-        Optional<Arbeidsgiver> arbeidsgiver = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver);
-        Optional<InternArbeidsforholdRef> arbeidsforholdRef = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef);
+        var arbeidsgiver = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver);
+        var arbeidsforholdRef = andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsforholdRef);
         return lagArbeidsforhold(arbeidsgiver, arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
     }
 
     private static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiverOpt, InternArbeidsforholdRef arbeidsforholdRef) {
         if (arbeidsgiverOpt.isPresent()) {
-            Arbeidsgiver arbeidsgiver = arbeidsgiverOpt.get();
+            var arbeidsgiver = arbeidsgiverOpt.get();
             if (arbeidsgiver.getErVirksomhet()) {
                 return lagArbeidsforholdHosVirksomhet(arbeidsgiver, arbeidsforholdRef);
             }
             if (arbeidsgiver.erAktørId()) {
                 return lagArbeidsforholdHosPrivatperson(arbeidsgiver, arbeidsforholdRef);
-            } else {
-                throw new IllegalStateException("Utviklerfeil: Arbeidsgiver er verken virksomhet eller aktørId");
             }
+            throw new IllegalStateException("Utviklerfeil: Arbeidsgiver er verken virksomhet eller aktørId");
         }
         return null;
     }

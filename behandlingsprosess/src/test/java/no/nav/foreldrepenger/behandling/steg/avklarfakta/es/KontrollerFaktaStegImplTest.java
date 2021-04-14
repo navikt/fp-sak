@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Period;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -22,16 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -56,8 +51,8 @@ public class KontrollerFaktaStegImplTest {
     private KontrollerFaktaSteg steg;
 
     private ScenarioFarSøkerEngangsstønad byggBehandlingMedFarSøkerType(FarSøkerType farSøkerType) {
-        AktørId aktørId = AktørId.dummy();
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad
+        var aktørId = AktørId.dummy();
+        var scenario = ScenarioFarSøkerEngangsstønad
                 .forAdopsjon();
         scenario.medBruker(aktørId, NavBrukerKjønn.MANN);
         scenario.medSøknad()
@@ -75,7 +70,7 @@ public class KontrollerFaktaStegImplTest {
     public void oppsett() {
         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider,
                 new RegisterInnhentingIntervall(Period.of(1, 0, 0), Period.of(0, 6, 0)));
-        ScenarioFarSøkerEngangsstønad scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
+        var scenario = byggBehandlingMedFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medBruker(AktørId.dummy(), NavBrukerKjønn.MANN);
         behandling = scenario.lagre(repositoryProvider);
 
@@ -84,19 +79,19 @@ public class KontrollerFaktaStegImplTest {
 
     @Test
     public void skal_ved_overhopp_bakover_rydde_avklarte_fakta() {
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         // Arrange
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
-        BehandlingStegModell stegModellMock = mock(BehandlingStegModell.class);
+        var stegModellMock = mock(BehandlingStegModell.class);
 
         // Act
         steg.vedTransisjon(kontekst, stegModellMock, BehandlingSteg.TransisjonType.HOPP_OVER_BAKOVER, null, null);
 
         // Assert
-        Long behandlingId = behandling.getId();
-        final Optional<MedlemskapAggregat> medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandlingId);
+        var behandlingId = behandling.getId();
+        final var medlemskapAggregat = repositoryProvider.getMedlemskapRepository().hentMedlemskap(behandlingId);
         assertThat(medlemskapAggregat).isPresent();
         assertThat(medlemskapAggregat.flatMap(MedlemskapAggregat::getVurdertMedlemskap)).isNotPresent();
         behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -105,9 +100,9 @@ public class KontrollerFaktaStegImplTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
                 .build();

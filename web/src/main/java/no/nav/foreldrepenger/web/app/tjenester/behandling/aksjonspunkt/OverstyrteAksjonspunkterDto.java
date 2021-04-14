@@ -30,7 +30,7 @@ public class OverstyrteAksjonspunkterDto implements AbacDto {
 
     public static OverstyrteAksjonspunkterDto lagDto(Long behandlingId, Long behandlingVersjon,
                                                      Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer) {
-        OverstyrteAksjonspunkterDto dto = new OverstyrteAksjonspunkterDto();
+        var dto = new OverstyrteAksjonspunkterDto();
         dto.behandlingId = new BehandlingIdDto(behandlingId);
         dto.behandlingVersjon = behandlingVersjon;
         dto.overstyrteAksjonspunktDtoer = overstyrteAksjonspunktDtoer;
@@ -51,7 +51,7 @@ public class OverstyrteAksjonspunkterDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abac = AbacDataAttributter.opprett();
+        var abac = AbacDataAttributter.opprett();
 
         if (getBehandlingId().getBehandlingId() != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId().getBehandlingId());

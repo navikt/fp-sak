@@ -79,15 +79,15 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
             throws OpprettSakUgyldigInput {
 
         if (opprettSakRequest.getSakspart().getAktoerId() == null) {
-            UgyldigInput faultInfo = lagUgyldigInput("AktørId", null);
+            var faultInfo = lagUgyldigInput("AktørId", null);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
-        AktørId aktørId = new AktørId(opprettSakRequest.getSakspart().getAktoerId());
-        BehandlingTema behandlingTema = hentBehandlingstema(opprettSakRequest.getBehandlingstema().getValue());
-        JournalpostId journalpostId = new JournalpostId(opprettSakRequest.getJournalpostId());
+        var aktørId = new AktørId(opprettSakRequest.getSakspart().getAktoerId());
+        var behandlingTema = hentBehandlingstema(opprettSakRequest.getBehandlingstema().getValue());
+        var journalpostId = new JournalpostId(opprettSakRequest.getJournalpostId());
         validerJournalpostId(journalpostId, behandlingTema, aktørId);
 
-        Saksnummer saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, behandlingTema, aktørId);
+        var saksnummer = opprettSakOrchestrator.opprettSak(journalpostId, behandlingTema, aktørId);
 
         return lagResponse(saksnummer);
     }
@@ -112,7 +112,7 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
             var original = dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, hoveddokument.map(ArkivDokument::getDokumentId).orElseThrow()).toLowerCase();
             if (original.contains("ytelse>foreldrepenger<")) {
                 if (opprettSakOrchestrator.harAktivSak(aktørId, behandlingTema)) {
-                    UgyldigInput faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
+                    var faultInfo = lagUgyldigInput("Journalpost", "Inntektsmelding når det finnes åpen Foreldrepengesak");
                     throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
                 }
                 journalpostYtelseType = FagsakYtelseType.FORELDREPENGER;
@@ -124,34 +124,35 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
         if (!behandlingTema.getFagsakYtelseType().equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785356", "Dokument og valgt ytelsetype i uoverenstemmelse",
                 "Velg ytelsetype som samstemmer med dokument");
-        } else if (FagsakYtelseType.UDEFINERT.equals(journalpostYtelseType)) {
+        }
+        if (FagsakYtelseType.UDEFINERT.equals(journalpostYtelseType)) {
             throw new FunksjonellException("FP-785354", "Kan ikke opprette sak basert på oppgitt dokument",
                 "Journalføre dokument på annen sak");
         }
     }
 
     private BehandlingTema hentBehandlingstema(String behandlingstemaOffisiellKode) throws OpprettSakUgyldigInput {
-        BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(behandlingstemaOffisiellKode);
         if (BehandlingTema.UDEFINERT.equals(behandlingTema)) {
-            UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
+            var faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
         if (FagsakYtelseType.UDEFINERT.equals(behandlingTema.getFagsakYtelseType())) {
-            UgyldigInput faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
+            var faultInfo = lagUgyldigInput("Behandlingstema", behandlingstemaOffisiellKode);
             throw new OpprettSakUgyldigInput(faultInfo.getFeilmelding(), faultInfo);
         }
         return behandlingTema;
     }
 
     private UgyldigInput lagUgyldigInput(String feltnavn, String value) {
-        UgyldigInput faultInfo = new UgyldigInput();
+        var faultInfo = new UgyldigInput();
         faultInfo.setFeilmelding(feltnavn + " med verdi " + (value != null ? value : "") + " er ugyldig input");
         faultInfo.setFeilaarsak("Ugyldig input");
         return faultInfo;
     }
 
     private OpprettSakResponse lagResponse(Saksnummer saksnummer) {
-        OpprettSakResponse response = new OpprettSakResponse();
+        var response = new OpprettSakResponse();
         response.setSakId(saksnummer.getVerdi());
         return response;
     }
@@ -167,8 +168,8 @@ public class OpprettSakService implements BehandleForeldrepengesakV1 {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            OpprettSakRequest req = (OpprettSakRequest) obj;
-            AbacDataAttributter dataAttributter = AbacDataAttributter.opprett();
+            var req = (OpprettSakRequest) obj;
+            var dataAttributter = AbacDataAttributter.opprett();
             if (req.getSakspart() != null) {
                 dataAttributter = dataAttributter.leggTil(AppAbacAttributtType.AKTØR_ID, req.getSakspart().getAktoerId());
             }

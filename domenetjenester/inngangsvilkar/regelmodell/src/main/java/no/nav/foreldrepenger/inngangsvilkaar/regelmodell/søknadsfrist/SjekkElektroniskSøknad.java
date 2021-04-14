@@ -14,12 +14,11 @@ public class SjekkElektroniskSøknad extends LeafSpecification<Soeknadsfristvilk
 
     @Override
     public Evaluation evaluate(SoeknadsfristvilkarGrunnlag t) {
-        boolean erElektroniskSøknad = t.isElektroniskSoeknad();  // ellers papir
+        var erElektroniskSøknad = t.isElektroniskSoeknad();  // ellers papir
         if(erElektroniskSøknad) {
             return ja();
-        } else {
-            return nei();
         }
+        return nei();
     }
 
 }

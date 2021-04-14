@@ -29,12 +29,12 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeSaksbehandlerGruppeTilKanSaksbehandleRettighet() {
-        LdapBruker brukerUtenforSaksbehandlerGruppe = getTestBruker();
-        LdapBruker brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
+        var brukerUtenforSaksbehandlerGruppe = getTestBruker();
+        var brukerISaksbehandlerGruppe = getTestBruker(gruppenavnSaksbehandler);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null,
+        var innloggetBrukerUtenSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null,
                 brukerUtenforSaksbehandlerGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
+        var innloggetBrukerMedSaksbehandlerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerISaksbehandlerGruppe);
 
         assertThat(innloggetBrukerUtenSaksbehandlerRettighet.getKanSaksbehandle()).isFalse();
         assertThat(innloggetBrukerMedSaksbehandlerRettighet.getKanSaksbehandle()).isTrue();
@@ -42,11 +42,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeVeilederGruppeTilKanVeiledeRettighet() {
-        LdapBruker brukerUtenforVeilederGruppe = getTestBruker();
-        LdapBruker brukerIVeilederGruppe = getTestBruker(gruppenavnVeileder);
+        var brukerUtenforVeilederGruppe = getTestBruker();
+        var brukerIVeilederGruppe = getTestBruker(gruppenavnVeileder);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
+        var innloggetBrukerUtenVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforVeilederGruppe);
+        var innloggetBrukerMedVeilederRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIVeilederGruppe);
 
         assertThat(innloggetBrukerUtenVeilederRettighet.getKanVeilede()).isFalse();
         assertThat(innloggetBrukerMedVeilederRettighet.getKanVeilede()).isTrue();
@@ -54,11 +54,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeBeslutterGruppeTilKanBeslutteRettighet() {
-        LdapBruker brukerUtenforBeslutterGruppe = getTestBruker();
-        LdapBruker brukerIBeslutterGruppe = getTestBruker(gruppenavnBeslutter);
+        var brukerUtenforBeslutterGruppe = getTestBruker();
+        var brukerIBeslutterGruppe = getTestBruker(gruppenavnBeslutter);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforBeslutterGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIBeslutterGruppe);
+        var innloggetBrukerUtenBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforBeslutterGruppe);
+        var innloggetBrukerMedBeslutterRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIBeslutterGruppe);
 
         assertThat(innloggetBrukerUtenBeslutterRettighet.getKanBeslutte()).isFalse();
         assertThat(innloggetBrukerMedBeslutterRettighet.getKanBeslutte()).isTrue();
@@ -66,11 +66,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeOverstyrerGruppeTilKanOverstyreRettighet() {
-        LdapBruker brukerUtenforOverstyrerGruppe = getTestBruker();
-        LdapBruker brukerIOverstyrerGruppe = getTestBruker(gruppenavnOverstyrer);
+        var brukerUtenforOverstyrerGruppe = getTestBruker();
+        var brukerIOverstyrerGruppe = getTestBruker(gruppenavnOverstyrer);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
+        var innloggetBrukerUtenOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforOverstyrerGruppe);
+        var innloggetBrukerMedOverstyrerRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIOverstyrerGruppe);
 
         assertThat(innloggetBrukerUtenOverstyrerRettighet.getKanOverstyre()).isFalse();
         assertThat(innloggetBrukerMedOverstyrerRettighet.getKanOverstyre()).isTrue();
@@ -78,11 +78,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeEgenAnsattGruppeTilKanBehandleEgenAnsattRettighet() {
-        LdapBruker brukerUtenforEgenAnsattGruppe = getTestBruker();
-        LdapBruker brukerIEgenAnsattGruppe = getTestBruker(gruppenavnEgenAnsatt);
+        var brukerUtenforEgenAnsattGruppe = getTestBruker();
+        var brukerIEgenAnsattGruppe = getTestBruker(gruppenavnEgenAnsatt);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforEgenAnsattGruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIEgenAnsattGruppe);
+        var innloggetBrukerUtenEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforEgenAnsattGruppe);
+        var innloggetBrukerMedEgenAnsattRettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIEgenAnsattGruppe);
 
         assertThat(innloggetBrukerUtenEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isFalse();
         assertThat(innloggetBrukerMedEgenAnsattRettighet.getKanBehandleKodeEgenAnsatt()).isTrue();
@@ -90,11 +90,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeKode6GruppeTilKanBehandleKode6Rettighet() {
-        LdapBruker brukerUtenforKode6Gruppe = getTestBruker();
-        LdapBruker brukerIKode6Gruppe = getTestBruker(gruppenavnKode6);
+        var brukerUtenforKode6Gruppe = getTestBruker();
+        var brukerIKode6Gruppe = getTestBruker(gruppenavnKode6);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
+        var innloggetBrukerUtenKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode6Gruppe);
+        var innloggetBrukerMedKode6Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode6Gruppe);
 
         assertThat(innloggetBrukerUtenKode6Rettighet.getKanBehandleKode6()).isFalse();
         assertThat(innloggetBrukerMedKode6Rettighet.getKanBehandleKode6()).isTrue();
@@ -102,11 +102,11 @@ public class TilgangerTjenesteTest {
 
     @Test
     public void skalMappeKode7GruppeTilKanBehandleKode7Rettighet() {
-        LdapBruker brukerUtenforKode7Gruppe = getTestBruker();
-        LdapBruker brukerIKode7Gruppe = getTestBruker(gruppenavnKode7);
+        var brukerUtenforKode7Gruppe = getTestBruker();
+        var brukerIKode7Gruppe = getTestBruker(gruppenavnKode7);
 
-        InnloggetNavAnsattDto innloggetBrukerUtenKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode7Gruppe);
-        InnloggetNavAnsattDto innloggetBrukerMedKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode7Gruppe);
+        var innloggetBrukerUtenKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerUtenforKode7Gruppe);
+        var innloggetBrukerMedKode7Rettighet = tilgangerTjeneste.getInnloggetBruker(null, brukerIKode7Gruppe);
 
         assertThat(innloggetBrukerUtenKode7Rettighet.getKanBehandleKode7()).isFalse();
         assertThat(innloggetBrukerMedKode7Rettighet.getKanBehandleKode7()).isTrue();

@@ -5,8 +5,6 @@ import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -44,14 +42,14 @@ public class DokumentBestillerTjeneste {
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
-        final Behandlingsresultat behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
+        final var behandlingsresultat = behandlingVedtak.getBehandlingsresultat();
 
         if (Vedtaksbrev.INGEN.equals(behandlingsresultat.getVedtaksbrev())) {
             return;
         }
 
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
-        DokumentMalType dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
+        var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
             klageRepository, ankeRepository);
         dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
@@ -62,7 +60,7 @@ public class DokumentBestillerTjeneste {
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør, boolean manueltBrev) {
         if (manueltBrev) {
-            final Behandling behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
+            final var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
             brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
                 bestillBrevDto.getBrevmalkode());
         }

@@ -17,7 +17,7 @@ public class VergeBuilderTest {
     @Test
     public void ska_opprette_verge() {
         // Act
-        VergeEntitet vergeEntitet = new VergeBuilder()
+        var vergeEntitet = new VergeBuilder()
             .medVergeType(VergeType.BARN)
             .medBruker(vergeBruker)
             .gyldigPeriode(LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
@@ -31,7 +31,7 @@ public class VergeBuilderTest {
     @Test
     public void skal_støtte_at_TOM_er_null_og_sette_tidenes_ende() {
         // Act
-        VergeEntitet vergeEntitet = new VergeBuilder()
+        var vergeEntitet = new VergeBuilder()
             .medVergeType(VergeType.BARN)
             .medBruker(vergeBruker)
             .gyldigPeriode(LocalDate.now().minusDays(1), null)

@@ -5,13 +5,10 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfNextMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger.UTLAND;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
@@ -75,16 +72,16 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         }
 
         // beregn bekreftet opptjening
-        LocalDateTimeline<Boolean> bekreftetOpptjeningTidslinje = slåSammenTilFellesTidslinje(data, false, Collections.emptyList());
+        var bekreftetOpptjeningTidslinje = slåSammenTilFellesTidslinje(data, false, Collections.emptyList());
 
-        Period bekreftetOpptjening = beregnTotalOpptjeningPeriode(bekreftetOpptjeningTidslinje);
+        var bekreftetOpptjening = beregnTotalOpptjeningPeriode(bekreftetOpptjeningTidslinje);
         data.setBekreftetTotalOpptjening(new OpptjentTidslinje(bekreftetOpptjening, bekreftetOpptjeningTidslinje));
         evaluation.setEvaluationProperty(OpptjeningsvilkårForeldrepenger.EVAL_RESULT_BEKREFTET_AKTIVITET_TIDSLINJE, bekreftetOpptjeningTidslinje);
         evaluation.setEvaluationProperty(OpptjeningsvilkårForeldrepenger.EVAL_RESULT_BEKREFTET_OPPTJENING, bekreftetOpptjening);
 
         // beregn inklusiv antatt opptjening
-        LocalDateTimeline<Boolean> antattOpptjeningTidslinje = slåSammenTilFellesTidslinje(data, true, Collections.emptyList());
-        Period antattOpptjening = beregnTotalOpptjeningPeriode(antattOpptjeningTidslinje);
+        var antattOpptjeningTidslinje = slåSammenTilFellesTidslinje(data, true, Collections.emptyList());
+        var antattOpptjening = beregnTotalOpptjeningPeriode(antattOpptjeningTidslinje);
         data.setAntattOpptjening(new OpptjentTidslinje(antattOpptjening, antattOpptjeningTidslinje));
         // ikke sett evaluation properties for antatt før vi vet vi trenger det. (gjøre ved Sjekk av tilstrekkelig opptjening inklusiv antatt godkjent)
 
@@ -92,11 +89,11 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
     }
 
     private LocalDateTimeline<Boolean> slåSammenTilFellesTidslinje(OpptjeningsvilkårMellomregning data, boolean medAntattGodkjent, Collection<Aktivitet> unntak) {
-        LocalDateTimeline<Boolean> tidslinje = new LocalDateTimeline<>(Collections.emptyList());
+        var tidslinje = new LocalDateTimeline<Boolean>(Collections.emptyList());
 
         // slå sammen alle aktivitetperioder til en tidslinje (disse er fratrukket underkjente perioder allerede)
-        Map<Aktivitet, LocalDateTimeline<Boolean>> aktivitetTidslinjer = data.getAktivitetTidslinjer(medAntattGodkjent, false);
-        for (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>> entry : aktivitetTidslinjer
+        var aktivitetTidslinjer = data.getAktivitetTidslinjer(medAntattGodkjent, false);
+        for (var entry : aktivitetTidslinjer
                 .entrySet()) {
             if (!unntak.contains(entry.getKey())) {
                 tidslinje = tidslinje.crossJoin(entry.getValue(), StandardCombinators::alwaysTrueForMatch);
@@ -104,14 +101,14 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         }
 
         // slå sammen med alle mellomliggende aksepterte perioder
-        for (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>> entry : data.getAkseptertMellomliggendePerioder().entrySet()) {
+        for (var entry : data.getAkseptertMellomliggendePerioder().entrySet()) {
             if (!unntak.contains(entry.getKey())) {
                 tidslinje = tidslinje.crossJoin(entry.getValue(), StandardCombinators::alwaysTrueForMatch);
             }
         }
         tidslinje = tidslinje.compress(); // minimer tidslinje intervaller
 
-        LocalDateTimeline<Boolean> opptjeningsTidslinje = new LocalDateTimeline<>(data.getGrunnlag().getOpptjeningPeriode(), Boolean.TRUE);
+        var opptjeningsTidslinje = new LocalDateTimeline<Boolean>(data.getGrunnlag().getOpptjeningPeriode(), Boolean.TRUE);
 
         tidslinje = tidslinje.intersection(opptjeningsTidslinje, StandardCombinators::leftOnly);
         return tidslinje;
@@ -121,17 +118,17 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
         if (tidslinje.isEmpty()) {
             return Period.ofDays(0);
         }
-        NavigableSet<LocalDateInterval> datoIntervaller = tidslinje.getLocalDateIntervals();
-        LocalDate startAvMåned = datoIntervaller.first().getFomDato().with(firstDayOfMonth());
-        LocalDate sluttAvSisteMåned = datoIntervaller.last().getTomDato().with(lastDayOfMonth());
+        var datoIntervaller = tidslinje.getLocalDateIntervals();
+        var startAvMåned = datoIntervaller.first().getFomDato().with(firstDayOfMonth());
+        var sluttAvSisteMåned = datoIntervaller.last().getTomDato().with(lastDayOfMonth());
 
-        Tellemåte tellemåte = new Tellemåte();
+        var tellemåte = new Tellemåte();
 
         // iterer over alle måneder og tell opp i henhold til regler for kreativ telling av måneder.
         while (startAvMåned.isBefore(sluttAvSisteMåned)) {
-            LocalDateInterval månedIntervall = new LocalDateInterval(startAvMåned, startAvMåned.with(lastDayOfMonth()));
+            var månedIntervall = new LocalDateInterval(startAvMåned, startAvMåned.with(lastDayOfMonth()));
 
-            LocalDateTimeline<Boolean> overlappForMåned = tidslinje.intersection(månedIntervall);
+            var overlappForMåned = tidslinje.intersection(månedIntervall);
 
             tellemåte.tellMed(overlappForMåned, månedIntervall);
 
@@ -142,11 +139,11 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
     }
 
     private boolean evaluerEvtUnderkjennUtlandskeAktiviteteter(OpptjeningsvilkårMellomregning data) {
-        Aktivitet utlandsFilter = new Aktivitet(UTLAND);
+        var utlandsFilter = new Aktivitet(UTLAND);
 
-        LocalDateTimeline<Boolean> tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
+        var tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
 
-        LocalDate maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().getFørsteDatoIOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
+        var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().getFørsteDatoIOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 
         // Må overskrive manuell godkjenning da annen aktivitet gjerne er vurdert i aksjonspunkt i steg 82
         return data.splitOgUnderkjennSegmenterEtterDatoForAktivitet(utlandsFilter, maxDatoIkkeUtlandsk);

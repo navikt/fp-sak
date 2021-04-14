@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDateTime;
 
@@ -15,14 +14,14 @@ public class AvstemmingTest {
 
     @Test
     public void skal_bygge_instans_med_påkrevde_felter() {
-        Avstemming avstemming = Avstemming.ny();
+        var avstemming = Avstemming.ny();
         validerObjekt(avstemming);
     }
 
     @Test
     void skal_bygge_instans_og_sette_riktig_nøkkel() {
         var localDateTime = LocalDateTime.now();
-        Avstemming avstemming = Avstemming.fra(localDateTime);
+        var avstemming = Avstemming.fra(localDateTime);
         var expectedFormat = Avstemming.validateAndFormat(localDateTime);
 
         validerObjekt(avstemming);

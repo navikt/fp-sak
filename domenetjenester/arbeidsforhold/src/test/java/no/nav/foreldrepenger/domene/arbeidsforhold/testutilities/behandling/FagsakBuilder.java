@@ -91,10 +91,9 @@ class FagsakBuilder {
 
         if (fagsak != null) {
             return fagsak;
-        } else {
-            fagsak = Fagsak.opprettNy(fagsakRelasjonBuilder.getYtelseType(), brukerBuilder.build(), rolle, saksnummer);
-            return fagsak;
         }
+        fagsak = Fagsak.opprettNy(fagsakRelasjonBuilder.getYtelseType(), brukerBuilder.build(), rolle, saksnummer);
+        return fagsak;
 
     }
 }

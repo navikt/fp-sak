@@ -104,10 +104,11 @@ public class Medlemskapsperiode {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof Medlemskapsperiode)) {
+        }
+        if (!(obj instanceof Medlemskapsperiode)) {
             return false;
         }
-        Medlemskapsperiode other = (Medlemskapsperiode) obj;
+        var other = (Medlemskapsperiode) obj;
         return Objects.equals(this.fom, other.fom)
             && Objects.equals(this.tom, other.tom)
             && Objects.equals(this.datoBesluttet, other.datoBesluttet)

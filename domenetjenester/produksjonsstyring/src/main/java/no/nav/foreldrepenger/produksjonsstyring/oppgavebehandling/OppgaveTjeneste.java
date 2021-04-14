@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.Temagrupper;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
@@ -94,7 +93,7 @@ public class OppgaveTjeneste {
      * Oppgave som lagres i OBK: BEH_SAK_VL, RV_VL, GOD_VED_VL, REG_SOK_VL
      */
     public String opprettBasertPåBehandlingId(Long behandlingId, OppgaveÅrsak oppgaveÅrsak) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return opprettOppgave(behandling, oppgaveÅrsak, DEFAULT_OPPGAVEBESKRIVELSE, Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER);
     }
 
@@ -104,20 +103,20 @@ public class OppgaveTjeneste {
 
     public String opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(Long behandlingId, String beskrivelse, boolean høyPrioritet,
                                                                          int fristDager) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        OppgaveÅrsak oppgaveÅrsak = behandling.erRevurdering() ? REVURDER : BEHANDLE_SAK;
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var oppgaveÅrsak = behandling.erRevurdering() ? REVURDER : BEHANDLE_SAK;
         return opprettOppgave(behandling, oppgaveÅrsak, beskrivelse, høyPrioritet ? Prioritet.HOY : Prioritet.NORM, fristDager);
     }
 
     private String opprettOppgave(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, String beskrivelse, Prioritet prioritet, int fristDager) {
-        List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
+        var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
             .hentOppgaverRelatertTilBehandling(behandling.getId());
         if (OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaveBehandlingKoblinger).isPresent()) {
             // skal ikke opprette oppgave med samme årsak når behandlingen allerede har en
             // åpen oppgave med den årsaken knyttet til seg
             return null;
         }
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         var orequest = createRestRequestBuilder(fagsak.getSaksnummer(), fagsak.getAktørId(), behandling.getBehandlendeEnhet(), beskrivelse, prioritet,
             fristDager)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
@@ -129,15 +128,15 @@ public class OppgaveTjeneste {
 
     private String behandleRespons(Long behandlingId, OppgaveÅrsak oppgaveÅrsak, String oppgaveId,
                                    Saksnummer saksnummer) {
-        OppgaveBehandlingKobling oppgaveBehandlingKobling = new OppgaveBehandlingKobling(oppgaveÅrsak, oppgaveId, saksnummer, behandlingId);
+        var oppgaveBehandlingKobling = new OppgaveBehandlingKobling(oppgaveÅrsak, oppgaveId, saksnummer, behandlingId);
         oppgaveBehandlingKoblingRepository.lagre(oppgaveBehandlingKobling);
         return oppgaveId;
     }
 
     public void avslutt(Long behandlingId, OppgaveÅrsak oppgaveÅrsak) {
-        List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
+        var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
             .hentOppgaverRelatertTilBehandling(behandlingId);
-        Optional<OppgaveBehandlingKobling> oppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaveBehandlingKoblinger);
+        var oppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaveBehandlingKoblinger);
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
@@ -146,7 +145,7 @@ public class OppgaveTjeneste {
     }
 
     public void avslutt(Long behandlingId, String oppgaveId) {
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
         if (oppgave.isPresent()) {
             avsluttOppgave(oppgave.get());
         } else {
@@ -169,7 +168,7 @@ public class OppgaveTjeneste {
     }
 
     public void avsluttOppgaveOgStartTask(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, String taskType) {
-        ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
+        var taskGruppe = new ProsessTaskGruppe();
         taskGruppe.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         opprettTaskAvsluttOppgave(behandling, oppgaveÅrsak, false).ifPresent(taskGruppe::addNesteSekvensiell);
         taskGruppe.addNesteSekvensiell(opprettProsessTask(behandling, taskType));
@@ -180,13 +179,12 @@ public class OppgaveTjeneste {
     }
 
     public Optional<ProsessTaskData> opprettTaskAvsluttOppgave(Behandling behandling) {
-        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaver.stream().filter(kobling -> !kobling.isFerdigstilt()).findFirst();
+        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var oppgave = oppgaver.stream().filter(kobling -> !kobling.isFerdigstilt()).findFirst();
         if (oppgave.isPresent()) {
             return opprettTaskAvsluttOppgave(behandling, oppgave.get().getOppgaveÅrsak());
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     public Optional<ProsessTaskData> opprettTaskAvsluttOppgave(Behandling behandling, OppgaveÅrsak oppgaveÅrsak) {
@@ -194,30 +192,29 @@ public class OppgaveTjeneste {
     }
 
     public Optional<ProsessTaskData> opprettTaskAvsluttOppgave(Behandling behandling, OppgaveÅrsak oppgaveÅrsak, boolean skalLagres) {
-        List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
+        var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository
             .hentOppgaverRelatertTilBehandling(behandling.getId());
-        Optional<OppgaveBehandlingKobling> oppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaveBehandlingKoblinger);
+        var oppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaveBehandlingKoblinger);
         if (oppgave.isPresent()) {
-            OppgaveBehandlingKobling aktivOppgave = oppgave.get();
+            var aktivOppgave = oppgave.get();
             // skal ikke avslutte oppgave av denne typen
             if (BEHANDLE_SAK_INFOTRYGD.equals(aktivOppgave.getOppgaveÅrsak())) {
                 return Optional.empty();
             }
             ferdigstillOppgaveBehandlingKobling(aktivOppgave);
-            ProsessTaskData avsluttOppgaveTask = opprettProsessTask(behandling, AvsluttOppgaveTask.TASKTYPE);
+            var avsluttOppgaveTask = opprettProsessTask(behandling, AvsluttOppgaveTask.TASKTYPE);
             avsluttOppgaveTask.setOppgaveId(aktivOppgave.getOppgaveId());
             if (skalLagres) {
                 avsluttOppgaveTask.setCallIdFraEksisterende();
                 prosessTaskRepository.lagre(avsluttOppgaveTask);
             }
             return Optional.of(avsluttOppgaveTask);
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     private ProsessTaskData opprettProsessTask(Behandling behandling, String taskType) {
-        ProsessTaskData prosessTask = new ProsessTaskData(taskType);
+        var prosessTask = new ProsessTaskData(taskType);
         prosessTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTask.setPrioritet(50);
         return prosessTask;
@@ -253,7 +250,7 @@ public class OppgaveTjeneste {
 
     public String opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(Long fagsakId, OppgaveÅrsak oppgaveÅrsak, String enhetsId, String beskrivelse,
                                                                    boolean høyPrioritet) {
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         var orequest = createRestRequestBuilder(fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
             høyPrioritet ? Prioritet.HOY : Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
@@ -267,9 +264,9 @@ public class OppgaveTjeneste {
     public String opprettMedPrioritetOgBeskrivelseBasertPåAktørId(String gjeldendeAktørId, Long fagsakId, OppgaveÅrsak oppgaveÅrsak, String enhetsId,
                                                                   String beskrivelse, boolean høyPrioritet) {
 
-        AktørId aktørId = new AktørId(gjeldendeAktørId);
+        var aktørId = new AktørId(gjeldendeAktørId);
 
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         var orequest = createRestRequestBuilder(null, aktørId, enhetsId, beskrivelse, høyPrioritet ? Prioritet.HOY : Prioritet.NORM,
             DEFAULT_OPPGAVEFRIST_DAGER)
@@ -284,8 +281,8 @@ public class OppgaveTjeneste {
      * Observer endringer i BehandlingStatus og håndter oppgaver deretter.
      */
     public void observerBehandlingStatus(@Observes BehandlingAvsluttetEvent statusEvent) {
-        Long behandlingId = statusEvent.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = statusEvent.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         opprettTaskAvsluttOppgave(behandling);
     }
 
@@ -293,7 +290,7 @@ public class OppgaveTjeneste {
      * Spesielle oppgavetyper - flytting til Infotrygd og behandling i NØS
      */
     public String opprettOppgaveSakSkalTilInfotrygd(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var fagsak = behandling.getFagsak();
 
         var orequest = createRestRequestBuilder(fagsak.getSaksnummer(), fagsak.getAktørId(), behandling.getBehandlendeEnhet(),
@@ -307,10 +304,10 @@ public class OppgaveTjeneste {
     }
 
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        final String BESKRIVELSE = "Samordning arenaytelse. Vedtak foreldrepenger fra %s";
+        final var BESKRIVELSE = "Samordning arenaytelse. Vedtak foreldrepenger fra %s";
         var beskrivelse = String.format(BESKRIVELSE, førsteUttaksdato);
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return opprettOkonomiSettPåVent(beskrivelse, behandling);
     }
 
@@ -333,11 +330,11 @@ public class OppgaveTjeneste {
                                                                        LocalDate vedtaksdato,
                                                                        AktørId arbeidsgiverAktørId) {
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-        String arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getIdent();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var arbeidsgiverIdent = hentPersonInfo(arbeidsgiverAktørId).getIdent();
 
-        final String beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
+        final var beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
             "Saksnummer: %s," +
             "Vedtaksdato: %s," +
             "Dato for første utbetaling: %s," +
@@ -355,14 +352,14 @@ public class OppgaveTjeneste {
      * Forvaltningsrelatert
      */
     public void ferdigstillOppgaveForForvaltning(Long behandlingId, String oppgaveId) {
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.ferdigstillOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS forvaltning ferdigstilte oppgave {}", oppgaveId);
     }
 
     public void feilregistrerOppgaveForForvaltning(Long behandlingId, String oppgaveId) {
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(behandlingId, oppgaveId);
         oppgave.filter(o -> !o.isFerdigstilt()).ifPresent(this::ferdigstillOppgaveBehandlingKobling);
         restKlient.feilregistrerOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS forvaltning feilregistrerte oppgave {}", oppgaveId);

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.rest.dto;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ public class MatchBeregningsgrunnlagTjeneste {
 
     public static Optional<BeregningsgrunnlagPeriode> finnOverlappendePeriodeOmKunEnFinnes(BeregningsgrunnlagPeriode periode,
                                                                                            Optional<BeregningsgrunnlagEntitet> forrigeGrunnlag) {
-        List<BeregningsgrunnlagPeriode> matchedePerioder = forrigeGrunnlag.map(bg ->
+        var matchedePerioder = forrigeGrunnlag.map(bg ->
             bg.getBeregningsgrunnlagPerioder().stream()
             .filter(periodeIGjeldendeGrunnlag -> periode.getPeriode()
                 .overlapper(periodeIGjeldendeGrunnlag.getPeriode())).collect(Collectors.toList())).orElse(Collections.emptyList());

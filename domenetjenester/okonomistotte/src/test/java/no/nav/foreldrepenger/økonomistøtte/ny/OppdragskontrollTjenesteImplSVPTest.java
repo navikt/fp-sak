@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,10 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjenesteTestBase {
@@ -44,8 +40,8 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 10000L, LocalDate.of(2018, 12, 31));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 10000L, LocalDate.of(2018, 12, 31));
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse).medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
@@ -56,27 +52,27 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
         assertThat(oppdragskontroll).isPresent();
         var oppdrag = oppdragskontroll.get();
         assertThat(oppdrag).isNotNull();
-        List<Oppdrag110> oppdrag110List = oppdrag.getOppdrag110Liste();
+        var oppdrag110List = oppdrag.getOppdrag110Liste();
         assertThat(oppdrag110List).hasSize(2);
         //Oppdrag110 - Bruker
-        Optional<Oppdrag110> oppdrag110_Bruker = oppdrag110List.stream()
+        var oppdrag110_Bruker = oppdrag110List.stream()
             .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst();
         assertThat(oppdrag110_Bruker).isPresent();
         //Oppdrag110 - Arbeidsgiver
-        Optional<Oppdrag110> oppdrag110_Arbeidsgiver = oppdrag110List.stream()
+        var oppdrag110_Arbeidsgiver = oppdrag110List.stream()
             .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst();
         assertThat(oppdrag110_Arbeidsgiver).isPresent();
         //Oppdragslinje150 - Bruker
-        List<Oppdragslinje150> opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
+        var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
         assertThat(opp150List_Bruker).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
                 KodeKlassifik.SVP_ARBEDISTAKER,
                 KodeKlassifik.FERIEPENGER_BRUKER.getKode())
             ));
         //Oppdragslinje150 - Arbeidsgiver
-        List<Oppdragslinje150> opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
+        var opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
         assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
                 KodeKlassifik.SVP_REFUSJON_AG,

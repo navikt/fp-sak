@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Risikoklassif
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
 public class KontrollDtoTjenesteTest {
 
@@ -31,7 +30,7 @@ public class KontrollDtoTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        ScenarioMorSøkerForeldrepenger scenarioKlage = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioKlage = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioKlage.lagMocked();
         kontrollDtoTjeneste = new KontrollDtoTjeneste(risikovurderingTjeneste);
     }
@@ -42,7 +41,7 @@ public class KontrollDtoTjenesteTest {
         when(risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling)).thenReturn(Optional.empty());
 
         // Act
-        Optional<KontrollresultatDto> kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -56,7 +55,7 @@ public class KontrollDtoTjenesteTest {
                 .thenReturn(Optional.of(lagEntitet(Kontrollresultat.IKKE_HØY, FaresignalVurdering.UDEFINERT)));
 
         // Act
-        Optional<KontrollresultatDto> kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -69,14 +68,14 @@ public class KontrollDtoTjenesteTest {
     @Test
     public void skal_teste_at_dto_lages_korrekt_når_resultatet_viser_høy() {
         // Arrange
-        List<String> faresignaler = Arrays.asList("Grunn en", "Grunn to", "Grunn tre", "Grunn 4", "Grunn 5");
+        var faresignaler = Arrays.asList("Grunn en", "Grunn to", "Grunn tre", "Grunn 4", "Grunn 5");
         when(risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling))
                 .thenReturn(Optional.of(lagFaresignalWrapper(Kontrollresultat.HØY, faresignaler)));
         when(risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId()))
                 .thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT)));
 
         // Act
-        Optional<KontrollresultatDto> kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(kontrollresultatDto).isPresent();
@@ -95,11 +94,11 @@ public class KontrollDtoTjenesteTest {
     }
 
     private FaresignalWrapper lagFaresignalWrapper(Kontrollresultat kontrollresultat, List<String> faresignaler) {
-        FaresignalWrapper.Builder builder = FaresignalWrapper.builder().medKontrollresultat(kontrollresultat);
+        var builder = FaresignalWrapper.builder().medKontrollresultat(kontrollresultat);
 
         if (!faresignaler.isEmpty()) {
-            FaresignalGruppeWrapper.Builder iayBuilder = FaresignalGruppeWrapper.builder();
-            FaresignalGruppeWrapper.Builder medlBuilder = FaresignalGruppeWrapper.builder();
+            var iayBuilder = FaresignalGruppeWrapper.builder();
+            var medlBuilder = FaresignalGruppeWrapper.builder();
             faresignaler.forEach(signal -> {
                 iayBuilder.leggTilFaresignal(signal);
                 medlBuilder.leggTilFaresignal(signal);

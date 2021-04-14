@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.intern.svp;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -38,16 +37,16 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
     }
 
     protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
-        LocalDate avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
-        LocalDate sisteUttaksdato = hentSisteUttaksdatoForFagsak(fagsakId);
+        var avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
+        var sisteUttaksdato = hentSisteUttaksdatoForFagsak(fagsakId);
         return (erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato))? sisteUttaksdato : avsluttningsdato;
     }
 
     private LocalDate hentSisteUttaksdatoForFagsak(Long fagsakId) {
         return behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).map(behandling -> {
-            LocalDate avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling, null);
+            var avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling, null);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
-            Optional<LocalDate> maxdatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
+            var maxdatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
             return (maxdatoUttak.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, maxdatoUttak.get()))? maxdatoUttak.get().plusDays(1) : avsluttningsdato;
         }).orElse(LocalDate.now().plusDays(1));
     }

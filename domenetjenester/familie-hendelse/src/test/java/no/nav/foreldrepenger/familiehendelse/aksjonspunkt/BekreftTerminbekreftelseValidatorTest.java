@@ -22,35 +22,35 @@ public class BekreftTerminbekreftelseValidatorTest {
 
     @Test
     public void skal_ikke_validare_ok_når_utstedtdato_er_før_22_svangerskapsuke() {
-        LocalDate utstedtdato = LocalDate.now().minusWeeks(18).minusDays(4);
-        LocalDate termindato = LocalDate.now();
-        BekreftTerminbekreftelseAksjonspunktDto dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
+        var utstedtdato = LocalDate.now().minusWeeks(18).minusDays(4);
+        var termindato = LocalDate.now();
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
             1);
-        boolean feltFeil = validator.validerUtstedtdato(dto);
+        var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isTrue();
 
     }
 
     @Test
     public void skal_validare_ok_når_utstedtdato_er_10_uker_og_2_dager_før_termindato() {
-        LocalDate utstedtdato = LocalDate.now().minusWeeks(10).minusDays(2);
-        LocalDate termindato = LocalDate.now();
-        BekreftTerminbekreftelseAksjonspunktDto dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
+        var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(2);
+        var termindato = LocalDate.now();
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
             1);
 
-        boolean feltFeil = validator.validerUtstedtdato(dto);
+        var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isFalse();
 
     }
 
     @Test
     public void skal_validare_ok_når_utstedtdato_er_10_uker_og_1_dager_før_termindato() {
-        LocalDate utstedtdato = LocalDate.now().minusWeeks(10).minusDays(1);
-        LocalDate termindato = LocalDate.now();
-        BekreftTerminbekreftelseAksjonspunktDto dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
+        var utstedtdato = LocalDate.now().minusWeeks(10).minusDays(1);
+        var termindato = LocalDate.now();
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse", termindato, utstedtdato,
             1);
 
-        boolean feltFeil = validator.validerUtstedtdato(dto);
+        var feltFeil = validator.validerUtstedtdato(dto);
         assertThat(feltFeil).isFalse();
     }
 }

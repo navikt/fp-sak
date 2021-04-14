@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -112,8 +110,8 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BehandlendeFagsystemDto vurderFagsystem(
             @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
-        VurderFagsystem vurderFagsystem = map(vurderFagsystemDto);
-        BehandlendeFagsystem behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
+        var vurderFagsystem = map(vurderFagsystemDto);
+        var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
         return map(behandlendeFagsystem);
     }
 
@@ -125,20 +123,20 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FagsakInfomasjonDto fagsak(
             @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
-        Optional<Fagsak> optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
+        var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().getSkalTilInfotrygd()) {
             return null;
         }
-        final Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(optFagsak.get().getId());
+        final var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(optFagsak.get().getId());
         FamilieHendelseEntitet familieHendelse = null;
         if (behandling.isPresent()) {
             familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .orElse(null);
         }
-        BehandlingTema behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
-        String behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
-        AktørId aktørId = optFagsak.get().getAktørId();
+        var behandlingTemaFraKodeverksRepo = BehandlingTema.fraFagsak(optFagsak.get(), familieHendelse);
+        var behandlingstemaOffisiellKode = behandlingTemaFraKodeverksRepo.getOffisiellKode();
+        var aktørId = optFagsak.get().getAktørId();
         return new FagsakInfomasjonDto(aktørId.getId(), behandlingstemaOffisiellKode);
     }
 
@@ -149,10 +147,10 @@ public class FordelRestTjeneste {
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
-        Optional<String> journalpostId = opprettSakDto.getJournalpostId();
-        BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
+        var journalpostId = opprettSakDto.getJournalpostId();
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
 
-        AktørId aktørId = new AktørId(opprettSakDto.getAktørId());
+        var aktørId = new AktørId(opprettSakDto.getAktørId());
 
         Saksnummer s;
         if (journalpostId.isPresent()) {
@@ -183,7 +181,7 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void mottaJournalpost(
             @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
-        DokumentTypeId dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
+        var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
         if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
             return;
@@ -193,11 +191,11 @@ public class FordelRestTjeneste {
     }
 
     private VurderFagsystem map(VurderFagsystemDto dto) {
-        VurderFagsystem v = new VurderFagsystem();
+        var v = new VurderFagsystem();
         dto.getJournalpostId().map(jpi -> new JournalpostId(jpi)).ifPresent(v::setJournalpostId);
         v.setStrukturertSøknad(dto.isStrukturertSøknad());
         v.setAktørId(new AktørId(dto.getAktørId()));
-        BehandlingTema behandlingTema = BehandlingTema.finnForKodeverkEiersKode(dto.getBehandlingstemaOffisiellKode());
+        var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(dto.getBehandlingstemaOffisiellKode());
 
         v.setBehandlingTema(behandlingTema);
         v.setAdopsjonsbarnFodselsdatoer(dto.getAdopsjonsBarnFodselsdatoer());
@@ -246,8 +244,8 @@ public class FordelRestTjeneste {
 
     private MottattDokument mapTilMottattDokument(AbacJournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId) {
 
-        Saksnummer saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
-        Fagsak fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
+        var saksnummer = new Saksnummer(journalpostMottakDto.getSaksnummer());
+        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
                 .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
         var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
@@ -305,8 +303,8 @@ public class FordelRestTjeneste {
             if (deklarertLengde == null) {
                 throw new TekniskException("F-217605", "Input-validering-feil: Avsender sendte payload, men oppgav ikke lengde på innhold");
             }
-            byte[] bytes = Base64.getUrlDecoder().decode(base64EncodedPayload);
-            String streng = new String(bytes, Charset.forName("UTF-8"));
+            var bytes = Base64.getUrlDecoder().decode(base64EncodedPayload);
+            var streng = new String(bytes, Charset.forName("UTF-8"));
             if (streng.length() != deklarertLengde) {
                 throw new TekniskException("F-483098", String.format("Input-validering-feil: Avsender oppgav at lengde på innhold var %s, men lengden var egentlig %s",
                     deklarertLengde, streng.length()));
@@ -349,7 +347,7 @@ public class FordelRestTjeneste {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            AbacDataAttributter abacDataAttributter = AbacDataAttributter.opprett()
+            var abacDataAttributter = AbacDataAttributter.opprett()
                     .leggTil(AppAbacAttributtType.AKTØR_ID, getAktørId());
 
             getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));

@@ -33,7 +33,7 @@ public class VergeDtoTjeneste {
     }
 
     private VergeDto mapTilVergeDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
-        VergeDto dto = new VergeDto();
+        var dto = new VergeDto();
 
         dto.setGyldigFom(verge.getGyldigFom());
         dto.setGyldigTom(verge.getGyldigTom());

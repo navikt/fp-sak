@@ -34,7 +34,7 @@ public class VurderKompletthetStegFelles {
         if (kompletthetResultat.erFristUtløpt()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        AksjonspunktResultat autopunkt = byggAutopunkt(kompletthetResultat, apDef);
+        var autopunkt = byggAutopunkt(kompletthetResultat, apDef);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(singletonList(autopunkt));
     }
 

@@ -125,7 +125,7 @@ public class MedlemskapsvilkårPerioderEntitet extends BaseEntitet implements In
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MedlemskapsvilkårPerioderEntitet that = (MedlemskapsvilkårPerioderEntitet) o;
+        var that = (MedlemskapsvilkårPerioderEntitet) o;
         return Objects.equals(getFom(), that.getFom()) &&
                 Objects.equals(getTom(), that.getTom());
     }
@@ -153,7 +153,7 @@ public class MedlemskapsvilkårPerioderEntitet extends BaseEntitet implements In
             if (entitet.isPresent()) {
                 return new Builder(entitet.get());
             }
-            Builder builder = new Builder();
+            var builder = new Builder();
             builder.medVurderingsdato(vurderingsdato);
             return builder;
         }

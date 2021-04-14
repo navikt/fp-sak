@@ -16,7 +16,7 @@ public class AksjonspunktRepository {
     }
 
     public void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
-        AksjonspunktDefinisjon apDef = aksjonspunkt.getAksjonspunktDefinisjon();
+        var apDef = aksjonspunkt.getAksjonspunktDefinisjon();
         if (apDef.getSkjermlenkeType() == null || SkjermlenkeType.UDEFINERT.equals(apDef.getSkjermlenkeType())) {
             LOG.info("Aksjonspunkt prøver sette totrinnskontroll uten skjermlenke: {}", aksjonspunkt.getAksjonspunktDefinisjon());
             if (AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.equals(apDef) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(apDef)) {

@@ -19,7 +19,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -51,14 +50,14 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     public void skal_returne_tomt_result_hvis_endringssøknad() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
         lagreSøknad(behandling, true);
 
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("999999999");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+        var ref = InternArbeidsforholdRef.nyRef();
 
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforhold = Map.of(virksomhet, Set.of(ref));
+        var arbeidsforhold = Map.of(virksomhet, Set.of(ref));
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
@@ -73,15 +72,15 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     public void skal_legge_til_arbeidsforhold_for_virksomhet() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
         lagreSøknad(behandling, false);
 
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("999999999");
-        InternArbeidsforholdRef ref1 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef ref2 = InternArbeidsforholdRef.nyRef();
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
 
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforhold = Map.of(virksomhet, Set.of(ref1, ref2));
+        var arbeidsforhold = Map.of(virksomhet, Set.of(ref1, ref2));
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
@@ -96,15 +95,15 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     public void skal_legge_til_arbeidsforhold_for_personlig_foretak() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
         lagreSøknad(behandling, false);
 
-        Arbeidsgiver person = Arbeidsgiver.person(AktørId.dummy());
-        InternArbeidsforholdRef ref1 = InternArbeidsforholdRef.nyRef();
-        InternArbeidsforholdRef ref2 = InternArbeidsforholdRef.nyRef();
+        var person = Arbeidsgiver.person(AktørId.dummy());
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
 
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsforhold = Map.of(person, Set.of(ref1, ref2));
+        var arbeidsforhold = Map.of(person, Set.of(ref1, ref2));
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlagForVurdering(any(), anyBoolean())).thenReturn(arbeidsforhold);
 
         // Act
@@ -117,7 +116,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
 
     private void lagreSøknad(Behandling behandling, boolean erEndringssøknad) {
         byggFamilieHendelse(behandling);
-        SøknadEntitet søknad = new SøknadEntitet.Builder()
+        var søknad = new SøknadEntitet.Builder()
                 .medElektroniskRegistrert(true)
                 .medSøknadsdato(LocalDate.now())
                 .medMottattDato(LocalDate.now())
@@ -127,7 +126,7 @@ public class PåkrevdeInntektsmeldingerTjenesteTest {
     }
 
     private FamilieHendelseEntitet byggFamilieHendelse(Behandling behandling) {
-        FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
+        var søknadHendelse = repositoryProvider.getFamilieHendelseRepository()
                 .opprettBuilderFor(behandling)
                 .medAntallBarn(1);
         søknadHendelse.medTerminbekreftelse(søknadHendelse.getTerminbekreftelseBuilder()

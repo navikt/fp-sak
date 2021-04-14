@@ -20,9 +20,9 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void første_uttaksdato_og_skjæringsdatoOpptjening_12_uker_før_fødsel() {
         // Arrange
-        LocalDate terminDato = LocalDate.of(2018, Month.MAY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 6);
-        OpptjeningsperiodeGrunnlag regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
+        var terminDato = LocalDate.of(2018, Month.MAY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 6);
+        var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
         new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
@@ -34,24 +34,24 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void første_uttaksdato_13_uker_før_fødsel_skjæringsdatoOpptjening_12_uker_før_fødsel() {
         // Arrange
-        LocalDate terminDato = LocalDate.of(2018, Month.MAY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 5);
-        OpptjeningsperiodeGrunnlag regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
+        var terminDato = LocalDate.of(2018, Month.MAY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 5);
+        var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
         new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
 
         // Assert
-        LocalDate tidligsteLovligeUttaksdato = terminDato.minusWeeks(12);
+        var tidligsteLovligeUttaksdato = terminDato.minusWeeks(12);
         assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(tidligsteLovligeUttaksdato);
     }
 
     @Test
     public void skalFastsetteDatoLikTermindatoMinusTreUkerMF() {
         // Arrange
-        LocalDate terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
-        OpptjeningsperiodeGrunnlag regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
+        var terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
+        var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
         new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
@@ -64,9 +64,9 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikUttaksDatoMF() {
         // Arrange
-        LocalDate terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.JANUARY, 1);
-        OpptjeningsperiodeGrunnlag regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
+        var terminDato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.JANUARY, 1);
+        var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
         new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
@@ -78,9 +78,9 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikUttaksDatoFA() {
         // Arrange
-        LocalDate omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
+        var omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
+        var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
             uttaksDato, omsorgsDato, null);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -94,9 +94,9 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikOmsorgsovertakelsesDatoFA() {
         // Arrange
-        LocalDate omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
+        var omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
             uttaksDato, omsorgsDato, null);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -109,10 +109,10 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikMorsMaksdatoPlusEnDagForFar() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
-        LocalDate morsMaksDato = uttaksDato.minusDays(2);
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
+        var morsMaksDato = uttaksDato.minusDays(2);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setMorsMaksdato(morsMaksDato);
@@ -126,10 +126,10 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikFødselsdatoForFar() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
-        LocalDate morsMaksDato = uttaksDato.plusWeeks(7);
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
+        var morsMaksDato = uttaksDato.plusWeeks(7);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setMorsMaksdato(morsMaksDato);
@@ -143,9 +143,9 @@ public class RegelFastsettOpptjeningsperiodeTest {
     @Test
     public void skalFastsetteDatoLikFørsteUttaksdatoForFar() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        LocalDate uttaksDato = fødselsdato.minusDays(1);
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
+        var uttaksDato = fødselsdato.minusDays(1);
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -157,7 +157,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
 
 
     private OpptjeningsperiodeGrunnlag opprettOpptjeningsperiodeGrunnlagForMorFødsel(LocalDate terminDato, LocalDate hendelsesDato, LocalDate uttaksDato) {
-        OpptjeningsperiodeGrunnlag regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.MORA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.MORA,
             uttaksDato, hendelsesDato, terminDato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setTidligsteUttakFørFødselPeriode(Period.parse("P12W"));

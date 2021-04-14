@@ -71,7 +71,7 @@ public enum KontrollerAktivitetskravAvklaring implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(KontrollerAktivitetskravAvklaring.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(KontrollerAktivitetskravAvklaring.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent MorsAktivitet: " + kode);

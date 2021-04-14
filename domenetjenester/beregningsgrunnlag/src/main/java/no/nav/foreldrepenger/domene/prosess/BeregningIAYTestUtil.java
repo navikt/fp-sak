@@ -344,9 +344,8 @@ public class BeregningIAYTestUtil {
                                                                                    ArbeidType arbeidType) {
         if (ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(arbeidType)) {
             return filter.getFrilansOppdrag();
-        } else {
-            return filter.getYrkesaktiviteter();
         }
+        return filter.getYrkesaktiviteter();
     }
 
     private static void leggTilPermisjon(LocalDate fraOgMed,
@@ -367,10 +366,9 @@ public class BeregningIAYTestUtil {
                                                        InternArbeidsforholdRef arbId) {
         if (arbId == null) {
             return aktørArbeidBuilder.getYrkesaktivitetBuilderForType(arbeidType);
-        } else {
-            return aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
-                new Opptjeningsnøkkel(arbId, arbeidsgiver), arbeidType);
         }
+        return aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
+            new Opptjeningsnøkkel(arbId, arbeidsgiver), arbeidType);
 
     }
 

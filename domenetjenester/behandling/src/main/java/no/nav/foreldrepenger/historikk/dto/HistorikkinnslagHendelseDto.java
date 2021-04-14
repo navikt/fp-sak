@@ -24,7 +24,7 @@ public class HistorikkinnslagHendelseDto {
     }
 
     public static HistorikkinnslagHendelseDto mapFra(HistorikkinnslagFelt hendelse) {
-        HistorikkinnslagHendelseDto dto = new HistorikkinnslagHendelseDto();
+        var dto = new HistorikkinnslagHendelseDto();
         dto.navn = HistorikkinnslagType.fraKode(hendelse.getNavn());
         dto.verdi = hendelse.getTilVerdi();
         return dto;

@@ -20,11 +20,9 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -71,7 +69,7 @@ public class DokumentmottakerVedleggTest {
     @BeforeEach
     public void oppsett() {
 
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
+        var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
@@ -87,14 +85,14 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_eller_har_en_behandling() {
         // Arrange
-        Fagsak fagsak = nyMorFødselFagsak();
-        Long fagsakId = fagsak.getId();
+        var fagsak = nyMorFødselFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        String behandlendeEnhet = dokumentmottakerFelles.hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var behandlendeEnhet = dokumentmottakerFelles.hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, null);
 
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, fagsak, null);
@@ -105,7 +103,7 @@ public class DokumentmottakerVedleggTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(null, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(behandlendeEnhet);
     }
@@ -113,13 +111,13 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_vurdere_kompletthet_når_ustrukturert_dokument_på_åpen_behandling() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingStegStart(BehandlingStegType.INNHENT_SØKNADOPP);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
@@ -134,14 +132,14 @@ public class DokumentmottakerVedleggTest {
         // Arrange
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlendeEnhet("0450")
                 .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
@@ -152,7 +150,7 @@ public class DokumentmottakerVedleggTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo("0450"); // Lik enheten som ble
                                                                                                                                 // satt på
@@ -164,16 +162,16 @@ public class DokumentmottakerVedleggTest {
         // Arrange
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlendeEnhet("0450")
                 .medBehandlingStegStart(BehandlingStegType.FORESLÅ_VEDTAK);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
         mottattDokument.setJournalEnhet(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId());
         when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
@@ -184,7 +182,7 @@ public class DokumentmottakerVedleggTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
                 .isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId()); // Lik enheten som ble satt på behandlingen
@@ -197,21 +195,21 @@ public class DokumentmottakerVedleggTest {
      */
     @Test
     public void skal_opprette_task_for_å_vurdere_dokument_når_det_ikke_er_en_søknad_men_har_behandling_på_saken_hent_behandlende_enhet_fra_ikke_klagebehandling() {
-        final String førstegangssøknadEnhetsId = "0450";
-        final String klageEnhetsId = "5000";
+        final var førstegangssøknadEnhetsId = "0450";
+        final var klageEnhetsId = "5000";
 
         // Arrange
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
+        var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
                 ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId))
                 .medBehandlendeEnhet(klageEnhetsId);
-        Behandling klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
+        var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
-        Long fagsakId = scenario.getFagsak().getId();
+        var fagsakId = scenario.getFagsak().getId();
         var dokumentTypeId = DokumentTypeId.DOKUMENTASJON_AV_OMSORGSOVERTAKELSE;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
@@ -222,7 +220,7 @@ public class DokumentmottakerVedleggTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId); // Lik
                                                                                                                                                    // enheten
@@ -236,13 +234,13 @@ public class DokumentmottakerVedleggTest {
     @Test
     public void skal_ikke_opprette_køet_behandling_når_ingen_tidligere_behandling() {
         // Arrange - opprette fagsak uten behandling
-        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
                 repositoryProvider.getFagsakRepository(), repositoryProvider.getFagsakRelasjonRepository());
 
         // Act - send inn endringssøknad
-        Long fagsakId = fagsak.getId();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.ANNET;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.RE_ANNET);
 
         // Assert - verifiser flyt
@@ -252,21 +250,21 @@ public class DokumentmottakerVedleggTest {
 
     @Test
     public void skal_opprette_task_for_å_vurdere_dokument_når_dokumenttype_er_udefinert() {
-        final String førstegangssøknadEnhetsId = "0450";
-        final String klageEnhetsId = "5000";
+        final var førstegangssøknadEnhetsId = "0450";
+        final var klageEnhetsId = "5000";
 
         // Arrange
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
+        var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(
                 ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(førstegangssøknadEnhetsId))
                 .medBehandlendeEnhet(klageEnhetsId);
-        Behandling klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
+        var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
-        Long fagsakId = scenario.getFagsak().getId();
+        var fagsakId = scenario.getFagsak().getId();
         var dokumentTypeId = DokumentTypeId.UDEFINERT;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, klageBehandling.getFagsak(), null);
@@ -278,7 +276,7 @@ public class DokumentmottakerVedleggTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId); // Lik
                                                                                                                                                    // enheten

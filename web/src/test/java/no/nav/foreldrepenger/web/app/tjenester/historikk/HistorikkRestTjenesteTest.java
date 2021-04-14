@@ -35,7 +35,7 @@ public class HistorikkRestTjenesteTest {
 
     @Test
     public void hentAlleInnslag() {
-        HistorikkinnslagDto innslagDto = new HistorikkinnslagDto();
+        var innslagDto = new HistorikkinnslagDto();
         lagHistorikkinnslagDel(innslagDto);
         innslagDto.setDokumentLinks(Collections.emptyList());
         when(historikkApplikasjonTjenesteMock.hentAlleHistorikkInnslagForSak(Mockito.any(Saksnummer.class)))
@@ -47,13 +47,13 @@ public class HistorikkRestTjenesteTest {
     }
 
     private void lagHistorikkinnslagDel(HistorikkinnslagDto innslagDto) {
-        HistorikkinnslagDelDto delDto = new HistorikkinnslagDelDto();
+        var delDto = new HistorikkinnslagDelDto();
         lagHendelseDto(delDto);
         innslagDto.setHistorikkinnslagDeler(Collections.singletonList(delDto));
     }
 
     private void lagHendelseDto(HistorikkinnslagDelDto delDto) {
-        HistorikkinnslagHendelseDto hendelseDto = new HistorikkinnslagHendelseDto();
+        var hendelseDto = new HistorikkinnslagHendelseDto();
         hendelseDto.setNavn(HistorikkinnslagType.BEH_STARTET);
         delDto.setHendelse(hendelseDto);
     }

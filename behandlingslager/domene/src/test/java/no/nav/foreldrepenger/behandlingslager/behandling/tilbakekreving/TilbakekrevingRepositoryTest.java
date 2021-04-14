@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,21 +23,21 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_empty_når_det_hentes_for_behandling_som_ikke_har_tilbakekrevingsvalg() {
-        Behandling behandling = Mockito.mock(Behandling.class);
+        var behandling = Mockito.mock(Behandling.class);
         when(behandling.getId()).thenReturn(2L);
         assertThat(repository.hent(2L)).isEmpty();
     }
 
     @Test
     public void skal_lagre_og_hente_tilbakekrevingsvalg() {
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
-        TilbakekrevingValg valg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varsel");
+        var valg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varsel");
         repository.lagre(behandling, valg);
 
-        Optional<TilbakekrevingValg> lagretResultat = repository.hent(behandling.getId());
+        var lagretResultat = repository.hent(behandling.getId());
         assertThat(lagretResultat).isPresent();
-        TilbakekrevingValg resultat = lagretResultat.get();
+        var resultat = lagretResultat.get();
         assertThat(resultat.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD);
         assertThat(resultat.getErTilbakekrevingVilkårOppfylt()).isNull();
         assertThat(resultat.getGrunnerTilReduksjon()).isNull();
@@ -47,17 +45,17 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_oppdatere_tilbakekrevingsvalg() {
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
-        TilbakekrevingValg valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varseltekst");
+        var valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "Varseltekst");
         repository.lagre(behandling, valg1);
 
-        TilbakekrevingValg valg2 = TilbakekrevingValg.medMulighetForInntrekk(true, false, TilbakekrevingVidereBehandling.INNTREKK);
+        var valg2 = TilbakekrevingValg.medMulighetForInntrekk(true, false, TilbakekrevingVidereBehandling.INNTREKK);
         repository.lagre(behandling, valg2);
 
-        Optional<TilbakekrevingValg> lagretResultat = repository.hent(behandling.getId());
+        var lagretResultat = repository.hent(behandling.getId());
         assertThat(lagretResultat).isPresent();
-        TilbakekrevingValg resultat = lagretResultat.get();
+        var resultat = lagretResultat.get();
         assertThat(resultat.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.INNTREKK);
         assertThat(resultat.getErTilbakekrevingVilkårOppfylt()).isTrue();
         assertThat(resultat.getGrunnerTilReduksjon()).isFalse();
@@ -66,11 +64,11 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagrer_tilbakekreving_inntrekk() {
         // Arrange
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         // Act
         repository.lagre(behandling, true);
-        Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekkEntitet = repository.hentTilbakekrevingInntrekk(behandling.getId());
+        var tilbakekrevingInntrekkEntitet = repository.hentTilbakekrevingInntrekk(behandling.getId());
 
         // Assert
         assertThat(tilbakekrevingInntrekkEntitet).hasValueSatisfying(TilbakekrevingInntrekkEntitet::isAvslåttInntrekk);
@@ -79,12 +77,12 @@ public class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void oppdaterer_tilbakekreving_inntrekk() {
         // Arrange
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         // Act
         repository.lagre(behandling, true);
         repository.lagre(behandling, false);
-        Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekkEntitet = repository.hentTilbakekrevingInntrekk(behandling.getId());
+        var tilbakekrevingInntrekkEntitet = repository.hentTilbakekrevingInntrekk(behandling.getId());
 
         // Assert
         assertThat(tilbakekrevingInntrekkEntitet).isPresent();

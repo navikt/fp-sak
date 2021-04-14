@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 
 
@@ -20,10 +19,10 @@ class VilkårDtoMapper {
 
     static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat, boolean medVilkårkjøring) {
         if (behandlingsresultat != null) {
-            VilkårResultat vilkårResultat = behandlingsresultat.getVilkårResultat();
+            var vilkårResultat = behandlingsresultat.getVilkårResultat();
             if (vilkårResultat != null) {
-                List<VilkårDto> list = vilkårResultat.getVilkårene().stream().map(vilkår -> {
-                    VilkårDto dto = new VilkårDto();
+                var list = vilkårResultat.getVilkårene().stream().map(vilkår -> {
+                    var dto = new VilkårDto();
                     dto.setAvslagKode(vilkår.getAvslagsårsak() != null ? vilkår.getAvslagsårsak().getKode() : null);
                     dto.setVilkarType(vilkår.getVilkårType());
                     dto.setLovReferanse(vilkår.getVilkårType().getLovReferanse(behandling.getFagsakYtelseType()));
@@ -54,7 +53,7 @@ class VilkårDtoMapper {
             // Startpunkt for behandling N/A, må dermed også tillate overstyring
             return true;
         }
-        boolean vilkårLøstFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(behandling.getStartpunkt())
+        var vilkårLøstFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(behandling.getStartpunkt())
             .contains(vilkår.getVilkårType());
         return !vilkårLøstFørStartpunkt;
     }

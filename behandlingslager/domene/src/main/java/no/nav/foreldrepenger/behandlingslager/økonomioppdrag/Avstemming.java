@@ -52,7 +52,7 @@ public class Avstemming implements Comparable<Avstemming> {
      */
     static String validateAndFormat(LocalDateTime avstemmingTidspunkt) {
         Objects.requireNonNull(avstemmingTidspunkt, "avstemmingTidspunkt");
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(PATTERN);
+        var dtf = DateTimeFormatter.ofPattern(PATTERN);
         return avstemmingTidspunkt.format(dtf);
     }
 
@@ -60,7 +60,7 @@ public class Avstemming implements Comparable<Avstemming> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Avstemming that = (Avstemming) o;
+        var that = (Avstemming) o;
         return getNøkkel().equals(that.getNøkkel());
     }
 

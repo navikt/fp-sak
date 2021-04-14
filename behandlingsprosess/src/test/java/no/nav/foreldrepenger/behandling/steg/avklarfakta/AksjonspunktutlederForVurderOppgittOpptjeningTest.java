@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -67,11 +65,11 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_ikke_opprette_aksjonspunktet_5051() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -84,10 +82,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_vartpenger() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
+        var behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -96,10 +94,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_oppgitt_frilansperiode() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.FRILANSER);
+        var behandling = opprettBehandling(ArbeidType.FRILANSER);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -108,10 +106,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_ventelønn() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
+        var behandling = opprettBehandling(ArbeidType.VENTELØNN_VARTPENGER);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -120,10 +118,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_militær_eller_siviltjeneste() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE);
+        var behandling = opprettBehandling(ArbeidType.MILITÆR_ELLER_SIVILTJENESTE);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -132,10 +130,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_etterlønn_sluttvederlag() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.ETTERLØNN_SLUTTPAKKE);
+        var behandling = opprettBehandling(ArbeidType.ETTERLØNN_SLUTTPAKKE);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -144,10 +142,10 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_hatt_videre_og_etterutdanning() {
         // Arrange
-        Behandling behandling = opprettBehandling(ArbeidType.LØNN_UNDER_UTDANNING);
+        var behandling = opprettBehandling(ArbeidType.LØNN_UNDER_UTDANNING);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -156,11 +154,11 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_ikke_hatt_næringsinntekt_eller_registrert_næringen_senere() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Behandling behandling = opprettOppgittOpptjening(aktørId, false);
+        var aktørId = AktørId.dummy();
+        var behandling = opprettOppgittOpptjening(aktørId, false);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -169,11 +167,11 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_opprette_aksjonspunkt_om_bruker_har_utenlandsforhold() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Behandling behandling = opprettUtenlandskArbeidsforhold(aktørId);
+        var aktørId = AktørId.dummy();
+        var behandling = opprettUtenlandskArbeidsforhold(aktørId);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater.get(0).getAksjonspunktDefinisjon()).isEqualTo(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -184,14 +182,14 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
-        LocalDate fraOgMed = LocalDate.now().minusMonths(1);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
+        var fraOgMed = LocalDate.now().minusMonths(1);
+        var tilOgMed = LocalDate.now().plusMonths(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        OppgittOpptjeningBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
-        OppgittUtenlandskVirksomhet svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
+        var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
+        var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
         egenNæringBuilder
                 .medPeriode(periode)
                 .medUtenlandskVirksomhet(svenska_stat)
@@ -201,14 +199,14 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
                 .medRegnskapsførerTlf("+46678456345")
                 .medVirksomhetType(VirksomhetType.FISKE)
                 .medVirksomhet(KUNSTIG_ORG);
-        OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
+        var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
                 .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -217,11 +215,11 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_bruker_er_selvstendig_næringsdrivende_og_hatt_næringsinntekt() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Behandling behandling = opprettOppgittOpptjening(aktørId, true);
+        var aktørId = AktørId.dummy();
+        var behandling = opprettOppgittOpptjening(aktørId, true);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -229,13 +227,13 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
 
     private Behandling opprettUtenlandskArbeidsforhold(AktørId aktørId) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        LocalDate fraOgMed = LocalDate.now().minusMonths(1);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
-        OppgittUtenlandskVirksomhet svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
-        OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
+        var fraOgMed = LocalDate.now().minusMonths(1);
+        var tilOgMed = LocalDate.now().plusMonths(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
+        var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
+        var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
                 .leggTilOppgittArbeidsforhold(
                         OppgittOpptjeningBuilder.OppgittArbeidsforholdBuilder.ny().medUtenlandskVirksomhet(svenska_stat).medPeriode(periode)
@@ -250,12 +248,12 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     private Behandling opprettOppgittOpptjening(AktørId aktørId, boolean medNæring) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId);
 
-        LocalDate fraOgMed = LocalDate.now().minusMonths(1);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
+        var fraOgMed = LocalDate.now().minusMonths(1);
+        var tilOgMed = LocalDate.now().plusMonths(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
-        OppgittOpptjeningBuilder.EgenNæringBuilder egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
-        OppgittUtenlandskVirksomhet svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
+        var egenNæringBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny();
+        var svenska_stat = new OppgittUtenlandskVirksomhet(Landkoder.SWE, "Svenska Stat");
         egenNæringBuilder
                 .medPeriode(periode)
                 .medUtenlandskVirksomhet(svenska_stat)
@@ -264,11 +262,11 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
                 .medRegnskapsførerNavn("Jacob")
                 .medRegnskapsførerTlf("+46678456345")
                 .medVirksomhetType(VirksomhetType.FISKE);
-        OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
+        var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
                 .leggTilEgneNæringer(Collections.singletonList(egenNæringBuilder));
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 
         if (medNæring) {
@@ -295,15 +293,15 @@ public class AksjonspunktutlederForVurderOppgittOpptjeningTest extends EntityMan
     private Behandling opprettBehandling(ArbeidType annenOpptjeningType) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
-        LocalDate fraOgMed = LocalDate.now().minusMonths(1);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
+        var fraOgMed = LocalDate.now().minusMonths(1);
+        var tilOgMed = LocalDate.now().plusMonths(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(fraOgMed, tilOgMed);
 
-        OppgittOpptjeningBuilder oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
+        var oppgittOpptjeningBuilder = OppgittOpptjeningBuilder.ny();
         oppgittOpptjeningBuilder
                 .leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode, annenOpptjeningType));
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgittOpptjeningBuilder);
 

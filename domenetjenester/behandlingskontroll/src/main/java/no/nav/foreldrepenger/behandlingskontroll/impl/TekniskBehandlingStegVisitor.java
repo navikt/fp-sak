@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellVisitor;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -38,15 +37,15 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
         LOG_CONTEXT.add("behandling", kontekst.getBehandlingId()); // NOSONAR //$NON-NLS-1$
         LOG_CONTEXT.add("steg", steg.getBehandlingStegType().getKode()); // NOSONAR //$NON-NLS-1$
 
-        Behandling behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
-        BehandlingStegTilstandSnapshot forrigeTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getSisteBehandlingStegTilstand());
+        var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
+        var forrigeTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getSisteBehandlingStegTilstand());
         // lag ny for hvert steg som kjøres
-        BehandlingStegVisitor stegVisitor = new BehandlingStegVisitor(serviceProvider, behandling, steg, kontekst);
+        var stegVisitor = new BehandlingStegVisitor(serviceProvider, behandling, steg, kontekst);
 
         // kjøres utenfor savepoint. Ellers står vi nakne, med kun utførte steg
         stegVisitor.markerOvergangTilNyttSteg(steg.getBehandlingStegType(), forrigeTilstand);
 
-        StegProsesseringResultat resultat = prosesserStegISavepoint(behandling, stegVisitor);
+        var resultat = prosesserStegISavepoint(behandling, stegVisitor);
 
         /*
          * NB: nullstiller her og ikke i finally block, siden det da fjernes før vi får
@@ -67,13 +66,13 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
         class DoInSavepoint implements Work<StegProsesseringResultat> {
             @Override
             public StegProsesseringResultat doWork() {
-                StegProsesseringResultat resultat = prosesserSteg(stegVisitor);
+                var resultat = prosesserSteg(stegVisitor);
                 serviceProvider.lagreOgClear(behandling, kontekst.getSkriveLås());
                 return resultat;
             }
         }
 
-        StegProsesseringResultat resultat = serviceProvider.getTekniskRepository().doWorkInSavepoint(new DoInSavepoint());
+        var resultat = serviceProvider.getTekniskRepository().doWorkInSavepoint(new DoInSavepoint());
         return resultat;
     }
 

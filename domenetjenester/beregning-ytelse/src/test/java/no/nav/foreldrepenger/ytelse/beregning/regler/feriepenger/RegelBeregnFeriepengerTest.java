@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arb
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
@@ -32,19 +31,19 @@ public class RegelBeregnFeriepengerTest {
     // Eksempel 1 Mor
     @Test
     public void skalBeregneFeriepengerForMor() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
         byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
         byggAndelerForPeriode(periode1, 100, 500, arbeidsforhold2);
         byggAndelerForPeriode(periode2, 150, 400, arbeidsforhold1);
 
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
-        BeregningsresultatPeriode periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
         byggAndelerForPeriode(periode1annenPart, 200, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode2annenPart, 300, 0, arbeidsforhold1);
 
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -54,9 +53,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
@@ -64,12 +63,12 @@ public class RegelBeregnFeriepengerTest {
 
         regelModell.getBeregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
                 .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
-        BeregningsresultatAndel andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
-        BeregningsresultatAndel andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
-        BeregningsresultatAndel andelBruker3 = periode2.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver3 = periode2.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
+        var andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
+        var andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
+        var andelBruker3 = periode2.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver3 = periode2.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
@@ -84,21 +83,21 @@ public class RegelBeregnFeriepengerTest {
     // Eksempel 1X Mor med avslag i første periode
     @Test
     public void skalBeregneFeriepengerForMorMedAvslagIFørstePeriode() {
-        BeregningsresultatPeriode periode0 = byggBRPeriode(LocalDate.of(2018, 1, 5), LocalDate.of(2018, 1, 5));
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode0 = byggBRPeriode(LocalDate.of(2018, 1, 5), LocalDate.of(2018, 1, 5));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
         byggAndelerForPeriode(periode0, 0, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
         byggAndelerForPeriode(periode1, 100, 500, arbeidsforhold2);
         byggAndelerForPeriode(periode2, 150, 400, arbeidsforhold1);
 
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
-        BeregningsresultatPeriode periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
         byggAndelerForPeriode(periode1annenPart, 200, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode2annenPart, 300, 0, arbeidsforhold1);
 
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode0, periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -108,9 +107,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));
@@ -124,12 +123,12 @@ public class RegelBeregnFeriepengerTest {
                         assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty();
                     }
                 });
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
-        BeregningsresultatAndel andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
-        BeregningsresultatAndel andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
-        BeregningsresultatAndel andelBruker3 = periode2.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver3 = periode2.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
+        var andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
+        var andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
+        var andelBruker3 = periode2.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver3 = periode2.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
@@ -145,18 +144,18 @@ public class RegelBeregnFeriepengerTest {
     @Test
     public void skalBeregneFeriepengerForFar() {
         // Arrange
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
-        BeregningsresultatPeriode periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
         byggAndelerForPeriode(periode1annenPart, 0, 1, arbeidsforhold1);
         byggAndelerForPeriode(periode2annenPart, 0, 1, arbeidsforhold1);
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart);
 
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 3, 16));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 17), LocalDate.of(2018, 3, 31));
         byggAndelerForPeriode(periode1, 150, 400, arbeidsforhold1);
         byggAndelerForPeriode(periode2, 460, 1000, arbeidsforhold1);
 
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -166,9 +165,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
         // Act
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         // Assert
         assertThat(sporing).isNotNull();
@@ -177,10 +176,10 @@ public class RegelBeregnFeriepengerTest {
 
         regelModell.getBeregningsresultatPerioder().stream().flatMap(p -> p.getBeregningsresultatAndelList().stream())
                 .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
-        BeregningsresultatAndel andelBruker2 = periode2.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver2 = periode2.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
+        var andelBruker2 = periode2.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver2 = periode2.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(76.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(234.6));
@@ -191,19 +190,19 @@ public class RegelBeregnFeriepengerTest {
     // Eksempel 2 Mor
     @Test
     public void skalBeregneFeriepengerForMorEksempel2() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 1, 17), LocalDate.of(2018, 3, 20));
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 3, 28));
-        BeregningsresultatPeriode periode3 = byggBRPeriode(LocalDate.of(2018, 3, 29), LocalDate.of(2018, 4, 8));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 17), LocalDate.of(2018, 3, 20));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 3, 28));
+        var periode3 = byggBRPeriode(LocalDate.of(2018, 3, 29), LocalDate.of(2018, 4, 8));
         byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
         byggAndelerForPeriode(periode1, 100, 500, arbeidsforhold2);
         byggAndelerForPeriode(periode2, 0, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode3, 350, 600, arbeidsforhold1);
 
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 4, 15));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 4, 15));
         byggAndelerForPeriode(periode1annenPart, 500, 0, arbeidsforhold1);
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
 
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -213,9 +212,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 17));
@@ -227,12 +226,12 @@ public class RegelBeregnFeriepengerTest {
         periode2.getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
         periode3.getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
-        BeregningsresultatAndel andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
-        BeregningsresultatAndel andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
-        BeregningsresultatAndel andelBruker4 = periode3.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver4 = periode3.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
+        var andelBruker2 = periode1.getBeregningsresultatAndelList().get(2);
+        var andelArbeidsgiver2 = periode1.getBeregningsresultatAndelList().get(3);
+        var andelBruker4 = periode3.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver4 = periode3.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(1606.5));
         assertThat(andelBruker2.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(459));
@@ -247,18 +246,18 @@ public class RegelBeregnFeriepengerTest {
     // Eksempel 2 Far
     @Test
     public void skalBeregneFeriepengerForFarEksempel2() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 4, 15));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 4, 15));
         byggAndelerForPeriode(periode1, 150, 400, arbeidsforhold1);
 
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2018, 1, 17), LocalDate.of(2018, 3, 20));
-        BeregningsresultatPeriode periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 3, 28));
-        BeregningsresultatPeriode periode3annenPart = byggBRPeriode(LocalDate.of(2018, 3, 29), LocalDate.of(2018, 4, 8));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2018, 1, 17), LocalDate.of(2018, 3, 20));
+        var periode2annenPart = byggBRPeriode(LocalDate.of(2018, 3, 21), LocalDate.of(2018, 3, 28));
+        var periode3annenPart = byggBRPeriode(LocalDate.of(2018, 3, 29), LocalDate.of(2018, 4, 8));
         byggAndelerForPeriode(periode1annenPart, 500, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode2annenPart, 0, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode3annenPart, 500, 0, arbeidsforhold1);
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart, periode3annenPart);
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart, periode2annenPart, periode3annenPart);
 
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -268,9 +267,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 17));
@@ -280,8 +279,8 @@ public class RegelBeregnFeriepengerTest {
                 .flatMap(a -> a.getBeregningsresultatFeriepengerPrÅrListe().stream()).collect(Collectors.toList())).hasSize(2);
         periode1.getBeregningsresultatAndelList().forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
 
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver1 = periode1.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(153));
         assertThat(andelArbeidsgiver1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(408));
@@ -289,18 +288,18 @@ public class RegelBeregnFeriepengerTest {
 
     @Test
     public void skalBeregneFeriepengerOverFlereÅr() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2019, 1, 5)); // 47 ukedager
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2019, 1, 6), LocalDate.of(2019, 2, 5)); // 22 ukedager
-        BeregningsresultatPeriode periode3 = byggBRPeriode(LocalDate.of(2019, 2, 6), LocalDate.of(2019, 4, 16)); // 50 ukedager
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2019, 1, 5)); // 47 ukedager
+        var periode2 = byggBRPeriode(LocalDate.of(2019, 1, 6), LocalDate.of(2019, 2, 5)); // 22 ukedager
+        var periode3 = byggBRPeriode(LocalDate.of(2019, 2, 6), LocalDate.of(2019, 4, 16)); // 50 ukedager
         byggAndelerForPeriode(periode1, 1000, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode2, 0, 0, arbeidsforhold1);
         byggAndelerForPeriode(periode3, 500, 500, arbeidsforhold1);
 
-        BeregningsresultatPeriode periode1annenPart = byggBRPeriode(LocalDate.of(2019, 1, 25), LocalDate.of(2019, 2, 15));
+        var periode1annenPart = byggBRPeriode(LocalDate.of(2019, 1, 25), LocalDate.of(2019, 2, 15));
         byggAndelerForPeriode(periode1annenPart, 500, 0, arbeidsforhold1);
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
+        var annenPartsBeregningsresultatPerioder = List.of(periode1annenPart);
 
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2, periode3))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -310,9 +309,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 11, 1));
@@ -324,9 +323,9 @@ public class RegelBeregnFeriepengerTest {
                 .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).isEmpty());
         regelModell.getBeregningsresultatPerioder().get(2).getBeregningsresultatAndelList()
                 .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelBruker2 = periode3.getBeregningsresultatAndelList().get(0);
-        BeregningsresultatAndel andelArbeidsgiver = periode3.getBeregningsresultatAndelList().get(1);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelBruker2 = periode3.getBeregningsresultatAndelList().get(0);
+        var andelArbeidsgiver = periode3.getBeregningsresultatAndelList().get(1);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4386));
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(1).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(408));
@@ -337,10 +336,10 @@ public class RegelBeregnFeriepengerTest {
 
     @Test
     public void skalBeregneFeriepengerUtenAnnenpart() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2018, 12, 31)); // 43 ukedager
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 11, 1), LocalDate.of(2018, 12, 31)); // 43 ukedager
         byggAndelerForPeriode(periode1, 1000, 0, arbeidsforhold1);
 
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1))
                 .medAnnenPartsBeregningsresultatPerioder(Collections.emptyList())
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -350,9 +349,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(60)
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 11, 1));
@@ -360,20 +359,20 @@ public class RegelBeregnFeriepengerTest {
 
         regelModell.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList()
                 .forEach(andel -> assertThat(andel.getBeregningsresultatFeriepengerPrÅrListe()).hasSize(1));
-        BeregningsresultatAndel andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
+        var andelBruker1 = periode1.getBeregningsresultatAndelList().get(0);
 
         assertThat(andelBruker1.getBeregningsresultatFeriepengerPrÅrListe().get(0).getÅrsbeløp()).isEqualByComparingTo(BigDecimal.valueOf(4386));
     }
 
     @Test
     public void skalBeregneFeriepengerPeriodeForSvangerskapspenger() {
-        BeregningsresultatPeriode periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
-        BeregningsresultatPeriode periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
+        var periode1 = byggBRPeriode(LocalDate.of(2018, 1, 6), LocalDate.of(2018, 3, 9));
+        var periode2 = byggBRPeriode(LocalDate.of(2018, 3, 10), LocalDate.of(2018, 5, 1));
         byggAndelerForPeriode(periode1, 350, 600, arbeidsforhold1);
         byggAndelerForPeriode(periode2, 150, 400, arbeidsforhold1);
 
         List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = List.of();
-        BeregningsresultatFeriepengerRegelModell regelModell = BeregningsresultatFeriepengerRegelModell.builder()
+        var regelModell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode1, periode2))
                 .medAnnenPartsBeregningsresultatPerioder(annenPartsBeregningsresultatPerioder)
                 .medInntektskategorier(Collections.singleton(Inntektskategori.ARBEIDSTAKER))
@@ -383,9 +382,9 @@ public class RegelBeregnFeriepengerTest {
                 .medAntallDagerFeriepenger(64) // SVP-spesifikt
                 .build();
 
-        RegelBeregnFeriepenger regel = new RegelBeregnFeriepenger();
-        Evaluation evaluation = regel.evaluer(regelModell);
-        String sporing = EvaluationSerializer.asJson(evaluation);
+        var regel = new RegelBeregnFeriepenger();
+        var evaluation = regel.evaluer(regelModell);
+        var sporing = EvaluationSerializer.asJson(evaluation);
 
         assertThat(sporing).isNotNull();
         assertThat(regelModell.getFeriepengerPeriode().getFomDato()).isEqualTo(LocalDate.of(2018, 1, 6));

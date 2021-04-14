@@ -47,7 +47,7 @@ public class AdopsjonsvilkårGrunnlag implements VilkårGrunnlag {
         this.omsorgsovertakelsesdato = omsorgsovertakelsesdato;
         this.erStønadsperiodeBruktOpp = erStønadsperiodeBruktOpp;
         if (bekreftetAdopsjonBarn != null) {
-            for (BekreftetAdopsjonBarn bab : bekreftetAdopsjonBarn) {
+            for (var bab : bekreftetAdopsjonBarn) {
                 leggTilBekreftetAdopsjonBarn(bab);
             }
         }

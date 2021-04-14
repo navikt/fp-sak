@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -36,7 +35,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     private void mockRepository(Oppdragskontroll oppdragskontroll) {
-        final ØkonomioppdragRepository økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
+        final var økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
         when(økonomioppdragRepository.finnOppdragForBehandling(eq(behandling.getId()))).thenReturn(Optional.of(oppdragskontroll));
         when(økonomioppdragRepository.finnAlleOppdragForSak(eq(saksnummer))).thenReturn(Collections.singletonList(oppdragskontroll));
         hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
@@ -172,7 +171,7 @@ public class HentOppdragMedPositivKvitteringTest {
     @Test
     public void skalKunHenteOppdrag110MedPositivKvitteringForSaksnummer() {
 
-        Oppdragskontroll oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
         var oppdrag1 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag1);
         var oppdrag2 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 2L);
@@ -189,7 +188,7 @@ public class HentOppdragMedPositivKvitteringTest {
     }
 
     private void lagToOppdrag110MedPositivOgNegativKvittering() {
-        Oppdrag110 oppdrag110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
+        var oppdrag110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 1L);
         OppdragKvitteringTestUtil.lagPositivKvitting(oppdragskontroll.getOppdrag110Liste().get(0));
         OppdragKvitteringTestUtil.lagNegativKvitting(oppdrag110_2);
     }

@@ -49,24 +49,26 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         // NB: Man ønsker er å rute søknad inn på mulig sak og unngå unødvendig saksopretting. Mottak skal håndtere tilfellene
-        List<Fagsak> matchendeFagsaker = sakerGittYtelseType.stream()
+        var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
-        } else if (matchendeFagsaker.size() > 1) {
+        }
+        if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
+        var relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer());
-        } else if (relevanteFagsaker.size() > 1) {
+        }
+        if (relevanteFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {} for {}", relevanteFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -91,7 +93,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
+        var kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
             return skalVurdereInfotrygdForAnnenPart(vurderFagsystem) ? new BehandlendeFagsystem(VURDER_INFOTRYGD) : new BehandlendeFagsystem(VEDTAKSLØSNING);

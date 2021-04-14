@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.datavarehus;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -24,9 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtak;
 import no.nav.foreldrepenger.datavarehus.task.RegenererVedtaksXmlDatavarehusTask;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -78,13 +74,13 @@ public class DatavarehusAdminRestTjeneste {
         LOG.info("Forsøker å regenerere vedtaks XML  for datavarehus i intervall [{}] - [{}]", genererVedtaksXmlDvhDto.getFom(),
                 genererVedtaksXmlDvhDto.getTom());
 
-        List<Long> behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(genererVedtaksXmlDvhDto.getFom(), genererVedtaksXmlDvhDto.getTom());
-        int antBehandlinger = 0;
+        var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(genererVedtaksXmlDvhDto.getFom(), genererVedtaksXmlDvhDto.getTom());
+        var antBehandlinger = 0;
         for (var behandlingId : behandlinger) {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+            var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
             if (genererVedtaksXmlDvhDto.getFagsakYtelseType() == null
                     || behandling.getFagsakYtelseType().getKode().equals(genererVedtaksXmlDvhDto.getFagsakYtelseType())) {
-                ProsessTaskData prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+                var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
 
                 prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
                 prosessTaskData.setCallIdFraEksisterende();
@@ -107,12 +103,12 @@ public class DatavarehusAdminRestTjeneste {
         LOG.info("Forsøker å generere vedtaks XML for datavarehus i intervall [{}] - [{}] med fagsakYtelseType {}", genererVedtaksXmlDvhDto.getFom(),
                 genererVedtaksXmlDvhDto.getTom(), genererVedtaksXmlDvhDto.getFagsakYtelseType());
 
-        List<Long> behandlinger = lagretVedtakRepository.hentLagretVedtakBehandlingId(genererVedtaksXmlDvhDto.getFom(),
+        var behandlinger = lagretVedtakRepository.hentLagretVedtakBehandlingId(genererVedtaksXmlDvhDto.getFom(),
                 genererVedtaksXmlDvhDto.getTom(), FagsakYtelseType.fraKode(genererVedtaksXmlDvhDto.getFagsakYtelseType()));
 
         for (var behandlingId : behandlinger) {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-            ProsessTaskData prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
@@ -132,15 +128,15 @@ public class DatavarehusAdminRestTjeneste {
 
         LOG.info("Skal generere vedtakXML for behandlingid {} ", behandlingIdDto);
 
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        LagretVedtak lagretVedtak = vedtakTjeneste.hentLagreteVedtak(behandling.getId());
+        var lagretVedtak = vedtakTjeneste.hentLagreteVedtak(behandling.getId());
 
         if (lagretVedtak != null) {
-            ProsessTaskData prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlTask.TASKTYPE);
+            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlTask.TASKTYPE);
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
@@ -161,15 +157,15 @@ public class DatavarehusAdminRestTjeneste {
 
         LOG.info("Skal generere vedtakXML_DVH for behandlingid {} ", behandlingIdDto);
 
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        List<Long> behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(behandling.getId());
+        var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(behandling.getId());
 
         behandlinger.forEach(b -> {
-            ProsessTaskData prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();

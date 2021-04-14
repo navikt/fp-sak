@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.Period;
-
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -30,14 +28,13 @@ public class SjekkTilstrekkeligOpptjening extends LeafSpecification<Opptjeningsv
 
     @Override
     public Evaluation evaluate(OpptjeningsvilkårMellomregning data) {
-        Period opptjentPeriode = data.getBekreftetOpptjening().getOpptjentPeriode();
+        var opptjentPeriode = data.getBekreftetOpptjening().getOpptjentPeriode();
 
         if (data.sjekkErInnenforMinstePeriodeGodkjent(opptjentPeriode)) {
             data.setTotalOpptjening(data.getBekreftetOpptjening());
             return ja();
-        } else {
-            return nei();
         }
+        return nei();
 
     }
 

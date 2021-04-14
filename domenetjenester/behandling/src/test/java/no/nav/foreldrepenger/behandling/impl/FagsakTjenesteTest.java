@@ -17,13 +17,10 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -62,26 +59,26 @@ public class FagsakTjenesteTest {
     }
 
     private Fagsak lagNyFagsak() {
-        NavBruker søker = NavBruker.opprettNyNB(forelderAktørId);
+        var søker = NavBruker.opprettNyNB(forelderAktørId);
         return tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
     }
 
     @Test
     public void skal_oppdatere_fagsakrelasjon_med_barn_og_endret_kjønn() {
         fagsak = lagNyFagsak();
-        LocalDate barnsFødselsdato = LocalDate.of(2017, JANUARY, 1);
-        AktørId barnAktørId = AktørId.dummy();
+        var barnsFødselsdato = LocalDate.of(2017, JANUARY, 1);
+        var barnAktørId = AktørId.dummy();
 
         // Arrange
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = behandlingBuilder.build();
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         // TODO opplegg for å opprette PersonInformasjon og PersonopplysningerAggregat
         // på en enklere måte
-        Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
+        var behandlingId = behandling.getId();
+        final var medBarnOgOppdatertKjønn = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
         medBarnOgOppdatertKjønn
                 .leggTil(
                         medBarnOgOppdatertKjønn.getPersonopplysningBuilder(barnAktørId)
@@ -110,9 +107,9 @@ public class FagsakTjenesteTest {
         // dirty, men eksponerer ikke status nå
         fagsak.setStatus(FagsakStatus.LØPENDE);
         personopplysningRepository.lagre(behandlingId, medBarnOgOppdatertKjønn);
-        final PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+        final var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
-        PersonopplysningerAggregat personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
+        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
                 forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
 
         // Act
@@ -135,8 +132,8 @@ public class FagsakTjenesteTest {
 
         // Ifølgeregler i mottak skal vi opprette en nyTerminbekreftelse sak hvis vi
         // ikke har sak nyere enn 10 mnd:
-        NavBruker søker = brukerRepository.hent(forelderAktørId).orElseGet(() -> NavBruker.opprettNy(forelderAktørId, Språkkode.NB));
-        Fagsak fagsakNy = tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
+        var søker = brukerRepository.hent(forelderAktørId).orElseGet(() -> NavBruker.opprettNy(forelderAktørId, Språkkode.NB));
+        var fagsakNy = tjeneste.opprettFagsak(FagsakYtelseType.ENGANGSTØNAD, søker);
         assertThat(fagsak.getNavBruker().getId()).as("Forventer at fagsakene peker til samme bruker")
                 .isEqualTo(fagsakNy.getNavBruker().getId());
         assertThat(fagsak.getSaksnummer().getVerdi().compareTo("152001000") > 0).isTrue();

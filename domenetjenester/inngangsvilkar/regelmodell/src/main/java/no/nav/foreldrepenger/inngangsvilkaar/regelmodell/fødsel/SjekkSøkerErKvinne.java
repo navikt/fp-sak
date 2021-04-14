@@ -19,12 +19,11 @@ public class SjekkSøkerErKvinne extends LeafSpecification<FødselsvilkårGrunnl
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        boolean erKvinne = Objects.equals(Kjoenn.KVINNE, t.getSoekersKjonn());
+        var erKvinne = Objects.equals(Kjoenn.KVINNE, t.getSoekersKjonn());
         if (erKvinne) {
             return ja();
-        } else {
-            return nei(IKKE_OPPFYLT_SØKER_ER_KVINNE, Kjoenn.KVINNE, t.getSoekersKjonn());
         }
+        return nei(IKKE_OPPFYLT_SØKER_ER_KVINNE, Kjoenn.KVINNE, t.getSoekersKjonn());
     }
 
 }

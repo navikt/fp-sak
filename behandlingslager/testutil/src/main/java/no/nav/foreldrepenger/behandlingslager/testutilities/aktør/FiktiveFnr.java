@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.testutilities.aktør;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 /**
  * Hent et tilfeldig gyldig men fiktivt Fødselsnummer.
- * 
+ *
  * @see https://confluence.adeo.no/pages/viewpageattachments.action?pageId=211653415&metadataLink=true (SKD fiktive identer)
  */
 public class FiktiveFnr {
@@ -40,11 +39,10 @@ public class FiktiveFnr {
     public String nesteFnr() {
         if (nesteTilfeldig.getAndIncrement() % 2 == 0) {
             return nesteKvinneFnr();
-        } else {
-            return nesteMannFnr();
         }
+        return nesteMannFnr();
     }
-    
+
     public PersonIdent nestePersonIdent() {
         return PersonIdent.fra(nesteFnr());
     }
@@ -74,8 +72,7 @@ public class FiktiveFnr {
 
     private static List<String> readFile(String fil) {
         List<String> list = new ArrayList<>();
-        try (InputStream is = FiktiveFnr.class.getResourceAsStream(fil);
-                Scanner scanner = new Scanner(is)) {
+        try (var is = FiktiveFnr.class.getResourceAsStream(fil); var scanner = new Scanner(is)) {
             while (scanner.hasNextLine()) {
                 list.add(scanner.nextLine());
             }

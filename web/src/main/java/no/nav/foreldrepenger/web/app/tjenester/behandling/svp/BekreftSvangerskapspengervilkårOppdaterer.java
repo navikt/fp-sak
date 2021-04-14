@@ -33,26 +33,25 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
 
     @Override
     public OppdateringResultat oppdater(BekreftSvangerskapspengervilkårDto dto, AksjonspunktOppdaterParameter param) {
-        boolean vilkårOppfylt = dto.getAvslagskode() == null;
+        var vilkårOppfylt = dto.getAvslagskode() == null;
         lagHistorikkinnslag(dto.getBegrunnelse(), vilkårOppfylt);
         if (vilkårOppfylt) {
             //TODO ikke gå til totrinn når innvilgesbrev fungerer
             return OppdateringResultat.utenTransisjon()
                 .leggTilVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårUtfallType.OPPFYLT)
                 .medTotrinn().build();
-        } else {
-            Avslagsårsak avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-            return new OppdateringResultat.Builder()
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
-                .medTotrinn()
-                .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
-                .build();
         }
+        var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
+        return new OppdateringResultat.Builder()
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+            .medTotrinn()
+            .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
+            .build();
     }
 
     private void lagHistorikkinnslag(String begrunnelse,
                                      boolean vilkårOppfylt) {
-        HistorikkEndretFeltVerdiType tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
+        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
 
         historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse)

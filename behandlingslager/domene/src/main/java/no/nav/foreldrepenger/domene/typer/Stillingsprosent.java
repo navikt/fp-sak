@@ -68,10 +68,11 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !getClass().equals(obj.getClass())) {
+        }
+        if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        Stillingsprosent other = (Stillingsprosent) obj;
+        var other = (Stillingsprosent) obj;
         return Objects.equals(skalertVerdi(), other.skalertVerdi());
     }
 

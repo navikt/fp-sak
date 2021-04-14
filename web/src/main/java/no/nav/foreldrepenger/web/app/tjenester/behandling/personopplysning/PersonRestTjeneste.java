@@ -86,8 +86,8 @@ public class PersonRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public VergeDto getVerge(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
-        Optional<VergeDto> vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
+        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var vergeDto = vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeDto);
 
         return vergeDto.orElse(null);
     }
@@ -99,7 +99,7 @@ public class PersonRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public VergeBackendDto getVergeBackend(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         return vergeRepository.hentAggregat(behandlingId).flatMap(vergeDtoTjenesteImpl::lagVergeBackendDto).orElse(null);
     }
 
@@ -123,10 +123,10 @@ public class PersonRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public PersonoversiktDto getPersonoversikt(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var brukDato = Optional.ofNullable(behandling.getAvsluttetDato()).map(LocalDateTime::toLocalDate).orElseGet(LocalDate::now);
-        Optional<PersonoversiktDto> personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
+        var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId, brukDato);
         personoversiktDto.ifPresent(personopplysningFnrFinder::oppdaterMedPersonIdent);
 
         return personoversiktDto.orElse(null);
@@ -139,7 +139,7 @@ public class PersonRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public MedlemV2Dto hentMedlemskap(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Long behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
+        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         var medlemDto = medlemDtoTjeneste.lagMedlemV2Dto(behandlingId);
         medlemDto.map(MedlemV2Dto::getPerioder).orElse(Set.of())
             .forEach(p -> {

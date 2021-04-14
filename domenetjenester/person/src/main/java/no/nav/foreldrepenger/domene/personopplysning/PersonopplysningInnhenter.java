@@ -17,17 +17,14 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.AdressePeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.OppholdstillatelsePeriode;
-import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -62,20 +59,20 @@ public class PersonopplysningInnhenter {
 
         // Fase 1 - Innhent persongalleri - søker, annenpart, relevante barn og ektefelle
         Map<PersonIdent, Personinfo> innhentet = new LinkedHashMap<>();
-        Personinfo søkerPersonInfo = innhentAktørId(søker, innhentet)
+        var søkerPersonInfo = innhentAktørId(søker, innhentet)
             .orElseThrow(() -> new IllegalArgumentException("Finner ikke personinformasjon for aktør " + søker.getId()));
 
-        Optional<Personinfo> annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ap, innhentet));
-        Set<PersonIdent> annenPartsBarn = annenPartInfo.map(this::getAnnenPartsBarn).orElse(Set.of());
+        var annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ap, innhentet));
+        var annenPartsBarn = annenPartInfo.map(this::getAnnenPartsBarn).orElse(Set.of());
 
-        Set<PersonIdent> barnSomSkalInnhentes = finnBarnRelatertTil(søkerPersonInfo, fødselsIntervaller);
-        Set<PersonIdent> ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
+        var barnSomSkalInnhentes = finnBarnRelatertTil(søkerPersonInfo, fødselsIntervaller);
+        var ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
 
         barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(barn, innhentet));
         ektefelleSomSkalInnhentes.forEach(ekte -> innhentPersonIdent(ekte, innhentet));
 
         // Historikk for søker
-        final Personhistorikkinfo personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperiode);
+        final var personhistorikkinfo = personinfoAdapter.innhentPersonopplysningerHistorikk(søkerPersonInfo.getAktørId(), opplysningsperiode);
         if (personhistorikkinfo != null) {
             mapAdresser(personhistorikkinfo.getAdressehistorikk(), informasjonBuilder, søkerPersonInfo);
             mapStatsborgerskap(personhistorikkinfo.getStatsborgerskaphistorikk(), informasjonBuilder, søkerPersonInfo);
@@ -107,9 +104,9 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
-        for (PersonstatusPeriode personstatus : personstatushistorikk) {
-            final PersonstatusType status = personstatus.getPersonstatus();
-            final DatoIntervallEntitet periode = fødselsJustertPeriode(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), personstatus.getGyldighetsperiode().getTom());
+        for (var personstatus : personstatushistorikk) {
+            final var status = personstatus.getPersonstatus();
+            final var periode = fødselsJustertPeriode(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), personstatus.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(status));
@@ -117,7 +114,7 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
-        for (OppholdstillatelsePeriode tillatelse : oppholdshistorikk) {
+        for (var tillatelse : oppholdshistorikk) {
             final var type = tillatelse.getTillatelse();
             final var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), FIKTIV_FOM, tillatelse.getGyldighetsperiode().getTom());
 
@@ -127,12 +124,12 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
-        for (StatsborgerskapPeriode statsborgerskap : statsborgerskaphistorikk) {
-            final Landkoder landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
+        for (var statsborgerskap : statsborgerskaphistorikk) {
+            final var landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
 
-            Region region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
+            var region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
 
-            final DatoIntervallEntitet periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), statsborgerskap.getGyldighetsperiode().getTom());
+            final var periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), statsborgerskap.getGyldighetsperiode().getTom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode, region));
@@ -140,9 +137,9 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapAdresser(List<AdressePeriode> adressehistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
-        AktørId aktørId = personinfo.getAktørId();
-        for (AdressePeriode adresse : adressehistorikk) {
-            final DatoIntervallEntitet periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), adresse.getGyldighetsperiode().getTom());
+        var aktørId = personinfo.getAktørId();
+        for (var adresse : adressehistorikk) {
+            final var periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), adresse.getGyldighetsperiode().getTom());
             var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.getAdresse().getAdresseType())
                 .medMatrikkelId(adresse.getAdresse().getMatrikkelId())
                 .medAdresselinje1(adresse.getAdresse().getAdresselinje1())
@@ -191,7 +188,7 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapInfoTilEntitet(Personinfo personinfo, PersonInformasjonBuilder informasjonBuilder, boolean lagreIHistoriskeTabeller) {
-        final DatoIntervallEntitet periode = getPeriode(personinfo.getFødselsdato(), Tid.TIDENES_ENDE);
+        final var periode = getPeriode(personinfo.getFødselsdato(), Tid.TIDENES_ENDE);
         var builder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId())
             .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
@@ -207,7 +204,7 @@ public class PersonopplysningInnhenter {
         }
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttAdresseHistorikk(personinfo.getAktørId())) {
-            for (Adresseinfo adresse : personinfo.getAdresseInfoList()) {
+            for (var adresse : personinfo.getAdresseInfoList()) {
                 var adresseBuilder = informasjonBuilder.getAdresseBuilder(personinfo.getAktørId(), periode, adresse.getGjeldendePostadresseType())
                     .medMatrikkelId(adresse.getMatrikkelId())
                     .medAdresselinje1(adresse.getAdresselinje1())

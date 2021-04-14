@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -46,7 +45,7 @@ public class NavBrukerTjeneste {
     }
 
     private Optional<NavBruker> hentMedRefresh(AktørId aktørId) {
-        Optional<NavBruker> bruker = brukerRepository.hent(aktørId);
+        var bruker = brukerRepository.hent(aktørId);
         if (bruker.isEmpty())
             return bruker;
         var refreshGrense = LocalDateTime.now().minus(REFRESH_INTERVAL);
@@ -54,7 +53,7 @@ public class NavBrukerTjeneste {
             .orElseGet(() -> refreshGrense.minus(REFRESH_INTERVAL));
         var refresh = sistoppdatert.isBefore(refreshGrense);
         if (refresh) {
-            PersoninfoSpråk språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
+            var språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
             var brukspråk = språk != null && språk.getForetrukketSpråk() != null ? språk.getForetrukketSpråk() : Språkkode.NB;
             return brukerRepository.oppdaterSpråk(aktørId, brukspråk);
         }
@@ -62,7 +61,7 @@ public class NavBrukerTjeneste {
     }
 
     private NavBruker opprettBruker(AktørId aktørId) {
-        PersoninfoSpråk språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
+        var språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
         var brukspråk = språk != null && språk.getForetrukketSpråk() != null ? språk.getForetrukketSpråk() : Språkkode.NB;
         return NavBruker.opprettNy(aktørId, brukspråk);
     }

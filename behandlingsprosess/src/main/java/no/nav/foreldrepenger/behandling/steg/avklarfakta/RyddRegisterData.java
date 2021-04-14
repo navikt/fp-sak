@@ -22,13 +22,13 @@ public class RyddRegisterData {
      */
     @Deprecated
     public void ryddRegisterdataLegacyEngangsstønad() {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         nullstillRegisterdata(behandling);
         behandlingRepository.slettTidligereBeregningerES(behandling, kontekst.getSkriveLås());
     }
 
     public void ryddRegisterdata() {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         nullstillRegisterdata(behandling);
     }
 

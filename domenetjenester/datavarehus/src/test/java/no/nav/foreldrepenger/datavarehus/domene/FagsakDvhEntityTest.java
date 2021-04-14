@@ -8,7 +8,7 @@ public class FagsakDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_fagsakDvh() {
-        FagsakDvh fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
+        var fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
 
         assertThat(fagsakDvh.getBrukerId()).isEqualTo(DatavarehusTestUtils.BRUKER_ID);
         assertThat(fagsakDvh.getBrukerAktørId()).isEqualTo(DatavarehusTestUtils.BRUKER_AKTØR_ID);

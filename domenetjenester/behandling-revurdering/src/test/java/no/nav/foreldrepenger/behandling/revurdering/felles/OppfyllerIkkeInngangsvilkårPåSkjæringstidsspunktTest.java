@@ -69,7 +69,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        Behandling behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
+        var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
                 .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                         false);
@@ -102,7 +102,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        boolean oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
                 revurderingResultat);
 
         // Assert
@@ -119,7 +119,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        boolean oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
                 revurderingResultat);
 
         // Assert
@@ -136,7 +136,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        boolean oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
                 revurderingResultat);
 
         // Assert
@@ -154,7 +154,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        boolean oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.vurder(
                 revurderingResultat);
 
         // Assert
@@ -164,7 +164,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     @Test
     public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt() {
         // Act
-        Behandlingsresultat oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
                 revurdering, revurderingResultat);
 
         // Assert
@@ -186,7 +186,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        Behandlingsresultat oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
                 revurdering, revurderingResultat);
 
         // Assert
@@ -207,7 +207,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
                 .buildFor(revurdering);
 
         // Act
-        Behandlingsresultat oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
+        var oppfyllerIkkjeInngangsvilkår = OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt.fastsett(
                 revurdering, revurderingResultat);
 
         // Assert

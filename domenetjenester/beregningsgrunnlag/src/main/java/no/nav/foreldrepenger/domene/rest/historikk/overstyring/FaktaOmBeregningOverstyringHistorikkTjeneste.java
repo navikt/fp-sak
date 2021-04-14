@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.rest.historikk.overstyring;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -8,15 +7,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.MatchBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.InntektHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.rest.historikk.Lønnsendring;
 import no.nav.foreldrepenger.domene.rest.historikk.MapTilLønnsendring;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 
@@ -47,12 +43,12 @@ public class FaktaOmBeregningOverstyringHistorikkTjeneste {
                              OverstyrBeregningsgrunnlagDto dto,
                              HistorikkInnslagTekstBuilder tekstBuilder,
                              BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<BeregningsgrunnlagPeriode> bgPerioder = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder();
-        List<FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler = dto.getOverstyrteAndeler();
-        for (BeregningsgrunnlagPeriode bgPeriode : bgPerioder) {
-            Optional<BeregningsgrunnlagPeriode> forrigeBgPeriode = MatchBeregningsgrunnlagTjeneste
+        var bgPerioder = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder();
+        var overstyrteAndeler = dto.getOverstyrteAndeler();
+        for (var bgPeriode : bgPerioder) {
+            var forrigeBgPeriode = MatchBeregningsgrunnlagTjeneste
                 .finnOverlappendePeriodeOmKunEnFinnes(bgPeriode, forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
-            List<Lønnsendring> endringer = overstyrteAndeler.stream()
+            var endringer = overstyrteAndeler.stream()
                 .map(andelDto -> MapTilLønnsendring.mapTilLønnsendringForAndelIPeriode(andelDto, andelDto.getFastsatteVerdier(), bgPeriode, forrigeBgPeriode))
                 .collect(Collectors.toList());
             inntektHistorikkTjeneste.lagHistorikk(tekstBuilder, endringer, iayGrunnlag);
@@ -62,7 +58,7 @@ public class FaktaOmBeregningOverstyringHistorikkTjeneste {
     }
 
     private void settSkjermlenke(HistorikkInnslagTekstBuilder tekstBuilder) {
-        boolean erSkjermlenkeSatt = tekstBuilder.getHistorikkinnslagDeler().stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+        var erSkjermlenkeSatt = tekstBuilder.getHistorikkinnslagDeler().stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
         if (!erSkjermlenkeSatt) {
             tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_BEREGNING);
         }

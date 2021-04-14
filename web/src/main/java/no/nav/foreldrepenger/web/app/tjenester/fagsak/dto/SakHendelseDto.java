@@ -43,7 +43,7 @@ public class SakHendelseDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SakHendelseDto that = (SakHendelseDto) o;
+        var that = (SakHendelseDto) o;
         return hendelseType == that.hendelseType && Objects.equals(hendelseDato, that.hendelseDato) && Objects.equals(antallBarn, that.antallBarn);
     }
 

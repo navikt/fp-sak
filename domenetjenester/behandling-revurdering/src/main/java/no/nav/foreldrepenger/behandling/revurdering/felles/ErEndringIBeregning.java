@@ -18,18 +18,19 @@ public class ErEndringIBeregning {
     public static boolean vurder(Optional<BeregningsgrunnlagEntitet> revurderingsGrunnlag, Optional<BeregningsgrunnlagEntitet> originaltGrunnlag) {
         if (!revurderingsGrunnlag.isPresent() && !originaltGrunnlag.isPresent()) {
             return false;
-        } else if (!revurderingsGrunnlag.isPresent() || !originaltGrunnlag.isPresent()) {
+        }
+        if (!revurderingsGrunnlag.isPresent() || !originaltGrunnlag.isPresent()) {
             return true;
         }
 
-        List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.get().getBeregningsgrunnlagPerioder();
-        List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.get().getBeregningsgrunnlagPerioder();
+        var originalePerioder = originaltGrunnlag.get().getBeregningsgrunnlagPerioder();
+        var revurderingsPerioder = revurderingsGrunnlag.get().getBeregningsgrunnlagPerioder();
 
-        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
+        var allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
 
-        for (LocalDate dato : allePeriodeDatoer) {
-            Long dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
-            Long dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
+        for (var dato : allePeriodeDatoer) {
+            var dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
+            var dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
             if (!dagsatsRevurderingsgrunnlag.equals(dagsatsOriginaltGrunnlag)) {
                 return true;
             }
@@ -43,16 +44,16 @@ public class ErEndringIBeregning {
             return originaltGrunnlag.isPresent();
         }
 
-        List<BeregningsgrunnlagPeriode> originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+        var originalePerioder = originaltGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
-        List<BeregningsgrunnlagPeriode> revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
+        var revurderingsPerioder = revurderingsGrunnlag.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
                 .orElse(Collections.emptyList());
 
-        Set<LocalDate> allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
+        var allePeriodeDatoer = finnAllePeriodersStartdatoer(revurderingsPerioder, originalePerioder);
 
-        for (LocalDate dato : allePeriodeDatoer) {
-            Long dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
-            Long dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
+        for (var dato : allePeriodeDatoer) {
+            var dagsatsRevurderingsgrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, revurderingsPerioder);
+            var dagsatsOriginaltGrunnlag = finnGjeldendeDagsatsForDenneDatoen(dato, originalePerioder);
             if ((dagsatsOriginaltGrunnlag != null)
                     && ((dagsatsRevurderingsgrunnlag == null) || (dagsatsRevurderingsgrunnlag < dagsatsOriginaltGrunnlag))) {
                 return true;
@@ -72,12 +73,12 @@ public class ErEndringIBeregning {
     private static Long finnGjeldendeDagsatsForDenneDatoen(LocalDate dato, List<BeregningsgrunnlagPeriode> perioder) {
         // Hvis dato er før starten på den første perioden bruker vi første periodes
         // dagsats
-        Optional<BeregningsgrunnlagPeriode> førsteKronologiskePeriode = perioder.stream()
+        var førsteKronologiskePeriode = perioder.stream()
                 .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.filter(periode -> dato.isBefore(periode.getBeregningsgrunnlagPeriodeFom())).isPresent()) {
             return førsteKronologiskePeriode.get().getDagsats();
         }
-        for (BeregningsgrunnlagPeriode periode : perioder) {
+        for (var periode : perioder) {
             if (periode.getPeriode().inkluderer(dato)) {
                 return periode.getDagsats();
             }

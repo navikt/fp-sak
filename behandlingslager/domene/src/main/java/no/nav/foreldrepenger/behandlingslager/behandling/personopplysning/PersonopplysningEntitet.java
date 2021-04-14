@@ -160,7 +160,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonopplysningEntitet entitet = (PersonopplysningEntitet) o;
+        var entitet = (PersonopplysningEntitet) o;
         return Objects.equals(brukerKjønn, entitet.brukerKjønn) &&
             Objects.equals(sivilstand, entitet.sivilstand) &&
             Objects.equals(aktørId, entitet.aktørId) &&

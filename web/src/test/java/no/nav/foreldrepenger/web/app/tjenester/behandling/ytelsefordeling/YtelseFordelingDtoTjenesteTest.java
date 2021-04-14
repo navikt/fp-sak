@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.AvklarFaktaT
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakHistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakToTrinnsTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerOppgittFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 
 public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
@@ -76,15 +74,15 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_ytelsefordeling_dto() {
-        Behandling behandling = opprettBehandling(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
-        BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto dto = new BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto(
+        var behandling = opprettBehandling(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
+        var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto(
             "begrunnelse");
         dto.setAleneomsorg(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
         new BekreftAleneomsorgOppdaterer(repositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-        Optional<YtelseFordelingDto> ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
+        var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAleneOmsorgPerioder()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAleneOmsorgPerioder()).hasSize(1);
@@ -94,13 +92,13 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void teste_lag_ytelsefordeling_dto_med_annenforelder_har_rett_perioder() {
-        Behandling behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
-        AvklarAnnenforelderHarRettDto dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
+        var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
+        var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
             faktaUttakToTrinnsTjeneste).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-        Optional<YtelseFordelingDto> ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
+        var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
         assertThat(ytelseFordelingDtoOpt).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRett()).isNotNull();
         assertThat(ytelseFordelingDtoOpt.get().getAnnenforelderHarRettDto().getAnnenforelderHarRett()).isTrue();
@@ -150,7 +148,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

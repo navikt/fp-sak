@@ -44,8 +44,8 @@ public class SendForlengelsesbrevTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingsfristUtløpt(behandling)) {
             sendForlengelsesbrevOgOppdaterBehandling(behandling, kontekst);
             LOG.info("Utført for behandling: {}", behandlingId);

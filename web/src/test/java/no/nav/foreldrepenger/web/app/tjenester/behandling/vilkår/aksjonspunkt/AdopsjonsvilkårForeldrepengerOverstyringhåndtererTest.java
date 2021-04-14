@@ -10,9 +10,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -54,9 +52,9 @@ public class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
         scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
         // Dto
-        OverstyringAdopsjonsvilkåretDto overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false,
+        var overstyringspunktDto = new OverstyringAdopsjonsvilkåretDto(false,
                 "test av overstyring adopsjonsvilkåret foreldrepenger", "1004");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
@@ -64,7 +62,7 @@ public class AdopsjonsvilkårForeldrepengerOverstyringhåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
-        Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();
+        var aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
                 .contains(AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN);

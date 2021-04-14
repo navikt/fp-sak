@@ -26,34 +26,34 @@ public class RegelBeregnFeriepenger implements RuleService<BeregningsresultatFer
     @SuppressWarnings("unchecked")
     @Override
     public Specification<BeregningsresultatFeriepengerRegelModell> getSpecification() {
-        Ruleset<BeregningsresultatFeriepengerRegelModell> rs = new Ruleset<>();
+        var rs = new Ruleset<BeregningsresultatFeriepengerRegelModell>();
 
         // FP_BR 8.7 Beregn feriepenger (Ett kalenderår)
-        Specification<BeregningsresultatFeriepengerRegelModell> beregnFeriepengerEttÅr =
+        var beregnFeriepengerEttÅr =
             rs.beregningsRegel(BeregnFeriepengerEttÅr.ID, BeregnFeriepengerEttÅr.BESKRIVELSE, new BeregnFeriepengerEttÅr(), new BeregnetFeriepenger());
 
         // FP_BR 8.6 Beregn feriepenger (Flere kalenderår)
-        Specification<BeregningsresultatFeriepengerRegelModell> beregnFeriepengerFlereÅr =
+        var beregnFeriepengerFlereÅr =
             rs.beregningsRegel(BeregnFeriepengerFlereÅr.ID, BeregnFeriepengerFlereÅr.BESKRIVELSE, new BeregnFeriepengerFlereÅr(), new BeregnetFeriepenger());
 
         // FP_BR 8.5 Går feriepengeperioden over flere kalenderår?
-        Specification<BeregningsresultatFeriepengerRegelModell> sjekkOmFeriepengePeriodenGårOverFlereÅr =
+        var sjekkOmFeriepengePeriodenGårOverFlereÅr =
             rs.beregningHvisRegel(new SjekkOmFeriepengePeriodenGårOverFlereÅr(), beregnFeriepengerFlereÅr, beregnFeriepengerEttÅr);
 
         //FP_BR 8.4 Har bruker uttak i feriepengeperiode?
-        Specification<BeregningsresultatFeriepengerRegelModell> sjekkOmUttakIFeriepengePeriode =
+        var sjekkOmUttakIFeriepengePeriode =
             rs.beregningHvisRegel(new SjekkBrukerHarOmUttakIFeriepengePeriode(), sjekkOmFeriepengePeriodenGårOverFlereÅr, new BeregnetFeriepenger());
 
         //FP_BR 8.3 Finn brukers feriepengeperiode
-        Specification<BeregningsresultatFeriepengerRegelModell> finnBrukersFeriepengePeriode =
+        var finnBrukersFeriepengePeriode =
             rs.beregningsRegel(FinnBrukersFeriepengePeriode.ID, FinnBrukersFeriepengePeriode.BESKRIVELSE, new FinnBrukersFeriepengePeriode(), sjekkOmUttakIFeriepengePeriode);
 
         // FP_BR 8.2 Har bruker fått utbetalt foreldrepenger i den totale stønadsperioden?
-        Specification<BeregningsresultatFeriepengerRegelModell> sjekkOmBrukerHarFåttUtbetaltFP =
+        var sjekkOmBrukerHarFåttUtbetaltFP =
             rs.beregningHvisRegel(new SjekkOmBrukerHarFåttUtbetaltForeldrepenger(), finnBrukersFeriepengePeriode, new BeregnetFeriepenger());
 
         // FP_BR 8.1 Er brukers inntektskategori arbeidstaker eller sjømann?
-        Specification<BeregningsresultatFeriepengerRegelModell> sjekkInntektskatoriATellerSjømann =
+        var sjekkInntektskatoriATellerSjømann =
             rs.beregningHvisRegel(new SjekkOmBrukerHarInntektkategoriATellerSjømann(), sjekkOmBrukerHarFåttUtbetaltFP, new BeregnetFeriepenger());
 
         return sjekkInntektskatoriATellerSjømann;

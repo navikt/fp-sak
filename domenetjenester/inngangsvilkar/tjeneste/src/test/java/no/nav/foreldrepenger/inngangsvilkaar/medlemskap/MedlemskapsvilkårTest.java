@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -38,8 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -47,7 +44,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -58,7 +54,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
@@ -108,10 +103,10 @@ public class MedlemskapsvilkårTest {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.UNNTAK);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -128,10 +123,10 @@ public class MedlemskapsvilkårTest {
     public void skal_vurdere_maskinelt_avklart_ikke_medlem_som_vilkår_ikke_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_6, Landkoder.NOR, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -154,14 +149,14 @@ public class MedlemskapsvilkårTest {
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM);
         leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.SWE);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(vilkårData.getRegelInput());
-        String personStatusType = jsonNode.get("personStatusType").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(vilkårData.getRegelInput());
+        var personStatusType = jsonNode.get("personStatusType").asText();
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -183,10 +178,10 @@ public class MedlemskapsvilkårTest {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -207,11 +202,11 @@ public class MedlemskapsvilkårTest {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         opprettArbeidOgInntektForBehandling(behandling, SKJÆRINGSTIDSPUNKT.minusMonths(5), SKJÆRINGSTIDSPUNKT.plusDays(2));
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -230,14 +225,14 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_relevant_arbeid_og_inntekt() {
         // Arrange
-        Landkoder landkode = Landkoder.POL;
+        var landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidOgInntektForBehandling(behandling, SKJÆRINGSTIDSPUNKT.minusMonths(5), SKJÆRINGSTIDSPUNKT.plusDays(2));
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -256,13 +251,13 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_avklart_ikke_bosatt_som_vilkår_når_bruker_har_ingen_relevant_arbeid_og_inntekt() {
         // Arrange
-        Landkoder landkode = Landkoder.POL;
+        var landkode = Landkoder.POL;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, landkode, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -286,10 +281,10 @@ public class MedlemskapsvilkårTest {
         var scenario = lagTestScenario(MedlemskapDekningType.UDEFINERT, Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.NOR);
         scenario.medMedlemskap().medBosattVurdering(true);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -313,10 +308,10 @@ public class MedlemskapsvilkårTest {
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Region.EOS, Landkoder.SWE);
         scenario.medMedlemskap().medBosattVurdering(true).medOppholdsrettVurdering(true);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -337,13 +332,13 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_eøs_statsborger_uten_oppholdsrett_som_vilkår_ikke_oppfylt() {
         // Arrange
-        Landkoder landkodeEOS = Landkoder.POL;
+        var landkodeEOS = Landkoder.POL;
         var scenario = lagTestScenario(landkodeEOS, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(true).medOppholdsrettVurdering(false);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -365,14 +360,14 @@ public class MedlemskapsvilkårTest {
     @Test
     public void skal_vurdere_annen_statsborger_uten_lovlig_opphold_som_vilkår_ikke_oppfylt() {
         // Arrange
-        Landkoder land = Landkoder.ARG;
+        var land = Landkoder.ARG;
         var scenario = lagTestScenario(MedlemskapDekningType.UNNTATT, land, PersonstatusType.BOSA);
         scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(false)
                 .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -399,10 +394,10 @@ public class MedlemskapsvilkårTest {
             OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusYears(1));
         scenario.medMedlemskap().medBosattVurdering(true)
             .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -426,10 +421,10 @@ public class MedlemskapsvilkårTest {
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
         leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.USA);
         scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(true);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -448,10 +443,10 @@ public class MedlemskapsvilkårTest {
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
         leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -472,13 +467,13 @@ public class MedlemskapsvilkårTest {
 
         leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         opprettArbeidOgInntektForBehandling(behandling, SKJÆRINGSTIDSPUNKT.minusMonths(5), SKJÆRINGSTIDSPUNKT.plusDays(2));
 
 
         // Act
-        VilkårData vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
+        var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
@@ -510,10 +505,10 @@ public class MedlemskapsvilkårTest {
                     .build());
         }
 
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.GIFT, region)
                 .personstatus(personstatusType)
@@ -529,11 +524,11 @@ public class MedlemskapsvilkårTest {
 
     private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Region region, Landkoder statsborgerskapLand,
                               OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId barnAktørId = AktørId.dummy();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon fødtBarn = builderForRegisteropplysninger
+        var fødtBarn = builderForRegisteropplysninger
                 .medPersonas()
                 .fødtBarn(barnAktørId, LocalDate.now().plusDays(7))
                 .relasjonTil(søkerAktørId, RelasjonsRolleType.MORA, null)
@@ -556,12 +551,12 @@ public class MedlemskapsvilkårTest {
 
     private void opprettArbeidOgInntektForBehandling(Behandling behandling, LocalDate fom, LocalDate tom) {
 
-        String virksomhetOrgnr = "42";
+        var virksomhetOrgnr = "42";
         var aktørId = behandling.getAktørId();
         var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
 
         lagAktørArbeid(aggregatBuilder, aktørId, virksomhetOrgnr, fom, tom, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, Optional.empty());
-        for (LocalDate dt = fom; dt.isBefore(tom); dt = dt.plusMonths(1)) {
+        for (var dt = fom; dt.isBefore(tom); dt = dt.plusMonths(1)) {
             lagInntekt(aggregatBuilder, aktørId, virksomhetOrgnr, dt, dt.plusMonths(1));
         }
 
@@ -574,7 +569,7 @@ public class MedlemskapsvilkårTest {
                 .getAktørArbeidBuilder(aktørId);
 
         Opptjeningsnøkkel opptjeningsnøkkel;
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
         if (arbeidsforholdRef.isPresent()) {
             opptjeningsnøkkel = new Opptjeningsnøkkel(arbeidsforholdRef.get(), arbeidsgiver);
         } else {
@@ -599,13 +594,13 @@ public class MedlemskapsvilkårTest {
 
     private void lagInntekt(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId, String virksomhetOrgnr,
             LocalDate fom, LocalDate tom) {
-        Opptjeningsnøkkel opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
+        var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(virksomhetOrgnr);
 
         var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder.getAktørInntektBuilder(aktørId);
 
         Stream.of(InntektsKilde.INNTEKT_BEREGNING, InntektsKilde.INNTEKT_SAMMENLIGNING, InntektsKilde.INNTEKT_OPPTJENING).forEach(kilde -> {
-            InntektBuilder inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
-            InntektspostBuilder inntektspost = InntektspostBuilder.ny()
+            var inntektBuilder = aktørInntektBuilder.getInntektBuilder(kilde, opptjeningsnøkkel);
+            var inntektspost = InntektspostBuilder.ny()
                     .medBeløp(BigDecimal.valueOf(35000))
                     .medPeriode(fom, tom)
                     .medInntektspostType(InntektspostType.LØNN);

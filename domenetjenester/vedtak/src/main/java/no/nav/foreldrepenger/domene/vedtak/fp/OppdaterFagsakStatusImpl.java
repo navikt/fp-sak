@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.vedtak.fp;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Adopsjo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -87,7 +85,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
     }
 
     private FagsakStatusOppdateringResultat avsluttFagsakNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
-        List<Behandling> alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
+        var alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
 
         if (behandling != null) {
             alleÅpneBehandlinger.remove(behandling);
@@ -107,10 +105,10 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
     boolean ingenLøpendeYtelsesvedtak(Behandling behandling) {
 
-        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
+        var sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
         if (sisteYtelsesvedtak.isPresent()) {
-            boolean avslåttEllerOpphørt = erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get());
+            var avslåttEllerOpphørt = erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get());
 
             var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteYtelsesvedtak.get().getId());
 
@@ -118,10 +116,10 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
                 if(avslåttEllerOpphørt && levendeBarnFinnes(familieHendelseGrunnlag)) return true;
 
-                Optional<LocalDate> fødselsdato = familieHendelseGrunnlag
+                var fødselsdato = familieHendelseGrunnlag
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .flatMap(FamilieHendelseEntitet::getFødselsdato);
-                Optional<LocalDate> omsorgsovertalsesdato = familieHendelseGrunnlag
+                var omsorgsovertalsesdato = familieHendelseGrunnlag
                     .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .flatMap(FamilieHendelseEntitet::getAdopsjon)
                     .map(AdopsjonEntitet::getOmsorgsovertakelseDato);
@@ -138,7 +136,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
     }
 
     private boolean levendeBarnFinnes(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
-        Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
+        var barna = familieHendelseGrunnlag
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getBarna);
         return barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(barn -> barn.getDødsdato().isEmpty());

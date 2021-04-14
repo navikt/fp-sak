@@ -11,12 +11,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelseVerdi;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
@@ -51,12 +49,12 @@ public class EndringsdatoTjeneste {
     }
 
     private <T> LocalDate finnEndringsdato(Ytelse y1, Ytelse y2, Function<YtelseVerdi, T> valueFunction) {
-        SortedSet<LocalDate> knekkpunkter = finnKnekkpunkter(y1, y2);
-        for (LocalDate knekkpunkt : knekkpunkter) {
-            YtelseVerdi v1 = filtrer(y1.finnVerdiFor(knekkpunkt), knekkpunkt);
-            YtelseVerdi v2 = filtrer(y2.finnVerdiFor(knekkpunkt), knekkpunkt);
-            T verdi1 = v1 != null ? valueFunction.apply(v1) : null;
-            T verdi2 = v2 != null ? valueFunction.apply(v2) : null;
+        var knekkpunkter = finnKnekkpunkter(y1, y2);
+        for (var knekkpunkt : knekkpunkter) {
+            var v1 = filtrer(y1.finnVerdiFor(knekkpunkt), knekkpunkt);
+            var v2 = filtrer(y2.finnVerdiFor(knekkpunkt), knekkpunkt);
+            var verdi1 = v1 != null ? valueFunction.apply(v1) : null;
+            var verdi2 = v2 != null ? valueFunction.apply(v2) : null;
 
             if (!Objects.equals(verdi1, verdi2)) {
                 return knekkpunkt;
@@ -66,12 +64,12 @@ public class EndringsdatoTjeneste {
     }
 
     public LocalDate finnTidligsteEndringsdato(GruppertYtelse målbilde, OverordnetOppdragKjedeOversikt tidligereOppdrag) {
-        SortedSet<KjedeNøkkel> nøkler = SetUtil.sortertUnionOfKeys(målbilde.getYtelsePrNøkkel(), tidligereOppdrag.getKjeder());
+        var nøkler = SetUtil.sortertUnionOfKeys(målbilde.getYtelsePrNøkkel(), tidligereOppdrag.getKjeder());
         LocalDate tidligsteEndringsdato = null;
-        for (KjedeNøkkel nøkkel : nøkler) {
-            Ytelse ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
-            OppdragKjede oppdragskjede = tidligereOppdrag.getKjeder().getOrDefault(nøkkel, OppdragKjede.EMPTY);
-            LocalDate endringsdato = finnEndringsdato(ytelse, oppdragskjede.tilYtelse());
+        for (var nøkkel : nøkler) {
+            var ytelse = målbilde.getYtelsePrNøkkel().getOrDefault(nøkkel, Ytelse.EMPTY);
+            var oppdragskjede = tidligereOppdrag.getKjeder().getOrDefault(nøkkel, OppdragKjede.EMPTY);
+            var endringsdato = finnEndringsdato(ytelse, oppdragskjede.tilYtelse());
             if (endringsdato != null && (tidligsteEndringsdato == null || endringsdato.isBefore(tidligsteEndringsdato))) {
                 tidligsteEndringsdato = endringsdato;
             }
@@ -98,7 +96,7 @@ public class EndringsdatoTjeneste {
 
     private Collection<LocalDate> finnKnekkpunkter(Ytelse ytelse) {
         Set<LocalDate> knekkpunkt = new TreeSet<>();
-        for (YtelsePeriode ytelsePeriode : ytelse.getPerioder()) {
+        for (var ytelsePeriode : ytelse.getPerioder()) {
             knekkpunkt.addAll(lagKnekkpunkterFraPeriode(ytelsePeriode.getPeriode()));
         }
         return knekkpunkt;
@@ -106,9 +104,9 @@ public class EndringsdatoTjeneste {
 
     private List<LocalDate> lagKnekkpunkterFraPeriode(Periode periode) {
         List<LocalDate> knekkpunkter = new ArrayList<>();
-        LocalDate fom = periode.getFom();
-        LocalDate tom = periode.getTom();
-        LocalDate dagenEtter = tom.plusDays(1);
+        var fom = periode.getFom();
+        var tom = periode.getTom();
+        var dagenEtter = tom.plusDays(1);
 
         knekkpunkter.add(fom);
         knekkpunkter.add(dagenEtter);

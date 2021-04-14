@@ -83,14 +83,13 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
                                 "select table_name, column_name from all_tab_cols where owner=SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AND virtual_column='NO' AND hidden_column='NO'")
                         .getResultStream()
                         .collect(groupingBy);
-            } else {
-                return (NavigableMap<String, Set<String>>) em
-                        .createNativeQuery(
-                                "select table_name, column_name from all_tab_cols where owner=:ns AND virtual_column='NO' AND hidden_column='NO'")
-                        .setParameter("ns", namespace)
-                        .getResultStream()
-                        .collect(groupingBy);
             }
+            return (NavigableMap<String, Set<String>>) em
+                    .createNativeQuery(
+                            "select table_name, column_name from all_tab_cols where owner=:ns AND virtual_column='NO' AND hidden_column='NO'")
+                    .setParameter("ns", namespace)
+                    .getResultStream()
+                    .collect(groupingBy);
         } finally {
             em.close();
         }
@@ -107,10 +106,10 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
         for (var namespace : MetadataExtractorIntegrator.INSTANCE
                 .getDatabase()
                 .getNamespaces()) {
-            String namespaceName = getSchemaName(namespace);
+            var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             for (var table : namespace.getTables()) {
-                List<Column> columns = (List<Column>) StreamSupport.stream(
+                var columns = (List<Column>) StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(
                                 table.getColumnIterator(),
                                 Spliterator.ORDERED),
@@ -118,7 +117,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
                         .collect(Collectors.toList());
 
                 var columnNames = columns.stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
-                String tableName = table.getName().toUpperCase();
+                var tableName = table.getName().toUpperCase();
                 if (dbColumns.containsKey(tableName)) {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));
                     unmapped.removeAll(columnNames);
@@ -137,11 +136,11 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
         for (var namespace : MetadataExtractorIntegrator.INSTANCE
                 .getDatabase()
                 .getNamespaces()) {
-            String namespaceName = getSchemaName(namespace);
+            var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             var dbTables = dbColumns.keySet();
             for (var table : namespace.getTables()) {
-                String tableName = table.getName().toUpperCase();
+                var tableName = table.getName().toUpperCase();
                 dbTables.remove(tableName);
             }
             dbTables.forEach(t -> LOG.error("Table not mapped in hibernate{}: {}", namespaceName, t));

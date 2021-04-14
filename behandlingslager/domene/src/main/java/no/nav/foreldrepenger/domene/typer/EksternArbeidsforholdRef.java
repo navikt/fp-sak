@@ -67,7 +67,7 @@ public class EksternArbeidsforholdRef implements IndexKey, TraverseValue, Serial
             return true;
         }
         if (o == null || getClass() != o.getClass()) return false;
-        EksternArbeidsforholdRef that = (EksternArbeidsforholdRef) o;
+        var that = (EksternArbeidsforholdRef) o;
         return Objects.equals(referanse, that.referanse);
     }
 

@@ -31,7 +31,7 @@ public class AktivitetskravPerioderEntitet extends BaseEntitet {
 
     public AktivitetskravPerioderEntitet(AktivitetskravPerioderEntitet perioder) {
         this();
-        for (AktivitetskravPeriodeEntitet periode : perioder.getPerioder()) {
+        for (var periode : perioder.getPerioder()) {
             leggTil(periode);
         }
     }
@@ -42,7 +42,7 @@ public class AktivitetskravPerioderEntitet extends BaseEntitet {
 
     public AktivitetskravPerioderEntitet leggTil(AktivitetskravPeriodeEntitet periode) {
         validerOverlapp(periode);
-        final AktivitetskravPeriodeEntitet entitet = new AktivitetskravPeriodeEntitet(periode);
+        final var entitet = new AktivitetskravPeriodeEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
         return this;

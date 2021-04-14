@@ -24,9 +24,9 @@ public class PeriodeKonverter {
             if(perioder.isEmpty()) {
                 return null;
             }
-            StringBuilder result = new StringBuilder();
-            List<String> perioderList = perioder.stream().map(PeriodeKonverter::konvertPeriodeTilString).collect(Collectors.toList());
-            int lastIndex = perioderList.size() - 1;
+            var result = new StringBuilder();
+            var perioderList = perioder.stream().map(PeriodeKonverter::konvertPeriodeTilString).collect(Collectors.toList());
+            var lastIndex = perioderList.size() - 1;
             result.append(lastIndex == 0 ? perioderList.get(lastIndex) :
                 perioderList.subList(0, lastIndex).stream().collect(Collectors.joining(PERIODE_SEPARATOR)).concat(PERIODE_SEPARATOR_ENDE).concat(perioderList.get(lastIndex)));
             return result.toString();
@@ -80,7 +80,7 @@ public class PeriodeKonverter {
     }
 
     private static PeriodeDto mapPeriode(DatoIntervallEntitet intervallEntitet) {
-        PeriodeDto periodeDto =  new PeriodeDto();
+        var periodeDto =  new PeriodeDto();
         periodeDto.setPeriodeFom(intervallEntitet.getFomDato());
         periodeDto.setPeriodeTom(DatoIntervallEntitet.TIDENES_ENDE.equals(intervallEntitet.getTomDato()) ? null : intervallEntitet.getTomDato());
         return periodeDto;

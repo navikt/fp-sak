@@ -51,12 +51,12 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId){
-        String behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
-        String beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
-        String prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
-        Optional<String> gjeldendeAktørId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
+        var behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
+        var beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
+        var prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
+        var gjeldendeAktørId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
 
-        boolean høyPrioritet = PRIORITET_HØY.equals(prioritet);
+        var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 
         //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
         String oppgaveId;

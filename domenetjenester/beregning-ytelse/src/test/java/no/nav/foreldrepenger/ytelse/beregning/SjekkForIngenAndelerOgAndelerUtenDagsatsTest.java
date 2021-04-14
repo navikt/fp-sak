@@ -45,131 +45,131 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
 
     @Test
     public void endring_nyPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void endring_nyPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void ingen_endring_nyPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, null);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void endring_gammelPeriode_uten_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void endring_gammelPeriode_med_andel_uten_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void ingen_endring_gammelPeriode_med_andel_med_dagsats_hvor_gammelPeriode_er_null() {
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(null, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_uten_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void ingen_endring_nyPeriode_uten_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isTrue();
     }
 
     @Test
     public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_uten_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 0);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void ingen_endring_nyPeriode_med_andel_uten_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 0);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
     @Test
     public void ingen_endring_nyPeriode_med_andel_med_dagsats_og_gammelPeriode_med_andel_med_dagsats() {
-        BeregningsresultatPeriode nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
+        var nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         opprettBeregningsresultatAndel(nyPeriode, 1000);
-        BeregningsresultatPeriode gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
+        var gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         opprettBeregningsresultatAndel(gammelPeriode, 1000);
-        boolean endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
+        var endring = sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(nyPeriode, gammelPeriode);
         assertThat(endring).isFalse();
     }
 
@@ -180,7 +180,7 @@ public class SjekkForIngenAndelerOgAndelerUtenDagsatsTest {
     }
 
     private void opprettBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode, int dagsats) {
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(ORGNR);
         BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(false)
                 .medArbeidsgiver(arbeidsgiver)

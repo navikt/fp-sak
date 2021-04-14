@@ -19,11 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -77,21 +74,21 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
 
         dokumentmottaker = Mockito.spy(dokumentmottaker);
 
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
+        var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
         // when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
     }
 
     @Test
     public void skal_opprette_vurder_dokument_oppgave_dersom_avslått_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(true);
 
@@ -107,20 +104,20 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     @Test
     public void skal_opprette_førstegangsbehandling_dersom_avslått_behandling_har_entydig_avslag() {
         // Arrange - opprette avsluttet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.AVSLAG);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.LEGEERKLÆRING;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
         doReturn(true).when(behandlingsoppretter).erAvslåttBehandling(behandling);
 
-        Behandling nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var nyBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD).build();
         // Hack, men det blir feil å lagre Behandlingen før Act da det påvirker
         // scenarioet, og mock(Behandling) er heller ikke pent...
         nyBehandling.setId(9999L);
@@ -135,15 +132,15 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     @Test
     public void skal_opprette_vurder_dokument_oppgave_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
         when(behandlingsoppretter.harBehandlingsresultatOpphørt(behandling)).thenReturn(true);
         Mockito.doReturn(false).when(dokumentmottaker).harAvslåttPeriode(behandling);
@@ -160,16 +157,16 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
     @Test
     public void skal_ikke_opprette_førstegangsbehandling_dersom_opphørt_behandling() {
         // Arrange - opprette avsluttet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         avsluttBehandling(behandling, VedtakResultatType.OPPHØR);
         behandling = behandlingRepository.hentBehandling(behandling.getId());
 
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
         doReturn(true).when(behandlingsoppretter).harBehandlingsresultatOpphørt(behandling);
 
@@ -184,10 +181,10 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
 
     private void avsluttBehandling(Behandling behandling, VedtakResultatType avslag) {
         behandling.avsluttBehandling();
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
 
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, avslag);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, avslag);
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, behandlingLås);
     }
 }

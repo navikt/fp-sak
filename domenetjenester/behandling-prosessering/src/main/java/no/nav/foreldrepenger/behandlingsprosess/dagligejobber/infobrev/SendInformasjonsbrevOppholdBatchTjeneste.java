@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,13 +40,13 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        SendInformasjonsbrevBatchArguments batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
-        List<InformasjonssakData> saker = informasjonssakRepository.finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(batchArguments.getFom(),
+        var batchArguments = (SendInformasjonsbrevBatchArguments) arguments; // NOSONAR
+        var saker = informasjonssakRepository.finnSakerMedMinsteInnvilgetOppholdperiodeInnenIntervall(batchArguments.getFom(),
                 batchArguments.getTom());
-        LocalTime baseline = LocalTime.now();
+        var baseline = LocalTime.now();
         saker.forEach(sak -> {
             LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
-            ProsessTaskData data = new ProsessTaskData(OpprettInformasjonsFagsakTask.TASKTYPE);
+            var data = new ProsessTaskData(OpprettInformasjonsFagsakTask.TASKTYPE);
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();
             data.setPrioritet(100);

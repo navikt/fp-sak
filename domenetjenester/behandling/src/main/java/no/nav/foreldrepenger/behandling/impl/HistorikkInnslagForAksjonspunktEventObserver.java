@@ -7,9 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -45,14 +43,14 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
      * @param aksjonspunkterFunnetEvent
      */
     public void oppretteHistorikkForBehandlingPåVent(@Observes AksjonspunktStatusEvent aksjonspunkterFunnetEvent) {
-        BehandlingskontrollKontekst ktx = aksjonspunkterFunnetEvent.getKontekst();
-        for (Aksjonspunkt aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
+        var ktx = aksjonspunkterFunnetEvent.getKontekst();
+        for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
             if (aksjonspunkt.erOpprettet() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
                         HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
             } else if (aksjonspunkt.erOpprettet() && (aksjonspunkt.getFristTid() != null)) {
-                LocalDateTime frist = aksjonspunkt.getFristTid();
-                Venteårsak venteårsak = aksjonspunkt.getVenteårsak();
+                var frist = aksjonspunkt.getFristTid();
+                var venteårsak = aksjonspunkt.getVenteårsak();
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(),
                         HistorikkinnslagType.BEH_VENT, frist, venteårsak);
             }
@@ -64,7 +62,7 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
             HistorikkinnslagType historikkinnslagType,
             LocalDateTime fristTid,
             Venteårsak venteårsak) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var builder = new HistorikkInnslagTekstBuilder();
         if (fristTid != null) {
             builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());
         } else {
@@ -73,8 +71,8 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
         if (venteårsak != null) {
             builder.medÅrsak(venteårsak);
         }
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
-        String brukerident = SubjectHandler.getSubjectHandler().getUid();
+        var historikkinnslag = new Historikkinnslag();
+        var brukerident = SubjectHandler.getSubjectHandler().getUid();
         historikkinnslag.setAktør(!Objects.equals(systembruker, brukerident) ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandlingId);
@@ -84,8 +82,8 @@ public class HistorikkInnslagForAksjonspunktEventObserver {
     }
 
     public void oppretteHistorikkForGjenopptattBehandling(@Observes AksjonspunktStatusEvent aksjonspunkterFunnetEvent) {
-        for (Aksjonspunkt aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
-            BehandlingskontrollKontekst ktx = aksjonspunkterFunnetEvent.getKontekst();
+        for (var aksjonspunkt : aksjonspunkterFunnetEvent.getAksjonspunkter()) {
+            var ktx = aksjonspunkterFunnetEvent.getKontekst();
             if (aksjonspunkt.erUtført() && AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
                 opprettHistorikkinnslagForVenteFristRelaterteInnslag(ktx.getBehandlingId(), ktx.getFagsakId(), HistorikkinnslagType.KØET_BEH_GJEN,
                         null, null);

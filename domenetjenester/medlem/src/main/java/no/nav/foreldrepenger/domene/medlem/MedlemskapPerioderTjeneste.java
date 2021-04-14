@@ -32,16 +32,16 @@ public class MedlemskapPerioderTjeneste {
     public boolean brukerMaskineltAvklartSomIkkeMedlem(PersonopplysningerAggregat personopplysningerAggregat,
                                                        Set<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate skjæringstidspunkt) {
 
-        List<MedlemskapDekningType> dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, skjæringstidspunkt);
+        var dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, skjæringstidspunkt);
 
         // Premiss alternativ 1: Bruker er registert med dekningstype som er klassifisert som Ikke medlem
-        boolean erPeriodeRegistrertSomIkkeMedlem = erRegistrertSomIkkeMedlem(dekningTyper);
+        var erPeriodeRegistrertSomIkkeMedlem = erRegistrertSomIkkeMedlem(dekningTyper);
 
         // Premiss alternativ 2: Bruker er registert med dekningstype "Unntatt", og ikke er bosatt med statsb. USA/PNG
-        boolean erPeriodeRegistrertSomUnntatt = erRegistrertSomUnntatt(dekningTyper);
-        boolean harStatsborgerskapUsaEllerPng = harStatsborgerskapUsaEllerPng(personopplysningerAggregat);
+        var erPeriodeRegistrertSomUnntatt = erRegistrertSomUnntatt(dekningTyper);
+        var harStatsborgerskapUsaEllerPng = harStatsborgerskapUsaEllerPng(personopplysningerAggregat);
 
-        boolean erIkkeUsaEllerPngOgUntatt = !harStatsborgerskapUsaEllerPng
+        var erIkkeUsaEllerPngOgUntatt = !harStatsborgerskapUsaEllerPng
             && erPeriodeRegistrertSomUnntatt;
 
         // Sammenstill premisser
@@ -62,7 +62,7 @@ public class MedlemskapPerioderTjeneste {
 
     public boolean brukerMaskineltAvklartSomFrivilligEllerPliktigMedlem(Set<MedlemskapPerioderEntitet> medlemskapPerioder,
                                                                         LocalDate vurderingsdato) {
-        List<MedlemskapDekningType> dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
+        var dekningTyper = finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return erRegistrertSomFrivilligMedlem(dekningTyper);
     }
 
@@ -118,10 +118,10 @@ public class MedlemskapPerioderTjeneste {
      * i periode som er under avklaring eller ikke har start eller sluttdato
      */
     public boolean harPeriodeUnderAvklaring(Set<MedlemskapPerioderEntitet> medlemskapPerioder, LocalDate skjæringsdato) {
-        boolean periodeUnderAvklaring = medlemskapPerioder.stream()
+        var periodeUnderAvklaring = medlemskapPerioder.stream()
             .anyMatch(periode -> erDatoInnenforLukketPeriode(periode.getFom(), periode.getTom(), skjæringsdato)
                 && (MedlemskapType.UNDER_AVKLARING.equals(periode.getMedlemskapType()) || MedlemskapKildeType.LAANEKASSEN.equals(periode.getKildeType())));
-        boolean åpenPeriode = medlemskapPerioder.stream()
+        var åpenPeriode = medlemskapPerioder.stream()
             .anyMatch(periode -> erDatoInnenforÅpenPeriode(periode.getFom(), periode.getTom(), skjæringsdato));
         return (periodeUnderAvklaring || åpenPeriode);
     }

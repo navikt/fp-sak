@@ -25,7 +25,7 @@ public class MottattDokumentPersistertEventObserver {
 
     public void observerMottattDokumentPersistert(@Observes MottattDokumentPersistertEvent event) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(event.getMottattDokument().getDokumentType())) {
-            final ProsessTaskData taskData = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
+            final var taskData = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
             taskData.setBehandling(event.getFagsakId(), event.getBehandlingId(), event.getAktørId().getId());
             taskData.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY, event.getMottattDokument().getId().toString());
             taskData.setCallIdFraEksisterende();

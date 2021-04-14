@@ -51,10 +51,11 @@ public class ManglendeVedlegg {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
+        }
+        if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
-        ManglendeVedlegg other = (ManglendeVedlegg) obj;
+        var other = (ManglendeVedlegg) obj;
         return Objects.equals(arbeidsgiver, other.arbeidsgiver)
                 && Objects.equals(dokumentType, other.dokumentType);
 

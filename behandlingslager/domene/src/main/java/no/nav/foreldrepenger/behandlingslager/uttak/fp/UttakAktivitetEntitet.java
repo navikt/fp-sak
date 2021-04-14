@@ -76,7 +76,7 @@ public class UttakAktivitetEntitet extends BaseEntitet {
             return false;
         }
 
-        UttakAktivitetEntitet uttakAktivitet = (UttakAktivitetEntitet) annen;
+        var uttakAktivitet = (UttakAktivitetEntitet) annen;
         return Objects.equals(this.getArbeidsforholdRef(), uttakAktivitet.getArbeidsforholdRef()) &&
             Objects.equals(this.getArbeidsgiver(), uttakAktivitet.getArbeidsgiver()) &&
             Objects.equals(this.getUttakArbeidType(), uttakAktivitet.getUttakArbeidType());

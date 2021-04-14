@@ -25,8 +25,8 @@ public class OppdragKjede {
     }
 
     public Ytelse tilYtelse() {
-        Ytelse.Builder builder = Ytelse.builder();
-        for (OppdragLinje linje : oppdragslinjer) {
+        var builder = Ytelse.builder();
+        for (var linje : oppdragslinjer) {
             leggTilOppdragLinje(builder, linje);
         }
         return builder.build();
@@ -62,11 +62,11 @@ public class OppdragKjede {
     }
 
     public OppdragKjede leggTil(OppdragKjedeFortsettelse fortsettelse) {
-        Builder builder = builder();
-        for (OppdragLinje oppdragLinje : oppdragslinjer) {
+        var builder = builder();
+        for (var oppdragLinje : oppdragslinjer) {
             builder.medOppdragslinje(oppdragLinje);
         }
-        for (OppdragLinje oppdragLinje : fortsettelse.getOppdragslinjer()) {
+        for (var oppdragLinje : fortsettelse.getOppdragslinjer()) {
             builder.medOppdragslinje(oppdragLinje);
         }
         return builder.build();
@@ -90,7 +90,7 @@ public class OppdragKjede {
                     throw new IllegalArgumentException("Første oppdragslinje (delytelseId" + linje.getDelytelseId() + ") kan ikke referere til en annen");
                 }
             } else {
-                OppdragLinje siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
+                var siste = oppdragslinjer.get(oppdragslinjer.size() - 1);
                 if (linje.getOpphørFomDato() == null) {
                     validerLinjeUtenOpphør(linje, siste);
                 } else {
@@ -107,7 +107,7 @@ public class OppdragKjede {
                 throw new IllegalArgumentException("Oppdragslinje med delytelseId " + linje.getDelytelseId() + " er ikke først i kjeden, og må referere til forrige oppdragslinje (delytelseId " + siste.getDelytelseId() + ")");
             }
 
-            boolean overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
+            var overskriverSiste = siste.getPeriode().equals(linje.getPeriode());
             if (!overskriverSiste && ytelseBuilder.sisteTidspunkt() != null && !ytelseBuilder.sisteTidspunkt().isBefore(linje.getPeriode().getFom())) {
                 LOG.info("Oppdragslinje med delytelseid {} overlappet med det som er gjeldende så langt. Dette skal vanligvis ikke skje, men kan skje på gamle data", linje.getDelytelseId());
             }

@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingskontrollTjenesteImpl;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
@@ -47,7 +46,7 @@ public class DokumentmottakTestUtil {
 
     static MottattDokument byggMottattDokument(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato, boolean elektroniskRegistrert,
                                                String journalpostId) {
-        MottattDokument.Builder builder = new MottattDokument.Builder();
+        var builder = new MottattDokument.Builder();
         builder.medDokumentType(dokumentTypeId);
         builder.medMottattDato(mottattDato);
         builder.medXmlPayload(xml);
@@ -61,7 +60,7 @@ public class DokumentmottakTestUtil {
 
     static MottattDokument byggMottattPapirsøknad(DokumentTypeId dokumentTypeId, Long fagsakId, String xml, LocalDate mottattDato,
                                                   boolean elektroniskRegistrert, String journalpostId) {
-        MottattDokument.Builder builder = new MottattDokument.Builder();
+        var builder = new MottattDokument.Builder();
         builder.medDokumentType(dokumentTypeId);
         builder.medDokumentKategori(DokumentKategori.SØKNAD);
         builder.medMottattDato(mottattDato);
@@ -76,11 +75,11 @@ public class DokumentmottakTestUtil {
 
     static Fagsak byggFagsak(AktørId aktørId, RelasjonsRolleType rolle, NavBrukerKjønn kjønn, Saksnummer saksnummer,
                              FagsakRepository fagsakRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
-        NavBruker navBruker = new NavBrukerBuilder()
+        var navBruker = new NavBrukerBuilder()
             .medAktørId(aktørId)
             .medKjønn(kjønn)
             .build();
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengesak(rolle)
+        var fagsak = FagsakBuilder.nyForeldrepengesak(rolle)
             .medSaksnummer(saksnummer)
             .medBruker(navBruker).build();
         fagsakRepository.opprettNy(fagsak);
@@ -89,7 +88,7 @@ public class DokumentmottakTestUtil {
     }
 
     public static BehandlingVedtak oppdaterVedtaksresultat(Behandling origBehandling, VedtakResultatType vedtakResultatType) {
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var vedtak = BehandlingVedtak.builder()
             .medVedtakResultatType(vedtakResultatType)
             .medVedtakstidspunkt(LocalDateTime.now())
             .medBehandlingsresultat(origBehandling.getBehandlingsresultat())

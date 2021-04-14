@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.YtelsesesspesifiktGrunnlagTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -41,7 +40,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         if (familieHendelse.isEmpty()) {
             return Optional.empty();
         }
-        SvangerskapspengerGrunnlag grunnlag = new SvangerskapspengerGrunnlag()
+        var grunnlag = new SvangerskapspengerGrunnlag()
                 .medFamilieHendelse(familieHendelse.get())
                 .medSvpGrunnlagEntitet(svpGrunnEntitet(ref).orElse(null));
         return Optional.of(grunnlag);
@@ -57,7 +56,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         if (gjeldendeFamiliehendelseOpt.isEmpty()) {
             return Optional.empty();
         }
-        FamilieHendelseEntitet gjeldendeFamiliehendelse = gjeldendeFamiliehendelseOpt.get();
+        var gjeldendeFamiliehendelse = gjeldendeFamiliehendelseOpt.get();
         var terminbekreftelse = gjeldendeFamiliehendelse.getTerminbekreftelse();
         if (terminbekreftelse.isEmpty()) {
             throw new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad.");

@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerVali
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
@@ -82,12 +78,12 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             if (periode.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD)) {
                 settArbeidsgiverInformasjon(periode.getArbeidsgiverNavn(), periode.getArbeidsgiverIdentifikator(), yrkesaktivitetBuilder);
             }
-            final DatoIntervallEntitet aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
+            final var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
                     periode.getOpptjeningTom());
             aktivitetsAvtaleBuilder.medPeriode(aktivitetsPeriode);
         }
         if (periode.getErEndret()) {
-            final DatoIntervallEntitet aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
+            final var aktivitetsPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(),
                     periode.getOpptjeningTom());
             aktivitetsAvtaleBuilder.medPeriode(aktivitetsPeriode);
         }
@@ -108,7 +104,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         if (!kodeRelasjonMap.containsKey(periode.getAktivitetType())) {
             return false;
         }
-        final Set<ArbeidType> arbeidTypes = kodeRelasjonMap.get(periode.getAktivitetType());
+        final var arbeidTypes = kodeRelasjonMap.get(periode.getAktivitetType());
         return kanSaksbehandles(behandlingId, aktørId, iayg, arbeidTypes, periode, skjæringstidspunkt);
     }
 
@@ -122,7 +118,8 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             var filter = new YrkesaktivitetFilter(iayg.getArbeidsforholdInformasjon(), iayg.getAktørArbeidFraRegister(aktørId))
                     .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
             return harGittAksjonspunktForArbeidsforhold(filter, arbeidTypes, periode);
-        } else if (OpptjeningAktivitetType.NÆRING.equals(periode.getAktivitetType())) {
+        }
+        if (OpptjeningAktivitetType.NÆRING.equals(periode.getAktivitetType())) {
             if (!iaygOpt.isPresent()) {
                 return false;
             }
@@ -142,9 +139,9 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         return yrkesaktiviteter
                 .stream()
                 .anyMatch(it -> {
-                    boolean erNullProsent = filter.getAktivitetsAvtalerForArbeid(it).stream()
+                    var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it).stream()
                             .anyMatch(aa -> (aa.getProsentsats() == null) || aa.getProsentsats().erNulltall());
-                    boolean erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
+                    var erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
                     return arbeidTypes.contains(it.getArbeidType())
                             && it.getArbeidsgiver().getIdentifikator().equals(periode.getArbeidsgiverIdentifikator())
                             && (erNullProsent
@@ -159,7 +156,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
 
     private DatoIntervallEntitet getOrginalPeriode(BekreftOpptjeningPeriodeDto periode) {
         if (periode.getErManueltOpprettet()) {
-            final LocalDate tomDato = periode.getOpptjeningTom() != null ? periode.getOpptjeningTom() : Tid.TIDENES_ENDE;
+            final var tomDato = periode.getOpptjeningTom() != null ? periode.getOpptjeningTom() : Tid.TIDENES_ENDE;
             return DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOpptjeningFom(), tomDato);
         }
         return DatoIntervallEntitet.fraOgMedTilOgMed(periode.getOriginalFom(), periode.getOriginalTom());
@@ -176,8 +173,8 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         YrkesaktivitetBuilder builder;
         if (periodeDto.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID)) {
             Opptjeningsnøkkel nøkkel;
-            String id = periodeDto.getArbeidsforholdRef();
-            InternArbeidsforholdRef ref = id == null ? null : InternArbeidsforholdRef.ref(id);
+            var id = periodeDto.getArbeidsforholdRef();
+            var ref = id == null ? null : InternArbeidsforholdRef.ref(id);
             if (OrganisasjonsNummerValidator.erGyldig(periodeDto.getArbeidsgiverIdentifikator())
                     || Organisasjonstype.erKunstig(periodeDto.getArbeidsgiverIdentifikator())) {
                 nøkkel = new Opptjeningsnøkkel(ref, periodeDto.getArbeidsgiverIdentifikator(), null);
@@ -205,15 +202,15 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
 
     private YrkesaktivitetBuilder kopierVerdierForFiktivtArbeidsforhold(Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
             YrkesaktivitetBuilder builder) {
-        Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon = iayGrunnlag
+        var arbeidsforholdInformasjon = iayGrunnlag
                 .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
         if (arbeidsforholdInformasjon.isPresent()) {
             // Det finnes kun en overstyring om vi har et fiktivt arbeidsforhold
-            List<ArbeidsforholdOverstyring> overstyringer = arbeidsforholdInformasjon.get().getOverstyringer();
+            var overstyringer = arbeidsforholdInformasjon.get().getOverstyringer();
             if (overstyringer.size() != 1) {
                 throw new IllegalStateException("Fant ingen eller mer enn en overstyring for fiktivt arbeidsforhold");
             }
-            ArbeidsforholdOverstyring fiktivOverstyring = overstyringer.get(0);
+            var fiktivOverstyring = overstyringer.get(0);
             builder.medArbeidsgiver(fiktivOverstyring.getArbeidsgiver());
             builder.medArbeidsgiverNavn(fiktivOverstyring.getArbeidsgiverNavn());
         }

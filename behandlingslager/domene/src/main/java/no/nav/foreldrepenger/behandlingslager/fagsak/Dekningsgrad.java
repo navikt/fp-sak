@@ -41,11 +41,12 @@ public class Dekningsgrad {
     public boolean equals(Object arg0) {
         if (!(arg0 instanceof Dekningsgrad)) {
             return false;
-        } else if (arg0 == this) {
+        }
+        if (arg0 == this) {
             return true;
         }
 
-        Dekningsgrad other = (Dekningsgrad) arg0;
+        var other = (Dekningsgrad) arg0;
         return Objects.equals(verdi, other.verdi);
     }
 

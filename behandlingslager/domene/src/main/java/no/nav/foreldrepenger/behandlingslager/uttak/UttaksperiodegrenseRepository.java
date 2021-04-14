@@ -6,15 +6,11 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
-import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
@@ -55,7 +51,7 @@ public class UttaksperiodegrenseRepository {
     }
 
     public Optional<Uttaksperiodegrense> hentHvisEksisterer(Long behandlingId) {
-        TypedQuery<Uttaksperiodegrense> query = entityManager
+        var query = entityManager
             .createQuery("select u from Uttaksperiodegrense u " +
                 "where u.behandlingsresultat.behandling.id = :behandlingId " +
                 "and u.aktiv = true", Uttaksperiodegrense.class)
@@ -64,11 +60,11 @@ public class UttaksperiodegrenseRepository {
     }
 
     public void ryddUttaksperiodegrense(Long behandlingId) {
-        BehandlingLås lås = behandlingLåsRepository.taLås(behandlingId);
-        Behandlingsresultat behandlingsresultat = hentBehandlingsresultat(behandlingId);
-        Optional<Uttaksperiodegrense> aktivtAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
+        var lås = behandlingLåsRepository.taLås(behandlingId);
+        var behandlingsresultat = hentBehandlingsresultat(behandlingId);
+        var aktivtAggregat = getAktivtUttaksperiodegrense(behandlingsresultat);
         if (aktivtAggregat.isPresent()) {
-            Uttaksperiodegrense aggregat = aktivtAggregat.get();
+            var aggregat = aktivtAggregat.get();
             aggregat.setAktiv(false);
             entityManager.persist(aggregat);
             verifiserBehandlingLås(lås);
@@ -84,7 +80,7 @@ public class UttaksperiodegrenseRepository {
 
     private Optional<Uttaksperiodegrense> getAktivtUttaksperiodegrense(Behandlingsresultat behandlingsresultat) {
         Objects.requireNonNull(behandlingsresultat, "behandlingsresultat"); // NOSONAR $NON-NLS-1$
-        final TypedQuery<Uttaksperiodegrense> query = entityManager.createQuery("FROM Uttaksperiodegrense Upg " +
+        final var query = entityManager.createQuery("FROM Uttaksperiodegrense Upg " +
             "WHERE Upg.behandlingsresultat.id = :behandlingresultatId " +
             "AND Upg.aktiv = :aktivt", Uttaksperiodegrense.class);
         query.setParameter("behandlingresultatId", behandlingsresultat.getId());

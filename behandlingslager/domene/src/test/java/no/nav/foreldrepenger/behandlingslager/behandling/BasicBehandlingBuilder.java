@@ -37,13 +37,13 @@ public class BasicBehandlingBuilder {
     }
 
     public Behandling opprettOgLagreFørstegangssøknad(FagsakYtelseType ytelse) {
-        Fagsak fagsak = opprettFagsak(ytelse);
+        var fagsak = opprettFagsak(ytelse);
         return opprettOgLagreFørstegangssøknad(fagsak);
     }
 
     public Behandling opprettOgLagreFørstegangssøknad(Fagsak fagsak) {
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = builder.build();
 
         lagreBehandling(behandling);
 
@@ -56,7 +56,7 @@ public class BasicBehandlingBuilder {
     }
 
     private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = taSkriveLås(behandling);
+        var lås = taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 
@@ -78,7 +78,7 @@ public class BasicBehandlingBuilder {
         em.persist(bruker);
 
         // Opprett fagsak
-        String randomSaksnummer = System.nanoTime() + "";
+        var randomSaksnummer = System.nanoTime() + "";
         this.fagsak = Fagsak.opprettNy(ytelse, bruker, null, new Saksnummer(randomSaksnummer));
         em.persist(fagsak);
         em.flush();
@@ -86,7 +86,7 @@ public class BasicBehandlingBuilder {
     }
 
     public VilkårResultat leggTilTomtVilkårResultat(Behandling behandling) {
-        VilkårResultat vilkårResultat = VilkårResultat.builder().buildFor(behandling);
+        var vilkårResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, taSkriveLås(behandling));
         lagreBehandling(behandling);
         return vilkårResultat;

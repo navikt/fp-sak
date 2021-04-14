@@ -29,9 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -70,11 +68,11 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
     @BeforeEach
     public void setUp() {
         lenient().when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.empty());
-        BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
+        var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
-        MottatteDokumentTjeneste mottatteDokumentTjenesteMock = Mockito.mock(MottatteDokumentTjeneste.class);
+        var mottatteDokumentTjenesteMock = Mockito.mock(MottatteDokumentTjeneste.class);
 
         var skjæringsTidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         lenient().when(skjæringsTidspunktTjeneste.getSkjæringstidspunkter(any()))
@@ -88,25 +86,25 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
 
     @Test
     public void skalReturnereVedtaksløsningMedSaksnummerNårEnSakFinnesOgÅrsakInnsendingErEndring() {
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
+        var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
+        var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
         lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
+        final var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
-        BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
+        var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }
 
     @Test
     public void skalReturnereInfotrygdNårBrukerIkkeHarSakIVL() {
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
+        var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
         fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
 
@@ -114,16 +112,16 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
         lenient().when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.emptyList());
 
-        BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
+        var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VURDER_INFOTRYGD);
         assertThat(result.getSaksnummer()).isEmpty();
     }
 
     @Test
     public void skalFinneArbeidsforholdForArbeidsgiverSomErPrivatperson() {
-        AktørId arbeidsgiverAktørId = AktørId.dummy();
+        var arbeidsgiverAktørId = AktørId.dummy();
 
-        VurderFagsystem fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
+        var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_ENDRING, BehandlingTema.FORELDREPENGER,
                 LocalDateTime.now(),
                 AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, null);
         fagsystem.setArbeidsgiverAktørId(arbeidsgiverAktørId);
@@ -131,12 +129,12 @@ public class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.singletonList(buildFagsakMedUdefinertRelasjon(123L, false)));
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
+        var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
         lenient().when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(behandling);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
+        final var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
-        BehandlendeFagsystem result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
+        var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isNotEmpty();
     }

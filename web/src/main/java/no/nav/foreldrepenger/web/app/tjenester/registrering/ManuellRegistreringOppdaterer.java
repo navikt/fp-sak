@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -70,14 +69,14 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
     @Override
     public OppdateringResultat oppdater(ManuellRegistreringDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
         oppdaterBehandlingDersomMigrert(behandling, dto);
-        Long behandlingId = param.getBehandlingId();
-        OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
+        var behandlingId = param.getBehandlingId();
+        var resultatBuilder = OppdateringResultat.utenTransisjon();
 
         if (dto.getUfullstendigSoeknad()) {
 
-            final ManuellRegistreringAksjonspunktDto adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
+            final var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad());
             dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
                 .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
             lagHistorikkInnslag(behandlingId, HistorikkinnslagType.MANGELFULL_SØKNAD, null);
@@ -88,12 +87,12 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
         ManuellRegistreringValidator.validerOpplysninger(dto);
 
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-        NavBruker navBruker = fagsak.getNavBruker();
-        String søknadXml = opprettSøknadsskjema(dto, behandling, navBruker);
-        DokumentTypeId dokumentTypeId = finnDokumentType(dto, behandling.getType());
+        var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
+        var navBruker = fagsak.getNavBruker();
+        var søknadXml = opprettSøknadsskjema(dto, behandling, navBruker);
+        var dokumentTypeId = finnDokumentType(dto, behandling.getType());
 
-        final ManuellRegistreringAksjonspunktDto adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
+        final var adapter = new ManuellRegistreringAksjonspunktDto(!dto.getUfullstendigSoeknad(), søknadXml,
             dokumentTypeId, dto.getMottattDato(), dto.isRegistrerVerge());
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandling, adapter)
             .ifPresent(ad -> resultatBuilder.medEkstraAksjonspunktResultat(ad, AksjonspunktStatus.OPPRETTET));
@@ -119,7 +118,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     }
 
     private DokumentTypeId finnDokumentType(ManuellRegistreringDto dto, BehandlingType behandlingType) {
-        String søknadsType = dto.getSoknadstype().getKode();
+        var søknadsType = dto.getSoknadstype().getKode();
 
         if (FagsakYtelseType.ENGANGSTØNAD.getKode().equals(søknadsType)) {
             if (erFødsel(dto)) {
@@ -161,8 +160,8 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     private String opprettSøknadsskjema(ManuellRegistreringDto dto, Behandling behandling, NavBruker navBruker) {
         Soeknad søknad = null;
 
-        FagsakYtelseType ytelseType = behandling.getFagsakYtelseType();
-        BehandlingType behandlingType = behandling.getType();
+        var ytelseType = behandling.getFagsakYtelseType();
+        var behandlingType = behandling.getType();
 
 
         if (dto.getKode().equals(REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.getKode())) {
@@ -170,7 +169,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
             behandlingType = BehandlingType.REVURDERING;;
         }
 
-        SøknadMapper mapper = finnSøknadMapper(ytelseType, behandlingType);
+        var mapper = finnSøknadMapper(ytelseType, behandlingType);
         søknad = mapper.mapSøknad(dto, navBruker);
 
         String søknadXml;
@@ -187,8 +186,8 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     }
 
     private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType, String kommentarEndring) {
-        Historikkinnslag innslag = new Historikkinnslag();
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var innslag = new Historikkinnslag();
+        var builder = new HistorikkInnslagTekstBuilder();
 
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandlingId);

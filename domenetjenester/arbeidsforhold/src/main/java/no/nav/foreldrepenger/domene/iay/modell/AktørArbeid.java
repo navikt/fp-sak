@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.iay.modell;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,19 +63,19 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, ArbeidType arbeidType) {
-        Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
+        var yrkesaktivitet = yrkesaktiviter.stream()
                 .filter(ya -> ya.getArbeidType().equals(arbeidType) && new Opptjeningsnøkkel(ya).equals(identifikator))
                 .findFirst();
-        final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(arbeidType);
         return oppdatere;
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForNøkkel(Opptjeningsnøkkel identifikator, Set<ArbeidType> arbeidTyper) {
-        Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
+        var yrkesaktivitet = yrkesaktiviter.stream()
                 .filter(ya -> arbeidTyper.contains(ya.getArbeidType()) && new Opptjeningsnøkkel(ya).equals(identifikator))
                 .findFirst();
-        final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         if (!oppdatere.getErOppdatering()) {
             // Defaulter til ordinert arbeidsforhold hvis saksbehandler har lagt til fra GUI
             oppdatere.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
@@ -89,22 +88,22 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     }
 
     void fjernYrkesaktivitetForBuilder(YrkesaktivitetBuilder builder) {
-        Yrkesaktivitet yrkesaktivitetKladd = builder.getKladd();
-        ArbeidType arbeidType = yrkesaktivitetKladd.getArbeidType();
+        var yrkesaktivitetKladd = builder.getKladd();
+        var arbeidType = yrkesaktivitetKladd.getArbeidType();
         if (arbeidType.erAnnenOpptjening() || ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(arbeidType)) {
             yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType));
         } else {
-            Opptjeningsnøkkel nøkkel = new Opptjeningsnøkkel(yrkesaktivitetKladd);
+            var nøkkel = new Opptjeningsnøkkel(yrkesaktivitetKladd);
             yrkesaktiviter.removeIf(ya -> ya.getArbeidType().equals(arbeidType)
                     && new Opptjeningsnøkkel(ya).matcher(nøkkel));
         }
     }
 
     YrkesaktivitetBuilder getYrkesaktivitetBuilderForType(ArbeidType type) {
-        Optional<Yrkesaktivitet> yrkesaktivitet = yrkesaktiviter.stream()
+        var yrkesaktivitet = yrkesaktiviter.stream()
                 .filter(ya -> ya.getArbeidType().equals(type))
                 .findFirst();
-        final YrkesaktivitetBuilder oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
+        final var oppdatere = YrkesaktivitetBuilder.oppdatere(yrkesaktivitet);
         oppdatere.medArbeidType(type);
         return oppdatere;
     }
@@ -117,10 +116,11 @@ public class AktørArbeid extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof AktørArbeid)) {
+        }
+        if (!(obj instanceof AktørArbeid)) {
             return false;
         }
-        AktørArbeid other = (AktørArbeid) obj;
+        var other = (AktørArbeid) obj;
         return Objects.equals(this.getAktørId(), other.getAktørId());
     }
 

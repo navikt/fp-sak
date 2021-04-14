@@ -16,7 +16,6 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalField;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -66,7 +65,7 @@ public class TraverseGraphConfig {
     Function<Object, Boolean> inclusionFilter = NO_FILTER;
 
     public boolean isMappedField(Field fld) {
-        int mods = fld.getModifiers();
+        var mods = fld.getModifiers();
         if (Modifier.isStatic(mods) || Modifier.isTransient(mods) || Modifier.isVolatile(mods)) {
             return false;
         }
@@ -92,14 +91,13 @@ public class TraverseGraphConfig {
     }
 
     public boolean isLeaf(Object obj) {
-        Class<?> targetClass = obj.getClass();
+        var targetClass = obj.getClass();
         if (leafFinalClasses.contains(targetClass)) {
             return true;
-        } else {
-            for (Class<?> leaf : leafExtendableClasses) {
-                if (leaf.isAssignableFrom(targetClass)) {
-                    return true;
-                }
+        }
+        for (var leaf : leafExtendableClasses) {
+            if (leaf.isAssignableFrom(targetClass)) {
+                return true;
             }
         }
         return false;
@@ -114,7 +112,7 @@ public class TraverseGraphConfig {
 
     @SafeVarargs
     public final void addLeafClasses(Class<?>... leafClasses) {
-        List<Class<?>> newLeafClasses = asList(leafClasses);
+        var newLeafClasses = asList(leafClasses);
 
         this.leafExtendableClasses = new HashSet<>(this.leafExtendableClasses);
         this.leafExtendableClasses.addAll(newLeafClasses);

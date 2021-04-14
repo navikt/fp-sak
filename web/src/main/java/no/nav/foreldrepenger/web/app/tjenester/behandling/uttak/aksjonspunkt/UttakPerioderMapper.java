@@ -24,9 +24,9 @@ public final class UttakPerioderMapper {
 
     private static ForeldrepengerUttakPeriode map(UttakResultatPeriodeLagreDto dtoPeriode,
                                                   List<ForeldrepengerUttakPeriode> gjeldenePerioder) {
-        LocalDateInterval periodeInterval = new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom());
+        var periodeInterval = new LocalDateInterval(dtoPeriode.getFom(), dtoPeriode.getTom());
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
-        for (UttakResultatPeriodeAktivitetLagreDto nyAktivitet : dtoPeriode.getAktiviteter()) {
+        for (var nyAktivitet : dtoPeriode.getAktiviteter()) {
             var matchendeGjeldendeAktivitet = EndreUttakUtil.finnGjeldendeAktivitetFor(gjeldenePerioder,
                 periodeInterval, nyAktivitet.getArbeidsgiver().orElse(null), nyAktivitet.getArbeidsforholdId(),
                 nyAktivitet.getUttakArbeidType());

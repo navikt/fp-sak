@@ -35,8 +35,8 @@ public class HistorikkinnslagOpplysningDto {
     }
 
     private static HistorikkinnslagOpplysningDto mapFra(HistorikkinnslagFelt opplysning) {
-        HistorikkinnslagOpplysningDto dto = new HistorikkinnslagOpplysningDto();
-        HistorikkOpplysningType opplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
+        var dto = new HistorikkinnslagOpplysningDto();
+        var opplysningType = HistorikkOpplysningType.fraKode(opplysning.getNavn());
         dto.setOpplysningType(opplysningType);
         dto.setTilVerdi(opplysning.getTilVerdi());
         return dto;

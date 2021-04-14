@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -68,19 +66,19 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public final void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> sisteYtelsesbehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId());
+        var sisteYtelsesbehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId());
 
         if (sisteYtelsesbehandling.isEmpty()) {
             håndterIngenTidligereBehandling(fagsak, mottattDokument, behandlingÅrsakType);
             return;
         }
 
-        Behandling behandling = sisteYtelsesbehandling.get();
+        var behandling = sisteYtelsesbehandling.get();
         boolean sisteYtelseErFerdigbehandlet = sisteYtelsesbehandling.map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.FALSE);
         LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
             sisteYtelsesbehandling.map(Behandling::getId).orElse(0L), sisteYtelsesbehandling.map(Behandling::getStatus).orElse(BehandlingStatus.OPPRETTET).getKode());
         if (sisteYtelseErFerdigbehandlet) {
-            Optional<Behandling> sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
+            var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
             behandling = sisteAvsluttetBehandling.orElse(behandling);
             // Håndter avsluttet behandling
             if (behandlingsoppretter.erAvslåttBehandling(behandling)
@@ -96,20 +94,20 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Optional<Behandling> eksisterendeÅpenBehandlingUtenSøknad = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId())
+        var eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var eksisterendeÅpenBehandlingUtenSøknad = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId())
             .filter(b -> b.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD));
         if (eksisterendeÅpenBehandlingUtenSøknad.isPresent()) {
             oppdaterÅpenBehandlingMedDokument(eksisterendeÅpenBehandlingUtenSøknad.get(), mottattDokument, behandlingÅrsakType);
         } else if (eksisterendeKøetBehandling.isPresent()) {
-            Behandling køetBehandling = eksisterendeKøetBehandling.get();
+            var køetBehandling = eksisterendeKøetBehandling.get();
             dokumentmottakerFelles.opprettHistorikk(køetBehandling, mottattDokument);
             dokumentmottakerFelles.opprettKøetHistorikk(køetBehandling, true);
             håndterKøetBehandling(mottattDokument, køetBehandling, behandlingÅrsakType);
         } else if (!skalOppretteKøetBehandling(fagsak)) {
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, null, mottattDokument); // Skal ikke være mulig for #Sx og #Ix som alltid oppretter køet, men #E12 vil treffe denne
         } else {
-            Behandling sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
+            var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
             opprettKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType, sisteAvsluttetBehandling);
         }
     }

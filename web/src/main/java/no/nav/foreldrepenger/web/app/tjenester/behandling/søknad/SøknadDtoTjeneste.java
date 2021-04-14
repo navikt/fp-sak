@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,12 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
-import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -68,14 +65,15 @@ public class SøknadDtoTjeneste {
     }
 
     public Optional<SoknadDto> mapFra(Behandling behandling) {
-        Optional<SøknadEntitet> søknadOpt = repositoryProvider.getSøknadRepository().hentSøknadHvisEksisterer(behandling.getId());
+        var søknadOpt = repositoryProvider.getSøknadRepository().hentSøknadHvisEksisterer(behandling.getId());
         if (søknadOpt.isPresent()) {
-            SøknadEntitet søknad = søknadOpt.get();
+            var søknad = søknadOpt.get();
             var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
             var fhGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
             if (fhGrunnlag.getSøknadVersjon().getGjelderFødsel()) {
                 return lagSoknadFodselDto(søknad, fhGrunnlag.getSøknadVersjon(), ref);
-            } else if (fhGrunnlag.getSøknadVersjon().getGjelderAdopsjon()) {
+            }
+            if (fhGrunnlag.getSøknadVersjon().getGjelderAdopsjon()) {
                 return lagSoknadAdopsjonDto(søknad, fhGrunnlag.getSøknadVersjon(), ref);
             }
         }
@@ -90,7 +88,7 @@ public class SøknadDtoTjeneste {
     private SoknadBackendDto getBackendDto(Behandling behandling, SøknadEntitet søknad) {
         var familieHendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getSøknadVersjon();
 
-        SoknadBackendDto soknadBackendDto = new SoknadBackendDto();
+        var soknadBackendDto = new SoknadBackendDto();
         soknadBackendDto.setMottattDato(søknad.getMottattDato());
         soknadBackendDto.setSoknadsdato(søknad.getSøknadsdato());
         soknadBackendDto.setSpraakkode(søknad.getSpråkkode());
@@ -103,10 +101,10 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<SoknadDto> lagSoknadFodselDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.getBehandlingId();
 
-        SoknadFodselDto soknadFodselDto = new SoknadFodselDto();
-        Map<Integer, LocalDate> fødselsdatoer = familieHendelse.getBarna().stream()
+        var soknadFodselDto = new SoknadFodselDto();
+        var fødselsdatoer = familieHendelse.getBarna().stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
         mapFellesSoknadDtoFelter(søknad, soknadFodselDto);
         soknadFodselDto.setSoknadType(SøknadType.FØDSEL);
@@ -143,9 +141,9 @@ public class SøknadDtoTjeneste {
     }
 
     private List<ManglendeVedleggDto> genererManglendeVedlegg(BehandlingReferanse ref) {
-        Kompletthetsjekker kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.getFagsakYtelseType(), ref.getBehandlingType());
-        final List<ManglendeVedlegg> alleManglendeVedlegg = kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(ref);
-        final List<ManglendeVedlegg> vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
+        var kompletthetsjekker = kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ref.getFagsakYtelseType(), ref.getBehandlingType());
+        final var alleManglendeVedlegg = kompletthetsjekker.utledAlleManglendeVedleggForForsendelse(ref);
+        final var vedleggSomIkkeKommer = kompletthetsjekker.utledAlleManglendeVedleggSomIkkeKommer(ref);
 
         // Fjerner slik at det ikke blir dobbelt opp, og for å markere korrekt hvilke som ikke vil komme
         alleManglendeVedlegg.removeIf(e -> vedleggSomIkkeKommer.stream().anyMatch(it -> it.getArbeidsgiver().equals(e.getArbeidsgiver())));
@@ -155,7 +153,7 @@ public class SøknadDtoTjeneste {
     }
 
     private ManglendeVedleggDto mapTilManglendeVedleggDto(ManglendeVedlegg mv) {
-        final ManglendeVedleggDto dto = new ManglendeVedleggDto();
+        final var dto = new ManglendeVedleggDto();
         dto.setDokumentType(mv.getDokumentType());
         if (mv.getDokumentType().equals(DokumentTypeId.INNTEKTSMELDING)) {
             dto.setArbeidsgiverReferanse(mv.getArbeidsgiver());
@@ -165,10 +163,10 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<SoknadDto> lagSoknadAdopsjonDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
-        Map<Integer, LocalDate> fødselsdatoer = familieHendelse.getBarna().stream()
+        var behandlingId = ref.getBehandlingId();
+        var fødselsdatoer = familieHendelse.getBarna().stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
-        SoknadAdopsjonDto soknadAdopsjonDto = new SoknadAdopsjonDto();
+        var soknadAdopsjonDto = new SoknadAdopsjonDto();
         mapFellesSoknadDtoFelter(søknad, soknadAdopsjonDto);
         soknadAdopsjonDto.setSoknadType(SøknadType.ADOPSJON);
         soknadAdopsjonDto.setOmsorgsovertakelseDato(familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
@@ -195,18 +193,17 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<LocalDate> hentOppgittStartdatoForPermisjon(Long behandlingId, RelasjonsRolleType rolleType) {
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
-        Optional<LocalDate> oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
+        var oppgittStartdato = getFørsteUttaksdagHvisOppgitt(skjæringstidspunkter)
             .or(() -> skjæringstidspunkter.getSkjæringstidspunktHvisUtledet());
         if (RelasjonsRolleType.MORA.equals(rolleType)) {
-            Optional<LocalDate> evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
+            var evFødselFørOppgittStartdato = familieHendelseRepository.hentAggregat(behandlingId)
                 .getGjeldendeBekreftetVersjon().flatMap(FamilieHendelseEntitet::getFødselsdato).map(VirkedagUtil::fomVirkedag)
                 .filter(fødselsdatoUkedag -> fødselsdatoUkedag.isBefore(oppgittStartdato.orElse(LocalDate.MAX)));
             return evFødselFørOppgittStartdato.or(() -> oppgittStartdato);
-        } else {
-            return oppgittStartdato;
         }
+        return oppgittStartdato;
     }
 
     private Optional<LocalDate> getFørsteUttaksdagHvisOppgitt(Skjæringstidspunkt skjæringstidspunkter) {
@@ -218,7 +215,7 @@ public class SøknadDtoTjeneste {
     }
 
     private Optional<Integer> hentDekningsgrad(BehandlingReferanse ref) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.finnRelasjonHvisEksisterer(ref.getSaksnummer());
         return fagsakRelasjonOpt.map(fagsakRelasjon -> fagsakRelasjon.getDekningsgrad().getVerdi());
     }
 }

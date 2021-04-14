@@ -41,7 +41,8 @@ public class KlageAnkeVedtakTjeneste {
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return klageRepository.hentGjeldendeKlageVurderingResultat(behandling)
                 .map(KlageVurderingResultat::getKlageVurdertAv).filter(KlageVurdertAv.NK::equals).isPresent();
-        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+        }
+        if (BehandlingType.ANKE.equals(behandling.getType())) {
             return ankeRepository.hentAnkeVurderingResultat(behandling.getId()).isPresent();
         }
         return false;
@@ -63,7 +64,8 @@ public class KlageAnkeVedtakTjeneste {
                 .filter(KlageVurderingResultat::isGodkjentAvMedunderskriver)
                 .map(KlageVurderingResultat::getKlageVurdertAv)
                 .filter(KlageVurdertAv.NK::equals).isPresent();
-        } else if (BehandlingType.ANKE.equals(behandling.getType())) {
+        }
+        if (BehandlingType.ANKE.equals(behandling.getType())) {
             return ankeRepository.hentAnkeVurderingResultat(behandling.getId())
                 .filter(AnkeVurderingResultatEntitet::godkjentAvMedunderskriver).isPresent();
         }
@@ -83,7 +85,7 @@ public class KlageAnkeVedtakTjeneste {
         if (BehandlingType.ANKE.equals(behandling.getType())) {
             ankeRepository.settAnkeGodkjentHosMedunderskriver(behandling.getId(), true);
         } else if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            KlageVurdertAv vurdertAv = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA) ? KlageVurdertAv.NK : KlageVurdertAv.NFP;
+            var vurdertAv = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_KA) ? KlageVurdertAv.NK : KlageVurdertAv.NFP;
             klageRepository.settKlageGodkjentHosMedunderskriver(behandling.getId(), vurdertAv, true);
         }
     }

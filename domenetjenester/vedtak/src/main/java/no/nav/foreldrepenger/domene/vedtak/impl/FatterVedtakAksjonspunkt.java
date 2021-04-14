@@ -3,13 +3,11 @@ package no.nav.foreldrepenger.domene.vedtak.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -43,15 +41,15 @@ public class FatterVedtakAksjonspunkt {
     }
 
     public void oppdater(Behandling behandling, Collection<VedtakAksjonspunktData> aksjonspunkter) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.setAnsvarligBeslutter(SubjectHandler.getSubjectHandler().getUid());
 
         List<Totrinnsvurdering> totrinnsvurderinger = new ArrayList<>();
         List<Aksjonspunkt> skalReåpnes = new ArrayList<>();
 
-        for (VedtakAksjonspunktData aks : aksjonspunkter) {
-            boolean erTotrinnGodkjent = aks.isGodkjent();
-            Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(aks.getAksjonspunktDefinisjon());
+        for (var aks : aksjonspunkter) {
+            var erTotrinnGodkjent = aks.isGodkjent();
+            var aksjonspunkt = behandling.getAksjonspunktFor(aks.getAksjonspunktDefinisjon());
             if (!aks.isGodkjent()) {
                 skalReåpnes.add(aksjonspunkt);
             }
@@ -60,10 +58,10 @@ public class FatterVedtakAksjonspunkt {
                 klageAnkeVedtakTjeneste.settGodkjentHosMedunderskriver(behandling);
             }
 
-            Set<String> koder = aks.getVurderÅrsakskoder();
+            var koder = aks.getVurderÅrsakskoder();
             Collection<VurderÅrsak> vurderÅrsaker = koder.stream().map(VurderÅrsak::fraKode).collect(Collectors.toSet());
 
-            Totrinnsvurdering.Builder vurderingBuilder = new Totrinnsvurdering.Builder(behandling, aks.getAksjonspunktDefinisjon());
+            var vurderingBuilder = new Totrinnsvurdering.Builder(behandling, aks.getAksjonspunktDefinisjon());
             vurderingBuilder.medGodkjent(erTotrinnGodkjent);
             vurderÅrsaker.forEach(vurderingBuilder::medVurderÅrsak);
             vurderingBuilder.medBegrunnelse(aks.getBegrunnelse());

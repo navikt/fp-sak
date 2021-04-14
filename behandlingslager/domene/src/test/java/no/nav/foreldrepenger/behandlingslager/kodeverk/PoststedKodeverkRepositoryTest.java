@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
@@ -20,8 +19,8 @@ public class PoststedKodeverkRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void test_hent_samme_verdi() {
-        Poststed postSted1 = repo.finnPoststed("0103").orElse(null);
-        Poststed postSted2 = repo.finnPoststed("0103").orElse(null);
+        var postSted1 = repo.finnPoststed("0103").orElse(null);
+        var postSted2 = repo.finnPoststed("0103").orElse(null);
         assertThat(postSted1).isEqualTo(postSted2);
     }
 

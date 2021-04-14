@@ -21,28 +21,28 @@ class MapBRAndelSammenligningTidslinje {
 
     static LocalDateTimeline<BRAndelSammenligning> opprettTidslinje(List<BeregningsresultatPeriode> originalTYPerioder,
             List<BeregningsresultatPeriode> revurderingTYPerioder) {
-        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(LocalDate.now(), originalTYPerioder);
-        LocalDateTimeline<List<BeregningsresultatAndel>> bgTidslinje = lagTidslinje(revurderingTYPerioder);
+        var alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(LocalDate.now(), originalTYPerioder);
+        var bgTidslinje = lagTidslinje(revurderingTYPerioder);
         return bgTidslinje.combine(alleredeUtbetalt, MapBRAndelSammenligningTidslinje::combine, LocalDateTimeline.JoinStyle.LEFT_JOIN);
     }
 
     static LocalDateTimeline<BRAndelSammenligning> opprettTidslinjeTest(List<BeregningsresultatPeriode> originalTYPerioder,
                                                                     List<BeregningsresultatPeriode> revurderingTYPerioder,
                                                                         LocalDate dagensDato) {
-        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(dagensDato, originalTYPerioder);
-        LocalDateTimeline<List<BeregningsresultatAndel>> bgTidslinje = lagTidslinje(revurderingTYPerioder);
+        var alleredeUtbetalt = lagAlleredeUtbetaltTidslinje(dagensDato, originalTYPerioder);
+        var bgTidslinje = lagTidslinje(revurderingTYPerioder);
         return bgTidslinje.combine(alleredeUtbetalt, MapBRAndelSammenligningTidslinje::combine, LocalDateTimeline.JoinStyle.LEFT_JOIN);
     }
 
     private static LocalDateTimeline<List<BeregningsresultatAndel>> lagAlleredeUtbetaltTidslinje(LocalDate dagensDato,
             List<BeregningsresultatPeriode> beregningsresultatPerioder) {
-        LocalDateTimeline<List<BeregningsresultatAndel>> forrigeTYTidslinje = lagTidslinje(beregningsresultatPerioder);
-        LocalDateTimeline<List<BeregningsresultatAndel>> alleredeUtbetalt = identifiserUtbetaltPeriode(dagensDato);
+        var forrigeTYTidslinje = lagTidslinje(beregningsresultatPerioder);
+        var alleredeUtbetalt = identifiserUtbetaltPeriode(dagensDato);
         return forrigeTYTidslinje.intersection(alleredeUtbetalt);
     }
 
     private static LocalDateTimeline<List<BeregningsresultatAndel>> identifiserUtbetaltPeriode(LocalDate dagensDato) {
-        LocalDate alleredeUtbetaltTom = FinnAlleredeUtbetaltTom.finn(dagensDato);
+        var alleredeUtbetaltTom = FinnAlleredeUtbetaltTom.finn(dagensDato);
         return new LocalDateTimeline<>(
                 Tid.TIDENES_BEGYNNELSE,
                 alleredeUtbetaltTom,
@@ -62,13 +62,13 @@ class MapBRAndelSammenligningTidslinje {
     private static LocalDateSegment<BRAndelSammenligning> combine(LocalDateInterval interval,
             LocalDateSegment<List<BeregningsresultatAndel>> bgSegment,
             LocalDateSegment<List<BeregningsresultatAndel>> forrigeSegment) {
-        List<BeregningsresultatAndel> forrigeAndeler = Optional.ofNullable(forrigeSegment)
+        var forrigeAndeler = Optional.ofNullable(forrigeSegment)
                 .map(LocalDateSegment::getValue)
                 .orElse(Collections.emptyList());
-        List<BeregningsresultatAndel> bgAndeler = Optional.ofNullable(bgSegment)
+        var bgAndeler = Optional.ofNullable(bgSegment)
                 .map(LocalDateSegment::getValue)
                 .orElse(Collections.emptyList());
-        BRAndelSammenligning wrapper = new BRAndelSammenligning(forrigeAndeler, bgAndeler);
+        var wrapper = new BRAndelSammenligning(forrigeAndeler, bgAndeler);
         return new LocalDateSegment<>(interval, wrapper);
     }
 }

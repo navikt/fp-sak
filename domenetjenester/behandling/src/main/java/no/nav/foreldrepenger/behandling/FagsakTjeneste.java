@@ -62,11 +62,11 @@ public class FagsakTjeneste {
     public void oppdaterFagsak(Behandling behandling, PersonopplysningerAggregat personopplysninger,
             List<PersonopplysningEntitet> barnSøktStønadFor) {
 
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         validerEksisterendeFagsak(fagsak);
 
         // Oppdatering basert på søkers oppgitte relasjon til barn
-        Optional<RelasjonsRolleType> oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+        var oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
                 .map(SøknadEntitet::getRelasjonsRolleType);
         if (oppgittRelasjonsRolle.isPresent()) {
             LOG.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
@@ -76,9 +76,9 @@ public class FagsakTjeneste {
         }
 
         // Oppdatering basert på søkers registrerte relasjon til barn
-        Optional<PersonRelasjonEntitet> funnetRelasjon = finnBarnetsRelasjonTilSøker(barnSøktStønadFor, personopplysninger);
+        var funnetRelasjon = finnBarnetsRelasjonTilSøker(barnSøktStønadFor, personopplysninger);
         if (funnetRelasjon.isPresent()) {
-            Optional<RelasjonsRolleType> brukerRolle = RelasjonsRolleType.fraKodeOptional(funnetRelasjon.get().getRelasjonsrolle().getKode());
+            var brukerRolle = RelasjonsRolleType.fraKodeOptional(funnetRelasjon.get().getRelasjonsrolle().getKode());
             if (brukerRolle.isPresent()) {
                 LOG.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
                         brukerRolle.get().getKode());
@@ -149,7 +149,7 @@ public class FagsakTjeneste {
     private Optional<PersonRelasjonEntitet> finnBarnetsRelasjonTilSøker(List<PersonopplysningEntitet> barnaSøktStøtteFor,
             PersonopplysningerAggregat personopplysningerAggregat) {
 
-        Optional<PersonopplysningEntitet> barn = personopplysningerAggregat.getBarna().stream()
+        var barn = personopplysningerAggregat.getBarna().stream()
                 .filter(e -> barnaSøktStøtteFor.stream()
                         .anyMatch(kandidat -> kandidat.getAktørId().equals(e.getAktørId())))
                 .findFirst();

@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -50,7 +49,7 @@ public class SvangerskapspengerRestTjeneste {
     @Operation(description = "Hent informasjon om tilretteleggingbehov ved svangerskapspenger", summary = ("Returnerer termindato og liste med tilretteleggingsinfo pr. arbeidsforhold ved svangerskapspenger"), tags = "svangerskapspenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SvpTilretteleggingDto tilrettelegging(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return svangerskapspengerTjeneste.hentTilrettelegging(behandling);
     }
 }

@@ -53,7 +53,7 @@ public enum OverføringÅrsak implements Årsak {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(OverføringÅrsak.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(OverføringÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent OverføringÅrsak: " + kode);

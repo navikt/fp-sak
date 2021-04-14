@@ -7,7 +7,6 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 
 final class AktivitetStatusMapper {
 
@@ -43,7 +42,7 @@ final class AktivitetStatusMapper {
 
     static AktivitetStatus fraRegelTilVl(BeregningsresultatAndel andel) {
         if (andel.getAktivitetStatus().equals(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus.ATFL)) {
-            Arbeidsforhold arbeidsforhold = andel.getArbeidsforhold();
+            var arbeidsforhold = andel.getArbeidsforhold();
             return arbeidsforhold != null && arbeidsforhold.erFrilanser() ? AktivitetStatus.FRILANSER : AktivitetStatus.ARBEIDSTAKER;
         }
         if (REGEL_TIL_VL_MAP.containsKey(andel.getAktivitetStatus())) {

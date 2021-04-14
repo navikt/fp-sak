@@ -74,7 +74,7 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(GraderingAvslagÅrsak.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(GraderingAvslagÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent GraderingAvslagÅrsak: " + kode);

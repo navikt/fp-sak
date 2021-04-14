@@ -42,13 +42,13 @@ public class OpprettOppgaveVurderKonsekvensTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_vurdere_konsekvens_basert_på_fagsakId() {
         // Arrange
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
         prosessTaskData.setFagsakId(FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);
-        ArgumentCaptor<Long> fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<OppgaveÅrsak> årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
-        ArgumentCaptor<String> beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
+        var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
+        var årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
+        var beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
 
         // Act
         opprettOppgaveVurderKonsekvensTask.doTask(prosessTaskData);

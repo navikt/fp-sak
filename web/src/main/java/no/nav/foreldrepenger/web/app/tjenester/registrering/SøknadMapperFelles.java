@@ -16,15 +16,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.AndreYtelserDto;
-import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.NaringsvirksomhetTypeDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
@@ -71,7 +67,7 @@ public class SøknadMapperFelles {
     }
 
     public static Soeknad mapSøknad(ManuellRegistreringDto registreringDto, NavBruker navBruker) {
-        Soeknad søknad = new Soeknad();
+        var søknad = new Soeknad();
         søknad.setMottattDato(registreringDto.getMottattDato());
         søknad.setSoeker(mapBruker(registreringDto.getSoker(), navBruker)); //Stønadstype Søker fnr og søkertype(mor/far/annen/medmor)
         søknad.setTilleggsopplysninger(registreringDto.getTilleggsopplysninger());
@@ -81,27 +77,26 @@ public class SøknadMapperFelles {
     }
 
     public static AnnenForelder mapAnnenForelder(ManuellRegistreringDto registreringDto, PersoninfoAdapter personinfoAdapter) {
-        AnnenForelderDto annenForelderDto = registreringDto.getAnnenForelder();
+        var annenForelderDto = registreringDto.getAnnenForelder();
         if (annenForelderDto == null) {
             return null;
         }
         if (TRUE.equals(annenForelderDto.getKanIkkeOppgiAnnenForelder())) {
-            AnnenForelderDto.KanIkkeOppgiBegrunnelse oppgittBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
-            String utenlandskFoedselsnummer = oppgittBegrunnelse.getUtenlandskFoedselsnummer();
+            var oppgittBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
+            var utenlandskFoedselsnummer = oppgittBegrunnelse.getUtenlandskFoedselsnummer();
             if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank()) {
-                AnnenForelderUtenNorskIdent annenForelderUtenNorskIdent = new AnnenForelderUtenNorskIdent();
+                var annenForelderUtenNorskIdent = new AnnenForelderUtenNorskIdent();
                 annenForelderUtenNorskIdent.setUtenlandskPersonidentifikator(utenlandskFoedselsnummer);
                 if (oppgittBegrunnelse.getLand() != null && !oppgittBegrunnelse.getLand().isBlank()) {
                     annenForelderUtenNorskIdent.setLand(getLandkode(oppgittBegrunnelse.getLand()));
                 }
                 return annenForelderUtenNorskIdent;
-            } else {
-                return new UkjentForelder();
             }
+            return new UkjentForelder();
         }
 
-        AnnenForelderMedNorskIdent annenForelderMedNorskIdent = new AnnenForelderMedNorskIdent();
-        AktørId aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
+        var annenForelderMedNorskIdent = new AnnenForelderMedNorskIdent();
+        var aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
             .orElseThrow(() -> new TekniskException("FP-453257", "Fant ikke aktør-ID for fødselsnummer"));
         annenForelderMedNorskIdent.setAktoerId(aktørId.getId());
 
@@ -113,16 +108,16 @@ public class SøknadMapperFelles {
         List<OppholdNorge> oppholdNorgeListe = new ArrayList<>();
         if (nonNull(mottattDato)) {
             if (tidligereOppholdNorge) {
-                OppholdNorge oppholdNorgeSistePeriode = new OppholdNorge();
-                Periode periode = new Periode();
+                var oppholdNorgeSistePeriode = new OppholdNorge();
+                var periode = new Periode();
                 periode.setFom(mottattDato.minusYears(1));
                 periode.setTom(mottattDato);
                 oppholdNorgeSistePeriode.setPeriode(periode);
                 oppholdNorgeListe.add(oppholdNorgeSistePeriode);
             }
             if (fremtidigOppholdNorge) {
-                OppholdNorge oppholdNorgeNestePeriode = new OppholdNorge();
-                Periode periode = new Periode();
+                var oppholdNorgeNestePeriode = new OppholdNorge();
+                var periode = new Periode();
                 periode.setFom(mottattDato);
                 periode.setTom(mottattDato.plusYears(1));
                 oppholdNorgeNestePeriode.setPeriode(periode);
@@ -134,12 +129,12 @@ public class SøknadMapperFelles {
     }
 
     static Bruker mapBruker(ForeldreType søker, NavBruker navBruker) {
-        Bruker bruker = new Bruker();
+        var bruker = new Bruker();
         bruker.setAktoerId(navBruker.getAktørId().getId());
-        Brukerroller brukerroller = new Brukerroller();
+        var brukerroller = new Brukerroller();
 
         //TODO PFP-8742 Bør sees på ifm adopsjon PFP-334 og stebarnsadopsjon PFP-182
-        String brukerRolleKode = "ANDRE".equals(søker.getKode()) ? "IKKE_RELEVANT" : søker.getKode();
+        var brukerRolleKode = "ANDRE".equals(søker.getKode()) ? "IKKE_RELEVANT" : søker.getKode();
 
         brukerroller.setKode(brukerRolleKode);
         bruker.setSoeknadsrolle(brukerroller);
@@ -150,7 +145,7 @@ public class SøknadMapperFelles {
         if (null == språkkode){
             return null;
         }
-        Spraakkode spraakkode = new Spraakkode();
+        var spraakkode = new Spraakkode();
         spraakkode.setKode(språkkode.getKode());
         spraakkode.setKodeverk(språkkode.getKodeverk());
         return spraakkode;
@@ -158,28 +153,29 @@ public class SøknadMapperFelles {
 
     public static SoekersRelasjonTilBarnet mapRelasjonTilBarnet(ManuellRegistreringDto registreringDto) {
         // Hvis det er gjort et valg av rettigheter knyttet til omsorgovertakelse for far skal saken opprettes som en omsorgsovertakelse.
-        boolean rettigheterRelatertTilOmsorgErSatt = registreringDto.getRettigheter() != null
+        var rettigheterRelatertTilOmsorgErSatt = registreringDto.getRettigheter() != null
             && !RettigheterDto.MANN_ADOPTERER_ALENE.equals(registreringDto.getRettigheter());
         if (rettigheterRelatertTilOmsorgErSatt) {
             return mapOmsorgsovertakelse(registreringDto);
         }
         //SøkersRelasjonTilBarnet = adopsjon, fødsel, termin eller omsorg
-        FamilieHendelseType tema = registreringDto.getTema();
+        var tema = registreringDto.getTema();
         if (erSøknadVedAdopsjon(tema)) {
             return mapAdopsjon(registreringDto);
-        } else if (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
-            return mapFødsel(registreringDto);
-        } else if (erSøknadVedTermin(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
-            return mapTermin(registreringDto);
-        } else {
-            throw new IllegalArgumentException(String.format("Ugyldig temakode: %s ", tema));
         }
+        if (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
+            return mapFødsel(registreringDto);
+        }
+        if (erSøknadVedTermin(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
+            return mapTermin(registreringDto);
+        }
+        throw new IllegalArgumentException(String.format("Ugyldig temakode: %s ", tema));
     }
 
     static Foedsel mapFødsel(ManuellRegistreringDto registreringDto) {
-        Foedsel fødsel = new Foedsel();
+        var fødsel = new Foedsel();
         if (harFødselsdato(registreringDto)) {
-            List<LocalDate> foedselsDato = registreringDto.getFoedselsDato();
+            var foedselsDato = registreringDto.getFoedselsDato();
             if (foedselsDato.size() != 1) {
                 throw new IllegalArgumentException("Støtter bare 1 fødselsdato på fødsel");
             }
@@ -192,10 +188,10 @@ public class SøknadMapperFelles {
 
     private static List<OppholdUtlandet> mapUtenlandsopphold(List<UtenlandsoppholdDto> utenlandsopphold) {
         List<OppholdUtlandet> utenlandsoppholdListe = new ArrayList<>();
-        for (UtenlandsoppholdDto utenlandsoppholdDto : utenlandsopphold) {
-            OppholdUtlandet nyttOpphold = new OppholdUtlandet();
+        for (var utenlandsoppholdDto : utenlandsopphold) {
+            var nyttOpphold = new OppholdUtlandet();
             nyttOpphold.setLand(getLandkode(utenlandsoppholdDto.getLand()));
-            Periode periode = new Periode();
+            var periode = new Periode();
             periode.setFom(utenlandsoppholdDto.getPeriodeFom());
             periode.setTom(utenlandsoppholdDto.getPeriodeTom());
             nyttOpphold.setPeriode(periode);
@@ -205,7 +201,7 @@ public class SøknadMapperFelles {
     }
 
     static Termin mapTermin(ManuellRegistreringDto registreringDto) {
-        Termin termin = new Termin();
+        var termin = new Termin();
         if (harTermindato(registreringDto)) {
             termin.setTermindato(registreringDto.getTermindato());
             termin.setAntallBarn(registreringDto.getAntallBarnFraTerminbekreftelse());
@@ -215,11 +211,11 @@ public class SøknadMapperFelles {
     }
 
     static Adopsjon mapAdopsjon(ManuellRegistreringDto registreringDto) {
-        Adopsjon adopsjon = new Adopsjon();
+        var adopsjon = new Adopsjon();
         adopsjon.setOmsorgsovertakelsesdato(registreringDto.getOmsorg().getOmsorgsovertakelsesdato());
         adopsjon.setAnkomstdato(registreringDto.getOmsorg().getAnkomstdato());
-        List<LocalDate> foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
-        for (LocalDate dato : foedselsdatoer) {
+        var foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
+        for (var dato : foedselsdatoer) {
             adopsjon.getFoedselsdato().add(dato);
         }
 
@@ -229,13 +225,13 @@ public class SøknadMapperFelles {
     }
 
     static Omsorgsovertakelse mapOmsorgsovertakelse(ManuellRegistreringDto registreringDto) {
-        Omsorgsovertakelse omsorgsovertakelse = new Omsorgsovertakelse();
+        var omsorgsovertakelse = new Omsorgsovertakelse();
 
         omsorgsovertakelse.setOmsorgsovertakelseaarsak(mapOmsorgsovertakelseaarsaker(registreringDto));
         omsorgsovertakelse.setOmsorgsovertakelsesdato(registreringDto.getOmsorg().getOmsorgsovertakelsesdato());
 
-        List<LocalDate> foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
-        for (LocalDate dato : foedselsdatoer) {
+        var foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
+        for (var dato : foedselsdatoer) {
             omsorgsovertakelse.getFoedselsdato().add(dato);
         }
 
@@ -244,8 +240,8 @@ public class SøknadMapperFelles {
     }
 
     private static Omsorgsovertakelseaarsaker mapOmsorgsovertakelseaarsaker(ManuellRegistreringDto registreringDto) {
-        Omsorgsovertakelseaarsaker omsorgsovertakelseaarsaker = new Omsorgsovertakelseaarsaker();
-        FarSøkerType farSøkerType = switch (registreringDto.getRettigheter()) {
+        var omsorgsovertakelseaarsaker = new Omsorgsovertakelseaarsaker();
+        var farSøkerType = switch (registreringDto.getRettigheter()) {
             case ANNEN_FORELDER_DOED -> FarSøkerType.ANDRE_FORELDER_DØD;
             case MANN_ADOPTERER_ALENE -> FarSøkerType.ADOPTERER_ALENE;
             default -> (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())
@@ -266,12 +262,12 @@ public class SøknadMapperFelles {
     }
 
     private static boolean erSøknadVedFødsel(Boolean erBarnetFødt, FamilieHendelseType tema) {
-        boolean fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
+        var fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
         return (fødsel && (TRUE.equals(erBarnetFødt)));
     }
 
     private static boolean erSøknadVedTermin(Boolean erBarnetFødt, FamilieHendelseType tema) {
-        boolean fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
+        var fødsel = FamilieHendelseType.FØDSEL.getKode().equals(tema.getKode());
         return (fødsel && !(TRUE.equals(erBarnetFødt))); //Barnet er ikke født ennå, termin.
     }
 
@@ -280,7 +276,7 @@ public class SøknadMapperFelles {
     }
 
     private static Land getLandkode(String land) {
-        Land landkode = new Land();
+        var landkode = new Land();
         landkode.setKode(land);
         return landkode;
     }
@@ -290,12 +286,12 @@ public class SøknadMapperFelles {
     }
 
     public static Medlemskap mapMedlemskap(ManuellRegistreringDto registreringDto) {
-        Medlemskap medlemskap = new Medlemskap();
+        var medlemskap = new Medlemskap();
 
-        boolean harFremtidigOppholdUtenlands = registreringDto.getHarFremtidigeOppholdUtenlands();
-        boolean harTidligereOppholdUtenlands = registreringDto.getHarTidligereOppholdUtenlands();
+        var harFremtidigOppholdUtenlands = registreringDto.getHarFremtidigeOppholdUtenlands();
+        var harTidligereOppholdUtenlands = registreringDto.getHarTidligereOppholdUtenlands();
 
-        List<OppholdNorge> oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands, !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
+        var oppholdNorge = opprettOppholdNorge(registreringDto.getMottattDato(), !harFremtidigOppholdUtenlands, !harTidligereOppholdUtenlands);//Ikke utenlandsopphold tolkes som opphold i norge
         medlemskap.getOppholdNorge().addAll(oppholdNorge);
         medlemskap.setINorgeVedFoedselstidspunkt(registreringDto.getOppholdINorge());
         if (harFremtidigOppholdUtenlands) {
@@ -313,7 +309,7 @@ public class SøknadMapperFelles {
     }
 
     public static Opptjening mapOpptjening(MedInntektArbeidYtelseRegistrering registreringDto, VirksomhetTjeneste virksomhetTjeneste) {
-        Opptjening opptjening = new Opptjening();
+        var opptjening = new Opptjening();
         opptjening.getAnnenOpptjening().addAll(mapAndreYtelser(registreringDto.getAndreYtelser()));
         opptjening.getEgenNaering().addAll(mapEgneNæringer(registreringDto.getEgenVirksomhet(), virksomhetTjeneste));
         opptjening.getUtenlandskArbeidsforhold().addAll(mapAlleUtenlandskeArbeidsforhold(registreringDto.getArbeidsforhold()));
@@ -325,9 +321,9 @@ public class SøknadMapperFelles {
         if (dto == null || dto.getPerioder() == null) {
             return null;
         }
-        Frilans frilans = new Frilans();
+        var frilans = new Frilans();
         frilans.getPeriode().addAll(dto.getPerioder().stream().map(p -> {
-            Periode periode = new Periode();
+            var periode = new Periode();
             periode.setFom(p.getPeriodeFom());
             periode.setTom(p.getPeriodeTom());
             return periode;
@@ -338,7 +334,7 @@ public class SøknadMapperFelles {
         frilans.setHarInntektFraFosterhjem(getNullBooleanAsFalse(dto.getHarInntektFraFosterhjem()));
 
         if (getNullBooleanAsFalse(dto.getHarHattOppdragForFamilie())) {
-            List<Frilansoppdrag> frilansoppdrag = dto.getOppdragPerioder().stream().map(SøknadMapperFelles::mapAlleFrilansOppdragperioder).collect(Collectors.toList());
+            var frilansoppdrag = dto.getOppdragPerioder().stream().map(SøknadMapperFelles::mapAlleFrilansOppdragperioder).collect(Collectors.toList());
             frilans.getFrilansoppdrag().addAll(frilansoppdrag);
         }
 
@@ -346,10 +342,10 @@ public class SøknadMapperFelles {
     }
 
     private static Frilansoppdrag mapAlleFrilansOppdragperioder(FrilansDto.Oppdragperiode oppdragperiode) {
-        Frilansoppdrag oppdrag = new Frilansoppdrag();
+        var oppdrag = new Frilansoppdrag();
         oppdrag.setOppdragsgiver(oppdragperiode.getOppdragsgiver());
 
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(oppdragperiode.getFomDato());
         periode.setTom(oppdragperiode.getTomDato());
         oppdrag.setPeriode(periode);
@@ -367,10 +363,10 @@ public class SøknadMapperFelles {
     }
 
     private static UtenlandskArbeidsforhold mapUtenlandskArbeidsforhold(ArbeidsforholdDto arbeidsforholdDto) {
-        UtenlandskArbeidsforhold arbeidsforhold = new UtenlandskArbeidsforhold();
+        var arbeidsforhold = new UtenlandskArbeidsforhold();
         arbeidsforhold.setArbeidsgiversnavn(arbeidsforholdDto.getArbeidsgiver());
 
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(arbeidsforholdDto.getPeriodeFom());
         periode.setTom(arbeidsforholdDto.getPeriodeTom());
         arbeidsforhold.setPeriode(periode);
@@ -391,19 +387,19 @@ public class SøknadMapperFelles {
     static EgenNaering mapEgenNæring(VirksomhetDto virksomhetDto, VirksomhetTjeneste virksomhetTjeneste) {
         EgenNaering egenNaering;
         if (TRUE.equals(virksomhetDto.getVirksomhetRegistrertINorge())) {
-            NorskOrganisasjon norskOrganisasjon = new NorskOrganisasjon();
+            var norskOrganisasjon = new NorskOrganisasjon();
             norskOrganisasjon.setOrganisasjonsnummer(virksomhetDto.getOrganisasjonsnummer());
             norskOrganisasjon.setNavn(virksomhetDto.getNavn());
-            Virksomhet virksomhet = virksomhetTjeneste.hentOrganisasjon(virksomhetDto.getOrganisasjonsnummer());
-            Periode periode = new Periode();
+            var virksomhet = virksomhetTjeneste.hentOrganisasjon(virksomhetDto.getOrganisasjonsnummer());
+            var periode = new Periode();
             periode.setFom(virksomhet.getRegistrert());
             periode.setTom(virksomhet.getAvslutt() != null ? virksomhet.getAvslutt() : Tid.TIDENES_ENDE);
             norskOrganisasjon.setPeriode(periode);
             egenNaering = norskOrganisasjon;
         } else {
-            UtenlandskOrganisasjon utenlandskOrganisasjon = new UtenlandskOrganisasjon();
+            var utenlandskOrganisasjon = new UtenlandskOrganisasjon();
             utenlandskOrganisasjon.setNavn(virksomhetDto.getNavn());
-            Periode periode = new Periode();
+            var periode = new Periode();
             periode.setFom(virksomhetDto.getFom());
             periode.setTom(virksomhetDto.getTom() != null ? virksomhetDto.getTom() : Tid.TIDENES_ENDE);
             utenlandskOrganisasjon.setPeriode(periode);
@@ -415,7 +411,7 @@ public class SøknadMapperFelles {
         egenNaering.setOppstartsdato(virksomhetDto.getOppstartsdato());
 
         if (TRUE.equals(virksomhetDto.getHarRegnskapsforer())) {
-            Regnskapsfoerer regnskapsfoerer = new Regnskapsfoerer();
+            var regnskapsfoerer = new Regnskapsfoerer();
             regnskapsfoerer.setNavn(virksomhetDto.getNavnRegnskapsforer());
             regnskapsfoerer.setTelefon(virksomhetDto.getTlfRegnskapsforer());
             egenNaering.setRegnskapsfoerer(regnskapsfoerer);
@@ -439,31 +435,31 @@ public class SøknadMapperFelles {
     }
 
     private static void finnTypeVirksomhet(VirksomhetDto virksomhetDto, EgenNaering egenNaering) {
-        NaringsvirksomhetTypeDto typeVirksomhet = virksomhetDto.getTypeVirksomhet();
-        List<Virksomhetstyper> virksomhetstyper = egenNaering.getVirksomhetstype();
+        var typeVirksomhet = virksomhetDto.getTypeVirksomhet();
+        var virksomhetstyper = egenNaering.getVirksomhetstype();
         if (!isNull(typeVirksomhet)) {
             if (typeVirksomhet.getAnnen()) {
-                Virksomhetstyper virksomhetstype = new Virksomhetstyper();
+                var virksomhetstype = new Virksomhetstyper();
                 virksomhetstype.setKode(VirksomhetType.ANNEN.getKode());
                 virksomhetstyper.add(virksomhetstype);
             }
             if (typeVirksomhet.getFiske()) {
-                Virksomhetstyper virksomhetstype = new Virksomhetstyper();
+                var virksomhetstype = new Virksomhetstyper();
                 virksomhetstype.setKode(VirksomhetType.FISKE.getKode());
                 virksomhetstyper.add(virksomhetstype);
             }
             if (typeVirksomhet.getDagmammaEllerFamiliebarnehage()) {
-                Virksomhetstyper virksomhetstype = new Virksomhetstyper();
+                var virksomhetstype = new Virksomhetstyper();
                 virksomhetstype.setKode(VirksomhetType.DAGMAMMA.getKode());
                 virksomhetstyper.add(virksomhetstype);
             }
             if (typeVirksomhet.getJordbrukEllerSkogbruk()) {
-                Virksomhetstyper virksomhetstype = new Virksomhetstyper();
+                var virksomhetstype = new Virksomhetstyper();
                 virksomhetstype.setKode(VirksomhetType.JORDBRUK_SKOGBRUK.getKode());
                 virksomhetstyper.add(virksomhetstype);
             }
         } else {
-            Virksomhetstyper virksomhetstype = new Virksomhetstyper();
+            var virksomhetstype = new Virksomhetstyper();
             virksomhetstype.setKode(VirksomhetType.UDEFINERT.getKode());
             virksomhetstyper.add(virksomhetstype);
         }
@@ -477,12 +473,12 @@ public class SøknadMapperFelles {
     }
 
     private static AnnenOpptjening opprettAnnenOpptjening(AndreYtelserDto opptjening) {
-        AnnenOpptjening annenOpptjening = new AnnenOpptjening();
-        AnnenOpptjeningTyper typer = new AnnenOpptjeningTyper();
+        var annenOpptjening = new AnnenOpptjening();
+        var typer = new AnnenOpptjeningTyper();
         typer.setKode(opptjening.getYtelseType().getKode());
         annenOpptjening.setType(typer);
 
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(opptjening.getPeriodeFom());
         periode.setTom(opptjening.getPeriodeTom());
         annenOpptjening.setPeriode(periode);

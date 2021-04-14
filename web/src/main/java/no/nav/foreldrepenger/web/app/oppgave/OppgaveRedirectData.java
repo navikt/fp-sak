@@ -3,15 +3,12 @@ package no.nav.foreldrepenger.web.app.oppgave;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
@@ -30,20 +27,22 @@ public class OppgaveRedirectData {
             var feilmelding = "Sak kan ikke åpnes, da referanse mangler.";
             LOG.warn(feilmelding);
             return OppgaveRedirectData.medFeilmelding(feilmelding);
-        } else if (oppgaveId == null) {
-            Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        }
+        if (oppgaveId == null) {
+            var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
             return hentForFagsak(fagsakRepository,saksnummer);
-        } else if (saksnummerDto == null) {
+        }
+        if (saksnummerDto == null) {
             return hentForOppgave(oppgaveBehandlingKoblingRepository, oppgaveId.getVerdi());
         }
 
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Optional<Fagsak> sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         if (sak.isEmpty()) {
             return finnerIkkeSaksnummerRedirect(saksnummer);
         }
 
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi(), saksnummer);
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId.getVerdi(), saksnummer);
         if (oppgave.isPresent()) {
             var oppgaveSaksnummer = oppgave.get().getSaksnummer();
             if (oppgaveSaksnummer != null && oppgaveSaksnummer.equals(saksnummer)) {
@@ -59,7 +58,7 @@ public class OppgaveRedirectData {
     }
 
     private static OppgaveRedirectData hentForFagsak(FagsakRepository fagsakRepository, Saksnummer saksnummer) {
-        Optional<Fagsak> sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var sak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         if (sak.isPresent()) {
             return OppgaveRedirectData.medSaksnummer(saksnummer);
         }
@@ -73,7 +72,7 @@ public class OppgaveRedirectData {
     }
 
     private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, String oppgaveId) {
-        Optional<OppgaveBehandlingKobling> oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
+        var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
         return oppgave.map(oppgaveBehandlingKobling -> OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveBehandlingKobling.getSaksnummer(), oppgaveBehandlingKobling.getBehandlingId()))
             .orElseGet(() -> {
                 var feilmelding = "Det finnes ingen oppgave med denne referansen:" + oppgaveId;
@@ -83,20 +82,20 @@ public class OppgaveRedirectData {
     }
 
     private static OppgaveRedirectData medSaksnummerOgBehandlingId(Saksnummer saksnummer, Long behandlingId) {
-        OppgaveRedirectData data = new OppgaveRedirectData();
+        var data = new OppgaveRedirectData();
         data.saksnummer = saksnummer;
         data.behandlingId = behandlingId;
         return data;
     }
 
     private static OppgaveRedirectData medSaksnummer(Saksnummer saksnummer) {
-        OppgaveRedirectData data = new OppgaveRedirectData();
+        var data = new OppgaveRedirectData();
         data.saksnummer = saksnummer;
         return data;
     }
 
     static OppgaveRedirectData medFeilmelding(String feilmelding) {
-        OppgaveRedirectData data = new OppgaveRedirectData();
+        var data = new OppgaveRedirectData();
         try {
             data.feilmelding = URLEncoder.encode(feilmelding, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {

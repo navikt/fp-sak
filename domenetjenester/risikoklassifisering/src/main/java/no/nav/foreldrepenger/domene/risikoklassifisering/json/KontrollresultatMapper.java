@@ -25,8 +25,8 @@ public class KontrollresultatMapper {
         if (kontraktResultat.getKontrollResultatkode() == null || kontraktResultat.getKontrollResultatkode().getKode() == null) {
             throw manglerKontrollresultatkode();
         }
-        String kode = kontraktResultat.getKontrollResultatkode().getKode();
-        Kontrollresultat kontrollresultat = finnKontrollresultat(kode);
+        var kode = kontraktResultat.getKontrollResultatkode().getKode();
+        var kontrollresultat = finnKontrollresultat(kode);
         return new KontrollresultatWrapper(kontraktResultat.getBehandlingUuid(), kontrollresultat);
     }
 
@@ -34,7 +34,7 @@ public class KontrollresultatMapper {
         if (kode == null) {
             return null;
         }
-        Kontrollresultat kontrollresultat = Kontrollresultat.fraKode(kode);
+        var kontrollresultat = Kontrollresultat.fraKode(kode);
         if (kontrollresultat == null || Kontrollresultat.UDEFINERT.equals(kontrollresultat)) {
             throw udefinertKontrollresultat();
         }
@@ -57,7 +57,7 @@ public class KontrollresultatMapper {
         if (faresignalGruppe == null || faresignalGruppe.getFaresignaler().isEmpty()) {
             return Optional.empty();
         }
-        FaresignalGruppeWrapper.Builder builder = FaresignalGruppeWrapper.builder()
+        var builder = FaresignalGruppeWrapper.builder()
             .medKontrollresultat(finnKontrollresultat(faresignalGruppe.getRisikoklasse()));
         faresignalGruppe.getFaresignaler().forEach(builder::leggTilFaresignal);
         return Optional.of(builder.build());

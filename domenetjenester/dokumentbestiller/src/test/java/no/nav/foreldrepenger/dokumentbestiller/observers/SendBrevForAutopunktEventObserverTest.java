@@ -51,12 +51,12 @@ public class SendBrevForAutopunktEventObserverTest {
     @BeforeEach
     public void setUp() {
 
-        AksjonspunktDefinisjon autopunktDefinisjonIngenSøknad = AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
-        AksjonspunktDefinisjon autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
-        AksjonspunktDefinisjon autopunktDefinisjonVentFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
-        AksjonspunktDefinisjon autopunktDefinisjonEtterkontroll = AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
+        var autopunktDefinisjonIngenSøknad = AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
+        var autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
+        var autopunktDefinisjonVentFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
+        var autopunktDefinisjonEtterkontroll = AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
 
-        AksjonspunktDefinisjon manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
+        var manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
 
         lenient().when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
 

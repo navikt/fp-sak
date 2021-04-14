@@ -16,7 +16,7 @@ class SjekkOmBrukerHarInntektkategoriATellerSjømann extends LeafSpecification<B
 
     @Override
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
-        boolean erArbeidstakerEllerSjømann = regelModell.getInntektskategorier().stream()
+        var erArbeidstakerEllerSjømann = regelModell.getInntektskategorier().stream()
             .anyMatch(Inntektskategori::erArbeidstakerEllerSjømann);
         return erArbeidstakerEllerSjømann ? ja() : nei();
     }

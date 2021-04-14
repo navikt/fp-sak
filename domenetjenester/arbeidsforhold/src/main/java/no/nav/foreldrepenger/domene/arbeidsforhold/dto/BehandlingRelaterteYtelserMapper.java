@@ -51,7 +51,7 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     private static TilgrensendeYtelserDto lagTilgrensendeYtelse(Ytelse ytelse) {
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
+        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
         tilgrensendeYtelserDto.setRelatertYtelseType(ytelse.getRelatertYtelseType().getKode());
         tilgrensendeYtelserDto.setPeriodeFraDato(ytelse.getPeriode().getFomDato());
         tilgrensendeYtelserDto.setPeriodeTilDato(endreTomDatoHvisLøpende(ytelse.getPeriode().getTomDato()));
@@ -61,8 +61,8 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     public static TilgrensendeYtelserDto mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
-        RelatertYtelseType relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
+        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
+        var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
         tilgrensendeYtelserDto.setRelatertYtelseType(relatertYtelseType.getKode());
         tilgrensendeYtelserDto.setStatus(fagsak.getStatus().getKode());
         tilgrensendeYtelserDto.setPeriodeFraDato(periodeDato);
@@ -81,7 +81,7 @@ public class BehandlingRelaterteYtelserMapper {
     public static List<RelaterteYtelserDto> samleYtelserBasertPåYtelseType(List<TilgrensendeYtelserDto> tilgrensendeYtelser,
             List<RelatertYtelseType> ytelsesTyper) {
         List<RelaterteYtelserDto> relaterteYtelserDtos = new LinkedList<>();
-        for (RelatertYtelseType relatertYtelseType : ytelsesTyper) {
+        for (var relatertYtelseType : ytelsesTyper) {
             relaterteYtelserDtos.add(new RelaterteYtelserDto(relatertYtelseType.getKode(),
                     sortTilgrensendeYtelser(tilgrensendeYtelser, relatertYtelseType.getKode())));
         }

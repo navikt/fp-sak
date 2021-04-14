@@ -16,7 +16,7 @@ public class ØkonomiKodeKlassifikSortering {
     );
 
     public static int getSorteringsplassering(KodeKlassifik kodeKlassifik) {
-        for (int i = 0; i < SUFFIX_SORTERING.size(); i++) {
+        for (var i = 0; i < SUFFIX_SORTERING.size(); i++) {
             if (kodeKlassifik.getKode().endsWith(SUFFIX_SORTERING.get(i))) {
                 return i;
             }

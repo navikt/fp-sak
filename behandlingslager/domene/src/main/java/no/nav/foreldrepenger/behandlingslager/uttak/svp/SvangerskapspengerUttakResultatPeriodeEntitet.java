@@ -111,7 +111,7 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        SvangerskapspengerUttakResultatPeriodeEntitet that = (SvangerskapspengerUttakResultatPeriodeEntitet) o;
+        var that = (SvangerskapspengerUttakResultatPeriodeEntitet) o;
         return Objects.equals(tidsperiode, that.tidsperiode) &&
             Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&
             Objects.equals(periodeResultatType, that.periodeResultatType) &&

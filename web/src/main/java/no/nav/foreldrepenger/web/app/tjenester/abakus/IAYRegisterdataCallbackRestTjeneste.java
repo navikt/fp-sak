@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.abakus.callback.registerdata.CallbackDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.IAYRegisterdataTjeneste;
@@ -60,9 +59,9 @@ public class IAYRegisterdataCallbackRestTjeneste {
             @Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         if (Objects.equals(IAY, dto.getGrunnlagType())) {
             // Ta lås
-            BehandlingLås behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
+            var behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
             // Oppdaterer grunnlag med ny referanse
-            RegisterdataCallback registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
+            var registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
                     dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
                     dto.getOppdatertGrunnlagRef().getReferanse(),
                     dto.getOpprettetTidspunkt());

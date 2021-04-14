@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.domene.modell.BeregningRefusjonOverstyringerEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -39,10 +38,10 @@ public class VurderRefusjonHistorikkTjeneste extends FaktaOmBeregningHistorikkTj
 
     @Override
     public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        for (RefusjonskravPrArbeidsgiverVurderingDto vurderingDto : dto.getRefusjonskravGyldighet()) {
-            Arbeidsgiver arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
-            LocalDate frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
-            Boolean forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
+        for (var vurderingDto : dto.getRefusjonskravGyldighet()) {
+            var arbeidsgiver = finnArbeidsgiver(vurderingDto.getArbeidsgiverId());
+            var frist = nyttBeregningsgrunnlag.getSkjæringstidspunkt();
+            var forrige = finnForrigeVerdi(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getRefusjonOverstyringer), arbeidsgiver, frist);
             lagHistorikkInnslag(
                 Boolean.TRUE.equals(vurderingDto.isSkalUtvideGyldighet()),
                 forrige,

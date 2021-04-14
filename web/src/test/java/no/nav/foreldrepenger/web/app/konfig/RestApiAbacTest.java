@@ -4,7 +4,6 @@ import static org.assertj.core.api.Fail.fail;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +25,7 @@ public class RestApiAbacTest {
 
     @Test
     public void test_at_alle_restmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
-        for (Method restMethod : RestApiTester.finnAlleRestMetoder()) {
+        for (var restMethod : RestApiTester.finnAlleRestMetoder()) {
             if (restMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + restMethod);
             }
@@ -35,7 +34,7 @@ public class RestApiAbacTest {
 
     @Test
     public void sjekk_at_ingen_metoder_er_annotert_med_dummy_verdier() {
-        for (Method metode : RestApiTester.finnAlleRestMetoder()) {
+        for (var metode : RestApiTester.finnAlleRestMetoder()) {
             assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(metode);
         }
     }
@@ -49,16 +48,16 @@ public class RestApiAbacTest {
      */
     @Test
     public void test_at_alle_input_parametre_til_restmetoder_implementer_AbacDto_eller_spesifiserer_AbacDataSupplier() throws Exception {
-        String feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName()
+        var feilmelding = "Parameter på %s.%s av type %s må implementere " + AbacDto.class.getSimpleName()
                 + ", eller være annotatert med @TilpassetAbacAttributt.\n";
-        StringBuilder feilmeldinger = new StringBuilder();
+        var feilmeldinger = new StringBuilder();
 
-        for (Method restMethode : RestApiTester.finnAlleRestMetoder()) {
-            for (Parameter parameter : restMethode.getParameters()) {
-                Class<?> parameterType = parameter.getType();
+        for (var restMethode : RestApiTester.finnAlleRestMetoder()) {
+            for (var parameter : restMethode.getParameters()) {
+                var parameterType = parameter.getType();
                 var parameterAnnotations = restMethode.getParameterAnnotations();
                 if (Collection.class.isAssignableFrom(parameterType)) {
-                    ParameterizedType type = (ParameterizedType) parameter.getParameterizedType();
+                    var type = (ParameterizedType) parameter.getParameterizedType();
                     @SuppressWarnings("rawtypes")
                     Class<?> aClass = (Class) (type.getActualTypeArguments()[0]);
                     if (!harAbacKonfigurasjon(parameterAnnotations[0], aClass)) {
@@ -87,8 +86,8 @@ public class RestApiAbacTest {
     }
 
     private void assertAtIngenBrukerDummyVerdierPåBeskyttetRessurs(Method metode) {
-        Class<?> klasse = metode.getDeclaringClass();
-        BeskyttetRessurs annotation = metode.getAnnotation(BeskyttetRessurs.class);
+        var klasse = metode.getDeclaringClass();
+        var annotation = metode.getAnnotation(BeskyttetRessurs.class);
         if (annotation != null && !annotation.property().isEmpty()) {
             if (annotation.property().equals("abac.attributt.drift")) {
                 return;

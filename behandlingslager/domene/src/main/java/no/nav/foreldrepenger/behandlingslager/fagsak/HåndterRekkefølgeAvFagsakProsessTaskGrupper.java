@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,13 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe.Entry;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskLifecycleObserver;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskVeto;
 import no.nav.vedtak.felles.prosesstask.impl.BasicCdiProsessTaskDispatcher;
-import no.nav.vedtak.felles.prosesstask.impl.BasicCdiProsessTaskDispatcher.ProsessTaskHandlerRef;
 
 /**
  * Vetoer kjøring av prosesstasks som tilhører grupper som er senere enn tidligste prosesstaskgruppe for en fagsak.
@@ -43,16 +39,16 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
 
     @Override
     public ProsessTaskVeto vetoKjøring(ProsessTaskData ptData) {
-        Long fagsakId = ptData.getFagsakId();
+        var fagsakId = ptData.getFagsakId();
         if (fagsakId == null) {
             return new ProsessTaskVeto(false, ptData.getId()); // do nothing, er ikke relatert til fagsak/behandling
         }
 
-        Optional<FagsakProsessTask> blokkerendeTask = repository.sjekkTillattKjøreFagsakProsessTask(ptData);
+        var blokkerendeTask = repository.sjekkTillattKjøreFagsakProsessTask(ptData);
         // dersom blokkerende task er tom, vetoes ikke tasken
-        boolean vetoed = blokkerendeTask.isPresent();
+        var vetoed = blokkerendeTask.isPresent();
         if (vetoed) {
-            ProsessTaskData blokker = prosessTaskRepository.finn(blokkerendeTask.get().getProsessTaskId());
+            var blokker = prosessTaskRepository.finn(blokkerendeTask.get().getProsessTaskId());
             LOG.info("Vetoer kjøring av prosesstask[{}] av type[{}] for fagsak [{}] , er blokkert av prosesstask[{}] av type[{}] for samme fagsak.",
                 ptData.getId(), ptData.getTaskType(), ptData.getFagsakId(), blokker.getId(), blokker.getTaskType());
 
@@ -67,28 +63,28 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
     @Override
     public void opprettetProsessTaskGruppe(ProsessTaskGruppe gruppe) {
 
-        Long gruppeSekvensNr = getGruppeSekvensNr();
+        var gruppeSekvensNr = getGruppeSekvensNr();
 
-        BasicCdiProsessTaskDispatcher cdiDispatcher = new BasicCdiProsessTaskDispatcher() {};
+        var cdiDispatcher = new BasicCdiProsessTaskDispatcher() {};
 
-        for (Entry entry : gruppe.getTasks()) {
+        for (var entry : gruppe.getTasks()) {
 
-            ProsessTaskData task = entry.getTask();
+            var task = entry.getTask();
             if (task.getFagsakId() == null) {
                 // ikke interessant her, move along
                 continue;
             }
 
-            try (ProsessTaskHandlerRef handler = cdiDispatcher.findHandler(task)) {
-                ProsessTaskHandler bean = handler.getBean();
+            try (var handler = cdiDispatcher.findHandler(task)) {
+                var bean = handler.getBean();
                 Class<?> beanClass = bean.getClass();
                 if (!beanClass.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
                     // error handling
                     throw new UnsupportedOperationException(beanClass.getSimpleName() + " må være annotert med "
                         + FagsakProsesstaskRekkefølge.class.getSimpleName() + " for å kobles til en Fagsak");
                 }
-                FagsakProsesstaskRekkefølge rekkefølge = beanClass.getAnnotation(FagsakProsesstaskRekkefølge.class);
-                Long sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
+                var rekkefølge = beanClass.getAnnotation(FagsakProsesstaskRekkefølge.class);
+                var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
                 repository.lagre(new FagsakProsessTask(task.getFagsakId(), task.getId(), getBehandlingId(task), sekvensNr));
             }
         }

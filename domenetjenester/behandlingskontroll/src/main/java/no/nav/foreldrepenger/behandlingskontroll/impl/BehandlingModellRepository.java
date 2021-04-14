@@ -29,7 +29,7 @@ public class BehandlingModellRepository implements AutoCloseable {
      * KAN DROPPES OM VI FÅR CACHET MODELLENE!)
      */
     public BehandlingModell getModell(BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
-        Object key = cacheKey(behandlingType, fagsakYtelseType);
+        var key = cacheKey(behandlingType, fagsakYtelseType);
         cachedModell.computeIfAbsent(key, (kode) -> byggModell(behandlingType, fagsakYtelseType));
         return cachedModell.get(key);
     }

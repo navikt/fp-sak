@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class YtelserKonsolidertTjeneste {
@@ -64,10 +63,10 @@ public class YtelserKonsolidertTjeneste {
                 .collect(Collectors.toList());
         List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
-        Set<Saksnummer> saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
-        LocalDate iDag = LocalDate.now();
-        Set<FagsakStatus> statuser = Set.of(FagsakStatus.OPPRETTET, FagsakStatus.UNDER_BEHANDLING);
-        List<TilgrensendeYtelserDto> resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
+        var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
+        var iDag = LocalDate.now();
+        var statuser = Set.of(FagsakStatus.OPPRETTET, FagsakStatus.UNDER_BEHANDLING);
+        var resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
                 .filter(sak -> !saksnumre.contains(sak.getSaksnummer()))
                 .filter(sak -> inkluder.isEmpty()
                         || inkluder.get().contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
@@ -94,8 +93,8 @@ public class YtelserKonsolidertTjeneste {
                 .collect(Collectors.toList());
         List<TilgrensendeYtelserDto> resultat = new ArrayList<>(BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(fraGrunnlag));
 
-        Set<Saksnummer> saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
-        List<TilgrensendeYtelserDto> resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
+        var saksnumre = fraGrunnlag.stream().map(Ytelse::getSaksnummer).filter(Objects::nonNull).collect(Collectors.toSet());
+        var resultatÅpen = fagsakRepository.hentForBruker(aktørId).stream()
                 .filter(sak -> !saksnumre.contains(sak.getSaksnummer()))
                 .filter(sak -> !inkluder.isPresent()
                         || inkluder.get().contains(BehandlingRelaterteYtelserMapper.mapFraFagsakYtelseTypeTilRelatertYtelseType(sak.getYtelseType())))
@@ -107,7 +106,7 @@ public class YtelserKonsolidertTjeneste {
     }
 
     private TilgrensendeYtelserDto mapFraFagsakMedPeriode(Fagsak fagsak, LocalDate periodeDato) {
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
+        var tilgrensendeYtelserDto = BehandlingRelaterteYtelserMapper.mapFraFagsak(fagsak, periodeDato);
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             return tilgrensendeYtelserDto;
         }

@@ -7,9 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -36,9 +34,9 @@ public class SendBrevForAutopunktEventObserver {
     }
 
     public void sendBrevForAutopunkt(@Observes AksjonspunktStatusEvent event) {
-        BehandlingskontrollKontekst kontekst = event.getKontekst();
-        List<Aksjonspunkt> aksjonspunkter = event.getAksjonspunkter();
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var kontekst = event.getKontekst();
+        var aksjonspunkter = event.getAksjonspunkter();
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PÅ_SØKNAD)
             .ifPresent(ap -> sendBrevForAutopunkt.sendBrevForSøknadIkkeMottatt(behandling, ap));
         finnAksjonspunkerMedDef(aksjonspunkter, AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD)

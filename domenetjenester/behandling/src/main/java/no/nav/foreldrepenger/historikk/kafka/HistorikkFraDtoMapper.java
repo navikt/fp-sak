@@ -61,9 +61,9 @@ public class HistorikkFraDtoMapper {
     }
 
     Historikkinnslag opprettHistorikkInnslag(HistorikkInnslagV1 jsonHistorikk) {
-        Behandling behandling = behandlingRepository.hentBehandling(jsonHistorikk.getBehandlingUuid());
-        Fagsak fagsak = hentFagsak(jsonHistorikk, behandling);
-        Historikkinnslag nyttHistorikkInnslag = new Historikkinnslag.Builder()
+        var behandling = behandlingRepository.hentBehandling(jsonHistorikk.getBehandlingUuid());
+        var fagsak = hentFagsak(jsonHistorikk, behandling);
+        var nyttHistorikkInnslag = new Historikkinnslag.Builder()
                 .medAktør(mapAktør(jsonHistorikk))
                 .medBehandlingId(behandling.getId())
                 .medUuid(jsonHistorikk.getHistorikkUuid())
@@ -74,7 +74,7 @@ public class HistorikkFraDtoMapper {
                 .medOpprettetISystem(jsonHistorikk.getAvsender())
                 .build();
 
-        List<HistorikkinnslagDokumentLink> dokumentLenker = mapDokumentlenker(jsonHistorikk.getDokumentLinker(), nyttHistorikkInnslag);
+        var dokumentLenker = mapDokumentlenker(jsonHistorikk.getDokumentLinker(), nyttHistorikkInnslag);
         byggHistorikkDeler(jsonHistorikk.getHistorikkInnslagDeler(), nyttHistorikkInnslag);
         nyttHistorikkInnslag.setDokumentLinker(dokumentLenker);
 
@@ -110,7 +110,7 @@ public class HistorikkFraDtoMapper {
     }
 
     private void mapBrevSendtDel(List<HistorikkInnslagDel> historikkinnslagDeler, Historikkinnslag nyttHistorikkInnslag) {
-        String begrunnelse = historikkinnslagDeler.stream()
+        var begrunnelse = historikkinnslagDeler.stream()
                 .map(HistorikkInnslagDel::getHistorikkinnslagFelt)
                 .flatMap(Collection::stream)
                 .filter(felt -> HistorikkInnslagFeltTypeEnum.BEGRUNNELSE.equals(felt.getFeltType()))
@@ -128,7 +128,7 @@ public class HistorikkFraDtoMapper {
     }
 
     private HistorikkinnslagDokumentLink mapDokumentlink(HistorikkInnslagDokumentLink dtoLink, Historikkinnslag historikkinnslag) {
-        HistorikkinnslagDokumentLink.Builder builder = new HistorikkinnslagDokumentLink.Builder()
+        var builder = new HistorikkinnslagDokumentLink.Builder()
                 .medLinkTekst(utledLinkTekst(dtoLink.getLinkTekst()))
                 .medHistorikkinnslag(historikkinnslag)
                 .medDokumentId(dtoLink.getDokumentId());

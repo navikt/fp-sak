@@ -31,7 +31,7 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
 
     @BeforeEach
     public void setup() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(BEHANDLENDE_ENHET_ID);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlendeEnhet(BEHANDLENDE_ENHET_ID);
         behandling = scenario.lagMocked();
         task = new OpprettOppgaveForBehandlingSendtTilbakeTask(oppgaveTjeneste);
 

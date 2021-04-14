@@ -24,7 +24,7 @@ public class BatchTjenesteTest {
     public void skal_ha_unike_batch_navn() throws Exception {
         final List<String> services = new ArrayList<>();
         final List<String> failed = new ArrayList<>();
-        for (BatchTjeneste batchTjeneste : batchTjenester) {
+        for (var batchTjeneste : batchTjenester) {
             if (services.contains(batchTjeneste.getBatchName())) {
                 failed.add(batchTjeneste.getBatchName());
             }

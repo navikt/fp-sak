@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -27,14 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
@@ -62,9 +57,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
-        Behandling behandling = settOppAdopsjonBehandlingForMor(16, false, NavBrukerKjønn.KVINNE, false);
+        var behandling = settOppAdopsjonBehandlingForMor(16, false, NavBrukerKjønn.KVINNE, false);
 
-        VilkårData data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
@@ -77,13 +72,13 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_avslag_dersom_adoptert_barn_tilhører_ektefelle_eller_samboer() throws JsonProcessingException, IOException {
-        Behandling behandling = settOppAdopsjonBehandlingForMor(10, true, NavBrukerKjønn.KVINNE, false);
+        var behandling = settOppAdopsjonBehandlingForMor(10, true, NavBrukerKjønn.KVINNE, false);
 
-        VilkårData data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
@@ -94,9 +89,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_avslag_dersom_mann_ikke_adopterer_alene() {
-        Behandling behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
+        var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, false);
 
-        VilkårData data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
@@ -105,9 +100,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        Behandling behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
+        var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.KVINNE, false);
 
-        VilkårData data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         System.out.println(data.getVilkårUtfallMerknad());
@@ -117,9 +112,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        Behandling behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, true);
+        var behandling = settOppAdopsjonBehandlingForMor(10, false, NavBrukerKjønn.MANN, true);
 
-        VilkårData data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
@@ -127,9 +122,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     private Behandling settOppAdopsjonBehandlingForMor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn, boolean adoptererAlene) {
-        LocalDate omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
+        var omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
 
-        AbstractTestScenario<?> scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
+        var scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
             : ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         leggTilSøker(scenario, kjønn);
@@ -149,9 +144,9 @@ public class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
             .build();

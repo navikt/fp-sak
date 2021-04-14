@@ -69,7 +69,7 @@ public class VirksomhetTjeneste {
         if (Objects.equals(KUNSTIG_VIRKSOMHET.getOrgnr(), orgnr)) {
             return KUNSTIG_VIRKSOMHET;
         }
-        Virksomhet virksomhet = Optional.ofNullable(cache.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
+        var virksomhet = Optional.ofNullable(cache.get(orgnr)).orElseGet(() -> hentOrganisasjonRest(orgnr));
         cache.put(orgnr, virksomhet);
         return virksomhet;
     }

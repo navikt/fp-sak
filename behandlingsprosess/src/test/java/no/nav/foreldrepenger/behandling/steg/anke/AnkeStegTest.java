@@ -23,7 +23,7 @@ public class AnkeStegTest {
         var kontekst = new BehandlingskontrollKontekst(ankeBehandling.getFagsakId(),
                 ankeBehandling.getAktørId(), new BehandlingLås(ankeBehandling.getId()));
 
-        AnkeSteg steg = new AnkeSteg(Mockito.mock(AnkeRepository.class));
+        var steg = new AnkeSteg(Mockito.mock(AnkeRepository.class));
 
         // Act
         var behandlingStegResultat = steg.utførSteg(kontekst);
@@ -33,7 +33,7 @@ public class AnkeStegTest {
         assertThat(behandlingStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandlingStegResultat.getAksjonspunktListe()).hasSize(1);
 
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);
+        var aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);
         assertThat(aksjonspunktDefinisjon).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE);
 
     }

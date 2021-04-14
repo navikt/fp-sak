@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
 
@@ -55,9 +54,9 @@ public class MottakerOppdragKjedeOversikt {
         }
 
         Map<KjedeNøkkel, OppdragKjede> kjeder = new TreeMap<>();
-        for (KjedeNøkkel nøkkel : SetUtil.sortertUnionOfKeys(oppdragskjeder, nyttOppdrag.getKjeder())) {
-            OppdragKjede eksisterende = getKjede(nøkkel);
-            OppdragKjedeFortsettelse fortsettelse = nyttOppdrag.getKjeder().get(nøkkel);
+        for (var nøkkel : SetUtil.sortertUnionOfKeys(oppdragskjeder, nyttOppdrag.getKjeder())) {
+            var eksisterende = getKjede(nøkkel);
+            var fortsettelse = nyttOppdrag.getKjeder().get(nøkkel);
             if (fortsettelse == null) {
                 kjeder.put(nøkkel, eksisterende);
             } else {

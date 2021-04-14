@@ -99,7 +99,7 @@ public class BerørtBehandlingKontrollerTest {
         prosessTaskRepository = spy(prosessTaskRepository);
         berørtBehandlingTjeneste = spy(berørtBehandlingTjeneste);
         behandlingsoppretter = spy(behandlingsoppretter);
-        FagsakLåsRepository fagsakLåsRepository = mock(FagsakLåsRepository.class);
+        var fagsakLåsRepository = mock(FagsakLåsRepository.class);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingRevurderingRepository()).thenReturn(behandlingRevurderingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
@@ -117,7 +117,7 @@ public class BerørtBehandlingKontrollerTest {
         fBehandlingMedforelder = lagBehandling();
         fagsakMedforelder = fBehandlingMedforelder.getFagsak();
         køetBehandlingMedforelder = lagRevurdering(fBehandlingMedforelder, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        Behandling berørtMedforelder = lagRevurdering(fBehandlingMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
+        var berørtMedforelder = lagRevurdering(fBehandlingMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         berørtFeriepenger = lagRevurdering(fBehandlingMedforelder, List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
 
         when(behandlingRepository.hentBehandling(fBehandling.getId())).thenReturn(fBehandling);
@@ -167,9 +167,9 @@ public class BerørtBehandlingKontrollerTest {
     @Test
     public void testHåndterKøHvisFørstegangUttakKø() {
         // Arrange
-        Behandling køetBehandlingPåVent = mock(Behandling.class);
-        Aksjonspunkt aksjonspunkt = mock(Aksjonspunkt.class);
-        AktørId aktørId = mock(AktørId.class);
+        var køetBehandlingPåVent = mock(Behandling.class);
+        var aksjonspunkt = mock(Aksjonspunkt.class);
+        var aktørId = mock(AktørId.class);
         var nå = LocalDateTime.now();
         when(aktørId.getId()).thenReturn("");
         when(køetBehandlingPåVent.getFagsakId()).thenReturn(fagsakMedforelder.getId());
@@ -250,7 +250,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     private Behandling lagBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         var behandling = scenario.lagMocked();
         behandling.setOpprettetTidspunkt(LocalDateTime.now());
@@ -262,7 +262,7 @@ public class BerørtBehandlingKontrollerTest {
     }
 
     private Behandling lagRevurdering(Behandling behandling, List<BehandlingÅrsakType> årsakType) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOriginalBehandling(behandling, årsakType, false)
             .medBehandlingType(BehandlingType.REVURDERING);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());

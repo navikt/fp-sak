@@ -14,10 +14,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +82,7 @@ public class VedtaksHendelseHåndterer {
         this.behandlingRepository = behandlingRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.prosessTaskRepository = prosessTaskRepository;
-        @SuppressWarnings("resource")
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
         validator = factory.getValidator();
     }
@@ -95,10 +92,10 @@ public class VedtaksHendelseHåndterer {
         // gir opp og dør på seg.
         try {
             var mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
-            Set<ConstraintViolation<Ytelse>> violations = validator.validate(mottattVedtak);
+            var violations = validator.validate(mottattVedtak);
             if (!violations.isEmpty()) {
                 // Har feilet validering
-                String allErrors = violations.stream().map(String::valueOf).collect(Collectors.joining("\\n"));
+                var allErrors = violations.stream().map(String::valueOf).collect(Collectors.joining("\\n"));
                 LOG.warn("Vedtatt-Ytelse valideringsfeil :: \n {}", allErrors);
                 return;
             }
@@ -127,7 +124,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
-        FagsakYtelseType fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
+        var fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
 
         if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {
             if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
@@ -137,8 +134,8 @@ public class VedtaksHendelseHåndterer {
         }
 
         try {
-            UUID behandlingUuid = UUID.fromString(ytelse.getVedtakReferanse());
-            Behandling behandling = behandlingRepository.hentBehandling(behandlingUuid);
+            var behandlingUuid = UUID.fromString(ytelse.getVedtakReferanse());
+            var behandling = behandlingRepository.hentBehandling(behandlingUuid);
 
             // Unngå gå i beina på på iverksettingstasker med sen respons
             if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
@@ -155,18 +152,18 @@ public class VedtaksHendelseHåndterer {
     // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null =
     // 100.
     void loggVedtakOverlapp(YtelseV1 ytelse) {
-        List<Fagsak> fagsaker = getFagsakerFor(ytelse);
+        var fagsaker = getFagsakerFor(ytelse);
 
         eksternOverlappLogger.loggOverlappForVedtakK9SAK(ytelse, fagsaker);
     }
 
     // Kommende ytelser - gi varsel i applikasjonslogg før databaselogging
     boolean sjekkVedtakOverlapp(YtelseV1 ytelse) {
-        List<Fagsak> fagsaker = getFagsakerFor(ytelse);
+        var fagsaker = getFagsakerFor(ytelse);
 
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på
         // dem.
-        List<LocalDateSegment<Boolean>> ytelsesegments = ytelse.getAnvist().stream()
+        var ytelsesegments = ytelse.getAnvist().stream()
                 // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >
                 // 0)
                 .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
@@ -180,7 +177,7 @@ public class VedtaksHendelseHåndterer {
         var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
 
-        List<Behandling> behandlinger = fagsaker.stream()
+        var behandlinger = fagsaker.stream()
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
                 .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b))
                 .sorted(Comparator.comparing(Behandling::getOpprettetDato).reversed())
@@ -208,7 +205,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     private boolean sjekkOverlappFor(LocalDate minYtelseDato, LocalDateTimeline<Boolean> ytelseTidslinje, Behandling behandling) {
-        List<LocalDateSegment<Boolean>> fpsegments = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId())
+        var fpsegments = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId())
                 .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
                 .filter(p -> p.getDagsats() > 0)
                 .filter(p -> p.getBeregningsresultatPeriodeTom().isAfter(minYtelseDato.minusDays(1)))
@@ -223,7 +220,7 @@ public class VedtaksHendelseHåndterer {
     }
 
     void lagreProsesstaskFor(Behandling behandling, String taskType, int delaysecs) {
-        ProsessTaskData data = new ProsessTaskData(taskType);
+        var data = new ProsessTaskData(taskType);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));

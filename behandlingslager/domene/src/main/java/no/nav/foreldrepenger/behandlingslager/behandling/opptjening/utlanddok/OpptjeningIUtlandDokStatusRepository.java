@@ -5,7 +5,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -30,7 +29,7 @@ public class OpptjeningIUtlandDokStatusRepository {
     }
 
     public Optional<OpptjeningIUtlandDokStatusEntitet> hent(long behandlingId) {
-        final TypedQuery<OpptjeningIUtlandDokStatusEntitet> query = entityManager.createQuery("FROM OpptjeningIUtlandDokStatusEntitet status " +
+        final var query = entityManager.createQuery("FROM OpptjeningIUtlandDokStatusEntitet status " +
             "WHERE status.behandlingId = :behandlingId " +
             "AND status.aktiv = :aktivt", OpptjeningIUtlandDokStatusEntitet.class);
         query.setParameter("behandlingId", behandlingId);

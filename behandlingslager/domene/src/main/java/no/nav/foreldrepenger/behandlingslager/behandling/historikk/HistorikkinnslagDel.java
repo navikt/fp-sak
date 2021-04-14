@@ -107,7 +107,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     public Optional<HistorikkinnslagFelt> getEndretFelt(HistorikkEndretFeltType endretFeltVerdiType) {
-        List<HistorikkinnslagFelt> endredeFelt = getEndredeFelt();
+        var endredeFelt = getEndredeFelt();
         return endredeFelt
             .stream()
             .filter(felt -> Objects.equals(endretFeltVerdiType.getKode(), felt.getNavn()))
@@ -119,7 +119,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     public Optional<HistorikkinnslagFelt> getOpplysning(HistorikkOpplysningType historikkOpplysningType) {
-        List<HistorikkinnslagFelt> opplysninger = getOpplysninger();
+        var opplysninger = getOpplysninger();
         return opplysninger.stream()
             .filter(felt -> Objects.equals(historikkOpplysningType.getKode(), felt.getNavn()))
             .findFirst();
@@ -130,15 +130,15 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     public List<HistorikkinnslagTotrinnsvurdering> getTotrinnsvurderinger() {
-        List<HistorikkinnslagFeltType> aksjonspunktFeltTypeKoder = Arrays.asList(HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE,
+        var aksjonspunktFeltTypeKoder = Arrays.asList(HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE,
             HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT,
             HistorikkinnslagFeltType.AKSJONSPUNKT_KODE);
 
-        List<HistorikkinnslagFelt> alleAksjonspunktFelt = historikkinnslagFelt.stream()
+        var alleAksjonspunktFelt = historikkinnslagFelt.stream()
             .filter(felt -> aksjonspunktFeltTypeKoder.contains(felt.getFeltType()))
             .collect(Collectors.toList());
 
-        List<HistorikkinnslagTotrinnsvurdering> totrinnsvurderinger = alleAksjonspunktFelt.stream()
+        var totrinnsvurderinger = alleAksjonspunktFelt.stream()
             .collect(Collectors.groupingBy(HistorikkinnslagFelt::getSekvensNr))
             .entrySet()
             .stream()
@@ -149,14 +149,14 @@ public class HistorikkinnslagDel extends BaseEntitet {
     }
 
     private HistorikkinnslagTotrinnsvurdering lagHistorikkinnslagAksjonspunkt(Integer sekvensNr, List<HistorikkinnslagFelt> aksjonspunktFeltListe) {
-        HistorikkinnslagTotrinnsvurdering aksjonspunkt = new HistorikkinnslagTotrinnsvurdering(sekvensNr);
+        var aksjonspunkt = new HistorikkinnslagTotrinnsvurdering(sekvensNr);
         aksjonspunktFeltListe.forEach(felt -> {
             if (HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE.equals(felt.getFeltType())) {
                 aksjonspunkt.setBegrunnelse(felt.getTilVerdi());
             } else if (HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT.equals(felt.getFeltType())) {
                 aksjonspunkt.setGodkjent(Boolean.parseBoolean(felt.getTilVerdi()));
             } else if (HistorikkinnslagFeltType.AKSJONSPUNKT_KODE.equals(felt.getFeltType())) {
-                AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(felt.getTilVerdi());
+                var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(felt.getTilVerdi());
                 aksjonspunkt.setAksjonspunktDefinisjon(aksjonspunktDefinisjon);
             } else {
                 throw new IllegalStateException("Uventet feltnavn " + felt.getFeltType().getKode());
@@ -231,7 +231,7 @@ public class HistorikkinnslagDel extends BaseEntitet {
         if (!(o instanceof HistorikkinnslagDel)) {
             return false;
         }
-        HistorikkinnslagDel that = (HistorikkinnslagDel) o;
+        var that = (HistorikkinnslagDel) o;
         return Objects.equals(getId(), that.getId());
     }
 

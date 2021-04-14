@@ -36,7 +36,7 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
     @Override
     public Evaluation evaluate(OpptjeningsvilkårMellomregning data) {
 
-        SjekkMellomliggende mellomliggende = new SjekkMellomliggende(data.getGrunnlag());
+        var mellomliggende = new SjekkMellomliggende(data.getGrunnlag());
         data.getAktivitetTidslinjer(true, true)
                 .entrySet().stream()
                 .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
@@ -65,11 +65,11 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
         }
 
         void sjekkMellomliggende(Entry<Aktivitet, LocalDateTimeline<Boolean>> e) {
-            Aktivitet key = e.getKey();
+            var key = e.getKey();
             // compress for å sikre at vi slipper å sjekke sammenhengende segmenter med samme verdi
-            LocalDateTimeline<Boolean> timeline = e.getValue().compress();
+            var timeline = e.getValue().compress();
 
-            LocalDateTimeline<Boolean> mellomliggendePeriode = timeline.collect(this::toPeriod, true).mapValue(v -> Boolean.TRUE);
+            var mellomliggendePeriode = timeline.collect(this::toPeriod, true).mapValue(v -> Boolean.TRUE);
             if (!mellomliggendePeriode.isEmpty()) {
                 akseptertMellomliggendePerioder.put(key, mellomliggendePeriode);
             }
@@ -84,31 +84,30 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
                     || foregåendeSegmenter.isEmpty()) {
                 // mellomliggende segmenter har ingen verdi, så skipper de som har
                 return false;
-            } else {
-                LocalDateSegment<Boolean> foregående = foregåendeSegmenter.last();
-
-                Period foregåendeVarighet = Period.ofDays((int) foregående.getLocalDateInterval().totalDays()).normalized();
-                Period mellomliggendeVarighet = Period.ofDays((int) segmentUnderVurdering.getLocalDateInterval().totalDays()).normalized();
-
-                // Mellomliggende perioder må være <=14 dager og tilknyttende foregående periode med registrert arbeid
-                // minst 4 uker for å tas i betraktning.
-                Period mellomliggendeSammenlignet = mellomliggendeVarighet
-                        .minus(grunnlag.getMaksMellomliggendePeriodeForArbeidsforhold());
-                Period foregåendeSammenlignet = foregåendeVarighet
-                        .minus(grunnlag.getMinForegåendeForMellomliggendePeriodeForArbeidsforhold());
-
-                return Boolean.TRUE.equals(foregående.getValue())
-                        && !foregåendeSammenlignet.isNegative()
-                        && (mellomliggendeSammenlignet.isZero() || mellomliggendeSammenlignet.isNegative());
             }
+            var foregående = foregåendeSegmenter.last();
+
+            var foregåendeVarighet = Period.ofDays((int) foregående.getLocalDateInterval().totalDays()).normalized();
+            var mellomliggendeVarighet = Period.ofDays((int) segmentUnderVurdering.getLocalDateInterval().totalDays()).normalized();
+
+            // Mellomliggende perioder må være <=14 dager og tilknyttende foregående periode med registrert arbeid
+            // minst 4 uker for å tas i betraktning.
+            var mellomliggendeSammenlignet = mellomliggendeVarighet
+                    .minus(grunnlag.getMaksMellomliggendePeriodeForArbeidsforhold());
+            var foregåendeSammenlignet = foregåendeVarighet
+                    .minus(grunnlag.getMinForegåendeForMellomliggendePeriodeForArbeidsforhold());
+
+            return Boolean.TRUE.equals(foregående.getValue())
+                    && !foregåendeSammenlignet.isNegative()
+                    && (mellomliggendeSammenlignet.isZero() || mellomliggendeSammenlignet.isNegative());
         }
 
         private boolean erMellomliggendeSegment(LocalDateSegment<Boolean> segmentUnderVurdering,
                 NavigableSet<LocalDateSegment<Boolean>> foregåendeSegmenter,
                 NavigableSet<LocalDateSegment<Boolean>> påfølgendeSegmenter) {
-            LocalDateInterval suvInterval = segmentUnderVurdering.getLocalDateInterval();
+            var suvInterval = segmentUnderVurdering.getLocalDateInterval();
 
-            boolean erMellomliggendeSegment = (segmentUnderVurdering.getValue() == null
+            var erMellomliggendeSegment = (segmentUnderVurdering.getValue() == null
                     && !foregåendeSegmenter.isEmpty()
                     && !påfølgendeSegmenter.isEmpty()) && påfølgendeSegmentErIPerioden(påfølgendeSegmenter)
                     && (suvInterval.abuts(foregåendeSegmenter.last().getLocalDateInterval())

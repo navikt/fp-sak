@@ -11,11 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -34,18 +30,17 @@ public class BehandlingModellTest {
             Tuple<BehandlingType, FagsakYtelseType> tuple) {
         var behandlingType = tuple.getElement1();
         var ytelseType = tuple.getElement2();
-        BehandlingModellRepository behandlingModellRepository = new BehandlingModellRepository();
-        BehandlingModell modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
-        for (BehandlingStegType stegType : modell.getAlleBehandlingStegTyper()) {
-            BehandlingStegModell steg = modell.finnSteg(stegType);
-            String description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),
+        var behandlingModellRepository = new BehandlingModellRepository();
+        var modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
+        for (var stegType : modell.getAlleBehandlingStegTyper()) {
+            var steg = modell.finnSteg(stegType);
+            var description = String.format("Feilet for %s, %s, %s", ytelseType.getKode(), behandlingType.getKode(),
                     stegType.getKode());
             assertThat(steg).as(description).isNotNull();
-            BehandlingSteg behandlingSteg = steg.getSteg();
+            var behandlingSteg = steg.getSteg();
             assertThat(behandlingSteg).as(description).isNotNull();
 
-            @SuppressWarnings("rawtypes")
-            Class targetClass = ((org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy) behandlingSteg)
+            @SuppressWarnings("rawtypes") var targetClass = ((org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy) behandlingSteg)
                     .weld_getTargetClass();
             assertThat(targetClass).as(description).hasAnnotation(ApplicationScoped.class);
         }
@@ -53,12 +48,12 @@ public class BehandlingModellTest {
 
     public static Collection<Tuple<BehandlingType, FagsakYtelseType>> parameters() {
         List<Tuple<BehandlingType, FagsakYtelseType>> params = new ArrayList<>();
-        List<FagsakYtelseType> ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER,
+        var ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER,
                 FagsakYtelseType.SVANGERSKAPSPENGER);
-        List<BehandlingType> behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
+        var behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
                 BehandlingType.KLAGE, BehandlingType.INNSYN, BehandlingType.ANKE);
-        for (FagsakYtelseType a : ytelseTyper) {
-            for (BehandlingType b : behandlingTyper) {
+        for (var a : ytelseTyper) {
+            for (var b : behandlingTyper) {
                 params.add(new Tuple<>(b, a));
             }
         }

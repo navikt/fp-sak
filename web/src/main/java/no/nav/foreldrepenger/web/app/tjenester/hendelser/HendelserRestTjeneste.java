@@ -75,7 +75,7 @@ public class HendelserRestTjeneste {
     @Operation(description = "Mottak av hendelser", tags = "hendelser")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public EnkelRespons mottaHendelse(@Parameter(description = "Hendelse fra Fpabonnent") @Valid AbacHendelseWrapperDto wrapperDto) {
-        HendelseDto hendelseDto = wrapperDto.getHendelse();
+        var hendelseDto = wrapperDto.getHendelse();
         var beskrivelse = String.format("Hendelse mottatt fra %s av typen %s med hendelseId: %s.",
                 hendelseDto.getAvsenderSystem(), hendelseDto.getHendelsetype(), hendelseDto.getId());
         LOG.info(beskrivelse);
@@ -90,7 +90,7 @@ public class HendelserRestTjeneste {
     @Path("/grovsorter")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public List<String> grovSorter(@Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AbacAktørIdDto> aktoerIdListe) {
-        List<AktørId> aktørIdList = aktoerIdListe.stream().map(AbacAktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toList()); // NOSONAR
+        var aktørIdList = aktoerIdListe.stream().map(AbacAktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toList()); // NOSONAR
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).collect(Collectors.toList());
     }
 
@@ -102,7 +102,7 @@ public class HendelserRestTjeneste {
         }
 
         hendelsemottakRepository.registrerMottattHendelse(hendelse.getId());
-        ProsessTaskData taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setPayload(JsonMapper.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());

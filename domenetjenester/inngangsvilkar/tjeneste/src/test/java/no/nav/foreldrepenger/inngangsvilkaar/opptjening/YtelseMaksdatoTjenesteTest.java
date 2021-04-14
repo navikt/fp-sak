@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,27 +61,27 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void finnesIngenVedtattBehandlingForMorSkalReturnereOptionalEmpty() {
-        Behandling behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        Optional<LocalDate> morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
+        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getRelasjonsRolleType());
         assertThat(morsMaksdato).isEmpty();
     }
 
     @Test
     public void beregnerMorsMaksdato() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morsBehandling = scenario.lagre(repositoryProvider);
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var morsBehandling = scenario.lagre(repositoryProvider);
+        var perioder = new UttakResultatPerioderEntitet();
 
-        LocalDate start = LocalDate.of(2018, 5, 14);
+        var start = LocalDate.of(2018, 5, 14);
 
         // Uttak periode 1
-        UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
+        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("1111");
+        var arbeidsgiver = arbeidsgiver("1111");
 
-        UttakAktivitetEntitet arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
@@ -95,7 +94,7 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         perioder.leggTilPeriode(uttakMødrekvote);
 
         // Uttak periode 2
-        UttakResultatPeriodeEntitet uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(start.plusWeeks(6), start.plusWeeks(10).minusDays(1))
+        var uttakFellesperiode = new UttakResultatPeriodeEntitet.Builder(start.plusWeeks(6), start.plusWeeks(10).minusDays(1))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
@@ -106,7 +105,7 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         perioder.leggTilPeriode(uttakFellesperiode);
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(morsBehandling);
+        var behandlingsresultat = getBehandlingsresultat(morsBehandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         behandlingsresultatRepository.lagre(morsBehandling.getId(), behandlingsresultat);
 
@@ -115,16 +114,16 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
 
-        final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
+        final var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
             .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("mor vedtak").build();
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(morsBehandling));
 
-        Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettStønadskontoerForFarOgMor(morsBehandling);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        Optional<LocalDate> morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -138,27 +137,27 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void beregnerMorsMaksdatoVedFlereArbeidsforholdOgGradering() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak().medVedtakResultatType(VedtakResultatType.INNVILGET);
-        UttakResultatPerioderEntitet uttak = new UttakResultatPerioderEntitet();
+        var uttak = new UttakResultatPerioderEntitet();
 
-        LocalDate start = LocalDate.of(2018, 5, 14);
+        var start = LocalDate.of(2018, 5, 14);
 
         // Uttak periode 1
-        UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
+        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
             .build();
 
-        Arbeidsgiver arbeidsgiver1 = arbeidsgiver("1111");
+        var arbeidsgiver1 = arbeidsgiver("1111");
 
-        UttakAktivitetEntitet arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver1, InternArbeidsforholdRef.nyRef())
             .build();
 
-        Arbeidsgiver arbeidsgiver2 = arbeidsgiver("2222");
+        var arbeidsgiver2 = arbeidsgiver("2222");
 
-        UttakAktivitetEntitet arbeidsforhold2 = new UttakAktivitetEntitet.Builder()
+        var arbeidsforhold2 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver2, InternArbeidsforholdRef.nyRef())
             .build();
@@ -177,17 +176,17 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         uttak.leggTilPeriode(uttakMødrekvote);
         scenario.medUttak(uttak);
 
-        Behandling morsBehandling = scenario.lagre(repositoryProvider);
+        var morsBehandling = scenario.lagre(repositoryProvider);
         morsBehandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsBehandling, repositoryProvider.getBehandlingLåsRepository().taLås(morsBehandling.getId()));
 
-        Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
 
         opprettStønadskontoerForFarOgMor(morsBehandling);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        Optional<LocalDate> morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isPresent();
@@ -200,20 +199,20 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skalHåndtereAtAlleMorsPerioderErAvslåttMed0Trekkdager() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morsBehandling = scenario.lagre(repositoryProvider);
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var morsBehandling = scenario.lagre(repositoryProvider);
+        var perioder = new UttakResultatPerioderEntitet();
 
-        LocalDate start = LocalDate.of(2018, 5, 14);
+        var start = LocalDate.of(2018, 5, 14);
 
         // Uttak periode 1
-        UttakResultatPeriodeEntitet uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
+        var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(6).minusDays(1))
             .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
             .build();
 
-        Arbeidsgiver arbeidsgiver = arbeidsgiver("1111");
+        var arbeidsgiver = arbeidsgiver("1111");
 
-        UttakAktivitetEntitet arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
+        var arbeidsforhold1 = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
             .build();
@@ -226,7 +225,7 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
 
         perioder.leggTilPeriode(uttakMødrekvote);
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(morsBehandling);
+        var behandlingsresultat = getBehandlingsresultat(morsBehandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         behandlingsresultatRepository.lagre(morsBehandling.getId(), behandlingsresultat);
 
@@ -235,12 +234,12 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
         morsBehandling.avsluttBehandling();
         lagre(morsBehandling);
 
-        Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         opprettStønadskontoerForFarOgMor(morsBehandling);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        Optional<LocalDate> morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
+        var morsMaksdato = beregnMorsMaksdatoTjeneste.beregnMorsMaksdato(farsBehandling.getFagsak().getSaksnummer(), farsBehandling.getRelasjonsRolleType());
 
         // Assert
         assertThat(morsMaksdato).isEmpty();
@@ -252,23 +251,23 @@ public class YtelseMaksdatoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void opprettStønadskontoerForFarOgMor(Behandling behandling) {
-        Stønadskonto foreldrepengerFørFødsel = Stønadskonto.builder()
+        var foreldrepengerFørFødsel = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
             .medMaxDager(15)
             .build();
-        Stønadskonto mødrekvote = Stønadskonto.builder()
+        var mødrekvote = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.MØDREKVOTE)
             .medMaxDager(50)
             .build();
-        Stønadskonto fedrekvote = Stønadskonto.builder()
+        var fedrekvote = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FEDREKVOTE)
             .medMaxDager(50)
             .build();
-        Stønadskonto fellesperiode = Stønadskonto.builder()
+        var fellesperiode = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FELLESPERIODE)
             .medMaxDager(50)
             .build();
-        Stønadskontoberegning stønadskontoberegning = Stønadskontoberegning.builder()
+        var stønadskontoberegning = Stønadskontoberegning.builder()
             .medRegelEvaluering("evaluering")
             .medRegelInput("grunnlag")
             .medStønadskonto(mødrekvote).medStønadskonto(fedrekvote).medStønadskonto(fellesperiode).medStønadskonto(foreldrepengerFørFødsel).build();

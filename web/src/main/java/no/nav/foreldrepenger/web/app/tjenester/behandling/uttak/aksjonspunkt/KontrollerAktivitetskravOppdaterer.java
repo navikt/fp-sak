@@ -132,8 +132,8 @@ public class KontrollerAktivitetskravOppdaterer implements AksjonspunktOppdatere
     }
 
     private void validerOverlapp(List<KontrollerAktivitetskravPeriodeDto> perioder) {
-        for (int i = 0; i < perioder.size() - 1; i++) {
-            for (int j = i + 1; j < perioder.size(); j++) {
+        for (var i = 0; i < perioder.size() - 1; i++) {
+            for (var j = i + 1; j < perioder.size(); j++) {
                 var tidsperiode1 = fraOgMedTilOgMed(perioder.get(i).getFom(), perioder.get(i).getTom());
                 var tidsperiode2 = fraOgMedTilOgMed(perioder.get(j).getFom(), perioder.get(j).getTom());
                 if (tidsperiode1.overlapper(tidsperiode2)) {

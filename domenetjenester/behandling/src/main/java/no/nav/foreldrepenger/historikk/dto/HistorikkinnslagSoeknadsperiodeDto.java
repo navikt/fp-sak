@@ -37,8 +37,8 @@ public class HistorikkinnslagSoeknadsperiodeDto {
     }
 
     static HistorikkinnslagSoeknadsperiodeDto mapFra(HistorikkinnslagFelt soeknadsperiode) {
-        HistorikkinnslagSoeknadsperiodeDto dto = new HistorikkinnslagSoeknadsperiodeDto();
-        HistorikkAvklartSoeknadsperiodeType soeknadsperiodeType = HistorikkAvklartSoeknadsperiodeType.fraKode(soeknadsperiode.getNavn());
+        var dto = new HistorikkinnslagSoeknadsperiodeDto();
+        var soeknadsperiodeType = HistorikkAvklartSoeknadsperiodeType.fraKode(soeknadsperiode.getNavn());
         dto.setSoeknadsperiodeType(soeknadsperiodeType);
         dto.setNavnVerdi(soeknadsperiode.getNavnVerdi());
         dto.setTilVerdi(soeknadsperiode.getTilVerdi());

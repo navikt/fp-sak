@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.fp;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,7 +10,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -25,7 +22,6 @@ import no.nav.foreldrepenger.ytelse.beregning.adapter.MapUttakArbeidTypeTilAktiv
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Arbeidsforhold;
 
 @ApplicationScoped
@@ -37,9 +33,9 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     public UttakResultat mapFra(ForeldrepengerUttak uttakResultat, UttakInput input) {
-        List<UttakResultatPeriode> uttakResultatPerioder = uttakResultat.getGjeldendePerioder().stream()
+        var uttakResultatPerioder = uttakResultat.getGjeldendePerioder().stream()
             .map(periode -> {
-                List<UttakAktivitet> uttakAktiviteter = periode.getAktiviteter().stream()
+                var uttakAktiviteter = periode.getAktiviteter().stream()
                     .map(aktivitet -> mapAktivitet(input, aktivitet, periode.getFom(), periode.isGraderingInnvilget()))
                     .collect(Collectors.toList());
                 return new UttakResultatPeriode(periode.getFom(), periode.getTom(), uttakAktiviteter, erOppholdsPeriode(periode));
@@ -51,16 +47,16 @@ public class MapUttakResultatFraVLTilRegel {
 
     private UttakAktivitet mapAktivitet(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet, LocalDate periodeFom, boolean periodeGraderingInvilget) {
         var utbetalingsgrad = uttakResultatPeriodeAktivitet.getUtbetalingsgrad();
-        BigDecimal stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet, periodeFom);
-        BigDecimal totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakResultatPeriodeAktivitet, periodeFom);
+        var stillingsprosent = mapStillingsprosent(input, uttakResultatPeriodeAktivitet, periodeFom);
+        var totalStillingsprosent = finnTotalStillingsprosentHosAG(input, uttakResultatPeriodeAktivitet, periodeFom);
 
-        UttakYrkesaktiviteter uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
-        BigDecimal arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, uttakYrkesaktiviteter, periodeFom);
+        var uttakYrkesaktiviteter = new UttakYrkesaktiviteter(input);
+        var arbeidstidsprosent = finnArbeidsprosent(uttakResultatPeriodeAktivitet, uttakYrkesaktiviteter, periodeFom);
 
-        Arbeidsforhold arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
-        AktivitetStatus aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
+        var arbeidsforhold = mapArbeidsforhold(uttakResultatPeriodeAktivitet.getUttakAktivitet());
+        var aktivitetStatus = MapUttakArbeidTypeTilAktivitetStatus.map(uttakResultatPeriodeAktivitet.getUttakArbeidType());
 
-        boolean skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
+        var skalGraderes = periodeGraderingInvilget && uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode();
         return new UttakAktivitet(stillingsprosent,
             arbeidstidsprosent,
             utbetalingsgrad.decimalValue(),
@@ -71,7 +67,7 @@ public class MapUttakResultatFraVLTilRegel {
     }
 
     private BigDecimal finnTotalStillingsprosentHosAG(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakAktivitet, LocalDate periodeFom) {
-        Optional<Arbeidsgiver> arbeidsgiver = uttakAktivitet.getArbeidsgiver();
+        var arbeidsgiver = uttakAktivitet.getArbeidsgiver();
         return arbeidsgiver.isPresent()?
             input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(), InternArbeidsforholdRef.nullRef(), periodeFom):
             BigDecimal.valueOf(100);
@@ -80,22 +76,21 @@ public class MapUttakResultatFraVLTilRegel {
     private BigDecimal finnArbeidsprosent(ForeldrepengerUttakPeriodeAktivitet uttakResultatPeriodeAktivitet,
                                         UttakYrkesaktiviteter uttakYrkesaktiviteter, LocalDate periodeFom) {
         if (!uttakResultatPeriodeAktivitet.isSøktGraderingForAktivitetIPeriode()) return BigDecimal.ZERO;
-        ForeldrepengerUttakAktivitet aktivitet= uttakResultatPeriodeAktivitet.getUttakAktivitet();
-        final Optional<Arbeidsgiver> arbeidsgiver = aktivitet.getArbeidsgiver();
+        var aktivitet= uttakResultatPeriodeAktivitet.getUttakAktivitet();
+        final var arbeidsgiver = aktivitet.getArbeidsgiver();
         if (arbeidsgiver.isPresent()) {
-            final BigDecimal stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
+            final var stillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 aktivitet.getArbeidsforholdRef(), periodeFom);
-            final BigDecimal totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
+            final var totalStillingsprosent = uttakYrkesaktiviteter.finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(),
                 null, periodeFom);
-            final BigDecimal arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
+            final var arbeidsprosentandel = finnArbeidsprosentandel(stillingsprosent, totalStillingsprosent);
             return uttakResultatPeriodeAktivitet.getArbeidsprosent().multiply(arbeidsprosentandel);
-        } else {
-            return uttakResultatPeriodeAktivitet.getArbeidsprosent();
         }
+        return uttakResultatPeriodeAktivitet.getArbeidsprosent();
     }
 
     private BigDecimal finnArbeidsprosentandel(BigDecimal stillingsprosent, BigDecimal totalStillingsprosent) {
-        BigDecimal arbeidsprosentandel = BigDecimal.ONE;
+        var arbeidsprosentandel = BigDecimal.ONE;
         if (stillingsprosent.compareTo(BigDecimal.ZERO) > 0 && totalStillingsprosent.compareTo(BigDecimal.ZERO) > 0) {
             arbeidsprosentandel = stillingsprosent.divide(totalStillingsprosent,10, RoundingMode.HALF_UP);
         }
@@ -123,7 +118,7 @@ public class MapUttakResultatFraVLTilRegel {
 
     protected BigDecimal finnStillingsprosent(UttakInput input, ForeldrepengerUttakPeriodeAktivitet uttakAktivitet, LocalDate periodeFom) {
         var iaRef = uttakAktivitet.getArbeidsforholdRef();
-        Optional<Arbeidsgiver> arbeidsgiver = uttakAktivitet.getArbeidsgiver();
+        var arbeidsgiver = uttakAktivitet.getArbeidsgiver();
         return arbeidsgiver.isPresent()?
             input.getYrkesaktiviteter().finnStillingsprosentOrdinærtArbeid(arbeidsgiver.get(), iaRef, periodeFom):
             BigDecimal.valueOf(100);

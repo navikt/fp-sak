@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -54,14 +53,14 @@ public class ScenarioInnsynEngangsstønad {
     }
 
     private Behandling buildInnsyn(BehandlingRepositoryProvider repositoryProvider) {
-        Fagsak fagsak = abstractTestScenario.getFagsak();
+        var fagsak = abstractTestScenario.getFagsak();
 
         // oppprett og lagre behandling
-        Behandling.Builder builder = Behandling.nyBehandlingFor(fagsak, BehandlingType.INNSYN);
+        var builder = Behandling.nyBehandlingFor(fagsak, BehandlingType.INNSYN);
 
         behandling = builder.build();
 
-        BehandlingLås lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.IKKE_FASTSATT)
                 .buildFor(behandling);
@@ -79,7 +78,7 @@ public class ScenarioInnsynEngangsstønad {
     }
 
     public BehandlingRepository mockBehandlingRepository() {
-        BehandlingRepository behandlingRepository = abstractTestScenario.mockBehandlingRepository();
+        var behandlingRepository = abstractTestScenario.mockBehandlingRepository();
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         return behandlingRepository;
     }

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -27,8 +26,8 @@ public class HentOppdragMedPositivKvittering {
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Behandling behandling) {
-        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        List<Oppdrag110> oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
+        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
             .orElse(Collections.emptyList());
         return oppdrag110List.stream()
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)
@@ -36,8 +35,8 @@ public class HentOppdragMedPositivKvittering {
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvitteringFeilHvisVenter(Behandling behandling) {
-        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
-        List<Oppdrag110> oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
+        var oppdrag110List = oppdragskontroll.map(Oppdragskontroll::getOppdrag110Liste)
             .orElse(Collections.emptyList());
         if (oppdrag110List.stream().anyMatch(Oppdrag110::venterKvittering))
             throw new IllegalStateException("Utviklerfeil har ikke ventet på at oppdrag er kvittert");
@@ -47,7 +46,7 @@ public class HentOppdragMedPositivKvittering {
     }
 
     public List<Oppdrag110> hentOppdragMedPositivKvittering(Saksnummer saksnummer) {
-        List<Oppdragskontroll> oppdragskontrollList = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
+        var oppdragskontrollList = økonomioppdragRepository.finnAlleOppdragForSak(saksnummer);
         return oppdragskontrollList.stream().map(Oppdragskontroll::getOppdrag110Liste)
             .flatMap(List::stream)
             .filter(OppdragKvitteringTjeneste::harPositivKvittering)

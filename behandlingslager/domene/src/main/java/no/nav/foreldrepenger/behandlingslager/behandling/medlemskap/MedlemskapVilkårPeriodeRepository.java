@@ -3,12 +3,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -16,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.util.Tuple;
 
@@ -54,12 +51,12 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling eksisterendeBehandling, Behandling nyBehandling) {
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> eksisterendeGrunnlag = hentAktivtGrunnlag(eksisterendeBehandling);
+        var eksisterendeGrunnlag = hentAktivtGrunnlag(eksisterendeBehandling);
         if (!eksisterendeGrunnlag.isPresent()) {
             return; // Intet å kopiere
         }
-        MedlemskapVilkårPeriodeGrunnlagEntitet nyttGrunnlag = MedlemskapVilkårPeriodeGrunnlagEntitet.fra(eksisterendeGrunnlag, nyBehandling);
-        EntityManager em = getEntityManager();
+        var nyttGrunnlag = MedlemskapVilkårPeriodeGrunnlagEntitet.fra(eksisterendeGrunnlag, nyBehandling);
+        var em = getEntityManager();
         em.persist(nyttGrunnlag);
         em.flush();
     }
@@ -73,17 +70,18 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     public Tuple<VilkårUtfallType, VilkårUtfallMerknad> utledeVilkårStatus(Behandling behandling) {
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemOpt = hentAktivtGrunnlag(behandling);
+        var medlemOpt = hentAktivtGrunnlag(behandling);
         if (medlemOpt.isPresent()) {
-            MedlemskapsvilkårPeriodeEntitet medlemskapsvilkårPeriode = medlemOpt.get().getMedlemskapsvilkårPeriode();
-            Set<MedlemskapsvilkårPerioderEntitet> perioder = medlemskapsvilkårPeriode.getPerioder();
-            Optional<MedlemskapsvilkårPerioderEntitet> periodeOpt = perioder
+            var medlemskapsvilkårPeriode = medlemOpt.get().getMedlemskapsvilkårPeriode();
+            var perioder = medlemskapsvilkårPeriode.getPerioder();
+            var periodeOpt = perioder
                     .stream()
                     .filter(m -> VilkårUtfallType.IKKE_OPPFYLT.equals(m.getVilkårUtfall()))
                     .findFirst();
             if (periodeOpt.isPresent()) {
                 return new Tuple<>(VilkårUtfallType.IKKE_OPPFYLT, periodeOpt.get().getVilkårUtfallMerknad());
-            } else if (!perioder.isEmpty()) {
+            }
+            if (!perioder.isEmpty()) {
                 return new Tuple<>(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
             }
         }
@@ -91,17 +89,18 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Behandling behandling) {
-        Optional<MedlemskapsvilkårPeriodeEntitet> periodeEntitet = hentAktivtGrunnlag(behandling)
+        var periodeEntitet = hentAktivtGrunnlag(behandling)
                 .map(MedlemskapVilkårPeriodeGrunnlagEntitet::getMedlemskapsvilkårPeriode);
 
         // tar hensyn til overstrying av vilkåret
         if (periodeEntitet.isPresent()) {
-            MedlemskapsvilkårPeriodeEntitet entitet = periodeEntitet.get();
-            OverstyrtLøpendeMedlemskap overstyringOpt = entitet.getOverstyring();
+            var entitet = periodeEntitet.get();
+            var overstyringOpt = entitet.getOverstyring();
             if (overstyringOpt.getOverstyringsdato().isPresent()) {
                 if (overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
                     return overstyringOpt.getOverstyringsdato();
-                } else if (overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
+                }
+                if (overstyringOpt.getVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
                     return Optional.empty();
                 }
             }
@@ -113,7 +112,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private MedlemskapVilkårPeriodeGrunnlagEntitet.Builder opprettGrunnlagBuilderFor(Behandling behandling) {
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> aggregat = hentAktivtGrunnlag(behandling);
+        var aggregat = hentAktivtGrunnlag(behandling);
         if (aggregat.isPresent()) {
             return MedlemskapVilkårPeriodeGrunnlagEntitet.Builder.oppdatere(Optional.of(new MedlemskapVilkårPeriodeGrunnlagEntitet(aggregat.get())));
         }
@@ -121,13 +120,13 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> hentAktivtGrunnlag(Behandling behandling) {
-        VilkårResultat vilkårResultat = Optional.ofNullable(getBehandlingsresultat(behandling))
+        var vilkårResultat = Optional.ofNullable(getBehandlingsresultat(behandling))
                 .map(Behandlingsresultat::getVilkårResultat)
                 .orElse(null);
         if (vilkårResultat == null) {
             return Optional.empty();
         }
-        TypedQuery<MedlemskapVilkårPeriodeGrunnlagEntitet> query = entityManager.createQuery("FROM MedlemskapVilkårPeriodeGrunnlag gr " +
+        var query = entityManager.createQuery("FROM MedlemskapVilkårPeriodeGrunnlag gr " +
                 "WHERE gr.vilkårResultat.id = :vilkar_res_id " +
                 "AND gr.aktiv = :aktivt", MedlemskapVilkårPeriodeGrunnlagEntitet.class);
         query.setParameter("vilkar_res_id", vilkårResultat.getId());
@@ -140,13 +139,13 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private void lagreOgFlush(Behandling behandling, MedlemskapVilkårPeriodeGrunnlagEntitet nyttGrunnlag) {
-        final Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> eksisterendeGrunnlag = hentAktivtGrunnlag(behandling);
-        MedlemskapVilkårPeriodeGrunnlagEntitet nyGrunnlagEntitet = tilGrunnlagEntitet(getBehandlingsresultat(behandling).getVilkårResultat(), nyttGrunnlag);
+        final var eksisterendeGrunnlag = hentAktivtGrunnlag(behandling);
+        var nyGrunnlagEntitet = tilGrunnlagEntitet(getBehandlingsresultat(behandling).getVilkårResultat(), nyttGrunnlag);
         if (eksisterendeGrunnlag.isPresent()) {
             if (!erEndret(eksisterendeGrunnlag.get(), nyGrunnlagEntitet, true)) {
                 return;
             }
-            MedlemskapVilkårPeriodeGrunnlagEntitet eksisterendeGrunnlagEntitet = eksisterendeGrunnlag.get();
+            var eksisterendeGrunnlagEntitet = eksisterendeGrunnlag.get();
             eksisterendeGrunnlagEntitet.setAktiv(false);
             entityManager.persist(eksisterendeGrunnlagEntitet);
             entityManager.flush();
@@ -157,16 +156,16 @@ public class MedlemskapVilkårPeriodeRepository {
 
     public boolean erEndret(MedlemskapVilkårPeriodeGrunnlagEntitet grunnlag1, MedlemskapVilkårPeriodeGrunnlagEntitet grunnlag2,
                             boolean onlyCheckTrackedFields) {
-        DiffResult diff = new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
+        var diff = new RegisterdataDiffsjekker(onlyCheckTrackedFields).getDiffEntity().diff(grunnlag1, grunnlag2);
         return !diff.isEmpty();
     }
 
     private void lagreGrunnlag(VilkårResultat vilkårResultat, MedlemskapVilkårPeriodeGrunnlagEntitet aggregat) {
-        MedlemskapVilkårPeriodeGrunnlagEntitet grunnlag = tilGrunnlagEntitet(vilkårResultat, aggregat);
+        var grunnlag = tilGrunnlagEntitet(vilkårResultat, aggregat);
 
         entityManager.persist(grunnlag.getMedlemskapsvilkårPeriode());
         grunnlag.getMedlemskapsvilkårPeriode().getPerioder().forEach(periode -> {
-            MedlemskapsvilkårPerioderEntitet periodeEntitet = periode;
+            var periodeEntitet = periode;
             periodeEntitet.setRot(grunnlag.getMedlemskapsvilkårPeriode());
             entityManager.persist(periode);
         });
@@ -174,7 +173,7 @@ public class MedlemskapVilkårPeriodeRepository {
     }
 
     private MedlemskapVilkårPeriodeGrunnlagEntitet tilGrunnlagEntitet(VilkårResultat vilkårResultat, MedlemskapVilkårPeriodeGrunnlagEntitet grunnlag) {
-        MedlemskapVilkårPeriodeGrunnlagEntitet grunnlagEntitet = new MedlemskapVilkårPeriodeGrunnlagEntitet();
+        var grunnlagEntitet = new MedlemskapVilkårPeriodeGrunnlagEntitet();
         grunnlagEntitet.setVilkårResultat(vilkårResultat);
         grunnlagEntitet.setMedlemskapsvilkårPeriode(grunnlag.getMedlemskapsvilkårPeriode());
         return grunnlagEntitet;

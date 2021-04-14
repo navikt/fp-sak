@@ -87,7 +87,7 @@ public class VurderArbeidsforholdTjeneste {
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             SakInntektsmeldinger sakInntektsmeldinger,
             boolean skalTaStillingTilEndringArbeidsforhold) {
-        Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> arbeidsgiverSetMap = vurderMedÅrsak(behandlingReferanse, iayGrunnlag, sakInntektsmeldinger,
+        var arbeidsgiverSetMap = vurderMedÅrsak(behandlingReferanse, iayGrunnlag, sakInntektsmeldinger,
                 skalTaStillingTilEndringArbeidsforhold);
         return arbeidsgiverSetMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, VurderArbeidsforholdTjeneste::mapTilArbeidsforholdRef));
@@ -150,19 +150,19 @@ public class VurderArbeidsforholdTjeneste {
             FagsakYtelseType ytelseType) {
         Objects.requireNonNull(iayGrunnlag, "iayGrunnlag");
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = mapYrkesaktiviteterPerArbeidsgiver(behandlingReferanse,
+        var yrkesaktiviteterPerArbeidsgiver = mapYrkesaktiviteterPerArbeidsgiver(behandlingReferanse,
                 iayGrunnlag);
-        Optional<InntektArbeidYtelseGrunnlag> eksisterendeGrunnlag = hentForrigeVersjonAvInntektsmeldingForBehandling(sakInntektsmeldinger,
+        var eksisterendeGrunnlag = hentForrigeVersjonAvInntektsmeldingForBehandling(sakInntektsmeldinger,
                 behandlingReferanse.getBehandlingId());
-        Optional<InntektsmeldingAggregat> nyAggregat = iayGrunnlag.getInntektsmeldinger();
+        var nyAggregat = iayGrunnlag.getInntektsmeldinger();
 
-        final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterende = inntektsmeldingerPerArbeidsgiver(eksisterendeGrunnlag
+        final var eksisterende = inntektsmeldingerPerArbeidsgiver(eksisterendeGrunnlag
                 .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger));
-        final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> ny = inntektsmeldingerPerArbeidsgiver(nyAggregat);
+        final var ny = inntektsmeldingerPerArbeidsgiver(nyAggregat);
 
         if (!eksisterende.equals(ny)) {
             // Klassifiser endringssjekk
-            for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgiverSetEntry : ny.entrySet()) {
+            for (var arbeidsgiverSetEntry : ny.entrySet()) {
                 EndringIArbeidsforholdId.vurderMedÅrsak(result, arbeidsgiverSetEntry, eksisterende, iayGrunnlag, yrkesaktiviteterPerArbeidsgiver);
             }
         }
@@ -172,8 +172,8 @@ public class VurderArbeidsforholdTjeneste {
     private List<Yrkesaktivitet> getAlleArbeidsforhold(AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId));
 
-        Collection<Yrkesaktivitet> yrkesaktiviteterFørStp = filter.før(skjæringstidspunkt).getYrkesaktiviteter();
-        Collection<Yrkesaktivitet> yrkesaktiviteterEtterStp = filter.etter(skjæringstidspunkt).getYrkesaktiviteter();
+        var yrkesaktiviteterFørStp = filter.før(skjæringstidspunkt).getYrkesaktiviteter();
+        var yrkesaktiviteterEtterStp = filter.etter(skjæringstidspunkt).getYrkesaktiviteter();
 
         return Stream.of(yrkesaktiviteterFørStp, yrkesaktiviteterEtterStp)
                 .flatMap(Collection::stream)
@@ -185,13 +185,13 @@ public class VurderArbeidsforholdTjeneste {
     private void erMottattInntektsmeldingUtenArbeidsforhold(Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result,
             InntektArbeidYtelseGrunnlag grunnlag,
             BehandlingReferanse behandlingReferanse) {
-        final Optional<InntektsmeldingAggregat> inntektsmeldinger = grunnlag.getInntektsmeldinger();
+        final var inntektsmeldinger = grunnlag.getInntektsmeldinger();
         if (inntektsmeldinger.isPresent()) {
-            final InntektsmeldingAggregat aggregat = inntektsmeldinger.get();
-            for (Inntektsmelding inntektsmelding : aggregat.getInntektsmeldingerSomSkalBrukes()) {
+            final var aggregat = inntektsmeldinger.get();
+            for (var inntektsmelding : aggregat.getInntektsmeldingerSomSkalBrukes()) {
                 if (harInntektsmeldingUtenArbeid(grunnlag, behandlingReferanse, inntektsmelding)) {
-                    final Arbeidsgiver arbeidsgiver = inntektsmelding.getArbeidsgiver();
-                    final Set<InternArbeidsforholdRef> arbeidsforholdRefs = trekkUtRef(inntektsmelding);
+                    final var arbeidsgiver = inntektsmelding.getArbeidsgiver();
+                    final var arbeidsforholdRefs = trekkUtRef(inntektsmelding);
                     LeggTilResultat.leggTil(result, AksjonspunktÅrsak.INNTEKTSMELDING_UTEN_ARBEIDSFORHOLD, arbeidsgiver, arbeidsforholdRefs);
                     LOG.info("Inntektsmelding uten kjent arbeidsforhold: arbeidsgiver={}, arbeidsforholdRef={}", arbeidsgiver, arbeidsforholdRefs);
                 }
@@ -201,7 +201,7 @@ public class VurderArbeidsforholdTjeneste {
 
     private boolean harInntektsmeldingUtenArbeid(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse behandlingReferanse,
             Inntektsmelding inntektsmelding) {
-        boolean harIngenArbeidsforhold = harIngenArbeidsforhold(grunnlag, behandlingReferanse, inntektsmelding);
+        var harIngenArbeidsforhold = harIngenArbeidsforhold(grunnlag, behandlingReferanse, inntektsmelding);
         return (harIngenArbeidsforhold || erFiskerUtenAktivtArbeid(grunnlag, behandlingReferanse, inntektsmelding))
                 && IkkeTattStillingTil.vurder(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), grunnlag);
     }
@@ -215,7 +215,7 @@ public class VurderArbeidsforholdTjeneste {
             InntektArbeidYtelseGrunnlag grunnlag) {
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
                 grunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId()));
-        LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
         return filter.getYrkesaktiviteter().stream()
                 .filter(ya -> gjelderInntektsmeldingFor(inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), ya))
                 .noneMatch(ya -> ya.getAlleAktivitetsAvtaler().stream()
@@ -224,7 +224,7 @@ public class VurderArbeidsforholdTjeneste {
 
     private boolean harIngenArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse behandlingReferanse,
             Inntektsmelding inntektsmelding) {
-        final Tuple<Long, Long> antallArbeidsforIArbeidsgiveren = antallArbeidsforHosArbeidsgiveren(behandlingReferanse, grunnlag,
+        final var antallArbeidsforIArbeidsgiveren = antallArbeidsforHosArbeidsgiveren(behandlingReferanse, grunnlag,
                 inntektsmelding.getArbeidsgiver(),
                 inntektsmelding.getArbeidsforholdRef());
         return (antallArbeidsforIArbeidsgiveren.getElement1() == 0) && (antallArbeidsforIArbeidsgiveren.getElement2() == 0);
@@ -268,13 +268,13 @@ public class VurderArbeidsforholdTjeneste {
         var nyAggregat = iayGrunnlag.getInntektsmeldinger();
         var yrkesaktiviteterPerArbeidsgiver = mapYrkesaktiviteterPerArbeidsgiver(behandlingReferanse, iayGrunnlag);
 
-        final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = inntektsmeldingerPerArbeidsgiver(eksisterendeGrunnlag
+        final var eksisterendeIM = inntektsmeldingerPerArbeidsgiver(eksisterendeGrunnlag
                 .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger));
-        final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> ny = inntektsmeldingerPerArbeidsgiver(nyAggregat);
+        final var ny = inntektsmeldingerPerArbeidsgiver(nyAggregat);
 
         if (!eksisterendeIM.isEmpty() && !eksisterendeIM.equals(ny)) {
             // Klassifiser endringssjekk
-            for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyIM : ny.entrySet()) {
+            for (var nyIM : ny.entrySet()) {
                 EndringIArbeidsforholdId.vurderMedÅrsak(result, nyIM, eksisterendeIM, iayGrunnlag, yrkesaktiviteterPerArbeidsgiver);
             }
         }
@@ -282,7 +282,7 @@ public class VurderArbeidsforholdTjeneste {
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> mapYrkesaktiviteterPerArbeidsgiver(BehandlingReferanse behandlingReferanse,
             InntektArbeidYtelseGrunnlag grunnlag) {
-        List<Yrkesaktivitet> yrkesaktiviteter = getAlleArbeidsforhold(behandlingReferanse.getAktørId(), grunnlag,
+        var yrkesaktiviteter = getAlleArbeidsforhold(behandlingReferanse.getAktørId(), grunnlag,
                 behandlingReferanse.getUtledetSkjæringstidspunkt());
         return yrkesaktiviteter.stream()
                 .collect(Collectors.groupingBy(Yrkesaktivitet::getArbeidsgiver,
@@ -291,13 +291,13 @@ public class VurderArbeidsforholdTjeneste {
 
     private Tuple<Long, Long> antallArbeidsforHosArbeidsgiveren(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
             Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
                 grunnlag.getAktørArbeidFraRegister(behandlingReferanse.getAktørId()));
 
-        long antallFør = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.før(skjæringstidspunkt));
-        long antallEtter = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.etter(skjæringstidspunkt));
+        var antallFør = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.før(skjæringstidspunkt));
+        var antallEtter = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.etter(skjæringstidspunkt));
 
         return new Tuple<>(antallFør, antallEtter);
     }
@@ -330,7 +330,7 @@ public class VurderArbeidsforholdTjeneste {
     }
 
     private void erRapportertNormalInntektUtenArbeidsforhold(InntektArbeidYtelseGrunnlag grunnlag, BehandlingReferanse referanse) {
-        LocalDate skjæringstidspunkt = referanse.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = referanse.getUtledetSkjæringstidspunkt();
         var filter = grunnlag.getAktørInntektFraRegister(referanse.getAktørId()).map(ai -> new InntektFilter(ai).før(skjæringstidspunkt))
                 .orElse(InntektFilter.EMPTY);
 
@@ -349,19 +349,19 @@ public class VurderArbeidsforholdTjeneste {
         var filterFør = filterYrkesaktivitet.før(skjæringstidspunkt);
         var filterEtter = filterYrkesaktivitet.etter(skjæringstidspunkt);
 
-        boolean ingenFør = true;
+        var ingenFør = true;
         if (!filterFør.getYrkesaktiviteter().isEmpty()) {
             ingenFør = ikkeArbeidsforholdRegisterert(inntekt, filterFør);
         }
 
-        boolean ingenEtter = true;
+        var ingenEtter = true;
         if (!filterEtter.getYrkesaktiviteter().isEmpty()) {
             ingenEtter = ikkeArbeidsforholdRegisterert(inntekt, filterEtter);
         }
 
         if (ingenFør && ingenEtter) {
-            Set<InternArbeidsforholdRef> arbeidsforholdRefs = Stream.of(InternArbeidsforholdRef.nullRef()).collect(Collectors.toSet());
-            Optional<InntektsmeldingAggregat> inntektsmeldinger = grunnlag.getInntektsmeldinger();
+            var arbeidsforholdRefs = Stream.of(InternArbeidsforholdRef.nullRef()).collect(Collectors.toSet());
+            var inntektsmeldinger = grunnlag.getInntektsmeldinger();
             if (inntektsmeldinger.isPresent()) {
                 arbeidsforholdRefs = inntektsmeldinger.get()
                         .getInntektsmeldingerFor(inntekt.getArbeidsgiver())
@@ -377,7 +377,7 @@ public class VurderArbeidsforholdTjeneste {
     private boolean ikkeArbeidsforholdRegisterert(Inntekt inntekt, YrkesaktivitetFilter filter) {
         // må også sjekke mot frilans. Skal ikke be om avklaring av inntektsposter som
         // stammer fra frilansoppdrag
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getFrilansOppdrag();
+        var yrkesaktiviteter = filter.getFrilansOppdrag();
         if (!yrkesaktiviteter.isEmpty()
                 && yrkesaktiviteter.stream().anyMatch(y -> Objects.equals(y.getArbeidsgiver(), inntekt.getArbeidsgiver()))) {
             return false;

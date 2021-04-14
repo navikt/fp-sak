@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -20,11 +19,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -66,12 +62,12 @@ public class BehandlingskontrollRestTjeneste {
     public BehandlingskontrollDto kjørBehandling(
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
         behandlingskontrollTjeneste.prosesserBehandling(kontekst);
 
         return new BehandlingskontrollDto(behandling.getStatus(), behandling.getAktivtBehandlingSteg(), behandling.getAksjonspunkter());
@@ -85,12 +81,12 @@ public class BehandlingskontrollRestTjeneste {
     public Response lagFortsettBehandling(
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
+        var tilstand = behandling.getBehandlingStegTilstand();
         if (tilstand.isEmpty()) {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
         } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg())

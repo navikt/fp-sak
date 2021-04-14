@@ -20,7 +20,7 @@ final class UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp {
 
     static BigDecimal utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt,
             LocalDate oppstartsdatoNærmestStp) {
-        Optional<BigDecimal> stillingsprosent = finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(filter, yrkesaktiviteter, skjæringstidspunkt,
+        var stillingsprosent = finnStillingsprosentFraYrkesaktiviteterSomOverlapperStp(filter, yrkesaktiviteter, skjæringstidspunkt,
                 oppstartsdatoNærmestStp);
         if (stillingsprosent.isEmpty()) {
             stillingsprosent = finnStillingsprosentFraYrkesaktivteterSomTilkommerEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt,

@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -44,19 +43,19 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void omfordeling_med_2_tilkomne_arbeidsforhold_skal_ikke_ta_med_tilkommet_i_flyttbar_dagsats() {
         // Arrange
-        final LocalDate PERIODE_FOM = LocalDate.of(2020, 3, 24);
-        final Arbeidsgiver GAMMELT_ARBEID = Arbeidsgiver.virksomhet("923186956");
-        final Arbeidsgiver TILKOMMET1 = Arbeidsgiver.virksomhet("916272421");
-        final Arbeidsgiver TILKOMMET2 = Arbeidsgiver.virksomhet("919852925");
+        final var PERIODE_FOM = LocalDate.of(2020, 3, 24);
+        final var GAMMELT_ARBEID = Arbeidsgiver.virksomhet("923186956");
+        final var TILKOMMET1 = Arbeidsgiver.virksomhet("916272421");
+        final var TILKOMMET2 = Arbeidsgiver.virksomhet("919852925");
 
-        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(PERIODE_FOM, LocalDate.of(2020, 3, 31));
+        var forrigeBrp = lagBeregningsresultatPeriode(PERIODE_FOM, LocalDate.of(2020, 3, 31));
         lagSNAndel(forrigeBrp, 1225);
-        int gammeltArbeidDagsats = 542;
+        var gammeltArbeidDagsats = 542;
         lagAndel(forrigeBrp, GAMMELT_ARBEID, true, gammeltArbeidDagsats, UTEN_INTERNREFERANSE);
 
-        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+        var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode(
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(
                 LocalDate.of(2020, 3, 24),
                 LocalDate.of(2020, 3, 31));
         lagSNAndel(beregningsgrunnlagBrp, 152);
@@ -64,39 +63,39 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         lagAndel(beregningsgrunnlagBrp, TILKOMMET1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, TILKOMMET2, false, 1400, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, TILKOMMET2, true, 0, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+        var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
-        Yrkesaktivitet gammelt_arbeid = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var gammelt_arbeid = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 8, 1), LocalDate.of(2020, 2, 1))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidsgiver(GAMMELT_ARBEID).build();
 
-        Yrkesaktivitet tilkommet_arbeid1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var tilkommet_arbeid1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 3, 23))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(TILKOMMET1).build();
 
-        Yrkesaktivitet tilkommet_arbeid2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var tilkommet_arbeid2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.of(2020, 3, 24))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(TILKOMMET2).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), LocalDate.now()),
                 List.of(tilkommet_arbeid1, gammelt_arbeid, tilkommet_arbeid2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(1);
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(PERIODE_FOM);
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(4);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getAktivitetStatus()).isEqualByComparingTo(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
@@ -124,43 +123,43 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid_for_tilkommet_arbeidsforhold() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
-        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1500, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 0, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+        var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1500, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+        var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(20), SKJÆRINGSTIDSPUNKT.plusDays(14))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(ARBEIDSGIVER1).build();
 
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(15))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(ARBEIDSGIVER2).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                         forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
                 List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(2);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
@@ -192,24 +191,24 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void omfordel_til_bruker_når_det_krever_refusjon_tilbake_i_tid() {
         // Arrange
-        LocalDate dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
-        int forventetDagsats = 1000;
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(true, forventetDagsats);
-        BeregningsresultatEntitet beregningsgrunnlagTY = lagBeregningsresultatFP(false, forventetDagsats);
+        var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
+        var forventetDagsats = 1000;
+        var forrigeTY = lagBeregningsresultatFP(true, forventetDagsats);
+        var beregningsgrunnlagTY = lagBeregningsresultatFP(false, forventetDagsats);
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
                 List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(1);
         assertThat(p0andeler.get(0)).satisfies(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -219,7 +218,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var p1 = beregningsresultatPerioder.get(1);
         assertThat(p1.getBeregningsresultatPeriodeFom()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(p1.getBeregningsresultatPeriodeTom()).isEqualTo(SISTE_UTTAKSDAG);
-        List<BeregningsresultatAndel> p1andeler = p1.getBeregningsresultatAndelList();
+        var p1andeler = p1.getBeregningsresultatAndelList();
         assertThat(p1andeler).hasSize(2);
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -249,34 +248,34 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     @Test
     public void skal_avkorte_men_ikke_omfordele_fra_bruker() {
         // Arrange
-        LocalDate dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
-        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
+        var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 600, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+        var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 1050, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 1050, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+        var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                         forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
                 List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(4);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -302,7 +301,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var p1 = beregningsresultatPerioder.get(1);
         assertThat(p1.getBeregningsresultatPeriodeFom()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(p1.getBeregningsresultatPeriodeTom()).isEqualTo(SISTE_UTTAKSDAG);
-        List<BeregningsresultatAndel> p1andeler = p1.getBeregningsresultatAndelList();
+        var p1andeler = p1.getBeregningsresultatAndelList();
         assertThat(p1andeler).hasSize(4);
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -347,36 +346,36 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     public void skal_fordele_refusjon_til_to_nye_arbeidsgivere() {
         // Arrange
         var dagensDato = LocalDate.of(2019, Month.FEBRUARY, 4);
-        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 1500, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER2, true, 240, UTEN_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER3, true, 360, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+        var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 600, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER2, false, 600, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, true, 0, UTEN_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER3, false, 900, UTEN_INTERNREFERANSE);
-        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+        var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                         forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
                 List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(2);
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(6);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -412,7 +411,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var p1 = beregningsresultatPerioder.get(1);
         assertThat(p1.getBeregningsresultatPeriodeFom()).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 1));
         assertThat(p1.getBeregningsresultatPeriodeTom()).isEqualTo(SISTE_UTTAKSDAG);
-        List<BeregningsresultatAndel> p1andeler = p1.getBeregningsresultatAndelList();
+        var p1andeler = p1.getBeregningsresultatAndelList();
         assertThat(p1andeler).hasSize(6);
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -450,26 +449,26 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     public void skalIkkeOmfordeleTilTilkommetArbeidsforholdISammeOrganisasjonNårEndring() {
         // Arrange
         var dagensDato = SISTE_UTTAKSDAG.plusMonths(2);
-        BeregningsresultatPeriode forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var forrigeBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
 
         lagAndel(forrigeBrp, ARBEIDSGIVER1, false, 834, MED_INTERNREFERANSE);
         lagAndel(forrigeBrp, ARBEIDSGIVER1, true, 1, MED_INTERNREFERANSE);
-        BeregningsresultatEntitet forrigeTY = forrigeBrp.getBeregningsresultat();
+        var forrigeTY = forrigeBrp.getBeregningsresultat();
 
-        BeregningsresultatPeriode beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var beregningsgrunnlagBrp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, false, 834, MED_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, MED_INTERNREFERANSE);
         lagAndel(beregningsgrunnlagBrp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
 
-        BeregningsresultatEntitet beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
+        var beregningsgrunnlagTY = beregningsgrunnlagBrp.getBeregningsresultat();
 
-        Yrkesaktivitet eksisterendeAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var eksisterendeAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2))))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsforholdId(MED_INTERNREFERANSE)
                 .medArbeidsgiver(ARBEIDSGIVER1).build();
-        Yrkesaktivitet tilkommetAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var tilkommetAktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                         .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT)))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -477,18 +476,18 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
                 .medArbeidsgiver(ARBEIDSGIVER1).build();
 
         // Act
-        BeregningsresultatEntitet utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
+        var utbetTY = HindreTilbaketrekkNårAlleredeUtbetalt.reberegn(beregningsgrunnlagTY,
                 MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                         forrigeTY.getBeregningsresultatPerioder(),
                         beregningsgrunnlagTY.getBeregningsresultatPerioder(), dagensDato),
                 List.of(eksisterendeAktivitet, tilkommetAktivitet), SKJÆRINGSTIDSPUNKT);
 
         // Assert
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
+        var beregningsresultatPerioder = utbetTY.getBeregningsresultatPerioder();
         assertThat(beregningsresultatPerioder).hasSize(1);
         var p0 = beregningsresultatPerioder.get(0);
 
-        List<BeregningsresultatAndel> p0andeler = p0.getBeregningsresultatAndelList();
+        var p0andeler = p0.getBeregningsresultatAndelList();
         assertThat(p0andeler).hasSize(3);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
@@ -508,7 +507,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(boolean brukerErMottaker, int dagsats) {
-        BeregningsresultatPeriode brp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
+        var brp = lagBeregningsresultatPeriode(SKJÆRINGSTIDSPUNKT, SISTE_UTTAKSDAG);
         if (!brukerErMottaker) {
             lagAndel(brp, ARBEIDSGIVER1, true, 0, UTEN_INTERNREFERANSE);
         }
@@ -517,7 +516,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode(LocalDate fom, LocalDate tom) {
-        BeregningsresultatEntitet br = BeregningsresultatEntitet.builder()
+        var br = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();

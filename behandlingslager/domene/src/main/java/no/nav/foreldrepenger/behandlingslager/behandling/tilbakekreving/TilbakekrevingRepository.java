@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -31,7 +29,7 @@ public class TilbakekrevingRepository {
     }
 
     private Optional<TilbakekrevingValgEntitet> hentEntitet(long behandlingId) {
-        List<TilbakekrevingValgEntitet> resultList = entityManager
+        var resultList = entityManager
             .createQuery("from TilbakekrevingValgEntitet where behandlingId=:behandlingId and aktiv=:aktiv", TilbakekrevingValgEntitet.class)
             .setParameter("behandlingId", behandlingId)
             .setParameter("aktiv", true)
@@ -54,7 +52,7 @@ public class TilbakekrevingRepository {
     public void lagre(Behandling behandling, TilbakekrevingValg valg) {
         deaktiverEksisterendeTilbakekrevingValg(behandling);
 
-        TilbakekrevingValgEntitet nyEntitet = TilbakekrevingValgEntitet.builder()
+        var nyEntitet = TilbakekrevingValgEntitet.builder()
             .medBehandling(behandling)
             .medVilkarOppfylt(valg.getErTilbakekrevingVilkårOppfylt())
             .medGrunnTilReduksjon(valg.getGrunnerTilReduksjon())
@@ -67,9 +65,9 @@ public class TilbakekrevingRepository {
     }
 
     public void deaktiverEksisterendeTilbakekrevingValg(Behandling behandling) {
-        Optional<TilbakekrevingValgEntitet> eksisterende = hentEntitet(behandling.getId());
+        var eksisterende = hentEntitet(behandling.getId());
         if (eksisterende.isPresent()) {
-            TilbakekrevingValgEntitet eksisterendeEntitet = eksisterende.get();
+            var eksisterendeEntitet = eksisterende.get();
             eksisterendeEntitet.deaktiver();
             entityManager.persist(eksisterendeEntitet);
         }
@@ -79,7 +77,7 @@ public class TilbakekrevingRepository {
         Objects.requireNonNull(behandling, "behandling");
         deaktiverEksisterendeTilbakekrevingInntrekk(behandling);
 
-        TilbakekrevingInntrekkEntitet inntrekkEntitet = new TilbakekrevingInntrekkEntitet.Builder()
+        var inntrekkEntitet = new TilbakekrevingInntrekkEntitet.Builder()
             .medBehandling(behandling)
             .medAvslåttInntrekk(avslåttInntrekk)
             .build();
@@ -89,7 +87,7 @@ public class TilbakekrevingRepository {
     }
 
     public Optional<TilbakekrevingInntrekkEntitet> hentTilbakekrevingInntrekk(Long behandlingId) {
-        TypedQuery<TilbakekrevingInntrekkEntitet> query = entityManager
+        var query = entityManager
             .createQuery("from TilbakekrevingInntrekkEntitet ti where ti.behandlingId =:behandlingId and aktiv =: aktiv", TilbakekrevingInntrekkEntitet.class)
             .setParameter("behandlingId", behandlingId)
             .setParameter("aktiv", true);
@@ -98,9 +96,9 @@ public class TilbakekrevingRepository {
     }
 
     public void deaktiverEksisterendeTilbakekrevingInntrekk(Behandling behandling) {
-        Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekkEntitet = hentTilbakekrevingInntrekk(behandling.getId());
+        var tilbakekrevingInntrekkEntitet = hentTilbakekrevingInntrekk(behandling.getId());
         if (tilbakekrevingInntrekkEntitet.isPresent()) {
-            TilbakekrevingInntrekkEntitet eksisterendeInntrekk = tilbakekrevingInntrekkEntitet.get();
+            var eksisterendeInntrekk = tilbakekrevingInntrekkEntitet.get();
             eksisterendeInntrekk.deaktiver();
             entityManager.persist(eksisterendeInntrekk);
         }

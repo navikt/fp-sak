@@ -34,7 +34,7 @@ public class OppholdstillatelsePeriode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OppholdstillatelsePeriode that = (OppholdstillatelsePeriode) o;
+        var that = (OppholdstillatelsePeriode) o;
         return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) && tillatelse == that.tillatelse;
     }
 

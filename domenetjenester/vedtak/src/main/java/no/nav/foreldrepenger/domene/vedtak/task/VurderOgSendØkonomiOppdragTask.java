@@ -1,10 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.task;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
@@ -55,7 +51,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         // Har vi mottatt kvittering?
-        Optional<ProsessTaskHendelse> hendelse = prosessTaskData.getHendelse();
+        var hendelse = prosessTaskData.getHendelse();
         if (hendelse.isPresent()) {
             behandleHendelse(hendelse.get(), behandlingId);
             return;
@@ -71,7 +67,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
         if (oppdragskontrollOpt.isPresent()) {
             LOG.info("Klargjør økonomioppdrag for behandling: {}", behandlingId); //$NON-NLS-1$
-            Oppdragskontroll oppdragskontroll = oppdragskontrollOpt.get();
+            var oppdragskontroll = oppdragskontrollOpt.get();
             oppdragskontrollTjeneste.lagre(oppdragskontroll);
             oppdaterProsessTask(prosessTaskData);
 
@@ -92,7 +88,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
-        ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
@@ -102,7 +98,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask, Long behandlingId) {
-        ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendTilkjentYtelseTask.TASKTYPE);
+        var sendØkonomiOppdrag = new ProsessTaskData(SendTilkjentYtelseTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),

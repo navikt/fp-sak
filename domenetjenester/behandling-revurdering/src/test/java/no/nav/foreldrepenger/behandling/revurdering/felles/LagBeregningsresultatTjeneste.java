@@ -14,7 +14,7 @@ public class LagBeregningsresultatTjeneste {
     public static BeregningsresultatEntitet lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate endringsdato,
             boolean gjelderOriginalBehandling,
             String orgnr) {
-        BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
+        var brFP = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();

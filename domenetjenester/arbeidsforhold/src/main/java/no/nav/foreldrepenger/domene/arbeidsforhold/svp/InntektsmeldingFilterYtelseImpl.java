@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -13,7 +12,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingFilterYtelse;
@@ -40,7 +38,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
             Map<Arbeidsgiver, Set<V>> påkrevde) {
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
 
-        List<SvpTilretteleggingEntitet> arbeidsforholdFraSøknad = svangerskapspengerRepository.hentGrunnlag(referanse.getBehandlingId())
+        var arbeidsforholdFraSøknad = svangerskapspengerRepository.hentGrunnlag(referanse.getBehandlingId())
                 .map(svpGrunnlagEntitet -> new TilretteleggingFilter(svpGrunnlagEntitet).getAktuelleTilretteleggingerUfiltrert())
                 .orElse(Collections.emptyList());
 

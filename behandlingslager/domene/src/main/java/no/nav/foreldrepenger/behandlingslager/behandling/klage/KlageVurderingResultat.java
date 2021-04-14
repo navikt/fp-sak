@@ -117,7 +117,7 @@ public class KlageVurderingResultat extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KlageVurderingResultat that = (KlageVurderingResultat) o;
+        var that = (KlageVurderingResultat) o;
         return harLikVurdering(that) &&
             godkjentAvMedunderskriver == that.godkjentAvMedunderskriver &&
             Objects.equals(klageResultat, that.klageResultat) &&

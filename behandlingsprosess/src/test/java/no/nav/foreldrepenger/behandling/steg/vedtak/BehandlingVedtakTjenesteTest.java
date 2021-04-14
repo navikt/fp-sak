@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,14 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -52,7 +49,7 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
-        BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
+        var behandlingVedtakEventPubliserer = mock(BehandlingVedtakEventPubliserer.class);
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
@@ -64,16 +61,16 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_behandlingsvedtak_for_revurdering_med_opphør() {
         // Arrange
-        Behandling originalBehandling = lagInnvilgetOriginalBehandling();
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
+        var originalBehandling = lagInnvilgetOriginalBehandling();
+        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL).medOriginalBehandlingId(originalBehandling.getId()))
                 .build();
         forceOppdaterBehandlingSteg(revurdering, BehandlingStegType.FATTE_VEDTAK);
-        BehandlingLås behandlingLås = lagreBehandling(revurdering);
+        var behandlingLås = lagreBehandling(revurdering);
         opprettFamilieHendelseGrunnlag(originalBehandling, revurdering);
-        Fagsak fagsak = revurdering.getFagsak();
-        BehandlingskontrollKontekst revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var fagsak = revurdering.getFagsak();
+        var revurderingKontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
         oppdaterMedBehandlingsresultat(revurderingKontekst, BehandlingResultatType.OPPHØR);
         lagUttaksresultatOpphørEtterSkjæringstidspunkt(revurdering);
 
@@ -81,19 +78,19 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
         behandlingVedtakTjeneste.opprettBehandlingVedtak(revurderingKontekst, revurdering);
 
         // Assert
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurdering.getId());
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(revurdering.getId());
         assertThat(vedtak).isPresent();
         assertThat(vedtak.get().getVedtakResultatType()).isEqualTo(VedtakResultatType.OPPHØR);
     }
 
     private Behandling lagInnvilgetOriginalBehandling() {
-        BehandlingskontrollKontekst kontekst = byggBehandlingsgrunnlagFPForFødsel(BehandlingStegType.FATTE_VEDTAK);
+        var kontekst = byggBehandlingsgrunnlagFPForFødsel(BehandlingStegType.FATTE_VEDTAK);
         oppdaterMedBehandlingsresultat(kontekst, BehandlingResultatType.INNVILGET);
         return behandlingRepository.hentBehandling(kontekst.getBehandlingId());
     }
 
     private void lagUttaksresultatOpphørEtterSkjæringstidspunkt(Behandling revurdering) {
-        UttakResultatPerioderEntitet uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(lagInnvilgetUttakPeriode(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(1)));
         uttakResultatPerioderEntitet
                 .leggTilPeriode(lagOpphørtPeriode(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1), SKJÆRINGSTIDSPUNKT.plusMonths(6)));
@@ -115,26 +112,26 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
     }
 
     private BehandlingLås lagreBehandling(Behandling behandling) {
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
         return behandlingLås;
     }
 
     private void oppdaterMedBehandlingsresultat(BehandlingskontrollKontekst kontekst, BehandlingResultatType behandlingResultatType) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         Behandlingsresultat.builderForInngangsvilkår()
                 .medBehandlingResultatType(behandlingResultatType)
                 .buildFor(behandling);
-        boolean ikkeAvslått = !behandlingResultatType.equals(BehandlingResultatType.AVSLÅTT);
+        var ikkeAvslått = !behandlingResultatType.equals(BehandlingResultatType.AVSLÅTT);
         VilkårResultat.builder()
                 .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, ikkeAvslått ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
                         null, new Properties(), null, false, false, null, null)
                 .medVilkårResultatType(ikkeAvslått ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
 
-        BehandlingLås lås = kontekst.getSkriveLås();
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        var lås = kontekst.getSkriveLås();
+        var behandlingsresultat = behandling.getBehandlingsresultat();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
 
         behandlingRepository.lagre(behandling, lås);
@@ -145,12 +142,12 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now())
                 .medAntallBarn(1);
 
-        Behandling behandling = scenario
+        var behandling = scenario
                 .medBehandlingStegStart(behandlingStegType)
                 .medBehandlendeEnhet("Stord")
                 .lagre(repositoryProvider);
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingRepository.taSkriveLås(behandling));
     }
 }

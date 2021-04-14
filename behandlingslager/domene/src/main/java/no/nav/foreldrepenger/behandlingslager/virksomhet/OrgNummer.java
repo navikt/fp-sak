@@ -58,10 +58,11 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof OrgNummer)) {
+        }
+        if (!(obj instanceof OrgNummer)) {
             return false;
         }
-        OrgNummer other = (OrgNummer) obj;
+        var other = (OrgNummer) obj;
         return Objects.equals(orgNummer, other.orgNummer);
     }
 
@@ -88,7 +89,7 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
         if (orgNummer == null) {
             return null;
         }
-        int length = orgNummer.length();
+        var length = orgNummer.length();
         if (length <= 4) {
             return "*".repeat(length);
         }

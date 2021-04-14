@@ -16,7 +16,7 @@ final class UtledRelevanteYrkesaktiviteterForStillingsprosent {
     }
 
     static List<Yrkesaktivitet> utled(YrkesaktivitetFilter filter, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = yrkesaktiviteter.stream()
+        var relevanteYrkesaktiviteter = yrkesaktiviteter.stream()
                 .filter(ya -> ansettelsesperiodeErOverstyrtEllerOverlapperMedStp(filter, ya, skjæringstidspunkt))
                 .collect(Collectors.toList());
         if (relevanteYrkesaktiviteter.isEmpty()) {

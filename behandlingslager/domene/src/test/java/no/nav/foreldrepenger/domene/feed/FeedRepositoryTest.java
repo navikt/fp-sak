@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.domene.feed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,10 +63,10 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_lagre_fp_hendelse() {
         lagreHendelser();
-        FpVedtakUtgåendeHendelse utgåendeHendelse = byggUtgåendeFpHendelse();
+        var utgåendeHendelse = byggUtgåendeFpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
         assertThat(id).isGreaterThanOrEqualTo(1);
-        Optional<UtgåendeHendelse> utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
+        var utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
 
         assertThat(utgåendeHendelse1.get()).isNotNull();
         assertThat(utgåendeHendelse1.get().getId()).isEqualTo(id);
@@ -79,10 +76,10 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_lagre_svp_hendelse() {
         lagreHendelser();
-        SvpVedtakUtgåendeHendelse utgåendeHendelse = byggUtgåendeSvpHendelse();
+        var utgåendeHendelse = byggUtgåendeSvpHendelse();
         long id = feedRepository.lagre(utgåendeHendelse);
         assertThat(id).isGreaterThanOrEqualTo(1);
-        Optional<UtgåendeHendelse> utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
+        var utgåendeHendelse1 = feedRepository.hentUtgåendeHendelse(id);
 
         assertThat(utgåendeHendelse1.get()).isNotNull();
         assertThat(utgåendeHendelse1.get().getId()).isEqualTo(id);
@@ -105,7 +102,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         lagreHendelser();
         assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isFalse();
-        FpVedtakUtgåendeHendelse utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
+        var utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
             .aktørId("1000000002")
             .type("type3")
             .kildeId("ny_kilde")
@@ -117,7 +114,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_hendelser_med_type1() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder()
                     .medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
                     .medType(TYPE1)
@@ -129,7 +126,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_alle_hendelser_med_sekvens_id_større_enn_sist_lest() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId2MedSek2.getSekvensnummer() - 1)
                     .medMaxAntall(100L).build());
 
@@ -139,7 +136,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_returnerer_tom_liste_hvis_result_set_er_tom() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(nesteSeksvensnummer() + 100).medMaxAntall(100L).build());
 
         assertThat(alle).isEmpty();
@@ -148,7 +145,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_alle_hendelser_med_aktør_id() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(0L).medAktørId(AKTØR_ID_2).medMaxAntall(100L).build());
 
         assertThat(alle).containsOnly(hendelseAvType1MedAktørId2MedSek2);
@@ -157,7 +154,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_max_antall_1() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
                     .medMaxAntall(1L).build());
 
@@ -167,7 +164,7 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_max_antall_4_med_hopp_i_sekvensnummer() {
         lagreHendelser();
-        List<FpVedtakUtgåendeHendelse> alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
+        var alle = feedRepository.hentUtgåendeHendelser(FpVedtakUtgåendeHendelse.class,
                 new HendelseCriteria.Builder().medSisteLestSekvensId(hendelseAvType1MedAktørId1MedSek1.getSekvensnummer() - 1)
                     .medMaxAntall(4L).build());
 

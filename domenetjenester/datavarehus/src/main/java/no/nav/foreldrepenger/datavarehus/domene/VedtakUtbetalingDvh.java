@@ -107,7 +107,7 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        VedtakUtbetalingDvh castOther = (VedtakUtbetalingDvh) other;
+        var castOther = (VedtakUtbetalingDvh) other;
         return Objects.equals(vedtakDato, castOther.vedtakDato)
             && Objects.equals(xmlClob, castOther.xmlClob)
             && Objects.equals(fagsakId, castOther.fagsakId)
@@ -187,7 +187,7 @@ public class VedtakUtbetalingDvh extends DvhBaseEntitet {
         }
 
         public VedtakUtbetalingDvh build() {
-            VedtakUtbetalingDvh vedtakUtbetalingDvh = new VedtakUtbetalingDvh();
+            var vedtakUtbetalingDvh = new VedtakUtbetalingDvh();
             vedtakUtbetalingDvh.vedtakDato = vedtakDato;
             vedtakUtbetalingDvh.xmlClob = xmlClob;
             vedtakUtbetalingDvh.fagsakId = fagsakId;

@@ -43,7 +43,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         var revurdering = lagRevurdering(originalBehandling);
 
         // Act
-        boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
+        var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
                 lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
                         KonsekvensForYtelsen.INGEN_ENDRING),
                 lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET,
@@ -61,7 +61,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
         var revurdering = lagRevurdering(originalBehandling);
 
         // Act
-        boolean erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
+        var erAvslagPåAvslag = FastsettBehandlingsresultatVedAvslagPåAvslag.vurder(
                 lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
                         KonsekvensForYtelsen.INGEN_ENDRING),
                 lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT),
@@ -72,7 +72,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling) {
-        Behandling revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
+        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(
                         BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                                 .medManueltOpprettet(true)
@@ -92,7 +92,7 @@ public class FastsettBehandlingsresultatVedAvslagPåAvslagTest {
     private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling,
             BehandlingResultatType resultatType,
             KonsekvensForYtelsen konsekvensForYtelsen) {
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(resultatType)
+        var behandlingsresultat = Behandlingsresultat.builder().medBehandlingResultatType(resultatType)
                 .leggTilKonsekvensForYtelsen(konsekvensForYtelsen).buildFor(behandling);
 
         VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(behandling);

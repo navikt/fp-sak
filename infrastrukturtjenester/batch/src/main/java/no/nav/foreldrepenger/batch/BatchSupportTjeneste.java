@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.batch;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,7 @@ public class BatchSupportTjeneste {
     @Inject
     public BatchSupportTjeneste(ProsessTaskRepository prosessTaskRepository, @Any Instance<BatchTjeneste> batchTjenester) {
         this.batchTjenester = new HashMap<>();
-        for (BatchTjeneste batchTjeneste : batchTjenester) {
+        for (var batchTjeneste : batchTjenester) {
             this.batchTjenester.put(batchTjeneste.getBatchName(), batchTjeneste);
         }
         this.prosessTaskRepository = prosessTaskRepository;
@@ -42,11 +41,11 @@ public class BatchSupportTjeneste {
      * Initiell oppretting av BatchSchedulerTask - vil opprette og kjøre en umiddelbart hvis det ikke allerede finnes en KLAR.
      **/
     public void startBatchSchedulerTask() {
-        boolean eksisterende = prosessTaskRepository.finnIkkeStartet().stream()
+        var eksisterende = prosessTaskRepository.finnIkkeStartet().stream()
             .map(ProsessTaskData::getTaskType)
             .anyMatch(BatchSchedulerTask.TASKTYPE::equals);
         if (!eksisterende) {
-            ProsessTaskData taskData = new ProsessTaskData(BatchSchedulerTask.TASKTYPE);
+            var taskData = new ProsessTaskData(BatchSchedulerTask.TASKTYPE);
             prosessTaskRepository.lagre(taskData);
         }
     }
@@ -69,7 +68,7 @@ public class BatchSupportTjeneste {
      * Prøv å kjøre feilete tasks på nytt - restart av andre system.
      */
     public void retryAlleProsessTasksFeilet() {
-        List<ProsessTaskData> ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
+        var ptdList = this.prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET);
         if (ptdList.isEmpty()) {
             return;
         }
@@ -78,7 +77,7 @@ public class BatchSupportTjeneste {
             .filter(ptd -> !ptd.getTaskType().equals("iverksetteVedtak.oppdragTilØkonomi"))
             .collect(Collectors.toList());
 
-        LocalDateTime nå = LocalDateTime.now();
+        var nå = LocalDateTime.now();
         Map<String, Integer> taskTypesMaxForsøk = new HashMap<>();
         filtrerteTask.stream().map(ProsessTaskData::getTaskType).forEach(tasktype -> {
             if (taskTypesMaxForsøk.get(tasktype) == null) {

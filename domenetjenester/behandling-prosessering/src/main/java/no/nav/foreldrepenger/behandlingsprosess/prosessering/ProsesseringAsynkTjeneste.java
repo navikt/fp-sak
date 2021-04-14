@@ -36,9 +36,9 @@ public class ProsesseringAsynkTjeneste {
 
     public Map<String, ProsessTaskData> sjekkProsessTaskPågår(Long fagsakId, Long behandlingId, String gruppe) {
 
-        Map<String, List<ProsessTaskData>> statusProsessTasks = sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, gruppe);
+        var statusProsessTasks = sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, gruppe);
 
-        Map<String, ProsessTaskData> nestePerGruppe = nesteProsessTaskPerGruppe(statusProsessTasks);
+        var nestePerGruppe = nesteProsessTaskPerGruppe(statusProsessTasks);
 
         if (angittGruppeErFerdig(gruppe, nestePerGruppe)) {
             nestePerGruppe = nesteProsessTaskPerGruppe(sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, null));
@@ -73,7 +73,7 @@ public class ProsesseringAsynkTjeneste {
 
     private Map<String, ProsessTaskData> nesteProsessTaskPerGruppe(Map<String, List<ProsessTaskData>> tasks) {
         // velg top task per gruppe
-        Map<String, ProsessTaskData> topTaskPerGruppe = tasks.entrySet().stream()
+        var topTaskPerGruppe = tasks.entrySet().stream()
                 .filter(e -> !e.getValue().isEmpty())
                 .map(e -> e.getValue()
                         .stream()
@@ -97,7 +97,7 @@ public class ProsesseringAsynkTjeneste {
     }
 
     private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {
-        List<ProsessTaskData> tasks = fagsakProsessTaskRepository.sjekkStatusProsessTasks(fagsakId, behandlingId, gruppe);
+        var tasks = fagsakProsessTaskRepository.sjekkStatusProsessTasks(fagsakId, behandlingId, gruppe);
         return tasks.stream().collect(Collectors.groupingBy(ProsessTaskData::getGruppe));
     }
 
@@ -107,7 +107,7 @@ public class ProsesseringAsynkTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkStartBehandlingProsess(Behandling behandling) {
-        ProsessTaskData taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         return prosessTaskRepository.lagre(taskData);
@@ -119,7 +119,7 @@ public class ProsesseringAsynkTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkProsesserBehandling(Behandling behandling) {
-        ProsessTaskData taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         return prosessTaskRepository.lagre(taskData);
@@ -131,8 +131,8 @@ public class ProsesseringAsynkTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkProsesserBehandlingMergeGruppe(Behandling behandling) {
-        ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
-        ProsessTaskData taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var gruppe = new ProsessTaskGruppe();
+        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(taskData);

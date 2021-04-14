@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,8 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
@@ -59,7 +56,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     public void loggDokumentBestilt(Behandling behandling, DokumentMalType dokumentMalTypeKode) {
-        BehandlingDokumentEntitet behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
                 .orElseGet(() -> BehandlingDokumentEntitet.Builder.ny().medBehandling(behandling.getId()).build());
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
                 .medBehandlingDokument(behandlingDokument)
@@ -70,7 +67,7 @@ public class DokumentBehandlingTjeneste {
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
 
-        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         return behandlingDokument.isPresent() && behandlingDokument.get().getBestilteDokumenter().stream()
                 .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
                 .collect(Collectors.toList())
@@ -78,15 +75,15 @@ public class DokumentBehandlingTjeneste {
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         opprettTaskAvsluttOppgave(behandling);
         behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT,
                 LocalDateTime.now().plus(MANUELT_VENT_FRIST), venteårsak);
     }
 
     private void opprettTaskAvsluttOppgave(Behandling behandling) {
-        OppgaveÅrsak oppgaveÅrsak = behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK;
-        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var oppgaveÅrsak = behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK;
+        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         if (OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(oppgaveÅrsak, oppgaver).isPresent()) {
             oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, oppgaveÅrsak);
         } else if (OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.REGISTRER_SØKNAD, oppgaver).isPresent()) {
@@ -95,12 +92,12 @@ public class DokumentBehandlingTjeneste {
     }
 
     public void utvidBehandlingsfristManuelt(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         oppdaterBehandlingMedNyFrist(behandling, finnNyFristManuelt(behandling));
     }
 
     void oppdaterBehandlingMedNyFrist(Behandling behandling, LocalDate nyFrist) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandling.setBehandlingstidFrist(nyFrist);
         behandlingRepository.lagre(behandling, lås);
     }
@@ -110,19 +107,19 @@ public class DokumentBehandlingTjeneste {
     }
 
     public void utvidBehandlingsfristManueltMedlemskap(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         oppdaterBehandlingMedNyFrist(behandling, utledFristMedlemskap(behandling, finnAksjonspunktperiodeForVentPåFødsel()));
 
     }
 
     private Period finnAksjonspunktperiodeForVentPåFødsel() {
-        AksjonspunktDefinisjon ventPåFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
+        var ventPåFødsel = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
         return Period.parse(ventPåFødsel.getFristPeriode());
     }
 
     LocalDate utledFristMedlemskap(Behandling behandling, Period aksjonspunktPeriode) {
-        LocalDate vanligFrist = finnNyFristManuelt(behandling);
-        Optional<LocalDate> terminFrist = beregnTerminFrist(behandling, aksjonspunktPeriode);
+        var vanligFrist = finnNyFristManuelt(behandling);
+        var terminFrist = beregnTerminFrist(behandling, aksjonspunktPeriode);
         if (terminFrist.isPresent() && vanligFrist.isAfter(terminFrist.get()) && iFremtiden(terminFrist.get())) {
             return terminFrist.get();
         }
@@ -134,10 +131,10 @@ public class DokumentBehandlingTjeneste {
     }
 
     private Optional<LocalDate> beregnTerminFrist(Behandling behandling, Period aksjonspunktPeriode) {
-        Optional<TerminbekreftelseEntitet> gjeldendeTerminBekreftelse = familieHendelseRepository.hentAggregat(behandling.getId())
+        var gjeldendeTerminBekreftelse = familieHendelseRepository.hentAggregat(behandling.getId())
                 .getGjeldendeTerminbekreftelse();
         if (gjeldendeTerminBekreftelse.isPresent()) {
-            LocalDate oppgittTermindato = gjeldendeTerminBekreftelse.get().getTermindato();
+            var oppgittTermindato = gjeldendeTerminBekreftelse.get().getTermindato();
             return Optional.of(oppgittTermindato.plus(aksjonspunktPeriode));
         }
         return Optional.empty();

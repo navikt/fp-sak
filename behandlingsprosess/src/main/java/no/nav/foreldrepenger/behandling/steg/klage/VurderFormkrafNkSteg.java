@@ -36,7 +36,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        KlageVurdering klageVurderingResultat = klageRepository.hentKlageVurderingResultat(kontekst.getBehandlingId(), KlageVurdertAv.NFP)
+        var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(kontekst.getBehandlingId(), KlageVurdertAv.NFP)
                 .map(KlageVurderingResultat::getKlageVurdering)
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Skal alltid ha klagevurdering fra NFP "));
         if (klageVurderingResultat.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {

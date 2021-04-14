@@ -22,7 +22,7 @@ public class Statsborgerskap {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Statsborgerskap that = (Statsborgerskap) o;
+        var that = (Statsborgerskap) o;
         return Objects.equals(landkode, that.landkode);
     }
 

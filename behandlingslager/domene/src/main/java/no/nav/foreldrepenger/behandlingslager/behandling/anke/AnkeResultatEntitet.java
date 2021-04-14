@@ -63,10 +63,11 @@ public class AnkeResultatEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof AnkeResultatEntitet)) {
+        }
+        if (!(obj instanceof AnkeResultatEntitet)) {
             return false;
         }
-        AnkeResultatEntitet other = (AnkeResultatEntitet) obj;
+        var other = (AnkeResultatEntitet) obj;
         return Objects.equals(this.ankeBehandlingId, other.ankeBehandlingId);
     }
 

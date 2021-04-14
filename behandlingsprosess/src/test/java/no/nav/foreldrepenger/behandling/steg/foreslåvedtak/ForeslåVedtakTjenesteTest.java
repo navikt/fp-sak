@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
@@ -24,14 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -86,7 +83,7 @@ public class ForeslåVedtakTjenesteTest {
         lenient().when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.FALSE);
         lenient().when(dokumentBehandlingTjeneste.erDokumentBestilt(anyLong(), any())).thenReturn(true);
 
-        SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository,
+        var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository,
                 oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
         tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste);
@@ -98,7 +95,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -124,7 +121,7 @@ public class ForeslåVedtakTjenesteTest {
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -146,7 +143,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotorinnskontroll() {
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -156,7 +153,7 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void setterIkkeTotrinnskontrollPaBehandlingHvisDetIkkeErTotrinnskontroll() {
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -169,7 +166,7 @@ public class ForeslåVedtakTjenesteTest {
         when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -185,7 +182,7 @@ public class ForeslåVedtakTjenesteTest {
         lenient().when(oppgaveTjeneste.harÅpneOppgaverAvType(any(AktørId.class), any())).thenReturn(Boolean.TRUE);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -195,10 +192,10 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void utførerUtenAksjonspunktHvisRevurderingIkkeOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -208,17 +205,17 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontroll() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
                 .lagre(repositoryProvider);
-        Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
                 .build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering);
+        var stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -229,11 +226,11 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void utførerUtenAksjonspunktHvisRevurderingIkkeManueltOpprettetOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
         behandling.setToTrinnsBehandling();
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -243,18 +240,18 @@ public class ForeslåVedtakTjenesteTest {
     @Test
     public void utførerMedAksjonspunktForeslåVedtakManueltHvisRevurderingOpprettetManueltOgIkkeTotrinnskontrollBehandling2TrinnIkkeReset() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
                 .lagre(repositoryProvider);
-        Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING).medManueltOpprettet(true))
                 .build();
         revurdering.setToTrinnsBehandling();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(revurdering);
+        var stegResultat = tjeneste.foreslåVedtak(revurdering);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -269,7 +266,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -285,7 +282,7 @@ public class ForeslåVedtakTjenesteTest {
         leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true);
 
         // Act
-        BehandleStegResultat stegResultat = tjeneste.foreslåVedtak(behandling);
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -293,7 +290,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     private void leggTilAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean totrinnsbehandling) {
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         aksjonspunkt.setStatus(AksjonspunktStatus.UTFØRT, "");
         aksjonspunkt.setToTrinnsBehandling(totrinnsbehandling);
         // Whitebox.setInternalState(aksjonspunkt, "status", AksjonspunktStatus.UTFØRT);

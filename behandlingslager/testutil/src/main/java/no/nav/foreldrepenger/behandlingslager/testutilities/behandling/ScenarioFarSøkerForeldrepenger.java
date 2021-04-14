@@ -43,7 +43,7 @@ public class ScenarioFarSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     public static ScenarioFarSøkerForeldrepenger forFødselUtenSøknad(AktørId aktørId) {
-        ScenarioFarSøkerForeldrepenger scenario = new ScenarioFarSøkerForeldrepenger(aktørId);
+        var scenario = new ScenarioFarSøkerForeldrepenger(aktørId);
         scenario.utenSøknad();
         return scenario;
     }

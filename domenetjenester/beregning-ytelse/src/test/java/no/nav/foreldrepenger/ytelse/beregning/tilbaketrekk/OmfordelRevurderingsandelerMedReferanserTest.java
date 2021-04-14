@@ -32,16 +32,16 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     @Test
     public void skal_teste_at_ingenting_fordeles_ved_ingen_endring() {
         // Arrange
-        List<BeregningsresultatAndel> originaleAndeler = List.of(
+        var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),
                 lagAndel(false, 200, REF1));
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(
+        var revurderingAndeler = List.of(
                 lagAndel(true, 1500, REF1),
                 lagAndel(false, 200, REF1));
 
         // Act
-        List<BRNøkkelMedAndeler> originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
-        List<BRNøkkelMedAndeler> revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
+        var originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
+        var revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
 
         // Act
         var resultat = OmfordelRevurderingsandelerMedReferanser.omfordel(revurderingNøkkelAndeler.get(0), originalNøkkelMedAndeler.get(0));
@@ -53,15 +53,15 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     @Test
     public void skal_teste_at_ingenting_fordeles_når_brukers_andel_øker() {
         // Arrange
-        List<BeregningsresultatAndel> originaleAndeler = List.of(
+        var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),
                 lagAndel(false, 200, REF1));
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(
+        var revurderingAndeler = List.of(
                 lagAndel(true, 1700, REF1),
                 lagAndel(false, 500, REF1));
 
-        List<BRNøkkelMedAndeler> originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
-        List<BRNøkkelMedAndeler> revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
+        var originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
+        var revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
 
         // Act
         var resultat = OmfordelRevurderingsandelerMedReferanser.omfordel(revurderingNøkkelAndeler.get(0), originalNøkkelMedAndeler.get(0));
@@ -73,15 +73,15 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     @Test
     public void skal_teste_at_refordeling_skjer_når_bruker_mister_penger() {
         // Arrange
-        List<BeregningsresultatAndel> originaleAndeler = List.of(
+        var originaleAndeler = List.of(
                 lagAndel(true, 1500, REF1),
                 lagAndel(false, 200, REF1));
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(
+        var revurderingAndeler = List.of(
                 lagAndel(true, 400, REF1),
                 lagAndel(false, 1300, REF1));
 
-        List<BRNøkkelMedAndeler> originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
-        List<BRNøkkelMedAndeler> revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
+        var originalNøkkelMedAndeler = MapAndelerSortertPåNøkkel.map(originaleAndeler);
+        var revurderingNøkkelAndeler = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
 
         // Act
         var resultat = OmfordelRevurderingsandelerMedReferanser.omfordel(revurderingNøkkelAndeler.get(0), originalNøkkelMedAndeler.get(0));
@@ -91,7 +91,7 @@ public class OmfordelRevurderingsandelerMedReferanserTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {
-        BeregningsresultatEntitet br = BeregningsresultatEntitet.builder()
+        var br = BeregningsresultatEntitet.builder()
                 .medRegelInput("input")
                 .medRegelSporing("sporing")
                 .build();

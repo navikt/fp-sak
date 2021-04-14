@@ -79,7 +79,7 @@ class MapTilKalkulatorInput {
         if (beregningsgrunnlagInput == null) {
             return null;
         }
-        KalkulatorInputDto kalkulatorInputDto = new KalkulatorInputDto(
+        var kalkulatorInputDto = new KalkulatorInputDto(
             mapIayGrunnlag(beregningsgrunnlagInput),
             mapOpptjeningAktiviteter(beregningsgrunnlagInput.getOpptjeningAktiviteterForBeregning()),
             beregningsgrunnlagInput.getSkjæringstidspunktOpptjening());
@@ -92,7 +92,7 @@ class MapTilKalkulatorInput {
         if (aktivitetGradering == null) {
             return null;
         }
-        AktivitetGraderingDto aktivitetGraderingDto = new AktivitetGraderingDto(mapAndelGraderinger(aktivitetGradering.getAndelGradering()));
+        var aktivitetGraderingDto = new AktivitetGraderingDto(mapAndelGraderinger(aktivitetGradering.getAndelGradering()));
         return aktivitetGraderingDto.getAndelGraderingDto() == null || aktivitetGraderingDto.getAndelGraderingDto().isEmpty() ? null : aktivitetGraderingDto;
     }
 
@@ -133,12 +133,14 @@ class MapTilKalkulatorInput {
     private static YtelsespesifiktGrunnlagDto mapYtelsesSpesifiktGrunnlag(YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag) {
         if (ytelsespesifiktGrunnlag == null) {
             return null;
-        } else if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag) {
-            SvangerskapspengerGrunnlag svpGrunnlag = (SvangerskapspengerGrunnlag) ytelsespesifiktGrunnlag;
+        }
+        if (ytelsespesifiktGrunnlag instanceof SvangerskapspengerGrunnlag) {
+            var svpGrunnlag = (SvangerskapspengerGrunnlag) ytelsespesifiktGrunnlag;
             return new no.nav.folketrygdloven.kalkulus.beregning.v1.SvangerskapspengerGrunnlag(mapUtbetalingsgradPrAktivitet(svpGrunnlag.getUtbetalingsgradPrAktivitet()));
-        } else if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
-            no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
-            AktivitetGraderingDto aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
+        }
+        if (ytelsespesifiktGrunnlag instanceof no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) {
+            var fpGrunnlag = (no.nav.folketrygdloven.kalkulator.input.ForeldrepengerGrunnlag) ytelsespesifiktGrunnlag;
+            var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
             return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad(null)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto);
         }
         return null;
@@ -201,8 +203,8 @@ class MapTilKalkulatorInput {
         if (beregningsgrunnlagInput.getIayGrunnlag() == null) {
             return null;
         }
-        no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto iayGrunnlag = beregningsgrunnlagInput.getIayGrunnlag();
-        InntektArbeidYtelseGrunnlagDto inntektArbeidYtelseGrunnlagDto = new InntektArbeidYtelseGrunnlagDto();
+        var iayGrunnlag = beregningsgrunnlagInput.getIayGrunnlag();
+        var inntektArbeidYtelseGrunnlagDto = new InntektArbeidYtelseGrunnlagDto();
         inntektArbeidYtelseGrunnlagDto.medArbeidDto(mapArbeidDto(iayGrunnlag.getAktørArbeidFraRegister()));
         inntektArbeidYtelseGrunnlagDto.medArbeidsforholdInformasjonDto(mapArbeidsforholdInformasjon(iayGrunnlag.getArbeidsforholdInformasjon()));
         inntektArbeidYtelseGrunnlagDto.medInntekterDto(mapInntekter(iayGrunnlag.getAktørInntektFraRegister()));
@@ -337,7 +339,7 @@ class MapTilKalkulatorInput {
         if (inntektDto == null) {
             return null;
         }
-        UtbetalingDto utbetalingDto = new UtbetalingDto(
+        var utbetalingDto = new UtbetalingDto(
             inntektDto.getInntektsKilde() == null ? null : InntektskildeType.fraKode(inntektDto.getInntektsKilde().getKode()),
             mapPoster(inntektDto.getAlleInntektsposter()));
         utbetalingDto.setArbeidsgiver(mapArbeidsgiver(inntektDto.getArbeidsgiver()));
@@ -363,7 +365,7 @@ class MapTilKalkulatorInput {
     }
 
     private static ArbeidsforholdInformasjonDto mapArbeidsforholdInformasjon(Optional<no.nav.folketrygdloven.kalkulator.modell.iay.ArbeidsforholdInformasjonDto> arbeidsforholdInformasjon) {
-        ArbeidsforholdInformasjonDto arbeidsforholdInformasjonDtoMapped = arbeidsforholdInformasjon
+        var arbeidsforholdInformasjonDtoMapped = arbeidsforholdInformasjon
             .map(arbeidsforholdInformasjonDto -> new ArbeidsforholdInformasjonDto(mapOverstyringer(arbeidsforholdInformasjonDto.getOverstyringer()))).orElse(null);
         if (arbeidsforholdInformasjonDtoMapped == null || arbeidsforholdInformasjonDtoMapped.getOverstyringer() == null || arbeidsforholdInformasjonDtoMapped.getOverstyringer().isEmpty()) {
             return null;

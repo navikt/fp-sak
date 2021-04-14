@@ -58,9 +58,8 @@ public class BeregningDtoTjeneste {
             var inputMedOrginaltBG = inputMedBg.medBeregningsgrunnlagGrunnlagFraForrigeBehandling(
                 orginaltBG);
             return leggTilTilstandgrunnlag(inputMedOrginaltBG, aktivTilstand);
-        } else {
-            return leggTilTilstandgrunnlag(inputMedBg, aktivTilstand);
         }
+        return leggTilTilstandgrunnlag(inputMedBg, aktivTilstand);
     }
 
     private BeregningsgrunnlagGUIInput leggTilTilstandgrunnlag(BeregningsgrunnlagGUIInput input,

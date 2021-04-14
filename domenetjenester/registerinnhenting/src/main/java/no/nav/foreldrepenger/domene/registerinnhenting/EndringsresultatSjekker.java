@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
@@ -88,8 +87,8 @@ public class EndringsresultatSjekker {
     }
 
     private DiffResult diffResultatPersonopplysninger(EndringsresultatDiff idDiff) {
-        PersonopplysningGrunnlagEntitet grunnlag1 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
-        PersonopplysningGrunnlagEntitet grunnlag2 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
+        var grunnlag1 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId1());
+        var grunnlag2 = personopplysningTjeneste.hentGrunnlagPåId((Long) idDiff.getGrunnlagId2());
         return new RegisterdataDiffsjekker(true).getDiffEntity().diff(grunnlag1, grunnlag2);
     }
 

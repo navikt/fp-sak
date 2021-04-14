@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,17 +41,17 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_lagre_og_hente_ut_vergeinformasjon() {
         // Arrange
-        NavBruker bruker = opprettBruker();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
+        var bruker = opprettBruker();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
         fagsakRepository.opprettNy(fagsak);
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        VergeOrganisasjonEntitet vergeOrganisasjon = new VergeOrganisasjonBuilder()
+        var vergeOrganisasjon = new VergeOrganisasjonBuilder()
                 .medNavn(VERGE_ORGNAVN)
                 .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
                 .build();
-        VergeBuilder vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeBuilder()
                 .medVergeType(VergeType.BARN)
                 .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
                 .medVergeOrganisasjon(vergeOrganisasjon);
@@ -61,15 +60,15 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
         vergeRepository.lagreOgFlush(behandling.getId(), vergeBuilder);
 
         // Assert
-        Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(behandling.getId());
+        var vergeAggregat = vergeRepository.hentAggregat(behandling.getId());
         assertThat(vergeAggregat).isPresent();
         assertThat(vergeAggregat.get().getVerge()).isPresent();
-        VergeEntitet verge = vergeAggregat.get().getVerge().get();
+        var verge = vergeAggregat.get().getVerge().get();
         assertThat(verge.getGyldigFom()).isEqualTo(GYLDIG_FOM);
         assertThat(verge.getGyldigTom()).isEqualTo(GYLDIG_TOM);
         assertThat(verge.getVergeType()).isEqualTo(VergeType.BARN);
         assertThat(verge.getVergeOrganisasjon()).isPresent();
-        VergeOrganisasjonEntitet vergeOrg = verge.getVergeOrganisasjon().get();
+        var vergeOrg = verge.getVergeOrganisasjon().get();
         assertThat(vergeOrg.getVerge()).isEqualTo(verge);
         assertThat(vergeOrg.getOrganisasjonsnummer()).isEqualTo(ORGANISASJONSNUMMER);
         assertThat(vergeOrg.getNavn()).isEqualTo(VERGE_ORGNAVN);
@@ -78,19 +77,19 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_kopiere_vergegrunnlag_fra_tidligere_behandling() {
         // Arrange
-        NavBruker bruker = opprettBruker();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
+        var bruker = opprettBruker();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
         fagsakRepository.opprettNy(fagsak);
-        Behandling gammelBehandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var gammelBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(gammelBehandling, behandlingRepository.taSkriveLås(gammelBehandling));
-        Behandling nyBehandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
+        var nyBehandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         behandlingRepository.lagre(nyBehandling, behandlingRepository.taSkriveLås(nyBehandling));
 
-        VergeOrganisasjonEntitet vergeOrganisasjon = new VergeOrganisasjonBuilder()
+        var vergeOrganisasjon = new VergeOrganisasjonBuilder()
                 .medNavn(VERGE_ORGNAVN)
                 .medOrganisasjonsnummer(ORGANISASJONSNUMMER)
                 .build();
-        VergeBuilder vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeBuilder()
                 .medVergeType(VergeType.BARN)
                 .gyldigPeriode(GYLDIG_FOM, GYLDIG_TOM)
                 .medVergeOrganisasjon(vergeOrganisasjon);
@@ -100,16 +99,16 @@ public class VergeRepositoryTest extends EntityManagerAwareTest {
         vergeRepository.kopierGrunnlagFraEksisterendeBehandling(gammelBehandling.getId(), nyBehandling.getId());
 
         // Assert
-        Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(nyBehandling.getId());
+        var vergeAggregat = vergeRepository.hentAggregat(nyBehandling.getId());
         assertThat(vergeAggregat).isPresent();
         assertThat(vergeAggregat.get().getVerge()).isPresent();
-        VergeEntitet verge = vergeAggregat.get().getVerge().get();
+        var verge = vergeAggregat.get().getVerge().get();
         assertThat(verge).isEqualTo(vergeRepository.hentAggregat(gammelBehandling.getId()).get().getVerge().get());
         assertThat(verge.getVergeOrganisasjon()).isPresent();
     }
 
     private NavBruker opprettBruker() {
-        NavBruker navBruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var navBruker = NavBruker.opprettNyNB(AktørId.dummy());
         new NavBrukerRepository(getEntityManager()).lagre(navBruker);
         return navBruker;
     }

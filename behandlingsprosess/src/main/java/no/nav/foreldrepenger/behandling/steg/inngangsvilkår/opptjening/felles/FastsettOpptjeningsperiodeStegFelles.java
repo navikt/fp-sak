@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening.felles;
 import static java.util.Collections.singletonList;
 
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
@@ -12,11 +11,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
@@ -41,12 +38,12 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
 
     @Override
     protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
-        OpptjeningsPeriode op = (OpptjeningsPeriode) regelResultat.getEkstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
+        var op = (OpptjeningsPeriode) regelResultat.getEkstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
         if (op == null) {
             throw new IllegalArgumentException(
                     "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());
         }
-        Opptjening opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, op.getOpptjeningsperiodeFom(), op.getOpptjeningsperiodeTom(),
+        var opptjening = opptjeningRepository.lagreOpptjeningsperiode(behandling, op.getOpptjeningsperiodeFom(), op.getOpptjeningsperiodeTom(),
                 erVilkårOverstyrt(behandling.getId()));
         if (opptjening == null) {
             throw new IllegalArgumentException(
@@ -67,10 +64,10 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
 
     @Override
     protected boolean erVilkårOverstyrt(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
-        Optional<VilkårResultat> resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        var resultatOpt = behandlingsresultat.map(Behandlingsresultat::getVilkårResultat);
         if (resultatOpt.isPresent()) {
-            VilkårResultat vilkårResultat = resultatOpt.get();
+            var vilkårResultat = resultatOpt.get();
             return vilkårResultat.getVilkårene().stream().filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.OPPTJENINGSVILKÅRET))
                     .anyMatch(Vilkår::erOverstyrt);
         }

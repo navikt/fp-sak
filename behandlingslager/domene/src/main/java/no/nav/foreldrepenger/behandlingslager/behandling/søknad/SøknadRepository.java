@@ -8,7 +8,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -35,7 +34,7 @@ public class SøknadRepository {
         if (behandlingId == null) {
             return null;
         }
-        final TypedQuery<SøknadGrunnlagEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             "FROM SøknadGrunnlag s " +
                     "WHERE s.behandling.id = :behandlingId AND s.aktiv = true", SøknadGrunnlagEntitet.class);
 
@@ -43,7 +42,7 @@ public class SøknadRepository {
 
         return HibernateVerktøy.hentUniktResultat(query).map(SøknadGrunnlagEntitet::getSøknad)
                 .orElseGet(() -> {
-                    final Optional<Long> originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
+                    final var originalId = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId)
                         .flatMap(Behandling::getOriginalBehandlingId);
                     return originalId.map(this::hentSøknad).orElse(null);
                 });
@@ -62,9 +61,9 @@ public class SøknadRepository {
     }
 
     public SøknadEntitet hentFørstegangsSøknad(Behandling behandling) {
-        final Optional<Behandling> førstegangsSøknad = utledSisteFørstegangsbehandlingSomIkkeErHenlagt(behandling);
+        final var førstegangsSøknad = utledSisteFørstegangsbehandlingSomIkkeErHenlagt(behandling);
         if (førstegangsSøknad.isPresent()) {
-            final Optional<SøknadEntitet> søknad = hentSøknadHvisEksisterer(førstegangsSøknad.get().getId());
+            final var søknad = hentSøknadHvisEksisterer(førstegangsSøknad.get().getId());
             if (søknad.isPresent()) {
                 return søknad.get();
             }
@@ -87,24 +86,24 @@ public class SøknadRepository {
 
     public void lagreOgFlush(Behandling behandling, SøknadEntitet søknad) {
         Objects.requireNonNull(behandling, "behandling"); // NOSONAR $NON-NLS-1$
-        final Optional<SøknadGrunnlagEntitet> søknadGrunnlagEntitet = hentEksisterendeGrunnlag(behandling.getId());
+        final var søknadGrunnlagEntitet = hentEksisterendeGrunnlag(behandling.getId());
         if (søknadGrunnlagEntitet.isPresent()) {
             // deaktiver eksisterende grunnlag
 
-            final SøknadGrunnlagEntitet søknadGrunnlagEntitet1 = søknadGrunnlagEntitet.get();
+            final var søknadGrunnlagEntitet1 = søknadGrunnlagEntitet.get();
             søknadGrunnlagEntitet1.setAktiv(false);
             entityManager.persist(søknadGrunnlagEntitet1);
             entityManager.flush();
         }
 
-        final SøknadGrunnlagEntitet grunnlagEntitet = new SøknadGrunnlagEntitet(behandling, søknad);
+        final var grunnlagEntitet = new SøknadGrunnlagEntitet(behandling, søknad);
         entityManager.persist(søknad);
         entityManager.persist(grunnlagEntitet);
         entityManager.flush();
     }
 
     private Optional<SøknadGrunnlagEntitet> hentEksisterendeGrunnlag(Long behandlingId) {
-        final TypedQuery<SøknadGrunnlagEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             "FROM SøknadGrunnlag s " +
                     "WHERE s.behandling.id = :behandlingId AND s.aktiv = true", SøknadGrunnlagEntitet.class);
 
@@ -117,7 +116,7 @@ public class SøknadRepository {
      * Kopierer grunnlag fra en tidligere behandling. Endrer ikke aggregater, en skaper nye referanser til disse.
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling gammelBehandling, Behandling nyBehandling) {
-        Optional<SøknadEntitet> søknadEntitet = hentSøknadHvisEksisterer(gammelBehandling.getId());
+        var søknadEntitet = hentSøknadHvisEksisterer(gammelBehandling.getId());
         søknadEntitet.ifPresent(entitet -> lagreOgFlush(nyBehandling, entitet));
     }
 }

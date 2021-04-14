@@ -13,37 +13,37 @@ public class RegisterinnhentingElastisiTest {
 
     @Test
     public void skal_gi_false_hvis_like() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now();
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now();
 
-        boolean resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isFalse();
     }
 
     @Test
     public void skal_gi_false_hvis_innenfor() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().plusMonths(1);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().plusMonths(1);
 
-        boolean resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isFalse();
     }
 
     @Test
     public void skal_gi_true_hvis_før() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().minusYears(1);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().minusYears(1);
 
-        boolean resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void skal_gi_true_hvis_etter() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().plusYears(1);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().plusYears(1);
 
-        boolean resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
+        var resultat = innhentingIntervall.erEndringIPerioden(oppgitt, bekreftet);
         assertThat(resultat).isTrue();
     }
 }

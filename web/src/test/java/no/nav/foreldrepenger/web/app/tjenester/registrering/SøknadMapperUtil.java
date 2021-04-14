@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.fp.TidsromPermisjonD
 public class SøknadMapperUtil {
 
     public static EgenVirksomhetDto opprettEgenVirksomhetDto() {
-        EgenVirksomhetDto egenVirksomhetDto = new EgenVirksomhetDto();
+        var egenVirksomhetDto = new EgenVirksomhetDto();
         egenVirksomhetDto.setVirksomheter(Collections.singletonList(opprettNorskVirksomhetMedEndringUtenRegnskapsfører()));
         return egenVirksomhetDto;
     }
@@ -49,7 +49,7 @@ public class SøknadMapperUtil {
     }
 
     public static UtsettelseDto opprettUtsettelseDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType gradering, boolean erArbeidstaker) {
-        UtsettelseDto dto = new UtsettelseDto();
+        var dto = new UtsettelseDto();
         dto.setArsakForUtsettelse(UtsettelseÅrsak.FERIE);
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
@@ -60,7 +60,7 @@ public class SøknadMapperUtil {
 
     public static PermisjonPeriodeDto opprettPermisjonPeriodeDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType uttakPeriodeType,
             MorsAktivitet morsAktivitet) {
-        PermisjonPeriodeDto dto = new PermisjonPeriodeDto();
+        var dto = new PermisjonPeriodeDto();
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
         dto.setPeriodeType(uttakPeriodeType);
@@ -75,11 +75,11 @@ public class SøknadMapperUtil {
 
     static ManuellRegistreringEngangsstonadDto opprettAdosjonDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, LocalDate fødselssdato,
             int antallBarn, LocalDate ankomstdato) {
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
+        var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setTema(tema);
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
 
-        OmsorgDto omsorgDto = new OmsorgDto();
+        var omsorgDto = new OmsorgDto();
         omsorgDto.setOmsorgsovertakelsesdato(omsorgsovertakelsesdato);
         omsorgDto.setFoedselsDato(Collections.singletonList(fødselssdato));
         omsorgDto.setAntallBarn(antallBarn);
@@ -91,12 +91,12 @@ public class SøknadMapperUtil {
 
     static ManuellRegistreringEngangsstonadDto opprettOmsorgDto(FamilieHendelseType tema, LocalDate omsorgsovertakelsesdato, RettigheterDto rettighet,
             int antallBarn, LocalDate fødselsdato) {
-        ManuellRegistreringEngangsstonadDto manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
+        var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
         manuellRegistreringEngangsstonadDto.setRettigheter(rettighet);
         manuellRegistreringEngangsstonadDto.setTema(tema);
 
-        OmsorgDto omsorgDto = new OmsorgDto();
+        var omsorgDto = new OmsorgDto();
         omsorgDto.setOmsorgsovertakelsesdato(omsorgsovertakelsesdato);
         omsorgDto.setAntallBarn(antallBarn);
         omsorgDto.setFoedselsDato(Collections.singletonList(fødselsdato));
@@ -107,10 +107,10 @@ public class SøknadMapperUtil {
 
     public static AnnenForelderDto opprettAnnenForelderDto(Boolean kanIkkeOppgiAnnenForelder, Boolean harAleneomsorg,
             Boolean harRettPåForeldrepenger) {
-        AnnenForelderDto annenForelderDto = new AnnenForelderDto();
+        var annenForelderDto = new AnnenForelderDto();
         if (kanIkkeOppgiAnnenForelder) {
             annenForelderDto.setKanIkkeOppgiAnnenForelder(kanIkkeOppgiAnnenForelder);
-            AnnenForelderDto.KanIkkeOppgiBegrunnelse kanIkkeOppgiBegrunnelse = new AnnenForelderDto.KanIkkeOppgiBegrunnelse();
+            var kanIkkeOppgiBegrunnelse = new AnnenForelderDto.KanIkkeOppgiBegrunnelse();
             annenForelderDto.setKanIkkeOppgiBegrunnelse(kanIkkeOppgiBegrunnelse);
             annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(harRettPåForeldrepenger);
             annenForelderDto.setSokerHarAleneomsorg(harAleneomsorg);
@@ -120,7 +120,7 @@ public class SøknadMapperUtil {
 
     public static GraderingDto opprettGraderingDto(LocalDate fraDato, LocalDate tilDato, BigDecimal prosentandel, UttakPeriodeType uttakPeriodeType,
             boolean erArbeidstaker, boolean erFrilanser, boolean erSelvstNæringsdrivende, String orgNr) {
-        GraderingDto dto = new GraderingDto();
+        var dto = new GraderingDto();
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
         dto.setPeriodeForGradering(uttakPeriodeType);
@@ -134,7 +134,7 @@ public class SøknadMapperUtil {
     }
 
     static ArbeidsforholdDto opprettUtenlandskArbeidsforholdDto(String navn, String landKode, LocalDate periodeFom, LocalDate periodeTom) {
-        ArbeidsforholdDto dto = new ArbeidsforholdDto();
+        var dto = new ArbeidsforholdDto();
         dto.setArbeidsgiver(navn);
         dto.setLand(landKode);
         dto.setPeriodeFom(periodeFom);
@@ -143,7 +143,7 @@ public class SøknadMapperUtil {
     }
 
     static VirksomhetDto opprettNorskVirksomhetMedEndringUtenRegnskapsfører() {
-        NaringsvirksomhetTypeDto naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
+        var naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
         return opprettVirksomhetDto("minarbeidsplass as",
                 true, KUNSTIG_ORG,
                 null,
@@ -155,7 +155,7 @@ public class SøknadMapperUtil {
     }
 
     static VirksomhetDto opprettUtenlandskVirksomhetMedEndringUtenRegnskapsfører() {
-        NaringsvirksomhetTypeDto naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
+        var naringsvirksomhetTypeDto = opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet();
         return opprettVirksomhetDto("utenlandsk org as",
                 false, KUNSTIG_ORG + "123",
                 "ENG",
@@ -174,7 +174,7 @@ public class SøknadMapperUtil {
             boolean varigEndring, LocalDate endretDato, String beskrivelseAvEndring,
             boolean harRegnskapsfører, String navnRegnskapsfører, String tlfRegnskapsfører,
             boolean tilknyttetNaringen, LocalDate utenlandskVirksomhetStartDato) {
-        VirksomhetDto virksomhetDto = new VirksomhetDto();
+        var virksomhetDto = new VirksomhetDto();
         virksomhetDto.setBeskrivelseAvEndring(beskrivelseAvEndring);
         virksomhetDto.setVarigEndringGjeldendeFom(endretDato);
         virksomhetDto.setFamilieEllerVennerTilknyttetNaringen(tilknyttetNaringen);
@@ -194,7 +194,7 @@ public class SøknadMapperUtil {
     }
 
     static NaringsvirksomhetTypeDto opprettNaringsvirksomhetTypeAnnenNæringsvirksomhet() {
-        NaringsvirksomhetTypeDto naringsvirksomhetTypeDto = new NaringsvirksomhetTypeDto();
+        var naringsvirksomhetTypeDto = new NaringsvirksomhetTypeDto();
         naringsvirksomhetTypeDto.setAnnen(true);
         return naringsvirksomhetTypeDto;
 
@@ -210,7 +210,7 @@ public class SøknadMapperUtil {
     }
 
     static AndreYtelserDto opprettAndreYtelserDto(ArbeidType ytelseType, LocalDate periodeFom, LocalDate periodeTom) {
-        AndreYtelserDto result = new AndreYtelserDto();
+        var result = new AndreYtelserDto();
         result.setYtelseType(ytelseType);
         result.setPeriodeFom(periodeFom);
         result.setPeriodeTom(periodeTom);
@@ -219,7 +219,7 @@ public class SøknadMapperUtil {
     }
 
     public static TidsromPermisjonDto opprettTidsromPermisjonDto(List<PermisjonPeriodeDto> permisjonsPerioder) {
-        TidsromPermisjonDto dto = new TidsromPermisjonDto();
+        var dto = new TidsromPermisjonDto();
         dto.setPermisjonsPerioder(permisjonsPerioder);
         return dto;
     }

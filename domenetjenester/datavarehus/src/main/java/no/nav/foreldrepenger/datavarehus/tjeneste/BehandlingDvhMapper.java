@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -110,7 +109,8 @@ public class BehandlingDvhMapper {
         var behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
         if (FagsakStatus.AVSLUTTET.equals(fagsakStatus)) {
             return BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType);
-        } else if (FagsakStatus.LØPENDE.equals(fagsakStatus)) {
+        }
+        if (FagsakStatus.LØPENDE.equals(fagsakStatus)) {
             return BehandlingResultatType.INNVILGET.equals(behandlingResultatType);
         }
         return false;
@@ -122,9 +122,9 @@ public class BehandlingDvhMapper {
 
     private static String mapUtlandstilsnitt(Behandling behandling) {
 
-        String utenlandstilsnitt = "NASJONAL";
+        var utenlandstilsnitt = "NASJONAL";
 
-        Optional<Aksjonspunkt>  utlandsakAksjonpunkt =   behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
+        var utlandsakAksjonpunkt =   behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.MANUELL_MARKERING_AV_UTLAND_SAKSTYPE);
 
         if(utlandsakAksjonpunkt.isPresent()){
             if (HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE.getKode().equals(utlandsakAksjonpunkt.get().getBegrunnelse())) {

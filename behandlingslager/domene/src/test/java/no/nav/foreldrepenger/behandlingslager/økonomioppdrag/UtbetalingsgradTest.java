@@ -13,7 +13,7 @@ class UtbetalingsgradTest {
     @Test
     public void skal_bygge_instans_med_påkrevde_felter_utbetalingsgrad_0() {
         var gradVerdi = 0;
-        Utbetalingsgrad utbetalingsgrad = Utbetalingsgrad.prosent(gradVerdi);
+        var utbetalingsgrad = Utbetalingsgrad.prosent(gradVerdi);
         validerObjekt(utbetalingsgrad, gradVerdi);
     }
 

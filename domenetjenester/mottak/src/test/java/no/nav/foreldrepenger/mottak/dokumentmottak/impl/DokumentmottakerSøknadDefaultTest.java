@@ -30,14 +30,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -97,7 +94,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
                 new FagsakLåsRepository(entityManager));
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
-        BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
+        var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, enhetsTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
@@ -112,13 +109,13 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_starte_behandling_av_søknad() {
         // Arrange
-        Fagsak fagsak = nyMorFødselFagsak();
-        Long fagsakId = fagsak.getId();
+        var fagsak = nyMorFødselFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
-        Behandling behandlingMock = mock(Behandling.class);
+        var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getAktørId()).thenReturn(fagsak.getAktørId());
         when(behandlingsoppretter.opprettFørstegangsbehandling(eq(fagsak), any(), any())).thenReturn(behandlingMock);
 
@@ -133,13 +130,13 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_starte_behandling_av_papirsøknad_uten_metadata() {
         // Arrange
-        Fagsak fagsak = nyMorFødselFagsak();
-        Long fagsakId = fagsak.getId();
+        var fagsak = nyMorFødselFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattPapirsøknad(DokumentTypeId.UDEFINERT, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattPapirsøknad(DokumentTypeId.UDEFINERT, fagsakId, "", now(), true, null);
 
-        Behandling behandlingMock = mock(Behandling.class);
+        var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getAktørId()).thenReturn(fagsak.getAktørId());
         when(behandlingsoppretter.opprettFørstegangsbehandling(any(), any(), any())).thenReturn(behandlingMock);
 
@@ -155,16 +152,16 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_tilbake_til_steg_registrer_søknad_dersom_åpen_behandling() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad
+        var behandling = ScenarioMorSøkerEngangsstønad
                 .forFødselUtenSøknad()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
                 .lagre(repositoryProvider);
 
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         String xml = null; // papirsøknad
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
 
         when(kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)).thenReturn(true);
 
@@ -179,17 +176,17 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_task_dersom_papirsøknad_ved_åpen_behandling_og_behandlingstype_ikke_støtter_søknadssteg() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerEngangsstønad
+        var behandling = ScenarioMorSøkerEngangsstønad
                 .forFødselUtenSøknad()
                 .medBehandlingType(BehandlingType.REVURDERING)
                 .lagre(repositoryProvider);
 
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
         String xml = null; // papirsøknad
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, xml, now(), false, null);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         when(kompletthetskontroller.støtterBehandlingstypePapirsøknad(behandling)).thenReturn(false);
 
@@ -202,28 +199,28 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
     }
 
     @Test
     public void skal_lage_revurdering_når_det_finnes_en_avsluttet_behandling_på_saken_fra_før() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT))
                 .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
         // simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        Behandling revurdering = mock(Behandling.class);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var revurdering = mock(Behandling.class);
         when(revurdering.getId()).thenReturn(10L);
         when(revurdering.getFagsakId()).thenReturn(behandling.getFagsakId());
         when(revurdering.getAktørId()).thenReturn(behandling.getAktørId());
@@ -243,24 +240,24 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_køet_revurdering_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_siste_behandling_var_innvilget() {
         // Arrange - opprette innvilget behandling
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
                 .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
 
         // Arrange - mock tjenestekall
-        Behandling nyBehandling = mock(Behandling.class);
+        var nyBehandling = mock(Behandling.class);
         when(behandlingsoppretter.opprettRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(nyBehandling);
 
         // Act - send inn søknad
-        Long fagsakId = fagsak.getId();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
@@ -271,26 +268,26 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_siste_behandling_var_avslått() {
         // Arrange - opprette avslått behandling
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingsresultat(new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT))
                 .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.AVSLAG);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
 
         // Arrange - mock tjenestekall
-        Behandling nyBehandling = mock(Behandling.class);
+        var nyBehandling = mock(Behandling.class);
         doReturn(fagsak.getAktørId()).when(nyBehandling).getAktørId();
         when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean()))
                 .thenReturn(nyBehandling);
         when(behandlingsoppretter.erAvslåttBehandling(behandling)).thenReturn(Boolean.TRUE);
 
         // Act - send inn søknad
-        Long fagsakId = fagsak.getId();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
 
         // Assert - verifiser flyt
@@ -303,17 +300,17 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     public void skal_opprette_køet_førstegangsbehandling_og_kjøre_kompletthet_dersom_køet_behandling_ikke_finnes_og_ingen_tidligere_behandling_finnes() {
         // Arrange - opprette fagsak uten behandling
         var aktørId = AktørId.dummy();
-        Fagsak fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
+        var fagsak = DokumentmottakTestUtil.byggFagsak(aktørId, RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, new Saksnummer("123"),
                 fagsakRepository, fagsakRelasjonRepository);
 
         // Arrange - mock tjenestekall
-        Behandling nyBehandling = mock(Behandling.class);
+        var nyBehandling = mock(Behandling.class);
         doReturn(aktørId).when(nyBehandling).getAktørId();
 
         // Act - send inn søknad
-        Long fagsakId = fagsak.getId();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         when(behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(fagsak), any(), any(), anyBoolean()))
                 .thenReturn(nyBehandling);
 
@@ -328,17 +325,17 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_køet_behandling_og_kjøre_kompletthet_dersom_køet_behandling_finnes() {
         // Arrange - opprette køet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
         simulerKøetBehandling(behandling);
 
         // Act - send inn søknad
-        Long fagsakId = behandling.getFagsakId();
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsakId = behandling.getFagsakId();
+        var fagsak = behandling.getFagsak();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, null);
 
         // Assert - verifiser flyt
@@ -349,9 +346,9 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_henlegge_køet_behandling_dersom_søknad_mottatt_tidligere() {
         // Arrange - opprette køet førstegangsbehandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
         simulerKøetBehandling(behandling);
 
@@ -359,15 +356,15 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         when(mottatteDokumentTjeneste.harMottattDokumentSet(any(), anySet())).thenReturn(true);
 
         // Arrange - mock tjenestekall
-        Behandling nyKøetBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var nyKøetBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
                 .thenReturn(nyKøetBehandling);
 
         // Arrange - bygg søknad
-        Long fagsakId = behandling.getFagsakId();
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsakId = behandling.getFagsakId();
+        var fagsak = behandling.getFagsak();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
 
         // Act
         dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, null);
@@ -380,7 +377,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_ny_førstegangsbehandling_når_det_finnes_en_henlagt_førstegangsbehandling_på_saken_fra_før() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingsresultat(
                         Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET))
                 .lagre(repositoryProvider);
@@ -389,11 +386,11 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         doReturn(true).when(behandlingsoppretter).erBehandlingOgFørstegangsbehandlingHenlagt(behandling.getFagsak());
         doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(behandling.getFagsak()), any(),
                 any(), anyBoolean());
@@ -406,27 +403,27 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
     }
 
     @Test
     public void skal_lage_ny_førstegangsbehandling_fra_henlagt_førstegangsbehandling_på_saken_fra_før() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingsresultat(
                 Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
         behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         // simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingFraTidligereSøknad(behandling.getFagsak(),
                 BehandlingÅrsakType.ETTER_KLAGE, behandling);
 
@@ -444,19 +441,19 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_manuell_revurdering_fra_opphørt_førstegangsbehandling_på_saken_fra_før() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.OPPHØR));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BehandlingVedtak vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.OPPHØR);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.OPPHØR);
         behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         // simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         doReturn(behandling).when(behandlingsoppretter).opprettManuellRevurdering(behandling.getFagsak(), BehandlingÅrsakType.ETTER_KLAGE);
 
         // Act
@@ -472,28 +469,28 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_at_søknad_fra_tidligere_behandling_er_mottatt_og_henlegge_åpen_behandling() {
         // Arrange
-        Behandling behandling1 = ScenarioMorSøkerForeldrepenger
+        var behandling1 = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .lagre(repositoryProvider);
         behandling1.avsluttBehandling();
-        Fagsak fagsak = behandling1.getFagsak();
+        var fagsak = behandling1.getFagsak();
 
-        Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(true);
 
-        Behandling behandling3 = Behandling.fraTidligereBehandling(behandling2, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var behandling3 = Behandling.fraTidligereBehandling(behandling2, BehandlingType.FØRSTEGANGSSØKNAD).build();
         // Hack, men det blir feil å lagre Behandlingen før Act da det påvirker
         // scenarioet, og mock(Behandling) er heller ikke pent...
         // setInternalState(behandling3, "id", 9999L);
         behandling3.setId(9999L);
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(behandling3);
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
@@ -508,31 +505,31 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_henlegge_åpen_behandling_og_putte_ny_kø_hvis_medforelder_har_køet_revurdering() {
         // Arrange
-        Behandling behandling1 = ScenarioMorSøkerForeldrepenger
+        var behandling1 = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .medDefaultFordeling(LocalDate.now())
                 .medDefaultOppgittDekningsgrad()
                 .lagre(repositoryProvider);
         behandling1.avsluttBehandling();
-        Fagsak fagsak = behandling1.getFagsak();
+        var fagsak = behandling1.getFagsak();
 
-        Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(true);
 
-        Behandling behandling3 = Behandling.fraTidligereBehandling(behandling2, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var behandling3 = Behandling.fraTidligereBehandling(behandling2, BehandlingType.FØRSTEGANGSSØKNAD).build();
         // Hack, men det blir feil å lagre Behandlingen før Act da det påvirker
         // scenarioet, og mock(Behandling) er heller ikke pent...
         // setInternalState(behandling3, "id", 9999L);
         behandling3.setId(9999L);
         when(behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling2, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(behandling3);
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
 
-        Behandling behandlingMedforelder = ScenarioMorSøkerForeldrepenger
+        var behandlingMedforelder = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
                 .lagre(repositoryProvider);
@@ -552,20 +549,20 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_at_søknad_ikke_er_mottatt_tidligere_og_knytte_søknaden_til_behandlingen() {
         // Arrange
-        Behandling behandling1 = ScenarioMorSøkerForeldrepenger
+        var behandling1 = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .lagre(repositoryProvider);
         behandling1.avsluttBehandling();
-        Fagsak fagsak = behandling1.getFagsak();
+        var fagsak = behandling1.getFagsak();
 
-        Behandling behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
+        var behandling2 = Behandling.fraTidligereBehandling(behandling1, BehandlingType.FØRSTEGANGSSØKNAD).build();
         lagreBehandling(behandling2);
 
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
 
         when(mottatteDokumentTjeneste.harMottattDokumentSet(eq(behandling2.getId()), anySet())).thenReturn(false);
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsak.getId(), "<søknad>", now(), true, null);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling2.getFagsak(), null);
@@ -576,7 +573,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     }
 
     private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
+        var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
     }
 

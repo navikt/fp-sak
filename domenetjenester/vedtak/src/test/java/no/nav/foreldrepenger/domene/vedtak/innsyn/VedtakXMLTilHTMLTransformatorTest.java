@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Scanner;
 
 import org.junit.jupiter.api.Test;
@@ -21,50 +20,49 @@ public class VedtakXMLTilHTMLTransformatorTest {
 
     @Test
     public void skal_transformere_XML_til_HTML_ugyldig_v2() throws Exception {
-        String inputXML = les("/eksempel_vedtakXML_ugyldig_v2.xml");
+        var inputXML = les("/eksempel_vedtakXML_ugyldig_v2.xml");
         assertThrows(TekniskException.class, () -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
     public void skal_transformere_XML_til_HTML_v2() throws Exception {
-        String inputXML = les("/eksempel_vedtakXML_engangstønad_validert.xml");
+        var inputXML = les("/eksempel_vedtakXML_engangstønad_validert.xml");
         assertDoesNotThrow(() -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
     public void skal_transformere_XML_til_HTML_v2_fp() throws Exception {
-        String inputXML = les("/eksempel-vedtak-fp.xml");
+        var inputXML = les("/eksempel-vedtak-fp.xml");
         assertDoesNotThrow(() -> VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
     }
 
     @Test
     public void skal_transformere_XML_til_HTML() throws Exception {
-        String forventet = les("/eksempel-vedtakHTML.html");
-        String inputXML = les("/eksempel-vedtakXML.xml");
-        String resultat = VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L);
+        var forventet = les("/eksempel-vedtakHTML.html");
+        var inputXML = les("/eksempel-vedtakXML.xml");
+        var resultat = VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L);
 
         assertThat(cleanWhitespace(resultat)).isEqualTo(cleanWhitespace(forventet));
     }
 
     @Test
     public void skal_transformere_XML_til_HTML_for_tilfelle_med_verge() throws Exception {
-        String forventet = les("/eksempel-vedtak-es-fødsel-verge.html");
-        String inputXML = les("/eksempel-vedtak-es-fødsel-verge.xml");
-        String resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
+        var forventet = les("/eksempel-vedtak-es-fødsel-verge.html");
+        var inputXML = les("/eksempel-vedtak-es-fødsel-verge.xml");
+        var resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
         assertThat(resultat).isEqualTo(cleanWhitespace(forventet));
     }
 
     @Test
     public void skal_transformere_XML_til_HTML_for_tilfelle_med_omsorgsovertakelse_og_familierelasjoner() throws Exception {
-        String forventet = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.html");
-        String inputXML = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.xml");
-        String resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
+        var forventet = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.html");
+        var inputXML = les("/eksempel-vedtak-es-omsorgsovertakelse-barn.xml");
+        var resultat = cleanWhitespace(VedtakXMLTilHTMLTransformator.transformer(inputXML, 1L));
         assertThat(resultat).isEqualTo(cleanWhitespace(forventet));
     }
 
     private String les(String filnavn) throws IOException {
-        try (InputStream resource = getClass().getResourceAsStream(filnavn);
-                Scanner scanner = new Scanner(resource, "UTF-8")) {
+        try (var resource = getClass().getResourceAsStream(filnavn); var scanner = new Scanner(resource, "UTF-8")) {
             scanner.useDelimiter("\\A");
             if (!scanner.hasNext()) {
                 throw new IllegalStateException("Finner ikke fil " + filnavn);

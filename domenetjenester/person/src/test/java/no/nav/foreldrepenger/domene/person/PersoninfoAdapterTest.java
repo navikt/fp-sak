@@ -48,10 +48,10 @@ public class PersoninfoAdapterTest {
 
     @BeforeEach
     public void setup() {
-        Personinfo kjerneinfoSøker = lagHentPersonResponseForSøker();
-        Personinfo kjerneinfobarn = lagHentPersonResponseForBarn();
+        var kjerneinfoSøker = lagHentPersonResponseForSøker();
+        var kjerneinfobarn = lagHentPersonResponseForBarn();
 
-        AktørTjeneste aktørConsumer = mock(AktørTjeneste.class);
+        var aktørConsumer = mock(AktørTjeneste.class);
         lenient().when(aktørConsumer.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
         lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
         lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
@@ -68,7 +68,7 @@ public class PersoninfoAdapterTest {
     public void skal_innhente_saksopplysninger_for_søker() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
 
-        Personinfo søker = adapter.innhentPersonopplysningerFor(AKTØR_ID_SØKER).orElse(null);
+        var søker = adapter.innhentPersonopplysningerFor(AKTØR_ID_SØKER).orElse(null);
 
         assertThat(søker).isNotNull();
         assertThat(søker.getAktørId()).isEqualTo(AKTØR_ID_SØKER);
@@ -79,7 +79,7 @@ public class PersoninfoAdapterTest {
     public void skal_innhente_saksopplysninger_for_barn() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
-        Optional<Personinfo> barn = adapter.innhentPersonopplysningerFor(FNR_BARN);
+        var barn = adapter.innhentPersonopplysningerFor(FNR_BARN);
 
         assertThat(barn).isPresent();
         assertThat(barn.get().getAktørId()).isEqualTo(AKTØR_ID_BARN);

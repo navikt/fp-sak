@@ -28,8 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personas;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -64,8 +62,8 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
                 .medFødselsDato(fødselsdato)
                 .medAntallBarn(1);
@@ -73,10 +71,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
                 .medFødselsDato(fødselsdato)
                 .medAntallBarn(1);
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.FIN);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, fødselsdato);
+        var medlemResultat = kallTjeneste(behandling, fødselsdato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -89,8 +87,8 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_fodt_søkt_termin() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(fødselsdato)
                 .medUtstedtDato(fødselsdato.minusMonths(2))
@@ -108,10 +106,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknadDato(fødselsdato.minusMonths(2).plusWeeks(1));
         scenario.medSøknad()
                 .medMottattDato(fødselsdato.minusMonths(2).plusWeeks(1));
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, fødselsdato);
+        var medlemResultat = kallTjeneste(behandling, fødselsdato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -120,18 +118,18 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_dato_for_omsorgsovertakelse() {
         // Arrange
-        LocalDate omsorgsovertakelseDato = LocalDate.now();
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var omsorgsovertakelseDato = LocalDate.now();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
-        FarSøkerType farSøkerType = FarSøkerType.OVERTATT_OMSORG;
+        var farSøkerType = FarSøkerType.OVERTATT_OMSORG;
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelseDato));
         scenario.medSøknad().medFarSøkerType(farSøkerType);
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.FIN);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, omsorgsovertakelseDato);
+        var medlemResultat = kallTjeneste(behandling, omsorgsovertakelseDato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -140,10 +138,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_er_nordisk() {
         // Arrange
-        LocalDate termindato = LocalDate.now();
-        AktørId aktørId1 = AktørId.dummy();
+        var termindato = LocalDate.now();
+        var aktørId1 = AktørId.dummy();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
@@ -156,10 +154,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad()
                 .medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.FIN);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -175,10 +173,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_annet_statsborgerskap() {
         // Arrange
-        LocalDate termindato = LocalDate.now();
-        AktørId aktørId1 = AktørId.dummy();
+        var termindato = LocalDate.now();
+        var aktørId1 = AktørId.dummy();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
@@ -191,9 +189,9 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad()
                 .medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.CAN);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -202,16 +200,16 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_nordisk() {
         // Arrange
-        LocalDate termindato = LocalDate.now();
+        var termindato = LocalDate.now();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        AktørId annenPartAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var annenPartAktørId = AktørId.dummy();
 
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        PersonInformasjon gift = builderForRegisteropplysninger
+        var gift = builderForRegisteropplysninger
                 .medPersonas()
                 .mann(annenPartAktørId, SivilstandType.GIFT, Region.NORDEN)
                 .statsborgerskap(Landkoder.FIN)
@@ -219,7 +217,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
                 .build();
         scenario.medRegisterOpplysninger(gift);
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.GIFT, Region.EOS)
                 .statsborgerskap(Landkoder.ESP)
@@ -238,10 +236,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -250,23 +248,23 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_er_gift_med_ANNET_statsborgerskap() {
         // Arrange
-        LocalDate termindato = LocalDate.now();
+        var termindato = LocalDate.now();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        AktørId annenPartAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var annenPartAktørId = AktørId.dummy();
 
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.GIFT, Region.EOS)
                 .statsborgerskap(Landkoder.ESP)
                 .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
                 .build();
 
-        PersonInformasjon gift = builderForRegisteropplysninger
+        var gift = builderForRegisteropplysninger
                 .medPersonas()
                 .mann(annenPartAktørId, SivilstandType.GIFT, Region.UDEFINERT)
                 .statsborgerskap(Landkoder.CAN)
@@ -286,10 +284,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGEN MIN"));
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -298,12 +296,12 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
-        LocalDate fom = LocalDate.now().minusWeeks(3L);
-        LocalDate tom = LocalDate.now().minusWeeks(1L);
+        var aktørId1 = AktørId.dummy();
+        var fom = LocalDate.now().minusWeeks(3L);
+        var tom = LocalDate.now().minusWeeks(1L);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        LocalDate termindato = LocalDate.now().plusDays(40);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var termindato = LocalDate.now().plusDays(40);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
@@ -314,12 +312,12 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
                 .medNavnPå("LEGEN MIN"));
         scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         leggTilInntekt(behandling, behandling.getAktørId(), fom, tom);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -342,13 +340,13 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_opprette_aksjonspunkt_om_medsoker_har_hatt_inntekt_i_Norge_de_siste_tre_mnd() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
-        AktørId aktørId2 = AktørId.dummy();
-        LocalDate fom = LocalDate.now().minusWeeks(3L);
-        LocalDate tom = LocalDate.now().minusWeeks(1L);
+        var aktørId1 = AktørId.dummy();
+        var aktørId2 = AktørId.dummy();
+        var fom = LocalDate.now().minusWeeks(3L);
+        var tom = LocalDate.now().minusWeeks(1L);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
-        LocalDate termindato = LocalDate.now().plusDays(40);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var termindato = LocalDate.now().plusDays(40);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now().minusDays(7))
@@ -360,12 +358,12 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad().medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         leggTilInntekt(behandling, aktørId2, fom, tom);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).contains(MedlemResultat.VENT_PÅ_FØDSEL);
@@ -374,10 +372,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_termindato_ikke_har_passert_14_dager() {
         // Arrange
-        LocalDate termindato = LocalDate.now().minusDays(14L);
-        AktørId aktørId1 = AktørId.dummy();
+        var termindato = LocalDate.now().minusDays(14L);
+        var aktørId1 = AktørId.dummy();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
@@ -390,9 +388,9 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad()
                 .medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).contains(MedlemResultat.VENT_PÅ_FØDSEL);
@@ -401,12 +399,12 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_ikke_opprette_vent_om_termindato_har_passert_28_dager() {
         // Arrange
-        LocalDate termindato = LocalDate.now().minusMonths(2);
-        AktørId aktørId1 = AktørId.dummy();
-        LocalDate fom = LocalDate.now().minusWeeks(60L);
-        LocalDate tom = LocalDate.now().minusWeeks(58L);
+        var termindato = LocalDate.now().minusMonths(2);
+        var aktørId1 = AktørId.dummy();
+        var fom = LocalDate.now().minusWeeks(60L);
+        var tom = LocalDate.now().minusWeeks(58L);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(termindato.minusMonths(2))
@@ -418,12 +416,12 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad().medMottattDato(termindato.minusMonths(2).plusDays(3));
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         leggTilInntekt(behandling, behandling.getAktørId(), fom, tom);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).contains(MedlemResultat.AVKLAR_OPPHOLDSRETT);
@@ -432,10 +430,10 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
     @Test
     public void skal_oprette_aksjonspunkt_ved_uavklart_oppholdsrett() {
         // Arrange
-        LocalDate termindato = LocalDate.now().minusDays(15L);
-        AktørId aktørId1 = AktørId.dummy();
+        var termindato = LocalDate.now().minusDays(15L);
+        var aktørId1 = AktørId.dummy();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(aktørId1, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(termindato)
                 .medUtstedtDato(LocalDate.now())
@@ -448,26 +446,26 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         scenario.medSøknad()
                 .medMottattDato(LocalDate.now());
         leggTilSøker(scenario, AdresseType.POSTADRESSE_UTLAND, Landkoder.ESP);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
-        Optional<MedlemResultat> medlemResultat = kallTjeneste(behandling, termindato);
+        var medlemResultat = kallTjeneste(behandling, termindato);
 
         // Assert
         assertThat(medlemResultat).contains(MedlemResultat.AVKLAR_OPPHOLDSRETT);
     }
 
     private AktørId leggTilSøker(AbstractTestScenario<?> scenario, AdresseType adresseType, Landkoder adresseLand) {
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        Personas persona = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var persona = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(søkerAktørId, SivilstandType.UOPPGITT, Region.UDEFINERT)
                 .personstatus(PersonstatusType.UDEFINERT)
                 .statsborgerskap(adresseLand);
 
-        PersonAdresse.Builder adresseBuilder = PersonAdresse.builder().adresselinje1("Portveien 2").land(adresseLand);
+        var adresseBuilder = PersonAdresse.builder().adresselinje1("Portveien 2").land(adresseLand);
         persona.adresse(adresseType, adresseBuilder);
-        PersonInformasjon søker = persona.build();
+        var søker = persona.build();
         scenario.medRegisterOpplysninger(søker);
         return søkerAktørId;
     }

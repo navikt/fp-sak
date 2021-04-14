@@ -35,8 +35,8 @@ public class PersonopplysningDtoTjenesteTest {
     @Test
     public void skal_takle_at_man_spør_etter_opplysninger_utenfor_tidsserien() {
         // sørger for at vi bommer når vi spør etter personstatus
-        LocalDate enTilfeldigDato = LocalDate.of(1989, 9, 29);
-        Behandling behandling = lagBehandling();
+        var enTilfeldigDato = LocalDate.of(1989, 9, 29);
+        var behandling = lagBehandling();
 
         var personopplysningDto = tjeneste.lagPersonversiktDto(behandling.getId(), enTilfeldigDato);
 
@@ -45,7 +45,7 @@ public class PersonopplysningDtoTjenesteTest {
     }
 
     private Behandling lagBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
                 .forFødselMedGittAktørId(AktørId.dummy());
 
         scenario.medDefaultFordeling(LocalDate.now());

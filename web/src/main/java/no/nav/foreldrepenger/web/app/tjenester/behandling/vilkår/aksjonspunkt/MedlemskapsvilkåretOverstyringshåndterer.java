@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,10 +7,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
@@ -54,16 +49,16 @@ public class MedlemskapsvilkåretOverstyringshåndterer extends InngangsvilkårO
     @Override
     protected void precondition(Behandling behandling, OverstyringMedlemskapsvilkåretDto dto) {
 
-        LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
 
-        MedlemskapVilkårPeriodeGrunnlagEntitet.Builder grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        MedlemskapsvilkårPeriodeEntitet.Builder periodeBuilder = grBuilder.getPeriodeBuilder();
-        MedlemskapsvilkårPerioderEntitet.Builder periode = periodeBuilder.getBuilderForVurderingsdato(skjæringstidspunkt);
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var periodeBuilder = grBuilder.getPeriodeBuilder();
+        var periode = periodeBuilder.getBuilderForVurderingsdato(skjæringstidspunkt);
 
         if (dto.getErVilkarOk()) {
             periode.medVilkårUtfall(VilkårUtfallType.OPPFYLT);
         } else {
-            VilkårUtfallMerknad avslagsårsak = VilkårUtfallMerknad.fraKode(dto.getAvslagskode());
+            var avslagsårsak = VilkårUtfallMerknad.fraKode(dto.getAvslagskode());
             periode.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT);
             periode.medVilkårUtfallMerknad(avslagsårsak);
         }

@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RegisterdataDiffsjekker;
@@ -42,7 +41,7 @@ public class FamilieHendelseRepository {
     }
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(Long behandlingId) {
-        final Optional<FamilieHendelseGrunnlagEntitet> aktivtFamilieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(behandlingId);
+        final var aktivtFamilieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(behandlingId);
         if (aktivtFamilieHendelseGrunnlag.isPresent()) {
             return aktivtFamilieHendelseGrunnlag.get();
         }
@@ -50,12 +49,12 @@ public class FamilieHendelseRepository {
     }
 
     public Optional<FamilieHendelseGrunnlagEntitet> hentAggregatHvisEksisterer(Long behandlingId) {
-        final Optional<FamilieHendelseGrunnlagEntitet> aktivtFamilieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(behandlingId);
+        final var aktivtFamilieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(behandlingId);
         return aktivtFamilieHendelseGrunnlag.isPresent() ? Optional.of(aktivtFamilieHendelseGrunnlag.get()) : Optional.empty();
     }
 
     private Optional<FamilieHendelseGrunnlagEntitet> getAktivtFamilieHendelseGrunnlag(Long behandlingId) {
-        final TypedQuery<FamilieHendelseGrunnlagEntitet> query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
+        final var query = entityManager.createQuery("FROM FamilieHendelseGrunnlag gr " + // NOSONAR //$NON-NLS-1$
             "WHERE gr.behandlingId = :behandlingId " + //$NON-NLS-1$
             "AND gr.aktiv = :aktivt", FamilieHendelseGrunnlagEntitet.class)
             .setFlushMode(FlushModeType.COMMIT); //$NON-NLS-1$
@@ -69,11 +68,11 @@ public class FamilieHendelseRepository {
         if (nyttGrunnlag == null) {
             return;
         }
-        final BehandlingLås lås = behandlingLåsRepository.taLås(behandlingId);
-        final Optional<FamilieHendelseGrunnlagEntitet> tidligereAggregat = getAktivtFamilieHendelseGrunnlag(behandlingId);
+        final var lås = behandlingLåsRepository.taLås(behandlingId);
+        final var tidligereAggregat = getAktivtFamilieHendelseGrunnlag(behandlingId);
 
         if (tidligereAggregat.isPresent()) {
-            final FamilieHendelseGrunnlagEntitet aggregat = tidligereAggregat.get();
+            final var aggregat = tidligereAggregat.get();
             var diff = new RegisterdataDiffsjekker(true).getDiffEntity().diff(aggregat, nyttGrunnlag);
             if (!diff.isEmpty()) {
                 aggregat.setAktiv(false);
@@ -97,7 +96,7 @@ public class FamilieHendelseRepository {
         }
 
         if (nyttGrunnlag.getOverstyrtVersjon().isPresent()) {
-            final FamilieHendelseEntitet entity = nyttGrunnlag.getOverstyrtVersjon().get();
+            final var entity = nyttGrunnlag.getOverstyrtVersjon().get();
             lagreHendelse(entity);
         }
 
@@ -112,7 +111,7 @@ public class FamilieHendelseRepository {
         if (entity.getAdopsjon().isPresent()) {
             entityManager.persist(entity.getAdopsjon().get());
         }
-        for (UidentifisertBarn uidentifisertBarn : entity.getBarna()) {
+        for (var uidentifisertBarn : entity.getBarna()) {
             entityManager.persist(uidentifisertBarn);
         }
     }
@@ -141,7 +140,7 @@ public class FamilieHendelseRepository {
         Objects.requireNonNull(behandling, "behandling"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
         Objects.requireNonNull(hendelse, "hendelse"); // NOSONAR $NON-NLS-1$ //$NON-NLS-1$
 
-        final FamilieHendelseGrunnlagBuilder aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
+        final var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
         // Fjern overstyr manglende fødsel i tilfelle første innhenting. Bevarer senere justering av dato
         if (erFørsteFødselRegistreringHarTidligereOverstyrtFødsel(aggregatBuilder.getKladd())) {
             aggregatBuilder.medOverstyrtVersjon(null);
@@ -185,18 +184,18 @@ public class FamilieHendelseRepository {
         Objects.requireNonNull(behandling, "behandling"); // NOSONAR //$NON-NLS-1$
         Objects.requireNonNull(hendelse, "hendelse"); // NOSONAR //$NON-NLS-1$
 
-        final FamilieHendelseGrunnlagBuilder aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
+        final var aggregatBuilder = opprettAggregatBuilderFor(behandling.getId());
         aggregatBuilder.medOverstyrtVersjon(hendelse);
         lagreOgFlush(behandling.getId(), aggregatBuilder.build());
     }
 
     private void fjernBekreftetData(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = hentAggregatHvisEksisterer(behandlingId);
+        final var grunnlag = hentAggregatHvisEksisterer(behandlingId);
         if (!grunnlag.isPresent()) {
             return;
         }
-        final FamilieHendelseGrunnlagBuilder aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
+        final var aggregatBuilder = opprettAggregatBuilderFor(behandlingId);
         if (grunnlag.get().getOverstyrtVersjon().isPresent()) {
             aggregatBuilder.medOverstyrtVersjon(null);
         }
@@ -207,9 +206,9 @@ public class FamilieHendelseRepository {
      * Kopierer grunnlag fra en tidligere behandling. Endrer ikke aggregater, en skaper nye referanser til disse.
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-        final Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
+        final var familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
         if (familieHendelseGrunnlag.isPresent()) {
-            final FamilieHendelseGrunnlagEntitet entitet = new FamilieHendelseGrunnlagEntitet(familieHendelseGrunnlag.get());
+            final var entitet = new FamilieHendelseGrunnlagEntitet(familieHendelseGrunnlag.get());
 
             lagreOgFlush(nyBehandlingId, entitet);
         }
@@ -224,9 +223,9 @@ public class FamilieHendelseRepository {
      * @param nyBehandling revurderings behandlingen
      */
     public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long gammelBehandlingId, Long nyBehandlingId) {
-        final Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
+        final var familieHendelseGrunnlag = getAktivtFamilieHendelseGrunnlag(gammelBehandlingId);
         if (familieHendelseGrunnlag.isPresent()) {
-            final FamilieHendelseGrunnlagEntitet entitet = new FamilieHendelseGrunnlagEntitet(familieHendelseGrunnlag.get());
+            final var entitet = new FamilieHendelseGrunnlagEntitet(familieHendelseGrunnlag.get());
             entitet.setBekreftetHendelse(null);
             entitet.setOverstyrtHendelse(null);
 
@@ -254,20 +253,20 @@ public class FamilieHendelseRepository {
     }
 
     private FamilieHendelseGrunnlagBuilder opprettAggregatBuilderFor(Long behandlingId) {
-        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = hentAggregatHvisEksisterer(behandlingId);
+        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandlingId);
         return FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
     }
 
     public FamilieHendelseBuilder opprettBuilderFor(Behandling behandling) {
-        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
-        final FamilieHendelseGrunnlagBuilder oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
+        final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
         Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
         return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), false);
     }
 
     public FamilieHendelseBuilder opprettBuilderForregister(Behandling behandling) {
-        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
-        final FamilieHendelseGrunnlagBuilder oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
+        var familieHendelseAggregat = hentAggregatHvisEksisterer(behandling.getId());
+        final var oppdatere = FamilieHendelseGrunnlagBuilder.oppdatere(familieHendelseAggregat);
         Objects.requireNonNull(oppdatere, "oppdatere"); //$NON-NLS-1$
         return opprettBuilderFor(Optional.ofNullable(oppdatere.getKladd()), true);
     }
@@ -285,9 +284,9 @@ public class FamilieHendelseRepository {
     private FamilieHendelseBuilder opprettBuilderFor(Optional<FamilieHendelseGrunnlagEntitet> aggregat, boolean register) {
         Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR //$NON-NLS-1$
         if (aggregat.isPresent()) {
-            HendelseVersjonType type = register ? HendelseVersjonType.BEKREFTET : utledTypeFor(aggregat);
-            final FamilieHendelseGrunnlagEntitet hendelseAggregat = aggregat.get();
-            final FamilieHendelseBuilder hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
+            var type = register ? HendelseVersjonType.BEKREFTET : utledTypeFor(aggregat);
+            final var hendelseAggregat = aggregat.get();
+            final var hendelseAggregat1 = getFamilieHendelseBuilderForType(hendelseAggregat, type);
             if (hendelseAggregat1 != null) {
                 hendelseAggregat1.setType(type);
                 return hendelseAggregat1;
@@ -304,15 +303,13 @@ public class FamilieHendelseRepository {
             case BEKREFTET:
                 if (aggregat.getBekreftetVersjon().isEmpty()) {
                     return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.SØKNAD);
-                } else {
-                    return FamilieHendelseBuilder.oppdatere(aggregat.getBekreftetVersjon(), type);
                 }
+                return FamilieHendelseBuilder.oppdatere(aggregat.getBekreftetVersjon(), type);
             case OVERSTYRT:
                 if (aggregat.getOverstyrtVersjon().isEmpty()) {
                     return getFamilieHendelseBuilderForType(aggregat, HendelseVersjonType.BEKREFTET);
-                } else {
-                    return FamilieHendelseBuilder.oppdatere(aggregat.getOverstyrtVersjon(), type);
                 }
+                return FamilieHendelseBuilder.oppdatere(aggregat.getOverstyrtVersjon(), type);
             default:
                 throw new IllegalArgumentException("Støtter ikke HendelseVersjonType: " + type);
         }
@@ -322,9 +319,11 @@ public class FamilieHendelseRepository {
         if (aggregat.isPresent()) {
             if (aggregat.get().getHarOverstyrteData()) {
                 return HendelseVersjonType.OVERSTYRT;
-            } else if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
+            }
+            if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
                 return HendelseVersjonType.BEKREFTET;
-            } else if (aggregat.get().getSøknadVersjon() == null) {
+            }
+            if (aggregat.get().getSøknadVersjon() == null) {
                 return HendelseVersjonType.SØKNAD;
             }
             throw new IllegalStateException("Utvikler feil."); //$NON-NLS-1$
@@ -364,7 +363,7 @@ public class FamilieHendelseRepository {
         }
         if (fhIds.isEmpty())
             return 0;
-        int antall = entityManager.createNativeQuery(
+        var antall = entityManager.createNativeQuery(
             "UPDATE FH_TERMINBEKREFTELSE SET TERMINDATO = :termin, endret_av = :begr WHERE FAMILIE_HENDELSE_ID in :fhid")
             .setParameter("termin", termindato)
             .setParameter("fhid", fhIds)

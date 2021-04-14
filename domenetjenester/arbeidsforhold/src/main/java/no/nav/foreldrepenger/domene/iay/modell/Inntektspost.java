@@ -146,10 +146,11 @@ public class Inntektspost extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if ((obj == null) || !(obj instanceof Inntektspost)) {
+        }
+        if ((obj == null) || !(obj instanceof Inntektspost)) {
             return false;
         }
-        Inntektspost other = (Inntektspost) obj;
+        var other = (Inntektspost) obj;
         return Objects.equals(this.getInntektspostType(), other.getInntektspostType())
                 && Objects.equals(this.getYtelseType(), other.getYtelseType())
                 && Objects.equals(this.getSkatteOgAvgiftsregelType(), other.getSkatteOgAvgiftsregelType())

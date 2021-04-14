@@ -21,10 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -75,14 +72,14 @@ public class IverksetteVedtakStegYtelseTest {
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(true);
 
         // Act
-        BehandleStegResultat resultat = utførSteg(behandling);
+        var resultat = utførSteg(behandling);
 
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.STARTET);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
-        Historikkinnslag historikkinnslag = historikkRepository.hentHistorikk(behandling.getId()).get(0);
+        var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId()).get(0);
         assertThat(historikkinnslag.getHistorikkinnslagDeler()).hasSize(1);
-        HistorikkinnslagDel del1 = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del1 = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del1.getHendelse()).hasValueSatisfying(
                 hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.IVERKSETTELSE_VENT.getKode()));
         assertThat(del1.getAarsak().get()).isEqualTo(Venteårsak.VENT_TIDLIGERE_BEHANDLING.getKode());
@@ -95,7 +92,7 @@ public class IverksetteVedtakStegYtelseTest {
         when(vurderBehandlingerUnderIverksettelse.vurder(eq(behandling))).thenReturn(false);
 
         // Act
-        BehandleStegResultat resultat = utførSteg(behandling);
+        var resultat = utførSteg(behandling);
 
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.SETT_PÅ_VENT);
@@ -103,18 +100,18 @@ public class IverksetteVedtakStegYtelseTest {
     }
 
     private BehandleStegResultat utførSteg(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         return iverksetteVedtakSteg.utførSteg(new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(), lås));
     }
 
     private Behandling opprettBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingStegStart(BehandlingStegType.IVERKSETT_VEDTAK);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var behandling = scenario.lagre(repositoryProvider);
+        var lås = behandlingRepository.taSkriveLås(behandling);
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         entityManager.persist(behandlingsresultat);
 
@@ -124,9 +121,9 @@ public class IverksetteVedtakStegYtelseTest {
     }
 
     private BehandlingVedtak opprettBehandlingVedtak(VedtakResultatType resultatType, IverksettingStatus iverksettingStatus) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
                 .medAnsvarligSaksbehandler("E2354345")
                 .medVedtakResultatType(resultatType)

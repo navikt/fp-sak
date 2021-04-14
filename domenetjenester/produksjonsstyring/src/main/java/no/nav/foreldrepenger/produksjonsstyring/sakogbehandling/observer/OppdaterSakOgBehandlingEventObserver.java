@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingAvsluttetEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent.BehandlingOpprettetEvent;
@@ -56,29 +53,29 @@ public class OppdaterSakOgBehandlingEventObserver {
      */
     private void oppdaterSakOgBehandlingVedBehandlingsstatusEndring(BehandlingStatusEvent event) {
 
-        BehandlingStatus nyStatus = event.getNyStatus();
+        var nyStatus = event.getNyStatus();
 
-        BehandlingskontrollKontekst kontekst = event.getKontekst();
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var kontekst = event.getKontekst();
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         sendMeldingTilSakOgBehandling(behandling, nyStatus);
 
     }
 
     private void sendMeldingTilSakOgBehandling(Behandling behandling, BehandlingStatus nyStatus) {
-        BehandlingTema behandlingTema = behandlingTemaFraBehandling(behandling);
+        var behandlingTema = behandlingTemaFraBehandling(behandling);
         if (behandlingTema.equals(BehandlingTema.UDEFINERT)) {
             throw new IllegalStateException("Utviklerfeil: Finner ikke behandlingstema for fagsak");
         }
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
     private BehandlingTema behandlingTemaFraBehandling(Behandling sisteBehandling) {
-        final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
+        final var grunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(sisteBehandling.getId());
         return BehandlingTema.fraFagsak(sisteBehandling.getFagsak(), grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElse(null));
     }
 }

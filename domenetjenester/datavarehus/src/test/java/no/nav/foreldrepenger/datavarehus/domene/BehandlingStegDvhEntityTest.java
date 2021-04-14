@@ -8,7 +8,7 @@ public class BehandlingStegDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_behandlingDvh() {
-        BehandlingStegDvh behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
+        var behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
 
 
         assertThat(behandlingStegDvh.getBehandlingId()).isEqualTo(DatavarehusTestUtils.BEHANDLING_ID);

@@ -11,7 +11,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -26,7 +25,7 @@ public class UtledStillingsprosentTest {
         // Arrange
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.emptyList();
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter,
+        var stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter,
                 SKJÆRINGSTIDSPUNKT);
         // Assert
         assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(100));
@@ -35,20 +34,20 @@ public class UtledStillingsprosentTest {
     @Test
     public void skal_utlede_stillingsprosent_lik_75_når_en_yrkesaktivitet_overlapper_stp() {
         // Arrange
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var aktivitetsavtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
                 .medProsentsats(BigDecimal.valueOf(75));
-        AktivitetsAvtaleBuilder ansettelsesperiode = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        Yrkesaktivitet yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale)
                 .leggTilAktivitetsAvtale(ansettelsesperiode)
                 .build();
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(Optional.empty(), yrkesaktivitet), yrkesaktivitet,
+        var stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(Optional.empty(), yrkesaktivitet), yrkesaktivitet,
                 SKJÆRINGSTIDSPUNKT);
         // Assert
         assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(75));
@@ -57,20 +56,20 @@ public class UtledStillingsprosentTest {
     @Test
     public void skal_utlede_stillingsprosent_lik_35_når_en_yrkesaktivitet_starter_etter_stp() {
         // Arrange
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        LocalDate tom = fom.plusYears(2);
-        AktivitetsAvtaleBuilder aktivitetsavtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var tom = fom.plusYears(2);
+        var aktivitetsavtale = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
                 .medProsentsats(BigDecimal.valueOf(35));
-        AktivitetsAvtaleBuilder ansettelsesperiode = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        Yrkesaktivitet yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale)
                 .leggTilAktivitetsAvtale(ansettelsesperiode)
                 .build();
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(Optional.empty(), yrkesaktivitet), yrkesaktivitet,
+        var stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(Optional.empty(), yrkesaktivitet), yrkesaktivitet,
                 SKJÆRINGSTIDSPUNKT);
         // Assert
         assertThat(stillingsprosent).isEqualTo(BigDecimal.valueOf(35));
@@ -80,34 +79,34 @@ public class UtledStillingsprosentTest {
     public void skal_utlede_stillingsprosent_for_yrkesaktivitet_med_seneste_fom_dato_når_flere_yrkesaktiviter_overlapper_stp() {
 
         // Arrange
-        LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom1 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom1 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
                 .medProsentsats(BigDecimal.valueOf(10));
-        AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale1)
                 .leggTilAktivitetsAvtale(ansettelsesperiode1)
                 .build();
 
-        LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(1);
-        LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom2 = SKJÆRINGSTIDSPUNKT.minusYears(1);
+        var tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
                 .medProsentsats(BigDecimal.valueOf(25));
-        AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale2)
                 .leggTilAktivitetsAvtale(ansettelsesperiode2)
                 .build();
 
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, List.of(yrkesaktivitet1, yrkesaktivitet2)),
+        var stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, List.of(yrkesaktivitet1, yrkesaktivitet2)),
                 List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -119,34 +118,34 @@ public class UtledStillingsprosentTest {
     public void skal_utlede_stillingsprosent_for_yrkesaktivitet_med_tidligst_fom_dato_når_flere_yrkesaktiviter_tilkommer_etter_stp() {
 
         // Arrange
-        LocalDate fom1 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        LocalDate tom1 = fom1.plusYears(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom1 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var tom1 = fom1.plusYears(1);
+        var aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
                 .medProsentsats(BigDecimal.valueOf(10));
-        AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale1)
                 .leggTilAktivitetsAvtale(ansettelsesperiode1)
                 .build();
 
-        LocalDate fom2 = SKJÆRINGSTIDSPUNKT.plusDays(2);
-        LocalDate tom2 = fom2.plusYears(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom2 = SKJÆRINGSTIDSPUNKT.plusDays(2);
+        var tom2 = fom2.plusYears(1);
+        var aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
                 .medProsentsats(BigDecimal.valueOf(25));
-        AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .leggTilAktivitetsAvtale(aktivitetsavtale2)
                 .leggTilAktivitetsAvtale(ansettelsesperiode2)
                 .build();
 
         // Act
-        BigDecimal stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, List.of(yrkesaktivitet1, yrkesaktivitet2)),
+        var stillingsprosent = UtledStillingsprosent.utled(new YrkesaktivitetFilter(null, List.of(yrkesaktivitet1, yrkesaktivitet2)),
                 List.of(yrkesaktivitet1, yrkesaktivitet2), SKJÆRINGSTIDSPUNKT);
 
         // Assert

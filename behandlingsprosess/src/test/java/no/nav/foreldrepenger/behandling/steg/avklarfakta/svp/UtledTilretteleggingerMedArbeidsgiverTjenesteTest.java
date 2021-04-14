@@ -136,7 +136,7 @@ public class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     public void skal_kun_lage_tilrettelegginger_for_virksomheten_det_er_søkt_for_og_ignorere_resten() {
 
         // Arrange
-        Arbeidsgiver person = Arbeidsgiver.person(AktørId.dummy());
+        var person = Arbeidsgiver.person(AktørId.dummy());
         var tilrettelegginger = List.of(
                 lagTilrettelegging(person, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD));
 

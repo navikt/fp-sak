@@ -77,7 +77,7 @@ public class MedlemDtoTjeneste {
 
     private static List<MedlemskapPerioderDto> lagMedlemskapPerioderDto(Set<MedlemskapPerioderEntitet> perioder) {
         return perioder.stream().map(mp -> {
-            MedlemskapPerioderDto dto = new MedlemskapPerioderDto();
+            var dto = new MedlemskapPerioderDto();
             dto.setFom(mp.getFom());
             dto.setTom(mp.getTom());
             dto.setMedlemskapType(mp.getMedlemskapType());
@@ -89,11 +89,11 @@ public class MedlemDtoTjeneste {
     }
 
     public Optional<MedlemV2Dto> lagMedlemV2Dto(Long behandlingId) {
-        Optional<MedlemskapAggregat> medlemskapOpt = medlemskapRepository.hentMedlemskap(behandlingId);
-        final Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        final MedlemV2Dto dto = new MedlemV2Dto();
+        var medlemskapOpt = medlemskapRepository.hentMedlemskap(behandlingId);
+        final var behandling = behandlingRepository.hentBehandling(behandlingId);
+        final var dto = new MedlemV2Dto();
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
+        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         // Tomt innhold hvis det mangler behandlingsgrunnlag.
         if (personopplysningerAggregat.map(PersonopplysningerAggregat::getSøker).isPresent()) {
             mapSkjæringstidspunkt(dto, medlemskapOpt.orElse(null), behandling.getAksjonspunkter(), ref);
@@ -144,11 +144,11 @@ public class MedlemDtoTjeneste {
     }
 
     private void mapAndrePerioder(MedlemV2Dto dto, Set<VurdertLøpendeMedlemskapEntitet> perioder, BehandlingReferanse ref) {
-        final Map<LocalDate, VurderMedlemskap> vurderingspunkter = medlemTjeneste.utledVurderingspunkterMedAksjonspunkt(ref);
-        final Set<MedlemPeriodeDto> dtoPerioder = dto.getPerioder();
-        for (Map.Entry<LocalDate, VurderMedlemskap> entrySet : vurderingspunkter.entrySet()) {
+        final var vurderingspunkter = medlemTjeneste.utledVurderingspunkterMedAksjonspunkt(ref);
+        final var dtoPerioder = dto.getPerioder();
+        for (var entrySet : vurderingspunkter.entrySet()) {
             var vurdertMedlemskap = finnVurderMedlemskap(perioder, entrySet);
-            final MedlemPeriodeDto medlemPeriodeDto = mapTilPeriodeDto(ref.getBehandlingId(),
+            final var medlemPeriodeDto = mapTilPeriodeDto(ref.getBehandlingId(),
                 vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().getÅrsaker(), vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null));
             medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().getAksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
             dtoPerioder.add(medlemPeriodeDto);
@@ -175,11 +175,11 @@ public class MedlemDtoTjeneste {
     }
 
     private void mapSkjæringstidspunkt(MedlemV2Dto dto, MedlemskapAggregat aggregat, Set<Aksjonspunkt> aksjonspunkter, BehandlingReferanse ref) {
-        final Optional<MedlemskapAggregat> aggregatOpts = Optional.ofNullable(aggregat);
-        final Optional<VurdertMedlemskap> vurdertMedlemskapOpt = aggregatOpts.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
-        LocalDate vurderingsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
+        final var aggregatOpts = Optional.ofNullable(aggregat);
+        final var vurdertMedlemskapOpt = aggregatOpts.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
+        var vurderingsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
         var begrunnelse = vurdertMedlemskapOpt.map(VurdertMedlemskap::getBegrunnelse).orElseGet(() -> hentBegrunnelseFraAksjonspuntk(aksjonspunkter));
-        final MedlemPeriodeDto periodeDto = mapTilPeriodeDto(ref.getBehandlingId(), vurdertMedlemskapOpt, vurderingsdato, Set.of(VurderingsÅrsak.SKJÆRINGSTIDSPUNKT), begrunnelse);
+        final var periodeDto = mapTilPeriodeDto(ref.getBehandlingId(), vurdertMedlemskapOpt, vurderingsdato, Set.of(VurderingsÅrsak.SKJÆRINGSTIDSPUNKT), begrunnelse);
         periodeDto.setAksjonspunkter(aksjonspunkter.stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(MEDL_AKSJONSPUNKTER::contains)
@@ -189,7 +189,7 @@ public class MedlemDtoTjeneste {
 
     private MedlemPeriodeDto mapTilPeriodeDto(Long behandlingId, Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
                                               LocalDate vurderingsdato, Set<VurderingsÅrsak> årsaker, String begrunnelse) {
-        final MedlemPeriodeDto periodeDto = new MedlemPeriodeDto();
+        final var periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
         personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
         personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
@@ -197,7 +197,7 @@ public class MedlemDtoTjeneste {
         periodeDto.setBegrunnelse(begrunnelse);
 
         if (vurdertMedlemskapOpt.isPresent()) {
-            final VurdertMedlemskap vurdertMedlemskap = vurdertMedlemskapOpt.get();
+            final var vurdertMedlemskap = vurdertMedlemskapOpt.get();
             periodeDto.setBosattVurdering(vurdertMedlemskap.getBosattVurdering());
             periodeDto.setOppholdsrettVurdering(vurdertMedlemskap.getOppholdsrettVurdering());
             periodeDto.setLovligOppholdVurdering(vurdertMedlemskap.getLovligOppholdVurdering());

@@ -6,14 +6,13 @@ import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriodeRegelType;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.PeriodeÅrsak;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagDto;
+
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -31,12 +30,12 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
     @Test
     public void tester_mapping() {
         // Arrange
-        BeregningsgrunnlagGrunnlagEntitet gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
             .medBeregningsgrunnlag(buildBeregningsgrunnlag())
             .build(123L, BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        BeregningsgrunnlagDto dto = new BeregningsgrunnlagFormidlingDtoTjeneste(gr).map().orElse(null);
+        var dto = new BeregningsgrunnlagFormidlingDtoTjeneste(gr).map().orElse(null);
 
         // Assert
         assertThat(dto).isNotNull();
@@ -46,14 +45,14 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
         assertThat(dto.getAktivitetstatusListe()).hasSize(1);
         assertThat(dto.getBeregningsgrunnlagperioder()).hasSize(1);
 
-        BeregningsgrunnlagPeriode førstePeriode = gr.getBeregningsgrunnlag().get().getBeregningsgrunnlagPerioder().get(0);
+        var førstePeriode = gr.getBeregningsgrunnlag().get().getBeregningsgrunnlagPerioder().get(0);
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagperiodeFom()).isEqualTo(førstePeriode.getBeregningsgrunnlagPeriodeFom());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagperiodeTom()).isEqualTo(førstePeriode.getBeregningsgrunnlagPeriodeTom());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getAvkortetPrÅr()).isEqualByComparingTo(BRUTTO.add(NAT_BORTFALT).subtract(NAT_TILKOMMET));
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getDagsats()).isEqualTo(førstePeriode.getDagsats());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBruttoPrÅr()).isEqualByComparingTo(førstePeriode.getBruttoPrÅr());
 
-        BeregningsgrunnlagPrStatusOgAndel andel = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList().get(0);
+        var andel = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList().get(0);
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler()).hasSize(1);
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getBeregningsperiodeFom()).isEqualTo(andel.getBeregningsperiodeFom());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getBeregningsperiodeTom()).isEqualTo(andel.getBeregningsperiodeTom());
@@ -82,7 +81,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+        var bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
             .medNaturalytelseBortfaltPrÅr(NAT_BORTFALT)
@@ -100,7 +99,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .medRegelloggSkjæringstidspunkt("input1", "clob1")
@@ -108,7 +107,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
             .medRegelinputPeriodisering("input3")
             .build();
         buildBgAktivitetStatus(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
+        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
         buildBgPrStatusOgAndel(bgPeriode);
         return beregningsgrunnlag;
     }

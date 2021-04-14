@@ -49,7 +49,8 @@ public class ToForeldreBarnDødTjeneste {
         }
         if (uttaksPerioderF1.isEmpty() && !uttaksPerioderF2.isEmpty()) {
             return behandlingF2;
-        } else if (uttaksPerioderF2.isEmpty()) {
+        }
+        if (uttaksPerioderF2.isEmpty()) {
             return behandlingF1;
         }
         return finnBehandlingMedNærmesteUttak(behandlingF1, uttaksPerioderF1, behandlingF2, uttaksPerioderF2);
@@ -68,24 +69,24 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     private boolean erAktivNå(ForeldrepengerUttakPeriode periode) {
-        LocalDate iDag = LocalDate.now();
+        var iDag = LocalDate.now();
         return periode.getFom().isBefore(iDag) && periode.getTom().isAfter(iDag);
     }
 
     private Behandling finnBehandlingMedNærmesteUttak(Behandling behandlingF1, List<ForeldrepengerUttakPeriode> uttaksPerioderF1,
                                                       Behandling behandlingF2, List<ForeldrepengerUttakPeriode> uttaksPerioderF2) {
-        List<LocalDate> uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
-        List<LocalDate> uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
-        List<Integer> avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
-        List<Integer> avstanderF2 = uttaksGrenserF2.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
-        Integer minValueF1 = Collections.min(avstanderF1);
-        Integer minValueF2 = Collections.min(avstanderF2);
+        var uttaksGrenserF1 = finnUttaksGrenser(uttaksPerioderF1);
+        var uttaksGrenserF2 = finnUttaksGrenser(uttaksPerioderF2);
+        var avstanderF1 = uttaksGrenserF1.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
+        var avstanderF2 = uttaksGrenserF2.stream().map(this::avstandTilNåMedBuffer).collect(Collectors.toList());
+        var minValueF1 = Collections.min(avstanderF1);
+        var minValueF2 = Collections.min(avstanderF2);
         return minValueF1 < minValueF2 ? behandlingF1 : behandlingF2;
     }
 
     private List<LocalDate> finnUttaksGrenser(List<ForeldrepengerUttakPeriode> uttaksPerioder) {
         List<LocalDate> uttaksGrenser = new ArrayList<>();
-        for (ForeldrepengerUttakPeriode periode : uttaksPerioder) {
+        for (var periode : uttaksPerioder) {
             uttaksGrenser.add(periode.getFom());
             uttaksGrenser.add(periode.getTom());
         }
@@ -93,7 +94,7 @@ public class ToForeldreBarnDødTjeneste {
     }
 
     private Integer avstandTilNåMedBuffer(LocalDate date) {
-        LocalDate iDag = LocalDate.now();
+        var iDag = LocalDate.now();
         if (date.isBefore(iDag)) {
             date = date.minusDays(BUFFER);
         }

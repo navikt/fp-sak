@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -118,7 +117,7 @@ public class VedtakRestTjeneste {
         if (aktørParam.get().isEmpty()) {
             return new ArrayList<>();
         }
-        List<Ytelse> ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.FORELDREPENGER);
+        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.FORELDREPENGER);
         LOG.info("vedtakForeldrepengerForBruker antall {}", ytelser.size());
         return ytelser;
     }
@@ -135,7 +134,7 @@ public class VedtakRestTjeneste {
         if (aktørParam.get().isEmpty()) {
             return new ArrayList<>();
         }
-        List<Ytelse> ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.SVANGERSKAPSPENGER);
+        var ytelser = hentVedtakMedPerioderSiste12M(aktørParam.get().get(), FagsakYtelseType.SVANGERSKAPSPENGER);
         LOG.info("vedtakSvangerskapspengerForBruker antall {}", ytelser.size());
         return ytelser;
     }
@@ -156,12 +155,12 @@ public class VedtakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentVedtaksdokument(
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        String resultat = vedtakInnsynTjeneste.hentVedtaksdokument(behandling.getId());
+        var resultat = vedtakInnsynTjeneste.hentVedtaksdokument(behandling.getId());
         return Response.ok(resultat, "text/html").build();
     }
 
@@ -184,7 +183,7 @@ public class VedtakRestTjeneste {
         LOG.info("Skal sjekke maks {} vedtaksXMLer og regenerere ikke gyldige vedtaksXMLer for perioden [{}] - [{}]",
                 genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
-        List<Long> behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
+        var behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
@@ -193,9 +192,9 @@ public class VedtakRestTjeneste {
 
         LOG.info("Skal sjekke vedtakXMLen for {} behandlinger og regenerere de som ikke er gyldige ", behandlinger.size());
 
-        for (Long b : behandlinger) {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(b);
-            ProsessTaskData prosessTaskData = new ProsessTaskData(ValiderOgRegenererVedtaksXmlTask.TASKTYPE);
+        for (var b : behandlinger) {
+            var behandling = behandlingsprosessTjeneste.hentBehandling(b);
+            var prosessTaskData = new ProsessTaskData(ValiderOgRegenererVedtaksXmlTask.TASKTYPE);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
@@ -216,7 +215,7 @@ public class VedtakRestTjeneste {
         LOG.info("Skal validere maks {} vedtaksXMLer for perioden [{}] - [{}]", genererVedtaksXmlDto.getMaksAntall(), genererVedtaksXmlDto.getFom(),
                 genererVedtaksXmlDto.getTom());
 
-        List<Long> behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
+        var behandlinger = vedtakTjeneste.hentLagreteVedtakBehandlingId(genererVedtaksXmlDto.fom, genererVedtaksXmlDto.tom);
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.getFom(), genererVedtaksXmlDto.getTom());
 
@@ -225,10 +224,10 @@ public class VedtakRestTjeneste {
 
         LOG.info("Skal validere vedtakXMLen for {} behandlinger  ", behandlinger.size());
 
-        int antallIkkeGyldig = 0;
+        var antallIkkeGyldig = 0;
 
-        for (Long b : behandlinger) {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(b);
+        for (var b : behandlinger) {
+            var behandling = behandlingsprosessTjeneste.hentBehandling(b);
             if (!regenererVedtaksXmlTjeneste.valider(behandling)) {
                 antallIkkeGyldig++;
             }

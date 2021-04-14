@@ -98,17 +98,22 @@ public class KalkulatorStegProsesseringInputTjeneste {
         var stegProsesseringInput = lagStegProsesseringInput(behandling, input, stegType);
         if (stegType.equals(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING)) {
             return new FaktaOmBeregningInput(stegProsesseringInput).medGrunnbeløpsatser(finnSatser());
-        } else if (stegType.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
+        }
+        if (stegType.equals(BehandlingStegType.FORESLÅ_BESTEBEREGNING)) {
             return lagInputForeslåBesteberegning(stegProsesseringInput);
-        } else if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
+        }
+        if (stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
             return lagInputForeslå(stegProsesseringInput);
-        } else if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
+        }
+        if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN)) {
             return lagInputVurderRefusjon(stegProsesseringInput, behandling);
-        } else if (stegType.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
+        }
+        if (stegType.equals(BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG)) {
             var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(
                 behandling.getId());
             return lagInputFordel(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);
-        } else if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
+        }
+        if (stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG)) {
             var førsteFastsatteGrunnlagEntitet = finnFørsteFastsatteGrunnlagEtterEndringAvGrunnbeløp(
                 behandling.getId());
             return lagInputFullføre(stegProsesseringInput, førsteFastsatteGrunnlagEntitet);

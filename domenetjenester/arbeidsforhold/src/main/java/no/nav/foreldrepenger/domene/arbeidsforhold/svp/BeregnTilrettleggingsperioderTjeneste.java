@@ -16,17 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
@@ -68,16 +62,16 @@ public class BeregnTilrettleggingsperioderTjeneste {
      *         ikke finnes datagrunnlag
      */
     public List<TilretteleggingMedUtbelingsgrad> beregnPerioder(BehandlingReferanse behandlingReferanse) {
-        Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.getBehandlingId());
-        AktørId aktørId = behandlingReferanse.getAktørId();
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        var aktørId = behandlingReferanse.getAktørId();
 
         if (svpGrunnlagOpt.isPresent()) {
-            LocalDate termindato = finnTermindato(behandlingReferanse.getBehandlingId());
+            var termindato = finnTermindato(behandlingReferanse.getBehandlingId());
             var svpGrunnlag = svpGrunnlagOpt.get();
             var aktuelleTilretteleggingerFiltrert = new TilretteleggingFilter(svpGrunnlag).getAktuelleTilretteleggingerFiltrert();
-            Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.getBehandlingId());
+            var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.getBehandlingId());
 
-            YrkesaktivitetFilter filter = grunnlag
+            var filter = grunnlag
                     .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
                     .orElse(YrkesaktivitetFilter.EMPTY);
 
@@ -86,7 +80,7 @@ public class BeregnTilrettleggingsperioderTjeneste {
                     .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
                             && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
                     .map(a -> {
-                        Collection<AktivitetsAvtale> aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
+                        var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
                                 a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
                                 a.getBehovForTilretteleggingFom());
                         Collection<Permisjon> velferdspermisjonerForArbeid = filter
@@ -129,9 +123,9 @@ public class BeregnTilrettleggingsperioderTjeneste {
     }
 
     private LocalDate finnTermindato(Long behandlingId) {
-        FamilieHendelseGrunnlagEntitet familiehendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
-        FamilieHendelseEntitet gjeldendeFamiliehendelse = familiehendelseAggregat.getGjeldendeVersjon();
-        Optional<TerminbekreftelseEntitet> terminbekreftelse = gjeldendeFamiliehendelse.getTerminbekreftelse();
+        var familiehendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
+        var gjeldendeFamiliehendelse = familiehendelseAggregat.getGjeldendeVersjon();
+        var terminbekreftelse = gjeldendeFamiliehendelse.getTerminbekreftelse();
         if (terminbekreftelse.isEmpty()) {
             throw new IllegalStateException("Det skal alltid være termindato på svangerskapspenger søknad, gjelder behandlingId=" + behandlingId);
         }

@@ -95,7 +95,7 @@ public class AbakusTjeneste {
     }
 
     private URI toUri(String relativeUri) {
-        String uri = abakusEndpoint.toString() + relativeUri;
+        var uri = abakusEndpoint.toString() + relativeUri;
         try {
             return new URI(uri);
         } catch (URISyntaxException e) {
@@ -120,8 +120,8 @@ public class AbakusTjeneste {
 
     public InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
         var endpoint = endpointGrunnlag;
-        var reader = iayGrunnlagReader;
-        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagDto>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagDto>(endpoint,
+            iayGrunnlagReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -129,11 +129,10 @@ public class AbakusTjeneste {
 
     public List<ArbeidsforholdDto> hentArbeidsforholdIPerioden(AktørDatoRequest request) {
         var endpoint = endpointArbeidsforholdIPeriode;
-        var reader = arbeidsforholdReader;
-        var responseHandler = new ObjectReaderResponseHandler<ArbeidsforholdDto[]>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<ArbeidsforholdDto[]>(endpoint, arbeidsforholdReader);
         try {
             var json = iayJsonWriter.writeValueAsString(request);
-            ArbeidsforholdDto[] arbeidsforhold = hentFraAbakus(endpoint, responseHandler, json);
+            var arbeidsforhold = hentFraAbakus(endpoint, responseHandler, json);
             if (arbeidsforhold == null) {
                 return Collections.emptyList();
             }
@@ -147,8 +146,7 @@ public class AbakusTjeneste {
 
     public InntektsmeldingerDto hentUnikeUnntektsmeldinger(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointInntektsmeldinger;
-        var reader = inntektsmeldingerReader;
-        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -156,8 +154,7 @@ public class AbakusTjeneste {
 
     public InntektsmeldingerDto hentInntektsmeldingDiff(InntektsmeldingDiffRequest request) throws IOException {
         var endpoint = endpointInntektsmeldingerDiff;
-        var reader = inntektsmeldingerReader;
-        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<InntektsmeldingerDto>(endpoint, inntektsmeldingerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -165,8 +162,8 @@ public class AbakusTjeneste {
 
     public RefusjonskravDatoerDto hentRefusjonskravDatoer(InntektsmeldingerRequest request) throws IOException {
         var endpoint = endpointRefusjonskravdatoer;
-        var reader = refusjonskravDatoerReader;
-        var responseHandler = new ObjectReaderResponseHandler<RefusjonskravDatoerDto>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<RefusjonskravDatoerDto>(endpoint,
+            refusjonskravDatoerReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -174,8 +171,8 @@ public class AbakusTjeneste {
 
     public InntektArbeidYtelseGrunnlagSakSnapshotDto hentGrunnlagSnapshot(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
         var endpoint = endpointGrunnlagSnapshot;
-        var reader = iayGrunnlagSnapshotReader;
-        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagSakSnapshotDto>(endpoint, reader);
+        var responseHandler = new ObjectReaderResponseHandler<InntektArbeidYtelseGrunnlagSakSnapshotDto>(endpoint,
+            iayGrunnlagSnapshotReader);
         var json = iayJsonWriter.writeValueAsString(request);
 
         return hentFraAbakus(endpoint, responseHandler, json);
@@ -188,7 +185,7 @@ public class AbakusTjeneste {
 
         try {
             var json = iayJsonWriter.writeValueAsString(request);
-            Ytelse[] ytelser = hentFraAbakus(endpoint, responseHandler, json);
+            var ytelser = hentFraAbakus(endpoint, responseHandler, json);
             if (ytelser == null) {
                 return Collections.emptyList();
             }
@@ -205,25 +202,23 @@ public class AbakusTjeneste {
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode == HttpStatus.SC_OK) {
                 return responseHandler.handleResponse(httpResponse);
-            } else {
-                if (responseCode == HttpStatus.SC_NOT_MODIFIED) {
-                    return null;
-                }
-                if (responseCode == HttpStatus.SC_NO_CONTENT) {
-                    return null;
-                }
-                String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke hente grunnlag fra abakus: " + httpPost.getURI()
-                        + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
-                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
-                    throw feilKallTilAbakus(feilmelding);
-                } else {
-                    throw feilVedKallTilAbakus(feilmelding);
-                }
             }
+            if (responseCode == HttpStatus.SC_NOT_MODIFIED) {
+                return null;
+            }
+            if (responseCode == HttpStatus.SC_NO_CONTENT) {
+                return null;
+            }
+            var responseBody = EntityUtils.toString(httpResponse.getEntity());
+            var feilmelding = "Kunne ikke hente grunnlag fra abakus: " + httpPost.getURI()
+                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+            if (responseCode == HttpStatus.SC_BAD_REQUEST) {
+                throw feilKallTilAbakus(feilmelding);
+            }
+            throw feilVedKallTilAbakus(feilmelding);
         } catch (RuntimeException re) {
             LOG.warn("Feil ved henting av data fra abakus: endpoint=" + endpoint, re);
             throw re;
@@ -234,22 +229,21 @@ public class AbakusTjeneste {
 
         var json = iayJsonWriter.writeValueAsString(dto);
 
-        HttpPut httpPut = new HttpPut(endpointGrunnlag);
+        var httpPut = new HttpPut(endpointGrunnlag);
         httpPut.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
         LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPut)) {
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
-                String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke lagre IAY grunnlag: " + dto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Kunne ikke lagre IAY grunnlag: " + dto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
-                } else {
-                    throw feilVedKallTilAbakus(feilmelding);
                 }
+                throw feilVedKallTilAbakus(feilmelding);
             }
         }
     }
@@ -258,23 +252,22 @@ public class AbakusTjeneste {
 
         var json = iayJsonWriter.writeValueAsString(dto);
 
-        HttpPost httpPost = new HttpPost(endpointMottaInntektsmeldinger);
+        var httpPost = new HttpPost(endpointMottaInntektsmeldinger);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
         LOG.info("Lagre mottatte inntektsmeldinger (behandlingUUID={}) i Abakus", dto.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
-                String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke lagre mottatte inntektsmeldinger for behandling: " + dto.getKoblingReferanse() + " til abakus: "
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Kunne ikke lagre mottatte inntektsmeldinger for behandling: " + dto.getKoblingReferanse() + " til abakus: "
                         + httpPost.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
-                } else {
-                    throw feilVedKallTilAbakus(feilmelding);
                 }
+                throw feilVedKallTilAbakus(feilmelding);
             }
         }
     }
@@ -282,23 +275,22 @@ public class AbakusTjeneste {
     public void lagreOppgittOpptjening(OppgittOpptjeningMottattRequest request) throws IOException {
         var json = iayJsonWriter.writeValueAsString(request);
 
-        HttpPost httpPost = new HttpPost(endpointMottaOppgittOpptjening);
+        var httpPost = new HttpPost(endpointMottaOppgittOpptjening);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
         LOG.info("Lagre oppgitt opptjening (behandlingUUID={}) i Abakus", request.getKoblingReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
-                String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Kunne ikke lagre oppgitt opptjening for behandling: " + request.getKoblingReferanse() + " til abakus: "
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Kunne ikke lagre oppgitt opptjening for behandling: " + request.getKoblingReferanse() + " til abakus: "
                         + httpPost.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
-                } else {
-                    throw feilVedKallTilAbakus(feilmelding);
                 }
+                throw feilVedKallTilAbakus(feilmelding);
             }
         }
     }
@@ -306,24 +298,23 @@ public class AbakusTjeneste {
     public void kopierGrunnlag(KopierGrunnlagRequest request) throws IOException {
         var json = iayJsonWriter.writeValueAsString(request);
 
-        HttpPost httpPost = new HttpPost(endpointKopierGrunnlag);
+        var httpPost = new HttpPost(endpointKopierGrunnlag);
         httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
         LOG.info("Kopierer grunnlag fra (behandlingUUID={}) til (behandlingUUID={}) i Abakus", request.getGammelReferanse(),
                 request.getNyReferanse());
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
             if (responseCode != HttpStatus.SC_OK) {
-                String responseBody = EntityUtils.toString(httpResponse.getEntity());
-                String feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID="
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Feilet med å kopiere grunnlag fra (behandlingUUID=" + request.getGammelReferanse() + ") til (behandlingUUID="
                         + request.getNyReferanse() + ") i Abakus: " + httpPost.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
-                } else {
-                    throw feilVedKallTilAbakus(feilmelding);
                 }
+                throw feilVedKallTilAbakus(feilmelding);
             }
         }
     }

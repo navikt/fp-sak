@@ -93,7 +93,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        Behandling behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
+        var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
                 .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                         false);
@@ -105,7 +105,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
         revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
-        LocalDate endringsdato = LocalDate.now().minusMonths(3);
+        var endringsdato = LocalDate.now().minusMonths(3);
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
     }
 
@@ -113,14 +113,14 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     public void skal_teste_at_alle_opphørsårsaker_gir_opphør_på_behandlingen() {
         IkkeOppfyltÅrsak.opphørsAvslagÅrsaker().forEach(opphørsårsak -> {
             // Arrange
-            UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
+            var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
                     (IkkeOppfyltÅrsak) opphørsårsak);
 
             // Act
 
             var holder = new UttakResultatHolderFP(
                     Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)), null);
-            boolean harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
+            var harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
 
             // Assert
             assertThat(harOpphørsårsak).isTrue();
@@ -130,20 +130,20 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
     @Test
     public void skal_sjekke_at_siste_periode_ikke_gir_opphør_når_det_ikke_er_avslått_med_opphørsårsak() {
         // Arrange
-        UttakResultatEntitet uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
+        var uttakresultatRevurdering = lagUttaksplanMedIkkeOppfyltÅrsak(
                 IkkeOppfyltÅrsak.UTSETTELSE_SØKERS_INNLEGGELSE_IKKE_DOKUMENTERT);
 
         // Act
         var holder = new UttakResultatHolderFP(Optional.of(ForeldrepengerUttakTjeneste.map(uttakresultatRevurdering)),
                 null);
-        boolean harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
+        var harOpphørsårsak = holder.kontrollerErSisteUttakAvslåttMedÅrsak();
 
         // Assert
         assertThat(harOpphørsårsak).isFalse();
     }
 
     private UttakResultatEntitet lagUttaksplanMedIkkeOppfyltÅrsak(IkkeOppfyltÅrsak årsak) {
-        LocalDate fra = LocalDate.now();
+        var fra = LocalDate.now();
         return lagUttakResultatPlanForBehandling(revurdering,
                 List.of(new LocalDateInterval(fra, fra.plusDays(10))),
                 List.of(false), List.of(PeriodeResultatType.AVSLÅTT),
@@ -161,12 +161,12 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
             List<Integer> utbetalingsgrad,
             List<Trekkdager> trekkdager,
             List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatPeriodeEntitet uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
+        var uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
                 samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
 
-        int antallAktiviteter = stønadskontoTyper.size();
-        for (int i = 0; i < antallAktiviteter; i++) {
-            UttakResultatPeriodeAktivitetEntitet periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
+        var antallAktiviteter = stønadskontoTyper.size();
+        for (var i = 0; i < antallAktiviteter; i++) {
+            var periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
                     uttakResultatPeriode, trekkdager.get(i),
                     andelIArbeid.get(i), utbetalingsgrad.get(i));
             uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
@@ -179,7 +179,7 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
             Trekkdager trekkdager,
             int andelIArbeid,
             int utbetalingsgrad) {
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
                 .medArbeidsforhold(Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_ID)
                 .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .build();
@@ -202,20 +202,20 @@ public class ErSisteUttakAvslåttMedÅrsakTest {
             List<Integer> utbetalingsgrad,
             List<Trekkdager> trekkdager,
             List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
+        var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
                 behandling.getBehandlingsresultat());
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
         assertThat(perioder).hasSize(periodeResultatÅrsak.size());
         assertThat(perioder).hasSize(graderingInnvilget.size());
-        int antallPerioder = perioder.size();
-        for (int i = 0; i < antallPerioder; i++) {
+        var antallPerioder = perioder.size();
+        for (var i = 0; i < antallPerioder; i++) {
             lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i),
                     samtidigUttak.get(i), periodeResultatTyper.get(i), periodeResultatÅrsak.get(i),
                     graderingInnvilget.get(i), andelIArbeid, utbetalingsgrad, trekkdager, stønadskontoTyper);
         }
-        UttakResultatEntitet uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder)
+        var uttakResultat = uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder)
                 .build();
         fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(),
                 uttakResultat.getGjeldendePerioder());

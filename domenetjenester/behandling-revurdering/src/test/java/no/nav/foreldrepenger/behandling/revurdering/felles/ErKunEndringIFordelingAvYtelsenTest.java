@@ -109,13 +109,13 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_endring_i_ytelse_ved_forskjellig_fordeling_av_andeler() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+        var bgPeriode = Collections.singletonList(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, true, bgPeriode);
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, true, bgPeriode);
 
         // Act
-        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(revurderingGrunnlag),
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(revurderingGrunnlag),
                 Optional.of(originalGrunnlag), false);
 
         // Assert
@@ -125,13 +125,13 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+        var bgPeriode = Collections.singletonList(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false, false, bgPeriode);
 
         // Act
-        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(revurderingGrunnlag),
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false, Optional.of(revurderingGrunnlag),
                 Optional.of(originalGrunnlag), false);
 
         // Assert
@@ -141,11 +141,11 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void case_fra_prod_skal_oppdage_endring_fordeling() {
         // Arrange
-        List<Integer> dagsatserBR = List.of(2304, 0, 2304);
-        List<Integer> dagsatserAG = List.of(0, 2304, 0);
-        LocalDate basis = LocalDate.of(2020, 4, 18);
-        LocalDate tom1 = LocalDate.of(2020, 4, 22);
-        LocalDate tom2 = LocalDate.of(2020, 6, 10);
+        var dagsatserBR = List.of(2304, 0, 2304);
+        var dagsatserAG = List.of(0, 2304, 0);
+        var basis = LocalDate.of(2020, 4, 18);
+        var tom1 = LocalDate.of(2020, 4, 22);
+        var tom2 = LocalDate.of(2020, 6, 10);
 
         List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
         originaleBGPerioder.add(new LocalDateInterval(basis, null));
@@ -155,11 +155,11 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         revurderingBGPerioder.add(new LocalDateInterval(tom1.plusDays(1), tom2));
         revurderingBGPerioder.add(new LocalDateInterval(tom2.plusDays(1), null));
 
-        BeregningsgrunnlagEntitet originalGrunnlag = forProdCase(originaleBGPerioder, List.of(2304), List.of(0));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = forProdCase(revurderingBGPerioder, dagsatserBR, dagsatserAG);
+        var originalGrunnlag = forProdCase(originaleBGPerioder, List.of(2304), List.of(0));
+        var revurderingGrunnlag = forProdCase(revurderingBGPerioder, dagsatserBR, dagsatserAG);
 
         // Act
-        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), false);
 
         // Assert
@@ -169,7 +169,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private BeregningsgrunnlagEntitet forProdCase(List<LocalDateInterval> perioder,
             List<Integer> dagsatserBR,
             List<Integer> dagsatserAG) {
-        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.ny()
+        var grunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
                 .build();
@@ -181,7 +181,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_ingen_endring_i_ytelse_ved_lik_fordeling_av_andeler_ved_ulike_perioder() {
         // Arrange
-        List<Integer> dagsatser = List.of(123, 5781, 5781);
+        var dagsatser = List.of(123, 5781, 5781);
 
         List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
         originaleBGPerioder.add(
@@ -197,13 +197,13 @@ public class ErKunEndringIFordelingAvYtelsenTest {
                 SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
         revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(16), null));
 
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
                 dagsatser);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
                 revurderingBGPerioder, dagsatser);
 
         // Act
-        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), false);
 
         // Assert
@@ -213,8 +213,8 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_endring_i_ytelse_ved_ulik_fordeling_av_andeler_ved_ulike_perioder() {
         // Arrange
-        List<Integer> dagsatser = List.of(123, 5781, 5781);
-        List<Integer> dagsatserRevurdering = List.of(123, 3183, 5781);
+        var dagsatser = List.of(123, 5781, 5781);
+        var dagsatserRevurdering = List.of(123, 3183, 5781);
 
         List<LocalDateInterval> originaleBGPerioder = new ArrayList<>();
         originaleBGPerioder.add(
@@ -230,13 +230,13 @@ public class ErKunEndringIFordelingAvYtelsenTest {
                 SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15)));
         revurderingBGPerioder.add(new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(15), null));
 
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(false, originaleBGPerioder,
                 dagsatser);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
                 revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
-        boolean endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endring = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag), false);
 
         // Assert
@@ -246,7 +246,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_sendt() {
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
+        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
                 revurderingResultat, true);
 
         // Assert
@@ -262,7 +262,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_teste_fastsettelse_av_behandlingsresultatet_ved_varsel_om_revurdering_ikke_sendt() {
         // Act
-        Behandlingsresultat behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
+        var behandlingsresultat = ErKunEndringIFordelingAvYtelsen.fastsett(revurdering,
                 revurderingResultat, false);
 
         // Assert
@@ -278,7 +278,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     @Test
     public void skal_gi_ingen_endring_dersom_begge_grunnlag_mangler() {
         // Act
-        boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.empty(), Optional.empty(), false);
 
         // Assert
@@ -287,15 +287,15 @@ public class ErKunEndringIFordelingAvYtelsenTest {
 
     @Test
     public void skal_gi_endring_dersom_et_grunnlag_mangler() {
-        List<Integer> dagsatserRevurdering = Collections.singletonList(123);
+        var dagsatserRevurdering = Collections.singletonList(123);
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
         revurderingBGPerioder.add(
                 new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
                 revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
-        boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.empty(), false);
 
         // Assert
@@ -304,22 +304,22 @@ public class ErKunEndringIFordelingAvYtelsenTest {
 
     @Test
     public void skal_gi_ingen_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag() {
-        List<Integer> dagsatserRevurdering = Collections.singletonList(123);
+        var dagsatserRevurdering = Collections.singletonList(123);
 
         List<LocalDateInterval> originalePerioder = new ArrayList<>();
         originalePerioder.add(
                 new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
-        BeregningsgrunnlagEntitet originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
+        var originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
                 dagsatserRevurdering);
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
         revurderingBGPerioder.add(
                 new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
                 revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
-        boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), false);
 
         // Assert
@@ -328,22 +328,22 @@ public class ErKunEndringIFordelingAvYtelsenTest {
 
     @Test
     public void skal_gi_endring_når_revurderingsgrunnlag_starter_før_originalgrunnlag_men_erEndringISkalHindreTilbakketrekk_true() {
-        List<Integer> dagsatserRevurdering = Collections.singletonList(123);
+        var dagsatserRevurdering = Collections.singletonList(123);
 
         List<LocalDateInterval> originalePerioder = new ArrayList<>();
         originalePerioder.add(
                 new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(1), SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(11)));
-        BeregningsgrunnlagEntitet originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
+        var originaltGrunnlag = byggBeregningsgrunnlagForBehandling(false, originalePerioder,
                 dagsatserRevurdering);
 
         List<LocalDateInterval> revurderingBGPerioder = new ArrayList<>();
         revurderingBGPerioder.add(
                 new LocalDateInterval(SKJÆRINGSTIDSPUNKT_BEREGNING, SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(10)));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(false,
                 revurderingBGPerioder, dagsatserRevurdering);
 
         // Act
-        boolean endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
+        var endringIBeregning = ErKunEndringIFordelingAvYtelsen.vurder(false, false,
                 Optional.of(revurderingGrunnlag), Optional.of(originaltGrunnlag), true);
 
         // Assert
@@ -353,20 +353,20 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private BeregningsgrunnlagEntitet byggBeregningsgrunnlagForBehandling(boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<LocalDateInterval> perioder,
             List<Integer> dagsatser) {
-        List<Integer> dagsatsBruker = skalDeleAndelMellomArbeidsgiverOgBruker ? dagsatser.stream()
+        var dagsatsBruker = skalDeleAndelMellomArbeidsgiverOgBruker ? dagsatser.stream()
                 .map(dagsats -> BigDecimal.valueOf(dagsats)
                         .divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP)
                         .intValue())
                 .collect(Collectors.toList())
                 : dagsatser;
-        List<Integer> dagsatsArbeidstaker = skalDeleAndelMellomArbeidsgiverOgBruker ? dagsatser.stream()
+        var dagsatsArbeidstaker = skalDeleAndelMellomArbeidsgiverOgBruker ? dagsatser.stream()
                 .map(dagsats -> BigDecimal.valueOf(dagsats)
                         .divide(BigDecimal.valueOf(2), 0, RoundingMode.HALF_UP)
                         .intValue())
                 .collect(Collectors.toList())
                 : Collections.nCopies(dagsatser.size(), 0);
 
-        BeregningsgrunnlagEntitet grunnlag = BeregningsgrunnlagEntitet.ny()
+        var grunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_BEREGNING)
                 .medGrunnbeløp(BigDecimal.valueOf(91425L))
                 .build();
@@ -379,11 +379,11 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             List<LocalDateInterval> perioder,
             List<Integer> dagsatserBruker,
             List<Integer> dagsatserArbeidstaker) {
-        for (int i = 0; i < perioder.size(); i++) {
-            LocalDateInterval datoIntervall = perioder.get(i);
-            Integer dagsatsBruker = dagsatserBruker.get(i);
-            Integer dagsatsArbeidstaker = dagsatserArbeidstaker.get(i);
-            BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
+        for (var i = 0; i < perioder.size(); i++) {
+            var datoIntervall = perioder.get(i);
+            var dagsatsBruker = dagsatserBruker.get(i);
+            var dagsatsArbeidstaker = dagsatserArbeidstaker.get(i);
+            var periode = BeregningsgrunnlagPeriode.ny()
                     .medBeregningsgrunnlagPeriode(datoIntervall.getFomDato(), datoIntervall.getTomDato())
                     .build(grunnlag);
             byggBeregningsgrunnlagAndel(periode, dagsatsBruker, dagsatsArbeidstaker);
@@ -395,7 +395,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
     private void byggBeregningsgrunnlagAndel(BeregningsgrunnlagPeriode periode,
             Integer dagsatsBruker,
             Integer dagsatsArbeidsgiver) {
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+        var bga = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))
@@ -429,8 +429,8 @@ public class ErKunEndringIFordelingAvYtelsenTest {
         BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
                 .build(beregningsgrunnlag);
-        for (ÅpenDatoIntervallEntitet datoPeriode : perioder) {
-            BeregningsgrunnlagPeriode periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
+        for (var datoPeriode : perioder) {
+            var periode = byggBGPeriode(datoPeriode, medOppjustertDagsat,
                     skalDeleAndelMellomArbeidsgiverOgBruker, lagAndelTjeneste);
             BeregningsgrunnlagPeriode.oppdater(periode)
                     .build(beregningsgrunnlag);
@@ -442,7 +442,7 @@ public class ErKunEndringIFordelingAvYtelsenTest {
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             LagAndelTjeneste lagAndelTjeneste) {
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
+        var periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(datoPeriode.getFomDato(), datoPeriode.getTomDato())
                 .build(beregningsgrunnlag);
         lagAndelTjeneste.lagAndeler(periode, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);

@@ -30,7 +30,7 @@ public class Satsen {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Satsen sats1 = (Satsen) o;
+        var sats1 = (Satsen) o;
         return sats == sats1.sats &&
             satsType == sats1.satsType;
     }

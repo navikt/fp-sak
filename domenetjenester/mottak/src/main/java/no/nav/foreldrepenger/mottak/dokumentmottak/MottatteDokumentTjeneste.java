@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
-import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -57,14 +56,13 @@ public class MottatteDokumentTjeneste {
     public void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument, Optional<LocalDate> gjelderFra) {
         oppdaterMottattDokumentMedBehandling(dokument, behandling.getId());
         if (dokument.getPayloadXml() != null) {
-            @SuppressWarnings("rawtypes")
-            MottattDokumentWrapper dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
+            @SuppressWarnings("rawtypes") var dokumentWrapper = mottattDokumentPersisterer.xmlTilWrapper(dokument);
             mottattDokumentPersisterer.persisterDokumentinnhold(dokumentWrapper, dokument, behandling, gjelderFra);
         }
     }
 
     public Long lagreMottattDokumentPåFagsak(MottattDokument dokument) {
-        MottattDokument mottattDokument = mottatteDokumentRepository.lagre(dokument);
+        var mottattDokument = mottatteDokumentRepository.lagre(dokument);
         return mottattDokument.getId();
     }
 
@@ -101,7 +99,7 @@ public class MottatteDokumentTjeneste {
 
     public boolean erSisteYtelsesbehandlingAvslåttPgaManglendeDokumentasjon(Fagsak sak) {
         Objects.requireNonNull(sak, "Fagsak");
-        Optional<Behandling> behandling = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
+        var behandling = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
         return behandling.map(this::erAvsluttetPgaManglendeDokumentasjon).orElse(Boolean.FALSE);
     }
 
@@ -110,7 +108,7 @@ public class MottatteDokumentTjeneste {
      */
     public boolean harFristForInnsendingAvDokGåttUt(Fagsak sak) {
         Objects.requireNonNull(sak, "Fagsak");
-        Optional<Behandling> behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
+        var behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
         return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(b.getId()))
             .map(BehandlingVedtak::getVedtaksdato)
             .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
@@ -118,7 +116,7 @@ public class MottatteDokumentTjeneste {
 
     private boolean erAvsluttetPgaManglendeDokumentasjon(Behandling behandling) {
         Objects.requireNonNull(behandling, "Behandling");
-        Optional<Behandlingsresultat> bRes = behandlingRepositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId());
+        var bRes = behandlingRepositoryProvider.getBehandlingsresultatRepository().hentHvisEksisterer(behandling.getId());
         return bRes.filter(br -> BehandlingResultatType.AVSLÅTT.equals(br.getBehandlingResultatType()))
             .map(Behandlingsresultat::getAvslagsårsak).map(Avslagsårsak.MANGLENDE_DOKUMENTASJON::equals).orElse(Boolean.FALSE);
     }

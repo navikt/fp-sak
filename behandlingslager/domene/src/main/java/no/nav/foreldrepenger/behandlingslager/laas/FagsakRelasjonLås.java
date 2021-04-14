@@ -51,10 +51,11 @@ public class FagsakRelasjonLås {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof FagsakRelasjonLås)) {
+        }
+        if (obj == null || !(obj instanceof FagsakRelasjonLås)) {
             return false;
         }
-        FagsakRelasjonLås other = (FagsakRelasjonLås) obj;
+        var other = (FagsakRelasjonLås) obj;
         return Objects.equals(getFagsakRelasjonId(), other.getFagsakRelasjonId());
     }
 

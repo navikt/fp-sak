@@ -120,7 +120,7 @@ class MapOppgittOpptjening {
                 return null;
             }
 
-            DatoIntervallEntitet periode1 = arbeidsforhold.getPeriode();
+            var periode1 = arbeidsforhold.getPeriode();
             var periode = new Periode(periode1.getFomDato(), periode1.getTomDato());
             var arbeidType = KodeverkMapper.mapArbeidTypeTilDto(arbeidsforhold.getArbeidType());
 
@@ -295,7 +295,7 @@ class MapOppgittOpptjening {
                 return null;
             }
 
-            Periode dto1 = dto.getPeriode();
+            var dto1 = dto.getPeriode();
             var virksomhet = tilUtenlandskVirksomhet(dto);
             var builder = OppgittArbeidsforholdBuilder.ny()
                     .medArbeidType(KodeverkMapper.mapArbeidType(dto.getArbeidTypeDto()))
@@ -329,7 +329,7 @@ class MapOppgittOpptjening {
                 return null;
             }
 
-            Periode dto1 = dto.getPeriode();
+            var dto1 = dto.getPeriode();
             var periode = DatoIntervallEntitet.fraOgMedTilOgMed(dto1.getFom(), dto1.getTom());
             var arbeidType = KodeverkMapper.mapArbeidType(dto.getArbeidTypeDto());
             return new OppgittAnnenAktivitet(periode, arbeidType);

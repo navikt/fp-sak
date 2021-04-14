@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 
@@ -34,15 +33,15 @@ class BehandlingÅrsakUtlederPersonopplysning implements BehandlingÅrsakUtleder
 
     @Override
     public Set<EndringResultatType> utledEndringsResultat(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        long grunnlag1 = (long) grunnlagId1;
-        long grunnlag2 = (long) grunnlagId2;
+        var grunnlag1 = (long) grunnlagId1;
+        var grunnlag2 = (long) grunnlagId2;
 
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = personopplysningRepository.hentGrunnlagPåId(grunnlag1);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = personopplysningRepository.hentGrunnlagPåId(grunnlag2);
+        var personopplysningGrunnlag1 = personopplysningRepository.hentGrunnlagPåId(grunnlag1);
+        var personopplysningGrunnlag2 = personopplysningRepository.hentGrunnlagPåId(grunnlag2);
 
-        PersonopplysningGrunnlagDiff poDiff = new PersonopplysningGrunnlagDiff(ref.getAktørId(), personopplysningGrunnlag1, personopplysningGrunnlag2);
-        boolean forelderErDødEndret = poDiff.erForeldreDødsdatoEndret();
-        boolean barnetsDødsdatoEndret = poDiff.erBarnDødsdatoEndret();
+        var poDiff = new PersonopplysningGrunnlagDiff(ref.getAktørId(), personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var forelderErDødEndret = poDiff.erForeldreDødsdatoEndret();
+        var barnetsDødsdatoEndret = poDiff.erBarnDødsdatoEndret();
 
         if (forelderErDødEndret || barnetsDødsdatoEndret) {
             LOG.info("Setter endringsresultat til opplysning om død, har endring forelderErDødEndret {} barnetsDødsdatoEndret {}, grunnlagid1: {}, grunnlagid2: {}", forelderErDødEndret, barnetsDødsdatoEndret, grunnlag1, grunnlag2); //$NON-NLS-1

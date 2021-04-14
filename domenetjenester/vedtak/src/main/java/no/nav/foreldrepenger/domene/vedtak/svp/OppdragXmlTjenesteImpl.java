@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.svp;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -8,13 +7,11 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.domene.vedtak.xml.OppdragXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdrag;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.fp.v2.Oppdragslinje;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 
@@ -36,13 +33,13 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
 
     @Override
     public void setOppdrag(Vedtak vedtak, Behandling behandling) {
-        List<Oppdrag110> oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+        var oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
         if (!oppdrag110PositivKvittering.isEmpty()) {
-            Oppdrag oppdragXml = oppdragObjectFactory.createOppdrag();
-            for (Oppdrag110 oppdrag110 : oppdrag110PositivKvittering) {
+            var oppdragXml = oppdragObjectFactory.createOppdrag();
+            for (var oppdrag110 : oppdrag110PositivKvittering) {
                 oppdragXml.setOppdragId(VedtakXmlUtil.lagLongOpplysning(oppdrag110.getId()));
                 oppdragXml.setFagsystemId(VedtakXmlUtil.lagLongOpplysning(oppdrag110.getFagsystemId()));
-                List<Oppdragslinje150> oppdragslinje150Liste = oppdrag110.getOppdragslinje150Liste();
+                var oppdragslinje150Liste = oppdrag110.getOppdragslinje150Liste();
                 oppdragslinje150Liste.forEach(oppdragslinje150 -> oppdragXml.getOppdragslinje().add(konverterOppdragslinje(oppdragslinje150)));
             }
             vedtak.getOppdrag().add(oppdragXml);
@@ -50,11 +47,11 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
     }
 
     private Oppdragslinje konverterOppdragslinje(Oppdragslinje150 oppdragsLinje150) {
-        Oppdragslinje oppdragslinje = new Oppdragslinje();
+        var oppdragslinje = new Oppdragslinje();
         oppdragslinje.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(oppdragsLinje150.getDatoVedtakFom(),oppdragsLinje150.getDatoVedtakTom()));
         oppdragslinje.setLinjeId(VedtakXmlUtil.lagLongOpplysning(oppdragsLinje150.getId()));
         oppdragslinje.setDelytelseId(VedtakXmlUtil.lagLongOpplysning(oppdragsLinje150.getDelytelseId()));
-        Long refDelytelseId = oppdragsLinje150.getRefDelytelseId();
+        var refDelytelseId = oppdragsLinje150.getRefDelytelseId();
         VedtakXmlUtil.lagDateOpplysning(oppdragsLinje150.getDatoStatusFom()).ifPresent(oppdragslinje::setStatusFom);
         if (!Objects.isNull(oppdragsLinje150.getKodeStatusLinje())) {
             oppdragslinje.setKodeStatusLinje(VedtakXmlUtil.lagStringOpplysning(oppdragsLinje150.getKodeStatusLinje().getKode()));

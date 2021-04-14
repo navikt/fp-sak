@@ -17,7 +17,7 @@ final class UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter {
     }
 
     static LocalDate utled(YrkesaktivitetFilter filter, List<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
-        Optional<LocalDate> fomDato = finnOppstartsdatoNærmestStpForYrkesaktiviteterSomInkludererStp(filter, yrkesaktiviteter, skjæringstidspunkt);
+        var fomDato = finnOppstartsdatoNærmestStpForYrkesaktiviteterSomInkludererStp(filter, yrkesaktiviteter, skjæringstidspunkt);
         if (fomDato.isEmpty()) {
             fomDato = finnOppstartsdatoNærmestStpForYrkesaktiviteterSomTilkommerEtterStp(filter, yrkesaktiviteter, skjæringstidspunkt);
         }

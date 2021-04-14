@@ -20,12 +20,11 @@ public class SjekkSøkerErMor extends LeafSpecification<FødselsvilkårGrunnlag>
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        boolean erBarnetsMor = Objects.equals(t.getSoekerRolle(), SoekerRolle.MORA);
+        var erBarnetsMor = Objects.equals(t.getSoekerRolle(), SoekerRolle.MORA);
         if (erBarnetsMor) {
             return ja();
-        } else {
-            return nei();
         }
+        return nei();
     }
 
     @Override

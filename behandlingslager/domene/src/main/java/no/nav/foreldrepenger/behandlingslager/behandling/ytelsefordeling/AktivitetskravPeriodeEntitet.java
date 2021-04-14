@@ -86,7 +86,7 @@ public class AktivitetskravPeriodeEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AktivitetskravPeriodeEntitet that = (AktivitetskravPeriodeEntitet) o;
+        var that = (AktivitetskravPeriodeEntitet) o;
         return Objects.equals(id, that.id) && avklaring == that.avklaring && Objects.equals(tidsperiode,
             that.tidsperiode);
     }

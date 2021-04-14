@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -57,17 +56,17 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        Long behandlingId = param.getBehandlingId();
-        AktørId aktørId = param.getAktørId();
+        var behandlingId = param.getBehandlingId();
+        var aktørId = param.getAktørId();
 
-        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        LocalDate vurderingsTidspunkt = LocalDate.now().isAfter(skjæringstidspunkt) ? LocalDate.now() : skjæringstidspunkt;
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var vurderingsTidspunkt = LocalDate.now().isAfter(skjæringstidspunkt) ? LocalDate.now() : skjæringstidspunkt;
 
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
+        var inntektArbeidYtelseGrunnlagOpt = iayTjeneste.finnGrunnlag(behandlingId);
         if (!inntektArbeidYtelseGrunnlagOpt.isPresent()) {
             return INGEN_AKSJONSPUNKTER;
         }
-        InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
+        var grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
         if (harMottattStønadSiste10Mnd(param.getSaksnummer(), param.getAktørId(), grunnlag, skjæringstidspunkt) == JA) {
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         }
@@ -81,7 +80,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
             }
         }
 
-        Optional<AktørId> annenPart = finnOppgittAnnenPart(behandlingId);
+        var annenPart = finnOppgittAnnenPart(behandlingId);
         if (annenPart.isPresent()) {
             if (harAnnenPartMottattStønadSiste10Mnd(param.getSaksnummer(), annenPart.get(), grunnlag, skjæringstidspunkt) == JA) {
                 return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
@@ -93,10 +92,10 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
             LocalDate skjæringstidspunkt) {
-        LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
+        var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
+        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
                 Optional.of(RELEVANTE_YTELSE_TYPER));
-        boolean senerevedtak = ytelser.stream()
+        var senerevedtak = ytelser.stream()
                 .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))
                 .map(TilgrensendeYtelserDto::getPeriodeFraDato)
                 .anyMatch(vedtakEtterDato::isBefore);
@@ -105,18 +104,18 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     private Utfall harAnnenPartMottattStønadSiste10Mnd(@SuppressWarnings("unused") Saksnummer saksnummer, AktørId aktørId,
             InntektArbeidYtelseGrunnlag grunnlag, LocalDate skjæringstidspunkt) {
-        LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag,
+        var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
+        var ytelser = ytelseTjeneste.utledAnnenPartsYtelserRelatertTilBehandling(aktørId, grunnlag,
                 Optional.of(RELEVANTE_YTELSE_TYPER));
-        boolean senerevedtak = ytelser.stream()
+        var senerevedtak = ytelser.stream()
                 .map(y -> y.getPeriodeTilDato() != null ? y.getPeriodeTilDato() : y.getPeriodeFraDato())
                 .anyMatch(vedtakEtterDato::isBefore);
         return senerevedtak ? JA : NEI;
     }
 
     private Utfall harInntekterForeldrepengerSiste10Mnd(InntektFilter filter, LocalDate skjæringstidspunkt) {
-        LocalDate utbetalingEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        boolean utbetalinger = filter
+        var utbetalingEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
+        var utbetalinger = filter
                 .filterPensjonsgivende()
                 .filter(InntektspostType.YTELSE)
                 .filter(OffentligYtelseType.FORELDREPENGER)
@@ -125,7 +124,7 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
     }
 
     private Optional<AktørId> finnOppgittAnnenPart(Long behandlingId) {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
+        var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
         return personopplysningGrunnlag.getOppgittAnnenPart().map(OppgittAnnenPartEntitet::getAktørId);
     }
 }

@@ -57,12 +57,12 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
-        boolean harSattHendelseDato = vurderFagsystem.getBarnTermindato().isPresent() || vurderFagsystem.getBarnFodselsdato().isPresent();
+        var harSattHendelseDato = vurderFagsystem.getBarnTermindato().isPresent() || vurderFagsystem.getBarnFodselsdato().isPresent();
         if (!harSattHendelseDato) {
             return vurderElektroniskSøknadGammel(vurderFagsystem, sakerGittYtelseType);
         }
 
-        List<Fagsak> relevanteFagsaker = sakerGittYtelseType.stream()
+        var relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
             .collect(Collectors.toList());
 
@@ -83,7 +83,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
-        List<Fagsak> åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
+        var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
             LOG.info("VurderFagsystem SV inntektsmelding flere åpne saker {} for {}", åpneFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
@@ -92,7 +92,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return vurderFørstegangsbehandling(vurderFagsystem, åpneFagsaker.get(0));
         }
 
-        List<Fagsak> aktuelleSakerForMatch = sakerGittYtelseType.stream()
+        var aktuelleSakerForMatch = sakerGittYtelseType.stream()
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .collect(Collectors.toList());
         if (aktuelleSakerForMatch.size() > 1) {
@@ -119,7 +119,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
-        List<Fagsak> åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
+        var åpneFagsaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType);
         if (åpneFagsaker.size() > 1) {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -127,7 +127,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return vurderFørstegangsbehandling(vurderFagsystem, åpneFagsaker.get(0));
         }
 
-        List<Fagsak> aktuelleSakerForMatch = sakerGittYtelseType.stream()
+        var aktuelleSakerForMatch = sakerGittYtelseType.stream()
             .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .collect(Collectors.toList());
         return aktuelleSakerForMatch.isEmpty() ? new BehandlendeFagsystem(VEDTAKSLØSNING) : new BehandlendeFagsystem(MANUELL_VURDERING);
@@ -154,7 +154,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             }
         }
         if (familieHendelse.getTerminbekreftelse().isPresent()) {
-            LocalDate termindato = familieHendelse.getTerminbekreftelse().get().getTermindato();
+            var termindato = familieHendelse.getTerminbekreftelse().get().getTermindato();
             return termindato.isAfter(LocalDate.now().minus(seksMåneder));
         }
         return false;

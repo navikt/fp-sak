@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -34,10 +31,10 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object id1, Object id2) {
-        long grunnlag1 = (long) id1;
-        long grunnlag2 = (long) id2;
+        var grunnlag1 = (long) id1;
+        var grunnlag2 = (long) id2;
 
-        FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(ref.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(ref.getBehandlingId());
         if (erSkjæringstidspunktEndret(ref, grunnlagForBehandling)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT, "skjæringstidspunkt", grunnlag1, grunnlag2);
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
@@ -51,13 +48,13 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     private boolean erSkjæringstidspunktEndret(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
-        LocalDate nySkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
-        Optional<LocalDate> origSkjæringstidspunkt = ref.getOriginalBehandlingId()
+        var nySkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var origSkjæringstidspunkt = ref.getOriginalBehandlingId()
             .map(origId -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(origId).getUtledetSkjæringstidspunkt());
 
-        Optional<LocalDate> nyBekreftetFødselsdato = grunnlagForBehandling.getGjeldendeBekreftetVersjon()
+        var nyBekreftetFødselsdato = grunnlagForBehandling.getGjeldendeBekreftetVersjon()
             .flatMap(FamilieHendelseEntitet::getFødselsdato);
-        Optional<LocalDate> origBekreftetFødselsdato = ref.getOriginalBehandlingId()
+        var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
             .flatMap(FamilieHendelseEntitet::getFødselsdato);
 
@@ -79,10 +76,10 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {
-        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
-        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
-        Integer antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
-        Integer antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
+        var grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
+        var grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
+        var antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
+        var antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
 
         return !antallBarn1.equals(antallBarn2);
     }

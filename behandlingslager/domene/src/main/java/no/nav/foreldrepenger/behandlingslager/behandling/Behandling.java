@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -93,11 +92,11 @@ public class Behandling extends BaseEntitet {
             .comparing(BaseEntitet::getOpprettetTidspunkt, (a, b) -> {
                 if (a != null && b != null) {
                     return a.compareTo(b);
-                } else if (a == null && b == null) {
-                    return 0;
-                } else {
-                    return a == null ? -1 : 1;
                 }
+                if (a == null && b == null) {
+                    return 0;
+                }
+                return a == null ? -1 : 1;
             });
 
     // Null safe
@@ -105,11 +104,11 @@ public class Behandling extends BaseEntitet {
             .comparing(BaseEntitet::getEndretTidspunkt, (a, b) -> {
                 if (a != null && b != null) {
                     return a.compareTo(b);
-                } else if (a == null && b == null) {
-                    return 0;
-                } else {
-                    return a == null ? -1 : 1;
                 }
+                if (a == null && b == null) {
+                    return 0;
+                }
+                return a == null ? -1 : 1;
             });
 
     @Id
@@ -371,7 +370,7 @@ public class Behandling extends BaseEntitet {
 
         // legg til ny
         this.behandlingStegTilstander.add(stegTilstand);
-        BehandlingStegType behandlingSteg = stegTilstand.getBehandlingSteg();
+        var behandlingSteg = stegTilstand.getBehandlingSteg();
         this.status = behandlingSteg.getDefinertBehandlingStatus();
     }
 
@@ -412,7 +411,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand() {
-        List<BehandlingStegTilstand> tilstander = behandlingStegTilstander.stream()
+        var tilstander = behandlingStegTilstander.stream()
                 .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus()))
                 .collect(Collectors.toList());
         if (tilstander.size() > 1) {
@@ -424,7 +423,7 @@ public class Behandling extends BaseEntitet {
 
     public Optional<BehandlingStegTilstand> getSisteBehandlingStegTilstand() {
         // sjekk "ikke-sluttstatuser" først
-        Optional<BehandlingStegTilstand> sisteAktive = getBehandlingStegTilstand();
+        var sisteAktive = getBehandlingStegTilstand();
 
         if (sisteAktive.isPresent()) {
             return sisteAktive;
@@ -432,7 +431,7 @@ public class Behandling extends BaseEntitet {
 
         Comparator<BehandlingStegTilstand> comparatorOpprettet = compareOpprettetTid();
         Comparator<BehandlingStegTilstand> comparatorEndret = compareEndretTid();
-        Comparator<BehandlingStegTilstand> comparator = comparatorOpprettet.reversed()
+        var comparator = comparatorOpprettet.reversed()
                 .thenComparing(Comparator.nullsLast(comparatorEndret).reversed());
 
         // tar nyeste.
@@ -440,7 +439,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public Optional<BehandlingStegTilstand> getBehandlingStegTilstand(BehandlingStegType stegType) {
-        List<BehandlingStegTilstand> tilstander = behandlingStegTilstander.stream()
+        var tilstander = behandlingStegTilstander.stream()
                 .filter(t -> !BehandlingStegStatus.erSluttStatus(t.getBehandlingStegStatus())
                         && Objects.equals(stegType, t.getBehandlingSteg()))
                 .collect(Collectors.toList());
@@ -464,7 +463,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public BehandlingStegType getAktivtBehandlingSteg() {
-        BehandlingStegTilstand stegTilstand = getBehandlingStegTilstand().orElse(null);
+        var stegTilstand = getBehandlingStegTilstand().orElse(null);
         return stegTilstand == null ? null : stegTilstand.getBehandlingSteg();
     }
 
@@ -492,7 +491,7 @@ public class Behandling extends BaseEntitet {
         if (!(object instanceof Behandling)) {
             return false;
         }
-        Behandling other = (Behandling) object;
+        var other = (Behandling) object;
         return Objects.equals(getFagsak(), other.getFagsak())
                 && Objects.equals(getType(), other.getType())
                 && Objects.equals(getOpprettetTidspunkt(), other.getOpprettetTidspunkt());
@@ -659,7 +658,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public BehandlingStegStatus getBehandlingStegStatus() {
-        BehandlingStegTilstand stegTilstand = getBehandlingStegTilstand().orElse(null);
+        var stegTilstand = getBehandlingStegTilstand().orElse(null);
         return stegTilstand == null ? null : stegTilstand.getBehandlingStegStatus();
     }
 
@@ -704,7 +703,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public LocalDate getFristDatoBehandlingPåVent() {
-        Optional<Aksjonspunkt> aksjonspunkt = getFørsteÅpneAutopunkt();
+        var aksjonspunkt = getFørsteÅpneAutopunkt();
         LocalDateTime fristTid = null;
         if (aksjonspunkt.isPresent()) {
             fristTid = aksjonspunkt.get().getFristTid();
@@ -713,7 +712,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public AksjonspunktDefinisjon getBehandlingPåVentAksjonspunktDefinisjon() {
-        Optional<Aksjonspunkt> aksjonspunkt = getFørsteÅpneAutopunkt();
+        var aksjonspunkt = getFørsteÅpneAutopunkt();
         if (aksjonspunkt.isPresent()) {
             return aksjonspunkt.get().getAksjonspunktDefinisjon();
         }
@@ -721,7 +720,7 @@ public class Behandling extends BaseEntitet {
     }
 
     public Venteårsak getVenteårsak() {
-        Optional<Aksjonspunkt> aksjonspunkt = getFørsteÅpneAutopunkt();
+        var aksjonspunkt = getFørsteÅpneAutopunkt();
         if (aksjonspunkt.isPresent()) {
             return aksjonspunkt.get().getVenteårsak();
         }
@@ -772,15 +771,15 @@ public class Behandling extends BaseEntitet {
     }
 
     public Optional<VilkårType> getVilkårTypeForRelasjonTilBarnet() {
-        Behandlingsresultat resultat = getBehandlingsresultat();
+        var resultat = getBehandlingsresultat();
         if (resultat == null) {
             return Optional.empty();
         }
-        VilkårResultat vilkårResultat = resultat.getVilkårResultat();
+        var vilkårResultat = resultat.getVilkårResultat();
         if (vilkårResultat == null) {
             return Optional.empty();
         }
-        List<VilkårType> vilkårTyper = asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+        var vilkårTyper = asList(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
                 VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
                 VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
 
@@ -875,7 +874,7 @@ public class Behandling extends BaseEntitet {
         }
 
         public Builder medKopiAvForrigeBehandlingsresultat() {
-            Behandlingsresultat behandlingsresultatForrige = forrigeBehandling.getBehandlingsresultat();
+            var behandlingsresultatForrige = forrigeBehandling.getBehandlingsresultat();
             this.resultatBuilder = Behandlingsresultat.builderFraEksisterende(behandlingsresultatForrige);
             return this;
         }
@@ -960,7 +959,7 @@ public class Behandling extends BaseEntitet {
                 behandling.avsluttetDato = avsluttetDato;
             }
             if (resultatBuilder != null) {
-                Behandlingsresultat behandlingsresultat = resultatBuilder.buildFor(behandling);
+                var behandlingsresultat = resultatBuilder.buildFor(behandling);
                 behandling.setBehandlingresultat(behandlingsresultat);
             }
 

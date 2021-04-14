@@ -37,7 +37,7 @@ public class EditDistanceOperasjon<T extends EditDistanceLetter> {
             return false;
         }
 
-        EditDistanceOperasjon<?> that = (EditDistanceOperasjon<?>) o;
+        var that = (EditDistanceOperasjon<?>) o;
         return Objects.equals(før, that.før)
             && Objects.equals(nå, that.nå);
     }

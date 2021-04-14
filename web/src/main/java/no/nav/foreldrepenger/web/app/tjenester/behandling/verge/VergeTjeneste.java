@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -16,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyDto;
@@ -51,19 +48,19 @@ public class VergeTjeneste {
     }
 
     public VergeBehandlingsmenyDto utledBehandlingsmeny(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<VergeAggregat> vergeAggregat = vergeRepository.hentAggregat(behandlingId);
-        boolean harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
-        boolean harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
-        boolean stårIKofakEllerSenereSteg = behandling.harSattStartpunkt();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
+        var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
+        var harVergeAksjonspunkt = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
+        var stårIKofakEllerSenereSteg = behandling.harSattStartpunkt();
 
         if (!stårIKofakEllerSenereSteg || !behandling.erYtelseBehandling()) {
             return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.SKJUL);
-        } else if (!harRegistrertVerge && !harVergeAksjonspunkt) {
-            return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.OPPRETT);
-        } else {
-            return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.FJERN);
         }
+        if (!harRegistrertVerge && !harVergeAksjonspunkt) {
+            return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.OPPRETT);
+        }
+        return new VergeBehandlingsmenyDto(behandlingId, VergeBehandlingsmenyEnum.FJERN);
     }
 
     void opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(Behandling behandling) {
@@ -77,7 +74,7 @@ public class VergeTjeneste {
                     + " kan ikke registrere verge/fullmektig", behandling.getId());
             throw new TekniskException("FP-185322", msg);
         }
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(AksjonspunktDefinisjon.AVKLAR_VERGE));
         behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling,
             BehandlingStegType.KONTROLLER_FAKTA);
@@ -92,16 +89,16 @@ public class VergeTjeneste {
     }
 
     private void fjernVergeAksjonspunkt(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_VERGE).
             ifPresent(aksjonspunkt -> behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst,
                 behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt)));
     }
 
     private void opprettHistorikkinnslagForFjernetVerge(Behandling behandling) {
-        HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder().medHendelse(
             HistorikkinnslagType.FJERNET_VERGE);
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(HistorikkinnslagType.FJERNET_VERGE);
         historikkinnslag.setBehandlingId(behandling.getId());

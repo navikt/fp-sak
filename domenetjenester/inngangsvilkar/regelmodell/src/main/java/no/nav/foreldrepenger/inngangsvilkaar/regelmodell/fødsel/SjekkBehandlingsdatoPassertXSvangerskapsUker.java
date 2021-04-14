@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
-import java.time.LocalDate;
 import java.time.Period;
 
 import no.nav.fpsak.nare.evaluation.Evaluation;
@@ -32,8 +31,8 @@ public class SjekkBehandlingsdatoPassertXSvangerskapsUker extends LeafSpecificat
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        LocalDate dagensdato = t.getDagensdato();
-        LocalDate termindato = t.getBekreftetTermindato();
+        var dagensdato = t.getDagensdato();
+        var termindato = t.getBekreftetTermindato();
 
         if (dagensdato == null) {
             throw new IllegalArgumentException("Mangler behandlingsdato i :" + t);
@@ -49,17 +48,16 @@ public class SjekkBehandlingsdatoPassertXSvangerskapsUker extends LeafSpecificat
          * Termindato 4. juni 2018, kan man søke og få innvilget ES f.o.m. Torsdag 22. februar.
          * Med termindato 20. mai skal man kunne søke fra og med onsdag 7. februar.
          */
-        Period fratrekkFraTermindatoNedTilTidligsteUke = Period
+        var fratrekkFraTermindatoNedTilTidligsteUke = Period
                 .ofDays((TERMIN_LENGDE_UKER - TIDLIGSTE_SVANGERSKAPS_UKE) * 7 + 4);
 
-        LocalDate tidligstSvangerskapsDato = termindato.minus(fratrekkFraTermindatoNedTilTidligsteUke);
+        var tidligstSvangerskapsDato = termindato.minus(fratrekkFraTermindatoNedTilTidligsteUke);
 
         if (tidligstSvangerskapsDato.isBefore(dagensdato)) {
             return ja();
-        } else {
-            return nei(IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES, dagensdato, tidligstSvangerskapsDato,
-                    TIDLIGSTE_SVANGERSKAPS_UKE);
         }
+        return nei(IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES, dagensdato, tidligstSvangerskapsDato,
+                TIDLIGSTE_SVANGERSKAPS_UKE);
     }
     @Override
     public String beskrivelse() {

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -40,36 +39,36 @@ public abstract class BekreftOppholdOppdaterer implements AksjonspunktOppdaterer
 
     @Override
     public OppdateringResultat oppdater(BekreftedePerioderMalDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
 
-        Optional<BekreftedePerioderDto> bekreftedeDto = dto.getBekreftedePerioder().stream().findFirst();
+        var bekreftedeDto = dto.getBekreftedePerioder().stream().findFirst();
         if (bekreftedeDto.isEmpty()) {
             return OppdateringResultat.utenOveropp();
         }
-        BekreftedePerioderDto bekreftet = bekreftedeDto.get();
-        Optional<MedlemskapAggregat> medlemskap = medlemTjeneste.hentMedlemskap(behandlingId);
-        Optional<VurdertMedlemskap> vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
+        var bekreftet = bekreftedeDto.get();
+        var medlemskap = medlemTjeneste.hentMedlemskap(behandlingId);
+        var vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
 
-        Boolean orginalOppholdsrettBool = vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(null);
-        HistorikkEndretFeltVerdiType orginalOppholdsrett = mapTilOppholdsrettVerdiKode(orginalOppholdsrettBool);
-        HistorikkEndretFeltVerdiType bekreftetOppholdsrett = mapTilOppholdsrettVerdiKode(bekreftet.getOppholdsrettVurdering());
+        var orginalOppholdsrettBool = vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(null);
+        var orginalOppholdsrett = mapTilOppholdsrettVerdiKode(orginalOppholdsrettBool);
+        var bekreftetOppholdsrett = mapTilOppholdsrettVerdiKode(bekreftet.getOppholdsrettVurdering());
 
-        Boolean orginalLovligOppholdBool = vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(null);
-        HistorikkEndretFeltVerdiType originalLovligOpphold = mapTilLovligOppholdVerdiKode(orginalLovligOppholdBool);
-        HistorikkEndretFeltVerdiType bekreftetLovligOpphold = mapTilLovligOppholdVerdiKode(bekreftet.getLovligOppholdVurdering());
+        var orginalLovligOppholdBool = vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(null);
+        var originalLovligOpphold = mapTilLovligOppholdVerdiKode(orginalLovligOppholdBool);
+        var bekreftetLovligOpphold = mapTilLovligOppholdVerdiKode(bekreftet.getLovligOppholdVurdering());
 
-        String begrunnelseOrg = vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null);
+        var begrunnelseOrg = vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null);
 
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_EOS, orginalOppholdsrett, bekreftetOppholdsrett);
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_EOS, orginalOppholdsrett, bekreftetOppholdsrett);
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.OPPHOLDSRETT_IKKE_EOS, originalLovligOpphold, bekreftetLovligOpphold)
             || erEndret;
 
-        String begrunnelse = bekreftet.getBegrunnelse();
+        var begrunnelse = bekreftet.getBegrunnelse();
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse, Objects.equals(begrunnelse, begrunnelseOrg))
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
-        final BekreftOppholdVurderingAksjonspunktDto adapter = new BekreftOppholdVurderingAksjonspunktDto(bekreftet.getOppholdsrettVurdering(),
+        final var adapter = new BekreftOppholdVurderingAksjonspunktDto(bekreftet.getOppholdsrettVurdering(),
             bekreftet.getLovligOppholdVurdering(), bekreftet.getErEosBorger(), bekreftet.getBegrunnelse());
 
         medlemskapAksjonspunktTjeneste.aksjonspunktBekreftOppholdVurdering(behandlingId, adapter);

@@ -12,7 +12,7 @@ public class KlassekodeUtleder {
     }
 
     public static KodeKlassifik utled(BeregningsresultatAndel andel, FamilieYtelseType familieYtelseType) {
-        boolean erRefusjonTilArbeidsgiver = !andel.skalTilBrukerEllerPrivatperson();
+        var erRefusjonTilArbeidsgiver = !andel.skalTilBrukerEllerPrivatperson();
         return utled(andel.getInntektskategori(), familieYtelseType, erRefusjonTilArbeidsgiver);
     }
 
@@ -24,9 +24,8 @@ public class KlassekodeUtleder {
                 case SVANGERSKAPSPENGER -> KodeKlassifik.SVP_REFUSJON_AG;
                 default -> throw new IllegalArgumentException("Utvikler feil: Opdrag andel har ikke-støttet familie ytelse type: " + familieYtelseType);
             };
-        } else {
-            return InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
         }
+        return InntektskategoriKlassekodeMapper.mapTilKlassekode(inntektskategori, familieYtelseType);
     }
 
     public static KodeKlassifik utledForFeriepenger() {

@@ -6,9 +6,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -51,8 +49,8 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingsId) {
         // NB lås før hent behandling
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
+        var behandling = behandlingRepository.hentBehandling(behandlingsId);
 
         // sjekk forhåndsbetingelser for å innhente registerdata
         if (behandling.erSaksbehandlingAvsluttet() || !behandling.erYtelseBehandling()) {

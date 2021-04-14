@@ -8,7 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
@@ -33,14 +32,14 @@ public class PoststedKodeverkRepository {
     }
 
     public List<Poststed> hentAllePostnummer() {
-        TypedQuery<Poststed> query = entityManager.createQuery("from Poststed p where poststednummer <> :postnr", Poststed.class)
+        var query = entityManager.createQuery("from Poststed p where poststednummer <> :postnr", Poststed.class)
                 .setParameter("postnr", SYNK_POSTNUMMER)
                 .setHint(QueryHints.HINT_READONLY, "true");
         return query.getResultList();
     }
 
     public Optional<Poststed> finnPoststed(String postnummer) {
-        TypedQuery<Poststed> query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
+        var query = entityManager.createQuery("from Poststed p where poststednummer = :postnr", Poststed.class)
                 .setParameter("postnr", postnummer)
                 .setHint(QueryHints.HINT_READONLY, "true");
         return HibernateVerktøy.hentUniktResultat(query);

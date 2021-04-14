@@ -28,8 +28,6 @@ import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
-import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class FødselTjeneste {

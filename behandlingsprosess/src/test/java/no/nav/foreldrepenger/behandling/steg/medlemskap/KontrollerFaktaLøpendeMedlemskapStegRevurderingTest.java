@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.fp.KontrollerFaktaLøpendeMedlemskapStegRevurdering;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -31,14 +30,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -109,11 +106,11 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     public void skal_kontrollere_fakta_for_løpende_medlemskap() {
         // Arrange
         var termin = LocalDate.now().plusDays(40); // Default oppsett
-        LocalDate datoMedEndring = termin;
-        LocalDate ettÅrSiden = termin.minusYears(1);
-        LocalDate start = termin.minusWeeks(3);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var datoMedEndring = termin;
+        var ettÅrSiden = termin.minusYears(1);
+        var start = termin.minusWeeks(3);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(start)
                 .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
@@ -121,69 +118,69 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medDefaultOppgittTilknytning();
 
-        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, start, MedlemskapDekningType.FTL_2_6);
+        var periode = opprettPeriode(ettÅrSiden, start, MedlemskapDekningType.FTL_2_6);
         scenario.leggTilMedlemskapPeriode(periode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
         avslutterBehandlingOgFagsak(behandling, start);
 
-        Behandling revudering = opprettRevurdering(behandling);
+        var revudering = opprettRevurdering(behandling);
 
-        VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat.builder();
+        var inngangsvilkårBuilder = VilkårResultat.builder();
         inngangsvilkårBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
-        VilkårResultat vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
+        var vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
+        var behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
         behandlingsresultatRepository.lagre(revudering.getId(), behandlingsresultat);
         oppdaterMedlem(datoMedEndring, periode, revudering.getId());
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revudering);
-        Fagsak fagsak = revudering.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var lås = behandlingRepository.taSkriveLås(revudering);
+        var fagsak = revudering.getFagsak();
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getAksjonspunktListe()).containsExactly(AVKLAR_FORTSATT_MEDLEMSKAP);
     }
 
     @Test
     public void skal_ikke_vurdere_løpende_medlemskap_hvis_opprinnelig_medlemskap_er_avslått() {
         // Arrange
-        LocalDate datoMedEndring = LocalDate.now().plusDays(10);
-        LocalDate ettÅrSiden = LocalDate.now().minusYears(1);
-        LocalDate iDag = LocalDate.now();
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var datoMedEndring = LocalDate.now().plusDays(10);
+        var ettÅrSiden = LocalDate.now().minusYears(1);
+        var iDag = LocalDate.now();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(LocalDate.now())
                 .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medDefaultOppgittTilknytning();
 
-        MedlemskapPerioderEntitet periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
+        var periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
         scenario.leggTilMedlemskapPeriode(periode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
         avslutterBehandlingOgFagsak(behandling, iDag);
 
-        Behandling revudering = opprettRevurdering(behandling);
+        var revudering = opprettRevurdering(behandling);
 
-        VilkårResultat.Builder inngangsvilkårBuilder = VilkårResultat.builder();
+        var inngangsvilkårBuilder = VilkårResultat.builder();
         inngangsvilkårBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
-        VilkårResultat vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
+        var vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
+        var behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(revudering));
         behandlingsresultatRepository.lagre(revudering.getId(), behandlingsresultat);
         oppdaterMedlem(datoMedEndring, periode, revudering.getId());
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revudering);
-        Fagsak fagsak = revudering.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var lås = behandlingRepository.taSkriveLås(revudering);
+        var fagsak = revudering.getFagsak();
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
 
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
     }
@@ -198,14 +195,14 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private Behandling opprettRevurdering(Behandling behandling) {
-        BehandlingÅrsak.Builder revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
+        var revurderingÅrsak = BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA)
                 .medOriginalBehandlingId(behandling.getId());
 
-        Behandling revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revudering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(revurderingÅrsak).build();
 
-        Long behandlingId = behandling.getId();
-        Long revurderingId = behandlingRepository.lagre(revudering, behandlingRepository.taSkriveLås((Long) null));
+        var behandlingId = behandling.getId();
+        var revurderingId = behandlingRepository.lagre(revudering, behandlingRepository.taSkriveLås((Long) null));
 
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
@@ -215,7 +212,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private void oppdaterMedlem(LocalDate datoMedEndring, MedlemskapPerioderEntitet periode, Long behandlingId) {
-        MedlemskapPerioderEntitet nyPeriode = new MedlemskapPerioderBuilder()
+        var nyPeriode = new MedlemskapPerioderBuilder()
                 .medPeriode(datoMedEndring, null)
                 .medDekningType(MedlemskapDekningType.FULL)
                 .medMedlemskapType(MedlemskapType.ENDELIG)
@@ -225,7 +222,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private void avslutterBehandlingOgFagsak(Behandling behandling, LocalDate startdato) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         provider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), lagUttaksPeriode(startdato));
 
         behandling.avsluttBehandling();
@@ -234,21 +231,21 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
     }
 
     private UttakResultatPerioderEntitet lagUttaksPeriode(LocalDate start) {
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(53))
+        var periode = new UttakResultatPeriodeEntitet.Builder(start, start.plusWeeks(53))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
-        UttakAktivitetEntitet uttakAktivtet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivtet = new UttakAktivitetEntitet.Builder()
                 .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .medArbeidsforhold(Arbeidsgiver.virksomhet("123"), InternArbeidsforholdRef.nyRef())
                 .build();
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivtet)
                 .medUtbetalingsgrad(new Utbetalingsgrad(100))
                 .medArbeidsprosent(BigDecimal.valueOf(100L))
                 .medErSøktGradering(true)
                 .medTrekkonto(StønadskontoType.MØDREKVOTE)
                 .build();
         periode.leggTilAktivitet(periodeAktivitet);
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(periode);
         return perioder;
     }

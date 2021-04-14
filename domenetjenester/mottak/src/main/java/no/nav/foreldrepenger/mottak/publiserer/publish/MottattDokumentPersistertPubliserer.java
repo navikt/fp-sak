@@ -24,7 +24,7 @@ public class MottattDokumentPersistertPubliserer {
 
     public void fireEvent(MottattDokument mottattDokument, Behandling behandling) {
 
-        MottattDokumentPersistertEvent event = new MottattDokumentPersistertEvent(mottattDokument, behandling);
+        var event = new MottattDokumentPersistertEvent(mottattDokument, behandling);
         mottattDokumentPersistertEvent.fire(event);
     }
 }

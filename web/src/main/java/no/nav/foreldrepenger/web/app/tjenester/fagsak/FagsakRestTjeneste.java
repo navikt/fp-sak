@@ -4,7 +4,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,9 +87,9 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentFagsakMidlertidigStatus(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto idDto,
             @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
-        Saksnummer saksnummer = new Saksnummer(idDto.getVerdi());
-        String gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
-        Optional<AsyncPollingStatus> prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
+        var saksnummer = new Saksnummer(idDto.getVerdi());
+        var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
+        var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
         return Redirect.tilFagsakEllerPollStatus(saksnummer, prosessTaskGruppePågår.orElse(null));
     }
 
@@ -102,7 +101,7 @@ public class FagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentPersonerForFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var saksnummer = new Saksnummer(s.getVerdi());
         return fagsakTjeneste.lagSakPersonerDto(saksnummer).map(b -> Response.ok(b).build())
             .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
@@ -117,7 +116,7 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var saksnummer = new Saksnummer(s.getVerdi());
         return fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer)
             .map(f -> Response.ok(f).build())
             .orElseGet(() -> Response.status(Response.Status.FORBIDDEN).build()); // Etablert praksis
@@ -144,7 +143,7 @@ public class FagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentRettigheter(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
+        var saksnummer = new Saksnummer(s.getVerdi());
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(saksnummer);
         if (fagsak.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();

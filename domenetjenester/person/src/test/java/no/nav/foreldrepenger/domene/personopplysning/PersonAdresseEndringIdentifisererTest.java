@@ -27,78 +27,78 @@ public class PersonAdresseEndringIdentifisererTest {
 
     @Test
     public void testPersonAdresseUendret() {
-        final String postnummer = "2040";
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(postnummer));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(postnummer));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        final var postnummer = "2040";
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(postnummer));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(postnummer));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
     @Test
     public void testPersonAdresseUendret_flere_postnummer() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
     @Test
     public void testPersonAdresseUendret_men_rekkefølge_er_endret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2050", "2040"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2050", "2040"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
     @Test
     public void testPersonAdresseEndret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
     @Test
     public void testPersonAdresseEndretNår() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erSøkersAdresseEndretFør(LocalDate.now().plusDays(1));
+        var erEndret = differ.erSøkersAdresseEndretFør(LocalDate.now().plusDays(1));
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
     @Test
     public void testPersonAdresseEndret_flere_postnummer() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2060"));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2060"));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
     @Test
     public void testPersonAdresseEndret_ekstra_postnummer_lagt_til() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050", "9046"));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050", "9046"));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretFør(null);
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<PersonAdresseEntitet> personadresser) {
-        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Bygg opp identiske statsborgerskap, bare legg de inn i motsatt rekkefølge.
         new LinkedList<>(personadresser)
@@ -109,7 +109,7 @@ public class PersonAdresseEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<String> postnummer) {
-        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1
                 .leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Opprett adresser med forskjellig fra og med dato. Går 1 mnd tilbake for hver

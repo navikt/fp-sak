@@ -7,14 +7,13 @@ import java.io.Writer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class JsonObjectMapper {
-    
+
     private static final ObjectMapper OM;
     static {
         OM = new ObjectMapper();
@@ -29,8 +28,8 @@ public class JsonObjectMapper {
     }
 
     public String readKey(String data, String... keys) throws IOException {
-        JsonNode jsonNode = OM.readTree(data);
-        for (String key : keys) {
+        var jsonNode = OM.readTree(data);
+        for (var key : keys) {
             if (jsonNode == null)
                 break;
             jsonNode = jsonNode.get(key);

@@ -78,7 +78,7 @@ class MapAktørInntekt {
         }
 
         private InntektBuilder mapUtbetaling(UtbetalingDto dto) {
-            InntektBuilder inntektBuilder = InntektBuilder.oppdatere(Optional.empty())
+            var inntektBuilder = InntektBuilder.oppdatere(Optional.empty())
                     .medArbeidsgiver(mapArbeidsgiver(dto.getUtbetaler()))
                     .medInntektsKilde(KodeverkMapper.mapInntektsKildeFraDto(dto.getKilde()));
             dto.getPoster()
@@ -116,8 +116,8 @@ class MapAktørInntekt {
         }
 
         private InntekterDto mapTilInntekt(AktørInntekt ai) {
-            InntekterDto dto = new InntekterDto(new AktørIdPersonident(ai.getAktørId().getId()));
-            List<UtbetalingDto> utbetalinger = tilUtbetalinger(ai.getInntekt());
+            var dto = new InntekterDto(new AktørIdPersonident(ai.getAktørId().getId()));
+            var utbetalinger = tilUtbetalinger(ai.getInntekt());
             dto.setUtbetalinger(utbetalinger);
             return dto;
         }
@@ -127,8 +127,8 @@ class MapAktørInntekt {
         }
 
         private UtbetalingDto tilUtbetaling(Inntekt inntekt) {
-            Arbeidsgiver arbeidsgiver = inntekt.getArbeidsgiver();
-            UtbetalingDto dto = new UtbetalingDto(KodeverkMapper.mapInntektsKildeTilDto(inntekt.getInntektsKilde()));
+            var arbeidsgiver = inntekt.getArbeidsgiver();
+            var dto = new UtbetalingDto(KodeverkMapper.mapInntektsKildeTilDto(inntekt.getInntektsKilde()));
             dto.medArbeidsgiver(mapArbeidsgiver(arbeidsgiver));
             dto.setPoster(tilPoster(inntekt.getAlleInntektsposter()));
             return dto;
@@ -140,9 +140,8 @@ class MapAktørInntekt {
             }
             if (arbeidsgiver.getErVirksomhet()) {
                 return new Organisasjon(arbeidsgiver.getOrgnr());
-            } else {
-                return new AktørIdPersonident(arbeidsgiver.getAktørId().getId());
             }
+            return new AktørIdPersonident(arbeidsgiver.getAktørId().getId());
         }
 
         private List<UtbetalingsPostDto> tilPoster(Collection<Inntektspost> inntektspost) {
@@ -155,7 +154,7 @@ class MapAktørInntekt {
             var ytelseType = KodeverkMapper.mapYtelseTypeTilDto(inntektspost.getYtelseType());
             var skattOgAvgiftType = KodeverkMapper.mapSkatteOgAvgiftsregelTilDto(inntektspost.getSkatteOgAvgiftsregelType());
 
-            UtbetalingsPostDto dto = new UtbetalingsPostDto(periode, inntektspostType)
+            var dto = new UtbetalingsPostDto(periode, inntektspostType)
                     .medUtbetaltYtelseType(ytelseType)
                     .medSkattAvgiftType(skattOgAvgiftType)
                     .medBeløp(inntektspost.getBeløp().getVerdi());

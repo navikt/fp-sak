@@ -31,7 +31,7 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
     @NotNull
     @ValidKodeverk
     private VergeType vergeType;
-    
+
     @Pattern(regexp = "[\\d]{9}")
     private String organisasjonsnummer;
 
@@ -88,7 +88,7 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abacDataAttributter = AbacDataAttributter.opprett();
+        var abacDataAttributter = AbacDataAttributter.opprett();
         if (fnr != null) {
             abacDataAttributter.leggTil(AppAbacAttributtType.FNR, fnr);
         }

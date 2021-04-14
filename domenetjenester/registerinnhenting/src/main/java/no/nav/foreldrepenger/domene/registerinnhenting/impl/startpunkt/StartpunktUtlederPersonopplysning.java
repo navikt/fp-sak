@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -38,8 +37,8 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
-        PersonopplysningGrunnlagEntitet grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
-        PersonopplysningGrunnlagEntitet grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
+        var grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
+        var grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
         return utled(ref, grunnlag1, grunnlag2);
     }
 
@@ -52,13 +51,13 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
 
     // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og TPS-relaterte personer (barn, ekte). Bør spisses der det er behov.
     private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref, PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
-        final LocalDate skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        final var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var aktørId = ref.getAktørId();
 
-        PersonopplysningGrunnlagDiff poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);
-        boolean forelderDødEndret = poDiff.erForeldreDødsdatoEndret();
-        boolean personstatusEndret = poDiff.erPersonstatusEndretForSøkerFør(null);
-        boolean personstatusUnntattDødEndret = personstatusUnntattDødEndret(personstatusEndret, forelderDødEndret);
+        var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);
+        var forelderDødEndret = poDiff.erForeldreDødsdatoEndret();
+        var personstatusEndret = poDiff.erPersonstatusEndretForSøkerFør(null);
+        var personstatusUnntattDødEndret = personstatusUnntattDødEndret(personstatusEndret, forelderDødEndret);
 
         List<StartpunktType> startpunkter = new ArrayList<>();
         if (forelderDødEndret) {

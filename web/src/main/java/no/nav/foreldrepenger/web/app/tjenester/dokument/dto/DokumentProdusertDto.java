@@ -45,7 +45,7 @@ public class DokumentProdusertDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abac = AbacDataAttributter.opprett();
+        var abac = AbacDataAttributter.opprett();
         return abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
     }
 }

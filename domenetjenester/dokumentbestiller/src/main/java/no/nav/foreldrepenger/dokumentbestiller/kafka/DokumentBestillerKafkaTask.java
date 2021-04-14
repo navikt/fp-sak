@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.exception.TekniskException;
@@ -56,9 +55,11 @@ public class DokumentBestillerKafkaTask implements ProsessTaskHandler {
     private static FagsakYtelseType mapYtelse(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fpsakYtelseKode) {
         if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.ENGANGSTØNAD.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.ENGANGSTØNAD;
-        } else if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.FORELDREPENGER.equals(fpsakYtelseKode)) {
+        }
+        if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.FORELDREPENGER.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.FORELDREPENGER;
-        } else if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.SVANGERSKAPSPENGER.equals(fpsakYtelseKode)) {
+        }
+        if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.SVANGERSKAPSPENGER.equals(fpsakYtelseKode)) {
             return FagsakYtelseType.SVANGERSKAPSPENGER;
         }
         throw new TekniskException("FP-533280", "Klarte ikke utlede ytelsetype: %s. Kan ikke bestille dokument");
@@ -70,10 +71,10 @@ public class DokumentBestillerKafkaTask implements ProsessTaskHandler {
     }
 
     private DokumentbestillingV1 mapDokumentbestilling(ProsessTaskData prosessTaskData) {
-        Behandling behandling = behandlingRepository
+        var behandling = behandlingRepository
             .hentBehandling(Long.valueOf(prosessTaskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.BEHANDLING_ID)));
 
-        DokumentbestillingV1 dokumentbestillingDto = new DokumentbestillingV1();
+        var dokumentbestillingDto = new DokumentbestillingV1();
         dokumentbestillingDto.setArsakskode(prosessTaskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK));
         dokumentbestillingDto.setBehandlingUuid(behandling.getUuid());
         dokumentbestillingDto

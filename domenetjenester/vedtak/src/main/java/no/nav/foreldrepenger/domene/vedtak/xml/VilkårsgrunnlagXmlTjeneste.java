@@ -8,7 +8,6 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -45,11 +44,11 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
 
 
     public void setVilkårsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Vilkaar vilkår) {
-        Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        Vilkaarsgrunnlag vilkaarsgrunnlag = getVilkaarsgrunnlag(behandling, vilkårFraBehandling, søknad); //Må implementeres i hver subklasse
+        var søknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var vilkaarsgrunnlag = getVilkaarsgrunnlag(behandling, vilkårFraBehandling, søknad); //Må implementeres i hver subklasse
 
         if (Objects.nonNull(vilkaarsgrunnlag)) {
-            no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsgrunnlag vilkaarsgrunnlag1 = new no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsgrunnlag();
+            var vilkaarsgrunnlag1 = new no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsgrunnlag();
             vilkaarsgrunnlag1.getAny().add(vilkårObjectFactory.createVilkaarsgrunnlag(vilkaarsgrunnlag));
             vilkår.setVilkaarsgrunnlag(vilkaarsgrunnlag1);
         }
@@ -58,7 +57,7 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     protected abstract Vilkaarsgrunnlag getVilkaarsgrunnlag(Behandling behandling, Vilkår vilkårFraBehandling, Optional<SøknadEntitet> søknad);
 
     protected boolean erBarnetFødt(Behandling behandling) {
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        final var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         return inneholderFødsel(familieHendelseGrunnlag.getOverstyrtVersjon()) || inneholderFødsel(familieHendelseGrunnlag.getBekreftetVersjon()) ||
             inneholderFødsel(Optional.of(familieHendelseGrunnlag.getSøknadVersjon()));
     }
@@ -73,9 +72,9 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
     }
 
     protected LocalDate getMottattDato(Behandling behandling) {
-        Optional<SøknadEntitet> søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
         if (søknadOptional.isPresent()) {
-            SøknadEntitet søknad = søknadOptional.get();
+            var søknad = søknadOptional.get();
             return søknad.getMottattDato();
         }
         return null;

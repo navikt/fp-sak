@@ -23,45 +23,45 @@ public class DatavarehusRepositoryTest {
 
     @Test
     public void skal_lagre_fagsak_dvh() {
-        FagsakDvh fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
+        var fagsakDvh = DatavarehusTestUtils.byggFagsakDvhForTest();
 
-        long id = datavarehusRepository.lagre(fagsakDvh);
+        var id = datavarehusRepository.lagre(fagsakDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void skal_lagre_behandling_dvh() {
-        BehandlingDvh behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
+        var behandlingDvh = DatavarehusTestUtils.byggBehandlingDvh();
 
-        long id = datavarehusRepository.lagre(behandlingDvh);
+        var id = datavarehusRepository.lagre(behandlingDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void skal_lagre_behandling_steg_dvh() {
-        BehandlingStegDvh behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
+        var behandlingStegDvh = DatavarehusTestUtils.byggBehandlingStegDvh();
 
-        long id = datavarehusRepository.lagre(behandlingStegDvh);
+        var id = datavarehusRepository.lagre(behandlingStegDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void skal_lagre_behandling_vedtak_dvh() {
-        BehandlingVedtakDvh behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
+        var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
 
-        long id = datavarehusRepository.lagre(behandlingVedtakDvh);
+        var id = datavarehusRepository.lagre(behandlingVedtakDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void skal_lagre_aksjonspunkt_dvh() {
-        AksjonspunktDvh aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
+        var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
 
-        long id = datavarehusRepository.lagre(aksjonspunktDvh);
+        var id = datavarehusRepository.lagre(aksjonspunktDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
@@ -69,29 +69,29 @@ public class DatavarehusRepositoryTest {
 
     @Test
     public void skal_lagre_behandling_kontroll_dvh() {
-        KontrollDvh kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
+        var kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
 
-        long id = datavarehusRepository.lagre(kontrollDvh);
+        var id = datavarehusRepository.lagre(kontrollDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void skal_lagre_vedtak_utbetaling_dvh(EntityManager entityManager) {
-        VedtakUtbetalingDvh vedtakUtbetalingDvh = DatavarehusTestUtils.byggVedtakUtbetalingDvh();
-        long id = datavarehusRepository.lagre(vedtakUtbetalingDvh);
+        var vedtakUtbetalingDvh = DatavarehusTestUtils.byggVedtakUtbetalingDvh();
+        var id = datavarehusRepository.lagre(vedtakUtbetalingDvh);
         entityManager.flush();
-        final String oppdatertXml = vedtakUtbetalingDvh.getXmlClob() + vedtakUtbetalingDvh.getXmlClob();
-        long idOppdatert = datavarehusRepository.oppdater(vedtakUtbetalingDvh.getBehandlingId(),
+        final var oppdatertXml = vedtakUtbetalingDvh.getXmlClob() + vedtakUtbetalingDvh.getXmlClob();
+        var idOppdatert = datavarehusRepository.oppdater(vedtakUtbetalingDvh.getBehandlingId(),
             vedtakUtbetalingDvh.getVedtakId(), oppdatertXml);
         assertThat(id).isEqualTo(idOppdatert);
     }
 
     @Test
     public void skal_lagre_fagsakRelasjon_dvh() {
-        FagsakRelasjonDvh fagsakRelasjonDvh = DatavarehusTestUtils.byggFagsakRelasjonDvhForTest();
+        var fagsakRelasjonDvh = DatavarehusTestUtils.byggFagsakRelasjonDvhForTest();
 
-        long id = datavarehusRepository.lagre(fagsakRelasjonDvh);
+        var id = datavarehusRepository.lagre(fagsakRelasjonDvh);
 
         assertThat(id).isGreaterThanOrEqualTo(1);
     }

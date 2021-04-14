@@ -26,9 +26,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     @Test
     public void skal_ikke_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_pluss_en_dag() {
         // Arrange
-        LocalDate dødsdato = fødselsdato.plusWeeks(6).plusDays(1);
+        var dødsdato = fødselsdato.plusWeeks(6).plusDays(1);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
-        int dekningsgrad = 80;
+        var dekningsgrad = 80;
 
         // Act
         List<AksjonspunktResultat> apResultat = new ArrayList<>();
@@ -42,9 +42,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     @Test
     public void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker_minus_en_dag() {
         // Arrange
-        LocalDate dødsdato = fødselsdato.plusWeeks(6).minusDays(1);
+        var dødsdato = fødselsdato.plusWeeks(6).minusDays(1);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
-        int dekningsgrad = 80;
+        var dekningsgrad = 80;
 
         // Act
         List<AksjonspunktResultat> apResultat = new ArrayList<>();
@@ -58,9 +58,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     @Test
     public void skal_få_aksjonspunkt5087_når_dødsdato_er_seks_uker() {
         // Arrange
-        LocalDate dødsdato = fødselsdato.plusWeeks(6);
+        var dødsdato = fødselsdato.plusWeeks(6);
         var barnList = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
-        int dekningsgrad = 80;
+        var dekningsgrad = 80;
 
         // Act
         List<AksjonspunktResultat> apResultat = new ArrayList<>();
@@ -73,9 +73,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     @Test
     public void skal_få_aksjonspunkt5087_når_dekningsgrad_er_annerledes_en_80() {
         // Arrange
-        LocalDate dødsdato = fødselsdato.plusWeeks(6);
+        var dødsdato = fødselsdato.plusWeeks(6);
         var barn = new UidentifisertBarnEntitet(0, fødselsdato, dødsdato);
-        int dekningsgrad = 100;
+        var dekningsgrad = 100;
 
         // Act
         List<AksjonspunktResultat> apResultat = new ArrayList<>();
@@ -88,7 +88,7 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
     @Test
     public void skal_få_aksjonspunkt5087_når_barn_ikke_finnes() {
         // Arrange
-        int dekningsgrad = 80;
+        var dekningsgrad = 80;
 
         // Act
         List<AksjonspunktResultat> apResultat = new ArrayList<>();

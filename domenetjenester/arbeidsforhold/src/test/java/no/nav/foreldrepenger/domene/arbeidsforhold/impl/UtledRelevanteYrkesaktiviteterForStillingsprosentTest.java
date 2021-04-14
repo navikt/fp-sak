@@ -4,22 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
@@ -41,7 +37,7 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
         // Arrange
         List<Yrkesaktivitet> yrkesaktiviteter = Collections.emptyList();
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+        var relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
                 .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
         // Assert
         assertThat(relevanteYrkesaktiviteter).isEmpty();
@@ -51,14 +47,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
     public void skal_returnere_en_liste_med_yrkesaktiviteter_som_overlapper_stp_og_filtrere_uten_resten() {
 
         // Arrange
-        LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom1 = SKJÆRINGSTIDSPUNKT;
-        AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom1 = SKJÆRINGSTIDSPUNKT;
+        var aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
                 .medProsentsats(BigDecimal.valueOf(100));
-        AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -66,14 +62,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode1)
                 .build();
 
-        LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
                 .medProsentsats(BigDecimal.valueOf(25));
-        AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -81,14 +77,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode2)
                 .build();
 
-        LocalDate fom3 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom3 = SKJÆRINGSTIDSPUNKT.minusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom3 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom3 = SKJÆRINGSTIDSPUNKT.minusDays(1);
+        var aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
                 .medProsentsats(BigDecimal.valueOf(50));
-        AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
-        Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -96,14 +92,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode3)
                 .build();
 
-        LocalDate fom4 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        LocalDate tom4 = SKJÆRINGSTIDSPUNKT.plusYears(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom4 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var tom4 = SKJÆRINGSTIDSPUNKT.plusYears(1);
+        var aktivitetsavtale4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4))
                 .medProsentsats(BigDecimal.valueOf(50));
-        AktivitetsAvtaleBuilder ansettelsesperiode4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode4 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom4, tom4));
-        Yrkesaktivitet yrkesaktivitet4 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet4 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("4"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -111,10 +107,10 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode4)
                 .build();
 
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
+        var yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3, yrkesaktivitet4);
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+        var relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
                 .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -130,14 +126,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
     public void skal_returnere_en_liste_med_yrkesaktiviteter_som_tilkommer_etter_stp_når_ingen_yrkesaktivtet_overlapper_stp() {
 
         // Arrange
-        LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom1 = SKJÆRINGSTIDSPUNKT.minusDays(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom1 = SKJÆRINGSTIDSPUNKT.minusDays(1);
+        var aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
                 .medProsentsats(BigDecimal.valueOf(100));
-        AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("1"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -145,14 +141,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode1)
                 .build();
 
-        LocalDate fom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusYears(1);
-        AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var tom2 = SKJÆRINGSTIDSPUNKT.plusYears(1);
+        var aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
                 .medProsentsats(BigDecimal.valueOf(25));
-        AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("2"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -160,14 +156,14 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode2)
                 .build();
 
-        LocalDate fom3 = SKJÆRINGSTIDSPUNKT.plusDays(2);
-        LocalDate tom3 = SKJÆRINGSTIDSPUNKT.plusYears(2);
-        AktivitetsAvtaleBuilder aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom3 = SKJÆRINGSTIDSPUNKT.plusDays(2);
+        var tom3 = SKJÆRINGSTIDSPUNKT.plusYears(2);
+        var aktivitetsavtale3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3))
                 .medProsentsats(BigDecimal.valueOf(50));
-        AktivitetsAvtaleBuilder ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode3 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom3, tom3));
-        Yrkesaktivitet yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet3 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(Arbeidsgiver.virksomhet("3"))
                 .medArbeidsforholdId(InternArbeidsforholdRef.nyRef())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -175,10 +171,10 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode3)
                 .build();
 
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3);
+        var yrkesaktiviteter = List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3);
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
+        var relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent
                 .utled(new YrkesaktivitetFilter(null, yrkesaktiviteter), yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -193,19 +189,19 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
     public void skal_returnere_en_liste_med_relevante_yrkesaktiviteter_som_har_en_overstyrt_periode_eller_overlapper_stp() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagMocked();
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagMocked();
 
-        LocalDate fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom1 = Tid.TIDENES_ENDE;
-        Arbeidsgiver arbeidsgiver1 = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref1 = InternArbeidsforholdRef.nyRef();
-        AktivitetsAvtaleBuilder aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom1 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom1 = Tid.TIDENES_ENDE;
+        var arbeidsgiver1 = Arbeidsgiver.virksomhet("1");
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var aktivitetsavtale1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1))
                 .medProsentsats(BigDecimal.valueOf(100));
-        AktivitetsAvtaleBuilder ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode1 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom1, tom1));
-        Yrkesaktivitet yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(arbeidsgiver1)
                 .medArbeidsforholdId(ref1)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -213,16 +209,16 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode1)
                 .build();
 
-        LocalDate fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
-        LocalDate tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref2 = InternArbeidsforholdRef.nyRef();
-        AktivitetsAvtaleBuilder aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var fom2 = SKJÆRINGSTIDSPUNKT.minusYears(2);
+        var tom2 = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var arbeidsgiver2 = Arbeidsgiver.virksomhet("1");
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var aktivitetsavtale2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2))
                 .medProsentsats(BigDecimal.valueOf(100));
-        AktivitetsAvtaleBuilder ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
+        var ansettelsesperiode2 = YrkesaktivitetBuilder.nyAktivitetsAvtaleBuilder()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom2, tom2));
-        Yrkesaktivitet yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var yrkesaktivitet2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidsgiver(arbeidsgiver2)
                 .medArbeidsforholdId(ref2)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -230,26 +226,26 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
                 .leggTilAktivitetsAvtale(ansettelsesperiode2)
                 .build();
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
+        var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
                 .oppdatere(Optional.empty())
                 .medAktørId(behandling.getAktørId())
                 .leggTilYrkesaktivitet(yrkesaktivitet1)
                 .leggTilYrkesaktivitet(yrkesaktivitet2);
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver1, ref1)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver1, ref1)
                 .medHandling(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE)
                 .leggTilOverstyrtPeriode(fom1, SKJÆRINGSTIDSPUNKT.minusDays(1));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(behandling.getAktørId()))
                 .før(SKJÆRINGSTIDSPUNKT);
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         // Act
-        List<Yrkesaktivitet> relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter, yrkesaktiviteter,
+        var relevanteYrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter, yrkesaktiviteter,
                 SKJÆRINGSTIDSPUNKT);
 
         // Assert
@@ -266,10 +262,10 @@ public class UtledRelevanteYrkesaktiviteterForStillingsprosentTest {
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
             Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
-        InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
+        var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
                 .oppdatere(Optional.empty(), VersjonType.REGISTER)
                 .leggTilAktørArbeid(aktørArbeidBuilder);
-        InntektArbeidYtelseGrunnlagBuilder inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
                 .medData(inntektArbeidYtelseAggregatBuilder);
         arbeidsforholdInformasjonOpt.ifPresent(inntektArbeidYtelseGrunnlagBuilder::medInformasjon);
         return inntektArbeidYtelseGrunnlagBuilder.build();

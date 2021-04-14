@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +18,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -34,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -69,14 +62,14 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     @Test
     public void skal_oppdatere_vilkår_for_omsorg() {
         // Arrange
-        AktørId forelderId = AktørId.dummy();
+        var forelderId = AktørId.dummy();
 
         scenario.medSøknadHendelse()
             .medAntallBarn(2)
             .leggTilBarn(LocalDate.now().minusYears(1)).leggTilBarn(LocalDate.now().minusYears(1))
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
 
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
+        var forelder = scenario.opprettBuilderForRegisteropplysninger()
             .leggTilPersonopplysninger(
                 Personopplysning.builderMedDefaultVerdier(forelderId)
                     .navn("Forelder"))
@@ -85,9 +78,9 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         scenario.medRegisterOpplysninger(forelder);
         scenario.leggTilAksjonspunkt(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
+        var dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
         dto.setOmsorgsovertakelseDato(LocalDate.now());
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
@@ -95,9 +88,9 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         vilkårBuilder.buildFor(behandling);
 
         // Assert
-        final FamilieHendelseEntitet gjellendeVersjon = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
+        final var gjellendeVersjon = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
             .getGjeldendeVersjon();
-        final Optional<AdopsjonEntitet> adopsjon = gjellendeVersjon.getAdopsjon();
+        final var adopsjon = gjellendeVersjon.getAdopsjon();
         assertThat(gjellendeVersjon.getAntallBarn()).isEqualTo(2);
         assertThat(adopsjon).hasValueSatisfying(value -> {
             assertThat(value.getOmsorgsovertakelseDato()).as("omsorgsovertakelsesDato").isEqualTo(LocalDate.now());
@@ -107,7 +100,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
     private OppdateringResultat avklarOmsorgOgForeldreansvar(Behandling behandling, AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        OppdateringResultat resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, omsorghendelseTjeneste, lagMockHistory())
+        var resultat = new AvklarOmsorgOgForeldreansvarOppdaterer(repositoryProvider, skjæringstidspunktTjeneste, omsorghendelseTjeneste, lagMockHistory())
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;
@@ -131,7 +124,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
 
     private no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet getSøkerPersonopplysning(Long behandlingId) {
-        PersonopplysningGrunnlagEntitet grunnlag = getPersonopplysninger(behandlingId);
+        var grunnlag = getPersonopplysninger(behandlingId);
         return grunnlag.getGjeldendeVersjon();
     }
 
@@ -143,9 +136,9 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     @Test
     public void skal_sette_andre_aksjonspunkter_knyttet_til_omsorgsvilkåret_som_utført() {
         // Arrange
-        AktørId forelderId = AktørId.dummy();
-        LocalDate dødsdato = LocalDate.now();
-        LocalDate oppdatertDødsdato = dødsdato.plusDays(1);
+        var forelderId = AktørId.dummy();
+        var dødsdato = LocalDate.now();
+        var oppdatertDødsdato = dødsdato.plusDays(1);
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now()));
@@ -158,7 +151,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
+        var forelder = scenario.opprettBuilderForRegisteropplysninger()
             .leggTilPersonopplysninger(
                 Personopplysning.builderMedDefaultVerdier(forelderId)
                     .dødsdato(dødsdato)
@@ -166,9 +159,9 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
             .build();
 
         scenario.medRegisterOpplysninger(forelder);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
+        var dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
         dto.setOmsorgsovertakelseDato(LocalDate.now());
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
@@ -186,8 +179,8 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_omsorgsovertakelsesdato() {
         // Arrange
-        LocalDate omsorgsovertakelsesdatoOppgitt = LocalDate.of(2019, 3, 4);
-        LocalDate omsorgsovertakelsesdatoBekreftet = omsorgsovertakelsesdatoOppgitt.plusDays(1);
+        var omsorgsovertakelsesdatoOppgitt = LocalDate.of(2019, 3, 4);
+        var omsorgsovertakelsesdatoBekreftet = omsorgsovertakelsesdatoOppgitt.plusDays(1);
 
         // Behandling
         scenario.medSøknad()
@@ -198,29 +191,29 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
 
         // Dto
-        AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
+        var dto = new AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto();
         dto.setOmsorgsovertakelseDato(omsorgsovertakelsesdatoBekreftet);
         dto.setVilkårType(VilkårType.OMSORGSVILKÅRET);
 
         avklarOmsorgOgForeldreansvar(behandling, dto);
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        List<HistorikkinnslagDel> historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
 
         // Assert
         assertThat(historikkInnslagDeler).hasSize(1);
-        List<HistorikkinnslagFelt> feltList = historikkInnslagDeler.get(0).getEndredeFelt();
-        HistorikkinnslagFelt felt = feltList.get(0);
+        var feltList = historikkInnslagDeler.get(0).getEndredeFelt();
+        var felt = feltList.get(0);
         assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OMSORGSOVERTAKELSESDATO.getKode());
         assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo("04.03.2019");
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo("05.03.2019");
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

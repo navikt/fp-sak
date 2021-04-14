@@ -26,14 +26,12 @@ import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
-import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -46,7 +44,6 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
 public class RegisterdataInnhenter {
@@ -125,28 +122,28 @@ public class RegisterdataInnhenter {
     }
 
     public void innhentPersoninformasjon(Behandling behandling) {
-        AktørId søker = behandling.getNavBruker().getAktørId();
+        var søker = behandling.getNavBruker().getAktørId();
         var annenPart = finnAnnenPart(behandling.getId());
         final var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
         var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
 
-        final PersonInformasjonBuilder informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        final var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         informasjonBuilder.tilbakestill(behandling.getAktørId(), annenPart);
         personopplysningInnhenter.innhentPersonopplysninger(informasjonBuilder, søker, annenPart, opplysningsperioden, fødselsIntervall);
         personopplysningRepository.lagre(behandling.getId(), informasjonBuilder);
     }
 
     private void innhentFamiliehendelse(Behandling behandling) {
-        List<LocalDateInterval> intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        List<FødtBarnInfo> fødselRegistrertTps = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getAktørId(), intervaller);
+        var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
+        var fødselRegistrertTps = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getAktørId(), intervaller);
         familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandling, fødselRegistrertTps);
     }
 
     public void innhentMedlemskapsOpplysning(Behandling behandling) {
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
 
         // Innhent medl for søker
-        List<MedlemskapPerioderEntitet> medlemskapsperioder = innhentMedlemskapsopplysninger(behandling);
+        var medlemskapsperioder = innhentMedlemskapsopplysninger(behandling);
         medlemskapRepository.lagreMedlemskapRegisterOpplysninger(behandlingId, medlemskapsperioder);
     }
 
@@ -188,7 +185,7 @@ public class RegisterdataInnhenter {
         LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
         final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
         var informasjonsElementer = utledBasertPå(behandlingType, fagsakYtelseType);
-        final InnhentRegisterdataRequest innhentRegisterdataRequest = new InnhentRegisterdataRequest(behandling.getFagsak().getSaksnummer().getVerdi(),
+        final var innhentRegisterdataRequest = new InnhentRegisterdataRequest(behandling.getFagsak().getSaksnummer().getVerdi(),
             behandling.getUuid(),
             KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType),
             new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()),

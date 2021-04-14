@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
 
 public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
@@ -54,20 +51,20 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_påkrevd_vedlegg_finnes_i_journal() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(TERMINBEKREFTELSE).medErPåkrevdISøknadsdialog(true).build())
             .build();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
+        var dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -76,20 +73,20 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(TERMINBEKREFTELSE).medErPåkrevdISøknadsdialog(true).build())
             .build();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Matcher ikke med søknad:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
+        var dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -99,13 +96,13 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_påkrevd_vedlegg_ikke_finnes_i_journal_når_det_ble_mottatt_før_gjeldende_vedtak() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(TERMINBEKREFTELSE).medErPåkrevdISøknadsdialog(true).build())
             .build();
-        Behandling revurdering = scenario.lagre(repositoryProvider);
+        var revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men er mottatt ifbm førstegangsbehandlingen:
         Set<DokumentTypeId> dokumentListe = new HashSet<>();
@@ -113,7 +110,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -123,19 +120,19 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_påkrevd_vedlegg_som_finnes_i_mottatte_dokumenter_ikke_mangler_selv_om_vedlegget_fra_journal_har_mottatt_dato_null() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(TERMINBEKREFTELSE).medErPåkrevdISøknadsdialog(true).build())
             .build();
-        Behandling revurdering = scenario.lagre(repositoryProvider);
+        var revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men mangler mottatt dato:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
+        var dokumentListe = singleton(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
-        MottattDokument mottattDokument = new MottattDokument.Builder()
+        var mottattDokument = new MottattDokument.Builder()
             .medFagsakId(revurdering.getFagsakId())
             .medBehandlingId(revurdering.getId())
             .medDokumentType(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL)
@@ -144,7 +141,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         repositoryProvider.getMottatteDokumentRepository().lagre(mottattDokument);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -153,13 +150,13 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_påkrevd_vedlegg_som_ikke_finnes_i_mottatte_dokumenter_mangler_når_vedlegget_fra_journal_har_mottatt_dato_null() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
         scenario.medSøknad()
             .medElektroniskRegistrert(true)
             .medSøknadsdato(LocalDate.now())
             .leggTilVedlegg(new SøknadVedleggEntitet.Builder().medSkjemanummer(TERMINBEKREFTELSE).medErPåkrevdISøknadsdialog(true).build())
             .build();
-        Behandling revurdering = scenario.lagre(repositoryProvider);
+        var revurdering = scenario.lagre(repositoryProvider);
 
         // Matcher med søknad, men mangler mottatt dato:
         Set<DokumentTypeId> dokumentListe = new HashSet<>();
@@ -167,7 +164,7 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(Collections.emptySet());
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(revurdering));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -177,17 +174,17 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_ikke_finnes_i_journal() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var behandling = scenario.lagre(repositoryProvider);
         testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher ikke med utsettelse:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
+        var dokumentListe = singleton(DokumentTypeId.LEGEERKLÆRING);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).hasSize(1);
@@ -197,17 +194,17 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_dokument_som_er_påkrevd_som_følger_av_utsettelse_finnes_i_journal() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var behandling = scenario.lagre(repositoryProvider);
         testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false);
 
         // Matcher med utsettelse:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
+        var dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(Saksnummer.class), any())).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -216,18 +213,18 @@ public class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwar
     @Test
     public void skal_utlede_at_et_dokument_som_er_påkrevd_finnes_ved_vedtak_samme_dag() {
         // Arrange
-        LocalDate søknadsDato = LocalDate.now().minusWeeks(2);
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var søknadsDato = LocalDate.now().minusWeeks(2);
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var behandling = scenario.lagre(repositoryProvider);
         testUtil.byggOppgittFordeling(behandling, UtsettelseÅrsak.INSTITUSJON_SØKER, null, true, false, false);
         testUtil.byggOgLagreSøknadMedEksisterendeOppgittFordeling(behandling, false, søknadsDato);
 
         // Matcher med utsettelse:
-        Set<DokumentTypeId> dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
+        var dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getFagsak().getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
 
         // Act
-        List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
+        var manglendeVedlegg = kompletthetssjekker.utledManglendeVedleggForSøknad(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();

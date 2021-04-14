@@ -33,7 +33,7 @@ public class AvsluttOppgaveTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        String oppgaveId = prosessTaskData.getOppgaveId()
+        var oppgaveId = prosessTaskData.getOppgaveId()
             .orElseThrow(() -> new IllegalStateException("Mangler oppgaveId"));
 
         oppgaveTjeneste.avslutt(behandlingId, oppgaveId);

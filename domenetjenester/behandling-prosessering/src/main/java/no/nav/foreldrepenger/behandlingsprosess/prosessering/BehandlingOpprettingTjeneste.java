@@ -88,7 +88,7 @@ public class BehandlingOpprettingTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkStartBehandlingsprosess(Behandling behandling) {
-        ProsessTaskData taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         return prosessTaskRepository.lagre(taskData);
@@ -96,7 +96,7 @@ public class BehandlingOpprettingTjeneste {
 
     private Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType, OrganisasjonsEnhet enhet, BehandlingÅrsakType årsak,
             boolean historikk) {
-        Behandling behandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType,
+        var behandling = behandlingskontrollTjeneste.opprettNyBehandling(fagsak, behandlingType,
                 (beh) -> {
                     if (!BehandlingÅrsakType.UDEFINERT.equals(årsak)) {
                         BehandlingÅrsak.builder(årsak).buildFor(beh);
@@ -115,7 +115,7 @@ public class BehandlingOpprettingTjeneste {
         if (type == null) {
             return;
         }
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
         historikkinnslag.setType(type);
         historikkinnslag.setBehandlingId(behandling.getId());

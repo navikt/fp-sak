@@ -13,7 +13,7 @@ class DummyVenterSteg extends DummySteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        BehandleStegResultat settPåVent = andreGang == 1 ? BehandleStegResultat.settPåVent() : BehandleStegResultat.startet();
+        var settPåVent = andreGang == 1 ? BehandleStegResultat.settPåVent() : BehandleStegResultat.startet();
         if (andreGang == 0) {
             andreGang = 1;
         }
@@ -23,7 +23,7 @@ class DummyVenterSteg extends DummySteg {
 
     @Override
     public BehandleStegResultat gjenopptaSteg(BehandlingskontrollKontekst kontekst) {
-        BehandleStegResultat resultat = BehandleStegResultat.utførtUtenAksjonspunkter();
+        var resultat = BehandleStegResultat.utførtUtenAksjonspunkter();
         sisteUtførStegResultat.set(resultat);
         return resultat;
     }

@@ -45,7 +45,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
 
         var virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(VIRKSOMHET);
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
+        var arbeidsgiverTjeneste = new ArbeidsgiverTjeneste(personIdentTjeneste, virksomhetTjeneste);
         arbeidsgiverHistorikkinnslag = new ArbeidsgiverHistorikkinnslag(arbeidsgiverTjeneste);
     }
 
@@ -61,7 +61,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     @Test
     public void skal_lage_tekst_for_arbeidsgiver_privatperson_uten_arbref() {
         // Act
-        String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.person(AKTØR_ID), List.of());
+        var arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.person(AKTØR_ID), List.of());
 
         // Assert
         assertThat(arbeidsgiverNavn).isEqualTo("Mikke Mus (01.01.2000)");
@@ -70,7 +70,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     @Test
     public void skal_lage_tekst_for_arbeidsgiver_privatperson_med_arbref() {
         // Act
-        String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
+        var arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
                 Arbeidsgiver.person(AKTØR_ID), ARBEIDSFORHOLD_REF, List.of());
 
         // Assert
@@ -80,7 +80,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     @Test
     public void skal_lage_tekst_for_arbeidsgiver_virksomhet_uten_arbref() {
         // Act
-        String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(ORGNR), List.of());
+        var arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(ORGNR), List.of());
 
         // Assert
         assertThat(arbeidsgiverNavn).isEqualTo("Andeby Bank (" + ORGNR + ")");
@@ -89,7 +89,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     @Test
     public void skal_lage_tekst_for_arbeidsgiver_virksomhet_med_arbref() {
         // Act
-        String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
+        var arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(
                 Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF, List.of());
 
         // Assert
@@ -99,7 +99,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     @Test
     public void skal_lage_tekst_for_arbeidsgiver_virksomhet_med_arbref_null() {
         // Act
-        String arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(ORGNR),
+        var arbeidsgiverNavn = arbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(ORGNR),
                 InternArbeidsforholdRef.nullRef(), List.of());
 
         // Assert
@@ -107,7 +107,7 @@ public class ArbeidsgiverHistorikkinnslagTest {
     }
 
     private static Virksomhet lagVirksomhet(String orgnr) {
-        Virksomhet.Builder b = new Virksomhet.Builder();
+        var b = new Virksomhet.Builder();
         b.medOrgnr(orgnr).medNavn(ORG_NAVN);
         return b.build();
     }

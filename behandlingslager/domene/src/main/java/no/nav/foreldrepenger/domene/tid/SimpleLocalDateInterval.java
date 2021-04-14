@@ -42,7 +42,7 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        SimpleLocalDateInterval that = (SimpleLocalDateInterval) o;
+        var that = (SimpleLocalDateInterval) o;
         return Objects.equals(fomDato, that.fomDato) && Objects.equals(tomDato, that.tomDato);
     }
 }

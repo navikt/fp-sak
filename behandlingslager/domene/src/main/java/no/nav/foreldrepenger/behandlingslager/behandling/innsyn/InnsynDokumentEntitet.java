@@ -54,7 +54,7 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
         this.journalpostId = journalpostId;
         this.dokumentId = dokumentId;
     }
-    
+
     @Override
     public String getIndexKey() {
         return IndexKey.createKey(journalpostId, dokumentId);
@@ -89,7 +89,7 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
         if (!(o instanceof InnsynDokumentEntitet)) {
             return false;
         }
-        InnsynDokumentEntitet that = (InnsynDokumentEntitet) o;
+        var that = (InnsynDokumentEntitet) o;
         return Objects.equals(journalpostId, that.journalpostId) &&
             Objects.equals(dokumentId, that.dokumentId);
     }

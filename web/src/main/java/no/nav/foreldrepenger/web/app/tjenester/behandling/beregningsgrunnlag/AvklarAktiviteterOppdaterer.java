@@ -1,24 +1,19 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
 import no.nav.foreldrepenger.domene.rest.historikk.BeregningsaktivitetHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
@@ -49,21 +44,21 @@ public class AvklarAktiviteterOppdaterer implements AksjonspunktOppdaterer<Avkla
     @Override
     public OppdateringResultat oppdater(AvklarteAktiviteterDto dto, AksjonspunktOppdaterParameter param) {
 
-        Optional<Long> originalBehandlingId = param.getRef().getOriginalBehandlingId();
-        Long behandlingId = param.getBehandlingId();
-        Optional<BeregningAktivitetAggregatEntitet> forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
+        var originalBehandlingId = param.getRef().getOriginalBehandlingId();
+        var behandlingId = param.getBehandlingId();
+        var forrige = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(behandlingId, originalBehandlingId,
             BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getSaksbehandletAktiviteter);
 
-        BeregningsgrunnlagInputFelles tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
-        BeregningsgrunnlagInput inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(param.getRef().getFagsakYtelseType());
+        var inputUtenBeregningsgrunnlag = tjeneste.lagInput(param.getRef());
 
         beregningHåndterer.håndterAvklarAktiviteter(inputUtenBeregningsgrunnlag, OppdatererDtoMapper.mapAvklarteAktiviteterDto(dto));
 
-        BeregningsgrunnlagGrunnlagEntitet lagretGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
+        var lagretGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandlingId)
             .orElseThrow(() -> new IllegalStateException("Har ikke et aktivt grunnlag"));
-        BeregningAktivitetAggregatEntitet registerAktiviteter = lagretGrunnlag.getRegisterAktiviteter();
-        BeregningAktivitetAggregatEntitet saksbehandledeAktiviteter = lagretGrunnlag.getSaksbehandletAktiviteter()
+        var registerAktiviteter = lagretGrunnlag.getRegisterAktiviteter();
+        var saksbehandledeAktiviteter = lagretGrunnlag.getSaksbehandletAktiviteter()
             .orElseThrow(() -> new IllegalStateException("Forventer å ha lagret ned saksbehandlet grunnlag"));
         beregningsaktivitetHistorikkTjeneste.lagHistorikk(behandlingId, registerAktiviteter, saksbehandledeAktiviteter, dto.getBegrunnelse(), forrige);
 

@@ -44,7 +44,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
             return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK;
         }
 
-        List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> andelerFraRegelKjøring =
+        var andelerFraRegelKjøring =
             regelModell.getBeregningsresultatPerioder().stream()
                 .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
                 .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
@@ -66,7 +66,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
             return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK;
         }
 
-        List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> andelerFraRegelKjøring =
+        var andelerFraRegelKjøring =
             regelModell.getBeregningsresultatPerioder().stream()
                 .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
                 .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
@@ -78,7 +78,7 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
     }
 
     private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr prÅr) {
-        long årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
+        var årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
         return årsbeløp != 0L;
     }
 

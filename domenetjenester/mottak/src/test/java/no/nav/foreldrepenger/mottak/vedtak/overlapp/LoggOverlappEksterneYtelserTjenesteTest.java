@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -87,12 +86,12 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
-        PersonIdent person = new PersonIdent("12345678901");
+        var person = new PersonIdent("12345678901");
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(person));
     }
 
     private ScenarioMorSøkerForeldrepenger avsluttetBehandlingMor() {
-        ScenarioMorSøkerForeldrepenger scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(førsteUttaksdatoFp);
         scenarioAvsluttetBehMor.medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioAvsluttetBehMor.medVilkårResultatType(VilkårResultatType.INNVILGET);
@@ -109,12 +108,12 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
         vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, 100));
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, vedtakPeriode);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp, vedtakPeriode);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -122,7 +121,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp);
     }
@@ -133,12 +132,12 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
         vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 50));
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        BeregningsresultatEntitet berFp = lagGradertBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        var berFp = lagGradertBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -146,13 +145,13 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).isEmpty();
 
         // Arrange2
         List<Vedtak> vedtakPeriode2 = new ArrayList<>();
         vedtakPeriode2.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), 100));
-        Grunnlag infotrygPSGrunnlag2 = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode2);
+        var infotrygPSGrunnlag2 = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.plusWeeks(4), vedtakPeriode2);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag2));
 
@@ -161,7 +160,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT2 = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT2).hasSize(1);
         assertThat(overlappIT2.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(4));
     }
@@ -177,17 +176,17 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(3), førsteUttaksdatoFp.minusWeeks(2), 100));
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusWeeks(1), førsteUttaksdatoFp, 100));
 
-        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioder);
+        var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusWeeks(4), førsteUttaksdatoFp, vedtakPerioder);
 
         List<Vedtak> vedtakPerioderPS = new ArrayList<>();
         vedtakPerioderPS.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp, 100));
 
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp.plusWeeks(4), vedtakPerioderPS);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp.plusWeeks(4), vedtakPerioderPS);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygSPGrunnlag));
 
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusMonths(5));
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusMonths(5));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -195,7 +194,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(2);
     }
 
@@ -208,18 +207,18 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(5), 100));
         vedtakPerioder.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(4), førsteUttaksdatoFp.plusWeeks(3), 100));
 
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp, førsteUttaksdatoFp.plusDays(30), vedtakPerioder);
 
         List<Vedtak> vedtakPerioderSP = new ArrayList<>();
-        Vedtak vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp.minusDays(1), 100);
+        var vedtakSP1 = lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(10), førsteUttaksdatoFp.minusDays(1), 100);
         vedtakPerioderSP.add(vedtakSP1);
 
-        Grunnlag infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp, vedtakPerioderSP);
+        var infotrygSPGrunnlag = lagGrunnlagSPIT(førsteUttaksdatoFp.minusDays(20), førsteUttaksdatoFp, vedtakPerioderSP);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygSPGrunnlag));
 
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -227,7 +226,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).hasSize(1);
         assertThat(overlappIT.get(0).getPeriode().getTomDato()).isEqualTo(førsteUttaksdatoFp.plusWeeks(3));
     }
@@ -239,12 +238,12 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         behandlingFP = avsluttetBehandlingMor().lagre(repositoryProvider);
         List<Vedtak> vedtakPeriode = new ArrayList<>();
         vedtakPeriode.add(lagVedtakForGrunnlag(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), 100));
-        Grunnlag infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), vedtakPeriode);
+        var infotrygPSGrunnlag = lagGrunnlagPSIT(førsteUttaksdatoFp.minusDays(15), førsteUttaksdatoFp.minusDays(1), vedtakPeriode);
 
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(List.of(infotrygPSGrunnlag));
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -252,7 +251,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).isEmpty();
     }
 
@@ -263,7 +262,7 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
         when(infotrygdPSGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
         when(infotrygdSPGrTjenesteMock.hentGrunnlag(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        BeregningsresultatEntitet berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
+        var berFp = lagBeregningsresultatFP(førsteUttaksdatoFp, førsteUttaksdatoFp.plusWeeks(20));
         beregningsresultatRepository.lagre(behandlingFP, berFp);
 
         // Act
@@ -271,34 +270,34 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
                 behandlingFP.getAktørId());
 
         // Assert
-        List<OverlappVedtak> overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
+        var overlappIT = overlappRepository.hentForSaksnummer(behandlingFP.getFagsak().getSaksnummer());
         assertThat(overlappIT).isEmpty();
     }
 
     public Grunnlag lagGrunnlagPSIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
-        Periode periode = new Periode(fom, tom);
-        Tema tema = new Tema(TemaKode.BS, "Pleiepenger");
+        var periode = new Periode(fom, tom);
+        var tema = new Tema(TemaKode.BS, "Pleiepenger");
 
         return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1),
                 LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     public Vedtak lagVedtakForGrunnlag(LocalDate fom, LocalDate tom, int utbetGrad) {
-        Periode periode = new Periode(fom, tom);
+        var periode = new Periode(fom, tom);
         return new Vedtak(periode, utbetGrad);
     }
 
     public Grunnlag lagGrunnlagSPIT(LocalDate fom, LocalDate tom, List<Vedtak> vedtakPerioder) {
-        Periode periode = new Periode(fom, tom);
-        Tema tema = new Tema(TemaKode.SP, "Sykepenger");
+        var periode = new Periode(fom, tom);
+        var tema = new Tema(TemaKode.SP, "Sykepenger");
 
         return new Grunnlag(null, tema, null, null, null, null, periode, null, null, null, tom, 0, LocalDate.now().minusMonths(1),
                 LocalDate.now().minusMonths(1), "", vedtakPerioder);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
                 .build(beregningsresultat);
         BeregningsresultatAndel.builder()
@@ -314,8 +313,8 @@ public class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareT
     }
 
     private BeregningsresultatEntitet lagGradertBeregningsresultatFP(LocalDate periodeFom, LocalDate periodeTom) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
                 .build(beregningsresultat);
         BeregningsresultatAndel.builder()

@@ -5,7 +5,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -29,7 +28,7 @@ public class DekningsgradTjeneste {
     }
 
     public boolean behandlingHarEndretDekningsgrad(BehandlingReferanse ref) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
             return dekningsgradEndretVerdi(ref);
         }
@@ -37,7 +36,7 @@ public class DekningsgradTjeneste {
     }
 
     private boolean dekningsgradEndretVerdi(BehandlingReferanse ref) {
-        FagsakRelasjon relasjon = relasjon(ref);
+        var relasjon = relasjon(ref);
         return relasjon.getOverstyrtDekningsgrad().isPresent() && !relasjon.getOverstyrtDekningsgrad().get().equals(relasjon.getDekningsgrad());
     }
 

@@ -65,7 +65,7 @@ public class AksjonspunktDefDvh implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AksjonspunktDefDvh that = (AksjonspunktDefDvh) o;
+        var that = (AksjonspunktDefDvh) o;
         return aksjonspunktDef.equals(that.aksjonspunktDef);
     }
 

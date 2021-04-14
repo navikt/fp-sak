@@ -32,7 +32,7 @@ public class TotrinnsBeregningDtoTjeneste {
     TotrinnsBeregningDto hentBeregningDto(Totrinnsvurdering aksjonspunkt,
                                                   Behandling behandling,
                                                   Optional<Long> beregningsgrunnlagId) {
-        TotrinnsBeregningDto dto = new TotrinnsBeregningDto();
+        var dto = new TotrinnsBeregningDto();
         if (aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)) {
             if (beregningsgrunnlagId.isPresent()) {
                 dto.setFastsattVarigEndringNaering(erVarigEndringFastsattForSelvstendingNæringsdrivendeGittGrunnlag(beregningsgrunnlagId.get()));
@@ -41,8 +41,8 @@ public class TotrinnsBeregningDtoTjeneste {
             }
         }
         if (AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            BeregningsgrunnlagEntitet bg = hentBeregningsgrunnlag(behandling, beregningsgrunnlagId);
-            List<FaktaOmBeregningTilfelle> tilfeller = bg.getFaktaOmBeregningTilfeller();
+            var bg = hentBeregningsgrunnlag(behandling, beregningsgrunnlagId);
+            var tilfeller = bg.getFaktaOmBeregningTilfeller();
             dto.setFaktaOmBeregningTilfeller(mapTilfelle(tilfeller));
         }
         return dto;
@@ -56,13 +56,12 @@ public class TotrinnsBeregningDtoTjeneste {
         if (beregningsgrunnlagId.isPresent()) {
             return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForId(beregningsgrunnlagId.get())
                 .orElseThrow(() -> new IllegalStateException("Fant ikkje beregningsgrunnlag med id " + beregningsgrunnlagId.get()));
-        } else {
-            return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
         }
+        return beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandling.getId());
     }
 
     private boolean erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(Long behandlingId) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(behandlingId);
 
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .flatMap(bgps -> bgps.getBeregningsgrunnlagPrStatusOgAndelList().stream())
@@ -71,7 +70,7 @@ public class TotrinnsBeregningDtoTjeneste {
     }
 
     private boolean erVarigEndringFastsattForSelvstendingNæringsdrivendeGittGrunnlag(Long beregningsgrunnlagId) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForId(beregningsgrunnlagId)
+        var beregningsgrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetForId(beregningsgrunnlagId)
             .orElseThrow(() ->
                 new IllegalStateException("Fant ingen beregningsgrunnlag med id " + beregningsgrunnlagId.toString()));
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()

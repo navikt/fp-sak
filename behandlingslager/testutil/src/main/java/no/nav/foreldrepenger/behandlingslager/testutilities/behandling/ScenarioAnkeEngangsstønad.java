@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -118,17 +117,17 @@ public class ScenarioAnkeEngangsstønad {
     }
 
     private Behandling buildAnke(BehandlingRepositoryProvider repositoryProvider) {
-        Fagsak fagsak = abstractTestScenario.getFagsak();
+        var fagsak = abstractTestScenario.getFagsak();
 
         // oppprett og lagre behandling
-        Behandling.Builder builder = Behandling.forAnke(fagsak);
+        var builder = Behandling.forAnke(fagsak);
 
         if (behandlendeEnhet != null) {
             builder.medBehandlendeEnhet(new OrganisasjonsEnhet(behandlendeEnhet, null));
         }
         ankeBehandling = builder.build();
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(ankeBehandling);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var lås = behandlingRepository.taSkriveLås(ankeBehandling);
         behandlingRepository.lagre(ankeBehandling, lås);
         if (ankeVurdering != null) {
             Behandlingsresultat.builder().medBehandlingResultatType(
@@ -173,7 +172,7 @@ public class ScenarioAnkeEngangsstønad {
     }
 
     public BehandlingRepository mockBehandlingRepository() {
-        BehandlingRepository behandlingRepository = abstractTestScenario.mockBehandlingRepository();
+        var behandlingRepository = abstractTestScenario.mockBehandlingRepository();
         when(behandlingRepository.hentBehandling(ankeBehandling.getId())).thenReturn(ankeBehandling);
         return behandlingRepository;
     }
@@ -186,7 +185,7 @@ public class ScenarioAnkeEngangsstønad {
     public Behandling lagMocked() {
         // pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
         startSteg = null;
-        BehandlingRepositoryProvider repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
         lagre(repositoryProvider);
         ankeBehandling.setId(AbstractTestScenario.nyId());
         // Whitebox.setInternalState(ankeBehandling, "id", AbstractTestScenario.nyId());

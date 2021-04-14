@@ -28,14 +28,14 @@ public class HistorikkinnslagDelDto {
 
     static List<HistorikkinnslagDelDto> mapFra(List<HistorikkinnslagDel> historikkinnslagDelList) {
         List<HistorikkinnslagDelDto> historikkinnslagDelDtoList = new ArrayList<>();
-        for (HistorikkinnslagDel historikkinnslagDel : historikkinnslagDelList) {
+        for (var historikkinnslagDel : historikkinnslagDelList) {
             historikkinnslagDelDtoList.add(mapFra(historikkinnslagDel));
         }
         return historikkinnslagDelDtoList;
     }
 
     private static HistorikkinnslagDelDto mapFra(HistorikkinnslagDel historikkinnslagDel) {
-        HistorikkinnslagDelDto dto = new HistorikkinnslagDelDto();
+        var dto = new HistorikkinnslagDelDto();
         historikkinnslagDel.getBegrunnelseFelt().ifPresent(begrunnelse -> dto.setBegrunnelse(finnÅrsakKodeListe(begrunnelse).orElse(null)));
         if (dto.getBegrunnelse() == null) {
             historikkinnslagDel.getBegrunnelse().ifPresent(dto::setBegrunnelseFritekst);
@@ -51,11 +51,11 @@ public class HistorikkinnslagDelDto {
         });
         historikkinnslagDel.getResultat().ifPresent(dto::setResultat);
         historikkinnslagDel.getHendelse().ifPresent(hendelse -> {
-            HistorikkinnslagHendelseDto hendelseDto = HistorikkinnslagHendelseDto.mapFra(hendelse);
+            var hendelseDto = HistorikkinnslagHendelseDto.mapFra(hendelse);
             dto.setHendelse(hendelseDto);
         });
         historikkinnslagDel.getSkjermlenke().ifPresent(skjermlenke -> {
-            SkjermlenkeType type = SkjermlenkeType.fraKode(skjermlenke);
+            var type = SkjermlenkeType.fraKode(skjermlenke);
             dto.setSkjermlenke(type);
         });
         if (!historikkinnslagDel.getTotrinnsvurderinger().isEmpty()) {
@@ -68,7 +68,7 @@ public class HistorikkinnslagDelDto {
             dto.setEndredeFelter(HistorikkinnslagEndretFeltDto.mapFra(historikkinnslagDel.getEndredeFelt()));
         }
         historikkinnslagDel.getAvklartSoeknadsperiode().ifPresent(soeknadsperiode -> {
-            HistorikkinnslagSoeknadsperiodeDto soeknadsperiodeDto = HistorikkinnslagSoeknadsperiodeDto.mapFra(soeknadsperiode);
+            var soeknadsperiodeDto = HistorikkinnslagSoeknadsperiodeDto.mapFra(soeknadsperiode);
             dto.setSoeknadsperiode(soeknadsperiodeDto);
         });
         return dto;
@@ -76,7 +76,7 @@ public class HistorikkinnslagDelDto {
 
     private static Optional<Kodeverdi> finnÅrsakKodeListe(HistorikkinnslagFelt aarsak) {
 
-        String aarsakVerdi = aarsak.getTilVerdi();
+        var aarsakVerdi = aarsak.getTilVerdi();
         if (Objects.equals("-", aarsakVerdi)) {
             return Optional.empty();
         }

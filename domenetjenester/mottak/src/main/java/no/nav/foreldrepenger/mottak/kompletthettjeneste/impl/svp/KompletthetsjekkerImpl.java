@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp.Kompletth
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -57,7 +56,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderSøknadMottattForTidlig(BehandlingReferanse ref) {
-        Optional<LocalDateTime> forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(ref);
+        var forTidligFrist = kompletthetssjekkerSøknad.erSøknadMottattForTidlig(ref);
         return forTidligFrist.map(localDateTime -> KompletthetResultat.ikkeOppfylt(localDateTime, Venteårsak.FOR_TIDLIG_SOKNAD)).orElseGet(KompletthetResultat::oppfylt);
     }
 
@@ -65,7 +64,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
         // Kalles fra VurderKompletthetSteg (en ganger) som setter autopunkt 7003 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
         // KompletthetsKontroller vil ikke røre åpne autopunkt, men kan ellers sette på vent med 7009.
-        Optional<KompletthetResultat> kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
+        var kompletthetManglendeIM = fellesUtil.getInntektsmeldingKomplett(ref);
         return kompletthetManglendeIM.orElseGet(KompletthetResultat::oppfylt);
     }
 

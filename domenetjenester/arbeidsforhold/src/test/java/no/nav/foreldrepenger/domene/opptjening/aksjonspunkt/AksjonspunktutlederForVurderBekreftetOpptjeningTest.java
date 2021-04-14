@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -58,8 +57,8 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     @Test
     public void skal_gi_aksjonspunkt_for_fiktivt_arbeidsforhold() {
         // Arrange
-        Behandling behandling = opprettBehandling();
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
+        var behandling = opprettBehandling();
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt.minusMonths(3), skjæringstidspunkt);
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
                 .leggTil(ArbeidsforholdOverstyringBuilder
                         .oppdatere(Optional.empty())
@@ -68,23 +67,23 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG))
                         .medAngittArbeidsgiverNavn("Ambassade")));
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.finnGrunnlag(behandling.getId()).get();
+        var iayGrunnlag = iayTjeneste.finnGrunnlag(behandling.getId()).get();
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
-        Yrkesaktivitet overstyrt = filter.getYrkesaktiviteter().iterator().next();
+        var overstyrt = filter.getYrkesaktiviteter().iterator().next();
         // Act
-        boolean girAksjonspunkt = aksjonspunktutleder.girAksjonspunktForArbeidsforhold(filter, behandling.getId(), null, overstyrt);
+        var girAksjonspunkt = aksjonspunktutleder.girAksjonspunktForArbeidsforhold(filter, behandling.getId(), null, overstyrt);
         // Assert
         assertThat(girAksjonspunkt).isTrue();
     }
 
     private Behandling opprettBehandling() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        final Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        final var behandling = builder.build();
         Behandlingsresultat.opprettFor(behandling);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        final VilkårResultat nyttResultat = VilkårResultat.builder().buildFor(behandling);
+        final var nyttResultat = VilkårResultat.builder().buildFor(behandling);
         behandlingRepository.lagre(nyttResultat, behandlingRepository.taSkriveLås(behandling));
 
         opptjeningRepository.lagreOpptjeningsperiode(behandling, skjæringstidspunkt.minusMonths(10), skjæringstidspunkt, false);

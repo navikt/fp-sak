@@ -24,7 +24,7 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
 
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
-        Evaluation evaluation = getSpecification().evaluate(input);
+        var evaluation = getSpecification().evaluate(input);
 
         ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(input.getOpptjeningsperiodeFom());
         ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(input.getOpptjeningsperiodeTom());
@@ -36,28 +36,28 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
     @Override
     public Specification<OpptjeningsperiodeGrunnlag> getSpecification() {
 
-        Ruleset<OpptjeningsperiodeGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<OpptjeningsperiodeGrunnlag>();
 
         // FP_VK_21.9
         Specification<OpptjeningsperiodeGrunnlag> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
 
         // FP_VK_21.5 + FP_VK_21.9
-        Specification<OpptjeningsperiodeGrunnlag> fastsettMorFødsel =
+        var fastsettMorFødsel =
             rs.beregningsRegel("FP_VK 21.5", "Fastsett periode: Mor-Fødsel",
                 new FastsettSkjæringsdatoMorFødsel(), fastsettOpptjeningsperiode);
 
         // FP_VK_21.6 + FP_VK_21.9
-        Specification<OpptjeningsperiodeGrunnlag> fastsettAnnenFødsel =
+        var fastsettAnnenFødsel =
             rs.beregningsRegel("FP_VK 21.6", "Fastsett periode: Annen-Fødsel",
                 new FastsettSkjæringsdatoAnnenFødsel(), fastsettOpptjeningsperiode);
 
         // FP_VK_21.7 + FP_VK_21.9
-        Specification<OpptjeningsperiodeGrunnlag> fastsettMorAdopsjon =
+        var fastsettMorAdopsjon =
             rs.beregningsRegel("FP_VK 21.7", "Fastsett periode: Mor-Adopsjon/Omsorgsovertakelse",
                 new FastsettSkjæringsdatoMorAdopsjon(), fastsettOpptjeningsperiode);
 
         // FP_VK_21.8 + FP_VK_21.9
-        Specification<OpptjeningsperiodeGrunnlag> fastsettAnnenAdopsjon =
+        var fastsettAnnenAdopsjon =
             rs.beregningsRegel("FP_VK 21.8", "Fastsett periode: Annen-Adopsjon/Omsorgsovertakelse",
                 new FastsettSkjæringsdatoAnnenAdopsjon(), fastsettOpptjeningsperiode);
 
@@ -86,7 +86,7 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
             rs.hvisRegel(SjekkFødsel.ID, SjekkFødsel.BESKRIVELSE).hvis(new SjekkFødsel(), fødselsNode).ellers(adopsjonOmsorgNode);
 
         // FP_VK_21: Start
-        Specification<OpptjeningsperiodeGrunnlag> startFastsettOpptjeningsperiode =
+        var startFastsettOpptjeningsperiode =
             rs.regel(ID, BESKRIVELSE, omhandlerFødselNode);
 
         // Start fastsett opptjeningsperiode

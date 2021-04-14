@@ -32,7 +32,8 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
             var valideringResultat = valider(stønadskontoType);
             if (!valideringResultat.isGyldig()) {
                 throw OverstyrUttakValideringFeil.trekkdagerOverskriderKontoMaksDager();
-            } else if (valideringResultat.isNegativPgaSamtidigUttak()) {
+            }
+            if (valideringResultat.isNegativPgaSamtidigUttak()) {
                 LOG.info("Saksbehandler går videre med negativ saldo pga samtidig uttak");
             }
         }

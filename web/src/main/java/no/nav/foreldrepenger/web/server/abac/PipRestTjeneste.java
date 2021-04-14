@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.server.abac;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -52,7 +51,7 @@ public class PipRestTjeneste {
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Set<AktørId> aktører = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
+        var aktører = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
         return aktører;
     }
 
@@ -61,8 +60,8 @@ public class PipRestTjeneste {
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
     public PipDto hentAktørIdListeTilknyttetBehandling(@NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
-        Optional<PipBehandlingsData> pipData = pipRepository.hentDataForBehandlingUuid(behandlingIdDto.getBehandlingUuid());
-        PipDto pipDto = new PipDto();
+        var pipData = pipRepository.hentDataForBehandlingUuid(behandlingIdDto.getBehandlingUuid());
+        var pipDto = new PipDto();
         pipData.ifPresent(pip -> {
             pipDto.setAktørIder(hentAktørIder(pip));
             pipDto.setBehandlingStatus(

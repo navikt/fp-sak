@@ -52,13 +52,13 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
-        Long fagsakId = prosessTaskData.getFagsakId();
+        var fagsakId = prosessTaskData.getFagsakId();
 
-        Optional<Behandling> behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
 
         if (behandling.isPresent()) {
-            FagsakYtelseType ytelseType = behandling.get().getFagsakYtelseType();
-            FagsakStatusOppdateringResultat resultat = oppdaterFagsakStatus(behandling, ytelseType);
+            var ytelseType = behandling.get().getFagsakYtelseType();
+            var resultat = oppdaterFagsakStatus(behandling, ytelseType);
             if (resultat != FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET) {
                 oppdaterFagsakRelasjonAvslutningsdato(relasjon, relasjonLås, fagsak1Lås, fagsak2Lås, fagsakId, ytelseType);
             }
@@ -67,14 +67,14 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     private void oppdaterFagsakRelasjonAvslutningsdato(Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås, Long fagsakId, FagsakYtelseType ytelseType) {
         if(relasjon.isPresent()) {
-            FagsakRelasjonAvslutningsdatoOppdaterer fagsakRelasjonAvslutningsdatoOppdaterer = FagsakYtelseTypeRef.Lookup.find(this.fagsakRelasjonAvslutningsdatoOppdaterer, ytelseType)
+            var fagsakRelasjonAvslutningsdatoOppdaterer = FagsakYtelseTypeRef.Lookup.find(this.fagsakRelasjonAvslutningsdatoOppdaterer, ytelseType)
                 .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av FagsakRelasjonAvslutningsdatoOppdaterer funnet for ytelse: " + ytelseType.getKode()));
             fagsakRelasjonAvslutningsdatoOppdaterer.oppdaterFagsakRelasjonAvsluttningsdato(relasjon.get(), fagsakId, relasjonLås, fagsak1Lås, fagsak2Lås);
         }
     }
 
     private FagsakStatusOppdateringResultat oppdaterFagsakStatus(Optional<Behandling> behandling, FagsakYtelseType ytelseType) {
-        OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, ytelseType)
+        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, ytelseType)
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av oppdaterFagsakStatus funnet for ytelse: " + ytelseType.getKode()));
         return oppdaterFagsakStatus.oppdaterFagsakNårBehandlingEndret(behandling.get());
     }

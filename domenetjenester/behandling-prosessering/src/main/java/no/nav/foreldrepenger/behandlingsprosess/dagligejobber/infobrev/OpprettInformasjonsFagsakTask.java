@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
@@ -84,42 +82,42 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        AktørId aktørId = new AktørId(prosessTaskData.getAktørId());
+        var aktørId = new AktørId(prosessTaskData.getAktørId());
         // Sjekk at ikke finnes relaterte saker: Saker opprettet etter mors søknad,
         // minus saker andre barn.
-        LocalDate morsFHDato = LocalDate.parse(prosessTaskData.getPropertyValue(FH_DATO_KEY));
-        LocalDate morsOpprettetDato = LocalDate.parse(prosessTaskData.getPropertyValue(OPPRETTET_DATO_KEY));
-        BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_AARSAK));
+        var morsFHDato = LocalDate.parse(prosessTaskData.getPropertyValue(FH_DATO_KEY));
+        var morsOpprettetDato = LocalDate.parse(prosessTaskData.getPropertyValue(OPPRETTET_DATO_KEY));
+        var behandlingÅrsakType = BehandlingÅrsakType.fraKode(prosessTaskData.getPropertyValue(BEHANDLING_AARSAK));
 
-        List<Fagsak> brukersSaker = hentBrukersRelevanteSaker(aktørId, morsOpprettetDato, morsFHDato);
+        var brukersSaker = hentBrukersRelevanteSaker(aktørId, morsOpprettetDato, morsFHDato);
         if (!brukersSaker.isEmpty()) {
             return;
         }
 
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY),
+        var enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY),
                 prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
-        PersoninfoBasis bruker = hentPersonInfo(aktørId);
+        var bruker = hentPersonInfo(aktørId);
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
         }
-        Fagsak fagsak = opprettNyFagsak(aktørId);
+        var fagsak = opprettNyFagsak(aktørId);
         kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
-        Behandling behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
+        var behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
         LOG.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
     }
 
     private Fagsak opprettNyFagsak(AktørId aktørId) {
-        FagsakYtelseType ytelseType = FagsakYtelseType.FORELDREPENGER;
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktørId);
+        var ytelseType = FagsakYtelseType.FORELDREPENGER;
+        var navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(aktørId);
         return fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
     }
 
     private void kobleNyFagsakTilMors(Long fagsakIdMor, Fagsak fagsak) {
         // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra
         // uttaket på eksisterende fagsak
-        Fagsak fagsakMor = fagsakRepository.finnEksaktFagsak(fagsakIdMor);
-        Optional<Behandling> vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakIdMor);
+        var fagsakMor = fagsakRepository.finnEksaktFagsak(fagsakIdMor);
+        var vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakIdMor);
         vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak, behandling));
     }
 
@@ -138,19 +136,19 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
 
     private boolean erRelevantFagsak(Fagsak fagsak, LocalDate fhDato) {
         if (erUkoblet(fagsak)) {
-            Optional<LocalDate> fagsakFhDato = finnSakensFHDato(fagsak);
+            var fagsakFhDato = finnSakensFHDato(fagsak);
             return fagsakFhDato.isEmpty() || erSammeFH(fhDato, fagsakFhDato.get());
         }
         return false;
     }
 
     private boolean erUkoblet(Fagsak fagsak) {
-        Optional<FagsakRelasjon> relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        var relasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         return relasjon.isEmpty() || (relasjon.get().getFagsakNrEn().equals(fagsak) && relasjon.get().getFagsakNrTo().isEmpty());
     }
 
     private Optional<LocalDate> finnSakensFHDato(Fagsak fagsak) {
-        Optional<Behandling> siste = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
+        var siste = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
         return siste.flatMap(behandling -> familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato));
     }

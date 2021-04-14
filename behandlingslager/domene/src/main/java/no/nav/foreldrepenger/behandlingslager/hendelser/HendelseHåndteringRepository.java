@@ -5,7 +5,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -28,7 +27,7 @@ public class HendelseHåndteringRepository {
     }
 
     public List<Fagsak> hentFagsakerSomHarAktørIdSomBarn(AktørId aktørId) {
-        TypedQuery<Fagsak> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select distinct f from Fagsak f " +
                 "inner join Behandling b on b.fagsak = f " +
                 "inner join PersonopplysningGrunnlagEntitet gr on gr.behandlingId = b.id " +

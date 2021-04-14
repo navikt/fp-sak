@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.AnnotationTarget;
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.feil.deklarasjon.FunksjonellFeil;
@@ -30,11 +29,11 @@ public class FeilTest {
 
     @Test
     public void test_Feil_annotation_deklarasjoner() {
-        List<AnnotationInstance> annotationInstances = new IndexFeil().getAnnotationInstances(TekniskFeil.class, IntegrasjonFeil.class,
+        var annotationInstances = new IndexFeil().getAnnotationInstances(TekniskFeil.class, IntegrasjonFeil.class,
                 FunksjonellFeil.class);
 
-        for (AnnotationInstance ai : annotationInstances) {
-            String feilkode = ai.value("feilkode").asString();
+        for (var ai : annotationInstances) {
+            var feilkode = ai.value("feilkode").asString();
             verifiserFeilPrefiks(ai, feilkode);
             verifiserDuplikatFeil(ai, feilkode);
         }
@@ -46,7 +45,7 @@ public class FeilTest {
     }
 
     private void verifiserDuplikatFeil(AnnotationInstance ai, String feilkode) {
-        AnnotationInstance prev = unikeKoder.put(feilkode, ai);
+        var prev = unikeKoder.put(feilkode, ai);
         if (prev != null && !equalsTarget(prev, ai)) {
             duplikatFeil.add(String.format("2 Metoder har samme feilkode[%s] : %s, %s", feilkode, ai.target().asMethod().name(),
                     prev.target().asMethod().name()));
@@ -62,7 +61,7 @@ public class FeilTest {
     }
 
     private boolean gyldigPrefix(String feilkode) {
-        for (String prefix : GYLDIGE_PREFIXER) {
+        for (var prefix : GYLDIGE_PREFIXER) {
             if (feilkode.startsWith(prefix)) {
                 return true;
             }
@@ -71,8 +70,8 @@ public class FeilTest {
     }
 
     private boolean equalsTarget(AnnotationInstance prev, AnnotationInstance ai) {
-        AnnotationTarget pt = prev.target();
-        AnnotationTarget ait = ai.target();
+        var pt = prev.target();
+        var ait = ai.target();
         return pt.kind() == ait.kind()
                 && Objects.equals(pt.asMethod().name(), ait.asMethod().name())
                 && Objects.equals(pt.asMethod().declaringClass().name(), ait.asMethod().declaringClass().name());

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -82,22 +81,22 @@ public class FamilieHendelseEntitet extends BaseEntitet {
         this.morForSykVedFødsel = hendelse.erMorForSykVedFødsel();
 
         hendelse.getAdopsjon().ifPresent(it -> {
-            final AdopsjonEntitet nyAdopsjon = new AdopsjonEntitet(it);
+            final var nyAdopsjon = new AdopsjonEntitet(it);
             nyAdopsjon.setFamilieHendelse(this);
             this.setAdopsjon(nyAdopsjon);
         });
         hendelse.getTerminbekreftelse().ifPresent(it -> {
-            final TerminbekreftelseEntitet nyTerminbekreftelse = new TerminbekreftelseEntitet(it);
+            final var nyTerminbekreftelse = new TerminbekreftelseEntitet(it);
             nyTerminbekreftelse.setFamilieHendelse(this);
             this.setTerminbekreftelse(nyTerminbekreftelse);
         });
 
 
-        Map<Integer, UidentifisertBarnEntitet> barnRelatertTilHendelse = this.barna.stream().collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, Function.identity()));
-        for (UidentifisertBarn barn : hendelse.getBarna()) {
-            UidentifisertBarnEntitet lagretBarn = barnRelatertTilHendelse.get(barn.getBarnNummer());
+        var barnRelatertTilHendelse = this.barna.stream().collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, Function.identity()));
+        for (var barn : hendelse.getBarna()) {
+            var lagretBarn = barnRelatertTilHendelse.get(barn.getBarnNummer());
             if (lagretBarn == null) {
-                UidentifisertBarnEntitet kopi = new UidentifisertBarnEntitet(barn);
+                var kopi = new UidentifisertBarnEntitet(barn);
                 kopi.setFamilieHendelse(this);
                 this.barna.add(kopi);
             } else {
@@ -128,7 +127,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
     }
 
     void leggTilBarn(UidentifisertBarn barn) {
-        final UidentifisertBarnEntitet barnEntitet = (UidentifisertBarnEntitet) barn;
+        final var barnEntitet = (UidentifisertBarnEntitet) barn;
         this.barna.add(barnEntitet);
         barnEntitet.setFamilieHendelse(this);
     }
@@ -275,7 +274,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FamilieHendelseEntitet that = (FamilieHendelseEntitet) o;
+        var that = (FamilieHendelseEntitet) o;
         return Objects.equals(antallBarn, that.antallBarn) &&
                 Objects.equals(adopsjon, that.adopsjon) &&
                 Objects.equals(terminbekreftelse, that.terminbekreftelse) &&

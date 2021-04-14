@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.opptjening;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +12,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -40,7 +38,7 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     }
 
     public Opptjening hentOpptjening(Long behandlingId) {
-        Optional<Opptjening> optional = opptjeningRepository.finnOpptjening(behandlingId);
+        var optional = opptjeningRepository.finnOpptjening(behandlingId);
         return optional
                 .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Mangler Opptjening for Behandling: " + behandlingId));
     }
@@ -48,15 +46,15 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     /** Hent alle inntekter for søker der det finnes arbeidsgiver */
     public List<OpptjeningInntektPeriode> hentRelevanteOpptjeningInntekterForVilkårVurdering(Long behandlingId, AktørId aktørId,
             LocalDate skjæringstidspunkt) {
-        Optional<InntektArbeidYtelseGrunnlag> grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
+        var grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
 
         if (grunnlagOpt.isPresent()) {
-            InntektArbeidYtelseGrunnlag grunnlag = grunnlagOpt.get();
+            var grunnlag = grunnlagOpt.get();
             var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterPensjonsgivende();
 
             var result = filter.filter((inntekt, inntektspost) -> inntekt.getArbeidsgiver() != null)
                     .mapInntektspost((inntekt, inntektspost) -> {
-                        Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(null, inntekt.getArbeidsgiver());
+                        var opptjeningsnøkkel = new Opptjeningsnøkkel(null, inntekt.getArbeidsgiver());
                         return new OpptjeningInntektPeriode(inntektspost, opptjeningsnøkkel);
                     });
             return List.copyOf(result);
@@ -65,14 +63,14 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
     }
 
     public List<OpptjeningAktivitetPeriode> hentRelevanteOpptjeningAktiveterForVilkårVurdering(BehandlingReferanse behandlingReferanse) {
-        final List<OpptjeningsperiodeForSaksbehandling> perioder = opptjeningsperioderTjeneste
+        final var perioder = opptjeningsperioderTjeneste
                 .hentRelevanteOpptjeningAktiveterForVilkårVurdering(behandlingReferanse);
 
         return perioder.stream().map(this::mapTilPerioder).collect(Collectors.toList());
     }
 
     private OpptjeningAktivitetPeriode mapTilPerioder(OpptjeningsperiodeForSaksbehandling periode) {
-        final OpptjeningAktivitetPeriode.Builder builder = OpptjeningAktivitetPeriode.Builder.ny();
+        final var builder = OpptjeningAktivitetPeriode.Builder.ny();
         builder.medPeriode(periode.getPeriode())
                 .medOpptjeningAktivitetType(periode.getOpptjeningAktivitetType())
                 .medOrgnr(periode.getOrgnr())

@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 
 import static java.util.Collections.singletonList;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -36,7 +34,7 @@ public class AnkeSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE);
+        var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE);
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
     }
 

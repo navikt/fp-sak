@@ -42,9 +42,9 @@ public class HendelseSorteringRepository {
             return Collections.emptyList();
         }
 
-        List<AktørId> resultat1 = getAktørIderMedRelevantSak(aktørIdSet).getResultList();
-        List<AktørId> resultat2 = getAktørIderSomErBarnIRelevantForeldrepengesak(aktørIdSet).getResultList();
-        Stream<AktørId> resultater = Stream.concat(resultat1.stream(), resultat2.stream());
+        var resultat1 = getAktørIderMedRelevantSak(aktørIdSet).getResultList();
+        var resultat2 = getAktørIderSomErBarnIRelevantForeldrepengesak(aktørIdSet).getResultList();
+        var resultater = Stream.concat(resultat1.stream(), resultat2.stream());
 
         return resultater
             .sorted()
@@ -53,7 +53,7 @@ public class HendelseSorteringRepository {
     }
 
     private TypedQuery<AktørId> getAktørIderMedRelevantSak(Set<AktørId> aktørIdListe) {
-        TypedQuery<AktørId> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select b.aktørId from Bruker b " +
                 "inner join Fagsak f on b = f.navBruker " +
                 "where b.aktørId in (:aktørIder) " +
@@ -68,7 +68,7 @@ public class HendelseSorteringRepository {
     }
 
     private TypedQuery<AktørId> getAktørIderSomErBarnIRelevantForeldrepengesak(Set<AktørId> aktørIdListe) {
-        TypedQuery<AktørId> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select distinct por.tilAktørId from PersonopplysningGrunnlagEntitet gr " +
                 "inner join PersonInformasjon poi on gr.registrertePersonopplysninger = poi " +
                 "inner join PersonopplysningRelasjon por on por.personopplysningInformasjon = poi " +

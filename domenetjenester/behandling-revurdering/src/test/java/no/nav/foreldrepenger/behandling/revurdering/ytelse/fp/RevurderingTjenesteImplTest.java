@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -37,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkOpplysningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -83,19 +80,19 @@ public class RevurderingTjenesteImplTest {
 
     @Test
     public void skal_opprette_historikkinnslag_for_registrert_fødsel() {
-        LocalDate fødselsdato = LocalDate.parse("2017-09-04");
-        List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(fødselsdato));
+        var fødselsdato = LocalDate.parse("2017-09-04");
+        var barn = Collections.singletonList(byggBaby(fødselsdato));
         new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
-        ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         verify(historikkRepository).lagre(captor.capture());
-        Historikkinnslag historikkinnslag = captor.getValue();
+        var historikkinnslag = captor.getValue();
 
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.NY_INFO_FRA_TPS);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        Optional<HistorikkinnslagFelt> fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
-        Optional<HistorikkinnslagFelt> antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
+        var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
         assertThat(fodsel).hasValueSatisfying(v -> assertThat(v.getTilVerdi()).isEqualTo("04.09.2017"));
         assertThat(antallBarn).as("antallBarn")
                 .hasValueSatisfying(
@@ -104,26 +101,26 @@ public class RevurderingTjenesteImplTest {
 
     @Test
     public void skal_opprette_korrekt_historikkinnslag_for_trillingfødsel_over_2_dager() {
-        LocalDate fødselsdato1 = LocalDate.parse("2017-09-04");
-        LocalDate fødselsdato2 = LocalDate.parse("2017-09-05");
+        var fødselsdato1 = LocalDate.parse("2017-09-04");
+        var fødselsdato2 = LocalDate.parse("2017-09-05");
         List<FødtBarnInfo> barn = new ArrayList<>();
         barn.add(byggBaby(fødselsdato1));
         barn.add(byggBaby(fødselsdato1));
         barn.add(byggBaby(fødselsdato2));
 
         new RevurderingHistorikk(historikkRepository).opprettHistorikkinnslagForFødsler(behandling, barn);
-        ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         verify(historikkRepository).lagre(captor.capture());
-        Historikkinnslag historikkinnslag = captor.getValue();
+        var historikkinnslag = captor.getValue();
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        var dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.NY_INFO_FRA_TPS);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
-        Optional<HistorikkinnslagFelt> fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
-        Optional<HistorikkinnslagFelt> antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
-        String dateString = dateFormat.format(fødselsdato1) + ", " + dateFormat.format(fødselsdato2);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var fodsel = del.getOpplysning(HistorikkOpplysningType.FODSELSDATO);
+        var antallBarn = del.getOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN);
+        var dateString = dateFormat.format(fødselsdato1) + ", " + dateFormat.format(fødselsdato2);
         assertThat(fodsel).as("fodsel")
                 .hasValueSatisfying(v -> assertThat(v.getTilVerdi()).as("fodsel.tilVerdi").isEqualTo(dateString));
         assertThat(antallBarn).as("antallBarn")
@@ -134,7 +131,7 @@ public class RevurderingTjenesteImplTest {
     @Test
     public void skal_opprette_revurdering_for_foreldrepenger() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -142,21 +139,21 @@ public class RevurderingTjenesteImplTest {
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON,
                 BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingstidFrist(LocalDate.now().minusDays(5));
-        Behandling behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
+        var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()
                 .lagreOpptjeningsperiode(behandlingSomSkalRevurderes, LocalDate.now().minusYears(1), LocalDate.now(),
                         false);
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
-        final BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
+        final var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
-        RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
                 behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndringES, revurderingTjenesteFelles, vergeRepository);
 
         // Act
-        Behandling revurdering = revurderingTjeneste
+        var revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_HENDELSE_FØDSEL, new OrganisasjonsEnhet("1234", "Test"));
 
@@ -172,8 +169,8 @@ public class RevurderingTjenesteImplTest {
 
     private void opprettRevurderingsKandidat() {
 
-        LocalDate terminDato = LocalDate.now().minusDays(70);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var terminDato = LocalDate.now().minusDays(70);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                         .medTermindato(terminDato).medUtstedtDato(terminDato))

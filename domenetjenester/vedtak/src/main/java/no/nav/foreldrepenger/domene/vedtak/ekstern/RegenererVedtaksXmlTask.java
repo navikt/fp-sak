@@ -34,7 +34,7 @@ public class RegenererVedtaksXmlTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        Behandling behandling = finnBehandling(behandlingId);
+        var behandling = finnBehandling(behandlingId);
         regenererVedtaksXmlTjeneste.regenerer(behandling);
 
     }

@@ -8,7 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -39,9 +38,9 @@ public class TotrinnRepository {
     public void lagreOgFlush(Behandling behandling, Totrinnresultatgrunnlag totrinnresultatgrunnlag) {
         Objects.requireNonNull(behandling, "behandling");
 
-        Optional<Totrinnresultatgrunnlag> aktivtTotrinnresultatgrunnlag = getAktivtTotrinnresultatgrunnlag(behandling);
+        var aktivtTotrinnresultatgrunnlag = getAktivtTotrinnresultatgrunnlag(behandling);
         if (aktivtTotrinnresultatgrunnlag.isPresent()) {
-            Totrinnresultatgrunnlag grunnlag = aktivtTotrinnresultatgrunnlag.get();
+            var grunnlag = aktivtTotrinnresultatgrunnlag.get();
             grunnlag.setAktiv(false);
             entityManager.persist(grunnlag);
         }
@@ -52,7 +51,7 @@ public class TotrinnRepository {
     public void lagreOgFlush(Behandling behandling, Collection<Totrinnsvurdering> totrinnaksjonspunktvurderinger) {
         Objects.requireNonNull(behandling, "behandling");
 
-        Collection<Totrinnsvurdering> aktiveVurderinger = getAktiveTotrinnaksjonspunktvurderinger(behandling);
+        var aktiveVurderinger = getAktiveTotrinnaksjonspunktvurderinger(behandling);
         if (!aktiveVurderinger.isEmpty()) {
             aktiveVurderinger.forEach(vurdering -> {
                 vurdering.setAktiv(false);
@@ -77,7 +76,7 @@ public class TotrinnRepository {
     }
 
     protected Optional<Totrinnresultatgrunnlag> getAktivtTotrinnresultatgrunnlag(Long behandlingId) {
-        TypedQuery<Totrinnresultatgrunnlag> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'J'", //$NON-NLS-1$
             Totrinnresultatgrunnlag.class);
 
@@ -90,7 +89,7 @@ public class TotrinnRepository {
     }
 
     protected Collection<Totrinnsvurdering> getAktiveTotrinnaksjonspunktvurderinger(Long behandlingId) {
-        TypedQuery<Totrinnsvurdering> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'J'", //$NON-NLS-1$
             Totrinnsvurdering.class);
 

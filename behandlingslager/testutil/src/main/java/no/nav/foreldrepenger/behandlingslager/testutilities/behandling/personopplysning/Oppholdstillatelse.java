@@ -57,7 +57,7 @@ public class Oppholdstillatelse  {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Oppholdstillatelse entitet = (Oppholdstillatelse) o;
+        var entitet = (Oppholdstillatelse) o;
         return Objects.equals(aktørId, entitet.aktørId) &&
                 Objects.equals(periode, entitet.periode) &&
                 Objects.equals(tillatelse, entitet.tillatelse);

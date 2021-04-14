@@ -58,7 +58,7 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
     }
 
     private void hoppTilbake(Behandling behandling, BehandlingStegType tilSteg) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         doHoppTilSteg(behandling, kontekst, tilSteg);
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
@@ -78,13 +78,13 @@ public class TilbakerullingBeregningTask extends GenerellProsessTask {
     }
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {
-        Historikkinnslag nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        String fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
                 .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
         historieBuilder.build(nyeRegisteropplysningerInnslag);

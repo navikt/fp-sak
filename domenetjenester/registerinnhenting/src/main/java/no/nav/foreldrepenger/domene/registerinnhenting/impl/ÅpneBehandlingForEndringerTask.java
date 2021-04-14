@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 import static no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask.TASKTYPE;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -47,10 +46,10 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        StartpunktType startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var startpunkt = StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         reaktiverAksjonspunkter(kontekst, behandling, startpunkt);
         behandling.setÅpnetForEndring(true);
         behandlingskontrollTjeneste.behandlingTilbakeføringHvisTidligereBehandlingSteg(kontekst, startpunkt.getBehandlingSteg());
@@ -60,7 +59,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
     }
 
     private void reaktiverAksjonspunkter(BehandlingskontrollKontekst kontekst, Behandling behandling, StartpunktType startpunkt) {
-        Set<String> aksjonspunkterFraOgMedStartpunkt = behandlingskontrollTjeneste
+        var aksjonspunkterFraOgMedStartpunkt = behandlingskontrollTjeneste
             .finnAksjonspunktDefinisjonerFraOgMed(behandling, startpunkt.getBehandlingSteg(), true);
 
         behandling.getAksjonspunkter().stream()

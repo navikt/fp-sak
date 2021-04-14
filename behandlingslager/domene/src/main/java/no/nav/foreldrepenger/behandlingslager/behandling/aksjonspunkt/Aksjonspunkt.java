@@ -131,7 +131,7 @@ public class Aksjonspunkt extends BaseEntitet {
      * @return true hvis status eller begrunnelse er endret.
      */
     public boolean setStatus(AksjonspunktStatus nyStatus, String begrunnelse) {
-        boolean statusEndret = !Objects.equals(getStatus(), nyStatus);
+        var statusEndret = !Objects.equals(getStatus(), nyStatus);
 
         if (statusEndret) {
             if (Objects.equals(nyStatus, AksjonspunktStatus.UTFØRT)) {
@@ -141,7 +141,7 @@ public class Aksjonspunkt extends BaseEntitet {
             this.status = nyStatus;
         }
 
-        boolean begrunnelseEndret = !Objects.equals(getBegrunnelse(), begrunnelse);
+        var begrunnelseEndret = !Objects.equals(getBegrunnelse(), begrunnelse);
         if (begrunnelseEndret) {
             setBegrunnelse(begrunnelse);
         }
@@ -188,7 +188,7 @@ public class Aksjonspunkt extends BaseEntitet {
         if (!(object instanceof Aksjonspunkt)) {
             return false;
         }
-        Aksjonspunkt kontrollpunkt = (Aksjonspunkt) object;
+        var kontrollpunkt = (Aksjonspunkt) object;
         return Objects.equals(getAksjonspunktDefinisjon(), kontrollpunkt.getAksjonspunktDefinisjon())
                 && Objects.equals(behandling, kontrollpunkt.behandling)
                 && Objects.equals(getStatus(), kontrollpunkt.getStatus())
@@ -260,19 +260,18 @@ public class Aksjonspunkt extends BaseEntitet {
         }
 
         Aksjonspunkt buildFor(Behandling behandling) {
-            Aksjonspunkt ap = this.aksjonspunkt;
-            Optional<Aksjonspunkt> eksisterende = finnEksisterende(behandling, ap.aksjonspunktDefinisjon);
+            var ap = this.aksjonspunkt;
+            var eksisterende = finnEksisterende(behandling, ap.aksjonspunktDefinisjon);
             if (eksisterende.isPresent()) {
                 // Oppdater eksisterende.
-                Aksjonspunkt eksisterendeAksjonspunkt = eksisterende.get();
+                var eksisterendeAksjonspunkt = eksisterende.get();
                 kopierBasisfelter(ap, eksisterendeAksjonspunkt);
                 return eksisterendeAksjonspunkt;
-            } else {
-                // Opprett ny og knytt til behandlingsresultat
-                ap.setBehandlingsresultat(behandling);
-                InternalUtil.leggTilAksjonspunkt(behandling, ap);
-                return ap;
             }
+            // Opprett ny og knytt til behandlingsresultat
+            ap.setBehandlingsresultat(behandling);
+            InternalUtil.leggTilAksjonspunkt(behandling, ap);
+            return ap;
         }
 
         private void kopierBasisfelter(Aksjonspunkt fra, Aksjonspunkt til) {

@@ -60,7 +60,7 @@ public class OppgittDekningsgradEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OppgittDekningsgradEntitet that = (OppgittDekningsgradEntitet) o;
+        var that = (OppgittDekningsgradEntitet) o;
         return Objects.equals(dekningsgrad, that.dekningsgrad);
     }
 

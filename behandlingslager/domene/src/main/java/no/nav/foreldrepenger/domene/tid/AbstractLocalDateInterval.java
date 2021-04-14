@@ -34,8 +34,8 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (antallArbeidsdager < 1) {
             throw new IllegalArgumentException("Antall arbeidsdager må være 1 eller større.");
         }
-        LocalDate tom = fom;
-        int antallArbeidsdagerTmp = antallArbeidsdager;
+        var tom = fom;
+        var antallArbeidsdagerTmp = antallArbeidsdager;
 
         while (antallArbeidsdagerTmp > 0) {
             if (antallArbeidsdagerTmp > antallArbeidsdager) {
@@ -55,8 +55,8 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (antallArbeidsdager < 1) {
             throw new IllegalArgumentException("Antall arbeidsdager må være 1 eller større.");
         }
-        LocalDate fom = tom;
-        int antallArbeidsdagerTmp = antallArbeidsdager;
+        var fom = tom;
+        var antallArbeidsdagerTmp = antallArbeidsdager;
 
         while (antallArbeidsdagerTmp > 0) {
             if (antallArbeidsdagerTmp > antallArbeidsdager) {
@@ -108,9 +108,9 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public boolean overlapper(AbstractLocalDateInterval other) {
-        boolean fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
-        boolean tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
-        boolean overlapper = fomBeforeOrEqual && tomAfterOrEqual;
+        var fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
+        var tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
+        var overlapper = fomBeforeOrEqual && tomAfterOrEqual;
         return overlapper;
     }
 
@@ -126,8 +126,8 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
             throw new IllegalStateException("Både fra og med og til og med dato må være satt for å regne ut arbeidsdager.");
         }
 
-        LocalDate månedsstart = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
-        LocalDate månedsslutt = getTomDato().minusDays(getTomDato().getDayOfMonth() - 1L).plusDays(getTomDato().lengthOfMonth() - 1L);
+        var månedsstart = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
+        var månedsslutt = getTomDato().minusDays(getTomDato().getDayOfMonth() - 1L).plusDays(getTomDato().lengthOfMonth() - 1L);
         return listArbeidsdager(månedsstart, månedsslutt).size();
     }
 
@@ -137,7 +137,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
 
     private static List<LocalDate> listArbeidsdager(LocalDate fomDato, LocalDate tomDato) { // NOSONAR
         List<LocalDate> arbeidsdager = new ArrayList<>();
-        LocalDate dato = fomDato;
+        var dato = fomDato;
         while (!dato.isAfter(tomDato)) {
             if (erArbeidsdag(dato)) {
                 arbeidsdager.add(dato);
@@ -158,13 +158,13 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     public List<AbstractLocalDateInterval> splittVedMånedsgrenser() {
         List<AbstractLocalDateInterval> perioder = new ArrayList<>();
 
-        LocalDate dato = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
-        LocalDate periodeFomDato = getFomDato();
+        var dato = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
+        var periodeFomDato = getFomDato();
 
         while (dato.isBefore(getTomDato())) {
-            int dagerIMåned = dato.lengthOfMonth();
-            LocalDate sisteDagIMåneden = dato.plusDays(dagerIMåned - 1L);
-            boolean harMånedsslutt = inkluderer(sisteDagIMåneden);
+            var dagerIMåned = dato.lengthOfMonth();
+            var sisteDagIMåneden = dato.plusDays(dagerIMåned - 1L);
+            var harMånedsslutt = inkluderer(sisteDagIMåneden);
             if (harMånedsslutt) {
                 perioder.add(lagNyPeriode(periodeFomDato, sisteDagIMåneden));
                 dato = sisteDagIMåneden.plusDays(1);
@@ -179,8 +179,8 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public AbstractLocalDateInterval avgrensTilArbeidsdager() {
-        LocalDate nyFomDato = nesteArbeidsdag(getFomDato());
-        LocalDate nyTomDato = forrigeArbeidsdag(getTomDato());
+        var nyFomDato = nesteArbeidsdag(getFomDato());
+        var nyTomDato = forrigeArbeidsdag(getTomDato());
         if (nyFomDato.equals(getFomDato()) && nyTomDato.equals(getTomDato())) {
             return this;
         }
@@ -200,12 +200,12 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         if (!(object instanceof AbstractLocalDateInterval)) {
             return false;
         }
-        AbstractLocalDateInterval annen = (AbstractLocalDateInterval) object;
+        var annen = (AbstractLocalDateInterval) object;
         return likFom(annen) && likTom(annen);
     }
 
     private boolean likFom(AbstractLocalDateInterval annen) {
-        boolean likFom = Objects.equals(this.getFomDato(), annen.getFomDato());
+        var likFom = Objects.equals(this.getFomDato(), annen.getFomDato());
         if (this.getFomDato() == null || annen.getFomDato() == null) {
             return likFom;
         }
@@ -214,7 +214,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     private boolean likTom(AbstractLocalDateInterval annen) {
-        boolean likTom = Objects.equals(getTomDato(), annen.getTomDato());
+        var likTom = Objects.equals(getTomDato(), annen.getTomDato());
         if (this.getTomDato() == null || annen.getTomDato() == null) {
             return likTom;
         }

@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 public class OppdragTestDataHelper {
 
     static Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110) {
-        Oppdragslinje150.Builder oppdrLinje150Builder = Oppdragslinje150.builder();
+        var oppdrLinje150Builder = Oppdragslinje150.builder();
 
         return oppdrLinje150Builder
             .medKodeEndringLinje(KodeEndringLinje.ENDRING)
@@ -49,16 +49,16 @@ public class OppdragTestDataHelper {
     }
 
     public static Oppdrag110 buildOppdrag110FPArbeidsgiver(Oppdragskontroll oppdragskontroll, Long fagsystemId) {
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
-        Oppdragslinje150 oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
+        var oppdrag110 = buildOppdrag110(oppdragskontroll, fagsystemId, KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+        var oppdrag150 = OppdragTestDataHelper.buildOppdragslinje150(oppdrag110);
         OppdragTestDataHelper.buildRefusjonsinfo156(oppdrag150);
         return oppdrag110;
     }
 
     private static Oppdrag110 buildOppdrag110(Oppdragskontroll oppdragskontroll, Long fagsystemId, KodeFagområde økonomiKodeFagområde) {
-        Oppdrag110.Builder oppdr110Builder = Oppdrag110.builder();
+        var oppdr110Builder = Oppdrag110.builder();
 
-        Oppdrag110.Builder oppdrag110Builder = oppdr110Builder
+        var oppdrag110Builder = oppdr110Builder
             .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(økonomiKodeFagområde)
             .medFagSystemId(fagsystemId)
@@ -71,7 +71,7 @@ public class OppdragTestDataHelper {
     }
 
     static void buildRefusjonsinfo156(Oppdragslinje150 oppdragslinje150) {
-        Refusjonsinfo156.Builder refusjonsinfo156Builder = Refusjonsinfo156.builder();
+        var refusjonsinfo156Builder = Refusjonsinfo156.builder();
 
         refusjonsinfo156Builder
             .medMaksDato(LocalDate.now())
@@ -90,7 +90,7 @@ public class OppdragTestDataHelper {
     }
 
     static Oppdragskontroll buildOppdragskontroll(Saksnummer saksnummer, long behandlingId, long prosessTaskId) {
-        Oppdragskontroll.Builder oppdrkontrollBuilder = Oppdragskontroll.builder();
+        var oppdrkontrollBuilder = Oppdragskontroll.builder();
 
         return oppdrkontrollBuilder
             .medBehandlingId(behandlingId)

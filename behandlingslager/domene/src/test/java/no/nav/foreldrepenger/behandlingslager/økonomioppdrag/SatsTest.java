@@ -13,7 +13,7 @@ class SatsTest {
     @Test
     void skal_bygge_instans_med_påkrevde_felter_sats_1() {
         var gradVerdi = 1;
-        Sats sats = Sats.på(gradVerdi);
+        var sats = Sats.på(gradVerdi);
         validerObjekt(sats, gradVerdi);
     }
 
@@ -46,7 +46,7 @@ class SatsTest {
 
     @Test
     void skal_feile_hvis_sats_er_0() {
-        Sats sats = Sats.på(0);
+        var sats = Sats.på(0);
         validerObjekt(sats, 0);
     }
 

@@ -25,7 +25,7 @@ public class PerioderUtenOmsorgEntitet extends DokumentasjonPerioderEntitet {
 
     public PerioderUtenOmsorgEntitet(PerioderUtenOmsorgEntitet perioder) {
         this();
-        for (PeriodeUtenOmsorgEntitet periode : perioder.getPerioder()) {
+        for (var periode : perioder.getPerioder()) {
             leggTil(periode);
         }
     }
@@ -35,7 +35,7 @@ public class PerioderUtenOmsorgEntitet extends DokumentasjonPerioderEntitet {
     }
 
     public void leggTil(PeriodeUtenOmsorgEntitet periode) {
-        final PeriodeUtenOmsorgEntitet entitet = new PeriodeUtenOmsorgEntitet(periode);
+        final var entitet = new PeriodeUtenOmsorgEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }

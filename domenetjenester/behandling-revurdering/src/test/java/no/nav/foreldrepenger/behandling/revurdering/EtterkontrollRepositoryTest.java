@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -22,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -52,41 +49,41 @@ public class EtterkontrollRepositoryTest {
 
     @Test
     public void skal_finne_kandidat_til_revurdering() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
     }
 
     @Test
     public void sjekk_at_behandlingen_blir_etterkontrollert_og_ikke_klagen() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
-        Behandling klage = Behandling.forKlage(behandling.getFagsak()).build();
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var klage = Behandling.forKlage(behandling.getFagsak()).build();
         behandlingRepository.lagre(klage, behandlingRepository.taSkriveLås(klage));
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(klage.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(klage.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(b -> b.getId())).isNotEqualTo(klage.getId());
     }
 
     @Test
     public void behandling_som_har_vært_etterkontrollert_skal_ikke_være_kandidat_til_revurdering() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
@@ -94,51 +91,51 @@ public class EtterkontrollRepositoryTest {
 
         etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
 
-        final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings).doesNotContain(behandling);
     }
 
     @Test
     public void skal_ikke_velge_henlagt_behandling() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake);
 
-        Behandlingsresultat innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.INNVILGET).buildFor(behandling);
         behandling.setBehandlingresultat(innvilget);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        Behandling henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
+        var henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
                 .build();
-        Behandlingsresultat henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        var henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
         henlagtBehandling.setBehandlingresultat(henlagt);
         henlagtBehandling.avsluttBehandling();
         behandlingRepository.lagre(henlagtBehandling, behandlingRepository.taSkriveLås(henlagtBehandling));
 
-        final List<Behandling> behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        final var behandlings = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(behandlings.stream().map(b -> b.getId())).contains(behandling.getId());
     }
 
     @Test
     public void fagsak_som_har_eksisterende_etterkontrollsbehandling_skal_ikke_være_kandidat_til_revurdering() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
                 .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN))
                 .build();
 
@@ -146,7 +143,7 @@ public class EtterkontrollRepositoryTest {
 
         etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
 
-        List<Behandling> fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(fagsakList).doesNotContain(behandling);
         assertThat(fagsakList).doesNotContain(revurderingsBehandling);
@@ -154,18 +151,18 @@ public class EtterkontrollRepositoryTest {
 
     @Test
     public void skal_hente_ut_siste_vedtak_til_revurdering(EntityManager entityManager) {
-        final FamilieHendelseRepository grunnlagRepository = new FamilieHendelseRepository(entityManager);
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
-        LocalDate terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
+        final var grunnlagRepository = new FamilieHendelseRepository(entityManager);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var terminDato = LocalDate.now().minusDays(revurderingDagerTilbake + 2);
 
-        Behandling.Builder revurderingBuilder = Behandling.fraTidligereBehandling(behandling,
+        var revurderingBuilder = Behandling.fraTidligereBehandling(behandling,
                 BehandlingType.REVURDERING).medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET));
-        Behandling revurderingsBehandling = revurderingBuilder.build();
+        var revurderingsBehandling = revurderingBuilder.build();
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
+        var behandlingsresultat = Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(revurderingsBehandling);
-        final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        final var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medBehandlingsresultat(behandlingsresultat)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
@@ -174,7 +171,7 @@ public class EtterkontrollRepositoryTest {
         revurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         grunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), revurderingsBehandling.getId());
-        final FamilieHendelseBuilder oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling);
+        final var oppdatere = grunnlagRepository.opprettBuilderFor(revurderingsBehandling);
         oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
                 .medNavnPå("Lege Legsen")
@@ -182,14 +179,14 @@ public class EtterkontrollRepositoryTest {
         grunnlagRepository.lagre(revurderingsBehandling, oppdatere);
         behandlingVedtakRepository.lagre(behandlingVedtak, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(revurderingsBehandling.getFagsakId()).medErBehandlet(
+        var etterkontroll = new Etterkontroll.Builder(revurderingsBehandling.getFagsakId()).medErBehandlet(
                 false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay().minusDays(revurderingDagerTilbake))
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        List<Behandling> fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(fagsakList).contains(revurderingsBehandling);
         assertThat(fagsakList).doesNotContain(behandling);
@@ -197,22 +194,22 @@ public class EtterkontrollRepositoryTest {
 
     @Test
     public void behandling_med_nyere_termindato_skal_ikke_være_kandidat_til_revurdering() {
-        Behandling behandling = opprettRevurderingsKandidat(0);
+        var behandling = opprettRevurderingsKandidat(0);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().plusDays(revurderingDagerTilbake).atStartOfDay())
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        List<Behandling> fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var fagsakList = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
         assertThat(fagsakList).doesNotContain(behandling);
     }
 
     private Behandling opprettRevurderingsKandidat(int dagerTilbake) {
-        LocalDate terminDato = LocalDate.now().minusDays(dagerTilbake);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var terminDato = LocalDate.now().minusDays(dagerTilbake);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse()
                         .getTerminbekreftelseBuilder()
@@ -229,10 +226,10 @@ public class EtterkontrollRepositoryTest {
                 .medAntallBarn(1);
 
         var behandling = scenario.lagre(repositoryProvider);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
+        var behandlingsresultat = Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
-        final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        final var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakstidspunkt(LocalDateTime.now().minusDays(1))
                 .medBehandlingsresultat(behandlingsresultat)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
@@ -248,23 +245,23 @@ public class EtterkontrollRepositoryTest {
 
     @Test
     public void skal_finne_nyeste_innvilgete_avsluttede_behandling_som_ikke_er_henlagt() {
-        Behandling behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
+        var behandling = opprettRevurderingsKandidat(revurderingDagerTilbake + 2);
 
-        Behandlingsresultat innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        var innvilget = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.INNVILGET).buildFor(behandling);
         behandling.setBehandlingresultat(innvilget);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Behandling henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
+        var henlagtBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.FØRSTEGANGSSØKNAD)
                 .build();
-        Behandlingsresultat henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
+        var henlagt = new Behandlingsresultat.Builder().medBehandlingResultatType(
                 BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET).buildFor(henlagtBehandling);
         henlagtBehandling.setBehandlingresultat(henlagt);
         henlagtBehandling.avsluttBehandling();
         behandlingRepository.lagre(henlagtBehandling, behandlingRepository.taSkriveLås(henlagtBehandling));
 
-        Optional<Behandling> resultatOpt = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(
+        var resultatOpt = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(
                 behandling.getFagsak().getId());
         assertThat(resultatOpt).hasValueSatisfying(
                 resultat -> assertThat(resultat.getId()).isEqualTo(behandling.getId()));

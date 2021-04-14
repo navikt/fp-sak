@@ -9,13 +9,11 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -60,7 +58,7 @@ public class LegacyESBeregningRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
                 " and periode.fomDato<=:dato" + //$NON-NLS-1$
                 " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
 
@@ -72,7 +70,7 @@ public class LegacyESBeregningRepository {
     }
 
     public Optional<LegacyESBeregning> getSisteBeregning(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         return getSisteBeregning(behandling);
     }
 
@@ -87,15 +85,15 @@ public class LegacyESBeregningRepository {
     }
 
     public void lagreBeregning(Long behandlingId, LegacyESBeregning nyBeregning) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LegacyESBeregning sisteBeregning = getSisteBeregning(behandlingId).orElse(null);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var sisteBeregning = getSisteBeregning(behandlingId).orElse(null);
 
-        LegacyESBeregningsresultat beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
+        var beregningResultat = (sisteBeregning == null ? LegacyESBeregningsresultat.builder()
                 : LegacyESBeregningsresultat.builderFraEksisterende(sisteBeregning.getBeregningResultat()))
                         .medBeregning(nyBeregning)
                         .buildFor(behandling, behandling.getBehandlingsresultat());
 
-        BehandlingLås skriveLås = taSkriveLås(behandlingId);
+        var skriveLås = taSkriveLås(behandlingId);
         lagre(beregningResultat, skriveLås);
     }
 
@@ -105,7 +103,7 @@ public class LegacyESBeregningRepository {
 
     // sjekk lås og oppgrader til skriv
     protected void verifiserBehandlingLås(BehandlingLås lås) {
-        BehandlingLåsRepository låsHåndterer = new BehandlingLåsRepository(getEntityManager());
+        var låsHåndterer = new BehandlingLåsRepository(getEntityManager());
         låsHåndterer.oppdaterLåsVersjon(lås);
     }
 }

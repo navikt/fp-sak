@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -40,23 +38,23 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
     }
 
     private void utførGrensesnittavstemming(LocalDate fomDato, LocalDate tomDato, String fagområde) {
-        List<Oppdrag110> oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.fraKode(fagområde));
+        var oppdragsliste = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(fomDato, tomDato, KodeFagområde.fraKode(fagområde));
         if (oppdragsliste.isEmpty()) {
             LOG.info("Ingen oppdrag funnet for periode {} - {} for fagområde {}. Grensesnittavstemming ikke utført.", fomDato, tomDato, fagområde); //NOSONAR
             return;
         }
-        GrensesnittavstemmingMapper mapper = new GrensesnittavstemmingMapper(oppdragsliste, fagområde);
+        var mapper = new GrensesnittavstemmingMapper(oppdragsliste, fagområde);
         LOG.info("Starter grensesnittavstemming med id: {} for periode: {} - {} for fagområde {}. {} oppdrag funnet. ", mapper.getAvstemmingId(), fomDato, tomDato, fagområde, oppdragsliste.size()); //NOSONAR
-        String startmelding = mapper.lagStartmelding();
+        var startmelding = mapper.lagStartmelding();
         logMelding("startmelding", startmelding);
-        List<String> datameldinger = mapper.lagDatameldinger();
-        for (String datamelding : datameldinger) {
+        var datameldinger = mapper.lagDatameldinger();
+        for (var datamelding : datameldinger) {
             logMelding("datamelding", datamelding);
         }
-        String sluttmelding = mapper.lagSluttmelding();
+        var sluttmelding = mapper.lagSluttmelding();
         logMelding("sluttmelding", sluttmelding);
         grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(startmelding);
-        for (String datamelding : datameldinger) {
+        for (var datamelding : datameldinger) {
             grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(datamelding);
         }
         grensesnittavstemmingJmsProducer.sendGrensesnittavstemming(sluttmelding);
@@ -74,7 +72,7 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        GrensesnittavstemmingBatchArguments batchArguments = (GrensesnittavstemmingBatchArguments) arguments; // NOSONAR
+        var batchArguments = (GrensesnittavstemmingBatchArguments) arguments; // NOSONAR
         utførGrensesnittavstemming(batchArguments.getFom(), batchArguments.getTom(), batchArguments.getFagområde());
         return BATCHNAVN + "-" + UUID.randomUUID();
     }

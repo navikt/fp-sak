@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
-import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.TilbakekrevingVedtakDto;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KlageFormkravAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -68,15 +67,15 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     @Override
     public OppdateringResultat oppdater(KlageFormkravAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        AksjonspunktDefinisjon apDefFormkrav = AksjonspunktDefinisjon.fraKode(dto.getKode());
-        KlageVurdertAv klageVurdertAv = getKlageVurdertAv(apDefFormkrav);
+        var apDefFormkrav = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var klageVurdertAv = getKlageVurdertAv(apDefFormkrav);
 
-        Behandling klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
-        KlageResultatEntitet klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
-        Optional<KlageFormkravEntitet> klageFormkrav = klageVurderingTjeneste.hentKlageFormkrav(klageBehandling, klageVurdertAv);
+        var klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());
+        var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(klageBehandling);
+        var klageFormkrav = klageVurderingTjeneste.hentKlageFormkrav(klageBehandling, klageVurdertAv);
 
         opprettHistorikkinnslag(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat);
-        Optional<KlageAvvistÅrsak> optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
+        var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
             lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, klageVurdertAv);
             return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
@@ -87,7 +86,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     }
 
     private Optional<KlageAvvistÅrsak> vurderOgLagreFormkrav(KlageFormkravAksjonspunktDto dto, Behandling behandling, KlageResultatEntitet klageResultat, KlageVurdertAv vurdertAv) {
-        boolean gjelderVedtak = dto.hentpåKlagdBehandlingId() != null;
+        var gjelderVedtak = dto.hentpåKlagdBehandlingId() != null;
         if (dto.erTilbakekreving()) {
             klageVurderingTjeneste.oppdaterKlageMedPåklagetEksternBehandlingUuid(behandling.getId(), dto.getKlageTilbakekreving().getPåklagdEksternBehandlingUuid());
         } else if (gjelderVedtak || dto.hentpåKlagdBehandlingId() == null && klageResultat.getPåKlagdBehandlingId().isPresent()) {
@@ -136,10 +135,10 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     private void opprettHistorikkinnslag(Behandling klageBehandling, AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                          KlageFormkravAksjonspunktDto formkravDto, Optional<KlageFormkravEntitet> klageFormkrav,
                                          KlageResultatEntitet klageResultat) {
-        HistorikkinnslagType historikkinnslagType = erNfpAksjonspunt(aksjonspunktDefinisjon) ? HistorikkinnslagType.KLAGE_BEH_NFP
+        var historikkinnslagType = erNfpAksjonspunt(aksjonspunktDefinisjon) ? HistorikkinnslagType.KLAGE_BEH_NFP
             : HistorikkinnslagType.KLAGE_BEH_NK;
         var skjermlenkeType = getSkjermlenkeType(aksjonspunktDefinisjon);
-        HistorikkInnslagTekstBuilder historiebygger = historikkApplikasjonTjeneste.tekstBuilder();
+        var historiebygger = historikkApplikasjonTjeneste.tekstBuilder();
         historiebygger.medSkjermlenke(skjermlenkeType).medBegrunnelse(formkravDto.getBegrunnelse());
         if (klageFormkrav.isEmpty()) {
             settOppHistorikkFelter(historiebygger, formkravDto);
@@ -153,8 +152,8 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         if (behandlingId == null) {
             return "Ikke påklagd et vedtak";
         }
-        Behandling påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<LocalDate> vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
+        var påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
+        var vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
             .map(BehandlingVedtak::getVedtaksdato);
         return påKlagdBehandling.getType().getNavn() + " " +
             vedtaksDatoPåklagdBehandling.map(this::formatDato).orElse("");
@@ -168,7 +167,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     }
 
     private void settOppHistorikkFelter(HistorikkInnslagTekstBuilder historiebygger, KlageFormkravAksjonspunktDto formkravDto) {
-        Long behandlingId = formkravDto.hentpåKlagdBehandlingId();
+        var behandlingId = formkravDto.hentpåKlagdBehandlingId();
         var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId) :
             hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(), formkravDto.getKlageTilbakekreving().getTilbakekrevingBehandlingType(), formkravDto.getKlageTilbakekreving().getTilbakekrevingVedtakDato());
         historiebygger
@@ -183,9 +182,9 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     private void finnOgSettOppEndredeHistorikkFelter(KlageFormkravEntitet klageFormkrav, HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder,
                                                      KlageFormkravAksjonspunktDto formkravDto, KlageResultatEntitet klageResultat) {
         if (erVedtakOppdatert(klageResultat, formkravDto)) {
-            UUID lagretPåklagdEksternBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
-            Long lagretPåklagdBehandlingId = klageResultat.getPåKlagdBehandlingId().orElse(null);
-            KlageTilbakekrevingDto klageTilbakekrevingDto = formkravDto.getKlageTilbakekreving();
+            var lagretPåklagdEksternBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
+            var lagretPåklagdBehandlingId = klageResultat.getPåKlagdBehandlingId().orElse(null);
+            var klageTilbakekrevingDto = formkravDto.getKlageTilbakekreving();
             if (lagretPåklagdEksternBehandlingUuid != null) {
                 lagHistorikkinnslagHvisForrigePåklagdEksternBehandlingUuidFinnes(historikkInnslagTekstBuilder, formkravDto, lagretPåklagdEksternBehandlingUuid, klageTilbakekrevingDto);
 
@@ -227,7 +226,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
     }
 
     private void lagHistorikkinnslagHvisForrigePåklagdEksternBehandlingUuidFinnes(HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, KlageFormkravAksjonspunktDto formkravDto, UUID lagretPåklagdEksternBehandlingUuid, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        TilbakekrevingVedtakDto tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(lagretPåklagdEksternBehandlingUuid);
+        var tilbakekrevingVedtakDto = fptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(lagretPåklagdEksternBehandlingUuid);
         if (formkravDto.hentpåKlagdEksternBehandlingUuId() != null) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
                 hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid, tilbakekrevingVedtakDto.getTilbakekrevingBehandlingType(), tilbakekrevingVedtakDto.getTilbakekrevingVedtakDato()),

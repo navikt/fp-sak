@@ -146,10 +146,11 @@ public class VilkårResultat extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof VilkårResultat)) {
+        }
+        if (!(obj instanceof VilkårResultat)) {
             return false;
         }
-        VilkårResultat other = (VilkårResultat) obj;
+        var other = (VilkårResultat) obj;
         return Objects.equals(getVilkårResultatType(), other.getVilkårResultatType()) &&
             Objects.equals(vilkårne, other.vilkårne);
     }
@@ -172,8 +173,8 @@ public class VilkårResultat extends BaseEntitet {
         // diff her, baserer oss ikke på equals da den matcher kun på vilkårtype (som den skal)
 
         // det gir en deep equals av vilkårene inklusiv alle felter som er mappet til tuple list.
-        Map<VilkårType, ?> vilkårThis = toTuples(this.vilkårne);
-        Map<VilkårType, ?> vilkårAnnen = toTuples(annen.vilkårne);
+        var vilkårThis = toTuples(this.vilkårne);
+        var vilkårAnnen = toTuples(annen.vilkårne);
         return vilkårThis.equals(vilkårAnnen);
     }
 
@@ -251,7 +252,7 @@ public class VilkårResultat extends BaseEntitet {
                                              boolean erOverstyrt, String regelEvaluering, String regelInput) {
             this.modifisert = true;
             validerKanModifisere();
-            RegelInputOgEvaluering inputOgEvaluering = new RegelInputOgEvaluering(regelEvaluering, regelInput);
+            var inputOgEvaluering = new RegelInputOgEvaluering(regelEvaluering, regelInput);
             if (erManueltVurdert && utfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
                 utfallManuelt = vilkårUtfall;
             }
@@ -290,11 +291,11 @@ public class VilkårResultat extends BaseEntitet {
         }
 
         public Builder nullstillVilkår(VilkårType vilkårType, VilkårUtfallType utfallOverstyrt) {
-            Builder builder = leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, null,
+            var builder = leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, null,
                 Avslagsårsak.UDEFINERT, false, false, null, null);
 
             // Overstyrt utfall må beholdes selv ved nullstilling
-            VilkårUtfall vilkårUtfall = oppdaterteUtfall.get(vilkårType);
+            var vilkårUtfall = oppdaterteUtfall.get(vilkårType);
             // TODO (essv) PKMANTIS-1988 finne bedre måte å sette overstyrt utfall
             vilkårUtfall.utfallOverstyrt = utfallOverstyrt;
             return builder;
@@ -348,21 +349,21 @@ public class VilkårResultat extends BaseEntitet {
                 oppdaterVilkår(eksisterendeResultat);
                 built = true;
                 return eksisterendeResultat; // samme som før
-            } else if (eksisterendeResultat != null && !modifisert) {
+            }
+            if (eksisterendeResultat != null && !modifisert) {
                 built = true;
                 return eksisterendeResultat;
-            } else {
-                oppdaterVilkår(resultatKladd);
-                resultatKladd.setOriginalBehandling(behandlingsresultat.getBehandling());
-                behandlingsresultat.medOppdatertVilkårResultat(resultatKladd);
-                built = true;
-                return resultatKladd;
             }
+            oppdaterVilkår(resultatKladd);
+            resultatKladd.setOriginalBehandling(behandlingsresultat.getBehandling());
+            behandlingsresultat.medOppdatertVilkårResultat(resultatKladd);
+            built = true;
+            return resultatKladd;
         }
 
         public VilkårResultat buildFor(Behandling behandling) {
             // Må opprette Behandlingsresultat på Behandling hvis det ikke finnes, før man bygger VilkårResultat
-            Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+            var behandlingsresultat = behandling.getBehandlingsresultat();
             if (behandlingsresultat == null) {
                 behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
             }
@@ -378,7 +379,7 @@ public class VilkårResultat extends BaseEntitet {
 
         private void oppdaterVilkår(VilkårResultat eksisterende) {
             validerKanModifisere();
-            List<VilkårType> eksisterendeTyper = eksisterende.vilkårne.stream().map(Vilkår::getVilkårType).collect(Collectors.toList());
+            var eksisterendeTyper = eksisterende.vilkårne.stream().map(Vilkår::getVilkårType).collect(Collectors.toList());
 
             fjernVilkårSomSkalFjernes(eksisterende);
             oppdaterVilkårSomSkalOppdateres(eksisterendeTyper);
@@ -391,7 +392,7 @@ public class VilkårResultat extends BaseEntitet {
         }
 
         private void fjernVilkårSomSkalFjernes(VilkårResultat eksisterende) {
-            Set<Vilkår> fjernede = opprinneligeVilkår.stream()
+            var fjernede = opprinneligeVilkår.stream()
                 .filter(v -> fjernedeVilkårTyper.stream().anyMatch(fjernet -> fjernet.equals(v.getVilkårType())))
                 .collect(toSet());
             opprinneligeVilkår.removeAll(fjernede);
@@ -400,8 +401,8 @@ public class VilkårResultat extends BaseEntitet {
 
         private void oppdaterVilkårSomSkalOppdateres(List<VilkårType> eksisterendeTyper) {
             validerKanModifisere();
-            for (Vilkår vilkår : opprinneligeVilkår) {
-                for (Map.Entry<VilkårType, VilkårUtfall> entry : oppdaterteUtfall.entrySet()) {
+            for (var vilkår : opprinneligeVilkår) {
+                for (var entry : oppdaterteUtfall.entrySet()) {
                     if (vilkår.getVilkårType().equals(entry.getKey()) && eksisterendeTyper.contains(entry.getKey())) {
                         mapFraVilkårUtfallTilVilkår(entry.getValue(), vilkår);
                     }
@@ -434,9 +435,9 @@ public class VilkårResultat extends BaseEntitet {
 
         private void leggTilNyeVilkår() {
             validerKanModifisere();
-            for (Map.Entry<VilkårType, VilkårUtfall> entry : oppdaterteUtfall.entrySet()) {
+            for (var entry : oppdaterteUtfall.entrySet()) {
                 if (!opprinneligeVilkår.stream().map(Vilkår::getVilkårType).collect(toList()).contains(entry.getKey())) {
-                    VilkårUtfall utfall = entry.getValue();
+                    var utfall = entry.getValue();
                     opprinneligeVilkår.add(
                         new VilkårBuilder()
                             .medVilkårType(entry.getKey())

@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -17,8 +16,8 @@ class SoapApiTester {
 
     static Collection<Method> finnAlleSoapMetoder() {
         List<Method> liste = new ArrayList<>();
-        for (Class<?> klasse : finnAlleSoapTjenester()) {
-            for (Method method : klasse.getDeclaredMethods()) {
+        for (var klasse : finnAlleSoapTjenester()) {
+            for (var method : klasse.getDeclaredMethods()) {
                 if (method.getAnnotation(BeskyttetRessurs.class) == null && Modifier.isPublic(method.getModifiers())
                         && !method.getName().equals("ping")) {
                     liste.add(method);
@@ -29,13 +28,13 @@ class SoapApiTester {
     }
 
     private static List<Class<?>> getAllClasses() {
-        Reflections reflections = new Reflections("no.nav.foreldrepenger", new SubTypesScanner(false));
-        Set<Class<? extends Object>> classes = reflections.getSubTypesOf(Object.class);
+        var reflections = new Reflections("no.nav.foreldrepenger", new SubTypesScanner(false));
+        var classes = reflections.getSubTypesOf(Object.class);
         return new ArrayList<>(classes);
     }
 
     static List<Class<?>> finnAlleSoapTjenester() {
-        List<Class<?>> classes = getAllClasses();
+        var classes = getAllClasses();
         List<Class<?>> classesToReturn = new ArrayList<Class<?>>();
 
         classes.stream().filter(s -> s.getAnnotation(SoapWebService.class) != null).forEach(s -> classesToReturn.add(s));

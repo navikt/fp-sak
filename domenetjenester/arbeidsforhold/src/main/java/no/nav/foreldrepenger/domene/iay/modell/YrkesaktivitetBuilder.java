@@ -78,7 +78,7 @@ public class YrkesaktivitetBuilder {
 
     public YrkesaktivitetBuilder leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder builder) {
         if (!builder.isOppdatering()) {
-            AktivitetsAvtale aktivitetsAvtale = builder.build();
+            var aktivitetsAvtale = builder.build();
             kladd.leggTilAktivitetsAvtale(aktivitetsAvtale);
         }
         return this;
@@ -106,7 +106,7 @@ public class YrkesaktivitetBuilder {
     }
 
     public AktivitetsAvtaleBuilder getAktivitetsAvtaleBuilder(DatoIntervallEntitet aktivitetsPeriode, boolean erAnsettelsesperioden) {
-        AktivitetsAvtaleBuilder oppdater = AktivitetsAvtaleBuilder.oppdater(kladd.getAlleAktivitetsAvtaler()
+        var oppdater = AktivitetsAvtaleBuilder.oppdater(kladd.getAlleAktivitetsAvtaler()
                 .stream()
                 .filter(aa -> aa.matcherPeriode(aktivitetsPeriode)
                         && (!kladd.erArbeidsforhold() || (aa.erAnsettelsesPeriode() == erAnsettelsesperioden)))

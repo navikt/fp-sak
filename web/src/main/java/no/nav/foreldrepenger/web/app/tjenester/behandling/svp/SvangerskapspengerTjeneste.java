@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,11 +12,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -25,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -62,31 +56,31 @@ public class SvangerskapspengerTjeneste {
     public SvpTilretteleggingDto hentTilrettelegging(Behandling behandling) {
         var behandlingId = behandling.getId();
 
-        SvpTilretteleggingDto dto = new SvpTilretteleggingDto();
+        var dto = new SvpTilretteleggingDto();
 
-        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (familieHendelseGrunnlag.isEmpty()) {
             return dto;
         }
 
-        Optional<TerminbekreftelseEntitet> terminbekreftelse = familieHendelseGrunnlag.get().getGjeldendeTerminbekreftelse();
+        var terminbekreftelse = familieHendelseGrunnlag.get().getGjeldendeTerminbekreftelse();
         if (terminbekreftelse.isEmpty()) {
             throw SvangerskapsTjenesteFeil.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad(behandlingId);
         }
         dto.setTermindato(terminbekreftelse.get().getTermindato());
         familieHendelseGrunnlag.get().getGjeldendeVersjon().getFødselsdato().ifPresent(dto::setFødselsdato);
 
-        Optional<SvpGrunnlagEntitet> svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
         if (svpGrunnlagOpt.isEmpty()) {
             throw SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling(behandlingId);
         }
-        InntektArbeidYtelseGrunnlag iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
+        var iayGrunnlag = iayTjeneste.hentGrunnlag(behandlingId);
         var arbeidsforholdInformasjon = iayGrunnlag.getArbeidsforholdInformasjon()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsforholdinformasjon for behandling: " + behandlingId));
 
-        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
-        Optional<InntektArbeidYtelseAggregat> saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
-        YrkesaktivitetFilter saksbehandletFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
+        var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(behandling.getAktørId()));
+        var saksbehandletVersjon = iayGrunnlag.getSaksbehandletVersjon();
+        var saksbehandletFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
 
         var tilretteleggingFilter = new TilretteleggingFilter(svpGrunnlagOpt.get());
         var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert().stream()
@@ -108,7 +102,7 @@ public class SvangerskapspengerTjeneste {
     }
 
     private SvpArbeidsforholdDto mapTilrettelegging(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
-        SvpArbeidsforholdDto dto = new SvpArbeidsforholdDto();
+        var dto = new SvpArbeidsforholdDto();
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
         dto.setTilretteleggingDatoer(utledTilretteleggingDatoer(svpTilrettelegging));
@@ -143,9 +137,9 @@ public class SvangerskapspengerTjeneste {
     }
 
     private VelferdspermisjonDto mapPermisjon(Permisjon p, YrkesaktivitetFilter saksbehandletFilter) {
-        Optional<Yrkesaktivitet> saksbehandletAktivitet = saksbehandletFilter.getYrkesaktiviteter().stream()
+        var saksbehandletAktivitet = saksbehandletFilter.getYrkesaktiviteter().stream()
             .filter(ya -> {
-                Yrkesaktivitet yrkesaktivitet = p.getYrkesaktivitet();
+                var yrkesaktivitet = p.getYrkesaktivitet();
                 return ya.getArbeidsgiver() != null && ya.getArbeidsgiver().getIdentifikator().equals(p.getYrkesaktivitet().getArbeidsgiver().getIdentifikator())
                     && ya.getArbeidsforholdRef().gjelderFor(yrkesaktivitet.getArbeidsforholdRef());
             }).findFirst();
@@ -160,7 +154,7 @@ public class SvangerskapspengerTjeneste {
         if (saksbehandletAktivitet.isEmpty()) {
             return null;
         }
-        Collection<Permisjon> saksbehandletPermisjon = saksbehandletAktivitet.get().getPermisjon();
+        var saksbehandletPermisjon = saksbehandletAktivitet.get().getPermisjon();
         return saksbehandletPermisjon.stream().anyMatch(sp -> sp.getPermisjonsbeskrivelseType().equals(p.getPermisjonsbeskrivelseType())
         && sp.getFraOgMed().isEqual(p.getFraOgMed())
         && sp.getProsentsats().getVerdi().compareTo(p.getProsentsats().getVerdi()) == 0);

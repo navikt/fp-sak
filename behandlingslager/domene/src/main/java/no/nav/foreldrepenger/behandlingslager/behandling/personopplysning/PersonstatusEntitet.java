@@ -107,7 +107,7 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonstatusEntitet entitet = (PersonstatusEntitet) o;
+        var entitet = (PersonstatusEntitet) o;
         return Objects.equals(aktørId, entitet.aktørId) &&
                 Objects.equals(periode, entitet.periode) &&
                 Objects.equals(personstatus, entitet.personstatus);
@@ -122,7 +122,7 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PersonstatusEntitet{");
+        final var sb = new StringBuilder("PersonstatusEntitet{");
         sb.append("gyldighetsperiode=").append(periode);
         sb.append(", personstatus=").append(personstatus);
         sb.append('}');

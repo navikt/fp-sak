@@ -48,7 +48,7 @@ public class TilbakekrevingRestTjenesteTest {
     public void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any()))
                 .thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
                 .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNotNull();
         assertThat(tilbakekrevingValgDto.erTilbakekrevingVilkårOppfylt()).isTrue();
@@ -57,25 +57,25 @@ public class TilbakekrevingRestTjenesteTest {
     @Test
     public void skal_feil_hentTilbakekrevingValg_når_tilbakekrevingsvalg_ikke_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any())).thenReturn(Optional.empty());
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
                 .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNull();
     }
 
     @Test
     public void skal_hente_varseltekst_ved_henting_av_tilbakekrevingsvalg() {
-        String forventetVarselTekst = "varseltekst her";
+        var forventetVarselTekst = "varseltekst her";
         when(tilbakekrevingRepository.hent(Mockito.any()))
                 .thenReturn(Optional.of(TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.INNTREKK, forventetVarselTekst)));
-        TilbakekrevingValgDto tilbakekrevingValgDto = tilbakekrevingRestTjeneste
+        var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
                 .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto.getVarseltekst()).isEqualTo(forventetVarselTekst);
 
     }
 
     private Behandling lagBehandling() {
-        NavBruker navBruker = NavBruker.opprettNyNB(AktørId.dummy());
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("123456"));
+        var navBruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, new Saksnummer("123456"));
         return Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
     }
 

@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -54,13 +53,13 @@ public abstract class DokumentmottakerTestsupport {
         Behandling behandling = null;
 
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
         }
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(FØRSTEGANGSSØKNAD);
             behandling = scenario.lagre(repositoryProvider);
         }
@@ -70,13 +69,13 @@ public abstract class DokumentmottakerTestsupport {
 
     protected Behandling opprettBehandling(FagsakYtelseType fagsakYtelseType, BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak, VedtakResultatType vedtakResultatType, LocalDate vedtaksdato) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-            ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+            var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);
         }
 
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-            ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(behandlingType);
             return opprettBehandling(scenario, behandlingResultatType, avslagsårsak, vedtakResultatType, vedtaksdato);
         }
@@ -89,12 +88,12 @@ public abstract class DokumentmottakerTestsupport {
         scenario.medBehandlingsresultat(Behandlingsresultat.builder()
             .medBehandlingResultatType(behandlingResultatType)
             .medAvslagsårsak(avslagsårsak));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BehandlingLås behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
+        var behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, behandlingLås);
 
-        BehandlingVedtak originalVedtak = BehandlingVedtak.builder()
+        var originalVedtak = BehandlingVedtak.builder()
             .medVedtakstidspunkt(vedtaksdato.atStartOfDay())
             .medBehandlingsresultat(behandling.getBehandlingsresultat())
             .medVedtakResultatType(vedtakResultatType)
@@ -105,7 +104,7 @@ public abstract class DokumentmottakerTestsupport {
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingVedtakRepository().lagre(originalVedtak, behandlingLås);
 
-        VilkårResultat vilkårResultat = VilkårResultat.builder()
+        var vilkårResultat = VilkårResultat.builder()
             .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
             .buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(vilkårResultat, behandlingLås);

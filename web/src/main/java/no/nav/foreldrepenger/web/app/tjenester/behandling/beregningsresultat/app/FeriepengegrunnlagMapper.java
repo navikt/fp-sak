@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -9,7 +8,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public final class FeriepengegrunnlagMapper {
@@ -19,14 +17,14 @@ public final class FeriepengegrunnlagMapper {
     }
 
     public static Optional<FeriepengegrunnlagDto> map(BeregningsresultatEntitet entitet) {
-        List<BeregningsresultatFeriepengerPrÅr> feriepengerPrÅr = entitet.getBeregningsresultatFeriepenger()
+        var feriepengerPrÅr = entitet.getBeregningsresultatFeriepenger()
             .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
             .orElse(Collections.emptyList());
         if (feriepengerPrÅr.isEmpty()) {
             return Optional.empty();
         }
-        BeregningsresultatFeriepenger feriepenger = entitet.getBeregningsresultatFeriepenger().get();
-        FeriepengegrunnlagDto.Builder builder = FeriepengegrunnlagDto.builder()
+        var feriepenger = entitet.getBeregningsresultatFeriepenger().get();
+        var builder = FeriepengegrunnlagDto.builder()
             .medFeriepengeperiodeFom(feriepenger.getFeriepengerPeriodeFom())
             .medFeriepengeperiodeTom(feriepenger.getFeriepengerPeriodeTom());
         feriepengerPrÅr.stream()
@@ -37,7 +35,7 @@ public final class FeriepengegrunnlagMapper {
     }
 
     private static FeriepengegrunnlagAndelDto mapAndel(BeregningsresultatFeriepengerPrÅr prÅr) {
-        BeregningsresultatAndel andel = prÅr.getBeregningsresultatAndel();
+        var andel = prÅr.getBeregningsresultatAndel();
         return FeriepengegrunnlagAndelDto.builder()
             .medOpptjeningsår(prÅr.getOpptjeningsåret())
             .medÅrsbeløp(prÅr.getÅrsbeløp().getVerdi())

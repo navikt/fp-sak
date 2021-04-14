@@ -23,7 +23,7 @@ public class TekniskBehandlingStegVenterVisitor extends TekniskBehandlingStegVis
 
     @Override
     protected StegProsesseringResultat prosesserSteg(BehandlingStegVisitor stegVisitor) {
-        StegProsesseringResultat resultat = gjenoppta ? stegVisitor.gjenoppta() : stegVisitor.prosesser();
+        var resultat = gjenoppta ? stegVisitor.gjenoppta() : stegVisitor.prosesser();
         gjenoppta = false;
         return resultat;
     }

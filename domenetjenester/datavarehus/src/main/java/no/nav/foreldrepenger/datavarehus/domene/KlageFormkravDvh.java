@@ -95,7 +95,7 @@ public class KlageFormkravDvh extends DvhBaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        KlageFormkravDvh that = (KlageFormkravDvh) o;
+        var that = (KlageFormkravDvh) o;
         return gjelderVedtak == that.gjelderVedtak &&
             erKlagerPart == that.erKlagerPart &&
             erFristOverholdt == that.erFristOverholdt &&

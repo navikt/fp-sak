@@ -20,7 +20,7 @@ public class OppdragKvitteringDto extends SporingDto {
     }
 
     public static OppdragKvitteringDto fraDomene(OppdragKvittering oppdragKvittering) {
-        OppdragKvitteringDto dto = new OppdragKvitteringDto(oppdragKvittering);
+        var dto = new OppdragKvitteringDto(oppdragKvittering);
         dto.alvorlighetsgrad = oppdragKvittering.getAlvorlighetsgrad();
         dto.beskrMelding = oppdragKvittering.getBeskrMelding();
         return dto;

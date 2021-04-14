@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
@@ -64,15 +63,15 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
     @Test
     public void skal_finne_at_endringssøknad_er_mottatt_og_sette_på_vent_når_vedlegg_mangler() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
-        Behandling behandling = lagre(scenario);
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var behandling = lagre(scenario);
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, true);
         when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any()))
             .thenReturn(singletonList(new ManglendeVedlegg(DokumentTypeId.LEGEERKLÆRING)));
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();
-        KompletthetResultat kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
@@ -83,15 +82,15 @@ public class KompletthetsjekkerRevurderingImplTest extends EntityManagerAwareTes
     @Test
     public void skal_finne_at_endringssøknad_er_mottatt_og_at_forsendelsen_er_komplett_når_ingen_vedlegg_mangler() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = testUtil.opprettRevurderingsscenarioForMor();
-        Behandling behandling = lagre(scenario);
+        var scenario = testUtil.opprettRevurderingsscenarioForMor();
+        var behandling = lagre(scenario);
         testUtil.byggOgLagreSøknadMedNyOppgittFordeling(behandling, true);
         when(kompletthetssjekkerSøknad.utledManglendeVedleggForSøknad(any()))
             .thenReturn(emptyList());
 
         // Act
         assertThat(kompletthetsjekkerRevurderingImpl).isNotNull();
-        KompletthetResultat kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
+        var kompletthetResultat = kompletthetsjekkerRevurderingImpl.vurderForsendelseKomplett(lagRef(behandling));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isTrue();

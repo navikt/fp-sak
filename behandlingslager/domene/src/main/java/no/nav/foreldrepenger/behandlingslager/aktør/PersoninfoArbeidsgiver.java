@@ -38,7 +38,7 @@ public class PersoninfoArbeidsgiver {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PersoninfoArbeidsgiver that = (PersoninfoArbeidsgiver) o;
+        var that = (PersoninfoArbeidsgiver) o;
         return aktørId.equals(that.aktørId) &&
             Objects.equals(navn, that.navn) &&
             Objects.equals(personIdent, that.personIdent) &&

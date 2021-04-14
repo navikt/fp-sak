@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,15 +36,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.folketrygdloven.kalkulator.felles.MeldekortUtils;
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.folketrygdloven.kalkulator.modell.iay.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseAnvistDto;
-import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
-import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -62,7 +56,6 @@ import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -161,9 +154,9 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter iayGrunnlag", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentIAYGrunnlag(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
-        no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
+        var inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
             inntektArbeidYtelseGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(inntektArbeidYtelseGrunnlag);
         return Response.ok(inntektArbeidYtelseGrunnlagDto).build();
     }
@@ -175,10 +168,10 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
-        BeregningsgrunnlagInputFelles inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
-        BeregningsgrunnlagInput beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
-        KalkulatorInputDto kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
+        var beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
+        var kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
         if (kalkulatorInputDto == null) {
             return Response.noContent().build();
 
@@ -199,42 +192,42 @@ public class ForvaltningBeregningRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentMeldekortFeil() {
-        List<BeregningsgrunnlagGrunnlagEntitet> grunnlagList = beregningsgrunnlagRepository.hentGrunnlagForPotensielleFeilMeldekort();
-        Set<Behandling> behandlinger = grunnlagList.stream()
+        var grunnlagList = beregningsgrunnlagRepository.hentGrunnlagForPotensielleFeilMeldekort();
+        var behandlinger = grunnlagList.stream()
                 .filter(gr -> !besteberegningErFastsatt(gr))
                 .map(BeregningsgrunnlagGrunnlagEntitet::getBehandlingId)
                 .map(behandlingRepository::hentBehandling)
                 .collect(Collectors.toSet());
         LOG.info("Fant {} behandlinger som må sjekkes", behandlinger.size());
         Set<SaksnummerEnhetDto> liste = new HashSet<>();
-        for (Behandling behandling : behandlinger) {
-            BeregningsgrunnlagGrunnlagEntitet grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId()))
+        for (var behandling : behandlinger) {
+            var grunnlagEntitet = grunnlagList.stream().filter(gr -> gr.getBehandlingId().equals(behandling.getId()))
                     .findFirst().orElseThrow();
-            LocalDate skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt)
+            var skjæringstidspunkt = grunnlagEntitet.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getSkjæringstidspunkt)
                     .orElseThrow();
-            InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
-            InntektArbeidYtelseGrunnlagDto kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag, behandling.getAktørId());
-            YtelseFilterDto ytelseFilter = new YtelseFilterDto(kalkGrunlag.getAktørYtelseFraRegister()).før(skjæringstidspunkt);
-            Set<FagsakYtelseType> ytelseTyper = Set.of(FagsakYtelseType.DAGPENGER, FagsakYtelseType.ARBEIDSAVKLARINGSPENGER);
-            Optional<YtelseDto> ytelseDto = MeldekortUtils.sisteVedtakFørStpForType(ytelseFilter, skjæringstidspunkt, ytelseTyper);
+            var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+            var kalkGrunlag = IAYMapperTilKalkulus.mapGrunnlag(inntektArbeidYtelseGrunnlag, behandling.getAktørId());
+            var ytelseFilter = new YtelseFilterDto(kalkGrunlag.getAktørYtelseFraRegister()).før(skjæringstidspunkt);
+            var ytelseTyper = Set.of(FagsakYtelseType.DAGPENGER, FagsakYtelseType.ARBEIDSAVKLARINGSPENGER);
+            var ytelseDto = MeldekortUtils.sisteVedtakFørStpForType(ytelseFilter, skjæringstidspunkt, ytelseTyper);
 
             if (ytelseDto.isPresent()) {
-                LocalDate sisteVedtakFom = ytelseDto.get().getPeriode().getFomDato();
-                List<YtelseAnvistDto> alleMeldekort = ytelseFilter.getFiltrertYtelser().stream()
+                var sisteVedtakFom = ytelseDto.get().getPeriode().getFomDato();
+                var alleMeldekort = ytelseFilter.getFiltrertYtelser().stream()
                         .filter(ytelse -> ytelseTyper.contains(ytelse.getRelatertYtelseType()))
                         .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()).collect(Collectors.toList());
 
                 // Henter ut siste meldekort som startet før STP
-                Optional<YtelseAnvistDto> sisteMeldekort = alleMeldekort.stream()
+                var sisteMeldekort = alleMeldekort.stream()
                         .filter(ytelseAnvist -> sisteVedtakFom.minus(MELDEKORT_PERIODE_UTV).isBefore(ytelseAnvist.getAnvistTOM()))
                         .filter(mk -> mk.getAnvistFOM().isBefore(skjæringstidspunkt))
                         .max(Comparator.comparing(YtelseAnvistDto::getAnvistFOM));
 
                 if (sisteMeldekort.isPresent()) {
                     // Hvis dette meldekortet ikke var "helt" må saken muligens revurderes
-                    boolean erMeldekortKomplett = skjæringstidspunkt.isAfter(sisteMeldekort.get().getAnvistTOM());
+                    var erMeldekortKomplett = skjæringstidspunkt.isAfter(sisteMeldekort.get().getAnvistTOM());
                     if (!erMeldekortKomplett) {
-                        SaksnummerEnhetDto dto = new SaksnummerEnhetDto(behandling.getFagsak().getSaksnummer().getVerdi(),
+                        var dto = new SaksnummerEnhetDto(behandling.getFagsak().getSaksnummer().getVerdi(),
                                 behandling.getBehandlendeEnhet());
                         liste.add(dto);
                     }
@@ -247,7 +240,7 @@ public class ForvaltningBeregningRestTjeneste {
 
 
     private boolean besteberegningErFastsatt(BeregningsgrunnlagGrunnlagEntitet grunnlag) {
-        List<FaktaOmBeregningTilfelle> tilfeller = grunnlag.getBeregningsgrunnlag()
+        var tilfeller = grunnlag.getBeregningsgrunnlag()
                 .map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
                 .orElse(Collections.emptyList());
         return tilfeller.contains(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE);
@@ -269,7 +262,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Rull sak tilbake til beregning", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response tilbakerullEnSakBeregning(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         opprettTilbakerullingBeregningTask(behandling);
         return Response.ok().build();
     }
@@ -279,7 +272,7 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private void opprettTask(Behandling behandling, String taskname) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(taskname);
+        var prosessTaskData = new ProsessTaskData(taskname);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

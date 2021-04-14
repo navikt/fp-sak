@@ -121,11 +121,12 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj.getClass().equals(this.getClass()))) {
+        }
+        if (obj == null || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
 
-        OpptjeningAktivitet other = (OpptjeningAktivitet) obj;
+        var other = (OpptjeningAktivitet) obj;
         return Objects.equals(periode, other.periode)
             && Objects.equals(aktivitetType, other.aktivitetType)
             && Objects.equals(aktivitetReferanse, other.aktivitetReferanse)

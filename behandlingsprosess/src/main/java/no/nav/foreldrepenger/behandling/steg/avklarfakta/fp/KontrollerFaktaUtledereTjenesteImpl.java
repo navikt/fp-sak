@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.fp;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,15 +38,15 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
     // Legg til aksjonspunktutledere som er felles for Førstegangsbehandling og
     // Revurdering
     protected List<AksjonspunktUtleder> leggTilFellesutledere(BehandlingReferanse ref) {
-        final AksjonspunktUtlederHolder utlederHolder = new AksjonspunktUtlederHolder();
+        final var utlederHolder = new AksjonspunktUtlederHolder();
 
-        Long behandlingId = ref.getBehandlingId();
-        final Optional<FamilieHendelseGrunnlagEntitet> hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
+        var behandlingId = ref.getBehandlingId();
+        final var hendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId);
         if (hendelseGrunnlag.isEmpty()) {
             throw VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes(behandlingId);
         }
 
-        FamilieHendelseType familieHendelseType = hendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+        var familieHendelseType = hendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(FamilieHendelseEntitet::getType)
                 .orElseThrow(() -> new IllegalStateException("Utvikler feil: Hendelse uten type"));
 

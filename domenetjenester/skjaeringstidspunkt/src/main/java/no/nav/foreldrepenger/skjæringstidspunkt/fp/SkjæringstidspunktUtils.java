@@ -56,10 +56,10 @@ public class SkjæringstidspunktUtils {
     }
 
     LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
-        final LocalDate gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon().getGjelderFødsel()
+        final var gjeldendeHendelseDato = familieHendelseAggregat.getGjeldendeVersjon().getGjelderFødsel()
             ? familieHendelseAggregat.finnGjeldendeFødselsdato()
             : familieHendelseAggregat.getGjeldendeVersjon().getSkjæringstidspunkt();
-        final LocalDate oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
+        final var oppgittHendelseDato = familieHendelseAggregat.getSøknadVersjon().getSkjæringstidspunkt();
 
         if (erEndringIPerioden(oppgittHendelseDato, gjeldendeHendelseDato)) {
             LOG.info("STP registerinnhenting endring i perioden for fhgrunnlag {}", familieHendelseAggregat.getId());
@@ -77,12 +77,12 @@ public class SkjæringstidspunktUtils {
     }
 
     private boolean vurderEndringEtter(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiEtter) {
-        final Period avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
+        final var avstand = Period.between(oppgittSkjæringstidspunkt, bekreftetSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiEtter);
     }
 
     private boolean vurderEndringFør(LocalDate oppgittSkjæringstidspunkt, LocalDate bekreftetSkjæringstidspunkt, Period grenseverdiFør) {
-        final Period avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
+        final var avstand = Period.between(bekreftetSkjæringstidspunkt, oppgittSkjæringstidspunkt);
         return !avstand.isNegative() && størreEnn(avstand, grenseverdiFør);
     }
 
@@ -105,9 +105,9 @@ public class SkjæringstidspunktUtils {
 
     private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
                                                           FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato) {
-        OpptjeningsperiodeGrunnlag grunnlag = new OpptjeningsperiodeGrunnlag();
+        var grunnlag = new OpptjeningsperiodeGrunnlag();
 
-        final LocalDate gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
+        final var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
             : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
 
 
@@ -133,8 +133,8 @@ public class SkjæringstidspunktUtils {
         grunnlag.setFørsteUttaksDato(førsteUttaksDato);
         morsMaksDato.ifPresent(grunnlag::setMorsMaksdato);
 
-        final RegelFastsettOpptjeningsperiode fastsettPeriode = new RegelFastsettOpptjeningsperiode();
-        final OpptjeningsPeriode periode = new OpptjeningsPeriode();
+        final var fastsettPeriode = new RegelFastsettOpptjeningsperiode();
+        final var periode = new OpptjeningsPeriode();
         fastsettPeriode.evaluer(grunnlag, periode);
 
         return periode.getOpptjeningsperiodeTom().plusDays(1);
@@ -142,7 +142,7 @@ public class SkjæringstidspunktUtils {
 
     // TODO(Termitt): Håndtere MMOR, SAMB mm.
     private SoekerRolle finnFagsakSøkerRolle(Behandling behandling) {
-        RelasjonsRolleType relasjonsRolleType = behandling.getRelasjonsRolleType();
+        var relasjonsRolleType = behandling.getRelasjonsRolleType();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             return SoekerRolle.MORA;
         }
@@ -153,12 +153,14 @@ public class SkjæringstidspunktUtils {
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet gjeldendeVersjon) {
-        final FamilieHendelseType type = gjeldendeVersjon.getType();
+        final var type = gjeldendeVersjon.getType();
         if (gjeldendeVersjon.getGjelderFødsel()) {
             return FagsakÅrsak.FØDSEL;
-        } else if (FamilieHendelseType.ADOPSJON.equals(type)) {
+        }
+        if (FamilieHendelseType.ADOPSJON.equals(type)) {
             return FagsakÅrsak.ADOPSJON;
-        } else if (FamilieHendelseType.OMSORG.equals(type)) {
+        }
+        if (FamilieHendelseType.OMSORG.equals(type)) {
             return FagsakÅrsak.OMSORG;
         }
         return null;

@@ -68,7 +68,7 @@ public class VergeEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VergeEntitet that = (VergeEntitet) o;
+        var that = (VergeEntitet) o;
         return
             Objects.equals(bruker, that.bruker) &&
             Objects.equals(gyldigPeriode, that.gyldigPeriode) &&

@@ -58,7 +58,7 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KjedeNøkkel that = (KjedeNøkkel) o;
+        var that = (KjedeNøkkel) o;
         return Objects.equals(klassekode, that.klassekode) &&
             Objects.equals(betalingsmottaker, that.betalingsmottaker) &&
             Objects.equals(feriepengeÅr, that.feriepengeÅr) &&
@@ -83,22 +83,22 @@ public class KjedeNøkkel implements Comparable<KjedeNøkkel> {
 
     @Override
     public int compareTo(KjedeNøkkel o) {
-        int mottakerSammenligning = Betalingsmottaker.COMPARATOR.compare(getBetalingsmottaker(), o.getBetalingsmottaker());
+        var mottakerSammenligning = Betalingsmottaker.COMPARATOR.compare(getBetalingsmottaker(), o.getBetalingsmottaker());
         if (mottakerSammenligning != 0) {
             return mottakerSammenligning;
         }
-        int klassekodeSammenligning = Integer.compare(ØkonomiKodeKlassifikSortering.getSorteringsplassering(getKlassekode()), ØkonomiKodeKlassifikSortering.getSorteringsplassering(o.getKlassekode()));
+        var klassekodeSammenligning = Integer.compare(ØkonomiKodeKlassifikSortering.getSorteringsplassering(getKlassekode()), ØkonomiKodeKlassifikSortering.getSorteringsplassering(o.getKlassekode()));
         if (klassekodeSammenligning != 0) {
             return klassekodeSammenligning;
         }
-        int feriepengeår = getFeriepengeÅr() != null ? getFeriepengeÅr() : 0;
-        int annenFeriepengeår = o.getFeriepengeÅr() != null ? o.getFeriepengeÅr() : 0;
-        int feriepengeSammenligning = Integer.compare(feriepengeår, annenFeriepengeår);
+        var feriepengeår = getFeriepengeÅr() != null ? getFeriepengeÅr() : 0;
+        var annenFeriepengeår = o.getFeriepengeÅr() != null ? o.getFeriepengeÅr() : 0;
+        var feriepengeSammenligning = Integer.compare(feriepengeår, annenFeriepengeår);
         if (feriepengeSammenligning != 0) {
             return feriepengeSammenligning;
         }
-        int kjedeDel = getKnektKjedeDel() != null ? getKnektKjedeDel() : 0;
-        int annenKjedeDel = o.getKnektKjedeDel() != null ? o.getKnektKjedeDel() : 0;
+        var kjedeDel = getKnektKjedeDel() != null ? getKnektKjedeDel() : 0;
+        var annenKjedeDel = o.getKnektKjedeDel() != null ? o.getKnektKjedeDel() : 0;
         return Integer.compare(kjedeDel, annenKjedeDel);
     }
 

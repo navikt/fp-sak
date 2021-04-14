@@ -39,7 +39,7 @@ public class Inntekt extends BaseEntitet implements IndexKey {
         this.inntektsKilde = inntektMal.getInntektsKilde();
         this.arbeidsgiver = inntektMal.getArbeidsgiver();
         this.inntektspost = inntektMal.getAlleInntektsposter().stream().map(ip -> {
-            Inntektspost inntektspost = new Inntektspost(ip);
+            var inntektspost = new Inntektspost(ip);
             inntektspost.setInntekt(this);
             return inntektspost;
         }).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -54,10 +54,11 @@ public class Inntekt extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if ((obj == null) || !(obj instanceof Inntekt)) {
+        }
+        if ((obj == null) || !(obj instanceof Inntekt)) {
             return false;
         }
-        Inntekt other = (Inntekt) obj;
+        var other = (Inntekt) obj;
         return Objects.equals(this.getInntektsKilde(), other.getInntektsKilde())
                 && Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver());
     }

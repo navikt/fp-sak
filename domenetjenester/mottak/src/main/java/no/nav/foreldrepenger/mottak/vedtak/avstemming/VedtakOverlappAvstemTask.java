@@ -53,13 +53,13 @@ public class VedtakOverlappAvstemTask extends GenerellProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        String saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
+        var saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
         if (saksnr != null) {
             loggOverlappFOR(null, null, saksnr, OverlappVedtak.HENDELSE_AVSTEM_SAK);
             loggOverlappOTH(null, null, saksnr, OverlappVedtak.HENDELSE_AVSTEM_SAK);
         } else {
-            LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-            LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            var fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
             if (LOG_TEMA_FOR_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {
                 loggOverlappFOR(fom, tom, saksnr, OverlappVedtak.HENDELSE_AVSTEM_PERIODE);
             } else if (LOG_TEMA_OTH_KEY.equalsIgnoreCase(prosessTaskData.getPropertyValue(LOG_TEMA_KEY_KEY))) {

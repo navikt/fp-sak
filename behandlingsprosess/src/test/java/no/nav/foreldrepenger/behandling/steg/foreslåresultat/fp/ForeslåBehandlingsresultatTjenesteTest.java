@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -78,19 +77,19 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     @BeforeEach
     public void setup() {
-        AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
+        var avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
-        StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
+        var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
                 entityManager));
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
-        BeregningUttakTjeneste beregningUttakTjeneste = new BeregningUttakTjeneste(uttakTjeneste,
+        var beregningUttakTjeneste = new BeregningUttakTjeneste(uttakTjeneste,
                 repositoryProvider.getYtelsesFordelingRepository());
-        HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
+        var beregningsgrunnlagTjeneste = new HentOgLagreBeregningsgrunnlagTjeneste(
                 entityManager);
-        UttakInputTjeneste uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
+        var uttakInputTjeneste = new UttakInputTjeneste(repositoryProvider, beregningsgrunnlagTjeneste,
                 new AbakusInMemoryInntektArbeidYtelseTjeneste(),
                 skjæringstidspunktTjeneste, medlemTjeneste, beregningUttakTjeneste);
         revurderingBehandlingsresultatutleder = spy(new RevurderingBehandlingsresultatutleder(repositoryProvider,
@@ -113,12 +112,12 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalSetteBehandlingsresultatInnvilgetNårVilkårOppfylt() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         inngangsvilkårOgUttak(behandling, VilkårUtfallType.OPPFYLT);
 
         // Act
-        Behandlingsresultat behandlingsresultat = foreslåBehandlingsresultat(behandling);
+        var behandlingsresultat = foreslåBehandlingsresultat(behandling);
 
         // Assert
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.INNVILGET);
@@ -138,13 +137,13 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalFjerneAvslagsårsakNårInnvilget() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         inngangsvilkårOgUttak(behandling, VilkårUtfallType.OPPFYLT);
         getBehandlingsresultat(behandling).setAvslagsårsak(Avslagsårsak.MANGLENDE_DOKUMENTASJON);
 
         // Act
-        Behandlingsresultat behandlingsresultat = foreslåBehandlingsresultat(behandling);
+        var behandlingsresultat = foreslåBehandlingsresultat(behandling);
 
         // Assert
         assertThat(behandlingsresultat.getAvslagsårsak()).isNull();
@@ -153,9 +152,9 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalKalleBestemBehandlingsresultatForRevurderingNårInnvilgetRevurdering() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandling revurdering = lagRevurdering(behandling);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        var revurdering = lagRevurdering(behandling);
         inngangsvilkårOgUttak(revurdering, VilkårUtfallType.OPPFYLT);
 
         // Act
@@ -168,12 +167,12 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandling() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         lagBehandlingsresultat(behandling);
 
         // Act
-        Behandlingsresultat behandlingsresultat = foreslåBehandlingsresultat(behandling);
+        var behandlingsresultat = foreslåBehandlingsresultat(behandling);
 
         // Assert
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.AVSLÅTT);
@@ -182,9 +181,9 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalKalleBestemBehandlingsresultatNårAvslåttRevurdering() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandling revurdering = lagRevurdering(behandling);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        var revurdering = lagRevurdering(behandling);
         inngangsvilkårOgUttak(revurdering, VilkårUtfallType.IKKE_OPPFYLT);
 
         // Act
@@ -197,13 +196,13 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalSetteBehandlingsresultatAvslåttNårVilkårAvslåttFørstegangsbehandlingInfotrygd() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.getFagsak().setSkalTilInfotrygd(true);
         lagBehandlingsresultat(behandling);
 
         // Act
-        Behandlingsresultat behandlingsresultat = foreslåBehandlingsresultat(behandling);
+        var behandlingsresultat = foreslåBehandlingsresultat(behandling);
 
         // Assert
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.AVSLÅTT);
@@ -213,9 +212,9 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void skalKalleBestemBehandlingsresultatNårVilkårAvslåttRevurderingInfotrygd() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandling revurdering = lagRevurdering(behandling);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
+        var revurdering = lagRevurdering(behandling);
         inngangsvilkårOgUttak(revurdering, VilkårUtfallType.IKKE_OPPFYLT);
         revurdering.getFagsak().setSkalTilInfotrygd(true);
 
@@ -230,15 +229,15 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     public void skalKalleBestemBehandlingsresultatNårAvslåttRevurderingPåAvslåttFørstegangsbehandling() {
 
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
         inngangsvilkårOgUttak(behandling, VilkårUtfallType.IKKE_OPPFYLT);
         foreslåBehandlingsresultat(behandling);
         behandling.avsluttBehandling();
-        Behandling revurdering = lagRevurdering(behandling);
+        var revurdering = lagRevurdering(behandling);
 
         // Act
-        Behandlingsresultat behandlingsresultat = foreslåBehandlingsresultat(revurdering);
+        var behandlingsresultat = foreslåBehandlingsresultat(revurdering);
 
         // Assert
         verify(revurderingBehandlingsresultatutleder).bestemBehandlingsresultatForRevurdering(any(), anyBoolean());
@@ -268,7 +267,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     private void inngangsvilkårOgUttak(Behandling behandling, VilkårUtfallType vilkårUtfallType) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
 
         var vilkårsresultatBuilder = VilkårResultat.builder();
         if (vilkårUtfallType.equals(VilkårUtfallType.OPPFYLT)) {
@@ -287,8 +286,8 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     private void lagreUttak(Behandling behandling) {
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(6))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
@@ -296,10 +295,10 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     }
 
     private void lagBehandlingsresultat(Behandling behandling) {
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
+        var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
                 .buildFor(behandling);
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
+        var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
                 .medBehandlingsresultat(behandlingsresultat)
                 .medVedtakResultatType(VedtakResultatType.AVSLAG).medAnsvarligSaksbehandler("asdf").build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));

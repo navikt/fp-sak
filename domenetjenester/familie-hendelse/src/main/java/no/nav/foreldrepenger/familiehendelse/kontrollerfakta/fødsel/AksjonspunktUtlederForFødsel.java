@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -50,15 +48,17 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) { // NOSONAR Metode rendrer flytdia.
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
+        final var familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
 
         // Sjekk om registrert eller allerede overstyrt fødsel. Deretter om frist utløpt
         if (erFødselenRegistrertITps(familieHendelseGrunnlag) == JA) {
             return samsvarerAntallBarnISøknadMedAntallBarnITps(familieHendelseGrunnlag) == NEI ?
                 opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL) : INGEN_AKSJONSPUNKTER;
-        } else if (finnesOverstyrtFødsel(familieHendelseGrunnlag) == JA) {
+        }
+        if (finnesOverstyrtFødsel(familieHendelseGrunnlag) == JA) {
             return INGEN_AKSJONSPUNKTER;
-        } else if (erFristForRegistreringAvFødselPassert(familieHendelseGrunnlag) == JA) {
+        }
+        if (erFristForRegistreringAvFødselPassert(familieHendelseGrunnlag) == JA) {
             return opprettListeForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL);
         }
         // Vent på registrering - vurder om det er riktig for FP
@@ -87,7 +87,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     LocalDateTime utledVentefrist(FamilieHendelseGrunnlagEntitet grunnlag) {
-        LocalDate venteFrist = grunnlag.getSøknadVersjon().getBarna().stream()
+        var venteFrist = grunnlag.getSøknadVersjon().getBarna().stream()
             .map(barn -> barn.getFødselsdato().plusDays(14))
             .findFirst()
             .orElse(LocalDate.now());
@@ -115,15 +115,15 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     private boolean harArbeidsforholdMedArbeidstyperSomAngitt(AksjonspunktUtlederInput param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var aktørId = param.getAktørId();
-        Optional<InntektArbeidYtelseGrunnlag> grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
+        var grunnlagOpt = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
         if (!grunnlagOpt.isPresent()) {
             return false;
         }
         var grunnlag = grunnlagOpt.get();
-        DatoIntervallEntitet stp = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
+        var stp = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
                 .før(skjæringstidspunkt);

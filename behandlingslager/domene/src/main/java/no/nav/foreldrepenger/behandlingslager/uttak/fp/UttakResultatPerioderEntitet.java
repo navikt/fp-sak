@@ -35,7 +35,7 @@ public class UttakResultatPerioderEntitet extends BaseEntitet {
     }
 
     private void validerIkkeOverlapp(UttakResultatPeriodeEntitet p2) {
-        for (UttakResultatPeriodeEntitet p1 : perioder) {
+        for (var p1 : perioder) {
             if (p1.getTidsperiode().overlapper(p2.getTidsperiode())) {
                 throw new IllegalArgumentException("UttakResultatPerioder kan ikke overlappe " + p2 + p1);
             }

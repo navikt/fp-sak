@@ -69,7 +69,7 @@ public interface Betalingsmottaker {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ArbeidsgiverOrgnr that = (ArbeidsgiverOrgnr) o;
+            var that = (ArbeidsgiverOrgnr) o;
             return Objects.equals(orgnr, that.orgnr);
         }
 

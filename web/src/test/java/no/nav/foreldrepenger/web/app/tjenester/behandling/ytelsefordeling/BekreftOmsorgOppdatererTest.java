@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,8 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -46,33 +41,33 @@ public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_omsorg() {
         // Arrange
-        boolean oppdatertOmsorg = true;
+        var oppdatertOmsorg = true;
 
         // Behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
         scenario.medSøknad();
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, false, true);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.VURDER_UTTAK);
 
         var behandling = scenario.lagre(behandlingRepositoryProvider);
 
         // Dto
-        BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto dto = new BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto("begrunnelse");
+        var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto("begrunnelse");
         dto.setOmsorg(oppdatertOmsorg);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
         new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {}
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        List<HistorikkinnslagDel> historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
+        var historikkinnslagDeler = tekstBuilder.build(historikkinnslag);
 
         // Assert
         assertThat(historikkinnslagDeler).hasSize(1);
-        HistorikkinnslagDel del = historikkinnslagDeler.get(0);
-        Optional<HistorikkinnslagFelt> omsorgOpt = del.getEndretFelt(HistorikkEndretFeltType.OMSORG);
+        var del = historikkinnslagDeler.get(0);
+        var omsorgOpt = del.getEndretFelt(HistorikkEndretFeltType.OMSORG);
         assertThat(omsorgOpt).hasValueSatisfying(omsorg -> {
             assertThat(omsorg.getNavn()).isEqualTo(HistorikkEndretFeltType.OMSORG.getKode());
             assertThat(omsorg.getFraVerdi()).isNull();
@@ -81,7 +76,7 @@ public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

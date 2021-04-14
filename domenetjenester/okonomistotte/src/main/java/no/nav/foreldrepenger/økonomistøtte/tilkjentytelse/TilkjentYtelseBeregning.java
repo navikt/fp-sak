@@ -36,11 +36,11 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
 
     @Override
     public List<TilkjentYtelsePeriodeV1> hentTilkjentYtelsePerioder(Long behandlingId) {
-        Optional<BeregningsresultatEntitet> resultatOpt = hentResultatFP(behandlingId);
+        var resultatOpt = hentResultatFP(behandlingId);
         if (resultatOpt.isEmpty()) {
             return Collections.emptyList();
         }
-        BeregningsresultatEntitet resultat = resultatOpt.get();
+        var resultat = resultatOpt.get();
         return MapperForTilkjentYtelse.mapTilkjentYtelse(resultat);
     }
 

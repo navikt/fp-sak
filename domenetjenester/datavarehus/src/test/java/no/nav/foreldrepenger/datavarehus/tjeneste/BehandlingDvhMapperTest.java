@@ -28,9 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.HendelseVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -258,17 +256,17 @@ public class BehandlingDvhMapperTest {
 
     @Test
     public void mapping_klage_med_påklagd_behandling() {
-        LocalDateTime mottattTidspunkt = LocalDateTime.now();
-        ScenarioMorSøkerEngangsstønad scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
-        Behandling behandling = byggBehandling(scenarioMorSøkerEngangsstønad, BehandlingResultatType.AVSLÅTT, true);
+        var mottattTidspunkt = LocalDateTime.now();
+        var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
+        var behandling = byggBehandling(scenarioMorSøkerEngangsstønad, BehandlingResultatType.AVSLÅTT, true);
 
-        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad,
+        var scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad,
             KlageMedholdÅrsak.NYE_OPPLYSNINGER, KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
-        Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
-        KlageRepository klageRepository = scenarioKlageEngangsstønad.getKlageRepository();
+        var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
+        var klageRepository = scenarioKlageEngangsstønad.getKlageRepository();
         klageRepository.settPåklagdBehandlingId(klageBehandling.getId(), behandling.getId());
 
-        Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(
+        var klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(
             klageBehandling);
 
         var behandlingsresultat = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider()
@@ -285,15 +283,15 @@ public class BehandlingDvhMapperTest {
 
     @Test
     public void mapping_klage_uten_påklagd_behandling() {
-        LocalDateTime mottattTidspunkt = LocalDateTime.now();
-        ScenarioMorSøkerEngangsstønad scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
+        var mottattTidspunkt = LocalDateTime.now();
+        var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknadScenario();
 
-        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad,
+        var scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad,
             KlageMedholdÅrsak.NYE_OPPLYSNINGER, KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
-        Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
-        KlageRepository klageRepository = scenarioKlageEngangsstønad.getKlageRepository();
+        var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
+        var klageRepository = scenarioKlageEngangsstønad.getKlageRepository();
 
-        Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(
+        var klageVurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(
             klageBehandling);
 
         var behandlingsresultat = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider()
@@ -309,7 +307,7 @@ public class BehandlingDvhMapperTest {
 
     @Test
     public void skal_mappe_vedtak_id() {
-        LocalDateTime mottattTidspunkt = LocalDateTime.now();
+        var mottattTidspunkt = LocalDateTime.now();
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.INNVILGET, true);
         var behandlingsresultat = scenario.mockBehandlingRepositoryProvider()
@@ -333,7 +331,7 @@ public class BehandlingDvhMapperTest {
     private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario,
                                                             KlageMedholdÅrsak klageMedholdÅrsak,
                                                             KlageVurderingOmgjør klageVurderingOmgjør) {
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
+        var scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
         return scenario.medKlageMedholdÅrsak(klageMedholdÅrsak)
             .medKlageVurderingOmgjør(klageVurderingOmgjør)
             .medBegrunnelse(KLAGE_BEGRUNNELSE)
@@ -343,7 +341,7 @@ public class BehandlingDvhMapperTest {
     private Behandling byggBehandling(ScenarioMorSøkerEngangsstønad morSøkerEngangsstønad,
                                       BehandlingResultatType behandlingResultatType,
                                       boolean avsluttetFagsak) {
-        Behandling behandling = morSøkerEngangsstønad.lagMocked();
+        var behandling = morSøkerEngangsstønad.lagMocked();
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
         behandling.setBehandlendeEnhet(new OrganisasjonsEnhet(BEHANDLENDE_ENHET, null));
@@ -373,7 +371,7 @@ public class BehandlingDvhMapperTest {
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato,
                                                                        LocalDate oppgittFødselsdato) {
-        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
+        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
             HendelseVersjonType.SØKNAD);
         if (oppgittFødselsdato != null) {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
@@ -408,25 +406,25 @@ public class BehandlingDvhMapperTest {
                                                                      BigDecimal graderingArbeidsprosent,
                                                                      Utbetalingsgrad utbetalingsgrad) {
 
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver,
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(arbeidsgiver,
             InternArbeidsforholdRef.nyRef()).medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID).build();
-        UttakResultatPeriodeSøknadEntitet periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(
+        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder().medUttakPeriodeType(
             UttakPeriodeType.FELLESPERIODE)
             .medGraderingArbeidsprosent(graderingArbeidsprosent)
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
-        UttakResultatDokRegelEntitet dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
+        var dokRegel = UttakResultatDokRegelEntitet.utenManuellBehandling()
             .medRegelInput(" ")
             .medRegelEvaluering(" ")
             .build();
-        UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom,
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom,
             tom).medDokRegel(dokRegel)
             .medResultatType(resultat, PeriodeResultatÅrsak.UKJENT)
             .medPeriodeSoknad(periodeSøknad)
             .build();
 
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(
+        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(
             uttakResultatPeriode, uttakAktivitet)
             .medTrekkonto(stønadskontoType)
             .medTrekkdager(new Trekkdager(BigDecimal.TEN))
@@ -436,7 +434,7 @@ public class BehandlingDvhMapperTest {
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
 
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var perioder = new UttakResultatPerioderEntitet();
         perioder.leggTilPeriode(uttakResultatPeriode);
 
         return perioder;

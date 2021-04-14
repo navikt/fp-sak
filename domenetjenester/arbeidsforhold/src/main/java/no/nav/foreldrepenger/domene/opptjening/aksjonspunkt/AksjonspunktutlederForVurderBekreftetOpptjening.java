@@ -9,7 +9,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
@@ -56,17 +54,17 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        Long behandlingId = param.getBehandlingId();
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
-        Optional<Opptjening> fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
+        var behandlingId = param.getBehandlingId();
+        var inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
+        var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
         if (!inntektArbeidYtelseGrunnlagOptional.isPresent() || !fastsattOpptjeningOptional.isPresent()) {
             return INGEN_AKSJONSPUNKTER;
         }
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = inntektArbeidYtelseGrunnlagOptional.get();
-        DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseGrunnlagOptional.get();
+        var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
                 fastsattOpptjeningOptional.get().getTom());
 
-        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         if (finnesDetArbeidsforholdMedStillingsprosentLik0(param.getAktørId(), inntektArbeidYtelseGrunnlag, opptjeningPeriode,
                 skjæringstidspunkt) == JA) {
             LOG.info("Utleder AP 5051 fra stillingsprosent 0: behandlingId={}", behandlingId);
@@ -83,7 +81,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
     private Utfall finnesDetArbeidsforholdLagtTilAvSaksbehandler(BehandlingReferanse referanse, InntektArbeidYtelseGrunnlag grunnlag,
             LocalDate skjæringstidspunkt) {
-        AktørId aktørId = referanse.getAktørId();
+        var aktørId = referanse.getAktørId();
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(aktørId))
                 .før(skjæringstidspunkt);
 
@@ -109,7 +107,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
 
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
         if (!yrkesaktiviteter.isEmpty()) {
-            for (Yrkesaktivitet yrkesaktivitet : yrkesaktiviteter.stream()
+            for (var yrkesaktivitet : yrkesaktiviteter.stream()
                     .filter(it -> ArbeidType.AA_REGISTER_TYPER.contains(it.getArbeidType())).collect(Collectors.toList())) {
                 if (girAksjonspunkt(filter, opptjeningPeriode, yrkesaktivitet)) {
                     return JA;
@@ -139,11 +137,11 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening implements Aksjonsp
                 && OrgNummer.erKunstig(overstyrtAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
-        final Optional<Opptjening> opptjening = opptjeningRepository.finnOpptjening(behandlingId);
+        final var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.isEmpty() || (registerAktivitet == null)) {
             return false;
         }
-        final DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());
+        final var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(opptjening.get().getFom(), opptjening.get().getTom());
         return girAksjonspunkt(filter, opptjeningPeriode, registerAktivitet);
     }
 }

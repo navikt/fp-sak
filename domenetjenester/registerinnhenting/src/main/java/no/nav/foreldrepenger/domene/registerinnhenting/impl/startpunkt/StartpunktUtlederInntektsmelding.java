@@ -47,11 +47,11 @@ class StartpunktUtlederInntektsmelding {
     }
 
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
-        Optional<InntektArbeidYtelseGrunnlag> fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.getBehandlingId());
-        Optional<InntektArbeidYtelseGrunnlag> eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(fersktGrunnlag, grunnlag1, grunnlag2);
-        List<Inntektsmelding> gamle = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
-        List<Inntektsmelding> nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
-        List<Inntektsmelding> deltaIM = nyim.stream()
+        var fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.getBehandlingId());
+        var eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(fersktGrunnlag, grunnlag1, grunnlag2);
+        var gamle = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
+        var nyim = hentInntektsmeldingerFraGittGrunnlag(fersktGrunnlag);
+        var deltaIM = nyim.stream()
             .filter(im -> !gamle.contains(im))
             .collect(Collectors.toList());
 
@@ -59,7 +59,7 @@ class StartpunktUtlederInntektsmelding {
             return finnStartpunktFørstegang(ref, fersktGrunnlag, deltaIM);
         }
 
-        List<Inntektsmelding> origIm = gamle.stream()
+        var origIm = gamle.stream()
             .sorted(Comparator.comparing(Inntektsmelding::getInnsendingstidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
             .collect(Collectors.toList());
 
@@ -106,7 +106,7 @@ class StartpunktUtlederInntektsmelding {
     }
 
     private boolean erStartpunktForNyImBeregning(Inntektsmelding nyIm, List<Inntektsmelding> origIm, BehandlingReferanse ref) {
-        Inntektsmelding origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, origIm).orElse(null);
+        var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, origIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.getBehandlingId(), nyIm.getKanalreferanse());
             return true;
@@ -129,7 +129,7 @@ class StartpunktUtlederInntektsmelding {
 
 
     private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Optional<InntektArbeidYtelseGrunnlag> grunnlagForBehandling, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
-        InntektArbeidYtelseGrunnlag gjeldendeGrunnlag = grunnlagForBehandling.orElse(null);
+        var gjeldendeGrunnlag = grunnlagForBehandling.orElse(null);
         if (gjeldendeGrunnlag == null) {
             return Optional.empty();
         }
@@ -152,15 +152,16 @@ class StartpunktUtlederInntektsmelding {
 
     private boolean erStartdatoUlikFørsteUttaksdato(BehandlingReferanse ref, Inntektsmelding nyIm) {
         // Samme logikk som 5045 AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden
-        LocalDate førsteUttaksDato = endreDatoHvisLørdagEllerSøndag(ref.getFørsteUttaksdato());
-        LocalDate startDatoIm = endreDatoHvisLørdagEllerSøndag(nyIm.getStartDatoPermisjon().orElse(Tid.TIDENES_BEGYNNELSE));
+        var førsteUttaksDato = endreDatoHvisLørdagEllerSøndag(ref.getFørsteUttaksdato());
+        var startDatoIm = endreDatoHvisLørdagEllerSøndag(nyIm.getStartDatoPermisjon().orElse(Tid.TIDENES_BEGYNNELSE));
         return !førsteUttaksDato.equals(startDatoIm);
     }
 
     LocalDate endreDatoHvisLørdagEllerSøndag(LocalDate dato) {
         if (dato.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
             return dato.plusDays(2L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             return dato.plusDays(1L);
         }
         return dato;
@@ -173,10 +174,10 @@ class StartpunktUtlederInntektsmelding {
     }
 
     private boolean erEndringPåRefusjon(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {
-        boolean erEndringPåBeløp = !Objects.equals(nyInntektsmelding.getRefusjonBeløpPerMnd(), opprinneligInntektsmelding.getRefusjonBeløpPerMnd())
+        var erEndringPåBeløp = !Objects.equals(nyInntektsmelding.getRefusjonBeløpPerMnd(), opprinneligInntektsmelding.getRefusjonBeløpPerMnd())
             || !Objects.equals(nyInntektsmelding.getRefusjonOpphører(), opprinneligInntektsmelding.getRefusjonOpphører());
 
-        boolean erEndringerPåEndringerRefusjon = erEndringerPåEndringerRefusjon(nyInntektsmelding.getEndringerRefusjon(), opprinneligInntektsmelding.getEndringerRefusjon());
+        var erEndringerPåEndringerRefusjon = erEndringerPåEndringerRefusjon(nyInntektsmelding.getEndringerRefusjon(), opprinneligInntektsmelding.getEndringerRefusjon());
         return erEndringPåBeløp || erEndringerPåEndringerRefusjon;
     }
 

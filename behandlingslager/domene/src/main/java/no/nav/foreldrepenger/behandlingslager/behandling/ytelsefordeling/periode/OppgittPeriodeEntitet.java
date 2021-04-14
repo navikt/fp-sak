@@ -173,9 +173,11 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     public Årsak getÅrsak() {
         if (Objects.equals(årsakType, OppholdÅrsak.KODEVERK)) {
             return OppholdÅrsak.fraKode(årsak);
-        } else if (Objects.equals(årsakType, UtsettelseÅrsak.KODEVERK)) {
+        }
+        if (Objects.equals(årsakType, UtsettelseÅrsak.KODEVERK)) {
             return UtsettelseÅrsak.fraKode(årsak);
-        } else if (Objects.equals(årsakType, OverføringÅrsak.KODEVERK)) {
+        }
+        if (Objects.equals(årsakType, OverføringÅrsak.KODEVERK)) {
             return OverføringÅrsak.fraKode(årsak);
         }
         return Årsak.UKJENT;
@@ -312,7 +314,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         if (!(o instanceof OppgittPeriodeEntitet)) {
             return false;
         }
-        OppgittPeriodeEntitet that = (OppgittPeriodeEntitet) o;
+        var that = (OppgittPeriodeEntitet) o;
         return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) &&
                 Objects.equals(årsakType, that.årsakType) &&
                 Objects.equals(årsak, that.årsak) &&

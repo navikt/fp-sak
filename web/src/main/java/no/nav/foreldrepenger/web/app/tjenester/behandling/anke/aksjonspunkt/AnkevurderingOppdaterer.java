@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -61,10 +59,10 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     @Override
     public OppdateringResultat oppdater(AnkeVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
 
-        Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        boolean ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
+        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
+        var ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
 
         var builder = mapDto(dto, behandling);
         ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, dto.hentPåAnketBehandlingId());
@@ -104,15 +102,15 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, AnkeVurderingResultatAksjonspunktDto dto,boolean endreAnke) {
-        Optional<AnkeVurderingResultatEntitet> ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
-        AnkeResultatEntitet ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling.getId());
-        AnkeVurdering ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
-        AnkeVurderingOmgjør ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
+        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
+        var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling.getId());
+        var ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
+        var ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
             ? AnkeVurderingOmgjør.fraKode(dto.getAnkeVurderingOmgjoer().getKode()) : null;
-        AnkeOmgjørÅrsak omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
+        var omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
 
-        HistorikkResultatType resultat = konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
-        HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder();
+        var resultat = konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
+        var historiebygger = new HistorikkInnslagTekstBuilder();
 
         if (!endreAnke) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat != null ? resultat.getNavn() : null);
@@ -131,7 +129,7 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         historiebygger.medBegrunnelse(dto.getBegrunnelse());
         historiebygger.medSkjermlenke(SkjermlenkeType.ANKE_VURDERING);
 
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setType(HistorikkinnslagType.ANKE_BEH);
         innslag.setBehandlingId(behandling.getId());
@@ -200,8 +198,8 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         if (behandlingId == null) {
             return "Ikke påanket et vedtak";
         }
-        Behandling påAnketBehandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<LocalDate> vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(it -> it.getVedtaksdato());
+        var påAnketBehandling = behandlingRepository.hentBehandling(behandlingId);
+        var vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(it -> it.getVedtaksdato());
         return påAnketBehandling.getType().getNavn() + " " +
             vedtaksDatoPåanketBehandling
                 .map(dato -> dato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
@@ -209,8 +207,8 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
     }
 
     private boolean erVedtakOppdatert(AnkeResultatEntitet ankeResultat, AnkeVurderingResultatAksjonspunktDto dto) {
-        Long nyPåAnketBehandling = dto.hentPåAnketBehandlingId();
-        boolean harLagretPåAnketBehandling = ankeResultat.getPåAnketBehandlingId().isPresent();
+        var nyPåAnketBehandling = dto.hentPåAnketBehandlingId();
+        var harLagretPåAnketBehandling = ankeResultat.getPåAnketBehandlingId().isPresent();
 
         if (!harLagretPåAnketBehandling && nyPåAnketBehandling == null) {
             return false;

@@ -26,7 +26,7 @@ public class AppAbacSporingslogg extends DefaultAbacSporingslogg {
     @Override
     protected void setCustomSporingsdata(PdpRequest pdpRequest, int index, Sporingsdata sporingsdata) {
 
-        int antallIdenter = Math.max(1, antallIdenter(pdpRequest));
+        var antallIdenter = Math.max(1, antallIdenter(pdpRequest));
         setOptionalListValueinAttributeSet(sporingsdata, pdpRequest,
             AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE,
             (index / antallIdenter),

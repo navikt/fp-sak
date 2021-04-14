@@ -18,7 +18,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -27,13 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -88,15 +85,15 @@ public class DokumentmottakerKlageTest {
     @BeforeEach
     public void oppsett() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        MottatteDokumentTjeneste mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
+        var mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         prosessTaskRepository = mock(ProsessTaskRepository.class);
-        BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
+        var behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         historikkinnslagTjeneste = mock(HistorikkinnslagTjeneste.class);
         klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "NAV Drammen");
+        var enhet = new OrganisasjonsEnhet("4806", "NAV Drammen");
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
-        BehandlingskontrollTjeneste behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
+        var behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
                 behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
@@ -112,12 +109,12 @@ public class DokumentmottakerKlageTest {
     @Test
     public void skal_starte_behandling_av_klage() {
         // Arrange
-        Behandling behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
-        Fagsak fagsak = behandling.getFagsak();
-        Long fagsakId = fagsak.getId();
+        var behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
+        var fagsak = behandling.getFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
@@ -129,12 +126,12 @@ public class DokumentmottakerKlageTest {
     @Test
     public void skal_vurdere_dokument_ved_ettersendelse() {
         // Arrange
-        Behandling behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
-        Fagsak fagsak = behandling.getFagsak();
-        Long fagsakId = fagsak.getId();
+        var behandling = byggAvsluttetSøknadsbehandlingForFødsel(1);
+        var fagsak = behandling.getFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.KLAGE_ETTERSENDELSE;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
@@ -146,12 +143,12 @@ public class DokumentmottakerKlageTest {
     @Test
     public void skal_vurdere_dokument_ved_tidligere_klage() {
         // Arrange
-        Behandling behandling = byggAvsluttetKlage();
-        Fagsak fagsak = behandling.getFagsak();
-        Long fagsakId = fagsak.getId();
+        var behandling = byggAvsluttetKlage();
+        var fagsak = behandling.getFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
@@ -163,12 +160,12 @@ public class DokumentmottakerKlageTest {
     @Test
     public void skal_vurdere_dokument_fra_tidligere() {
         // Arrange
-        Behandling behandling = byggAvsluttetKlage();
-        Fagsak fagsak = behandling.getFagsak();
-        Long fagsakId = fagsak.getId();
+        var behandling = byggAvsluttetKlage();
+        var fagsak = behandling.getFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
         dokumentmottaker.opprettFraTidligereAvsluttetBehandling(fagsak, behandling.getId(), mottattDokument, BehandlingÅrsakType.UDEFINERT, false);
@@ -181,34 +178,34 @@ public class DokumentmottakerKlageTest {
     @Test
     public void skal_kaste_feil_når_det_kommer_inn_klage_og_det_ikke_finnes_en_vanlig_behandlig() {
         // Arrange
-        Fagsak fagsak = nyMorFødselFagsak();
-        Long fagsakId = fagsak.getId();
+        var fagsak = nyMorFødselFagsak();
+        var fagsakId = fagsak.getId();
         var dokumentTypeId = DokumentTypeId.KLAGE_DOKUMENT;
 
-        MottattDokument mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, "123");
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, fagsak, BehandlingÅrsakType.UDEFINERT);
     }
 
     private Behandling byggAvsluttetKlage() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse()
                 .medAntallBarn(1).medFødselsDato(LocalDate.now());
-        ScenarioKlageEngangsstønad scenarioKlage = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
+        var scenarioKlage = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
         return scenarioKlage.lagre(repositoryProvider, klageRepository);
     }
 
     private Behandling byggAvsluttetSøknadsbehandlingForFødsel(int antallBarn) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medBekreftetHendelse()
                 .medAntallBarn(antallBarn).medFødselsDato(LocalDate.now());
 
-        Behandling behandling = scenario
+        var behandling = scenario
                 .medBehandlingStegStart(BehandlingStegType.FATTE_VEDTAK)
                 .lagre(repositoryProvider);
-        Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var fagsak = behandling.getFagsak();
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
 
         Behandlingsresultat.builderForInngangsvilkår()
@@ -219,11 +216,11 @@ public class DokumentmottakerKlageTest {
                         null, new Properties(), null, false, false, "", "")
                 .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        var behandlingsresultat = behandling.getBehandlingsresultat();
         LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
                 .buildFor(behandling, behandlingsresultat);
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var vedtak = BehandlingVedtak.builder()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .medBehandlingsresultat(behandlingsresultat)
                 .medIverksettingStatus(IverksettingStatus.IVERKSATT)
@@ -231,7 +228,7 @@ public class DokumentmottakerKlageTest {
                 .medAnsvarligSaksbehandler("VL")
                 .build();
         behandling.avsluttBehandling();
-        BehandlingLås lås = kontekst.getSkriveLås();
+        var lås = kontekst.getSkriveLås();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         beregningRepository.lagre(behandlingsresultat.getBeregningResultat(), lås);
         behandlingRepository.lagre(behandling, lås);

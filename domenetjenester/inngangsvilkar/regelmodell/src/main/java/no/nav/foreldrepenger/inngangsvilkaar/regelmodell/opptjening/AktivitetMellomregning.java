@@ -52,7 +52,7 @@ class AktivitetMellomregning {
     }
 
     public LocalDateTimeline<Boolean> getAktivitetTidslinje(boolean medAntattGodkjentePerioder, boolean medIkkebekreftedeGodkjentePerioder) {
-        LocalDateTimeline<Boolean> tidslinje = aktivitetTidslinjer;
+        var tidslinje = aktivitetTidslinjer;
 
         if (!medAntattGodkjentePerioder) {
             tidslinje = tidslinje.disjoint(aktivitetAntattGodkjent, StandardCombinators::leftOnly);

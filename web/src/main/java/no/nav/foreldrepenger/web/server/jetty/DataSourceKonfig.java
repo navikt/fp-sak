@@ -36,7 +36,7 @@ class DataSourceKonfig {
         config.setConnectionTestQuery("select 1 from dual");
         config.setDriverClassName("oracle.jdbc.OracleDriver");
 
-        Properties dsProperties = new Properties();
+        var dsProperties = new Properties();
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);

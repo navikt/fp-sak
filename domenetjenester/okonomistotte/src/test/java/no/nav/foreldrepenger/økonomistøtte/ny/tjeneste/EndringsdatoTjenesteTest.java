@@ -34,13 +34,13 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_ikke_finne_endringsdato_ved_likhet() {
-        Ytelse y0 = Ytelse.builder().build();
-        Ytelse y1 = Ytelse.builder()
+        var y0 = Ytelse.builder().build();
+        var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1200)))
             .build();
-        Ytelse y2 = Ytelse.builder()
+        var y2 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2Start, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p2Slutt, Satsen.dagsats(1100)))
@@ -56,12 +56,12 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_endringsdato_i_start_av_periode() {
-        Ytelse y1 = Ytelse.builder()
+        var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1200)))
             .build();
-        Ytelse y2 = Ytelse.builder()
+        var y2 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1300)))
@@ -73,12 +73,12 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_endringsdato_i_starten() {
-        Ytelse y1 = Ytelse.builder()
+        var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1200)))
             .build();
-        Ytelse y2 = Ytelse.builder()
+        var y2 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1300)))
             .build();
@@ -89,12 +89,12 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_endringsdato_i_periode() {
-        Ytelse y1 = Ytelse.builder()
+        var y1 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1200)))
             .build();
-        Ytelse y2 = Ytelse.builder()
+        var y2 = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(1000)))
             .leggTilPeriode(new YtelsePeriode(p2Start, Satsen.dagsats(1100)))
             .leggTilPeriode(new YtelsePeriode(p3, Satsen.dagsats(1300)))
@@ -106,16 +106,16 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_ignorere_helger_for_satstype_dagsats() {
-        LocalDate forrigeSøndag = LocalDate.of(2020, 11, 22);
-        LocalDate mandag = forrigeSøndag.plusDays(1);
-        LocalDate fredag = mandag.plusDays(4);
-        LocalDate nesteMandag = mandag.plusDays(7);
+        var forrigeSøndag = LocalDate.of(2020, 11, 22);
+        var mandag = forrigeSøndag.plusDays(1);
+        var fredag = mandag.plusDays(4);
+        var nesteMandag = mandag.plusDays(7);
 
-        Ytelse ytelseKontinuerlig = Ytelse.builder()
+        var ytelseKontinuerlig = Ytelse.builder()
             .leggTilPeriode(new YtelsePeriode(Periode.of(mandag, fredag), Satsen.dagsats(100)))
             .leggTilPeriode(new YtelsePeriode(Periode.of(nesteMandag, nesteMandag), Satsen.dagsats(100)))
             .build();
-        Ytelse ytelseSplittet = Ytelse.builder().leggTilPeriode(
+        var ytelseSplittet = Ytelse.builder().leggTilPeriode(
             new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100)))
             .build();
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseKontinuerlig, ytelseSplittet)).isNull();
@@ -124,24 +124,24 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_finne_differanse_ved_endringer_i_dagytelse_i_tilknytning_til_helg() {
-        LocalDate forrigeSøndag = LocalDate.of(2020, 11, 22);
-        LocalDate mandag = forrigeSøndag.plusDays(1);
-        LocalDate lørdag = mandag.plusDays(5);
-        LocalDate søndag = mandag.plusDays(6);
-        LocalDate nesteMandag = mandag.plusDays(7);
+        var forrigeSøndag = LocalDate.of(2020, 11, 22);
+        var mandag = forrigeSøndag.plusDays(1);
+        var lørdag = mandag.plusDays(5);
+        var søndag = mandag.plusDays(6);
+        var nesteMandag = mandag.plusDays(7);
 
-        Ytelse ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Satsen.dagsats(100))).build();
+        var ytelse1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, mandag), Satsen.dagsats(100))).build();
 
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(Ytelse.EMPTY, ytelse1)).isEqualTo(mandag);
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse1, Ytelse.EMPTY)).isEqualTo(mandag);
 
-        Ytelse ytelse1SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(100))).build();
-        Ytelse ytelse2SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(200))).build();
+        var ytelse1SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(100))).build();
+        var ytelse2SøndagSøndag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(forrigeSøndag, søndag), Satsen.dagsats(200))).build();
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse1SøndagSøndag, ytelse2SøndagSøndag)).isEqualTo(mandag);
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelse2SøndagSøndag, ytelse1SøndagSøndag)).isEqualTo(mandag);
 
-        Ytelse ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Satsen.dagsats(100))).build();
-        Ytelse ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100))).build();
+        var ytelseUke1 = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, lørdag), Satsen.dagsats(100))).build();
+        var ytelseUke1OgNesteMandag = Ytelse.builder().leggTilPeriode(new YtelsePeriode(Periode.of(mandag, nesteMandag), Satsen.dagsats(100))).build();
 
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1, ytelseUke1OgNesteMandag)).isEqualTo(nesteMandag);
         assertThat(EndringsdatoTjeneste.ignorerDagsatsIHelg().finnEndringsdato(ytelseUke1OgNesteMandag, ytelseUke1)).isEqualTo(nesteMandag);
@@ -149,20 +149,20 @@ public class EndringsdatoTjenesteTest {
 
     @Test
     public void skal_ikke_finne_noen_endringsdato_når_det_ikke_er_noen_endringer() {
-        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
-        GruppertYtelse målbilde = GruppertYtelse.TOM;
-        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
+        var målbilde = GruppertYtelse.TOM;
+        var tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
         Assertions.assertThat(tidligsteEndringsdato).isNull();
     }
 
     @Test
     public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag() {
-        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
+        var nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
-        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Collections.emptyMap());
 
-        GruppertYtelse målbilde = GruppertYtelse.builder()
+        var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelBruker, Ytelse.builder()
                 .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100)))
                 .build())
@@ -172,22 +172,22 @@ public class EndringsdatoTjenesteTest {
                 .build())
             .build();
 
-        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+        var tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
 
         Assertions.assertThat(tidligsteEndringsdato).isEqualTo(p1.getFom());
     }
 
     @Test
     public void skal_finne_tidligste_endringsdato_på_tvers_av_oppdrag_for_revurdering() {
-        KjedeNøkkel nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
+        var nøkkelBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000000"));
 
-        OverordnetOppdragKjedeOversikt tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
+        var tidligereOppdrag = new OverordnetOppdragKjedeOversikt(Map.of(
             nøkkelBruker, OppdragKjede.builder()
                 .medOppdragslinje(OppdragLinje.builder().medPeriode(p1).medSats(Satsen.dagsats(100)).medDelytelseId(DelytelseId.parse("FooBAR-1-1")).build())
                 .build()));
 
-        GruppertYtelse målbilde = GruppertYtelse.builder()
+        var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelBruker, Ytelse.builder()
                 .leggTilPeriode(new YtelsePeriode(p1, Satsen.dagsats(100)))
                 .build())
@@ -197,7 +197,7 @@ public class EndringsdatoTjenesteTest {
                 .build())
             .build();
 
-        LocalDate tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
+        var tidligsteEndringsdato = EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag);
 
         Assertions.assertThat(tidligsteEndringsdato).isEqualTo(p2.getFom());
     }

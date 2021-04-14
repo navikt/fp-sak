@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -178,17 +177,17 @@ public class ScenarioKlageEngangsstønad {
     }
 
     private Behandling buildKlage(KlageRepository klageRepository, BehandlingRepositoryProvider repositoryProvider) {
-        Fagsak fagsak = abstractTestScenario.getFagsak();
+        var fagsak = abstractTestScenario.getFagsak();
 
         // oppprett og lagre behandling
-        Behandling.Builder builder = Behandling.forKlage(fagsak);
+        var builder = Behandling.forKlage(fagsak);
 
         if (behandlendeEnhet != null) {
             builder.medBehandlendeEnhet(new OrganisasjonsEnhet(behandlendeEnhet, null));
         }
         klageBehandling = builder.build();
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(klageBehandling);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var lås = behandlingRepository.taSkriveLås(klageBehandling);
         behandlingRepository.lagre(klageBehandling, lås);
         klageResultat = klageRepository.hentEvtOpprettKlageResultat(klageBehandling.getId());
         klageRepository.lagreFormkrav(klageBehandling, opprettFormkrav(KlageVurdertAv.NFP));
@@ -249,7 +248,7 @@ public class ScenarioKlageEngangsstønad {
     }
 
     public BehandlingRepository mockBehandlingRepository() {
-        BehandlingRepository behandlingRepository = abstractTestScenario.mockBehandlingRepository();
+        var behandlingRepository = abstractTestScenario.mockBehandlingRepository();
         lenient().when(behandlingRepository.hentBehandling(klageBehandling.getId())).thenReturn(klageBehandling);
         return behandlingRepository;
     }
@@ -262,7 +261,7 @@ public class ScenarioKlageEngangsstønad {
     public Behandling lagMocked() {
         // pga det ikke går ann å flytte steg hvis mocket så settes startsteg til null
         startSteg = null;
-        BehandlingRepositoryProvider repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = abstractTestScenario.mockBehandlingRepositoryProvider();
         lagre(repositoryProvider, this.klageRepository);
         klageBehandling.setId(AbstractTestScenario.nyId());
         // Whitebox.setInternalState(klageBehandling, "id",
@@ -322,7 +321,7 @@ public class ScenarioKlageEngangsstønad {
 
             @Override
             public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
-                KlageVurderingResultat vurderingResultat = klageVurderingResultatBuilder.medKlageResultat(klageResultat).build();
+                var vurderingResultat = klageVurderingResultatBuilder.medKlageResultat(klageResultat).build();
                 if (vurderingResultat.getKlageVurdertAv() == KlageVurdertAv.NFP) {
                     klageVurderingResultatNfp = vurderingResultat;
                 } else {
@@ -363,7 +362,7 @@ public class ScenarioKlageEngangsstønad {
 
             @Override
             public void settPåklagdBehandlingId(Long klageBehandlingId, Long påKlagdBehandlingId) {
-                KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+                var klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
                 klageResultat.settPåKlagdBehandlingId(påKlagdBehandlingId);
             }
 

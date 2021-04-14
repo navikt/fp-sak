@@ -20,11 +20,9 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
@@ -54,20 +52,20 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
             return INGEN_AKSJONSPUNKTER;
         }
 
-        Long behandlingId = param.getBehandlingId();
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId).orElse(null);
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
+        var behandlingId = param.getBehandlingId();
+        var inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId).orElse(null);
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
 
         if (ytelseFordelingAggregat == null || inntektArbeidYtelseGrunnlag == null) {
             return INGEN_AKSJONSPUNKTER;
         }
-        InntektsmeldingAggregat inntektsmeldinger = inntektArbeidYtelseGrunnlag.getInntektsmeldinger().orElse(null);
+        var inntektsmeldinger = inntektArbeidYtelseGrunnlag.getInntektsmeldinger().orElse(null);
         var harAlleredeAvklartStartDato = ytelseFordelingAggregat.getAvklarteDatoer().map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).isPresent();
         if (inntektsmeldinger == null || harAlleredeAvklartStartDato) {
             return INGEN_AKSJONSPUNKTER;
         }
 
-        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getFørsteUttaksdato();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getFørsteUttaksdato();
 
         var filter = new YrkesaktivitetFilter(inntektArbeidYtelseGrunnlag.getArbeidsforholdInformasjon(), inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .før(skjæringstidspunkt);
@@ -76,7 +74,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
             return INGEN_AKSJONSPUNKTER;
         }
 
-        LocalDate startdatoOppgittAvBruker = skjæringstidspunkt;
+        var startdatoOppgittAvBruker = skjæringstidspunkt;
 
         if (samsvarerStartdatoerFraInntektsmeldingOgBruker(startdatoOppgittAvBruker, inntektsmeldinger) == NEI) {
             if (erMinstEttArbeidsforholdLøpende(filter, skjæringstidspunkt) == JA) {
@@ -116,7 +114,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
     }
 
     Utfall erMinstEttArbeidsforholdLøpende(YrkesaktivitetFilter filter, LocalDate skjæringstidspunkt) {
-        boolean minstEttLøpende = filter.getYrkesaktiviteter().stream()
+        var minstEttLøpende = filter.getYrkesaktiviteter().stream()
             .filter(Yrkesaktivitet::erArbeidsforhold)
             .map(filter::getAnsettelsesPerioder)
             .flatMap(Collection::stream)
@@ -135,7 +133,8 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
     LocalDate endreDatoHvisLørdagEllerSøndag(LocalDate dato) {
         if (dato.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
             return dato.plusDays(2L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             return dato.plusDays(1L);
         }
         return dato;

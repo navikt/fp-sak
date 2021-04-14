@@ -136,11 +136,10 @@ public class FagsakBuilder {
 
         if (fagsak != null) {
             return fagsak;
-        } else {
-            fagsakRelasjonBuilder.setDefaults();
-            fagsak = Fagsak.opprettNy(fagsakRelasjonBuilder.getYtelseType(), brukerBuilder.build(), rolle, saksnummer);
-            return fagsak;
         }
+        fagsakRelasjonBuilder.setDefaults();
+        fagsak = Fagsak.opprettNy(fagsakRelasjonBuilder.getYtelseType(), brukerBuilder.build(), rolle, saksnummer);
+        return fagsak;
 
     }
 }

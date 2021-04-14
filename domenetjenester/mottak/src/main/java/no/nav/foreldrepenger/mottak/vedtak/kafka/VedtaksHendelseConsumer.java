@@ -37,15 +37,15 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
     public VedtaksHendelseConsumer(VedtaksHendelseHåndterer vedtaksHendelseHåndterer, VedtakStreamKafkaProperties streamKafkaProperties) {
         this.topic = streamKafkaProperties.getTopic();
 
-        Properties props = setupProperties(streamKafkaProperties);
+        var props = setupProperties(streamKafkaProperties);
 
-        final StreamsBuilder builder = new StreamsBuilder();
+        final var builder = new StreamsBuilder();
 
         Consumed<String, String> stringStringConsumed = Consumed.with(Topology.AutoOffsetReset.LATEST);
         builder.stream(this.topic, stringStringConsumed)
             .foreach(vedtaksHendelseHåndterer::handleMessage);
 
-        final Topology topology = builder.build();
+        final var topology = builder.build();
         stream = new KafkaStreams(topology, props);
     }
 
@@ -66,7 +66,7 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
     }
 
     private Properties setupProperties(VedtakStreamKafkaProperties streamProperties) {
-        Properties props = new Properties();
+        var props = new Properties();
 
         LOG.info("Consuming topic='{}' with applicationId='{}'", streamProperties.getTopic(), streamProperties.getApplicationId());
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
@@ -78,7 +78,7 @@ public class VedtaksHendelseConsumer implements AppServiceHandler, KafkaIntegrat
             LOG.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
+            var jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format(jaasTemplate, streamProperties.getUsername(), streamProperties.getPassword()));
         }
 

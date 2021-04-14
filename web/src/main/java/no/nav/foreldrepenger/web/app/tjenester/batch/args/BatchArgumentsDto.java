@@ -35,10 +35,10 @@ public class BatchArgumentsDto implements AbacDto {
     private void parseJobParams(Map<String, String> arguments) {
         if (StringUtils.erIkkeTom(jobParameters)) {
 
-            StringTokenizer tokenizer = new StringTokenizer(jobParameters, ",");
+            var tokenizer = new StringTokenizer(jobParameters, ",");
             while (tokenizer.hasMoreTokens()) {
-                String keyValue = tokenizer.nextToken().trim();
-                String[] keyValArr = keyValue.split("=");
+                var keyValue = tokenizer.nextToken().trim();
+                var keyValArr = keyValue.split("=");
                 if (keyValArr.length == 2) {
                     arguments.put(keyValArr[0], keyValArr[1]);
                 }

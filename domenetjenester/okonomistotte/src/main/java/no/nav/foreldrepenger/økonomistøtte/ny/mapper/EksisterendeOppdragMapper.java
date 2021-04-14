@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
@@ -40,7 +39,7 @@ public class EksisterendeOppdragMapper {
     }
 
     private static Map<KjedeNøkkel, OppdragKjede> oppdragTilKjeder(List<Oppdrag110> tidligereOppdrag) {
-        List<Oppdrag110> godkjenteOppdrag = sorterOgVelgKunGyldige(tidligereOppdrag);
+        var godkjenteOppdrag = sorterOgVelgKunGyldige(tidligereOppdrag);
         var buildere = lagOppdragskjedeBuildere(godkjenteOppdrag);
         return build(buildere);
     }
@@ -50,13 +49,13 @@ public class EksisterendeOppdragMapper {
         Map<DelytelseId, OppdragKjede.Builder> builderMap = new HashMap<>();
         Set<DelytelseId> startpunkt = new TreeSet<>();
 
-        for (Oppdrag110 oppdrag110 : godkjenteOppdrag) {
-            for (Oppdragslinje150 linje : sortert(oppdrag110.getOppdragslinje150Liste())) {
-                KjedeNøkkel nøkkel = tilNøkkel(linje);
-                OppdragLinje oppdragslinje = tilOppdragslinje(linje);
+        for (var oppdrag110 : godkjenteOppdrag) {
+            for (var linje : sortert(oppdrag110.getOppdragslinje150Liste())) {
+                var nøkkel = tilNøkkel(linje);
+                var oppdragslinje = tilOppdragslinje(linje);
 
-                DelytelseId delytelseId = oppdragslinje.getDelytelseId();
-                DelytelseId refDelytelseId = oppdragslinje.getRefDelytelseId();
+                var delytelseId = oppdragslinje.getDelytelseId();
+                var refDelytelseId = oppdragslinje.getRefDelytelseId();
 
                 OppdragKjede.Builder builder;
                 if (refDelytelseId != null) {
@@ -76,11 +75,11 @@ public class EksisterendeOppdragMapper {
         }
 
         Map<KjedeNøkkel, OppdragKjede.Builder> resultat = new HashMap<>();
-        for (DelytelseId delytelseId : startpunkt) {
-            KjedeNøkkel preferertNøkkel = nøkkelMap.get(delytelseId);
-            KjedeNøkkel ledigNøkkel = finnLedigNøkkel(preferertNøkkel, resultat.keySet());
-            boolean harEksisterendeOpphørtKjede = resultat.containsKey(preferertNøkkel) && resultat.get(preferertNøkkel).erEffektivtTom();
-            OppdragKjede.Builder kjedeBuilder = builderMap.get(delytelseId);
+        for (var delytelseId : startpunkt) {
+            var preferertNøkkel = nøkkelMap.get(delytelseId);
+            var ledigNøkkel = finnLedigNøkkel(preferertNøkkel, resultat.keySet());
+            var harEksisterendeOpphørtKjede = resultat.containsKey(preferertNøkkel) && resultat.get(preferertNøkkel).erEffektivtTom();
+            var kjedeBuilder = builderMap.get(delytelseId);
             if (harEksisterendeOpphørtKjede) {
                 resultat.put(ledigNøkkel, resultat.get(preferertNøkkel));
                 resultat.put(preferertNøkkel, kjedeBuilder);
@@ -93,7 +92,7 @@ public class EksisterendeOppdragMapper {
     }
 
     private static KjedeNøkkel finnLedigNøkkel(KjedeNøkkel preferertNøkkel, Set<KjedeNøkkel> brukteNøkler) {
-        KjedeNøkkel nøkkel = preferertNøkkel;
+        var nøkkel = preferertNøkkel;
         while (brukteNøkler.contains(nøkkel)) {
             nøkkel = nøkkel.forNesteKnekteKjededel();
         }
@@ -154,19 +153,19 @@ public class EksisterendeOppdragMapper {
     private static Satsen mapSats(Oppdragslinje150 linje) {
         if (linje.getTypeSats().getKode().equals(SatsType.DAG.getKode())) {
             return Satsen.dagsats(linje.getSats().getVerdi().longValue());
-        } else if (linje.getTypeSats().getKode().equals(SatsType.ENGANG.getKode())) {
-            return Satsen.engang(linje.getSats().getVerdi().longValue());
-        } else {
-            throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
         }
+        if (linje.getTypeSats().getKode().equals(SatsType.ENGANG.getKode())) {
+            return Satsen.engang(linje.getSats().getVerdi().longValue());
+        }
+        throw new IllegalArgumentException("Ikke-støttet satstype: " + linje.getTypeSats());
     }
 
     private static KjedeNøkkel tilNøkkel(Oppdragslinje150 linje) {
-        Refusjonsinfo156 refusjonsinfo = linje.getRefusjonsinfo156();
-        Betalingsmottaker mottaker = refusjonsinfo == null
+        var refusjonsinfo = linje.getRefusjonsinfo156();
+        var mottaker = refusjonsinfo == null
             ? Betalingsmottaker.BRUKER
             : Betalingsmottaker.forArbeidsgiver(normaliserOrgnr(refusjonsinfo.getRefunderesId()));
-        KjedeNøkkel.Builder builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
+        var builder = KjedeNøkkel.builder(linje.getKodeKlassifik(), mottaker);
         if (linje.getKodeKlassifik().gjelderFeriepenger()) {
             builder.medFeriepengeÅr(linje.getDatoVedtakFom().getYear() - 1);
         }
@@ -176,11 +175,11 @@ public class EksisterendeOppdragMapper {
     private static String normaliserOrgnr(String orgnr) {
         if (orgnr.length() == 11 && orgnr.startsWith("00")) {
             return orgnr.substring(2);
-        } else if (orgnr.length() == 9) {
-            return orgnr;
-        } else {
-            throw new IllegalArgumentException("orgnr skal være 9 tegn, eller 11 tegn og starte med 00");
         }
+        if (orgnr.length() == 9) {
+            return orgnr;
+        }
+        throw new IllegalArgumentException("orgnr skal være 9 tegn, eller 11 tegn og starte med 00");
     }
 
     private static List<Oppdragslinje150> sortert(List<Oppdragslinje150> oppdragslinje150Liste) {

@@ -30,7 +30,7 @@ public class KodeverkKode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KodeverkKode that = (KodeverkKode) o;
+        var that = (KodeverkKode) o;
         return Objects.equals(kode, that.kode) &&
                 Objects.equals(navn, that.navn) &&
                 Objects.equals(gyldigFom, that.gyldigFom) &&

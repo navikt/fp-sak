@@ -62,7 +62,7 @@ public class FagsakRelasjonDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        FagsakRelasjonDvh castOther = (FagsakRelasjonDvh) other;
+        var castOther = (FagsakRelasjonDvh) other;
         return Objects.equals(fagsakNrEn, castOther.fagsakNrEn)
             && Objects.equals(fagsakNrTo, castOther.fagsakNrTo)
             && Objects.equals(dekningsgrad, castOther.dekningsgrad)
@@ -117,7 +117,7 @@ public class FagsakRelasjonDvh extends DvhBaseEntitet {
         }
 
         public FagsakRelasjonDvh build() {
-            FagsakRelasjonDvh fagsakRelasjonDvh = new FagsakRelasjonDvh();
+            var fagsakRelasjonDvh = new FagsakRelasjonDvh();
             fagsakRelasjonDvh.fagsakNrEn = fagsakNrEn;
             fagsakRelasjonDvh.fagsakNrTo = fagsakNrTo;
             fagsakRelasjonDvh.dekningsgrad = dekningsgrad;

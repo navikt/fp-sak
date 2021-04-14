@@ -21,8 +21,8 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
 
     @Override
     public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        VurderNyoppstartetFLDto nyoppstartetDto = dto.getVurderNyoppstartetFL();
-        Boolean opprinneligErNyoppstartetFLVerdi = getOpprinneligErNyoppstartetFLVerdi(forrigeGrunnlag);
+        var nyoppstartetDto = dto.getVurderNyoppstartetFL();
+        var opprinneligErNyoppstartetFLVerdi = getOpprinneligErNyoppstartetFLVerdi(forrigeGrunnlag);
         lagHistorikkInnslag(nyoppstartetDto, opprinneligErNyoppstartetFLVerdi, tekstBuilder);
     }
 
@@ -44,8 +44,8 @@ public class VurderNyoppstartetFLHistorikkTjeneste extends FaktaOmBeregningHisto
 
     private void oppdaterVedEndretVerdi(VurderNyoppstartetFLDto dto,
                                         Boolean opprinneligNyoppstartetFLVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
-        HistorikkEndretFeltVerdiType opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyoppstartetFLVerdi);
-        HistorikkEndretFeltVerdiType nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
+        var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyoppstartetFLVerdi);
+        var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erErNyoppstartetFL());
         if(opprinneligVerdi != nyVerdi) {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FRILANSVIRKSOMHET, opprinneligVerdi, nyVerdi);
         }

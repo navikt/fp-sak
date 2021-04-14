@@ -539,7 +539,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         var dekingsgrad = omYtelse.getDekningsgrad().getDekningsgrad();
         if (Integer.toString(OppgittDekningsgradEntitet.ÅTTI_PROSENT).equalsIgnoreCase(dekingsgrad.getKode())) {
             return OppgittDekningsgradEntitet.bruk80();
-        } else if (Integer.toString(OppgittDekningsgradEntitet.HUNDRE_PROSENT)
+        }
+        if (Integer.toString(OppgittDekningsgradEntitet.HUNDRE_PROSENT)
             .equalsIgnoreCase(dekingsgrad.getKode())) {
             return OppgittDekningsgradEntitet.bruk100();
         }
@@ -631,13 +632,13 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 throw new IllegalStateException("Finner ikke arbeidsgiver");
             }
             return Arbeidsgiver.person(aktørId.get());
-        } else if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) {
+        }
+        if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) {
             var orgnr = arbeidsgiverFraSøknad.getIdentifikator();
             virksomhetTjeneste.hentOrganisasjon(orgnr);
             return Arbeidsgiver.virksomhet(orgnr);
-        } else {
-            throw new IllegalStateException("Ukjent arbeidsgiver type " + arbeidsgiverFraSøknad.getClass());
         }
+        throw new IllegalStateException("Ukjent arbeidsgiver type " + arbeidsgiverFraSøknad.getClass());
     }
 
     private OppgittOpptjeningBuilder mapOppgittOpptjening(Opptjening opptjening) {

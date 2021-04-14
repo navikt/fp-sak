@@ -204,10 +204,11 @@ public class BeregningsresultatAndel extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsresultatAndel)) {
+        }
+        if (!(obj instanceof BeregningsresultatAndel)) {
             return false;
         }
-        BeregningsresultatAndel other = (BeregningsresultatAndel) obj;
+        var other = (BeregningsresultatAndel) obj;
         return Objects.equals(this.getArbeidsgiver(), other.getArbeidsgiver())
             && Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef())
             && Objects.equals(this.getArbeidsforholdType(), other.getArbeidsforholdType())
@@ -327,7 +328,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
         private void verifyUtbetalingsgrad(BigDecimal utbetalingsgrad) {
             Objects.requireNonNull(utbetalingsgrad, "utbetalingsgrad");
-            boolean mellomGyldigIntervall = utbetalingsgrad.compareTo(BigDecimal.ZERO) >= 0 &&
+            var mellomGyldigIntervall = utbetalingsgrad.compareTo(BigDecimal.ZERO) >= 0 &&
                 utbetalingsgrad.compareTo(BigDecimal.valueOf(100)) <= 0;
             if (!mellomGyldigIntervall) {
                 throw new IllegalStateException("Utviklerfeil: Utbetalingsgrad må være mellom 0 og 100");

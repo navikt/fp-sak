@@ -43,10 +43,10 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
     @Test
     public void skal_returnere_status_ok_ved_fullført() {
-        final List<TaskStatus> statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE));
+        final var statuses = List.of(new TaskStatus(ProsessTaskStatus.FERDIG, BigDecimal.ONE));
         Mockito.when(fagsakAvslutningTjeneste.hentStatusForFagsakAvslutningGruppe(ArgumentMatchers.anyString())).thenReturn(statuses);
 
-        final BatchStatus status = tjeneste.status("1234");
+        final var status = tjeneste.status("1234");
 
         Mockito.verify(fagsakAvslutningTjeneste).hentStatusForFagsakAvslutningGruppe("1234");
         assertThat(status).isEqualTo(BatchStatus.OK);
@@ -54,11 +54,11 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
     @Test
     public void skal_kjøre_batch_uten_feil() {
-        Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak1.setId(1L);
-        Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak2.setId(2L);
-        Behandling behandling = Mockito.mock(Behandling.class);
+        var behandling = Mockito.mock(Behandling.class);
         Mockito.when(behandling.getId()).thenReturn(3L);
         Mockito.when(behandling.getFagsakId()).thenReturn(2L);
         Mockito.when(behandling.getAktørId()).thenReturn(AktørId.dummy());
@@ -66,7 +66,7 @@ public class AutomatiskFagsakAvslutningBatchTjenesteTest {
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(1L)).thenReturn(Optional.empty());
         Mockito.when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(2L)).thenReturn(Optional.of(behandling));
 
-        final String batchId = tjeneste.launch(null);
+        final var batchId = tjeneste.launch(null);
 
         Mockito.verify(fagsakAvslutningTjeneste, Mockito.times(1)).avsluttFagsaker("BVL006", LocalDate.now());
         Assertions.assertThat(batchId.substring(0, 6)).isEqualTo("BVL006");

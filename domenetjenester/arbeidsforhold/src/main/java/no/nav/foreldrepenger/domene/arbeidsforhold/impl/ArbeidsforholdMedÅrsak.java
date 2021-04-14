@@ -40,7 +40,7 @@ public class ArbeidsforholdMedÅrsak {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        ArbeidsforholdMedÅrsak that = (ArbeidsforholdMedÅrsak) o;
+        var that = (ArbeidsforholdMedÅrsak) o;
         return Objects.equals(ref, that.ref);
     }
 

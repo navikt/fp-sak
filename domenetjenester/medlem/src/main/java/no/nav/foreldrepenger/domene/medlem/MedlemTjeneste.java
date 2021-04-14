@@ -19,21 +19,17 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapBehandlingsgrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -109,7 +105,7 @@ public class MedlemTjeneste {
     }
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
-        Optional<Long> funnetId = medlemskapRepository.hentIdPåAktivMedlemskap(behandlingId);
+        var funnetId = medlemskapRepository.hentIdPåAktivMedlemskap(behandlingId);
         return funnetId
             .map(id -> EndringsresultatSnapshot.medSnapshot(MedlemskapAggregat.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(MedlemskapAggregat.class));
@@ -126,12 +122,12 @@ public class MedlemTjeneste {
     // TODO Diamant (Denne gjelder kun revurdering og foreldrepenger, bør eksponeres som egen tjeneste for FP + BT004)
     public EndringsresultatPersonopplysningerForMedlemskap søkerHarEndringerIPersonopplysninger(Behandling revurderingBehandling) {
 
-        EndringsresultatPersonopplysningerForMedlemskap.Builder builder = EndringsresultatPersonopplysningerForMedlemskap.builder();
+        var builder = EndringsresultatPersonopplysningerForMedlemskap.builder();
         if (revurderingBehandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(revurderingBehandling.getFagsakYtelseType())) {
-            AktørId aktørId = revurderingBehandling.getAktørId();
-            Long behandlingId = revurderingBehandling.getId();
-            DatoIntervallEntitet intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
-            Optional<PersonopplysningerAggregat> historikkAggregat = personopplysningTjeneste
+            var aktørId = revurderingBehandling.getAktørId();
+            var behandlingId = revurderingBehandling.getId();
+            var intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
+            var historikkAggregat = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingId, aktørId, intervall);
 
             historikkAggregat.ifPresent(historikk -> {
@@ -150,11 +146,11 @@ public class MedlemTjeneste {
     }
 
     public Map<LocalDate, VurderMedlemskap> utledVurderingspunkterMedAksjonspunkt(BehandlingReferanse ref) {
-        final Map<LocalDate, Set<VurderingsÅrsak>> vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
-        final HashMap<LocalDate, VurderMedlemskap> map = new HashMap<>();
-        for (Map.Entry<LocalDate, Set<VurderingsÅrsak>> entry : vurderingsdatoer.entrySet()) {
-            LocalDate vurderingsdato = entry.getKey();
-            final Set<MedlemResultat> vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, vurderingsdato);
+        final var vurderingsdatoer = utledVurderingsdatoerTjeneste.finnVurderingsdatoerMedÅrsak(ref);
+        final var map = new HashMap<LocalDate, VurderMedlemskap>();
+        for (var entry : vurderingsdatoer.entrySet()) {
+            var vurderingsdato = entry.getKey();
+            final var vurderinger = vurderMedlemskapTjeneste.vurderMedlemskap(ref, vurderingsdato);
             if (!vurderinger.isEmpty()) {
                 map.put(vurderingsdato, mapTilVurderMeldemspa(vurderinger, entry.getValue()));
             }
@@ -163,7 +159,7 @@ public class MedlemTjeneste {
     }
 
     private VurderMedlemskap mapTilVurderMeldemspa(Set<MedlemResultat> vurderinger, Set<VurderingsÅrsak> vurderingsÅrsaks) {
-        final Set<AksjonspunktDefinisjon> aksjonspunkter = vurderinger.stream()
+        final var aksjonspunkter = vurderinger.stream()
             .map(vu -> Optional.ofNullable(mapMedlemResulatTilAkDef.get(vu)).orElse(null))
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
@@ -180,33 +176,32 @@ public class MedlemTjeneste {
      * @return opphørsdato
      */
     public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         if (behandlingsresultatOpt.isEmpty() || behandlingsresultatOpt.get().getVilkårResultat() == null) {
             return Optional.empty();
         }
-        Behandlingsresultat behandlingsresultat = behandlingsresultatOpt.get();
-        Optional<Vilkår> medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
+        var behandlingsresultat = behandlingsresultatOpt.get();
+        var medlemskapsvilkåret = behandlingsresultat.getVilkårResultat()
             .getVilkårene()
             .stream()
             .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)).findFirst();
 
         if (medlemskapsvilkåret.isPresent()) {
-            Vilkår medlem = medlemskapsvilkåret.get();
+            var medlem = medlemskapsvilkåret.get();
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
-                Optional<Vilkår> medlemLøpendeOpt = behandlingsresultat.getVilkårResultat()
+                var medlemLøpendeOpt = behandlingsresultat.getVilkårResultat()
                     .getVilkårene()
                     .stream()
                     .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE))
                     .findFirst();
 
                 if (medlemLøpendeOpt.isPresent()) {
-                    Vilkår medlemLøpende = medlemLøpendeOpt.get();
+                    var medlemLøpende = medlemLøpendeOpt.get();
                     if (medlemLøpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT)) {
                         return Optional.empty();
-                    } else {
-                        var behandling = behandlingRepository.hentBehandling(behandlingId);
-                        return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
                     }
+                    var behandling = behandlingRepository.hentBehandling(behandlingId);
+                    return medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
                 }
                 return Optional.empty();
             }
@@ -219,7 +214,7 @@ public class MedlemTjeneste {
 
     private <T extends BasisKodeverdi> void sjekkEndringer(Stream<ElementMedGyldighetsintervallWrapper<T>> elementer,
                                                       EndringsresultatPersonopplysningerForMedlemskap.Builder builder, EndretAttributt endretAttributt) {
-        List<ElementMedGyldighetsintervallWrapper<T>> endringer = elementer
+        var endringer = elementer
             .sorted(Comparator.comparing(ElementMedGyldighetsintervallWrapper::sortPeriode))
             .distinct().collect(Collectors.toList());
 
@@ -229,10 +224,10 @@ public class MedlemTjeneste {
     private <T extends BasisKodeverdi> void leggTilEndringer(List<ElementMedGyldighetsintervallWrapper<T>> endringer,
                                                         EndringsresultatPersonopplysningerForMedlemskap.Builder builder, EndretAttributt endretAttributt) {
         if (endringer != null && endringer.size() > 1) {
-            for (int i = 0; i < endringer.size() - 1; i++) {
-                String endretFra = endringer.get(i).element.getNavn();
-                String endretTil = endringer.get(i + 1).element.getNavn();
-                DatoIntervallEntitet periode = endringer.get(i + 1).gylidghetsintervall;
+            for (var i = 0; i < endringer.size() - 1; i++) {
+                var endretFra = endringer.get(i).element.getNavn();
+                var endretTil = endringer.get(i + 1).element.getNavn();
+                var periode = endringer.get(i + 1).gylidghetsintervall;
                 builder.leggTilEndring(endretAttributt, periode, endretFra, endretTil);
             }
         }
@@ -240,13 +235,13 @@ public class MedlemTjeneste {
 
     private LocalDate finnStartdato(Behandling revurderingBehandling) {
 
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> medlemskapsvilkårPeriodeGrunnlag = revurderingBehandling.getOriginalBehandlingId()
+        var medlemskapsvilkårPeriodeGrunnlag = revurderingBehandling.getOriginalBehandlingId()
             .map(behandlingRepository::hentBehandling)
             .flatMap(medlemskapVilkårPeriodeRepository::hentAggregatHvisEksisterer);
 
-        LocalDate startDato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurderingBehandling.getId()).getUtledetSkjæringstidspunkt();
+        var startDato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(revurderingBehandling.getId()).getUtledetSkjæringstidspunkt();
         if (medlemskapsvilkårPeriodeGrunnlag.isPresent()) {
-            LocalDate date = medlemskapsvilkårPeriodeGrunnlag.get()
+            var date = medlemskapsvilkårPeriodeGrunnlag.get()
                 .getMedlemskapsvilkårPeriode()
                 .getPerioder()
                 .stream().map(MedlemskapsvilkårPerioderEntitet::getFom)
@@ -264,31 +259,31 @@ public class MedlemTjeneste {
     public static record VilkårUtfallMedÅrsak(VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {}
 
     public VilkårUtfallMedÅrsak utledVilkårUtfall(Behandling revurdering) {
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
-        Optional<Vilkår> medlemOpt = behandlingsresultat.getVilkårResultat()
+        var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
+        var medlemOpt = behandlingsresultat.getVilkårResultat()
             .getVilkårene()
             .stream()
             .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET))
             .findFirst();
 
         if (medlemOpt.isPresent()) {
-            Vilkår medlem = medlemOpt.get();
+            var medlem = medlemOpt.get();
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
                 return new VilkårUtfallMedÅrsak(medlem.getGjeldendeVilkårUtfall(), Avslagsårsak.fraKode(medlem.getVilkårUtfallMerknad().getKode()));
-            } else {
-                Optional<Vilkår> løpendeOpt = behandlingsresultat.getVilkårResultat()
-                    .getVilkårene()
-                    .stream()
-                    .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE))
-                    .findFirst();
-                if (løpendeOpt.isPresent()) {
-                    Vilkår løpende = løpendeOpt.get();
-                    if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && !løpende.erOverstyrt()) {
-                        return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.fraKode(løpende.getVilkårUtfallMerknad().getKode()));
-                    } else if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
-                        Avslagsårsak avslagsårsak = løpende.getAvslagsårsak();
-                        return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
-                    }
+            }
+            var løpendeOpt = behandlingsresultat.getVilkårResultat()
+                .getVilkårene()
+                .stream()
+                .filter(vilkårType -> vilkårType.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE))
+                .findFirst();
+            if (løpendeOpt.isPresent()) {
+                var løpende = løpendeOpt.get();
+                if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && !løpende.erOverstyrt()) {
+                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.fraKode(løpende.getVilkårUtfallMerknad().getKode()));
+                }
+                if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
+                    var avslagsårsak = løpende.getAvslagsårsak();
+                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
                 }
             }
             return new VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
@@ -324,7 +319,7 @@ public class MedlemTjeneste {
                 return false;
             }
             if (obj instanceof ElementMedGyldighetsintervallWrapper<?>) {
-                ElementMedGyldighetsintervallWrapper<?> other = (ElementMedGyldighetsintervallWrapper<?>) obj;
+                var other = (ElementMedGyldighetsintervallWrapper<?>) obj;
                 return element.equals(other.element);
             }
             return false;

@@ -106,7 +106,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private static String fieldName(ConstraintViolation<?> cv) {
         String field = null;
-        for (Path.Node node : cv.getPropertyPath()) {
+        for (var node : cv.getPropertyPath()) {
             field = node.getName();
         }
         return field;

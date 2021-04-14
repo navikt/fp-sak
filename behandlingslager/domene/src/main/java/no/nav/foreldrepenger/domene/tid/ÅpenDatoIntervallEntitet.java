@@ -61,8 +61,8 @@ public class ÅpenDatoIntervallEntitet extends AbstractLocalDateInterval {
 
     @Override
     public String toString() {
-        String fom = fomDato != null ? fomDato.format(FORMATTER) : null;
-        String tom = tomDato != null ? tomDato.format(FORMATTER) : null;
+        var fom = fomDato != null ? fomDato.format(FORMATTER) : null;
+        var tom = tomDato != null ? tomDato.format(FORMATTER) : null;
         return String.format("Periode: %s - %s", fom, tom);
     }
 }

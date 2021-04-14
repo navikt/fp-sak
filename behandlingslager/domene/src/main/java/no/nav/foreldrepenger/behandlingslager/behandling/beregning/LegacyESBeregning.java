@@ -121,7 +121,7 @@ public class LegacyESBeregning extends BaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LegacyESBeregning beregning = (LegacyESBeregning) o;
+        var beregning = (LegacyESBeregning) o;
         return Objects.equals(this.overstyrt, beregning.overstyrt)
             && Objects.equals(this.satsVerdi, beregning.satsVerdi)
             && Objects.equals(this.beregnetTilkjentYtelse, beregning.beregnetTilkjentYtelse)

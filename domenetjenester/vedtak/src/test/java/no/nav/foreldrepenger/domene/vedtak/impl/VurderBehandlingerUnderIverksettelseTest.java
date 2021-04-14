@@ -45,7 +45,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     }
 
     private Behandling lagreBehandling() {
-        ScenarioMorSøkerForeldrepenger førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         førstegangScenario.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår());
         var førstegangBehandling = førstegangScenario.lagre(repositoryProvider);
         entityManager.persist(getBehandlingsresultat(førstegangBehandling));
@@ -56,7 +56,7 @@ public class VurderBehandlingerUnderIverksettelseTest {
     public void neiHvisIngenAnnenBehandling() {
         var førstegangBehandling = lagreBehandling();
         // Act
-        boolean resultat = tjeneste.vurder(førstegangBehandling);
+        var resultat = tjeneste.vurder(førstegangBehandling);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -67,11 +67,11 @@ public class VurderBehandlingerUnderIverksettelseTest {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IVERKSATT);
-        Behandling revurdering = lagreRevurdering(førstegangBehandling);
+        var revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
-        boolean resultat = tjeneste.vurder(revurdering);
+        var resultat = tjeneste.vurder(revurdering);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -82,11 +82,11 @@ public class VurderBehandlingerUnderIverksettelseTest {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
-        Behandling revurdering = lagreRevurdering(førstegangBehandling);
+        var revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
-        boolean resultat = tjeneste.vurder(revurdering);
+        var resultat = tjeneste.vurder(revurdering);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -97,11 +97,11 @@ public class VurderBehandlingerUnderIverksettelseTest {
         // Arrange
         var førstegangBehandling = lagreBehandling();
         lagreBehandlingVedtak(førstegangBehandling, IverksettingStatus.IKKE_IVERKSATT);
-        Behandling revurdering = lagreRevurdering(førstegangBehandling);
+        var revurdering = lagreRevurdering(førstegangBehandling);
         lagreBehandlingVedtak(revurdering, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
-        boolean resultat = tjeneste.vurder(førstegangBehandling);
+        var resultat = tjeneste.vurder(førstegangBehandling);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -110,42 +110,42 @@ public class VurderBehandlingerUnderIverksettelseTest {
     @Test
     public void neiHvisInnsynOgAnnenBehandlingUnderIverksetting() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad førstegangScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        ScenarioInnsynEngangsstønad scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);
-        Behandling innsyn = scenarioInnsyn.lagre(repositoryProvider);
-        Behandling originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var førstegangScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenarioInnsyn = ScenarioInnsynEngangsstønad.innsyn(førstegangScenario);
+        var innsyn = scenarioInnsyn.lagre(repositoryProvider);
+        var originalBehandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 innsyn.getFagsakId(), BehandlingType.FØRSTEGANGSSØKNAD).get();
         lagreBehandlingVedtak(originalBehandling, IverksettingStatus.IKKE_IVERKSATT);
 
         // Act
-        boolean resultat = tjeneste.vurder(innsyn);
+        var resultat = tjeneste.vurder(innsyn);
 
         // Assert
         assertThat(resultat).isFalse();
     }
 
     private Behandling lagreRevurdering(Behandling førstegangBehandling) {
-        Behandling revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING)
+        var revurdering = Behandling.fraTidligereBehandling(førstegangBehandling, BehandlingType.REVURDERING)
                 .build();
-        BehandlingLås lås = new BehandlingLås(revurdering.getId());
+        var lås = new BehandlingLås(revurdering.getId());
         behandlingRepository.lagre(revurdering, lås);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
+        var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().buildFor(revurdering);
         entityManager.persist(behandlingsresultat);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         return revurdering;
     }
 
     private BehandlingVedtak lagreBehandlingVedtak(Behandling behandling, IverksettingStatus iverksettingStatus) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
                 .medAnsvarligSaksbehandler("E2354345")
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .medIverksettingStatus(iverksettingStatus)
                 .medBehandlingsresultat(behandlingsresultat)
                 .build();
-        LocalDateTime opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now()
+        var opprettetTidspunkt = behandling.erRevurdering() ? LocalDateTime.now()
                 .plusSeconds(1) : LocalDateTime.now();
         behandling.setOpprettetTidspunkt(opprettetTidspunkt);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);

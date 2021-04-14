@@ -35,14 +35,14 @@ public class BehandlingStegOvergangEvent implements BehandlingEvent {
         if (relativForflytning == 1) {
             // normal forover
             return new BehandlingStegOvergangEvent(kontekst, forrigeTilstand, nyTilstand);
-        } else if (relativForflytning < 1) {
-            // tilbakeføring
-            return new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(kontekst, forrigeTilstand, nyTilstand);
-        } else {
-            // > 1
-            // framføring
-            return new BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst, forrigeTilstand, nyTilstand);
         }
+        if (relativForflytning < 1) {
+            // tilbakeføring
+            return new BehandlingStegTilbakeføringEvent(kontekst, forrigeTilstand, nyTilstand);
+        }
+        // > 1
+        // framføring
+        return new BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst, forrigeTilstand, nyTilstand);
     }
 
     public BehandlingskontrollKontekst getKontekst() {

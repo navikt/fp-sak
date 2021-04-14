@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,12 +40,12 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        List<Behandling> behandlinger = behandlingKandidaterRepository.finnRevurderingerPåVentIKompletthet();
+        var behandlinger = behandlingKandidaterRepository.finnRevurderingerPåVentIKompletthet();
 
-        String callId = MDCOperations.getCallId();
+        var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-        for (Behandling behandling : behandlinger) {
+        for (var behandling : behandlinger) {
             opprettRekjøringsTask(behandling, callId);
         }
 
@@ -54,11 +53,11 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
     }
 
     private void opprettRekjøringsTask(Behandling behandling, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
 
         // unik per task da det er ulike tasks for hver behandling
-        String nyCallId = callId + behandling.getId();
+        var nyCallId = callId + behandling.getId();
         prosessTaskData.setCallId(nyCallId);
 
         prosessTaskRepository.lagre(prosessTaskData);

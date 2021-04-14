@@ -47,21 +47,21 @@ public class TpsFamilieTjenesteTest {
 
     @Test
     public void test() {
-        final LocalDate mottattDato = LocalDate.now().minusDays(30);
-        final LocalDateInterval intervall = new LocalDateInterval(mottattDato.minusWeeks(6), mottattDato.plusWeeks(6));
-        final int antallBarn = 1;
+        final var mottattDato = LocalDate.now().minusDays(30);
+        final var intervall = new LocalDateInterval(mottattDato.minusWeeks(6), mottattDato.plusWeeks(6));
+        final var antallBarn = 1;
 
-        final Personinfo personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
+        final var personinfo = opprettPersonInfo(AKTØR, antallBarn, mottattDato);
         when(fødselTjeneste.hentFødteBarnInfoFor(any(), any())).thenReturn(genererBarn(personinfo.getFamilierelasjoner(), mottattDato));
 
-        final List<FødtBarnInfo> fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
+        final var fødslerRelatertTilBehandling = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(AKTØR, List.of(intervall));
 
         assertThat(fødslerRelatertTilBehandling).hasSize(antallBarn);
     }
 
     private List<FødtBarnInfo> genererBarn(Set<FamilierelasjonVL> familierelasjoner, LocalDate startdatoIntervall) {
-        final ArrayList<FødtBarnInfo> barn = new ArrayList<>();
-        for (FamilierelasjonVL familierelasjon : familierelasjoner) {
+        final var barn = new ArrayList<FødtBarnInfo>();
+        for (var familierelasjon : familierelasjoner) {
             barn.add(new FødtBarnInfo.Builder()
                     .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
                     .medIdent(familierelasjon.getPersonIdent())
@@ -71,7 +71,7 @@ public class TpsFamilieTjenesteTest {
     }
 
     private Personinfo opprettPersonInfo(AktørId aktørId, int antallBarn, LocalDate startdatoIntervall) {
-        final Personinfo.Builder builder = new Personinfo.Builder();
+        final var builder = new Personinfo.Builder();
         builder.medAktørId(aktørId)
                 .medNavn("Test")
                 .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
@@ -90,10 +90,10 @@ public class TpsFamilieTjenesteTest {
     }
 
     private LocalDate genererFødselsdag(LocalDate startdatoIntervall) {
-        final DatoIntervallEntitet datoIntervallEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(startdatoIntervall, LocalDate.now());
-        final long l = datoIntervallEntitet.antallDager();
+        final var datoIntervallEntitet = DatoIntervallEntitet.fraOgMedTilOgMed(startdatoIntervall, LocalDate.now());
+        final var l = datoIntervallEntitet.antallDager();
 
-        final double v = Math.random() * l;
+        final var v = Math.random() * l;
         return startdatoIntervall.plusDays((long) v);
     }
 

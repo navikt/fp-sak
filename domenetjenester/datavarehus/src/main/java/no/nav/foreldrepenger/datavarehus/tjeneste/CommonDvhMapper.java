@@ -19,7 +19,8 @@ class CommonDvhMapper {
     static LocalDate foersteStoenadsdag(Optional<ForeldrepengerUttak> uttakResultat, Optional<LocalDate> skjæringstidspunkt) {
         if (uttakResultat.isPresent()) {
             return uttakResultat.get().finnFørsteUttaksdato();
-        } else if (skjæringstidspunkt.isPresent()) {
+        }
+        if (skjæringstidspunkt.isPresent()) {
             return skjæringstidspunkt.get();
         }
         return null;

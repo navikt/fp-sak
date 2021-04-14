@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -15,7 +14,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -108,17 +106,17 @@ public class BeregneYtelseStegImplTest {
 
         when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
 
-        Tuple<Behandling, BehandlingskontrollKontekst> behandlingKontekst = byggGrunnlag(true, true);
-        Behandling behandling = behandlingKontekst.getElement1();
-        BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
+        var behandlingKontekst = byggGrunnlag(true, true);
+        var behandling = behandlingKontekst.getElement1();
+        var kontekst = behandlingKontekst.getElement2();
 
         // Act
-        BehandleStegResultat stegResultat = steg.utførSteg(kontekst);
+        var stegResultat = steg.utførSteg(kontekst);
 
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
 
-        Optional<BeregningsresultatEntitet> beregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        var beregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(beregningsresultat).hasValueSatisfying(resultat -> {
             assertThat(resultat).isNotNull();
             assertThat(resultat.getRegelInput()).as("regelInput").isEqualTo("regelInput");
@@ -129,16 +127,16 @@ public class BeregneYtelseStegImplTest {
     @Test
     public void skalSletteBeregningsresultatFPVedTilbakehopp() {
         // Arrange
-        Tuple<Behandling, BehandlingskontrollKontekst> behandlingKontekst = byggGrunnlag(true, true);
-        Behandling behandling = behandlingKontekst.getElement1();
-        BehandlingskontrollKontekst kontekst = behandlingKontekst.getElement2();
+        var behandlingKontekst = byggGrunnlag(true, true);
+        var behandling = behandlingKontekst.getElement1();
+        var kontekst = behandlingKontekst.getElement2();
         beregningsresultatRepository.lagre(behandling, opprettBeregningsresultat());
 
         // Act
         steg.vedHoppOverBakover(kontekst, null, null, null);
 
         // Assert
-        Optional<BeregningsresultatEntitet> resultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
+        var resultat = beregningsresultatRepository.hentBeregningsresultat(behandling.getId());
         assertThat(resultat).isNotPresent();
     }
 
@@ -167,7 +165,7 @@ public class BeregneYtelseStegImplTest {
         var beregningsgrunnlagBuilder = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(LocalDate.now())
                 .medGrunnbeløp(BigDecimal.valueOf(90000));
-        BeregningsgrunnlagEntitet beregningsgrunnlag = beregningsgrunnlagBuilder.build();
+        var beregningsgrunnlag = beregningsgrunnlagBuilder.build();
         beregningsgrunnlagKopierOgLagreTjeneste.lagreBeregningsgrunnlag(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.OPPRETTET);
     }
 

@@ -34,7 +34,7 @@ class UttaksresultatMapper {
         var arbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder();
         arbeidsforholdBuilder.medUttakArbeidType(mapTilUttakArbeidType(arbeidsforhold.getAktivitetType()));
         var arbeidsforholdRef = InternArbeidsforholdRef.ref(arbeidsforhold.getArbeidsforholdId().orElse(null));
-        String orgnr = arbeidsforhold.getArbeidsgiverVirksomhetId();
+        var orgnr = arbeidsforhold.getArbeidsgiverVirksomhetId();
         if (orgnr != null) {
             arbeidsforholdBuilder.medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), arbeidsforholdRef);
         } else {

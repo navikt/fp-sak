@@ -53,7 +53,7 @@ public class ArbeidsgiverOpplysningerDto implements AbacDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArbeidsgiverOpplysningerDto that = (ArbeidsgiverOpplysningerDto) o;
+        var that = (ArbeidsgiverOpplysningerDto) o;
         return Objects.equals(referanse, that.referanse);
     }
 

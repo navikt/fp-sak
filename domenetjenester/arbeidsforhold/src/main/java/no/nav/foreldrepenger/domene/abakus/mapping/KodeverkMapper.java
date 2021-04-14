@@ -101,7 +101,7 @@ public final class KodeverkMapper {
             return null;
         }
 
-        String kode = dto.getKode();
+        var kode = dto.getKode();
         return switch (kode) {
             case "OPPR" -> RelatertYtelseTilstand.IKKE_STARTET;
             case "UBEH" -> RelatertYtelseTilstand.ÅPEN;
@@ -126,7 +126,7 @@ public final class KodeverkMapper {
         if (type == null) {
             return OffentligYtelseType.UDEFINERT;
         }
-        String kode = type.getKode();
+        var kode = type.getKode();
         return switch (type.getKodeverk()) {
             case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK -> OffentligYtelseType.fraKode(kode);
             case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK -> NæringsinntektType.fraKode(kode);

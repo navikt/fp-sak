@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 
@@ -39,7 +38,7 @@ public class InngangsvilkårTjenesteTest {
     }
 
     private void sjekkVilkårKonfigurasjon(VilkårType vilkårType, FagsakYtelseType foreldrepenger, boolean sjekkForFagYtelseType) {
-        Inngangsvilkår vilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, foreldrepenger);
+        var vilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, foreldrepenger);
         assertThat(vilkår).isNotNull();
         assertThat(vilkår).isSameAs(inngangsvilkårTjeneste.finnVilkår(vilkårType, foreldrepenger));
         assertThat(vilkår.getClass()).hasAnnotation(ApplicationScoped.class);

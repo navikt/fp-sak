@@ -2,13 +2,11 @@ package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -37,16 +35,16 @@ public class BeregningsresultatTidslinjetjeneste {
      */
     public LocalDateTimeline<BRAndelSammenligning> lagTidslinjeForRevurdering(BehandlingReferanse ref) {
         verifiserAtBehandlingErRevurdering(ref);
-        Long behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.getBehandlingId();
 
         // Nytt resultat, her aksepterer vi ikke tomt resultat siden vi har kommet til steget der vi vurderer beregningsresultatet.
-        BeregningsresultatEntitet revurderingBeregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
+        var revurderingBeregningsresultat = beregningsresultatRepository.hentBeregningsresultat(behandlingId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler beregningsresultat for behandling " + behandlingId));
 
         // Gammelt resultat, kan være tomt (f.eks ved avslått)
-        Optional<BeregningsresultatEntitet> originaltBeregningsresultat = ref.getOriginalBehandlingId().flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
+        var originaltBeregningsresultat = ref.getOriginalBehandlingId().flatMap(beregningsresultatRepository::hentUtbetBeregningsresultat);
 
-        List<BeregningsresultatPeriode> resultatperiodeRevurdering = revurderingBeregningsresultat.getBeregningsresultatPerioder();
+        var resultatperiodeRevurdering = revurderingBeregningsresultat.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> resultatperiodeOriginal = originaltBeregningsresultat.isPresent() ? originaltBeregningsresultat.get().getBeregningsresultatPerioder() : Collections.emptyList();
 
         return mapTidslinje(resultatperiodeOriginal, resultatperiodeRevurdering);

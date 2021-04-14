@@ -47,7 +47,7 @@ public class OppgittFordelingEntitet extends BaseEntitet {
 
     public OppgittFordelingEntitet(List<OppgittPeriodeEntitet> søknadsPerioder, boolean erAnnenForelderInformert) {
         this.søknadsPerioder = new ArrayList<>();
-        for (OppgittPeriodeEntitet oppgittPeriode : søknadsPerioder) {
+        for (var oppgittPeriode : søknadsPerioder) {
             oppgittPeriode.setOppgittFordeling(this);
             this.søknadsPerioder.add(oppgittPeriode);
         }
@@ -70,7 +70,7 @@ public class OppgittFordelingEntitet extends BaseEntitet {
         if (!(o instanceof OppgittFordelingEntitet)) {
             return false;
         }
-        OppgittFordelingEntitet that = (OppgittFordelingEntitet) o;
+        var that = (OppgittFordelingEntitet) o;
         return Objects.equals(søknadsPerioder, that.søknadsPerioder) &&
                 Objects.equals(erAnnenForelderInformert, that.erAnnenForelderInformert);
     }

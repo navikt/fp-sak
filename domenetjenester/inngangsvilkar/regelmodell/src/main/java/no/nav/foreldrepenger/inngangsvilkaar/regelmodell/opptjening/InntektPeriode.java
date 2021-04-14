@@ -28,7 +28,7 @@ public class InntektPeriode {
     InntektPeriode() {
         // for JSON
     }
-    
+
     public InntektPeriode(LocalDateInterval datoInterval, Aktivitet aktivitet, Long kronerInntekt) {
         this.datoIntervall = datoInterval;
         this.aktivitet = aktivitet;
@@ -59,7 +59,7 @@ public class InntektPeriode {
         if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        InntektPeriode other = (InntektPeriode) obj;
+        var other = (InntektPeriode) obj;
         return Objects.equals(aktivitet, other.aktivitet)
                 && Objects.equals(getDatoInterval(), other.getDatoInterval());
     }

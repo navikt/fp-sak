@@ -38,16 +38,16 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_hente_eldste_versjon_av_aggregat() {
-        final Personinfo personinfo = lagPerson();
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(personinfo.getAktørId()));
+        final var personinfo = lagPerson();
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(personinfo.getAktørId()));
         fagsakRepository.opprettNy(fagsak);
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        final Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        final var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Long behandlingId = behandling.getId();
-        PersonInformasjonBuilder informasjonBuilder = repository.opprettBuilderForRegisterdata(behandlingId);
-        PersonInformasjonBuilder.PersonopplysningBuilder personopplysningBuilder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId());
+        var behandlingId = behandling.getId();
+        var informasjonBuilder = repository.opprettBuilderForRegisterdata(behandlingId);
+        var personopplysningBuilder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId());
         personopplysningBuilder.medNavn(personinfo.getNavn())
             .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
@@ -67,8 +67,8 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         informasjonBuilder.leggTil(personopplysningBuilder);
         repository.lagre(behandlingId, informasjonBuilder);
 
-        PersonopplysningerAggregat personopplysningerAggregat = tilAggregat(behandling, repository.hentPersonopplysninger(behandlingId));
-        PersonopplysningerAggregat førsteVersjonPersonopplysningerAggregat = tilAggregat(behandling, repository.hentFørsteVersjonAvPersonopplysninger(behandlingId));
+        var personopplysningerAggregat = tilAggregat(behandling, repository.hentPersonopplysninger(behandlingId));
+        var førsteVersjonPersonopplysningerAggregat = tilAggregat(behandling, repository.hentFørsteVersjonAvPersonopplysninger(behandlingId));
 
         assertThat(personopplysningerAggregat).isNotEqualTo(førsteVersjonPersonopplysningerAggregat);
         assertThat(personopplysningerAggregat.getSøker()).isEqualToComparingOnlyGivenFields(førsteVersjonPersonopplysningerAggregat.getSøker(), "aktørId", "navn", "fødselsdato", "region", "sivilstand", "brukerKjønn");

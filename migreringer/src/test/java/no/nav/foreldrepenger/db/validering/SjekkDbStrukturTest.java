@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.db.validering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +36,9 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void sjekk_at_alle_tabeller_er_dokumentert() throws Exception {
-        String sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK'";
+        var sql = "SELECT table_name FROM all_tab_comments WHERE (comments IS NULL OR comments in ('', 'MISSING COLUMN COMMENT')) AND owner=sys_context('userenv', 'current_schema') AND table_name NOT LIKE 'schema_%' AND table_name not like '%_MOCK'";
         List<String> avvik = new ArrayList<>();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add(rs.getString(1));
@@ -58,7 +53,7 @@ public class SjekkDbStrukturTest {
     public void sjekk_at_alle_relevant_kolonner_er_dokumentert() throws Exception {
         List<String> avvik = new ArrayList<>();
 
-        String sql = """
+        var sql = """
                 SELECT t.table_name||'.'||t.column_name
                   FROM all_col_comments t
                  WHERE (t.comments IS NULL OR t.comments = '')
@@ -76,9 +71,7 @@ public class SjekkDbStrukturTest {
                  ORDER BY t.table_name, t.column_name
                 """;
 
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 avvik.add("\n" + rs.getString(1));
@@ -91,7 +84,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void sjekk_at_alle_FK_kolonner_har_fornuftig_indekser() throws Exception {
-        String sql = """
+        var sql = """
                 SELECT
                   uc.table_name, uc.constraint_name, LISTAGG(dcc.column_name, ',') WITHIN GROUP (ORDER BY dcc.position) as columns
                 FROM all_Constraints Uc
@@ -114,24 +107,23 @@ public class SjekkDbStrukturTest {
                 """;
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3);
+                    var t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
             }
 
         }
-        int sz = avvik.size();
-        String manglerIndeks = "Kolonner som inngår i Foreign Keys skal ha indekser .\nMangler indekser for ";
+        var sz = avvik.size();
+        var manglerIndeks = "Kolonner som inngår i Foreign Keys skal ha indekser .\nMangler indekser for ";
 
         assertThat(avvik).withFailMessage(manglerIndeks + sz + " foreign keys\n" + tekst).isEmpty();
 
@@ -139,7 +131,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_primary_key_i_hver_tabell_som_begynner_med_PK() throws Exception {
-        String sql = """
+        var sql = """
                 SELECT table_name FROM all_tables at
                 WHERE table_name
                  NOT IN ( SELECT ac.table_name FROM all_constraints ac
@@ -148,16 +140,15 @@ public class SjekkDbStrukturTest {
                 """;
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1);
+                    var t = rs.getString(1);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -165,8 +156,8 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Feil eller mangelende definisjon av primary key (skal hete 'PK_<tabell navn>'). Antall feil=";
+        var sz = avvik.size();
+        var feilTekst = "Feil eller mangelende definisjon av primary key (skal hete 'PK_<tabell navn>'). Antall feil=";
 
         assertThat(avvik).withFailMessage(feilTekst + +sz + "\n\nTabell\n" + tekst).isEmpty();
 
@@ -174,20 +165,19 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_alle_foreign_keys_begynne_med_FK() throws Exception {
-        String sql = "SELECT ac.table_name, ac.constraint_name FROM all_constraints ac"
+        var sql = "SELECT ac.table_name, ac.constraint_name FROM all_constraints ac"
             + " WHERE ac.constraint_type ='R' and ac.owner=upper(?) and constraint_name NOT LIKE 'FK_%'";
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2);
+                    var t = rs.getString(1) + ", " + rs.getString(2);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -195,8 +185,8 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Feil eller mangelende definisjon av foreign key (skal hete 'FK_<tabell navn>_<løpenummer>'). Antall feil=";
+        var sz = avvik.size();
+        var feilTekst = "Feil eller mangelende definisjon av foreign key (skal hete 'FK_<tabell navn>_<løpenummer>'). Antall feil=";
 
         assertThat(avvik).withFailMessage(feilTekst + sz + "\n\nTabell, Foreign Key\n" + tekst).isEmpty();
 
@@ -204,7 +194,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_korrekt_index_navn() throws Exception {
-        String sql = """
+        var sql = """
                 select table_name, index_name, column_name
                  from all_ind_columns
                  where table_owner=upper(?)
@@ -213,16 +203,15 @@ public class SjekkDbStrukturTest {
                 """;
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2);
+                    var t = rs.getString(1) + ", " + rs.getString(2);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -230,8 +219,8 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Feil navngiving av index.  Primary Keys skal ha prefiks PK_, andre unike indekser prefiks UIDX_, vanlige indekser prefiks IDX_. Antall feil=";
+        var sz = avvik.size();
+        var feilTekst = "Feil navngiving av index.  Primary Keys skal ha prefiks PK_, andre unike indekser prefiks UIDX_, vanlige indekser prefiks IDX_. Antall feil=";
 
         assertThat(avvik).withFailMessage(feilTekst + +sz + "\n\nTabell, Index, Kolonne\n" + tekst).isEmpty();
 
@@ -239,7 +228,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ha_samme_data_type_for_begge_sider_av_en_FK() throws Exception {
-        String sql = """
+        var sql = """
                 SELECT T.TABLE_NAME
                 , TCC.COLUMN_NAME AS KOL_A
                 , ATT.DATA_TYPE AS KOL_A_DATA_TYPE
@@ -262,16 +251,15 @@ public class SjekkDbStrukturTest {
                 ORDER BY T.TABLE_NAME, TCC.COLUMN_NAME
                 """;
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5)
+                    var t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5)
                         + ", " + rs.getString(6) + ", " + rs.getString(7) + ", " + rs.getString(8) + ", " + rs.getString(9);
                     avvik.add(t);
                     tekst.append(t).append("\n");
@@ -280,9 +268,9 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Forskjellig datatype for kolonne på hver side av en FK. Kan være deklarert feil (husk VARCHAR2(100 CHAR) og ikke VARCHAR2(100)). Antall feil=";
-        String cols = ".\n\nTABELL, KOL_A, KOL_A_DATA_TYPE, KOL_A_CHAR_LENGTH, KOL_A_CHAR_USED, KOL_B, KOL_B_DATA_TYPE, KOL_B_CHAR_LENGTH, KOL_B_CHAR_USED\n";
+        var sz = avvik.size();
+        var feilTekst = "Forskjellig datatype for kolonne på hver side av en FK. Kan være deklarert feil (husk VARCHAR2(100 CHAR) og ikke VARCHAR2(100)). Antall feil=";
+        var cols = ".\n\nTABELL, KOL_A, KOL_A_DATA_TYPE, KOL_A_CHAR_LENGTH, KOL_A_CHAR_USED, KOL_B, KOL_B_DATA_TYPE, KOL_B_CHAR_LENGTH, KOL_B_CHAR_USED\n";
 
         assertThat(avvik).withFailMessage(feilTekst + +sz + cols + tekst).isEmpty();
 
@@ -290,7 +278,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_deklarere_VARCHAR2_kolonner_som_CHAR_ikke_BYTE_semantikk() throws Exception {
-        String sql = """
+        var sql = """
                 SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHAR_USED, CHAR_LENGTH
                 FROM ALL_TAB_COLS
                 WHERE DATA_TYPE = 'VARCHAR2'
@@ -299,16 +287,15 @@ public class SjekkDbStrukturTest {
                 """;
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5);
+                    var t = rs.getString(1) + ", " + rs.getString(2) + ", " + rs.getString(3) + ", " + rs.getString(4) + ", " + rs.getString(5);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -316,9 +303,9 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Feil deklarasjon av VARCHAR2 kolonne (husk VARCHAR2(100 CHAR) og ikke VARCHAR2(100)). Antall feil=";
-        String cols = ".\n\nTABELL, KOLONNE, DATA_TYPE, CHAR_USED, CHAR_LENGTH\n";
+        var sz = avvik.size();
+        var feilTekst = "Feil deklarasjon av VARCHAR2 kolonne (husk VARCHAR2(100 CHAR) og ikke VARCHAR2(100)). Antall feil=";
+        var cols = ".\n\nTABELL, KOLONNE, DATA_TYPE, CHAR_USED, CHAR_LENGTH\n";
 
         assertThat(avvik).withFailMessage(feilTekst + +sz + cols + tekst).isEmpty();
 
@@ -326,19 +313,18 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void skal_ikke_bruke_FLOAT_eller_DOUBLE() throws Exception {
-        String sql = "select table_name, column_name, data_type from all_tab_cols where owner=upper(?) and data_type in ('FLOAT', 'DOUBLE') order by 1, 2";
+        var sql = "select table_name, column_name, data_type from all_tab_cols where owner=upper(?) and data_type in ('FLOAT', 'DOUBLE') order by 1, 2";
 
         List<String> avvik = new ArrayList<>();
-        StringBuilder tekst = new StringBuilder();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        var tekst = new StringBuilder();
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, schema);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
-                    String t = rs.getString(1) + ", " + rs.getString(2);
+                    var t = rs.getString(1) + ", " + rs.getString(2);
                     avvik.add(t);
                     tekst.append(t).append("\n");
                 }
@@ -346,8 +332,8 @@ public class SjekkDbStrukturTest {
 
         }
 
-        int sz = avvik.size();
-        String feilTekst = "Feil bruk av datatype, skal ikke ha FLOAT eller DOUBLE (bruk NUMBER for alle desimaltall, spesielt der penger representeres). Antall feil=";
+        var sz = avvik.size();
+        var feilTekst = "Feil bruk av datatype, skal ikke ha FLOAT eller DOUBLE (bruk NUMBER for alle desimaltall, spesielt der penger representeres). Antall feil=";
 
         assertThat(avvik).withFailMessage(feilTekst + +sz + "\n\nTabell, Kolonne, Datatype\n" + tekst).isEmpty();
 
@@ -355,7 +341,7 @@ public class SjekkDbStrukturTest {
 
     @Test
     public void sjekk_at_status_verdiene_i_prosess_task_tabellen_er_også_i_pollingSQL() throws Exception {
-        String sql = """
+        var sql = """
                 SELECT SEARCH_CONDITION
                 FROM all_constraints
                 WHERE table_name = 'PROSESS_TASK'
@@ -364,16 +350,14 @@ public class SjekkDbStrukturTest {
                 """;
 
         List<String> statusVerdier = new ArrayList<>();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (var conn = ds.getConnection(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 statusVerdier.add(rs.getString(1));
             }
 
         }
-        String feilTekst = "Ved innføring av ny stause må sqlen i TaskManager_pollTask.sql må oppdateres ";
+        var feilTekst = "Ved innføring av ny stause må sqlen i TaskManager_pollTask.sql må oppdateres ";
         assertThat(statusVerdier).withFailMessage(feilTekst)
             .containsExactly("status in ('KLAR', 'FEILET', 'VENTER_SVAR', 'SUSPENDERT', 'VETO', 'FERDIG', 'KJOERT')");
     }

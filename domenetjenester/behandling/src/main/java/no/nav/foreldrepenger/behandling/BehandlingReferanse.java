@@ -222,7 +222,7 @@ public class BehandlingReferanse {
         if ((obj == null) || !getClass().equals(obj.getClass())) {
             return false;
         }
-        BehandlingReferanse other = (BehandlingReferanse) obj;
+        var other = (BehandlingReferanse) obj;
         return Objects.equals(behandlingId, other.behandlingId)
                 && Objects.equals(saksnummer, other.saksnummer)
                 && Objects.equals(aktørId, other.aktørId)

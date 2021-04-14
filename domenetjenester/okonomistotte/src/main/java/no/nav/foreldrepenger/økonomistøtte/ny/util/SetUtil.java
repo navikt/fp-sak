@@ -12,7 +12,7 @@ public class SetUtil {
     @SafeVarargs
     public static <T> Set<T> union(Set<T>... settene) {
         Set<T> resultat = new HashSet<>();
-        for (Set<T> sett : settene) {
+        for (var sett : settene) {
             resultat.addAll(sett);
         }
         return resultat;
@@ -21,7 +21,7 @@ public class SetUtil {
     @SafeVarargs
     public static <T extends Comparable<T>> SortedSet<T> sortertUnionOfKeys(Map<T, ?>... maps) {
         SortedSet<T> resultat = new TreeSet<>();
-        for (Map<T, ?> map : maps) {
+        for (var map : maps) {
             resultat.addAll(map.keySet());
         }
         return resultat;
@@ -29,8 +29,8 @@ public class SetUtil {
 
     @SafeVarargs
     public static <T> SortedSet<T> sortertUnion(Comparator<T> comparator, Set<T>... settene) {
-        TreeSet<T> resultat = new TreeSet<>(comparator);
-        for (Set<T> sett : settene) {
+        var resultat = new TreeSet<T>(comparator);
+        for (var sett : settene) {
             resultat.addAll(sett);
         }
         return resultat;

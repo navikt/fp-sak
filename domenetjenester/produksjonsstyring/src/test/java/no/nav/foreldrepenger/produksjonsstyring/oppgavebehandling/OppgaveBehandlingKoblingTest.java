@@ -9,8 +9,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -36,21 +34,21 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
     @Test
     public void skal_lagre_ned_en_oppgave() {
         // Arrange
-        String oppgaveIdFraGSAK = "IDFRAGSAK";
-        OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
+        var oppgaveIdFraGSAK = "IDFRAGSAK";
+        var behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        final var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now());
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
-        long id = lagreOppgave(oppgave);
+        var oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
+        var id = lagreOppgave(oppgave);
 
         // Assert
-        OppgaveBehandlingKobling oppgaveFraBase = entityManager.find(OppgaveBehandlingKobling.class, id);
+        var oppgaveFraBase = entityManager.find(OppgaveBehandlingKobling.class, id);
         assertThat(oppgaveFraBase.getOppgaveId()).isEqualTo(oppgaveIdFraGSAK);
     }
 
@@ -61,17 +59,17 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
     @Test
     public void skal_knytte_en_oppgave_til_en_behandling() {
         // Arrange
-        String oppgaveIdFraGSAK = "IDFRAGSAK";
-        OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
+        var oppgaveIdFraGSAK = "IDFRAGSAK";
+        var behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        final var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now());
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
+        var oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
         lagreOppgave(oppgave);
 
         // Assert
@@ -82,17 +80,17 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
     @Test
     public void skal_kunne_ferdigstille_en_eksisterende_oppgave() {
         // Arrange
-        String oppgaveIdFraGSAK = "IDFRAGSAK";
-        OppgaveÅrsak behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
-        String saksbehandler = "R160223";
+        var oppgaveIdFraGSAK = "IDFRAGSAK";
+        var behandleSøknad = OppgaveÅrsak.BEHANDLE_SAK;
+        var saksbehandler = "R160223";
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        final FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        final var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now());
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
+        var oppgave = new OppgaveBehandlingKobling(behandleSøknad, oppgaveIdFraGSAK, SAKSNUMMER, behandling.getId());
         Long id = lagreOppgave(oppgave);
 
         // Act
@@ -102,7 +100,7 @@ public class OppgaveBehandlingKoblingTest extends EntityManagerAwareTest {
         oppgaveKoblingFraBase.ferdigstillOppgave(saksbehandler);
         lagreOppgave(oppgaveKoblingFraBase);
 
-        OppgaveBehandlingKobling oppgaveHentetFraBasen = entityManager.find(OppgaveBehandlingKobling.class, oppgaveKoblingFraBase.getId());
+        var oppgaveHentetFraBasen = entityManager.find(OppgaveBehandlingKobling.class, oppgaveKoblingFraBase.getId());
         assertThat(oppgaveHentetFraBasen.isFerdigstilt()).isTrue();
     }
 

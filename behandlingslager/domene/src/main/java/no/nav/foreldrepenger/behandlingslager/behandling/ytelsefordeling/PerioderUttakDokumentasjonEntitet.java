@@ -25,7 +25,7 @@ public class PerioderUttakDokumentasjonEntitet extends DokumentasjonPerioderEnti
 
     public PerioderUttakDokumentasjonEntitet(PerioderUttakDokumentasjonEntitet perioder) {
         this();
-        for (PeriodeUttakDokumentasjonEntitet periode : perioder.getPerioder()) {
+        for (var periode : perioder.getPerioder()) {
             leggTil(periode);
         }
     }
@@ -35,7 +35,7 @@ public class PerioderUttakDokumentasjonEntitet extends DokumentasjonPerioderEnti
     }
 
     public void leggTil(PeriodeUttakDokumentasjonEntitet periode) {
-        final PeriodeUttakDokumentasjonEntitet entitet = new PeriodeUttakDokumentasjonEntitet(periode);
+        final var entitet = new PeriodeUttakDokumentasjonEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }

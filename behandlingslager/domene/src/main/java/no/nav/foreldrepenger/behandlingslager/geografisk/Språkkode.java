@@ -66,7 +66,7 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(Språkkode.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(Språkkode.class, node, "kode");
         return finnSpråkIgnoreCase(kode).orElseThrow(() -> new IllegalArgumentException("Ukjent Språkkode: " + kode));
     }
 

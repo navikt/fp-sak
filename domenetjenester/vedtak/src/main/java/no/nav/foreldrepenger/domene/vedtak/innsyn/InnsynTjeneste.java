@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -13,9 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -48,7 +44,7 @@ public class InnsynTjeneste {
     }
 
     public Behandling opprettManueltInnsyn(Saksnummer saksnummer) {
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer)
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer)
             .orElseThrow(() -> new TekniskException("FP-148968",
                 String.format("Finner ingen fagsak som kan gis innsyn for saksnummer: %s", saksnummer)));
 
@@ -56,11 +52,11 @@ public class InnsynTjeneste {
     }
 
     public void lagreVurderInnsynResultat(Behandling behandling, InnsynEntitet innsynResultat) {
-        InnsynResultatType innsynType = innsynResultat.getInnsynResultatType();
+        var innsynType = innsynResultat.getInnsynResultatType();
         lagreBehandlingResultat(innsynType, behandling);
 
-        Optional<InnsynEntitet> innsynEntitetOpt = innsynRepository.hentForBehandling(behandling.getId());
-        InnsynEntitet.InnsynBuilder innsynBuilder = InnsynEntitet.InnsynBuilder.builder(innsynEntitetOpt.orElse(null))
+        var innsynEntitetOpt = innsynRepository.hentForBehandling(behandling.getId());
+        var innsynBuilder = InnsynEntitet.InnsynBuilder.builder(innsynEntitetOpt.orElse(null))
             .medMottattDato(innsynResultat.getMottattDato())
             .medInnsynResultatType(innsynType);
 
@@ -74,13 +70,13 @@ public class InnsynTjeneste {
     }
 
     private void lagreBehandlingResultat(InnsynResultatType innsynResultatType, Behandling behandling) {
-        Optional<Behandlingsresultat> eksisterendeBehandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        Behandlingsresultat.Builder builder = eksisterendeBehandlingsresultat.isPresent()
+        var eksisterendeBehandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var builder = eksisterendeBehandlingsresultat.isPresent()
             ? Behandlingsresultat.builderEndreEksisterende(eksisterendeBehandlingsresultat.get())
             : Behandlingsresultat.builderForInngangsvilkår();
         builder.medBehandlingResultatType(konverterResultatType(innsynResultatType));
-        Behandlingsresultat res = builder.buildFor(behandling);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var res = builder.buildFor(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(res.getVilkårResultat(), lås);
         behandlingRepository.lagre(behandling, lås);
     }
@@ -89,9 +85,11 @@ public class InnsynTjeneste {
         // TODO (Maur): bør unngå to kodeverk for samme, evt. linke med Kodeliste relasjon eller abstrahere med interface
         if (InnsynResultatType.INNVILGET.equals(innsynResultatType)) {
             return BehandlingResultatType.INNSYN_INNVILGET;
-        } else if (InnsynResultatType.DELVIS_INNVILGET.equals(innsynResultatType)) {
+        }
+        if (InnsynResultatType.DELVIS_INNVILGET.equals(innsynResultatType)) {
             return BehandlingResultatType.INNSYN_DELVIS_INNVILGET;
-        } else if (InnsynResultatType.AVVIST.equals(innsynResultatType)) {
+        }
+        if (InnsynResultatType.AVVIST.equals(innsynResultatType)) {
             return BehandlingResultatType.INNSYN_AVVIST;
         }
         throw new IllegalArgumentException("Utviklerfeil: Ukjent resultat-type");

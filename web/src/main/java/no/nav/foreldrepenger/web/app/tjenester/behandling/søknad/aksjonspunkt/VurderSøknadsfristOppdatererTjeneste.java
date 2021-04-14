@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import java.time.LocalDate;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -67,10 +65,10 @@ public abstract class VurderSøknadsfristOppdatererTjeneste {
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret());
 
         if (dto.harGyldigGrunn()) {
-            Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());
-            LocalDate lagretMottattDato = uttaksperiodegrense.getMottattDato();
-            LocalDate tidligereAnseesMottattDato = søknad.getMottattDato().equals(lagretMottattDato) ? null : lagretMottattDato;
-            LocalDate dtoMottattDato = dto.getAnsesMottattDato();
+            var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(param.getBehandlingId());
+            var lagretMottattDato = uttaksperiodegrense.getMottattDato();
+            var tidligereAnseesMottattDato = søknad.getMottattDato().equals(lagretMottattDato) ? null : lagretMottattDato;
+            var dtoMottattDato = dto.getAnsesMottattDato();
 
             if (!dtoMottattDato.equals(tidligereAnseesMottattDato)) {
                 tekstBuilder.medEndretFelt(HistorikkEndretFeltType.MOTTATT_DATO, tidligereAnseesMottattDato, dtoMottattDato);

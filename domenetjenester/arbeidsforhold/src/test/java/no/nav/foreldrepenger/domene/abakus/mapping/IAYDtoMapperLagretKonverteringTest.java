@@ -50,8 +50,8 @@ public class IAYDtoMapperLagretKonverteringTest {
 
     @Test
     public void skal_lagre_ned_inntekt_arbeid_ytelser_og_konvertere_opphentet_til_dto() throws Exception {
-        long behandlingId = 1L;
-        UUID behandlingUuid = UUID.randomUUID();
+        var behandlingId = 1L;
+        var behandlingUuid = UUID.randomUUID();
         var aktørId = AktørId.dummy();
 
         var aggregatBuilder = iayTjeneste.opprettBuilderForRegister(behandlingId);
@@ -105,7 +105,7 @@ public class IAYDtoMapperLagretKonverteringTest {
                 .medArbeidsgiver(yrkesaktivitet.getArbeidsgiver())
                 .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
 
-        InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = aktørInntektBuilder
+        var aktørInntekt = aktørInntektBuilder
                 .leggTilInntekt(inntektBuilder);
 
         aggregatBuilder.leggTilAktørInntekt(aktørInntekt);
@@ -124,8 +124,8 @@ public class IAYDtoMapperLagretKonverteringTest {
     }
 
     private YtelseBuilder lagYtelse(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder aktørYtelseBuilder) {
-        Saksnummer sakId = new Saksnummer("1200094");
-        YtelseBuilder ytelselseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, RelatertYtelseType.SYKEPENGER, sakId);
+        var sakId = new Saksnummer("1200094");
+        var ytelselseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, RelatertYtelseType.SYKEPENGER, sakId);
         ytelselseBuilder.tilbakestillAnvisteYtelser();
         return ytelselseBuilder.medKilde(Fagsystem.INFOTRYGD)
                 .medYtelseType(RelatertYtelseType.FORELDREPENGER)

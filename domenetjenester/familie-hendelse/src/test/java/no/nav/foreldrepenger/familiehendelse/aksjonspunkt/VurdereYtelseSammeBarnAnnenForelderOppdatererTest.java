@@ -12,16 +12,13 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
@@ -35,50 +32,50 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     @Test
     public void skal_oppdatere_vilkår_for_adopsjon() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = scenario();
-        Behandling behandling = scenario.lagMocked();
+        var scenario = scenario();
+        var behandling = scenario.lagMocked();
 
-        VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
+        var dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
         dto.setErVilkarOk(true);
 
         utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
 
         // Assert
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        var behandlingsresultat = behandling.getBehandlingsresultat();
         assertThat(behandlingsresultat.getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(behandlingsresultat.getVilkårResultat().getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     @Test
     public void skal_sette_adopsjonsvilkåret_til_ikke_oppfylt_med_avslagskode() {
-        ScenarioFarSøkerEngangsstønad scenario = scenario();
-        Behandling behandling = scenario.lagMocked();
+        var scenario = scenario();
+        var behandling = scenario.lagMocked();
 
-        VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
+        var dto = new VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto();
         dto.setErVilkarOk(false);
         dto.setAvslagskode("1006");
 
         utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
 
         // Assert
-        VilkårResultat vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
+        var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
         assertThat(vilkårResultat.getVilkårene()).hasSize(1);
-        Vilkår vilkår = vilkårResultat.getVilkårene().get(0);
+        var vilkår = vilkårResultat.getVilkårene().get(0);
         assertThat(vilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
         assertThat(vilkår.getAvslagsårsak()).isEqualTo(Avslagsårsak.MANN_ADOPTERER_IKKE_ALENE);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-        HistorikkTjenesteAdapter mockHistory = mock(HistorikkTjenesteAdapter.class);
+        var tekstBuilder = new HistorikkInnslagTekstBuilder();
+        var mockHistory = mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }
 
     private ScenarioFarSøkerEngangsstønad scenario() {
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
-        PersonInformasjon forelder = scenario.opprettBuilderForRegisteropplysninger()
+        var forelder = scenario.opprettBuilderForRegisteropplysninger()
             .leggTilPersonopplysninger(
                 Personopplysning.builder()
                     .aktørId(AktørId.dummy())
@@ -95,10 +92,10 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     private void utførAksjonspunktOppdaterer(Behandling behandling,
                                              VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto,
                                              BehandlingRepositoryProvider repositoryProvider) {
-        HistorikkTjenesteAdapter mockHistory = lagMockHistory();
+        var mockHistory = lagMockHistory();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
-        OppdateringResultat resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
+        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
             repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         byggVilkårResultat(vilkårBuilder, resultat);

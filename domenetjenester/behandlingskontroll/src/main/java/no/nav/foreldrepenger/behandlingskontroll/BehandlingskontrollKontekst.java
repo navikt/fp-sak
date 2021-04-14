@@ -45,10 +45,11 @@ public class BehandlingskontrollKontekst {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BehandlingskontrollKontekst)) {
+        }
+        if (!(obj instanceof BehandlingskontrollKontekst)) {
             return false;
         }
-        BehandlingskontrollKontekst other = (BehandlingskontrollKontekst) obj;
+        var other = (BehandlingskontrollKontekst) obj;
         return Objects.equals(fagsakId, other.fagsakId)
                 && Objects.equals(aktørId, other.aktørId)
                 && Objects.equals(getBehandlingId(), other.getBehandlingId());

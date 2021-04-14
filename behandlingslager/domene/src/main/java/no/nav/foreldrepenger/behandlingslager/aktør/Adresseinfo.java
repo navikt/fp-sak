@@ -57,7 +57,7 @@ public class Adresseinfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Adresseinfo that = (Adresseinfo) o;
+        var that = (Adresseinfo) o;
         return gjeldendePostadresseType == that.gjeldendePostadresseType &&
             Objects.equals(matrikkelId, that.matrikkelId) &&
             Objects.equals(adresselinje1, that.adresselinje1) &&

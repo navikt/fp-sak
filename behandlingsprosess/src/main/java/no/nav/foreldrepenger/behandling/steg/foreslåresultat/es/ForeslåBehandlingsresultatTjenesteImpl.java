@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("ES")
@@ -45,22 +44,22 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
         var behandlingsresultat = behandlingsresultatRepository.hent(ref.getBehandlingId());
-        BehandlingResultatType behandlingResultatType = utledBehandlingsresultatType(behandlingsresultat);
+        var behandlingResultatType = utledBehandlingsresultatType(behandlingsresultat);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(behandlingResultatType);
         var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
         if (revurderingEndring.erRevurderingMedUendretUtfall(behandling, behandlingResultatType)) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING);
         }
         if (BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType)) {
-            Optional<Vilkår> ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
+            var ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
             ikkeOppfyltVilkår.ifPresent(vilkår -> {
-                Avslagsårsak avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
+                var avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
                 behandlingsresultat.setAvslagsårsak(avslagsårsak);
             });
         } else {
             // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
             // hvor avslagårsak kopieres fra et vilkår)
-            Optional<Avslagsårsak> avslagsårsakOpt = Optional.ofNullable(behandlingsresultat.getAvslagsårsak());
+            var avslagsårsakOpt = Optional.ofNullable(behandlingsresultat.getAvslagsårsak());
             avslagsårsakOpt.ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
         }
         return behandlingsresultat;

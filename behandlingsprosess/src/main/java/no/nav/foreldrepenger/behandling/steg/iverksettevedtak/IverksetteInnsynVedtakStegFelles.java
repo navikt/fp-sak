@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.util.env.Environment;
 
 @BehandlingStegRef(kode = "IVEDSTEG")
 @BehandlingTypeRef("BT-006") // Innsyn
@@ -45,14 +43,14 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     }
 
     private void bestillVedtaksbrev(BehandlingskontrollKontekst kontekst) {
-        BestillBrevDto bestillBrevDto = brevDto(kontekst);
+        var bestillBrevDto = brevDto(kontekst);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
     }
 
     private BestillBrevDto brevDto(BehandlingskontrollKontekst kontekst) {
-        Aksjonspunkt ap = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
-        String begrunnelse = ap.getBegrunnelse();
-        String fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
+        var ap = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
+        var begrunnelse = ap.getBegrunnelse();
+        var fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
 
         return new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYN_SVAR, fritekst);
     }

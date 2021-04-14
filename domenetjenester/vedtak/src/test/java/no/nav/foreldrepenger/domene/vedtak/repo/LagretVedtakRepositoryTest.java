@@ -30,28 +30,28 @@ public class LagretVedtakRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_lagre_ny_lagretVedtak() {
-        LagretVedtak lagretVedtak = lagLagretVedtakMedPaakrevdeFelter();
+        var lagretVedtak = lagLagretVedtakMedPaakrevdeFelter();
 
         lagretVedtakRepository.lagre(lagretVedtak);
 
-        Long id = lagretVedtak.getId();
+        var id = lagretVedtak.getId();
         assertThat(id).isNotNull();
 
         entityManager.flush();
         entityManager.clear();
-        LagretVedtak lagretVedtakLest = entityManager.find(LagretVedtak.class, id);
+        var lagretVedtakLest = entityManager.find(LagretVedtak.class, id);
         assertThat(lagretVedtakLest).isNotNull();
     }
 
     @Test
     public void skal_finne_lagretVedtak_med_id() {
-        LagretVedtak lagretVedtakLagret = lagLagretVedtakMedPaakrevdeFelter();
+        var lagretVedtakLagret = lagLagretVedtakMedPaakrevdeFelter();
         entityManager.persist(lagretVedtakLagret);
         entityManager.flush();
         entityManager.clear();
         long idLagret = lagretVedtakLagret.getId();
 
-        LagretVedtak lagretVedtak = lagretVedtakRepository.hentLagretVedtak(idLagret);
+        var lagretVedtak = lagretVedtakRepository.hentLagretVedtak(idLagret);
         assertThat(lagretVedtak).isNotNull();
         assertThat(lagretVedtak.getFagsakId()).isEqualTo(FAGSAK_ID);
         assertThat(lagretVedtak.getBehandlingId()).isEqualTo(BEHANDLING_ID);

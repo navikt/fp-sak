@@ -11,8 +11,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårEngangsstønad;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårTypeKoder.FP_VK_4)
@@ -31,9 +29,9 @@ public class InngangsvilkårEngangsstønadAdopsjon implements Inngangsvilkår {
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        AdopsjonsvilkårGrunnlag grunnlag = inngangsvilkårOversetter.oversettTilRegelModellAdopsjon(ref);
+        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellAdopsjon(ref);
 
-        Evaluation evaluation = new AdopsjonsvilkårEngangsstønad().evaluer(grunnlag);
+        var evaluation = new AdopsjonsvilkårEngangsstønad().evaluer(grunnlag);
 
         return inngangsvilkårOversetter.tilVilkårData(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, evaluation, grunnlag);
     }

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +13,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -50,12 +48,12 @@ public class FaktaUttakToTrinnsTjeneste {
     }
 
     private boolean harEndringerPåPerioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder) {
-        List<BekreftetOppgittPeriodeDto> alleEndredePerioder = bekreftedePerioder
+        var alleEndredePerioder = bekreftedePerioder
             .stream().filter(p -> isNotBlank(p.getBekreftetPeriode().getBegrunnelse()))
             .collect(Collectors.toList());
 
         List<Årsak> årsakerInnleggelse = Arrays.asList(UtsettelseÅrsak.INSTITUSJON_SØKER, UtsettelseÅrsak.INSTITUSJON_BARN);
-        List<BekreftetOppgittPeriodeDto> innleggelsePerioder = alleEndredePerioder.stream()
+        var innleggelsePerioder = alleEndredePerioder.stream()
             .filter(p -> p.getBekreftetPeriode().getUtsettelseÅrsak() != null && årsakerInnleggelse.contains(p.getBekreftetPeriode().getUtsettelseÅrsak()))
             .collect(Collectors.toList());
 
@@ -63,8 +61,8 @@ public class FaktaUttakToTrinnsTjeneste {
             return true;
         }
 
-        for (BekreftetOppgittPeriodeDto periode : innleggelsePerioder) {
-            List<UttakDokumentasjonDto> dokumentertePerioder = periode.getBekreftetPeriode().getDokumentertePerioder();
+        for (var periode : innleggelsePerioder) {
+            var dokumentertePerioder = periode.getBekreftetPeriode().getDokumentertePerioder();
             if (dokumentertePerioder.isEmpty() || erNyPeriode(periode)) {
                 return true;
             }
@@ -77,12 +75,12 @@ public class FaktaUttakToTrinnsTjeneste {
     }
 
     private boolean erHelePeriodenDokumentert(BekreftetOppgittPeriodeDto periode, List<UttakDokumentasjonDto> dokumentertePerioder) {
-        List<UttakDokumentasjonDto> sortertDokPerioder = dokumentertePerioder.stream()
+        var sortertDokPerioder = dokumentertePerioder.stream()
             .sorted(Comparator.comparing(UttakDokumentasjonDto::getFom))
             .collect(Collectors.toList());
 
-        LocalDate startDato = periode.getBekreftetPeriode().getFom();
-        for (UttakDokumentasjonDto dokumentasjon : sortertDokPerioder) {
+        var startDato = periode.getBekreftetPeriode().getFom();
+        for (var dokumentasjon : sortertDokPerioder) {
             if (!dokumentasjon.getFom().isAfter(startDato)) {
                 startDato = dokumentasjon.getTom();
             }
@@ -102,9 +100,9 @@ public class FaktaUttakToTrinnsTjeneste {
      */
     public boolean oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(AvklarAnnenforelderHarRettDto dto, Behandling behandling){
 
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
         var rettAvkaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
-        Boolean harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat
+        var harAnnenForeldreRettSokVersjon = ytelseFordelingAggregat
             .getOppgittRettighet().getHarAnnenForeldreRett();
 
         Boolean harAnnenForeldreRettBekreftetVersjon = null;
@@ -112,8 +110,8 @@ public class FaktaUttakToTrinnsTjeneste {
             harAnnenForeldreRettBekreftetVersjon = rettAvkaring.get();
         }
 
-        boolean avkreftetBrukersOpplysinger = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettSokVersjon, dto.getAnnenforelderHarRett());
-        boolean erEndretBekreftetVersjon = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettBekreftetVersjon, dto.getAnnenforelderHarRett());
+        var avkreftetBrukersOpplysinger = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettSokVersjon, dto.getAnnenforelderHarRett());
+        var erEndretBekreftetVersjon = erEndretBekreftetVersjonEllerAvkreftetBrukersOpplysinger(harAnnenForeldreRettBekreftetVersjon, dto.getAnnenforelderHarRett());
 
 
         return setToTrinns(rettAvkaring, erEndretBekreftetVersjon, avkreftetBrukersOpplysinger);

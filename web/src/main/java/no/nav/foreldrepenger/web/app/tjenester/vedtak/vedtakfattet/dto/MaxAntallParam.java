@@ -17,13 +17,12 @@ public class MaxAntallParam implements AbacDto{
     public MaxAntallParam(String maxAntall) {
         this.maxAntall = maxAntall;
     }
-    
+
     public Long get() {
         if (maxAntall.isEmpty()) {
             return 100L;
-        } else {
-            return Long.valueOf(maxAntall);
         }
+        return Long.valueOf(maxAntall);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class BehandlingStegKonfigurasjon {
     }
 
     public BehandlingStegStatus mapTilStatus(BehandlingStegResultat stegResultat) {
-        BehandlingStegStatus status = BehandlingStegResultat.mapTilStatus(stegResultat);
+        var status = BehandlingStegResultat.mapTilStatus(stegResultat);
         return mapTilStatusEntitet(status);
     }
 

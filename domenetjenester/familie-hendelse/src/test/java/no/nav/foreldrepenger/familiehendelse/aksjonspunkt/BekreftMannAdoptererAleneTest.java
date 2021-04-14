@@ -3,22 +3,17 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -44,10 +39,10 @@ public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_mann_adopterer_alene() {
         // Arrange
-        boolean oppdatertMannAdoptererAlene = true;
+        var oppdatertMannAdoptererAlene = true;
 
         // Behandling
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
@@ -57,22 +52,22 @@ public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
                 .medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE,
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        final Behandling behandling = scenario.lagre(repositoryProvider);
+        final var behandling = scenario.lagre(repositoryProvider);
         // Dto
-        BekreftMannAdoptererAksjonspunktDto dto = new BekreftMannAdoptererAksjonspunktDto("begrunnelse", oppdatertMannAdoptererAlene);
+        var dto = new BekreftMannAdoptererAksjonspunktDto("begrunnelse", oppdatertMannAdoptererAlene);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         // Act
         new BekreftMannAdoptererOppdaterer(repositoryProvider, lagMockHistory(), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        List<HistorikkinnslagDel> historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
+        var historikkInnslagDeler = this.tekstBuilder.build(historikkinnslag);
 
         // Assert
         assertThat(historikkInnslagDeler).hasSize(1);
 
-        HistorikkinnslagDel del = historikkInnslagDeler.get(0);
-        Optional<HistorikkinnslagFelt> feltOpt = del.getEndretFelt(HistorikkEndretFeltType.MANN_ADOPTERER);
+        var del = historikkInnslagDeler.get(0);
+        var feltOpt = del.getEndretFelt(HistorikkEndretFeltType.MANN_ADOPTERER);
         assertThat(feltOpt).as("endretFelt[MANN_ADOPTERER]").hasValueSatisfying(felt -> {
             assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.MANN_ADOPTERER.getKode());
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
@@ -81,7 +76,7 @@ public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

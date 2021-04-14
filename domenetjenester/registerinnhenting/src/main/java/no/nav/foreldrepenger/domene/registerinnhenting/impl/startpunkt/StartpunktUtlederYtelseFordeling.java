@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static java.util.stream.Collectors.toList;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -47,8 +45,8 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     @Override
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
         // Ser på forhold fra endringssøknader og kun en gang - ved KOFAK siden mottak merger/henlegger ved ny søknad. (andre utledere ser på fødsel, mm.).
-        Long originalBehandling = ref.getOriginalBehandlingId().orElse(null);
-        Behandling behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
+        var originalBehandling = ref.getOriginalBehandlingId().orElse(null);
+        var behandling = behandlingRepository.hentBehandling(ref.getBehandlingId());
         if (originalBehandling == null || behandling.harSattStartpunkt()) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ikke revurdering el passert kofak", grunnlagId1, grunnlagId2);
             return StartpunktType.UTTAKSVILKÅR;
@@ -66,15 +64,15 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     }
 
     private boolean erSkjæringsdatoUendret(BehandlingReferanse ref, Long originalBehandlingId) {
-        LocalDate nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
-        LocalDate originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
+        var nySkjæringsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
+        var originalSkjæringsdato = skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandlingId).getSkjæringstidspunktHvisUtledet().orElse(null);
         return Objects.equals(originalSkjæringsdato, nySkjæringsdato);
     }
 
 
     private boolean erStartpunktBeregning(BehandlingReferanse nyBehandlingRef){
-        List<OppgittPeriodeEntitet> perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.getBehandlingId()).getOppgittFordeling().getOppgittePerioder();
-        List<OppgittPeriodeEntitet> gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
+        var perioderFraSøknad = ytelsesFordelingRepository.hentAggregat(nyBehandlingRef.getBehandlingId()).getOppgittFordeling().getOppgittePerioder();
+        var gradertePerioderFraSøknad = finnGradertePerioder(perioderFraSøknad);
 
         if (gradertePerioderFraSøknad.isEmpty()){
             return false;

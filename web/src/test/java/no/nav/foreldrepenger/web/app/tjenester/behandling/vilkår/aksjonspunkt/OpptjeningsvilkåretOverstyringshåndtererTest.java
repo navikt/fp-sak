@@ -11,15 +11,11 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -46,7 +42,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     public void skal_opprette_aksjonspunkt_for_overstyring() {
         // Arrange
         // Behandling
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medDefaultFordeling(LocalDate.now())
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
@@ -54,9 +50,9 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
         // Dto
-        OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
                 "test av overstyring opptjeningsvilkåret", "1035");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
@@ -64,7 +60,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
-        Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();
+        var aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
                 .contains(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
@@ -82,7 +78,7 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
@@ -90,20 +86,20 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
         // Dto
-        OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
                 "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling.getId());
 
         // Assert
-        List<Historikkinnslag> historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
+        var historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
         assertThat(historikkinnslagene.get(0).getHistorikkinnslagDeler()).hasSize(1);
-        List<HistorikkinnslagFelt> feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
+        var feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
         assertThat(feltList).hasSize(1);
-        HistorikkinnslagFelt felt = feltList.get(0);
+        var felt = feltList.get(0);
         assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OVERSTYRT_VURDERING.getKode());
         assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT.getKode());
@@ -113,15 +109,15 @@ public class OpptjeningsvilkåretOverstyringshåndtererTest {
     public void skal_feile_hvis_det_forsøkes_å_overstyre_uten_aktiviteter_i_opptjening() {
         // Arrange
         // Behandling
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
                 BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
         // Dto
-        OverstyringOpptjeningsvilkåretDto overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
                 "test av overstyring opptjeningsvilkåret", "1035");
 
         // Act

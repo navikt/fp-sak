@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Hendels
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
@@ -61,7 +59,7 @@ public class FagsakTjenesteTest {
     private DekningsgradTjeneste dekningsgradTjeneste;
 
     private static FamilieHendelseGrunnlagEntitet byggHendelseGrunnlag(LocalDate fødselsdato, LocalDate oppgittFødselsdato) {
-        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         if (oppgittFødselsdato != null) {
             hendelseBuilder.medFødselsDato(oppgittFødselsdato);
         }
@@ -74,23 +72,23 @@ public class FagsakTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        ProsesseringAsynkTjeneste prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
+        var prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
         tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, null, hendelseTjeneste, null,
                 dekningsgradTjeneste);
     }
 
     @Test
     public void skal_hente_saker_på_fnr() {
-        NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
+        var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
         when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
 
-        Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
+        var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         when(fagsakRepository.hentForBruker(AKTØR_ID)).thenReturn(Collections.singletonList(fagsak));
 
-        LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
+        var fødselsdato = LocalDate.of(2017, JANUARY, 1);
+        final var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
@@ -108,14 +106,14 @@ public class FagsakTjenesteTest {
 
     @Test
     public void skal_hente_saker_på_saksreferanse() {
-        NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
-        Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
+        var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
+        var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         when(fagsakRepository.hentSakGittSaksnummer(SAKSNUMMER)).thenReturn(Optional.of(fagsak));
 
-        final LocalDate fødselsdato = LocalDate.of(2017, JANUARY, 1);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
+        final var fødselsdato = LocalDate.of(2017, JANUARY, 1);
+        final var grunnlag = byggHendelseGrunnlag(fødselsdato, fødselsdato);
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(anyLong()))
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
@@ -133,8 +131,8 @@ public class FagsakTjenesteTest {
     @Test
     public void skal_returnere_tomt_view_når_fagsakens_bruker_er_ukjent_for_tps() {
         // Arrange
-        NavBruker navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
-        Fagsak fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
+        var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
+        var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         // Whitebox.setInternalState(fagsak, "id", -1L);
         fagsak.setId(-1L);
         var view = tjeneste.søkFagsakDto(valueOf(SAKSNUMMER));

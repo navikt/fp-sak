@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.vedtak.exception.TekniskException;
@@ -76,7 +75,7 @@ public class YtelsesFordelingRepository {
 
     private Optional<YtelseFordelingGrunnlagEntitet> hentAktivtGrunnlag(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        final TypedQuery<YtelseFordelingGrunnlagEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             "FROM YtelseFordelingGrunnlag gr " + "WHERE gr.behandlingId = :behandlingId " + "AND gr.aktiv = :aktivt",
             YtelseFordelingGrunnlagEntitet.class);
         query.setParameter("behandlingId", behandlingId);
@@ -85,10 +84,10 @@ public class YtelsesFordelingRepository {
     }
 
     private void lagreOgFlush(Long behandlingId, YtelseFordelingAggregat aggregat) {
-        final Optional<YtelseFordelingGrunnlagEntitet> eksisterendeGrunnlag = hentAktivtGrunnlag(behandlingId);
-        YtelseFordelingGrunnlagEntitet nyGrunnlagEntitet = mapTilGrunnlagEntitet(behandlingId, aggregat);
+        final var eksisterendeGrunnlag = hentAktivtGrunnlag(behandlingId);
+        var nyGrunnlagEntitet = mapTilGrunnlagEntitet(behandlingId, aggregat);
         if (eksisterendeGrunnlag.isPresent()) {
-            final YtelseFordelingGrunnlagEntitet eksisterendeGrunnlag1 = eksisterendeGrunnlag.get();
+            final var eksisterendeGrunnlag1 = eksisterendeGrunnlag.get();
             eksisterendeGrunnlag1.setAktiv(false);
             entityManager.persist(eksisterendeGrunnlag1);
             entityManager.flush();
@@ -132,7 +131,7 @@ public class YtelsesFordelingRepository {
     }
 
     private YtelseFordelingGrunnlagEntitet mapTilGrunnlagEntitet(Long behandlingId, YtelseFordelingAggregat aggregat) {
-        final YtelseFordelingGrunnlagEntitet grunnlag = new YtelseFordelingGrunnlagEntitet();
+        final var grunnlag = new YtelseFordelingGrunnlagEntitet();
         grunnlag.setBehandling(behandlingId);
         grunnlag.setOppgittDekningsgrad(aggregat.getOppgittDekningsgrad());
         grunnlag.setOppgittRettighet(aggregat.getOppgittRettighet());
@@ -152,7 +151,7 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderUttakDokumentasjon(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderUttakDokumentasjon() != null) {
             entityManager.persist(grunnlag.getPerioderUttakDokumentasjon());
-            for (PeriodeUttakDokumentasjonEntitet periode : grunnlag.getPerioderUttakDokumentasjon().getPerioder()) {
+            for (var periode : grunnlag.getPerioderUttakDokumentasjon().getPerioder()) {
                 entityManager.persist(periode);
             }
         }
@@ -161,7 +160,7 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderUtenOmsorg(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderUtenOmsorg() != null) {
             entityManager.persist(grunnlag.getPerioderUtenOmsorg());
-            for (PeriodeUtenOmsorgEntitet periode : grunnlag.getPerioderUtenOmsorg().getPerioder()) {
+            for (var periode : grunnlag.getPerioderUtenOmsorg().getPerioder()) {
                 entityManager.persist(periode);
             }
         }
@@ -170,7 +169,7 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderAleneOmsorg(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderAleneOmsorgEntitet() != null) {
             entityManager.persist(grunnlag.getPerioderAleneOmsorgEntitet());
-            for (PeriodeAleneOmsorgEntitet periode : grunnlag.getPerioderAleneOmsorgEntitet().getPerioder()) {
+            for (var periode : grunnlag.getPerioderAleneOmsorgEntitet().getPerioder()) {
                 entityManager.persist(periode);
             }
         }
@@ -179,7 +178,7 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderAnnenforelderHarRett(YtelseFordelingGrunnlagEntitet grunnlag) {
         if (grunnlag.getPerioderAnnenforelderHarRettEntitet() != null) {
             entityManager.persist(grunnlag.getPerioderAnnenforelderHarRettEntitet());
-            for (PeriodeAnnenforelderHarRettEntitet periode : grunnlag.getPerioderAnnenforelderHarRettEntitet()
+            for (var periode : grunnlag.getPerioderAnnenforelderHarRettEntitet()
                 .getPerioder()) {
                 entityManager.persist(periode);
             }
@@ -189,14 +188,14 @@ public class YtelsesFordelingRepository {
     private void lagrePerioderAktivitetskrav(AktivitetskravPerioderEntitet perioder) {
         if (perioder != null) {
             entityManager.persist(perioder);
-            for (AktivitetskravPeriodeEntitet periode : perioder.getPerioder()) {
+            for (var periode : perioder.getPerioder()) {
                 entityManager.persist(periode);
             }
         }
     }
 
     private void lagrePeriode(List<OppgittPeriodeEntitet> perioder) {
-        for (OppgittPeriodeEntitet oppgittPeriode : perioder) {
+        for (var oppgittPeriode : perioder) {
             entityManager.persist(oppgittPeriode);
         }
     }
@@ -206,7 +205,7 @@ public class YtelsesFordelingRepository {
      * skaper nye referanser til disse.
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-        Optional<YtelseFordelingAggregat> origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
+        var origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
         origAggregat.ifPresent(ytelseFordelingAggregat -> {
             lagreOgFlush(nyBehandlingId, ytelseFordelingAggregat);
         });

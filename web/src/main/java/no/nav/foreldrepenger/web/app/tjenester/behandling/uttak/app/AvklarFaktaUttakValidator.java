@@ -24,7 +24,7 @@ class AvklarFaktaUttakValidator {
     }
 
     static void validerOpplysninger(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Optional<LocalDate> førsteUttaksdato) {
-        List<FeltFeilDto> funnetFeil = Stream.of(validerSøknadsperioder(bekreftedePerioder, førsteUttaksdato))
+        var funnetFeil = Stream.of(validerSøknadsperioder(bekreftedePerioder, førsteUttaksdato))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
@@ -34,7 +34,7 @@ class AvklarFaktaUttakValidator {
     }
 
     static Optional<FeltFeilDto> validerSøknadsperioder(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Optional<LocalDate> førsteUttaksdato) {
-        String feltnavn = "søknadsperioder";
+        var feltnavn = "søknadsperioder";
 
         if (ingenSøknadsperiode(bekreftedePerioder)) {
             return Optional.of(new FeltFeilDto(feltnavn, KREV_MINST_EN_SØKNADSPERIODE));
@@ -54,7 +54,7 @@ class AvklarFaktaUttakValidator {
 
     private static boolean periodeFørFørsteUttaksdato(List<KontrollerFaktaPeriodeLagreDto> bekreftetPerioder,
                                                       LocalDate førsteUttaksdato) {
-        LocalDate bekreftetFørsteUttaksdato = sortert(bekreftetPerioder).get(0).getFom();
+        var bekreftetFørsteUttaksdato = sortert(bekreftetPerioder).get(0).getFom();
         return bekreftetFørsteUttaksdato.isBefore(førsteUttaksdato);
     }
 
@@ -63,8 +63,8 @@ class AvklarFaktaUttakValidator {
     }
 
     private static boolean validerArbeidsgiverVedGradering(List<BekreftetOppgittPeriodeDto> perioder) {
-        for (BekreftetOppgittPeriodeDto periodeDto : perioder) {
-            KontrollerFaktaPeriodeLagreDto bekreftetPeriode = periodeDto.getBekreftetPeriode();
+        for (var periodeDto : perioder) {
+            var bekreftetPeriode = periodeDto.getBekreftetPeriode();
             if (erGradering(bekreftetPeriode) && bekreftetPeriode.getErArbeidstaker() && bekreftetPeriode.getArbeidsgiver() == null) {
                 return true;
             }
@@ -85,17 +85,17 @@ class AvklarFaktaUttakValidator {
             return false;
         }
 
-        boolean p1BegynnerFørst = p1.getFom().isBefore(p2.getTom());
-        KontrollerFaktaPeriodeLagreDto begynnerFørst = p1BegynnerFørst ? p1 : p2;
-        KontrollerFaktaPeriodeLagreDto begynnerSist = p1BegynnerFørst ? p2 : p1;
+        var p1BegynnerFørst = p1.getFom().isBefore(p2.getTom());
+        var begynnerFørst = p1BegynnerFørst ? p1 : p2;
+        var begynnerSist = p1BegynnerFørst ? p2 : p1;
         return begynnerFørst.getTom().isAfter(begynnerSist.getFom());
     }
 
     private static boolean overlappendePerioder(List<KontrollerFaktaPeriodeLagreDto> perioder) {
-        for (int i = 0; i < perioder.size(); i++) {
-            KontrollerFaktaPeriodeLagreDto periode = perioder.get(i);
+        for (var i = 0; i < perioder.size(); i++) {
+            var periode = perioder.get(i);
 
-            for (int y = i + 1; y < perioder.size(); y++) {
+            for (var y = i + 1; y < perioder.size(); y++) {
                 if (perioderOverlapper(periode, perioder.get(y))) {
                     return true;
                 }

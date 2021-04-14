@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
@@ -98,7 +97,7 @@ public final class UttakEnumMapper {
             return AktivitetIdentifikator.annenAktivitet();
         }
         if (uttakArbeidType.equals(UttakArbeidType.ORDINÆRT_ARBEID)) {
-            ArbeidsgiverIdentifikator arbeidsgiverIdentifikator = arbeidsgiver.map(a -> {
+            var arbeidsgiverIdentifikator = arbeidsgiver.map(a -> {
                 var identifikator = a.getIdentifikator();
                 if (a.getErVirksomhet()) {
                     return new Orgnummer(identifikator);

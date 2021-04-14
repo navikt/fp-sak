@@ -5,12 +5,10 @@ import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.AVKLAR_OM_
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -32,14 +30,14 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_søker_har_oppholdt_seg_i_Norge_de_siste_12_måneder() {
         //Arrange
-        LocalDate fødselsdato = LocalDate.now().minusDays(5L);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now().minusDays(5L);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -48,8 +46,8 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_det_ikke_er_søkt_på_bakgrunn_av_fødsel() {
         //Arrange
-        LocalDate termindato = LocalDate.now().minusDays(5L); // Oppgir termindato, dvs. søknad ikke basert på fødsel
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var termindato = LocalDate.now().minusDays(5L); // Oppgir termindato, dvs. søknad ikke basert på fødsel
+        var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
@@ -57,16 +55,16 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
             .medTermindato(termindato)
             .medNavnPå("LEGEN MIN"));
 
-        LocalDate oppholdStart = termindato.minusDays(2L);
-        LocalDate oppholdSlutt = termindato.plusDays(2L);
+        var oppholdStart = termindato.minusDays(2L);
+        var oppholdSlutt = termindato.plusDays(2L);
 
-        MedlemskapOppgittLandOppholdEntitet danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
+        var danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
         scenario.medOppgittTilknytning().leggTilOpphold(danmark);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = tjeneste.utled(behandling.getId(), termindato);
+        var medlemResultat = tjeneste.utled(behandling.getId(), termindato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -75,21 +73,21 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_søkers_barn_er_født_i_Norge() {
         //Arrange
-        LocalDate fødselsdato = LocalDate.now().minusDays(2L);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now().minusDays(2L);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
 
-        LocalDate oppholdStart = fødselsdato.minusDays(20L);
-        LocalDate oppholdSlutt = fødselsdato.minusDays(5L);
+        var oppholdStart = fødselsdato.minusDays(20L);
+        var oppholdSlutt = fødselsdato.minusDays(5L);
 
-        MedlemskapOppgittLandOppholdEntitet danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
+        var danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
         scenario.medOppgittTilknytning().leggTilOpphold(danmark);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).isEmpty();
@@ -98,21 +96,21 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_om_søkers_barn_fra_søknad_er_født_i_utlandet() {
         //Arrange
-        LocalDate fødselsdato = LocalDate.now().minusDays(5L);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now().minusDays(5L);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
 
-        LocalDate oppholdStart = fødselsdato.minusDays(2L);
-        LocalDate oppholdSlutt = fødselsdato.plusDays(2L);
+        var oppholdStart = fødselsdato.minusDays(2L);
+        var oppholdSlutt = fødselsdato.plusDays(2L);
 
-        MedlemskapOppgittLandOppholdEntitet danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
+        var danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
         scenario.medOppgittTilknytning().leggTilOpphold(danmark);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).contains(AVKLAR_OM_ER_BOSATT);
@@ -121,21 +119,21 @@ public class AvklarBarnFødtUtenlandsTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_om_søkers_barn_fra_tps_er_født_i_utlandet() {
         //Arrange
-        LocalDate fødselsdato = LocalDate.now().minusDays(5L);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now().minusDays(5L);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medDefaultOppgittTilknytning();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
 
-        LocalDate oppholdStart = fødselsdato.minusDays(2L);
-        LocalDate oppholdSlutt = fødselsdato.plusDays(2L);
+        var oppholdStart = fødselsdato.minusDays(2L);
+        var oppholdSlutt = fødselsdato.plusDays(2L);
 
-        MedlemskapOppgittLandOppholdEntitet danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
+        var danmark = lagUtlandsopphold(oppholdStart, oppholdSlutt);
         scenario.medOppgittTilknytning().leggTilOpphold(danmark);
 
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = tjeneste.utled(behandling.getId(), fødselsdato);
 
         //Assert
         assertThat(medlemResultat).contains(AVKLAR_OM_ER_BOSATT);

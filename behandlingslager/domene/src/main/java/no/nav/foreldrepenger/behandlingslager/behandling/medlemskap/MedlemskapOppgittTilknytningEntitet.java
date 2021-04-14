@@ -63,7 +63,7 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
         this.oppholdNå = oppgittTilknytning.isOppholdNå();
         this.oppgittDato = oppgittTilknytning.getOppgittDato();
         for (var utl : oppgittTilknytning.getOpphold()) {
-            MedlemskapOppgittLandOppholdEntitet ue = new MedlemskapOppgittLandOppholdEntitet(utl);
+            var ue = new MedlemskapOppgittLandOppholdEntitet(utl);
             ue.setOppgittTilknytning(this);
             this.opphold.add(ue);
         }
@@ -109,10 +109,11 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof MedlemskapOppgittTilknytningEntitet)) {
+        }
+        if (!(obj instanceof MedlemskapOppgittTilknytningEntitet)) {
             return false;
         }
-        MedlemskapOppgittTilknytningEntitet other = (MedlemskapOppgittTilknytningEntitet) obj;
+        var other = (MedlemskapOppgittTilknytningEntitet) obj;
         return Objects.equals(this.oppholdNå, other.oppholdNå)
                 && Objects.equals(this.opphold, other.opphold);
     }

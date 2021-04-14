@@ -101,7 +101,7 @@ public class DokumentDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DokumentDto that = (DokumentDto) o;
+        var that = (DokumentDto) o;
         return kommunikasjonsretning == that.kommunikasjonsretning &&
             Objects.equals(journalpostId, that.journalpostId) &&
             Objects.equals(dokumentId, that.dokumentId) &&

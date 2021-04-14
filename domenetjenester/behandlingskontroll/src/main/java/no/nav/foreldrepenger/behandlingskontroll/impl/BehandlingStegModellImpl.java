@@ -135,11 +135,11 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
 
         if (!Collections.disjoint(aksjonspunkter, inngangAksjonpunktKoder)) { // NOSONAR
             return Optional.of(BehandlingStegStatus.INNGANG);
-        } else if (!Collections.disjoint(aksjonspunkter, utgangAksjonpunktKoder)) { // NOSONAR
-            return Optional.of(BehandlingStegStatus.UTGANG);
-        } else {
-            return Optional.empty();
         }
+        if (!Collections.disjoint(aksjonspunkter, utgangAksjonpunktKoder)) { // NOSONAR
+            return Optional.of(BehandlingStegStatus.UTGANG);
+        }
+        return Optional.empty();
     }
 
     @Override

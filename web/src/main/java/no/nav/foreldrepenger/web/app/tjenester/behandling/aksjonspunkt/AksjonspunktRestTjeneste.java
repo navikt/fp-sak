@@ -33,14 +33,12 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -92,13 +90,13 @@ public class AksjonspunktRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        Collection<Totrinnsvurdering> ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
-        Set<AksjonspunktDto> dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
-        CacheControl cc = new CacheControl();
+        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -124,14 +122,14 @@ public class AksjonspunktRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getRisikoAksjonspunkt(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        AksjonspunktDto dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
                 .stream()
                 .filter(ap -> AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE.equals(ap.getDefinisjon().getKode()))
                 .findFirst()
                 .orElse(null);
 
-        CacheControl cc = new CacheControl();
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -147,10 +145,10 @@ public class AksjonspunktRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response erKontrollerRevurderingAksjonspunktÅpent(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        boolean harÅpentAksjonspunkt = behandling
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var harÅpentAksjonspunkt = behandling
                 .harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
-        CacheControl cc = new CacheControl();
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -175,10 +173,10 @@ public class AksjonspunktRestTjeneste {
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
             throws URISyntaxException { // NOSONAR
 
-        Long behandlingId = apDto.getBehandlingId().getBehandlingId();
-        Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
+        var behandlingId = apDto.getBehandlingId().getBehandlingId();
+        var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
-        Behandling behandling = behandlingId != null
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(apDto.getBehandlingId().getBehandlingUuid());
 
@@ -205,9 +203,9 @@ public class AksjonspunktRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response overstyr(@Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
-        BehandlingIdDto behandlingIdDto = apDto.getBehandlingId();
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingIdDto = apDto.getBehandlingId();
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 

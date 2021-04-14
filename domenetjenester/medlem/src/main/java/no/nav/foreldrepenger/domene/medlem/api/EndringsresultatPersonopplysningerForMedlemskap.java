@@ -101,7 +101,7 @@ public class EndringsresultatPersonopplysningerForMedlemskap {
         }
 
         public Builder leggTilEndring(EndretAttributt endretAttributt, DatoIntervallEntitet periode, String endretFra, String endretTil) {
-            Endring endring = new Endring(endretAttributt, periode, endretFra, endretTil);
+            var endring = new Endring(endretAttributt, periode, endretFra, endretTil);
             kladd.endringer.add(endring);
             return this;
         }

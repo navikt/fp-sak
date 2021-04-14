@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -103,7 +102,7 @@ public class Oppdragskontroll extends BaseEntitet {
         if (!(object instanceof Oppdragskontroll)) {
             return false;
         }
-        Oppdragskontroll oppdragskontroll = (Oppdragskontroll) object;
+        var oppdragskontroll = (Oppdragskontroll) object;
         return Objects.equals(behandlingId, oppdragskontroll.getBehandlingId())
             && Objects.equals(saksnummer, oppdragskontroll.getSaksnummer())
             && Objects.equals(venterKvittering, oppdragskontroll.getVenterKvittering())
@@ -147,7 +146,7 @@ public class Oppdragskontroll extends BaseEntitet {
 
         public Oppdragskontroll build() {
             verifyStateForBuild();
-            Oppdragskontroll oppdragskontroll = new Oppdragskontroll();
+            var oppdragskontroll = new Oppdragskontroll();
             oppdragskontroll.behandlingId = behandlingId;
             oppdragskontroll.saksnummer = saksnummer;
             oppdragskontroll.venterKvittering = venterKvittering;

@@ -34,7 +34,7 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_ikke_kunne_kobles_med_seg_selv() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
         assertThrows(VLException.class, () -> relasjonRepository.kobleFagsaker(fagsak, fagsak, null));
@@ -42,10 +42,10 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
-        final NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        final var bruker = NavBruker.opprettNyNB(AktørId.dummy());
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak);
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
@@ -54,9 +54,9 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
@@ -65,15 +65,15 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_koble_sammen_fagsak_med_lik_ytelse_type_og_ulik_aktør() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._100);
         relasjonRepository.kobleFagsaker(fagsak, fagsak2, null);
-        final FagsakRelasjon fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
-        final FagsakRelasjon fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak2);
+        final var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
+        final var fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak2);
 
         assertThat(fagsakRelasjon).isEqualTo(fagsakRelasjon1);
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
@@ -82,10 +82,10 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_lage_relasjon_når_mangler() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._100);
-        final FagsakRelasjon fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
+        final var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
 
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
         assertThat(fagsakRelasjon.getDekningsgrad()).isEqualTo(Dekningsgrad._100);
@@ -94,13 +94,13 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_relasjon_når_1gang() {
 
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         Behandling.nyBehandlingFor(fagsak, BehandlingType.FØRSTEGANGSSØKNAD).build();
 
         relasjonRepository.opprettEllerOppdaterRelasjon(fagsak, Optional.empty(), Dekningsgrad._80);
 
-        FagsakRelasjon fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
+        var fagsakRelasjon = relasjonRepository.finnRelasjonFor(fagsak);
         assertThat(fagsakRelasjon.getFagsakNrEn()).isEqualTo(fagsak);
         assertThat(fagsakRelasjon.getDekningsgrad()).isEqualTo(Dekningsgrad._80);
 
@@ -116,16 +116,16 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_overstyre_dekningsgrad_eier_av_relasjon(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._80);
         relasjonRepository.kobleFagsaker(fagsak1, fagsak2, null);
         // Act
         relasjonRepository.overstyrDekningsgrad(fagsak1, Dekningsgrad._100);
-        final FagsakRelasjon fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
-        final FagsakRelasjon fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
+        final var fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
+        final var fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
         // Assert
         assertThat(fagsakRelasjon1).isEqualTo(fagsakRelasjon2);
         assertThat(fagsakRelasjon1.getFagsakNrEn()).isEqualTo(fagsak1);
@@ -141,16 +141,16 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_overstyre_dekningsgrad_ikke_eier_av_relasjon(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._80);
         relasjonRepository.kobleFagsaker(fagsak1, fagsak2, null);
         // Act
         relasjonRepository.overstyrDekningsgrad(fagsak2, Dekningsgrad._100);
-        final FagsakRelasjon fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
-        final FagsakRelasjon fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
+        final var fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
+        final var fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
         // Assert
         assertThat(fagsakRelasjon1).isEqualTo(fagsakRelasjon2);
         assertThat(fagsakRelasjon1.getFagsakNrEn()).isEqualTo(fagsak1);
@@ -166,13 +166,13 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_relasjon_med_saksnummer(){
         // Arrange
-        Saksnummer saksnummer = new Saksnummer("1337");
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, saksnummer);
+        var saksnummer = new Saksnummer("1337");
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), RelasjonsRolleType.MORA, saksnummer);
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak, Dekningsgrad._80);
 
         // Act
-        final FagsakRelasjon fagsakRelasjon = relasjonRepository.finnRelasjonFor(saksnummer);
+        final var fagsakRelasjon = relasjonRepository.finnRelasjonFor(saksnummer);
 
         // Assert
         assertThat(fagsakRelasjon.getDekningsgrad().getVerdi()).isEqualTo(80);
@@ -182,8 +182,8 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_med_avslutningsdato(){
         // Arrange
-        final Fagsak fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        final Fagsak fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1, Dekningsgrad._100);
@@ -191,8 +191,8 @@ public class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
         // Act
         var fagsakRealasjon = relasjonRepository.finnRelasjonFor(fagsak1);
         relasjonRepository.oppdaterMedAvsluttningsdato(fagsakRealasjon, LocalDate.now(), null, Optional.empty(), Optional.empty());
-        final FagsakRelasjon fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
-        final FagsakRelasjon fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
+        final var fagsakRelasjon1 = relasjonRepository.finnRelasjonFor(fagsak1);
+        final var fagsakRelasjon2 = relasjonRepository.finnRelasjonFor(fagsak2);
         // Assert
         assertThat(fagsakRelasjon1).isEqualTo(fagsakRelasjon2);
         assertThat(fagsakRelasjon1.getAvsluttningsdato()).isNotNull();

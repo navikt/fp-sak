@@ -59,8 +59,8 @@ public class InntektsmeldingTjeneste {
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
     public List<Inntektsmelding> hentInntektsmeldinger(BehandlingReferanse ref, LocalDate skjæringstidspunktForOpptjening) {
-        Long behandlingId = ref.getBehandlingId();
-        AktørId aktørId = ref.getAktørId();
+        var behandlingId = ref.getBehandlingId();
+        var aktørId = ref.getAktørId();
         return hentInntektsmeldinger(behandlingId, aktørId, skjæringstidspunktForOpptjening);
     }
 
@@ -71,11 +71,11 @@ public class InntektsmeldingTjeneste {
 
     public List<Inntektsmelding> hentInntektsmeldinger(AktørId aktørId, LocalDate skjæringstidspunktForOpptjening,
             InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<Inntektsmelding> inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
+        var inntektsmeldinger = iayGrunnlag.getInntektsmeldinger().map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
                 .orElse(emptyList());
 
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), iayGrunnlag.getAktørArbeidFraRegister(aktørId));
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         // kan ikke filtrere når det ikke finnes yrkesaktiviteter
         if (yrkesaktiviteter.isEmpty()) {
@@ -93,12 +93,12 @@ public class InntektsmeldingTjeneste {
      * @return Liste med inntektsmeldinger {@link Inntektsmelding}
      */
     public List<Inntektsmelding> hentAlleInntektsmeldingerMottattEtterGjeldendeVedtak(BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
-        Long originalBehandlingId = ref.getOriginalBehandlingId()
+        var behandlingId = ref.getBehandlingId();
+        var originalBehandlingId = ref.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Denne metoden benyttes bare for revurderinger"));
 
-        Map<String, Inntektsmelding> revurderingIM = hentIMMedIndexKey(behandlingId);
-        Map<String, Inntektsmelding> origIM = hentIMMedIndexKey(originalBehandlingId);
+        var revurderingIM = hentIMMedIndexKey(behandlingId);
+        var origIM = hentIMMedIndexKey(originalBehandlingId);
         return revurderingIM.entrySet().stream()
                 .filter(imRevurderingEntry -> !origIM.containsKey(imRevurderingEntry.getKey())
                         || !Objects.equals(origIM.get(imRevurderingEntry.getKey()).getJournalpostId(),
@@ -134,7 +134,7 @@ public class InntektsmeldingTjeneste {
      */
     public List<InntektsmeldingSomIkkeKommer> hentAlleInntektsmeldingerSomIkkeKommer(Long behandlingId) {
         List<InntektsmeldingSomIkkeKommer> result = new ArrayList<>();
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
+        var inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
         inntektArbeidYtelseGrunnlag.ifPresent(iayg -> result.addAll(iayg.getInntektsmeldingerSomIkkeKommer()));
         return result;
     }
@@ -197,7 +197,7 @@ public class InntektsmeldingTjeneste {
      * @return Map med inntektsmeldinger per arbeidsgiver
      */
     public Map<Arbeidsgiver, List<Inntektsmelding>> hentAlleInntektsmeldingerForFagsakInkludertInaktive(Saksnummer saksnummer) {
-        List<Inntektsmelding> alleInntektsmeldinger = hentAlleInntektsmeldingerForFagsak(saksnummer);
+        var alleInntektsmeldinger = hentAlleInntektsmeldingerForFagsak(saksnummer);
 
         return alleInntektsmeldinger.stream()
                 .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver));
@@ -216,15 +216,15 @@ public class InntektsmeldingTjeneste {
             Collection<Inntektsmelding> inntektsmeldinger,
             LocalDate skjæringstidspunktet,
             Optional<OppgittOpptjening> oppgittOpptjening) {
-        ArrayList<Inntektsmelding> kladd = new ArrayList<>(inntektsmeldinger);
+        var kladd = new ArrayList<Inntektsmelding>(inntektsmeldinger);
         List<Inntektsmelding> fjernes = new ArrayList<>();
 
         kladd.forEach(im -> {
-            boolean arbeidsgiverHarVærtRegistrertIOpplysningsperioden = yrkesaktiviteter.stream()
+            var arbeidsgiverHarVærtRegistrertIOpplysningsperioden = yrkesaktiviteter.stream()
                     .anyMatch(y -> y.gjelderFor(im.getArbeidsgiver(), InternArbeidsforholdRef.nullRef()));
-            boolean skalFjernes = yrkesaktiviteter.stream()
+            var skalFjernes = yrkesaktiviteter.stream()
                     .noneMatch(y -> {
-                        boolean gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
+                        var gjelderFor = y.gjelderFor(im.getArbeidsgiver(), im.getArbeidsforholdRef());
                         var ansettelsesPerioder = filter.getAnsettelsesPerioder(y);
                         return gjelderFor && ansettelsesPerioder.stream()
                                 .anyMatch(ap -> ap.getPeriode().inkluderer(skjæringstidspunktet)
@@ -264,7 +264,7 @@ public class InntektsmeldingTjeneste {
     }
 
     private Map<String, Inntektsmelding> hentIMMedIndexKey(Long behandlingId) {
-        List<Inntektsmelding> inntektsmeldinger = iayTjeneste.finnGrunnlag(behandlingId)
+        var inntektsmeldinger = iayTjeneste.finnGrunnlag(behandlingId)
                 .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
                 .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
                 .orElse(Collections.emptyList());
@@ -277,7 +277,7 @@ public class InntektsmeldingTjeneste {
         // FIXME (FC) denne burde gått rett på datalagret istd. å iterere over åpne
         // behandlinger
         List<Inntektsmelding> inntektsmeldinger = new ArrayList<>();
-        for (Long behandlingId : behandlingIder) {
+        for (var behandlingId : behandlingIder) {
             inntektsmeldinger.addAll(hentAlleInntektsmeldinger(behandlingId));
         }
         return inntektsmeldinger;

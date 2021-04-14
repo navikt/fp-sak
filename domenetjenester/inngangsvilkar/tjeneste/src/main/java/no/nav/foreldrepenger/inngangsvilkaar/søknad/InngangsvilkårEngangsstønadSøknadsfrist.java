@@ -10,9 +10,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.Inngangsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SoeknadsfristvilkarGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.Søknadsfristvilkår;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårTypeKoder.FP_VK_3)
@@ -31,8 +29,8 @@ public class InngangsvilkårEngangsstønadSøknadsfrist implements Inngangsvilk�
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse behandling) {
-        SoeknadsfristvilkarGrunnlag grunnlag = inngangsvilkårOversetter.oversettTilRegelModellSøknad(behandling);
-        Evaluation vilkaarResultat = new Søknadsfristvilkår().evaluer(grunnlag);
+        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellSøknad(behandling);
+        var vilkaarResultat = new Søknadsfristvilkår().evaluer(grunnlag);
         return inngangsvilkårOversetter.tilVilkårData(VilkårType.SØKNADSFRISTVILKÅRET, vilkaarResultat, grunnlag);
     }
 

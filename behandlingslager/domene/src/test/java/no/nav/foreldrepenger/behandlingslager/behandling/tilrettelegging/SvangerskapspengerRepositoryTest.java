@@ -5,14 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
@@ -35,14 +32,14 @@ public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_kopiere_grunnlaget_og_sette_kopiert_flagget() {
         // Arrange
-        Fagsak fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.SVANGERSKAPSPENGER);
-        Behandling gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
-        Behandling nyBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
+        var fagsak = basicBehandlingBuilder.opprettFagsak(FagsakYtelseType.SVANGERSKAPSPENGER);
+        var gammelBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
+        var nyBehandling = basicBehandlingBuilder.opprettOgLagreFørstegangssøknad(fagsak);
 
-        SvpTilretteleggingEntitet opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER);
-        SvpTilretteleggingEntitet ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER);
+        var opprTilrettelegging = opprettTilrettelegging(OM_TO_DAGER);
+        var ovstTilrettelegging = opprettTilrettelegging(OM_TRE_DAGER);
 
-        SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
             .medBehandlingId(gammelBehandling.getId())
             .medOpprinneligeTilrettelegginger(List.of(opprTilrettelegging))
             .medOverstyrteTilrettelegginger(List.of(ovstTilrettelegging))
@@ -53,7 +50,7 @@ public class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         repository.kopierSvpGrunnlagFraEksisterendeBehandling(gammelBehandling.getId(), nyBehandling);
 
         // Assert
-        Optional<SvpGrunnlagEntitet> kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
+        var kopiertGrunnlag = repository.hentGrunnlag(nyBehandling.getId());
         assertThat(kopiertGrunnlag).isPresent();
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe()).hasSize(1);
         assertThat(kopiertGrunnlag.get().getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getKopiertFraTidligereBehandling()).isTrue();

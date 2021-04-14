@@ -9,8 +9,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.Faresignalgruppe;
 import no.nav.vedtak.kontroll.kodeverk.KontrollResultatkode;
@@ -23,10 +21,10 @@ public class KontrollresultatMapperTest {
     @Test
     public void skal_teste_at_mapping_av_kontoll_resultat_skjer_korrekt_for_høy_risiko() {
         // Arrange
-        UUID uuid = UUID.randomUUID();
+        var uuid = UUID.randomUUID();
 
         // Act
-        KontrollresultatWrapper wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.HØY));
+        var wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.HØY));
 
         // Assert
         assertThat(wrapper.getBehandlingUuid()).isEqualTo(uuid);
@@ -36,10 +34,10 @@ public class KontrollresultatMapperTest {
     @Test
     public void skal_teste_at_mapping_av_kontoll_resultat_skjer_korrekt_for_ikke_høy_risiko() {
         // Arrange
-        UUID uuid = UUID.randomUUID();
+        var uuid = UUID.randomUUID();
 
         // Act
-        KontrollresultatWrapper wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.IKKE_HØY));
+        var wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.IKKE_HØY));
 
         // Assert
         assertThat(wrapper.getBehandlingUuid()).isEqualTo(uuid);
@@ -50,10 +48,10 @@ public class KontrollresultatMapperTest {
     @Test
     public void skal_teste_at_mapping_av_kontoll_resultat_skjer_korrekt_for_ikke_klassifisert() {
         // Arrange
-        UUID uuid = UUID.randomUUID();
+        var uuid = UUID.randomUUID();
 
         // Act
-        KontrollresultatWrapper wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.IKKE_KLASSIFISERT));
+        var wrapper = kontrollresultatMapper.fraKontrakt(lagKontrollresultat(uuid, KontrollResultatkode.IKKE_KLASSIFISERT));
 
         // Assert
         assertThat(wrapper.getBehandlingUuid()).isEqualTo(uuid);
@@ -63,14 +61,14 @@ public class KontrollresultatMapperTest {
     @Test
     public void skal_gjøre_faresignal_respons_om_til_wrapper() {
         // Arrange
-        FaresignalerRespons respons = new FaresignalerRespons();
-        List<String> faresignaler = Arrays.asList("Dette er en test", "Dette er også en test", "123 321 987");
+        var respons = new FaresignalerRespons();
+        var faresignaler = Arrays.asList("Dette er en test", "Dette er også en test", "123 321 987");
         respons.setIayFaresignaler(lagFaresignalgruppe("HOY", faresignaler));
         respons.setMedlFaresignaler(lagFaresignalgruppe("IKKE_HOY", faresignaler));
         respons.setRisikoklasse("HOY");
 
         // Act
-        FaresignalWrapper wrapper = kontrollresultatMapper.fraFaresignalRespons(respons);
+        var wrapper = kontrollresultatMapper.fraFaresignalRespons(respons);
 
         // Assert
         assertThat(wrapper.getKontrollresultat()).isEqualTo(Kontrollresultat.HØY);
@@ -83,12 +81,12 @@ public class KontrollresultatMapperTest {
 
 
     private KontrollResultatV1 lagKontrollresultat(UUID uuid, KontrollResultatkode resultatkode) {
-        KontrollResultatV1.Builder builder = new KontrollResultatV1.Builder();
+        var builder = new KontrollResultatV1.Builder();
         return builder.medBehandlingUuid(uuid).medResultatkode(resultatkode).build();
     }
 
     private Faresignalgruppe lagFaresignalgruppe(String risikoklasse, List<String> faresignaler) {
-        Faresignalgruppe gruppe = new Faresignalgruppe();
+        var gruppe = new Faresignalgruppe();
         gruppe.setFaresignaler(faresignaler);
         gruppe.setRisikoklasse(risikoklasse);
         return gruppe;

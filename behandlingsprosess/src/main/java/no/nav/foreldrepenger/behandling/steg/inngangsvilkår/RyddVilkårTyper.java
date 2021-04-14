@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -80,7 +79,7 @@ class RyddVilkårTyper {
     }
 
     private void nullstillVedtaksresultat() {
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         if ((behandlingsresultat == null) ||
                 Objects.equals(behandlingsresultat.getBehandlingResultatType(), BehandlingResultatType.IKKE_FASTSATT)) {
             return;
@@ -97,7 +96,7 @@ class RyddVilkårTyper {
 
     private void slettAvklarteFakta(List<VilkårType> vilkårTyper) {
         vilkårTyper.forEach(vilkårType -> {
-            Consumer<RyddVilkårTyper> ryddVilkårConsumer = OPPRYDDER_FOR_AVKLARTE_DATA.get(vilkårType);
+            var ryddVilkårConsumer = OPPRYDDER_FOR_AVKLARTE_DATA.get(vilkårType);
             if (ryddVilkårConsumer != null) {
                 ryddVilkårConsumer.accept(this);
             }
@@ -105,15 +104,15 @@ class RyddVilkårTyper {
     }
 
     private void nullstillInngangsvilkår() {
-        Optional<VilkårResultat> vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
+        var vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
                 .map(Behandlingsresultat::getVilkårResultat)
                 .filter(inng -> !inng.erOverstyrt());
         if (!vilkårResultatOpt.isPresent()) {
             return;
         }
 
-        VilkårResultat vilkårResultat = vilkårResultatOpt.get();
-        VilkårResultat.Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var vilkårResultat = vilkårResultatOpt.get();
+        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
         if (!vilkårResultat.getVilkårResultatType().equals(IKKE_FASTSATT)) {
             builder.medVilkårResultatType(IKKE_FASTSATT);
         }
@@ -121,21 +120,21 @@ class RyddVilkårTyper {
     }
 
     private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillOverstyring) {
-        Optional<VilkårResultat> vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
+        var vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
                 .map(Behandlingsresultat::getVilkårResultat);
         if (!vilkårResultatOpt.isPresent()) {
             return;
         }
-        VilkårResultat vilkårResultat = vilkårResultatOpt.get();
+        var vilkårResultat = vilkårResultatOpt.get();
 
-        List<Vilkår> vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
+        var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
                 .filter(v -> vilkårTyper.contains(v.getVilkårType()))
                 .collect(toList());
         if (vilkårSomSkalNullstilles.isEmpty()) {
             return;
         }
 
-        VilkårResultat.Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
         vilkårSomSkalNullstilles.stream()
                 .filter(it -> !it.erOverstyrt() || nullstillOverstyring)
                 .forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType(),

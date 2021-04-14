@@ -44,7 +44,7 @@ public class VilkårJsonObjectMapper {
         OM.setVisibility(PropertyAccessor.CREATOR, Visibility.ANY);
 
         // Legacy support for gamle åpne behandlinger fra Fundamentet. Fjernes når disse er vedtatt og ferdig
-        SimpleModule module = new SimpleModule();
+        var module = new SimpleModule();
         module.addDeserializer(LocalDate.class, new OldLocalDateDeserializer());
         OM.registerModule(module);
     }
@@ -64,7 +64,7 @@ public class VilkårJsonObjectMapper {
             throw new IllegalArgumentException("Kunne ikke deserialiser fra json til [" + targetClass.getName() + "]: " + src, e);
         }
     }
-    
+
     public <T> T readValue(URL resource, Class<T> targetClass) {
         try {
             return OM.readerFor(targetClass).readValue(resource);
@@ -74,7 +74,7 @@ public class VilkårJsonObjectMapper {
     }
 
     public String writeValueAsString(Object data) {
-        StringWriter sw = new StringWriter(512);
+        var sw = new StringWriter(512);
         write(data, sw);
         return sw.toString();
     }
@@ -103,13 +103,13 @@ public class VilkårJsonObjectMapper {
 
                 // Gammelt Legacy format(har ikke håndterert ikke java.time klasser ordentlig men dumper felter rett ut)
                 JsonNode json = jsonParser.getCodec().readTree(jsonParser);
-                JsonNode year = json.get("year");
+                var year = json.get("year");
 
                 if (year == null) {
                     throw new IllegalArgumentException("Kan ikke deserialisere input hverken fra legacy format eller nytt forat", e);
                 }
-                JsonNode month = json.get("monthValue");
-                JsonNode dayOfMonth = json.get("dayOfMonth");
+                var month = json.get("monthValue");
+                var dayOfMonth = json.get("dayOfMonth");
                 return LocalDate.of(year.asInt(), Month.of(month.intValue()), dayOfMonth.intValue());
             }
         }

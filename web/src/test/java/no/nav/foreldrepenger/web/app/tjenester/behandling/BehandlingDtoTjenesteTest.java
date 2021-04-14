@@ -90,9 +90,9 @@ public class BehandlingDtoTjenesteTest {
 
     @Test
     public void skal_ha_med_simuleringsresultatURL() {
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
-        UtvidetBehandlingDto dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
+        var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
 
         assertThat(getLinkRel(dto)).contains("simuleringResultat");
         assertThat(getLinkHref(dto)).contains(URI.create("/fpoppdrag/api/simulering/resultat-uten-inntrekk"));
@@ -100,12 +100,12 @@ public class BehandlingDtoTjenesteTest {
 
     @Test
     public void skal_ha_med_tilbakekrevings_link_når_det_finnes_et_resultat() {
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
         tilbakekrevingRepository.lagre(behandling,
                 TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, "varsel"));
 
-        UtvidetBehandlingDto dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
+        var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
         var href = RestUtils.getApiPath(TilbakekrevingRestTjeneste.VALG_PATH);
         var link = ResourceLink.get(href, "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).contains("tilbakekrevingvalg");
@@ -114,9 +114,9 @@ public class BehandlingDtoTjenesteTest {
 
     @Test
     public void skal_ikke_ha_med_tilbakekrevings_link_når_det_ikke_finnes_et_resultat() {
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
-        UtvidetBehandlingDto dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
+        var dto = tjeneste.lagUtvidetBehandlingDto(behandling, null);
         var href = RestUtils.getApiPath(TilbakekrevingRestTjeneste.VALG_PATH);
         var link = ResourceLink.get(href, "", new UuidDto(dto.getUuid()));
         assertThat(getLinkRel(dto)).doesNotContain("tilbakekrevingvalg");
@@ -132,8 +132,8 @@ public class BehandlingDtoTjenesteTest {
         behandlinger.add(lagBehandling(BehandlingType.INNSYN));
         behandlinger.add(lagBehandling(FagsakYtelseType.ENGANGSTØNAD));
         behandlinger.add(lagBehandling(FagsakYtelseType.SVANGERSKAPSPENGER));
-        for (Behandling behandling : behandlinger) {
-            for (ResourceLink dtoLink : tjeneste.lagUtvidetBehandlingDto(behandling, null).getLinks()) {
+        for (var behandling : behandlinger) {
+            for (var dtoLink : tjeneste.lagUtvidetBehandlingDto(behandling, null).getLinks()) {
                 assertThat(routeExists(dtoLink)).withFailMessage("Route " + dtoLink.toString() + " does not exist.").isTrue();
             }
         }
@@ -144,7 +144,7 @@ public class BehandlingDtoTjenesteTest {
         if (dtoLink.getRel().equals("simuleringResultat")) {
             return true;
         }
-        for (ResourceLink routeLink : existingRoutes) {
+        for (var routeLink : existingRoutes) {
             if (dtoLink.getHref().getPath().equals(routeLink.getHref().getPath()) && dtoLink.getType().equals(routeLink.getType())) {
                 linkEksists = true;
                 break;

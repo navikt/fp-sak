@@ -22,7 +22,7 @@ class JmsKonfig {
     }
 
     static void settOppJndiConnectionfactory(String jndiName, String queueManagerAlias, String channelAlias) throws JMSException, NamingException {
-        MQConnectionFactory mqConnectionFactory = createConnectionfactory(
+        var mqConnectionFactory = createConnectionfactory(
                 ENV.getProperty(queueManagerAlias + ".hostname"),
                 Integer.parseUnsignedInt(ENV.getProperty(queueManagerAlias + ".port")),
                 ENV.getProperty(channelAlias + ".name"),
@@ -36,7 +36,7 @@ class JmsKonfig {
     }
 
     static void settOppJndiMessageQueue(String jndiName, String queueAlias, boolean mqTargetClient) throws NamingException, JMSException {
-        MQQueue queue = new MQQueue(ENV.getProperty(queueAlias + ".queueName"));
+        var queue = new MQQueue(ENV.getProperty(queueAlias + ".queueName"));
         if (mqTargetClient) {
             queue.setMessageBodyStyle(MQ_TARGET_CLIENT);
         }
@@ -49,7 +49,7 @@ class JmsKonfig {
      */
     private static MQConnectionFactory createConnectionfactory(String hostName, Integer port, String channel, String queueManagerName, boolean useSSL)
             throws JMSException {
-        MQConnectionFactory connectionFactory = new MQConnectionFactory();
+        var connectionFactory = new MQConnectionFactory();
         connectionFactory.setHostName(hostName);
         connectionFactory.setPort(port);
         if (channel != null) {

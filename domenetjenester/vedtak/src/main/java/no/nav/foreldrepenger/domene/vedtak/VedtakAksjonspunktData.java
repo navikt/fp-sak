@@ -32,7 +32,7 @@ public class VedtakAksjonspunktData {
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
         return aksjonspunktDefinisjon;
     }
-    
+
     public String getBegrunnelse() {
         return begrunnelse;
     }
@@ -45,10 +45,11 @@ public class VedtakAksjonspunktData {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !Objects.equals(obj.getClass(), this.getClass())) {
+        }
+        if (obj == null || !Objects.equals(obj.getClass(), this.getClass())) {
             return false;
         }
-        VedtakAksjonspunktData other = (VedtakAksjonspunktData) obj;
+        var other = (VedtakAksjonspunktData) obj;
         return Objects.equals(aksjonspunktDefinisjon, other.aksjonspunktDefinisjon);
     }
 

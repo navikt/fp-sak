@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceP
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 
@@ -42,20 +40,20 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
     }
 
     public void observerBehandlingSteg(@Observes BehandlingTransisjonEvent transisjonEvent) {
-        Behandling behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
-        BehandlingModell modell = getModell(behandling);
+        var behandling = serviceProvider.hentBehandling(transisjonEvent.getBehandlingId());
+        var modell = getModell(behandling);
         if (!(FellesTransisjoner.erFremhoppTransisjon(transisjonEvent.getTransisjonIdentifikator())) || !transisjonEvent.erOverhopp()) {
             return;
         }
 
-        BehandlingStegType førsteSteg = transisjonEvent.getFørsteSteg();
-        BehandlingStegType sisteSteg = transisjonEvent.getSisteSteg();
-        Optional<BehandlingStegStatus> førsteStegStatus = transisjonEvent.getFørsteStegStatus();
+        var førsteSteg = transisjonEvent.getFørsteSteg();
+        var sisteSteg = transisjonEvent.getSisteSteg();
+        var førsteStegStatus = transisjonEvent.getFørsteStegStatus();
 
-        boolean medInngangFørsteSteg = førsteStegStatus.isEmpty() || førsteStegStatus.get().erVedInngang();
+        var medInngangFørsteSteg = førsteStegStatus.isEmpty() || førsteStegStatus.get().erVedInngang();
 
-        Set<String> aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
-        Set<String> aksjonspunktDefinisjonerEtterTil = modell.finnAksjonspunktDefinisjonerFraOgMed(sisteSteg, true);
+        var aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
+        var aksjonspunktDefinisjonerEtterTil = modell.finnAksjonspunktDefinisjonerFraOgMed(sisteSteg, true);
 
         Set<String> mellomliggende = new HashSet<>(aksjonspunktDefinisjonerEtterFra);
         mellomliggende.removeAll(aksjonspunktDefinisjonerEtterTil);
@@ -75,7 +73,7 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
                 førsteSteg = modell.finnNesteSteg(førsteSteg).getBehandlingStegType();
             }
 
-            final BehandlingStegType finalFørsteSteg = førsteSteg;
+            final var finalFørsteSteg = førsteSteg;
             modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, false)
                     .forEach(s -> hoppFramover(s, transisjonEvent, sisteSteg, finalFørsteSteg));
 

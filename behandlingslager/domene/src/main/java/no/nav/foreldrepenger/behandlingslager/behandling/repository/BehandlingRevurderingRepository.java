@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -70,11 +68,11 @@ public class BehandlingRevurderingRepository {
     public List<Behandling> finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(Long fagsakId) {
         Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR //$NON-NLS-1$
 
-        Optional<Behandling> sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
+        var sisteInnvilgede = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId);
 
         if (sisteInnvilgede.isPresent()) {
-            final List<Long> behandlingsIder = finnHenlagteBehandlingerEtter(fagsakId, sisteInnvilgede.get());
-            for (Long behandlingId : behandlingsIder) {
+            final var behandlingsIder = finnHenlagteBehandlingerEtter(fagsakId, sisteInnvilgede.get());
+            for (var behandlingId : behandlingsIder) {
                 behandlingLåsRepository.taLås(behandlingId);
             }
             return behandlingsIder.stream()
@@ -89,7 +87,7 @@ public class BehandlingRevurderingRepository {
     }
 
     private List<Long> finnHenlagteBehandlingerEtter(Long fagsakId, Behandling sisteInnvilgede) {
-        TypedQuery<Long> query = getEntityManager().createQuery("""
+        var query = getEntityManager().createQuery("""
             SELECT b.id FROM Behandling b WHERE b.fagsak.id=:fagsakId
              AND b.behandlingType=:type
              AND b.opprettetTidspunkt >= to_timestamp(:etterTidspunkt)
@@ -106,7 +104,7 @@ public class BehandlingRevurderingRepository {
     }
 
     public Optional<Behandling> finnÅpenYtelsesbehandling(Long fagsakId) {
-        List<Behandling> åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
+        var åpenBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(beh -> !beh.erKøet())
             .collect(Collectors.toList());
         check(åpenBehandling.size() <= 1, "Kan maks ha én åpen ytelsesbehandling"); //$NON-NLS-1$
@@ -114,7 +112,7 @@ public class BehandlingRevurderingRepository {
     }
 
     public Optional<Behandling> finnKøetYtelsesbehandling(Long fagsakId) {
-        List<Behandling> køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
+        var køetBehandling = finnÅpenogKøetYtelsebehandling(fagsakId).stream()
             .filter(Behandling::erKøet)
             .collect(Collectors.toList());
         check(køetBehandling.size() <= 1, "Kan maks ha én køet ytelsesbehandling"); //$NON-NLS-1$
@@ -124,7 +122,7 @@ public class BehandlingRevurderingRepository {
     private List<Behandling> finnÅpenogKøetYtelsebehandling(Long fagsakId) {
         Objects.requireNonNull(fagsakId, "fagsakId"); // NOSONAR //$NON-NLS-1$
 
-        TypedQuery<Long> query = getEntityManager().createQuery(
+        var query = getEntityManager().createQuery(
             "SELECT b.id " +
                 "from Behandling b " +
                 "where fagsak.id=:fagsakId " +
@@ -136,11 +134,11 @@ public class BehandlingRevurderingRepository {
         query.setParameter(AVSLUTTET_KEY, BehandlingStatus.getFerdigbehandletStatuser()); // $NON-NLS-1$
         query.setParameter("behandlingType", BehandlingType.getYtelseBehandlingTyper()); //$NON-NLS-1$
 
-        List<Long> behandlingIder = query.getResultList();
-        for (Long behandlingId : behandlingIder) {
+        var behandlingIder = query.getResultList();
+        for (var behandlingId : behandlingIder) {
             behandlingLåsRepository.taLås(behandlingId);
         }
-        final List<Behandling> behandlinger = behandlingIder.stream()
+        final var behandlinger = behandlingIder.stream()
             .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId))
             .collect(Collectors.toList());
         check(behandlinger.size() <= 2, "Kan maks ha én åpen og én køet ytelsesbehandling"); //$NON-NLS-1$
@@ -167,8 +165,8 @@ public class BehandlingRevurderingRepository {
     }
 
     public Optional<LocalDate> finnSøknadsdatoFraHenlagtBehandling(Behandling behandling) {
-        List<Behandling> henlagteBehandlinger = finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(behandling.getFagsak().getId());
-        Optional<SøknadEntitet> søknad = finnFørsteSøknadBlantBehandlinger(henlagteBehandlinger);
+        var henlagteBehandlinger = finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(behandling.getFagsak().getId());
+        var søknad = finnFørsteSøknadBlantBehandlinger(henlagteBehandlinger);
         if (søknad.isPresent()) {
             return Optional.ofNullable(søknad.get().getSøknadsdato());
         }
@@ -231,7 +229,7 @@ public class BehandlingRevurderingRepository {
          * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
          * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
-        Query query = getEntityManager().createNativeQuery(
+        var query = getEntityManager().createNativeQuery(
             REGULERING_SELECT_STD + """
                     join (select beregningsgrunnlag_id bgid, max(brutto_pr_aar) brutto
                         from BEREGNINGSGRUNNLAG_PERIODE
@@ -262,7 +260,7 @@ public class BehandlingRevurderingRepository {
          * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
          * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
-        Query query = getEntityManager().createNativeQuery(
+        var query = getEntityManager().createNativeQuery(
             REGULERING_SELECT_STD + """
                   JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:milsiv) )
                   join (select beregningsgrunnlag_id bgid, min(brutto_pr_aar) brutto
@@ -296,7 +294,7 @@ public class BehandlingRevurderingRepository {
          * - Saken har ikke noen åpne ytelsesbehandlinger (berørt telles ikke)
          * OBS: De som kun har innvilget utsettelse (ingen utbetaling) får riktig beregning når det kommer endringssøknad med uttak
          */
-        Query query = getEntityManager().createNativeQuery(
+        var query = getEntityManager().createNativeQuery(
             REGULERING_SELECT_STD +
                 "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:snring) ) " +
                 REGULERING_WHERE_STD +
@@ -322,7 +320,7 @@ public class BehandlingRevurderingRepository {
          * - Saken har ikke noen beregninger opprettet på eller etter dato for ny sats
          * - Saken har ikke noen åpne ytelsesbehandlinger
          */
-        Query query = getEntityManager().createNativeQuery(
+        var query = getEntityManager().createNativeQuery(
             REGULERING_SELECT_STD +
                 "  JOIN BG_AKTIVITET_STATUS bgs ON (bgs.BEREGNINGSGRUNNLAG_ID = grbg.BEREGNINGSGRUNNLAG_ID and bgs.AKTIVITET_STATUS in (:asarena) ) " +
                 REGULERING_WHERE_STD +

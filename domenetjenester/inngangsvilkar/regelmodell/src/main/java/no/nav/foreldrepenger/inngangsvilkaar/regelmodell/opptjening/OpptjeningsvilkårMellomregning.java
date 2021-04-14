@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ public class OpptjeningsvilkårMellomregning {
 
     public OpptjeningsvilkårMellomregning(Opptjeningsgrunnlag grunnlag) {
         this.grunnlag = grunnlag;
-        LocalDateInterval maxIntervall = grunnlag.getOpptjeningPeriode();
+        var maxIntervall = grunnlag.getOpptjeningPeriode();
 
         // grupper aktivitet perioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
         splitAktiviter(
@@ -67,7 +66,7 @@ public class OpptjeningsvilkårMellomregning {
                         AktivitetMellomregning::new).setAktivitetManueltUnderkjent(e.getValue()));
 
         // grupper inntektperioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
-        Map<Aktivitet, Set<LocalDateSegment<Long>>> grupperInntekterEtterAktiitet = grunnlag.getInntektPerioder().stream().collect(
+        var grupperInntekterEtterAktiitet = grunnlag.getInntektPerioder().stream().collect(
             Collectors.groupingBy(InntektPeriode::getAktivitet,
                 Collectors.mapping(a1 -> new LocalDateSegment<>(a1.getDatoInterval(), a1.getInntektBeløp()), Collectors.toSet())));
 
@@ -86,7 +85,7 @@ public class OpptjeningsvilkårMellomregning {
     }
 
     private Stream<Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>> splitAktiviter(Predicate<AktivitetPeriode> filter) {
-        Map<Aktivitet, Set<LocalDateSegment<Boolean>>> aktiviteter = grunnlag.getAktivitetPerioder().stream()
+        var aktiviteter = grunnlag.getAktivitetPerioder().stream()
             .filter(filter)
             .collect(
                 Collectors.groupingBy(AktivitetPeriode::getOpptjeningAktivitet,
@@ -124,7 +123,7 @@ public class OpptjeningsvilkårMellomregning {
      */
     public Map<Aktivitet, LocalDateTimeline<Boolean>> getAktivitetTidslinjer(boolean medAntattGodkjentePerioder, boolean medIkkebekreftedeGodkjentePerioder) {
 
-        Map<Aktivitet, LocalDateTimeline<Boolean>> resultat = mellomregning
+        var resultat = mellomregning
             .entrySet().stream()
             .map(
                 e -> new AbstractMap.SimpleEntry<>(e.getKey(),
@@ -141,9 +140,9 @@ public class OpptjeningsvilkårMellomregning {
         if (splitDato.equals(grunnlag.getSisteDatoForOpptjening()) || mellomregning.get(aktivitet) == null) {
             return false;
         }
-        LocalDateInterval underkjennIntervall = new LocalDateInterval(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening());
-        LocalDateTimeline<Boolean> underkjennTimeline = new LocalDateTimeline<>(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening(), Boolean.TRUE);
-        AktivitetMellomregning aktivitetMellomregning = mellomregning.get(aktivitet);
+        var underkjennIntervall = new LocalDateInterval(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening());
+        var underkjennTimeline = new LocalDateTimeline<Boolean>(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening(), Boolean.TRUE);
+        var aktivitetMellomregning = mellomregning.get(aktivitet);
 
         aktivitetMellomregning.setAktivitetUnderkjent(underkjennTimeline);
         if (!AktivitetMellomregning.EMPTY.equals(aktivitetMellomregning.getAktivitetManueltGodkjent())) {
@@ -186,7 +185,7 @@ public class OpptjeningsvilkårMellomregning {
          * tar ikke med antatt godkjent, mellomliggende akseptert eller underkjent i aktivitet returnert her. De angis
          * separat under.
          */
-        LocalDateInterval opptjeningPeriode = getGrunnlag().getOpptjeningPeriode();
+        var opptjeningPeriode = getGrunnlag().getOpptjeningPeriode();
         outputResultat.setBekreftetGodkjentAktivitet(trimTidslinje(this.getAktivitetTidslinjer(false, false), opptjeningPeriode));
 
         outputResultat.setUnderkjentePerioder(trimTidslinje(this.getUnderkjentePerioder(), opptjeningPeriode));
@@ -224,8 +223,8 @@ public class OpptjeningsvilkårMellomregning {
      * Sjekker om opptjening er nok ifht. konfigurert minste periode.
      */
     boolean sjekkErInnenforMinstePeriodeGodkjent(Period opptjeningPeriode) {
-        int minsteAntallMåneder = grunnlag.getMinsteAntallMånederGodkjent();
-        int minsteAntallDager = grunnlag.getMinsteAntallDagerGodkjent();
+        var minsteAntallMåneder = grunnlag.getMinsteAntallMånederGodkjent();
+        var minsteAntallDager = grunnlag.getMinsteAntallDagerGodkjent();
         return sjekkErErOverAntallPåkrevd(opptjeningPeriode, minsteAntallMåneder, minsteAntallDager);
     }
 

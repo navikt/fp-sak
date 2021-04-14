@@ -39,7 +39,7 @@ public class ForeldrepengerUttakAktivitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ForeldrepengerUttakAktivitet that = (ForeldrepengerUttakAktivitet) o;
+        var that = (ForeldrepengerUttakAktivitet) o;
         return Objects.equals(arbeidsforholdRef, that.arbeidsforholdRef) &&
             uttakArbeidType == that.uttakArbeidType &&
             Objects.equals(arbeidsgiver, that.arbeidsgiver);

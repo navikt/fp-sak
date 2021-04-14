@@ -70,8 +70,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.Rettigheter;
-import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 
 @ExtendWith(MockitoExtension.class)
@@ -144,7 +142,7 @@ public class SøknadMapperTest {
         tidsromPermisjonDto.setOverforingsperioder(List.of(overføringsperiodeDto));
 
         dto.setTidsromPermisjon(tidsromPermisjonDto);
-        Fordeling fordeling = YtelseSøknadMapper.mapFordelingEndringssøknad(dto);
+        var fordeling = YtelseSøknadMapper.mapFordelingEndringssøknad(dto);
         assertThat(fordeling).isNotNull();
         // Forventer å ha en periode for hver av: permisjonPeriode, utsettelseperiode,
         // Overfoeringsperiode og Graderingsperiode.
@@ -232,7 +230,7 @@ public class SøknadMapperTest {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15);
-        String orgNr = KUNSTIG_ORG + "1";
+        var orgNr = KUNSTIG_ORG + "1";
         var gradering = ((Gradering) YtelseSøknadMapper.mapGraderingsperiode(
             opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr)));
         assertThat(gradering).isNotNull();
@@ -249,8 +247,8 @@ public class SøknadMapperTest {
         var fraDato = LocalDate.now();
         var tomDato = LocalDate.now().plusDays(3);
         var prosentAndel = BigDecimal.valueOf(15.55);
-        String orgNr = KUNSTIG_ORG + "1";
-        Gradering gradering = ((Gradering) YtelseSøknadMapper.mapGraderingsperiode(
+        var orgNr = KUNSTIG_ORG + "1";
+        var gradering = ((Gradering) YtelseSøknadMapper.mapGraderingsperiode(
             opprettGraderingDto(fraDato, tomDato, prosentAndel, FEDREKVOTE, true, false, false, orgNr)));
         assertThat(gradering).isNotNull();
         assertThat(gradering.getFom()).isEqualTo(fraDato);
@@ -394,7 +392,7 @@ public class SøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(
             opprettTidsromPermisjonDto(Collections.singletonList(permisjonPeriodeDto)));
-        Fordeling fordeling = YtelseSøknadMapper.mapFordeling(manuellRegistreringForeldrepengerDto);
+        var fordeling = YtelseSøknadMapper.mapFordeling(manuellRegistreringForeldrepengerDto);
         assertThat(fordeling).isNotNull();
         // Forventer å ha mødrekvote periode basert på forventet permisjon før fødsel
         assertThat(fordeling.getPerioder()).hasSize(1);
@@ -419,7 +417,7 @@ public class SøknadMapperTest {
         // Annen forelder er informert
         dto.setAnnenForelderInformert(true);
 
-        AnnenForelderDto annenForelderDto = new AnnenForelderDto();
+        var annenForelderDto = new AnnenForelderDto();
         annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(true);
         dto.setAnnenForelder(annenForelderDto);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(AktørId.class))).thenReturn(Optional.of(kvinne));
@@ -562,7 +560,7 @@ public class SøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringForeldrepengerDto, true, LocalDate.now(), 1);
         manuellRegistreringForeldrepengerDto.setTidsromPermisjon(opprettTidsromPermisjonDto(null));
         manuellRegistreringForeldrepengerDto.setAnnenForelder(opprettAnnenForelderDto(true, true, false));
-        Rettigheter rettigheter = YtelseSøknadMapper.mapRettigheter(manuellRegistreringForeldrepengerDto);
+        var rettigheter = YtelseSøknadMapper.mapRettigheter(manuellRegistreringForeldrepengerDto);
         assertThat(rettigheter).isNotNull();
         assertThat(rettigheter.isHarAnnenForelderRett()).isFalse();
         assertThat(rettigheter.isHarOmsorgForBarnetIPeriodene()).isTrue();

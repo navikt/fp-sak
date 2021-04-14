@@ -43,11 +43,11 @@ class DokumentmottakerEndringssøknad extends DokumentmottakerYtelsesesrelatertD
     public void oppdaterÅpenBehandlingMedDokument(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.opprettHistorikk(behandling, mottattDokument);
 
-        BehandlingÅrsakType brukÅrsakType = getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType);
+        var brukÅrsakType = getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType);
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) { //#E2
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(behandling.getFagsak(), behandling, mottattDokument);
         } else if (dokumentmottakerFelles.harAlleredeMottattEndringssøknad(behandling) || kompletthetErPassert(behandling)) { //#E3 + #E4
-            Behandling nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, brukÅrsakType);
+            var nyBehandling = dokumentmottakerFelles.oppdatereViaHenleggelse(behandling, mottattDokument, brukÅrsakType);
             køKontroller.dekøFørsteBehandlingISakskompleks(nyBehandling);
         } else { //#E5
             dokumentmottakerFelles.oppdaterMottattDokumentMedBehandling(mottattDokument, behandling.getId());

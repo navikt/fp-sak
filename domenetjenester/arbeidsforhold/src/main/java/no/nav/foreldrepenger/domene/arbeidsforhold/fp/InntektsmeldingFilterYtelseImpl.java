@@ -50,7 +50,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
             return påkrevde;
         }
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
-        Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse,
+        var inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse,
                 inntektArbeidYtelseGrunnlag.get());
         påkrevde.forEach((key, value) -> {
             if ((inntekterPrArbgiver.get(key) != null) && !inntekterPrArbgiver.get(key).isEmpty()) {
@@ -69,9 +69,9 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
             return påkrevde;
         }
         Map<Arbeidsgiver, Set<V>> filtrert = new HashMap<>();
-        Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse,
+        var inntekterPrArbgiver = hentInntekterForUtledningAvInntektsmeldinger(referanse,
                 inntektArbeidYtelseGrunnlag.get());
-        List<Arbeidsgiver> aktiveArbeidsgivere = inntekterSisteFireMåneder(referanse, inntekterPrArbgiver);
+        var aktiveArbeidsgivere = inntekterSisteFireMåneder(referanse, inntekterPrArbgiver);
         påkrevde.forEach((key, value) -> {
             if (aktiveArbeidsgivere.contains(key)) {
                 filtrert.put(key, value);
@@ -82,7 +82,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
 
     private Map<Arbeidsgiver, Set<Inntektspost>> hentInntekterForUtledningAvInntektsmeldinger(BehandlingReferanse referanse,
             InntektArbeidYtelseGrunnlag grunnlag) {
-        LocalDate inntektsPeriodeFom = referanse.getUtledetSkjæringstidspunkt().minus(SJEKK_INNTEKT_PERIODE);
+        var inntektsPeriodeFom = referanse.getUtledetSkjæringstidspunkt().minus(SJEKK_INNTEKT_PERIODE);
         Map<Arbeidsgiver, Set<Inntektspost>> inntekterPrArbgiver = new HashMap<>();
 
         var filter = grunnlag.getAktørInntektFraRegister(referanse.getAktørId())
@@ -90,7 +90,7 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
 
         filter.getAlleInntektPensjonsgivende()
                 .forEach(inntekt -> {
-                    Set<Inntektspost> poster = filter.filtrer(inntekt, inntekt.getAlleInntektsposter()).stream()
+                    var poster = filter.filtrer(inntekt, inntekt.getAlleInntektsposter()).stream()
                             .filter(ip -> !InntektspostType.YTELSE.equals(ip.getInntektspostType()))
                             .filter(ip -> ip.getPeriode().getFomDato().isAfter(inntektsPeriodeFom))
                             .filter(it -> it.getBeløp().getVerdi().compareTo(BigDecimal.ZERO) > 0)

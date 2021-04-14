@@ -18,10 +18,10 @@ final class IndexKeyComposer {
 
     /** Hjelpe metode for å effektivt generere keys. */
     static String createKey(Object... keyParts) {
-        StringBuilder sb = new StringBuilder(keyParts.length * 10);
-        int max = keyParts.length;
-        for (int i = 0; i < max; i++) {
-            String part = toString(keyParts[i], i);
+        var sb = new StringBuilder(keyParts.length * 10);
+        var max = keyParts.length;
+        for (var i = 0; i < max; i++) {
+            var part = toString(keyParts[i], i);
             sb.append(part);
             if (i < (max - 1)) {
                 sb.append("::");
@@ -35,25 +35,29 @@ final class IndexKeyComposer {
         if (obj == null) {
             return "-";
         }
-        Class<? extends Object> objClass = obj.getClass();
+        var objClass = obj.getClass();
         if (CharSequence.class.isAssignableFrom(objClass)) {
             return (String) obj;
-        } else if (Number.class.isAssignableFrom(objClass)) {
+        }
+        if (Number.class.isAssignableFrom(objClass)) {
             return ((Number) obj).toString();
-        } else if (IndexKey.class.isAssignableFrom(objClass)) {
+        }
+        if (IndexKey.class.isAssignableFrom(objClass)) {
             return ((IndexKey) obj).getIndexKey();
-        } else if (DatoIntervallEntitet.class.isAssignableFrom(objClass)) {
-            DatoIntervallEntitet periode = (DatoIntervallEntitet) obj;
+        }
+        if (DatoIntervallEntitet.class.isAssignableFrom(objClass)) {
+            var periode = (DatoIntervallEntitet) obj;
             return "[" + periode.getFomDato().format(DateTimeFormatter.ISO_DATE) + //$NON-NLS-1$
                 "," + periode.getTomDato().format(DateTimeFormatter.ISO_DATE) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-        } else if (LocalDate.class.isAssignableFrom(objClass)) {
-            LocalDate dt = (LocalDate) obj;
-            return dt.format(DateTimeFormatter.ISO_DATE);
-        } else if (LocalDateTime.class.isAssignableFrom(objClass)) {
-            LocalDateTime ldt = (LocalDateTime) obj;
-            return ldt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        } else {
-            throw new IllegalArgumentException("Støtter ikke å lage IndexKey for " + objClass.getName() + "[index=" + i + "], " + obj);
         }
+        if (LocalDate.class.isAssignableFrom(objClass)) {
+            var dt = (LocalDate) obj;
+            return dt.format(DateTimeFormatter.ISO_DATE);
+        }
+        if (LocalDateTime.class.isAssignableFrom(objClass)) {
+            var ldt = (LocalDateTime) obj;
+            return ldt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        }
+        throw new IllegalArgumentException("Støtter ikke å lage IndexKey for " + objClass.getName() + "[index=" + i + "], " + obj);
     }
 }

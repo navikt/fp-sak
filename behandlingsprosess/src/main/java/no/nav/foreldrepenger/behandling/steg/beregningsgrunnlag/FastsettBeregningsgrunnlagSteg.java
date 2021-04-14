@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -53,8 +51,8 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandlingId = kontekst.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandlingId);
         beregningsgrunnlagKopierOgLagreTjeneste.fastsettBeregningsgrunnlag(input);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
@@ -63,7 +61,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (behandlingsresultatRepository.hent(behandling.getId()).isEndretDekningsgrad()) {
             ryddDekningsgradTjeneste.rydd(behandling);
         }
@@ -72,7 +70,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     @Override
     public void vedHoppOverFramover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType fraSteg,
             BehandlingStegType tilSteg) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if (tilSteg.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)) {
             if (behandling.erRevurdering()) {
                 // Kopier beregningsgrunnlag fra original, da uttaksresultat avhenger av denne
@@ -85,7 +83,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
     }
 
     private void ryddDekningsgrad(Behandling behandling) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingsresultat.isPresent() && behandlingsresultat.get().isEndretDekningsgrad()) {
             ryddDekningsgradTjeneste.rydd(behandling);
         }

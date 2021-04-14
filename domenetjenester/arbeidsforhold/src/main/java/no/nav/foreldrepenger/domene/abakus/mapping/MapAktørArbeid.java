@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.abakus.mapping;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,7 +95,7 @@ public class MapAktørArbeid {
             var arbeidsgiver = dto.getArbeidsgiver().map(this::mapArbeidsgiver).orElse(null);
             var internArbeidsforholdRef = arbeidsgiver == null ? null : mapArbeidsforholdRef(arbeidsgiver, dto.getArbeidsforholdId());
 
-            YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                     .medArbeidsforholdId(internArbeidsforholdRef)
                     .medArbeidsgiver(arbeidsgiver)
                     .medArbeidsgiverNavn(dto.getNavnArbeidsgiverUtland())
@@ -200,9 +199,9 @@ public class MapAktørArbeid {
         }
 
         private AktivitetsAvtaleDto map(AktivitetsAvtale aa) {
-            LocalDate fomDato = aa.getPeriodeUtenOverstyring().getFomDato();
-            LocalDate tomDato = aa.getPeriodeUtenOverstyring().getTomDato();
-            AktivitetsAvtaleDto avtale = new AktivitetsAvtaleDto(fomDato, tomDato)
+            var fomDato = aa.getPeriodeUtenOverstyring().getFomDato();
+            var tomDato = aa.getPeriodeUtenOverstyring().getTomDato();
+            var avtale = new AktivitetsAvtaleDto(fomDato, tomDato)
                     .medBeskrivelse(aa.getBeskrivelse())
                     .medSistLønnsendring(aa.getSisteLønnsendringsdato())
                     .medStillingsprosent(aa.getProsentsats() == null ? null : aa.getProsentsats().getVerdi());
@@ -211,7 +210,7 @@ public class MapAktørArbeid {
 
         private PermisjonDto map(Permisjon p) {
             var permisjonsbeskrivelseType = KodeverkMapper.mapPermisjonbeskrivelseTypeTilDto(p.getPermisjonsbeskrivelseType());
-            BigDecimal maxPermisjonProsentsats = new BigDecimal(100); // enig med Cecilie H. om å transformere dårlige data (eks. 800% permisjon).
+            var maxPermisjonProsentsats = new BigDecimal(100); // enig med Cecilie H. om å transformere dårlige data (eks. 800% permisjon).
                                                                       // Bare første 100% som gir utslag.
 
             var permisjon = new PermisjonDto(new Periode(p.getFraOgMed(), p.getTilOgMed()), permisjonsbeskrivelseType)

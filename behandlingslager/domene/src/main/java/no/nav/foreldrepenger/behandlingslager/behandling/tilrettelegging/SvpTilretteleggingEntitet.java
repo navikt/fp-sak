@@ -111,7 +111,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SvpTilretteleggingEntitet that = (SvpTilretteleggingEntitet) o;
+        var that = (SvpTilretteleggingEntitet) o;
         return Objects.equals(behovForTilretteleggingFom, that.behovForTilretteleggingFom) &&
             Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
             Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
@@ -197,7 +197,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         }
 
         public Builder medHelTilrettelegging(LocalDate helTilretteleggingFom) {
-            TilretteleggingFOM tilretteleggingFOM = new TilretteleggingFOM.Builder()
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.HEL_TILRETTELEGGING)
                 .medFomDato(helTilretteleggingFom)
                 .build();
@@ -206,7 +206,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         }
 
         public Builder medDelvisTilrettelegging(LocalDate delvisTilretteleggingFom, BigDecimal stillingsprosent) {
-            TilretteleggingFOM tilretteleggingFOM = new TilretteleggingFOM.Builder()
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
                 .medFomDato(delvisTilretteleggingFom)
                 .medStillingsprosent(stillingsprosent)
@@ -216,7 +216,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet implements IndexKey {
         }
 
         public Builder medIngenTilrettelegging(LocalDate slutteArbeidFom) {
-            TilretteleggingFOM tilretteleggingFOM = new TilretteleggingFOM.Builder()
+            var tilretteleggingFOM = new TilretteleggingFOM.Builder()
                 .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
                 .medFomDato(slutteArbeidFom)
                 .build();

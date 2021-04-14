@@ -47,7 +47,7 @@ public final class Databaseskjemainitialisering {
 
     private static void migrer(DBProperties dbProperties) {
         LOG.info("Migrerer {}", dbProperties.schema());
-        Flyway flyway = new Flyway();
+        var flyway = new Flyway();
         flyway.setBaselineOnMigrate(true);
         flyway.setDataSource(dbProperties.dataSource());
         flyway.setTable("schema_version");
@@ -71,9 +71,9 @@ public final class Databaseskjemainitialisering {
     }
 
     private static String fileScriptLocation(String dsName) {
-        String relativePath = "migreringer/src/main/resources/db/migration/" + dsName;
-        File baseDir = new File(".").getAbsoluteFile();
-        File location = new File(baseDir, relativePath);
+        var relativePath = "migreringer/src/main/resources/db/migration/" + dsName;
+        var baseDir = new File(".").getAbsoluteFile();
+        var location = new File(baseDir, relativePath);
         while (!location.exists()) {
             baseDir = baseDir.getParentFile();
             if (baseDir == null || !baseDir.isDirectory()) {

@@ -62,7 +62,7 @@ public class Utbetalingsgrad {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Utbetalingsgrad utbetalingsgrad1 = (Utbetalingsgrad) o;
+        var utbetalingsgrad1 = (Utbetalingsgrad) o;
         return Objects.equals(getVerdi(), utbetalingsgrad1.getVerdi());
     }
 

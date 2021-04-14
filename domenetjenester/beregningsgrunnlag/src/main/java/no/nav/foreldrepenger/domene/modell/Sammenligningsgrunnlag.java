@@ -94,10 +94,11 @@ public class Sammenligningsgrunnlag extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof Sammenligningsgrunnlag)) {
+        }
+        if (!(obj instanceof Sammenligningsgrunnlag)) {
             return false;
         }
-        Sammenligningsgrunnlag other = (Sammenligningsgrunnlag) obj;
+        var other = (Sammenligningsgrunnlag) obj;
         return Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag())
                 && Objects.equals(this.getSammenligningsperiodeFom(), other.getSammenligningsperiodeFom())
                 && Objects.equals(this.getSammenligningsperiodeTom(), other.getSammenligningsperiodeTom())

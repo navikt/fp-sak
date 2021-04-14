@@ -17,12 +17,12 @@ public class PersonInformasjonBuilderTest {
     @Test
     public void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_ingen_relasjoner() {
 
-        AktørId søker = AktørId.dummy();
-        AktørId anpa = AktørId.dummy();
-        AktørId brn1 = AktørId.dummy();
-        AktørId brn2 = AktørId.dummy();
+        var søker = AktørId.dummy();
+        var anpa = AktørId.dummy();
+        var brn1 = AktørId.dummy();
+        var brn2 = AktørId.dummy();
 
-        PersonInformasjonBuilder førsteInnhenting = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var førsteInnhenting = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         førsteInnhenting.leggTil(lagPersonopplysning(søker, førsteInnhenting));
         førsteInnhenting.leggTil(lagPersonopplysning(anpa, førsteInnhenting));
         førsteInnhenting.leggTil(lagPersonopplysning(brn1, førsteInnhenting));
@@ -31,12 +31,12 @@ public class PersonInformasjonBuilderTest {
         førsteInnhenting.leggTil(lagRelasjon(søker, brn1, RelasjonsRolleType.MORA, førsteInnhenting));
         førsteInnhenting.leggTil(lagRelasjon(søker, brn2, RelasjonsRolleType.MORA, førsteInnhenting));
 
-        PersonInformasjonEntitet informasjon = førsteInnhenting.build();
+        var informasjon = førsteInnhenting.build();
 
         assertThat(informasjon.getPersonopplysninger()).hasSize(4);
         assertThat(informasjon.getRelasjoner()).hasSize(2);
 
-        PersonInformasjonBuilder oppdater = PersonInformasjonBuilder.oppdater(Optional.of(informasjon), PersonopplysningVersjonType.REGISTRERT);
+        var oppdater = PersonInformasjonBuilder.oppdater(Optional.of(informasjon), PersonopplysningVersjonType.REGISTRERT);
 
         assertThat(oppdater.build().getPersonopplysninger()).hasSize(4);
         assertThat(oppdater.build().getRelasjoner()).hasSize(2);
@@ -51,12 +51,12 @@ public class PersonInformasjonBuilderTest {
     @Test
     public void skal_tilbakestille_kladden_ved_oppdatering_men_ikke_slette_hovedsøker_og_annenpart_når_annenpart_har_relasjoner() {
 
-        AktørId søker = AktørId.dummy();
-        AktørId anpa = AktørId.dummy();
-        AktørId brn1 = AktørId.dummy();
-        AktørId brn2 = AktørId.dummy();
+        var søker = AktørId.dummy();
+        var anpa = AktørId.dummy();
+        var brn1 = AktørId.dummy();
+        var brn2 = AktørId.dummy();
 
-        PersonInformasjonBuilder førsteInnhenting = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        var førsteInnhenting = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         førsteInnhenting.leggTil(lagPersonopplysning(søker, førsteInnhenting));
         førsteInnhenting.leggTil(lagPersonopplysning(anpa, førsteInnhenting));
         førsteInnhenting.leggTil(lagPersonopplysning(brn1, førsteInnhenting));
@@ -67,12 +67,12 @@ public class PersonInformasjonBuilderTest {
         førsteInnhenting.leggTil(lagRelasjon(søker, brn2, RelasjonsRolleType.MORA, førsteInnhenting));
         førsteInnhenting.leggTil(lagRelasjon(anpa, brn1, RelasjonsRolleType.FARA, førsteInnhenting));
 
-        PersonInformasjonEntitet informasjon = førsteInnhenting.build();
+        var informasjon = førsteInnhenting.build();
 
         assertThat(informasjon.getPersonopplysninger()).hasSize(4);
         assertThat(informasjon.getRelasjoner()).hasSize(4);
 
-        PersonInformasjonBuilder oppdater = PersonInformasjonBuilder.oppdater(Optional.of(informasjon), PersonopplysningVersjonType.REGISTRERT);
+        var oppdater = PersonInformasjonBuilder.oppdater(Optional.of(informasjon), PersonopplysningVersjonType.REGISTRERT);
 
         assertThat(oppdater.build().getPersonopplysninger()).hasSize(4);
         assertThat(oppdater.build().getRelasjoner()).hasSize(4);

@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 
@@ -35,9 +34,9 @@ public class ArbeidsgiverHistorikkinnslag {
     }
 
     private String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        StringBuilder sb = new StringBuilder();
-        String arbeidsgiverNavn = opplysninger.getNavn();
+        var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+        var sb = new StringBuilder();
+        var arbeidsgiverNavn = opplysninger.getNavn();
         if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
             arbeidsgiverNavn = hentNavnTilManueltArbeidsforhold(overstyringer);
         }

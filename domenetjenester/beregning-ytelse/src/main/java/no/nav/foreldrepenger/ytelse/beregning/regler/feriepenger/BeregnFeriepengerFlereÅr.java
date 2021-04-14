@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +23,8 @@ class BeregnFeriepengerFlereÅr extends LeafSpecification<BeregningsresultatFeri
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
         Map<String, Object> resultater = new LinkedHashMap<>();
 
-        LocalDateInterval feriepengerPeriode = regelModell.getFeriepengerPeriode();
-        List<LocalDateInterval> feriepengerPerioderPrÅr = periodiserLocalDateIntervalPrÅr(feriepengerPeriode);
+        var feriepengerPeriode = regelModell.getFeriepengerPeriode();
+        var feriepengerPerioderPrÅr = periodiserLocalDateIntervalPrÅr(feriepengerPeriode);
 
         feriepengerPerioderPrÅr.forEach(feriepengerPeriodePrÅr ->
             BeregnFeriepengerForPeriode.beregn(resultater, regelModell.getBeregningsresultatPerioder(), feriepengerPeriodePrÅr)
@@ -35,16 +34,16 @@ class BeregnFeriepengerFlereÅr extends LeafSpecification<BeregningsresultatFeri
     }
 
     private static List<LocalDateInterval> periodiserLocalDateIntervalPrÅr(LocalDateInterval feriepengerPeriode) {
-        LocalDate fom = feriepengerPeriode.getFomDato();
-        LocalDate tom = feriepengerPeriode.getTomDato();
+        var fom = feriepengerPeriode.getFomDato();
+        var tom = feriepengerPeriode.getTomDato();
         List<LocalDateInterval> perioder = new ArrayList<>();
         while (fom.getYear() != tom.getYear()) {
-            LocalDate sisteDagIÅr = fom.withMonth(12).withDayOfMonth(31);
-            LocalDateInterval dateInterval = new LocalDateInterval(fom, sisteDagIÅr);
+            var sisteDagIÅr = fom.withMonth(12).withDayOfMonth(31);
+            var dateInterval = new LocalDateInterval(fom, sisteDagIÅr);
             perioder.add(dateInterval);
             fom = sisteDagIÅr.plusDays(1);
         }
-        LocalDateInterval dateInterval = new LocalDateInterval(fom, tom);
+        var dateInterval = new LocalDateInterval(fom, tom);
         perioder.add(dateInterval);
         return perioder;
     }

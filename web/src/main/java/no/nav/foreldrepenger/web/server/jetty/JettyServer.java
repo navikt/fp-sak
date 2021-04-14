@@ -39,8 +39,8 @@ public class JettyServer extends AbstractJettyServer {
 
         if (System.getenv("LOADBALANCER_FQDN") != null) {
             LOG.info("Trickser med loadbalanser.url");
-            String loadbalancerFqdn = System.getenv("LOADBALANCER_FQDN");
-            String protocol = (loadbalancerFqdn.startsWith("localhost")) ? "http" : "https";
+            var loadbalancerFqdn = System.getenv("LOADBALANCER_FQDN");
+            var protocol = (loadbalancerFqdn.startsWith("localhost")) ? "http" : "https";
             System.setProperty("loadbalancer.url", protocol + "://" + loadbalancerFqdn);
         }
         // FIXME (u139158): PFP-1176 Skriv om i OpenAmIssoHealthCheck og

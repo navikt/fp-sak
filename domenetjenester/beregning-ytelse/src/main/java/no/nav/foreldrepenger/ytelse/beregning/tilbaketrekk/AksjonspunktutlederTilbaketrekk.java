@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 @ApplicationScoped
 public class AksjonspunktutlederTilbaketrekk implements AksjonspunktUtleder {
@@ -40,7 +38,7 @@ public class AksjonspunktutlederTilbaketrekk implements AksjonspunktUtleder {
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
 
         if (skalVurdereTilbaketrekk(param.getRef(), finnYrkesaktiviteter(param))) {
-            AksjonspunktResultat aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_TILBAKETREKK);
+            var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_TILBAKETREKK);
             aksjonspunktResultater.add(aksjonspunktResultat);
         }
 
@@ -48,12 +46,12 @@ public class AksjonspunktutlederTilbaketrekk implements AksjonspunktUtleder {
     }
 
     private boolean skalVurdereTilbaketrekk(BehandlingReferanse ref, Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(ref);
+        var brAndelTidslinje = beregningsresultatTidslinjetjeneste.lagTidslinjeForRevurdering(ref);
         return VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, yrkesaktiviteter, ref.getUtledetSkjæringstidspunkt());
     }
 
     private Collection<Yrkesaktivitet> finnYrkesaktiviteter(AksjonspunktUtlederInput param) {
-        Optional<AktørArbeid> aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
+        var aktørArbeidFraRegister = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
                 .getAktørArbeidFraRegister(param.getAktørId());
         return aktørArbeidFraRegister
                 .map(AktørArbeid::hentAlleYrkesaktiviteter)

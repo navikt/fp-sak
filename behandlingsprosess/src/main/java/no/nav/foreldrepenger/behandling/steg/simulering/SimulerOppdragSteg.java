@@ -5,8 +5,6 @@ import static java.util.Collections.singletonList;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -78,7 +76,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         try {
             startSimulering(behandling);
             return utledAksjonspunkt(behandling);
@@ -90,7 +88,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat gjenopptaSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         startSimulering(behandling);
         return utledAksjonspunkt(behandling);
     }
@@ -99,7 +97,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
-            Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             fpoppdragSystembrukerRestKlient.kansellerSimulering(kontekst.getBehandlingId());
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingValg(behandling);
             tilbakekrevingRepository.deaktiverEksisterendeTilbakekrevingInntrekk(behandling);
@@ -107,20 +105,20 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private void startSimulering(Behandling behandling) {
-        List<String> oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
+        var oppdragXmler = simulerOppdragTjeneste.simulerOppdrag(behandling.getId());
         simuleringIntegrasjonTjeneste.startSimulering(behandling.getId(), oppdragXmler);
     }
 
     private void opprettFortsettBehandlingTask(Behandling behandling) {
-        LocalDateTime nesteKjøringEtter = utledNesteKjøring();
+        var nesteKjøringEtter = utledNesteKjøring();
         behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling,
                 BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
     }
 
     private BehandleStegResultat utledAksjonspunkt(Behandling behandling) {
-        Optional<SimuleringResultatDto> simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
+        var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId());
         if (simuleringResultatDto.isPresent()) {
-            SimuleringResultatDto resultatDto = simuleringResultatDto.get();
+            var resultatDto = simuleringResultatDto.get();
 
             lagreBrukInntrekk(behandling, resultatDto);
 
@@ -146,14 +144,17 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private LocalDateTime utledNesteKjøring() {
-        LocalDateTime currentTime = LocalDateTime.now();
+        var currentTime = LocalDateTime.now();
         if (DayOfWeek.SATURDAY.equals(currentTime.getDayOfWeek()) || DayOfWeek.SUNDAY.equals(currentTime.getDayOfWeek())) {
             return kommendeMandag(currentTime);
-        } else if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && (currentTime.getHour() > STENGETID)) {
+        }
+        if (DayOfWeek.FRIDAY.equals(currentTime.getDayOfWeek()) && (currentTime.getHour() > STENGETID)) {
             return kommendeMandag(currentTime);
-        } else if (currentTime.getHour() < ÅPNINGSTID) {
+        }
+        if (currentTime.getHour() < ÅPNINGSTID) {
             return currentTime.withHour(ÅPNINGSTID).withMinute(15);
-        } else if (currentTime.getHour() > STENGETID) {
+        }
+        if (currentTime.getHour() > STENGETID) {
             return currentTime.plusDays(1).withHour(ÅPNINGSTID).withMinute(15);
         }
         return null; // bruker default innenfor åpningstid
@@ -164,7 +165,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
-        boolean harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
+        var harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
         if (!harÅpenTilbakekreving && simuleringResultatDto.harFeilutbetaling()) {
             LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
                 behandling.getFagsak().getSaksnummer(), simuleringResultatDto.getSumFeilutbetaling(), simuleringResultatDto.getSumInntrekk(), simuleringResultatDto.isSlåttAvInntrekk());

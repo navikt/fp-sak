@@ -16,44 +16,44 @@ public class MedlemEndringIdentifisererTest {
 
     @Test
     public void skal_indikere_endring_før_stp() {
-        MedlemskapAggregat aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
-        final HashSet<MedlemskapPerioderEntitet> set = new HashSet<>();
-        final MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder();
+        var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
+        final var set = new HashSet<MedlemskapPerioderEntitet>();
+        final var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
         set.add(builder.build());
-        MedlemskapAggregat aggregat1 = new MedlemskapAggregat(null, set, null, null);
-        final MedlemEndringIdentifiserer identifiserer = new MedlemEndringIdentifiserer();
+        var aggregat1 = new MedlemskapAggregat(null, set, null, null);
+        final var identifiserer = new MedlemEndringIdentifiserer();
 
         assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isTrue();
     }
 
     @Test
     public void skal_ikke_indikere_endring_hele_før_stp() {
-        MedlemskapAggregat aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
-        final HashSet<MedlemskapPerioderEntitet> set = new HashSet<>();
-        final MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder();
+        var aggregat = new MedlemskapAggregat(null, Collections.emptySet(), null, null);
+        final var set = new HashSet<MedlemskapPerioderEntitet>();
+        final var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(18), LocalDate.now().minusMonths(13));
         set.add(builder.build());
-        MedlemskapAggregat aggregat1 = new MedlemskapAggregat(null, set, null, null);
-        final MedlemEndringIdentifiserer identifiserer = new MedlemEndringIdentifiserer();
+        var aggregat1 = new MedlemskapAggregat(null, set, null, null);
+        final var identifiserer = new MedlemEndringIdentifiserer();
 
         assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isFalse();
     }
 
     @Test
     public void skal_indikere_endring_etter_stp() {
-        final HashSet<MedlemskapPerioderEntitet> set = new HashSet<>();
-        final MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder();
+        final var set = new HashSet<MedlemskapPerioderEntitet>();
+        final var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
         set.add(builder.build());
-        MedlemskapAggregat aggregat = new MedlemskapAggregat(null, set, null, null);
-        final HashSet<MedlemskapPerioderEntitet> setEtter = new HashSet<>();
-        final MedlemskapPerioderBuilder builder1 = new MedlemskapPerioderBuilder();
+        var aggregat = new MedlemskapAggregat(null, set, null, null);
+        final var setEtter = new HashSet<MedlemskapPerioderEntitet>();
+        final var builder1 = new MedlemskapPerioderBuilder();
         builder1.medPeriode(LocalDate.now().plusMonths(5), LocalDate.now().plusMonths(15));
         setEtter.add(builder.build());
         setEtter.add(builder1.build());
-        MedlemskapAggregat aggregat1 = new MedlemskapAggregat(null, setEtter, null, null);
-        final MedlemEndringIdentifiserer identifiserer = new MedlemEndringIdentifiserer();
+        var aggregat1 = new MedlemskapAggregat(null, setEtter, null, null);
+        final var identifiserer = new MedlemEndringIdentifiserer();
 
         assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isFalse();
     }

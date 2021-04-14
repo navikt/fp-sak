@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -42,24 +40,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.datavarehus.domene.AksjonspunktDvh;
-import no.nav.foreldrepenger.datavarehus.domene.AnkeVurderingResultatDvh;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingStegDvh;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 import no.nav.foreldrepenger.datavarehus.domene.DatavarehusRepository;
-import no.nav.foreldrepenger.datavarehus.domene.FagsakDvh;
-import no.nav.foreldrepenger.datavarehus.domene.FagsakRelasjonDvh;
-import no.nav.foreldrepenger.datavarehus.domene.KlageFormkravDvh;
-import no.nav.foreldrepenger.datavarehus.domene.KlageVurderingResultatDvh;
-import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 import no.nav.foreldrepenger.datavarehus.xml.DvhVedtakXmlTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnRepository;
-import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -116,31 +103,31 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     @Override
     public void lagreNedFagsakRelasjon(FagsakRelasjon fr) {
 
-        FagsakRelasjonDvh fagsakRelasjonDvh = FagsakRelasjonDvhMapper.map(fr);
+        var fagsakRelasjonDvh = FagsakRelasjonDvhMapper.map(fr);
         datavarehusRepository.lagre(fagsakRelasjonDvh);
     }
 
     @Override
     public void lagreNedFagsak(Long fagsakId) {
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        Optional<Behandling> behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
         Optional<AktørId> annenPartAktørId = Optional.empty();
         if (behandling.isPresent()) {
             annenPartAktørId = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.get().getId()).map(OppgittAnnenPartEntitet::getAktørId);
         }
-        FagsakDvh fagsakDvh = FagsakDvhMapper.map(fagsak, annenPartAktørId);
+        var fagsakDvh = FagsakDvhMapper.map(fagsak, annenPartAktørId);
         datavarehusRepository.lagre(fagsakDvh);
     }
 
     @Override
     public void lagreNedAksjonspunkter(Collection<Aksjonspunkt> aksjonspunkter, Long behandlingId, BehandlingStegType behandlingStegType) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<BehandlingStegTilstand> behandlingStegTilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
-        Collection<Totrinnsvurdering> totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
-        for (Aksjonspunkt aksjonspunkt : aksjonspunkter) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingStegTilstand = behandling.getBehandlingStegTilstand(behandlingStegType);
+        var totrinnsvurderings = totrinnRepository.hentTotrinnaksjonspunktvurderinger(behandling);
+        for (var aksjonspunkt : aksjonspunkter) {
             if (aksjonspunkt.getId() != null) {
-                boolean godkjennt = totrinnsvurderings.stream().anyMatch(ttv -> ttv.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon() && ttv.isGodkjent());
-                AksjonspunktDvh aksjonspunktDvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, behandlingStegTilstand, godkjennt);
+                var godkjennt = totrinnsvurderings.stream().anyMatch(ttv -> ttv.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon() && ttv.isGodkjent());
+                var aksjonspunktDvh = AksjonspunktDvhMapper.map(aksjonspunkt, behandling, behandlingStegTilstand, godkjennt);
                 datavarehusRepository.lagre(aksjonspunktDvh);
             }
         }
@@ -148,7 +135,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedBehandlingStegTilstand(Long behandlingId, BehandlingStegTilstandSnapshot tilTilstand) {
-        BehandlingStegDvh behandlingStegDvh = BehandlingStegDvhMapper.map(tilTilstand, behandlingId);
+        var behandlingStegDvh = BehandlingStegDvhMapper.map(tilTilstand, behandlingId);
         datavarehusRepository.lagre(behandlingStegDvh);
     }
 
@@ -158,7 +145,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private void lagreNedBehandling(Behandling behandling) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         lagreNedBehandling(behandling, vedtak);
     }
 
@@ -189,8 +176,8 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private LocalDateTime finnMottattTidspunkt(Behandling behandling) {
-        Set<DokumentTypeId> søknadOgKlageTyper = Stream.concat(DokumentTypeId.getSøknadTyper().stream(), Stream.of(DokumentTypeId.KLAGE_DOKUMENT)).collect(Collectors.toSet());
-        List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
+        var søknadOgKlageTyper = Stream.concat(DokumentTypeId.getSøknadTyper().stream(), Stream.of(DokumentTypeId.KLAGE_DOKUMENT)).collect(Collectors.toSet());
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
 
         return mottatteDokumenter.stream()
             .filter(o -> søknadOgKlageTyper.contains(o.getDokumentType())).findFirst() //Hent ut søknad eller klage mottattdato
@@ -201,7 +188,7 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void lagreNedVedtak(BehandlingVedtak vedtak, Behandling behandling) {
-        BehandlingVedtakDvh behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
+        var behandlingVedtakDvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
         datavarehusRepository.lagre(behandlingVedtakDvh);
 
         lagreNedBehandling(behandling, Optional.of(vedtak));
@@ -212,12 +199,12 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandlingVedtakOpt.isPresent()) {
-            String vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
-            final FamilieHendelseType hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            var vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
+            final var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(FamilieHendelseEntitet::getType)
                 .orElse(FamilieHendelseType.UDEFINERT);
-            VedtakUtbetalingDvh vedtakUtbetalingDvh = VedtakUtbetalingDvhMapper.map(vedtakXml, behandling, behandlingVedtakOpt.get(), hendelseType);
+            var vedtakUtbetalingDvh = VedtakUtbetalingDvhMapper.map(vedtakXml, behandling, behandlingVedtakOpt.get(), hendelseType);
             datavarehusRepository.lagre(vedtakUtbetalingDvh);
         }
     }
@@ -234,13 +221,13 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
 
     @Override
     public void oppdaterVedtakXml(Long behandlingId) {
-        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (behandlingVedtak.isPresent()) {
-            Optional<VedtakUtbetalingDvh> eksisterende = datavarehusRepository.finn(behandlingId, behandlingVedtak.get().getId());
+            var eksisterende = datavarehusRepository.finn(behandlingId, behandlingVedtak.get().getId());
             if (eksisterende.isPresent()) {
-                String vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
+                var vedtakXml = dvhVedtakXmlTjeneste.opprettDvhVedtakXml(behandlingId);
                 datavarehusRepository.oppdater(behandling.getId(), behandlingVedtak.get().getId(), vedtakXml);
             } else {
                 opprettOgLagreVedtakXml(behandlingId);
@@ -251,24 +238,24 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private void lagreKlageFormkrav(KlageFormkravEntitet klageFormkrav) {
-        KlageFormkravDvh klageFormkravDvh = KlageFormkravDvhMapper.map(klageFormkrav);
+        var klageFormkravDvh = KlageFormkravDvhMapper.map(klageFormkrav);
         datavarehusRepository.lagre(klageFormkravDvh);
 
     }
 
     private void lagreKlageVurderingResultat(KlageVurderingResultat klageVurderingResultat) {
-        KlageVurderingResultatDvh klageVurderingResultatDvh = KlageVurderingResultatDvhMapper.map(klageVurderingResultat);
+        var klageVurderingResultatDvh = KlageVurderingResultatDvhMapper.map(klageVurderingResultat);
         datavarehusRepository.lagre(klageVurderingResultatDvh);
     }
 
     private void lagreAnkeVurderingResultat(AnkeVurderingResultatEntitet ankeVurderingResultat) {
-        AnkeVurderingResultatDvh ankeVurderingResultatDvh = AnkeVurderingResultatDvhMapper.map(ankeVurderingResultat);
+        var ankeVurderingResultatDvh = AnkeVurderingResultatDvhMapper.map(ankeVurderingResultat);
         datavarehusRepository.lagre(ankeVurderingResultatDvh);
     }
 
     @Override
     public void oppdaterHvisKlageEllerAnke(Long behandlingId, Collection<Aksjonspunkt> aksjonspunkter) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             aksjonspunkter.stream().filter(Aksjonspunkt::erUtført)
                 .filter(a -> gjelderKlageFormkrav(a) || gjelderKlageVurderingResultat(a))

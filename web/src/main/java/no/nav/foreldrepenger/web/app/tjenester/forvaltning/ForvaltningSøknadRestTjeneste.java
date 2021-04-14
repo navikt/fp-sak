@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto;
@@ -68,7 +67,7 @@ public class ForvaltningSøknadRestTjeneste {
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
                 .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
-        int antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(),
+        var antall = familieHendelseRepository.oppdaterGjeldendeTermindatoForBehandling(behandling.getId(), dto.getTermindato(),
                 dto.getBegrunnelse());
 
         return Response.ok(antall).build();
@@ -111,7 +110,7 @@ public class ForvaltningSøknadRestTjeneste {
         if (dto.getBegrunnelse() == null)
             throw new ForvaltningException("Mangler begrunnelse");
         var nyAktørId = personinfoAdapter.hentAktørForFnr(new PersonIdent(dto.getIdentAnnenPart())).orElseThrow();
-        int antall = entityManager.createNativeQuery(
+        var antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = :anpa, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
                 .setParameter("anpa", nyAktørId.getId())
                 .setParameter("ident", dto.getIdentAnnenPart())
@@ -135,10 +134,10 @@ public class ForvaltningSøknadRestTjeneste {
                 .findFirst().orElseGet(() -> behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow());
         var oap = personopplysningRepository.hentPersonopplysninger(behandling.getId()).getOppgittAnnenPart().orElseThrow();
 
-        AktørId eksisterendeAnnenPart = oap.getAktørId();
+        var eksisterendeAnnenPart = oap.getAktørId();
         if (oap.getAktørId() != null && !eksisterendeAnnenPart.equals(behandling.getAktørId()))
             throw new ForvaltningException("Støtter bare patching der aktørId er null eller lik bruker i saken");
-        int antall = entityManager.createNativeQuery(
+        var antall = entityManager.createNativeQuery(
                 "UPDATE SO_ANNEN_PART SET AKTOER_ID = null, utl_person_ident = :ident, endret_av = :begr WHERE id = :apid")
                 .setParameter("ident", dto.getIdentAnnenPart())
                 .setParameter("apid", oap.getId())

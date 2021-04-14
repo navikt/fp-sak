@@ -60,7 +60,7 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(KlageMedholdÅrsak.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(KlageMedholdÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent KlageMedholdÅrsak: " + kode);

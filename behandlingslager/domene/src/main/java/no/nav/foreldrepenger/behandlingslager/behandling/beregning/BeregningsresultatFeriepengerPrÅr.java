@@ -78,10 +78,11 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsresultatFeriepengerPrÅr)) {
+        }
+        if (!(obj instanceof BeregningsresultatFeriepengerPrÅr)) {
             return false;
         }
-        BeregningsresultatFeriepengerPrÅr other = (BeregningsresultatFeriepengerPrÅr) obj;
+        var other = (BeregningsresultatFeriepengerPrÅr) obj;
         return Objects.equals(this.getOpptjeningsår(), other.getOpptjeningsår())
             && Objects.equals(this.getÅrsbeløp(), other.getÅrsbeløp());
     }

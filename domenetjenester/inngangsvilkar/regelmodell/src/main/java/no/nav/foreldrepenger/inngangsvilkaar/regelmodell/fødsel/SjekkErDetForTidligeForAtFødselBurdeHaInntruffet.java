@@ -24,8 +24,8 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
         if (!grunnlag.isErSøktOmTermin()){
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }
-        LocalDate nå = LocalDate.now();
-        LocalDate nårFødselBurdeHaInntruffet = grunnlag.getBekreftetTermindato().plusDays(MAX_ANTALL_DAGER_ETTER_TERMIN);
+        var nå = LocalDate.now();
+        var nårFødselBurdeHaInntruffet = grunnlag.getBekreftetTermindato().plusDays(MAX_ANTALL_DAGER_ETTER_TERMIN);
         if (nå.isAfter(nårFødselBurdeHaInntruffet)) {
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }

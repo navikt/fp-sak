@@ -29,7 +29,7 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     public void skal_lagre_og_sette_uttaksperiodegrense_inaktiv() {
         // Arrange
         var behandlingsresultat = lagBehandlingMedResultat();
-        Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
             .medMottattDato(LocalDate.now())
             .medFørsteLovligeUttaksdag((LocalDate.now().minusDays(5)))
             .build();
@@ -39,7 +39,7 @@ public class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
         uttaksperiodegrenseRepository.lagre(behandlingId, uttaksperiodegrense);
 
         // Assert
-        Uttaksperiodegrense uttaksperiodegrenseFør = uttaksperiodegrenseRepository.hent(behandlingId);
+        var uttaksperiodegrenseFør = uttaksperiodegrenseRepository.hent(behandlingId);
         assertThat(uttaksperiodegrense).isEqualTo(uttaksperiodegrenseFør);
 
         // Act

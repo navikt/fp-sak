@@ -10,13 +10,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.FeriepengegrunnlagDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,28 +33,28 @@ class FeriepengegrunnlagMapperTest {
 
     @BeforeEach
     void setUp() {
-        BeregningsresultatEntitet beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        LocalDate fom = LocalDate.now();
-        LocalDate tom = LocalDate.now().plusWeeks(1);
+        var fom = LocalDate.now();
+        var tom = LocalDate.now().plusWeeks(1);
         nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
     }
 
     @Test
     public void tester_at_feriepenger_mappes() {
         // Arrange : nyPeriode
-        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
             OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 40000, nyAndel);
         // Act
-        Optional<FeriepengegrunnlagDto> dtoOpt = FeriepengegrunnlagMapper.map(bgres);
+        var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
 
         // Assert
         assertThat(dtoOpt).isPresent();
-        FeriepengegrunnlagDto dto = dtoOpt.get();
+        var dto = dtoOpt.get();
         assertThat(dto.getFeriepengeperiodeFom()).isEqualTo(FERIE_PERIODE_FOM);
         assertThat(dto.getFeriepengeperiodeTom()).isEqualTo(FERIE_PERIODE_TOM);
         assertThat(dto.getAndeler()).hasSize(1);
@@ -70,7 +69,7 @@ class FeriepengegrunnlagMapperTest {
             Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
             OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        Optional<FeriepengegrunnlagDto> dtoOpt = FeriepengegrunnlagMapper.map(bgres);
+        var dtoOpt = FeriepengegrunnlagMapper.map(bgres);
 
         // Assert
         assertThat(dtoOpt).isEmpty();
@@ -87,7 +86,7 @@ class FeriepengegrunnlagMapperTest {
                                                                    Inntektskategori inntektskategori, String orgNr, int dagsats,
                                                                    BigDecimal stillingsprosent, BigDecimal utbetalingsgrad, int dagsatsFraBg,
                                                                    OpptjeningAktivitetType opptjeningAktivitetType) {
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(orgNr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(orgNr);
         return BeregningsresultatAndel.builder()
             .medBrukerErMottaker(erBrukerMottaker)
             .medArbeidsgiver(arbeidsgiver)

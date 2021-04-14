@@ -23,9 +23,9 @@ final class UtledStillingsprosent {
         if (yrkesaktiviteter.isEmpty()) {
             return Stillingsprosent.HUNDRED.getVerdi();
         }
-        final List<Yrkesaktivitet> relevanteyrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter,
+        final var relevanteyrkesaktiviteter = UtledRelevanteYrkesaktiviteterForStillingsprosent.utled(filter,
                 yrkesaktiviteter, skjæringstidspunkt);
-        final LocalDate oppstartsdatoNærmestStp = UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter.utled(filter,
+        final var oppstartsdatoNærmestStp = UtledOppstartsdatoNærmestStpFraRelevanteYrkesaktiviteter.utled(filter,
                 relevanteyrkesaktiviteter, skjæringstidspunkt);
         return UtledStillingsprosentFraYrkesaktivitetMedOppstartsdatoNærmestStp.utled(filter,
                 relevanteyrkesaktiviteter, skjæringstidspunkt, oppstartsdatoNærmestStp);

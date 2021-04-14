@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
@@ -60,11 +59,8 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OpptjeningMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
@@ -155,7 +151,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 DAGEN_FØR_SFO, arbId1, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -174,7 +170,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3), arbId1, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3).plusDays(1), grunnlag);
@@ -197,7 +193,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(3).plusDays(1), grunnlag);
@@ -220,7 +216,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(5).plusDays(1), grunnlag);
@@ -242,7 +238,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusWeeks(2).plusDays(1), grunnlag);
@@ -266,7 +262,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2, opptj3), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2, opptj3), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1).plusDays(2), grunnlag);
@@ -284,7 +280,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -304,7 +300,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -319,7 +315,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var opptj2 = lagFrilansOgOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(6), DAGEN_FØR_SFO);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), opprettBehandling());
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), opprettBehandling());
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -340,7 +336,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 DAGEN_FØR_SFO, arbId2, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -351,14 +347,14 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     @Test
     public void testSkjæringstidspunktForFlereArbeidsforholdISammeVirksomhet() {
         // Arrange
-        String orgnr = ORG_NUMMER_MED_FLERE_ARBEIDSFORHOLD;
+        var orgnr = ORG_NUMMER_MED_FLERE_ARBEIDSFORHOLD;
         var arbId1 = InternArbeidsforholdRef.nyRef();
         var arbId2 = InternArbeidsforholdRef.nyRef();
         var arbId3 = InternArbeidsforholdRef.nyRef();
 
-        no.nav.abakus.iaygrunnlag.Periode periode = new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
+        var periode = new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
                 DAGEN_FØR_SFO);
-        BehandlingReferanse ref = opprettBehandling();
+        var ref = opprettBehandling();
         var opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(orgnr, periode.getFom(), periode.getTom(), arbId1, ref),
         lagArbeidOgOpptjening(orgnr, periode.getFom(), periode.getTom(), arbId2, ref),
         lagArbeidOgOpptjening(orgnr, periode.getFom(), periode.getTom(), arbId3, ref));
@@ -366,7 +362,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var inntektsmeldinger = opprettInntektsmelding(Arbeidsgiver.virksomhet(orgnr), arbId1, arbId2, arbId3);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(opptjeningAktiviteter, inntektsmeldinger, ref);
+        var grunnlag = act(opptjeningAktiviteter, inntektsmeldinger, ref);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -386,7 +382,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         iayTestUtil.lagreOppgittOpptjening(behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -404,7 +400,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 .build();
 
         var behandling = opprettBehandling();
-        OpptjeningAktiviteter.OpptjeningPeriode opptj1 = lagArbeidOgOpptjening(ORG_NUMMER2, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(5), null, InternArbeidsforholdRef.nullRef(), behandling);
+        var opptj1 = lagArbeidOgOpptjening(ORG_NUMMER2, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(5), null, InternArbeidsforholdRef.nullRef(), behandling);
         leggTilAktørytelse(behandling, SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(10), SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(2),
                 RelatertYtelseTilstand.LØPENDE, behandling.getSaksnummer().getVerdi(), RelatertYtelseType.SYKEPENGER,
                 Collections.singletonList(ytelseStørrelse1), Arbeidskategori.ARBEIDSTAKER, false);
@@ -431,7 +427,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -449,7 +445,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -461,40 +457,40 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     @Test
     public void testPermisjonPåSkjæringstidspunktOpptjening() {
         // Assert
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
-        InternArbeidsforholdRef arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var arbeidsgiver = Arbeidsgiver.virksomhet(ORG_NUMMER);
+        var arbeidsforholdRef = InternArbeidsforholdRef.nyRef();
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
                 .medArbeidsgiver(arbeidsgiver)
                 .medArbeidsforholdId(arbeidsforholdRef);
 
-        LocalDate permisjonFom = SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1);
-        LocalDate permisjonTom = SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(1);
-        Permisjon permisjon = yrkesaktivitetBuilder.getPermisjonBuilder()
+        var permisjonFom = SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(1);
+        var permisjonTom = SKJÆRINGSTIDSPUNKT_OPPTJENING.plusMonths(1);
+        var permisjon = yrkesaktivitetBuilder.getPermisjonBuilder()
                 .medPeriode(permisjonFom, permisjonTom)
                 .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.PERMITTERING)
                 .medProsentsats(BigDecimal.valueOf(100))
                 .build();
         yrkesaktivitetBuilder.leggTilPermisjon(permisjon);
 
-        Periode opptjeningPeriode = new Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(1), permisjonFom.minusDays(1));
-        BehandlingReferanse ref = lagReferanseMedStp(opprettBehandling());
-        OpptjeningAktiviteter opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(ORG_NUMMER, opptjeningPeriode.getFom(),
+        var opptjeningPeriode = new Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(1), permisjonFom.minusDays(1));
+        var ref = lagReferanseMedStp(opprettBehandling());
+        var opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(ORG_NUMMER, opptjeningPeriode.getFom(),
             opptjeningPeriode.getTom(), InternArbeidsforholdRef.nullRef(), ref));
 
         // Act
         var input = lagBeregningsgrunnlagInput(ref, opptjeningAktiviteter, List.of());
-        BeregningAktivitetAggregatEntitet beregningAktivitetAggregat = mapSaksbehandletAktivitet(
+        var beregningAktivitetAggregat = mapSaksbehandletAktivitet(
                 fastsettBeregningAktiviteter.fastsettAktiviteter(lagStartInput(input)));
 
-        BeregningsgrunnlagEntitet BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
+        var BeregningsgrunnlagEntitet = mapBeregningsgrunnlag(fastsettSkjæringstidspunktOgStatuser.fastsett(input,
                 mapSaksbehandletAktivitet(beregningAktivitetAggregat), input.getIayGrunnlag(), grunnbeløpTjeneste.mapGrunnbeløpSatser())
                 .getBeregningsgrunnlag(), Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(BeregningsgrunnlagEntitet.getSkjæringstidspunkt()).isEqualTo(permisjonFom);
         assertThat(beregningAktivitetAggregat.getBeregningAktiviteter()).hasSize(1);
-        BeregningAktivitetEntitet ba = beregningAktivitetAggregat.getBeregningAktiviteter().get(0);
+        var ba = beregningAktivitetAggregat.getBeregningAktiviteter().get(0);
         assertThat(ba.getArbeidsgiver()).isEqualTo(arbeidsgiver);
         assertThat(ba.getPeriode().getFomDato()).isEqualTo(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusYears(1));
         assertThat(ba.getPeriode().getTomDato()).isEqualTo(permisjonFom.minusDays(1));
@@ -522,7 +518,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var opptjeningAktiviteter = new OpptjeningAktiviteter(List.of(opptj0, opptj1, opptj2, opptj3, opptj4, opptj5, opptj6));
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(opptjeningAktiviteter, behandling);
+        var grunnlag = act(opptjeningAktiviteter, behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -543,7 +539,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 DAGEN_FØR_SFO, RelatertYtelseType.SYKEPENGER, ORG_NUMMER, behandling);
 
         // Act
-        BeregningsgrunnlagEntitet grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
+        var grunnlag = act(new OpptjeningAktiviteter(opptj1, opptj2), behandling);
 
         // Assert
         verifiserSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING, grunnlag);
@@ -573,14 +569,14 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private void verifiserGrunnbeløp(LocalDate førsteUttaksdag, BeregningsgrunnlagEntitet grunnlag) {
-        long gVerdi = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdag).getVerdi();
+        var gVerdi = beregningsgrunnlagRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, førsteUttaksdag).getVerdi();
         assertThat(grunnlag.getGrunnbeløp().getVerdi()).isEqualByComparingTo(BigDecimal.valueOf(gVerdi));
     }
 
     private void verifiserBeregningsgrunnlagPerioder(BeregningsgrunnlagEntitet grunnlag, AktivitetStatus... expectedArray) {
         assertThat(grunnlag.getBeregningsgrunnlagPerioder()).hasSize(1);
-        BeregningsgrunnlagPeriode bgPeriode = grunnlag.getBeregningsgrunnlagPerioder().get(0);
-        List<AktivitetStatus> actualList = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var bgPeriode = grunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var actualList = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getAktivitetStatus).collect(Collectors.toList());
         assertThat(actualList).containsOnly(expectedArray);
         bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
@@ -600,7 +596,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
     }
 
     private void verifiserAktivitetStatuser(BeregningsgrunnlagEntitet grunnlag, AktivitetStatus... expectedArray) {
-        List<AktivitetStatus> actualList = grunnlag.getAktivitetStatuser().stream()
+        var actualList = grunnlag.getAktivitetStatuser().stream()
                 .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toList());
         assertThat(actualList).containsOnly(expectedArray);
     }

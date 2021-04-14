@@ -32,7 +32,7 @@ public enum SøknadType {
     }
 
     public static SøknadType fra(String kode) {
-        for (SøknadType st : values()) {
+        for (var st : values()) {
             if (Objects.equals(st.kode, kode)) {
                 return st;
             }
@@ -43,13 +43,14 @@ public enum SøknadType {
     public static SøknadType fra(FamilieHendelseEntitet type) {
         if (type == null) {
             return null;
-        } else if (type.getGjelderFødsel()) {
-            return SøknadType.FØDSEL;
-        } else if (type.getGjelderAdopsjon()) {
-            return SøknadType.ADOPSJON;
-        } else {
-            throw new IllegalArgumentException("Kan ikke mappe fra familieHendelse" + type + " til SøknadType"); //$NON-NLS-1$ //$NON-NLS-2$
         }
+        if (type.getGjelderFødsel()) {
+            return SøknadType.FØDSEL;
+        }
+        if (type.getGjelderAdopsjon()) {
+            return SøknadType.ADOPSJON;
+        }
+        throw new IllegalArgumentException("Kan ikke mappe fra familieHendelse" + type + " til SøknadType"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     static class SøknadTypeDeserializer extends StdDeserializer<SøknadType> {
@@ -73,8 +74,8 @@ public enum SøknadType {
             if (Objects.equals(p.getCurrentToken(), JsonToken.START_OBJECT)) {
                 while (!(JsonToken.END_OBJECT.equals(p.getCurrentToken()))) {
                     p.nextToken();
-                    String name = p.getCurrentName();
-                    String value = p.getValueAsString();
+                    var name = p.getCurrentName();
+                    var value = p.getValueAsString();
                     if (Objects.equals("kode", name)  && !Objects.equals("kode", value)) { //$NON-NLS-1$ //$NON-NLS-2$
                         kode = value;
                     }

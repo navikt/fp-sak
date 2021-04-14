@@ -27,9 +27,9 @@ public class FagsakLåsRepository {
      * @return låsen
      */
     public FagsakLås taLås(final Long fagsakIdIn) {
-        final LockModeType lockModeType = LockModeType.PESSIMISTIC_WRITE;
+        final var lockModeType = LockModeType.PESSIMISTIC_WRITE;
 
-        FagsakLås lås = new FagsakLås(fagsakIdIn);
+        var lås = new FagsakLås(fagsakIdIn);
 
         // sjekker om fagsakId != null slik at det fungerer som no-op for ferske, unpersisted entiteter
         if (fagsakIdIn != null) {
@@ -52,7 +52,7 @@ public class FagsakLåsRepository {
     }
 
     private Long låsFagsak(final Long fagsakId, LockModeType lockModeType) {
-        Object[] resultFs = (Object[]) entityManager
+        var resultFs = (Object[]) entityManager
             .createQuery("select fs.id, fs.versjon from Fagsak fs where fs.id=:id") //$NON-NLS-1$
             .setParameter("id", fagsakId) //$NON-NLS-1$
             .setLockMode(lockModeType)
@@ -71,9 +71,9 @@ public class FagsakLåsRepository {
     }
 
     private void verifisertLås(FagsakLås lås) {
-        Long id = lås.getFagsakId();
+        var id = lås.getFagsakId();
         // NB - Oracle syntax
-        Object versjon = entityManager.createNativeQuery("select versjon from FAGSAK where id =:fagsakId for update nowait")
+        var versjon = entityManager.createNativeQuery("select versjon from FAGSAK where id =:fagsakId for update nowait")
             .setParameter("fagsakId", id)
             .getSingleResult();
 
@@ -81,7 +81,7 @@ public class FagsakLåsRepository {
             var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.", Fagsak.class.getSimpleName(), id);
             throw new TekniskException("FP-131239", msg);
         }
-        int updated = entityManager.createNativeQuery("update FAGSAK set versjon=versjon+1 where id=:fagsakId and versjon=:versjon")
+        var updated = entityManager.createNativeQuery("update FAGSAK set versjon=versjon+1 where id=:fagsakId and versjon=:versjon")
             .setParameter("fagsakId", id)
             .setParameter("versjon", versjon)
             .executeUpdate();

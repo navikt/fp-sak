@@ -30,9 +30,9 @@ public class SendForlengelsesbrevTjeneste {
     }
 
     public String sendForlengelsesbrev() {
-        List<Behandling> kandidater = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
+        var kandidater = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
         String gruppe = null;
-        for (Behandling kandidat : kandidater) {
+        for (var kandidat : kandidater) {
             gruppe = opprettSendForlengelsesbrevTask(kandidat);
         }
         //TODO(OJR) må endres i forbindelsen med at løsningen ser på task_grupper på en annet måte nå, hvis en prosess feiler i en gruppe stopper alt opp..
@@ -40,7 +40,7 @@ public class SendForlengelsesbrevTjeneste {
     }
 
     private String opprettSendForlengelsesbrevTask(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(SendForlengelsesbrevTaskProperties.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(SendForlengelsesbrevTaskProperties.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);

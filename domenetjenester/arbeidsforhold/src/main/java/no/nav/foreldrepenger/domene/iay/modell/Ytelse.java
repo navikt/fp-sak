@@ -60,11 +60,11 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         this.temaUnderkategori = ytelse.getBehandlingsTema();
         this.kilde = ytelse.getKilde();
         ytelse.getYtelseGrunnlag().ifPresent(yg -> {
-            YtelseGrunnlag ygn = new YtelseGrunnlag(yg);
+            var ygn = new YtelseGrunnlag(yg);
             this.ytelseGrunnlag = ygn;
         });
         this.ytelseAnvist = ytelse.getYtelseAnvist().stream().map(ya -> {
-            YtelseAnvist ytelseAnvist = new YtelseAnvist(ya);
+            var ytelseAnvist = new YtelseAnvist(ya);
             return ytelseAnvist;
         }).collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -153,7 +153,7 @@ public class Ytelse extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof Ytelse)) {
             return false;
         }
-        Ytelse that = (Ytelse) o;
+        var that = (Ytelse) o;
         return Objects.equals(relatertYtelseType, that.relatertYtelseType) &&
                 Objects.equals(temaUnderkategori, that.temaUnderkategori) &&
                 Objects.equals(periode, that.periode) &&

@@ -30,7 +30,7 @@ public class PersoninfoKjønn {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PersoninfoKjønn that = (PersoninfoKjønn) o;
+        var that = (PersoninfoKjønn) o;
         return aktørId.equals(that.aktørId) &&
             kjønn == that.kjønn;
     }

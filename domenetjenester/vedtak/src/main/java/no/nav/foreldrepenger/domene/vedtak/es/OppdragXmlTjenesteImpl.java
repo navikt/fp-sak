@@ -1,19 +1,14 @@
 package no.nav.foreldrepenger.domene.vedtak.es;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.domene.vedtak.xml.OppdragXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.økonomistøtte.HentOppdragMedPositivKvittering;
 import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.es.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.oppdrag.dvh.es.v2.Oppdrag;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 
 @FagsakYtelseTypeRef("ES")
@@ -34,14 +29,14 @@ public class OppdragXmlTjenesteImpl implements OppdragXmlTjeneste {
 
     @Override
     public void setOppdrag(Vedtak vedtak, Behandling behandling) {
-        List<Oppdrag110> oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
+        var oppdrag110PositivKvittering = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvitteringFeilHvisVenter(behandling);
         if (!oppdrag110PositivKvittering.isEmpty()) {
-            Oppdrag oppdragXml = oppdragObjectFactory.createOppdrag();
+            var oppdragXml = oppdragObjectFactory.createOppdrag();
 
-            Oppdrag110 oppdrag110 = oppdrag110PositivKvittering.get(0);
+            var oppdrag110 = oppdrag110PositivKvittering.get(0);
             oppdragXml.setOppdragId(VedtakXmlUtil.lagLongOpplysning(oppdrag110.getId()));
             oppdragXml.setFagsystemId(VedtakXmlUtil.lagLongOpplysning(oppdrag110.getFagsystemId()));
-            Oppdragslinje150 oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
+            var oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
 
             oppdragXml.setLinjeId(VedtakXmlUtil.lagLongOpplysning(oppdragslinje150.getId()));
 

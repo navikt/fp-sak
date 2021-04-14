@@ -15,11 +15,9 @@ import org.mockito.MockitoAnnotations;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
@@ -62,10 +60,10 @@ public class OppdaterFagsakStatusImplTest {
     }
 
     private boolean erBehandlingDirekteAvsluttbart(BehandlingResultatType behandlingResultatType) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
-        Behandlingsresultat behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(behandlingResultatType).build();
-        Behandling behandling = scenario.lagMocked();
+        var behandlingsresultat = new Behandlingsresultat.Builder().medBehandlingResultatType(behandlingResultatType).build();
+        var behandling = scenario.lagMocked();
         behandling.setBehandlingresultat(behandlingsresultat);
 
         var foreldelsesfrist = Period.ofYears(100); // Kun for teset
@@ -83,13 +81,13 @@ public class OppdaterFagsakStatusImplTest {
     }
 
     private boolean erVedtakUtløpt(int antallDagerEtterMaksdato, int antallÅrSidenFødsel, Period foreldelsesfrist) {
-        LocalDate fødselsDato = LocalDate.now().minusYears(antallÅrSidenFødsel);
-        LocalDate maksDatoUttak = LocalDate.now().minusDays(antallDagerEtterMaksdato);
+        var fødselsDato = LocalDate.now().minusYears(antallÅrSidenFødsel);
+        var maksDatoUttak = LocalDate.now().minusDays(antallDagerEtterMaksdato);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBekreftetHendelse().medFødselsDato(fødselsDato);
-        Behandling behandling = scenario.lagMocked();
-        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
         Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);

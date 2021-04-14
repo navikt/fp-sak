@@ -50,7 +50,7 @@ public class Oppdrag {
 
     public LocalDate getEndringsdato() {
         LocalDate endringsdato = null;
-        for (OppdragKjedeFortsettelse kjede : kjeder.values()) {
+        for (var kjede : kjeder.values()) {
             if (endringsdato == null || kjede.getEndringsdato().isBefore(endringsdato)) {
                 endringsdato = kjede.getEndringsdato();
             }
@@ -83,7 +83,7 @@ public class Oppdrag {
             if (!betalingsmottaker.equals(nøkkel.getBetalingsmottaker())) {
                 throw new IllegalArgumentException("Nøkkel er ikke for aktuell betalingsmottaker");
             }
-            for (OppdragLinje oppdragslinje : kjede.getOppdragslinjer()) {
+            for (var oppdragslinje : kjede.getOppdragslinjer()) {
                 if (!fagsystemId.equals(oppdragslinje.getDelytelseId().getFagsystemId())) {
                     throw new IllegalArgumentException("Oppdragslinje er for annen fagsystemId");
                 }

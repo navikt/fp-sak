@@ -42,9 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -124,7 +122,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
     @BeforeEach
     public void setUp() {
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
@@ -142,9 +140,9 @@ public class RevurderingBehandlingsresultatutlederTest {
                 skjæringstidspunktTjeneste,
                 medlemTjeneste);
 
-        BehandlingskontrollTjenesteImpl behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
+        var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(
                 serviceProvider);
-        RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider, behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
         revurdering = revurderingTjeneste
@@ -163,9 +161,9 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.plusDays(5)));
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -176,8 +174,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 revurderingPerioder);
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -189,8 +187,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.OPPHØR);
@@ -211,9 +209,9 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.plusDays(5)));
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -223,8 +221,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 revurderingPerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -236,8 +234,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.OPPHØR);
@@ -256,14 +254,14 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_3_behandlingsresultat_lik_opphør_rettentil_lik_nei_foreldrepenger_opphører() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.plusDays(5)));
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -276,8 +274,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeIkkeOppfyltÅrsak.INGEN, PeriodeIkkeOppfyltÅrsak._8305));
         lagreEndringsdato(endringsdato);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -287,8 +285,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.OPPHØR);
@@ -307,16 +305,16 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_4_med_endring_i_uttak_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak() {
         // Arrange
-        LocalDate endringsdato = LocalDate.of(2018, 1, 1);
+        var endringsdato = LocalDate.of(2018, 1, 1);
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
         lagreEndringsdato(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.minusDays(5)));
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -328,8 +326,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 revurderingPerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -339,8 +337,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INNVILGET);
@@ -359,15 +357,15 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_4_med_endring_i_uttak_og_beregning_behandlingsresultat_lik_innvilget_rettentil_lik_ja_konsekvens_endring_i_uttak_og_endring_i_beregning() {
         // Arrange
-        LocalDate endringsdato = LocalDate.of(2018, 1, 1);
+        var endringsdato = LocalDate.of(2018, 1, 1);
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Endring i uttakperiode (ulik lengde)
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.minusDays(5)));
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -376,7 +374,7 @@ public class RevurderingBehandlingsresultatutlederTest {
                 opprinneligePerioder);
 
         // Endring i beregning
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, true, false, bgPeriode);
@@ -385,8 +383,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 revurderingPerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -396,8 +394,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INNVILGET);
@@ -417,12 +415,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_5_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_Endring_i_beregning() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato.minusDays(10), endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -433,8 +431,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 opprinneligePerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -443,15 +441,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, true, false, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -471,12 +469,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_6_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekvens_endring_i_beregning_og_uttak() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -488,8 +486,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 opprinneligePerioder, List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeIkkeOppfyltÅrsak.INGEN),
                 List.of(50));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -498,15 +496,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, true, false, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -527,12 +525,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_7_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_uttak() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -544,8 +542,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 opprinneligePerioder, List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeIkkeOppfyltÅrsak.INGEN),
                 List.of(50));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -554,15 +552,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, false, false, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -582,12 +580,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_8_behandlingsresultat_lik_FPEndret_rettentil_lik_ja_foreldrepenger_konsekven_endring_i_fordeling_av_ytelsen() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -598,8 +596,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 opprinneligePerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -608,15 +606,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning: kun endring i fordeling av ytelsen
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, false, true, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -637,12 +635,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_9_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -653,8 +651,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 opprinneligePerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -664,15 +662,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning: Ingen endring
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, false, false, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INGEN_ENDRING);
@@ -692,12 +690,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void tilfelle_9_ulik_rekkefølge_av_andeler_behandlingsresultat_lik_ingenEndring_rettentil_lik_ja_foreldrepenger_konsekvens_ingenEndring() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -708,8 +706,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 opprinneligePerioder);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -718,7 +716,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning: Ingen endring, kun endring i rekkefølge av andeler
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, true, bgPeriode,
                 new LagToAndelerTjeneste());
@@ -727,8 +725,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INGEN_ENDRING);
@@ -740,12 +738,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_ingen_vedtaksbrev_når_ingen_endring_og_varsel_om_revurdering_ikke_er_sendt() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
-        List<LocalDateInterval> opprinneligePerioder = List.of(
+        var opprinneligePerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(5)));
 
         // Løpende vedtak
@@ -756,8 +754,8 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering,
                 opprinneligePerioder, List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeIkkeOppfyltÅrsak.INGEN));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -766,15 +764,15 @@ public class RevurderingBehandlingsresultatutlederTest {
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
         // Endring i beregning: kun endring i fordeling av ytelsen
-        List<ÅpenDatoIntervallEntitet> bgPeriode = List.of(
+        var bgPeriode = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
         byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes, false, false, bgPeriode);
         byggBeregningsgrunnlagForBehandling(revurdering, false, false, bgPeriode);
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, false);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INGEN_ENDRING);
@@ -787,13 +785,13 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_ingen_endring_når_original_revurdering_også_hadde_avslått_siste_uttaksperiode() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -809,8 +807,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeIkkeOppfyltÅrsak.INGEN, PeriodeIkkeOppfyltÅrsak._8305));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -820,8 +818,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INGEN_ENDRING);
@@ -833,12 +831,12 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_opphør_når_det_er_flere_perioder_som_avslås() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -855,8 +853,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeIkkeOppfyltÅrsak._8305, PeriodeIkkeOppfyltÅrsak._8306));
         lagreEndringsdato(endringsdato);
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -866,8 +864,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.OPPHØR);
@@ -880,13 +878,13 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_endring_når_original_revurdering_ikke_har_samme_skalHindreTilbakketrekk() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -902,8 +900,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeIkkeOppfyltÅrsak.INGEN, PeriodeIkkeOppfyltÅrsak._8305));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -915,8 +913,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -930,13 +928,13 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_endring_når_original_revurdering_mangler_skalHindreTilbakketrekk() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -952,8 +950,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeIkkeOppfyltÅrsak.INGEN, PeriodeIkkeOppfyltÅrsak._8305));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -965,8 +963,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(
@@ -980,13 +978,13 @@ public class RevurderingBehandlingsresultatutlederTest {
     @Test
     public void skal_gi_ingen_endring_når_original_revurdering_har_samme_skalHindreTilbakketrekk() {
         // Arrange
-        LocalDate endringsdato = LocalDate.now();
+        var endringsdato = LocalDate.now();
         when(endringsdatoRevurderingUtlederImpl.utledEndringsdato(any())).thenReturn(endringsdato);
         lagreEndringsdato(endringsdato);
         lagBeregningsresultatperiodeMedEndringstidspunkt(endringsdato);
 
         // Uttaksperiode som brukes for begge behandlinger
-        List<LocalDateInterval> revurderingPerioder = List.of(
+        var revurderingPerioder = List.of(
                 new LocalDateInterval(endringsdato, endringsdato.plusDays(10)),
                 new LocalDateInterval(endringsdato.plusDays(11), endringsdato.plusDays(20)));
 
@@ -1002,8 +1000,8 @@ public class RevurderingBehandlingsresultatutlederTest {
                 List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT),
                 List.of(PeriodeIkkeOppfyltÅrsak.INGEN, PeriodeIkkeOppfyltÅrsak._8305));
 
-        BehandlingLås låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
-        VilkårResultat vilkårResultatRevurdering = VilkårResultat.builder()
+        var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
+        var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -1015,8 +1013,8 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         // Act
         bestemBehandlingsresultatForRevurdering(revurdering, erVarselOmRevurderingSendt);
-        Behandlingsresultat bhResultat = getBehandlingsresultat(revurdering);
-        boolean uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
+        var bhResultat = getBehandlingsresultat(revurdering);
+        var uendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(revurdering);
 
         // Assert
         assertThat(bhResultat.getBehandlingResultatType()).isEqualByComparingTo(BehandlingResultatType.INGEN_ENDRING);
@@ -1038,7 +1036,7 @@ public class RevurderingBehandlingsresultatutlederTest {
 
     private SvangerskapspengerUttakResultatEntitet lagUttakResultatPlanForBehandling(Behandling behandling,
             List<LocalDateInterval> perioder) {
-        SvangerskapspengerUttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
+        var uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
                 behandling,
                 perioder, Collections.nCopies(perioder.size(), PeriodeResultatType.INNVILGET),
                 Collections.nCopies(perioder.size(), PeriodeIkkeOppfyltÅrsak.INGEN),
@@ -1051,7 +1049,7 @@ public class RevurderingBehandlingsresultatutlederTest {
             List<LocalDateInterval> perioder,
             List<PeriodeResultatType> periodeResultatTyper,
             List<PeriodeIkkeOppfyltÅrsak> periodeResultatÅrsak) {
-        SvangerskapspengerUttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
+        var uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
                 behandling,
                 perioder, periodeResultatTyper, periodeResultatÅrsak, Collections.nCopies(perioder.size(), 100));
         uttakRepository.lagre(behandling.getId(), uttakresultat);
@@ -1063,7 +1061,7 @@ public class RevurderingBehandlingsresultatutlederTest {
             List<PeriodeResultatType> periodeResultatTyper,
             List<PeriodeIkkeOppfyltÅrsak> periodeResultatÅrsak,
             List<Integer> utbetalingsgrad) {
-        SvangerskapspengerUttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
+        var uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanSVPTjeneste(
                 behandling,
                 perioder, periodeResultatTyper, periodeResultatÅrsak, utbetalingsgrad);
         uttakRepository.lagre(behandling.getId(), uttakresultat);
@@ -1071,9 +1069,9 @@ public class RevurderingBehandlingsresultatutlederTest {
     }
 
     private void lagBeregningsresultatperiodeMedEndringstidspunkt(LocalDate endringsdato) {
-        BeregningsresultatEntitet originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
+        var originaltresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
                 endringsdato, true, ORGNR);
-        BeregningsresultatEntitet revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
+        var revurderingsresultat = LagBeregningsresultatTjeneste.lagBeregningsresultatperiodeMedEndringstidspunkt(
                 endringsdato, false, ORGNR);
         beregningsresultatRepository.lagre(revurdering, revurderingsresultat);
         beregningsresultatRepository.lagre(behandlingSomSkalRevurderes, originaltresultat);

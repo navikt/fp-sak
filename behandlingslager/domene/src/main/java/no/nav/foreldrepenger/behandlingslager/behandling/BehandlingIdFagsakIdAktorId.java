@@ -66,7 +66,7 @@ public class BehandlingIdFagsakIdAktorId {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BehandlingIdFagsakIdAktorId that = (BehandlingIdFagsakIdAktorId) o;
+        var that = (BehandlingIdFagsakIdAktorId) o;
         return Objects.equals(fagsakYtelseType, that.fagsakYtelseType) &&
             Objects.equals(saksnummer, that.saksnummer) &&
             Objects.equals(aktorId, that.aktorId) &&

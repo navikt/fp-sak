@@ -30,7 +30,7 @@ public final class JacksonJsonConfig {
         OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
 
-        InjectableValues.Std std = new InjectableValues.Std();
+        var std = new InjectableValues.Std();
         std.addValue(KodeValidator.class, KodeValidator.HAPPY_VALIDATOR);
         OM.setInjectableValues(std);
     }

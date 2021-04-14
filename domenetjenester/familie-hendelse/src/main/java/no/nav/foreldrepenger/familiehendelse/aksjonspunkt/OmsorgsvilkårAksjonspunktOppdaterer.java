@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -45,10 +44,10 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
 
     @Override
     public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
-        String aksjonspunktKode = dto.getKode();
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
+        var behandling = param.getBehandling();
+        var resultatBuilder = OppdateringResultat.utenTransisjon();
+        var aksjonspunktKode = dto.getKode();
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
         var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktKode);
         historikkAdapter.tekstBuilder()
             .medEndretFelt(getTekstKode(), null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
@@ -65,11 +64,10 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         if (dto.getErVilkarOk()) {
             resultatBuilder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT);
             return resultatBuilder.medTotrinn().build();
-        } else {
-            resultatBuilder.leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()));
-
-            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
         }
+        resultatBuilder.leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()));
+
+        return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
     }
 
     protected abstract HistorikkEndretFeltType getTekstKode();

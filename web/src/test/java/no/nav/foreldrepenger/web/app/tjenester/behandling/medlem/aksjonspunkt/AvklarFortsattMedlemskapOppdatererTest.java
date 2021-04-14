@@ -17,10 +17,8 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -44,7 +42,7 @@ public class AvklarFortsattMedlemskapOppdatererTest {
     @Test
     public void avklar_fortsatt_medlemskap() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medSøknadsdato(now);
         scenario.medSøknadHendelse()
@@ -53,18 +51,18 @@ public class AvklarFortsattMedlemskapOppdatererTest {
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FORTSATT_MEDLEMSKAP, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BekreftedePerioderDto bekreftetPeriode = new BekreftedePerioderDto();
+        var bekreftetPeriode = new BekreftedePerioderDto();
         bekreftetPeriode.setVurderingsdato(now.plusDays(10));
         bekreftetPeriode.setAksjonspunkter(List.of(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT.getKode()));
 
-        AvklarFortsattMedlemskapDto dto = new AvklarFortsattMedlemskapDto("test", List.of(bekreftetPeriode));
-        HistorikkTjenesteAdapter historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
-        HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder();
+        var dto = new AvklarFortsattMedlemskapDto("test", List.of(bekreftetPeriode));
+        var historikkTjenesteAdapter = mock(HistorikkTjenesteAdapter.class);
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder();
         when(historikkTjenesteAdapter.tekstBuilder()).thenReturn(historikkInnslagTekstBuilder);
 
-        final MedlemskapAksjonspunktTjeneste medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
+        final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, historikkTjenesteAdapter, lagMockYtelseSkjæringstidspunktTjeneste(LocalDate.now()));
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
@@ -73,13 +71,13 @@ public class AvklarFortsattMedlemskapOppdatererTest {
                 .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
-        Optional<VurdertMedlemskapPeriodeEntitet> vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);
+        var vurdertMedlemskap = getVurdertLøpendeMedlemskap(behandling.getId(), repositoryProvider);
         assertThat(vurdertMedlemskap).isPresent();
     }
 
     private Optional<VurdertMedlemskapPeriodeEntitet> getVurdertLøpendeMedlemskap(Long behandlingId,
             BehandlingRepositoryProvider repositoryProvider) {
-        MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        var medlemskapRepository = repositoryProvider.getMedlemskapRepository();
         return medlemskapRepository.hentVurdertLøpendeMedlemskap(behandlingId);
     }
 

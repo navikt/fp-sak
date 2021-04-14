@@ -10,12 +10,11 @@ class FinnAlleredeUtbetaltTom {
     }
 
     static LocalDate finn(LocalDate idag) {
-        int utbetalingsdagIMåned = finnUtbetalingsdagForMåned(idag.getMonth());
+        var utbetalingsdagIMåned = finnUtbetalingsdagForMåned(idag.getMonth());
         if (idag.getDayOfMonth() > utbetalingsdagIMåned) {
             return idag.with(TemporalAdjusters.lastDayOfMonth());
-        } else {
-            return idag.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         }
+        return idag.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     }
 
     private static int finnUtbetalingsdagForMåned(Month month) {

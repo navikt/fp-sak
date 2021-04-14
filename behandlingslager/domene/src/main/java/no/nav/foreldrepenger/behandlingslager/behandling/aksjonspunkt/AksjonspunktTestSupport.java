@@ -27,7 +27,7 @@ public final class AksjonspunktTestSupport {
         Objects.requireNonNull(aksjonspunktDefinisjon, "aksjonspunktDefinisjon");
 
         // slå opp for å få riktig konfigurasjon.
-        Aksjonspunkt.Builder adBuilder = behandlingStegType != null
+        var adBuilder = behandlingStegType != null
             ? new Aksjonspunkt.Builder(aksjonspunktDefinisjon, behandlingStegType)
             : new Aksjonspunkt.Builder(aksjonspunktDefinisjon);
 
@@ -41,7 +41,7 @@ public final class AksjonspunktTestSupport {
     }
 
     public static void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
-        AksjonspunktDefinisjon apDef = aksjonspunkt.getAksjonspunktDefinisjon();
+        var apDef = aksjonspunkt.getAksjonspunktDefinisjon();
         if (apDef.getSkjermlenkeType() == null || SkjermlenkeType.UDEFINERT.equals(apDef.getSkjermlenkeType())) {
             if (AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.equals(apDef) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(apDef)) {
                 return;

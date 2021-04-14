@@ -46,10 +46,10 @@ public class RelatertBehandlingTjeneste {
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeVedtattBehandling(Saksnummer saksnummer) {
-        Optional<Fagsak> annenPartsFagsak = hentAnnenPartsFagsak(saksnummer);
+        var annenPartsFagsak = hentAnnenPartsFagsak(saksnummer);
 
         if (annenPartsFagsak.isPresent()) {
-            Optional<BehandlingVedtak> vedtakAnnenpart = behandlingVedtakRepository.hentGjeldendeVedtak(annenPartsFagsak.get());
+            var vedtakAnnenpart = behandlingVedtakRepository.hentGjeldendeVedtak(annenPartsFagsak.get());
             return vedtakAnnenpart.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId)
                     .map(behandlingRepository::hentBehandling);
         }
@@ -65,24 +65,23 @@ public class RelatertBehandlingTjeneste {
     }
 
     public Optional<Behandling> hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(Behandling behandling) {
-        Optional<Fagsak> annenPartsFagsak = hentAnnenPartsFagsak(behandling.getFagsak().getSaksnummer());
+        var annenPartsFagsak = hentAnnenPartsFagsak(behandling.getFagsak().getSaksnummer());
         if (annenPartsFagsak.isEmpty()) {
             return Optional.empty();
         }
-        List<Behandling> alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart = behandlingRepository
+        var alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart = behandlingRepository
                 .finnAlleAvsluttedeIkkeHenlagteBehandlinger(annenPartsFagsak.get().getId());
-        List<BehandlingVedtak> annenpartVedtak = sortertPåVedtakstidspunkt(alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart);
-        BehandlingVedtak behandlingVedtak = vedtakForBehandling(behandling);
+        var annenpartVedtak = sortertPåVedtakstidspunkt(alleAvsluttedeIkkeHenlagteBehandlingerAnnenPart);
+        var behandlingVedtak = vedtakForBehandling(behandling);
         if (annenpartVedtak.size() == 1) {
             if (harVedtakFør(annenpartVedtak.get(0), behandlingVedtak)) {
                 return Optional.of(behandlingRepository.hentBehandling(annenpartVedtak.get(0).getBehandlingsresultat().getBehandlingId()));
-            } else {
-                return Optional.empty();
             }
+            return Optional.empty();
         }
 
         Optional<Behandling> resultat = Optional.empty();
-        for (BehandlingVedtak apVedtak : annenpartVedtak) {
+        for (var apVedtak : annenpartVedtak) {
             if (harVedtakFør(apVedtak, behandlingVedtak)) {
                 resultat = Optional.of(behandlingRepository.hentBehandling(apVedtak.getBehandlingsresultat().getBehandlingId()));
             }
@@ -110,7 +109,7 @@ public class RelatertBehandlingTjeneste {
     }
 
     private int compare(BehandlingVedtak vedtak1, BehandlingVedtak vedtak2) {
-        int vedtakstidspunktCompared = vedtak1.getVedtakstidspunkt().compareTo(vedtak2.getVedtakstidspunkt());
+        var vedtakstidspunktCompared = vedtak1.getVedtakstidspunkt().compareTo(vedtak2.getVedtakstidspunkt());
         if (vedtakstidspunktCompared == 0) {
             return vedtak1.getOpprettetTidspunkt().compareTo(vedtak2.getOpprettetTidspunkt());
         }

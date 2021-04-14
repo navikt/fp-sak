@@ -195,7 +195,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
         if (!(object instanceof Oppdragslinje150)) {
             return false;
         }
-        Oppdragslinje150 oppdrlinje150 = (Oppdragslinje150) object;
+        var oppdrlinje150 = (Oppdragslinje150) object;
         return Objects.equals(kodeEndringLinje, oppdrlinje150.getKodeEndringLinje())
             && Objects.equals(kodeStatusLinje, oppdrlinje150.getKodeStatusLinje())
             && Objects.equals(datoStatusFom, oppdrlinje150.getDatoStatusFom())
@@ -326,7 +326,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
 
         public Oppdragslinje150 build() {
             verifyStateForBuild();
-            Oppdragslinje150 oppdragslinje150 = new Oppdragslinje150();
+            var oppdragslinje150 = new Oppdragslinje150();
             oppdragslinje150.kodeEndringLinje = kodeEndringLinje;
             oppdragslinje150.kodeStatusLinje = kodeStatusLinje;
             oppdragslinje150.datoStatusFom = datoStatusFom;

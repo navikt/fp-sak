@@ -15,18 +15,16 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-
 public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_INNTEKT_IKKE_MED_I_BG() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setInntektMedTilBeregningsgrunnlag(false);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(INNTEKT_IKKE_MED_I_BG);
@@ -34,12 +32,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_LAGT_TIL_AV_SAKSBEHANDLER() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setLagtTilAvSaksbehandler(true);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(LAGT_TIL_AV_SAKSBEHANDLER);
@@ -47,12 +45,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_BASERT_PÅ_INNTEKTSMELDING() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBasertPaInntektsmelding(true);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(BASERT_PÅ_INNTEKTSMELDING);
@@ -60,12 +58,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_BRUK_MED_OVERSTYRT_PERIODE() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setOverstyrtTom(LocalDate.now());
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(BRUK_MED_OVERSTYRT_PERIODE);
@@ -73,12 +71,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_BRUK_UTEN_INNTEKTSMELDING() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setFortsettBehandlingUtenInntektsmelding(true);
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(BRUK_UTEN_INNTEKTSMELDING);
@@ -86,12 +84,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_SLÅTT_SAMMEN_MED_ANNET() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
         arbeidsforholdDto.setErstatterArbeidsforholdId("1");
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(SLÅTT_SAMMEN_MED_ANNET);
@@ -99,12 +97,12 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_NYTT_ARBEIDSFORHOLD() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
         arbeidsforholdDto.setErNyttArbeidsforhold(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(NYTT_ARBEIDSFORHOLD);
@@ -112,11 +110,11 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_BRUK() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(true);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(BRUK);
@@ -124,11 +122,11 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_IKKE_BRUK_hvis_false() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukArbeidsforholdet(false);
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(IKKE_BRUK);
@@ -136,10 +134,10 @@ public class ArbeidsforholdHandlingTypeUtlederTest {
 
     @Test
     public void skal_utlede_IKKE_BRUK_hvis_null() {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
 
         // Act
-        ArbeidsforholdHandlingType resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+        var resultat = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
 
         // Assert
         assertThat(resultat).isEqualTo(IKKE_BRUK);

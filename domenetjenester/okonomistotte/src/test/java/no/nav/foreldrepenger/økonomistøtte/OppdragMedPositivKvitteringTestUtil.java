@@ -6,7 +6,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.mapper.OppdragInput;
 public class OppdragMedPositivKvitteringTestUtil {
 
     public static Oppdragskontroll opprett(OppdragskontrollTjeneste oppdragskontrollTjeneste, OppdragInput input) {
-        Oppdragskontroll oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(input).get();
+        var oppdragskontroll = oppdragskontrollTjeneste.opprettOppdrag(input).get();
         oppdragskontrollTjeneste.lagre(oppdragskontroll);
         OppdragKvitteringTestUtil.lagPositiveKvitteringer(oppdragskontroll);
         return oppdragskontroll;

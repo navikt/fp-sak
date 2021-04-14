@@ -15,22 +15,21 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.datavarehus.domene.BehandlingVedtakDvh;
 
 public class BehandlingVedtakDvhMapperTest {
 
 
     @Test
     public void skal_mappe_til_behandling_vedtak_dvh() {
-        Behandling behandling = byggBehandling();
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var behandling = byggBehandling();
+        var vedtak = BehandlingVedtak.builder()
                 .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
                 .medIverksettingStatus(IVERKSETTING_STATUS)
                 .medVedtakstidspunkt(VEDTAK_DATO)
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .build();
 
-        BehandlingVedtakDvh dvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
+        var dvh = BehandlingVedtakDvhMapper.map(vedtak, behandling);
         assertThat(dvh).isNotNull();
         assertThat(dvh.getAnsvarligBeslutter()).isEqualTo(ANSVARLIG_BESLUTTER);
         assertThat(dvh.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
@@ -42,8 +41,8 @@ public class BehandlingVedtakDvhMapperTest {
     }
 
     private Behandling byggBehandling() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = scenario.lagMocked();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var behandling = scenario.lagMocked();
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setBehandlendeEnhet(new OrganisasjonsEnhet(BEHANDLENDE_ENHET, null));
         return behandling;

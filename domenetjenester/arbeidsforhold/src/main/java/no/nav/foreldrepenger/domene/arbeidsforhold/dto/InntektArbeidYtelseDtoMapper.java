@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 import static no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelaterteYtelserMapper.RELATERT_YTELSE_TYPER_FOR_ANNEN_FORELDER;
 import static no.nav.foreldrepenger.domene.arbeidsforhold.dto.BehandlingRelaterteYtelserMapper.RELATERT_YTELSE_TYPER_FOR_SØKER;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,7 +14,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdKilde;
 import no.nav.foreldrepenger.domene.arbeidsforhold.ArbeidsforholdWrapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -25,7 +23,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
@@ -56,7 +53,7 @@ public class InntektArbeidYtelseDtoMapper {
 
     public InntektArbeidYtelseDto mapFra(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger,
             Optional<AktørId> aktørIdAnnenPart, UtledArbeidsforholdParametere param) {
-        InntektArbeidYtelseDto dto = new InntektArbeidYtelseDto();
+        var dto = new InntektArbeidYtelseDto();
         mapRelaterteYtelser(dto, ref, iayGrunnlag, aktørIdAnnenPart);
 
         // TODO (FC) skill denne ut
@@ -69,7 +66,7 @@ public class InntektArbeidYtelseDtoMapper {
 
     private void mapArbeidsforhold(InntektArbeidYtelseDto dto, BehandlingReferanse ref, UtledArbeidsforholdParametere param,
             InntektArbeidYtelseGrunnlag iayGrunnlag, SakInntektsmeldinger sakInntektsmeldinger) {
-        Set<ArbeidsforholdWrapper> arbeidsforholdSet = arbeidsforholdAdministrasjonTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag,
+        var arbeidsforholdSet = arbeidsforholdAdministrasjonTjeneste.hentArbeidsforholdFerdigUtledet(ref, iayGrunnlag,
                 sakInntektsmeldinger, param);
         dto.setSkalKunneLeggeTilNyeArbeidsforhold(skalKunneLeggeTilNyeArbeidsforhold(arbeidsforholdSet));
         dto.setSkalKunneLageArbeidsforholdBasrtPåInntektsmelding(skalKunneLageArbeidsforholdFraInntektsmelding(arbeidsforholdSet));
@@ -81,7 +78,7 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     private ArbeidsforholdDto mapArbeidsforhold(ArbeidsforholdWrapper wrapper) {
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setId(lagId(wrapper));
         arbeidsforholdDto.setFomDato(wrapper.getFomDato());
         arbeidsforholdDto.setTomDato((wrapper.getTomDato() != null) && wrapper.getTomDato().equals(Tid.TIDENES_ENDE) ? null : wrapper.getTomDato());
@@ -134,11 +131,11 @@ public class InntektArbeidYtelseDtoMapper {
     }
 
     private List<InntektsmeldingDto> lagInntektsmeldingDto(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        LocalDate dato = ref.getUtledetSkjæringstidspunkt();
-        List<Inntektsmelding> inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag);
+        var dato = ref.getUtledetSkjæringstidspunkt();
+        var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref.getAktørId(), dato, iayGrunnlag);
         return inntektsmeldinger.stream()
                 .map(inntektsmelding -> {
-                    Optional<Virksomhet> virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
+                    var virksomhet = virksomhetTjeneste.finnOrganisasjon(inntektsmelding.getArbeidsgiver().getOrgnr());
                     return new InntektsmeldingDto(inntektsmelding, virksomhet);
                 })
                 .collect(Collectors.toList());
@@ -148,8 +145,8 @@ public class InntektArbeidYtelseDtoMapper {
             Optional<AktørId> aktørIdAnnenPart) {
         dto.setRelatertTilgrensendeYtelserForSoker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.getAktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
-            List<TilgrensendeYtelserDto> hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
-            List<RelaterteYtelserDto> relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);
+            var hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
+            var relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);
             dto.setRelatertTilgrensendeYtelserForAnnenForelder(relaterteYtelser);
             // TODO Termitt. Trengs denne måten å skille på? For å evt. få til dette må det
             // filtreres her etter at det hentes.(bare innvilget)

@@ -46,10 +46,11 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof LegacyESBeregningsresultat)) {
+        }
+        if (!(obj instanceof LegacyESBeregningsresultat)) {
             return false;
         }
-        LegacyESBeregningsresultat other = (LegacyESBeregningsresultat) obj;
+        var other = (LegacyESBeregningsresultat) obj;
         return Objects.equals(beregninger, other.beregninger);
     }
 
@@ -64,12 +65,12 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
 
     public Optional<LegacyESBeregning> getSisteBeregning() {
         // tar overstyrt over siste
-        Comparator<LegacyESBeregning> comparator = Comparator
+        var comparator = Comparator
                 .comparing(LegacyESBeregning::isOverstyrt)
                 .thenComparing(LegacyESBeregning::getBeregnetTidspunkt)
                 .reversed()
                 ;
-        Optional<LegacyESBeregning> first = beregninger.stream()
+        var first = beregninger.stream()
             .sorted(comparator)
             .findFirst();
         return first;
@@ -142,20 +143,19 @@ public class LegacyESBeregningsresultat extends BaseEntitet {
                 }
                 oppdaterBeregninger(eksisterendeResultat);
                 return eksisterendeResultat;
-            } else {
-                oppdaterBeregninger(resultatMal);
-                behandlingsresultat.medOppdatertBeregningResultat(resultatMal);
-                return resultatMal;
             }
+            oppdaterBeregninger(resultatMal);
+            behandlingsresultat.medOppdatertBeregningResultat(resultatMal);
+            return resultatMal;
         }
 
         private void oppdaterBeregninger(LegacyESBeregningsresultat resultat) {
-            Set<LegacyESBeregning> nye = oppdaterteBeregninger.stream()
+            var nye = oppdaterteBeregninger.stream()
                 .map(beregning -> new LegacyESBeregning(resultat, beregning.getSatsVerdi(), beregning.getAntallBarn(),
                     beregning.getBeregnetTilkjentYtelse(), beregning.getBeregnetTidspunkt(), beregning.isOverstyrt(),
                     beregning.getOpprinneligBeregnetTilkjentYtelse()))
                 .collect(toSet());
-            Set<LegacyESBeregning> urørte = this.originaleBeregninger.stream()
+            var urørte = this.originaleBeregninger.stream()
                 .filter(beregning -> !oppdaterteBeregninger.contains(beregning))
                 .collect(toSet());
             nye.addAll(urørte);

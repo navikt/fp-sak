@@ -31,12 +31,12 @@ public class ArbeidsforholdInformasjonBuilder {
     }
 
     public ArbeidsforholdInformasjonBuilder tilbakestillOverstyringer() {
-        final List<ArbeidsforholdReferanse> collect = kladd.getArbeidsforholdReferanser().stream().filter(it -> kladd.getOverstyringer().stream()
+        final var collect = kladd.getArbeidsforholdReferanser().stream().filter(it -> kladd.getOverstyringer().stream()
                 .anyMatch(ov -> ov.getHandling().equals(ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET)
                         && ov.getNyArbeidsforholdRef().gjelderFor(it.getInternReferanse())))
                 .collect(Collectors.toList());
         collect.forEach(it -> {
-            Optional<InternArbeidsforholdRef> arbeidsforholdRef = kladd.finnForEksternBeholdHistoriskReferanse(it.getArbeidsgiver(),
+            var arbeidsforholdRef = kladd.finnForEksternBeholdHistoriskReferanse(it.getArbeidsgiver(),
                     it.getEksternReferanse());
             if (arbeidsforholdRef.isPresent()) {
                 reverserteErstattninger.add(new Tuple<>(it.getArbeidsgiver(), new Tuple<>(it.getInternReferanse(), arbeidsforholdRef.get())));

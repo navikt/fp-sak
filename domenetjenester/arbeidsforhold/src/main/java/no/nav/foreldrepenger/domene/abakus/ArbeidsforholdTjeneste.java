@@ -54,7 +54,8 @@ public class ArbeidsforholdTjeneste {
         final var arbeidsgiver = arbeidsforhold.getArbeidsgiver();
         if (arbeidsgiver.getErOrganisasjon()) {
             return Arbeidsgiver.virksomhet(arbeidsgiver.getIdent());
-        } else if (arbeidsgiver.getErPerson()) {
+        }
+        if (arbeidsgiver.getErPerson()) {
             return Arbeidsgiver.person(new AktørId(arbeidsgiver.getIdent()));
         }
         throw new IllegalArgumentException("Arbeidsgiver er verken person eller organisasjon");

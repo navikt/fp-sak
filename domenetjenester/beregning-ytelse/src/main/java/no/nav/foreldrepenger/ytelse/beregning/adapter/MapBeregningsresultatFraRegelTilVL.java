@@ -28,7 +28,7 @@ public class MapBeregningsresultatFraRegelTilVL {
     }
 
     private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet eksisterendeResultat) {
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode nyPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
+        var nyPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(resultatPeriode.getFom(), resultatPeriode.getTom())
             .build(eksisterendeResultat);
         resultatPeriode.getBeregningsresultatAndelList().forEach(bra -> mapFraAndel(bra, nyPeriode));
@@ -36,8 +36,8 @@ public class MapBeregningsresultatFraRegelTilVL {
     }
 
     private BeregningsresultatAndel mapFraAndel(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode brp) {
-        int dagsats = nullSafeLong(bra.getDagsats()).intValue();
-        int dagsatsFraBg = nullSafeLong(bra.getDagsatsFraBg()).intValue();
+        var dagsats = nullSafeLong(bra.getDagsats()).intValue();
+        var dagsatsFraBg = nullSafeLong(bra.getDagsatsFraBg()).intValue();
         return BeregningsresultatAndel.builder()
             .medArbeidsgiver(finnArbeidsgiver(bra))
             .medBrukerErMottaker(bra.erBrukerMottaker())
@@ -55,14 +55,14 @@ public class MapBeregningsresultatFraRegelTilVL {
     private Arbeidsgiver finnArbeidsgiver(no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel bra) {
         if (bra.getArbeidsforhold() == null) {
             return null;
-        } else {
-            String identifikator = bra.getArbeidsforhold().getIdentifikator();
-            ReferanseType referanseType = bra.getArbeidsforhold().getReferanseType();
-            if (referanseType == ReferanseType.AKTØR_ID) {
-                return Arbeidsgiver.person(new AktørId(identifikator));
-            } else if (referanseType == ReferanseType.ORG_NR) {
-                return Arbeidsgiver.virksomhet(identifikator);
-            }
+        }
+        var identifikator = bra.getArbeidsforhold().getIdentifikator();
+        var referanseType = bra.getArbeidsforhold().getReferanseType();
+        if (referanseType == ReferanseType.AKTØR_ID) {
+            return Arbeidsgiver.person(new AktørId(identifikator));
+        }
+        if (referanseType == ReferanseType.ORG_NR) {
+            return Arbeidsgiver.virksomhet(identifikator);
         }
         return null;
     }

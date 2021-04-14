@@ -8,8 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -30,7 +28,7 @@ public class NavBrukerRepository {
     }
 
     public Optional<NavBruker> hent(AktørId aktorId) {
-        TypedQuery<NavBruker> query = entityManager.createQuery("from Bruker where aktørId=:aktorId", NavBruker.class);
+        var query = entityManager.createQuery("from Bruker where aktørId=:aktorId", NavBruker.class);
         query.setParameter("aktorId", aktorId);
         return hentUniktResultat(query);
     }
@@ -43,7 +41,7 @@ public class NavBrukerRepository {
     public Optional<NavBruker> oppdaterSpråk(AktørId aktørId, Språkkode språk) {
         // For å unngå å måtte låse en stabel med saker og inkrmentere versjonsnummer.
         if (språk != null && !Språkkode.UDEFINERT.equals(språk)) {
-            Query query = entityManager.createNativeQuery("UPDATE BRUKER SET sprak_kode = :sprak WHERE AKTOER_ID=:aktoer"); //$NON-NLS-1$
+            var query = entityManager.createNativeQuery("UPDATE BRUKER SET sprak_kode = :sprak WHERE AKTOER_ID=:aktoer"); //$NON-NLS-1$
             query.setParameter("aktoer", aktørId.getId()); //$NON-NLS-1$
             query.setParameter("sprak", språk.getKode()); //$NON-NLS-1$
             query.executeUpdate();

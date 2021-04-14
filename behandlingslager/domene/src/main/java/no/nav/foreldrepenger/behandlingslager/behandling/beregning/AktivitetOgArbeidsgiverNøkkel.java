@@ -33,7 +33,7 @@ public class AktivitetOgArbeidsgiverNøkkel {
         if (!(o instanceof AktivitetOgArbeidsgiverNøkkel)){
             return false;
         }
-        AktivitetOgArbeidsgiverNøkkel that = (AktivitetOgArbeidsgiverNøkkel) o;
+        var that = (AktivitetOgArbeidsgiverNøkkel) o;
 
         return Objects.equals(arbeidsgiver, that.arbeidsgiver)
             && Objects.equals(aktivitetStatus, that.aktivitetStatus);

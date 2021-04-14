@@ -115,7 +115,7 @@ public class UttakStegImpl implements UttakSteg {
     }
 
     private void ryddStønadskontoberegning(Long behandlingId, Long fagsakId) {
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
         if (behandlingsresultat.isEndretStønadskonto()) {
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);

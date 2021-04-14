@@ -18,13 +18,13 @@ class SammenlignBeregningsresultatTest {
 
     @Test
     public void skal_ikke_finne_diff_når_to_entiteter_er_like() {
-        LocalDate stp = LocalDate.now();
-        BeregningsresultatEntitet.Builder builder1 = BeregningsresultatEntitet.builder()
+        var stp = LocalDate.now();
+        var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(stp);
-        BeregningsresultatEntitet beregningsresultat1 = builder1.build();
-        BeregningsresultatPeriode brPeriode1 = BeregningsresultatPeriode.builder()
+        var beregningsresultat1 = builder1.build();
+        var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
             .build(beregningsresultat1);
         BeregningsresultatAndel.builder()
@@ -39,12 +39,12 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        BeregningsresultatEntitet.Builder builder2 = BeregningsresultatEntitet.builder()
+        var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(LocalDate.now());
-        BeregningsresultatEntitet beregningsresultat2 = builder2.build();
-        BeregningsresultatPeriode brPeriode2 = BeregningsresultatPeriode.builder()
+        var beregningsresultat2 = builder2.build();
+        var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
             .build(beregningsresultat2);
         BeregningsresultatAndel.builder()
@@ -59,20 +59,20 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode2);
 
-        boolean erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
+        var erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
 
         assertThat(erLike).isTrue();
     }
 
     @Test
     public void skal_finne_diff_når_to_entiteter_har_ulike_start_på_periode() {
-        LocalDate stp = LocalDate.now();
-        BeregningsresultatEntitet.Builder builder1 = BeregningsresultatEntitet.builder()
+        var stp = LocalDate.now();
+        var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(stp);
-        BeregningsresultatEntitet beregningsresultat1 = builder1.build();
-        BeregningsresultatPeriode brPeriode1 = BeregningsresultatPeriode.builder()
+        var beregningsresultat1 = builder1.build();
+        var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15)) // ulik
             .build(beregningsresultat1);
         BeregningsresultatAndel.builder()
@@ -87,12 +87,12 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        BeregningsresultatEntitet.Builder builder2 = BeregningsresultatEntitet.builder()
+        var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(LocalDate.now());
-        BeregningsresultatEntitet beregningsresultat2 = builder2.build();
-        BeregningsresultatPeriode brPeriode2 = BeregningsresultatPeriode.builder()
+        var beregningsresultat2 = builder2.build();
+        var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
             .build(beregningsresultat2);
         BeregningsresultatAndel.builder()
@@ -107,20 +107,20 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode2);
 
-        boolean erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
+        var erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
 
         assertThat(erLike).isFalse();
     }
 
     @Test
     public void skal_finne_diff_når_to_entiteter_har_ulike_utbetalingsgrad_på_andel() {
-        LocalDate stp = LocalDate.now();
-        BeregningsresultatEntitet.Builder builder1 = BeregningsresultatEntitet.builder()
+        var stp = LocalDate.now();
+        var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(stp);
-        BeregningsresultatEntitet beregningsresultat1 = builder1.build();
-        BeregningsresultatPeriode brPeriode1 = BeregningsresultatPeriode.builder()
+        var beregningsresultat1 = builder1.build();
+        var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15))
             .build(beregningsresultat1);
         BeregningsresultatAndel.builder()
@@ -135,12 +135,12 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode1);
 
-        BeregningsresultatEntitet.Builder builder2 = BeregningsresultatEntitet.builder()
+        var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(LocalDate.now());
-        BeregningsresultatEntitet beregningsresultat2 = builder2.build();
-        BeregningsresultatPeriode brPeriode2 = BeregningsresultatPeriode.builder()
+        var beregningsresultat2 = builder2.build();
+        var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
             .build(beregningsresultat2);
         BeregningsresultatAndel.builder()
@@ -155,7 +155,7 @@ class SammenlignBeregningsresultatTest {
             .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .build(brPeriode2);
 
-        boolean erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
+        var erLike = SammenlignBeregningsresultat.erLike(beregningsresultat1, beregningsresultat2);
 
         assertThat(erLike).isFalse();
     }

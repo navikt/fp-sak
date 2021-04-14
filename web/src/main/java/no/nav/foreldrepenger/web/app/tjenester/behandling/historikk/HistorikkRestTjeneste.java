@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Collections;
-import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,8 +24,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
-import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagDokumentLinkDto;
-import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -53,20 +50,20 @@ public class HistorikkRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentAlleInnslag(@Context HttpServletRequest request,
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Response.ResponseBuilder responseBuilder = Response.ok();
+        var responseBuilder = Response.ok();
         // FIXME XSS valider requestURL eller bruk relativ URL
-        String requestURL = getRequestPath(request);
-        String url = requestURL + "/dokument/hent-dokument";
+        var requestURL = getRequestPath(request);
+        var url = requestURL + "/dokument/hent-dokument";
 
-        List<HistorikkinnslagDto> historikkInnslagDtoList = historikkTjeneste
+        var historikkInnslagDtoList = historikkTjeneste
                 .hentAlleHistorikkInnslagForSak(new Saksnummer(saksnummerDto.getVerdi()));
         if (historikkInnslagDtoList != null && historikkInnslagDtoList.size() > 0) {
             responseBuilder.entity(historikkInnslagDtoList);
-            for (HistorikkinnslagDto dto : historikkInnslagDtoList) {
-                for (HistorikkInnslagDokumentLinkDto linkDto : dto.getDokumentLinks()) {
-                    String journalpostId = linkDto.getJournalpostId();
-                    String dokumentId = linkDto.getDokumentId();
-                    UriBuilder uriBuilder = UriBuilder.fromPath(url);
+            for (var dto : historikkInnslagDtoList) {
+                for (var linkDto : dto.getDokumentLinks()) {
+                    var journalpostId = linkDto.getJournalpostId();
+                    var dokumentId = linkDto.getDokumentId();
+                    var uriBuilder = UriBuilder.fromPath(url);
                     uriBuilder.queryParam("journalpostId", journalpostId);
                     uriBuilder.queryParam("dokumentId", dokumentId);
                     linkDto.setUrl(uriBuilder.build());
@@ -82,7 +79,7 @@ public class HistorikkRestTjeneste {
         if (request == null) {
             return null;
         }
-        StringBuilder stringBuilder = new StringBuilder();
+        var stringBuilder = new StringBuilder();
 
         stringBuilder.append(request.getScheme())
                 .append("://")

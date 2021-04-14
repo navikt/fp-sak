@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.felles;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE;
 
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -27,12 +25,12 @@ class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunkt {
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat) {
-        boolean skalBeregnesIInfotrygd = harIngenBeregningsreglerILøsningen(behandlingsresultat);
+        var skalBeregnesIInfotrygd = harIngenBeregningsreglerILøsningen(behandlingsresultat);
         return SettOpphørOgIkkeRett.fastsett(revurdering, behandlingsresultat, skalBeregnesIInfotrygd ? Vedtaksbrev.INGEN : Vedtaksbrev.AUTOMATISK);
     }
 
     private static boolean harIngenBeregningsreglerILøsningen(Behandlingsresultat behandlingsresultat) {
-        List<Vilkår> vilkårene = behandlingsresultat.getVilkårResultat().getVilkårene();
+        var vilkårene = behandlingsresultat.getVilkårResultat().getVilkårene();
         return vilkårene.stream()
                 .anyMatch(vilkår -> VilkårType.BEREGNINGSGRUNNLAGVILKÅR.equals(vilkår.getVilkårType())
                         && Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN.equals(vilkår.getAvslagsårsak())

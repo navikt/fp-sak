@@ -68,7 +68,7 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi, MedOffisiellKode {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(PermisjonsbeskrivelseType.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(PermisjonsbeskrivelseType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent PermisjonsbeskrivelseType: " + kode);

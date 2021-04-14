@@ -80,14 +80,14 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         var fagsak = behandling.getFagsak();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, årsak, enhetForRevurdering);
 
-        Optional<Behandling> behandlingMedforelder = behandlingRevurderingRepository
+        var behandlingMedforelder = behandlingRevurderingRepository
                 .finnSisteInnvilgetBehandlingForMedforelder(behandling.getFagsak());
 
         if (behandlingMedforelder.isPresent()) {
             // For dette tilfellet vil begge sakene etterkontrolleres samtidig.
             LOG.info("Etterkontroll har funnet fagsak (id={}) på medforelder for fagsak med fagsakId={}", behandlingMedforelder.get().getFagsakId(),
                     fagsak.getId());
-            boolean denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
+            var denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
             if (denneStarterUttakFørst) {
                 opprettTaskForProsesserBehandling(revurdering);
@@ -102,7 +102,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(FamilieHendelseGrunnlagEntitet grunnlag, int antallBarnRegister) {
-        int antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
+        var antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
         if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
             return Optional.empty();
@@ -132,13 +132,12 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private boolean denneForelderHarTidligstUttak(Behandling behandling, Behandling annenForelder) {
-        Optional<LocalDate> førsteUttaksdato = finnFørsteUttaksdato(behandling.getId());
-        Optional<LocalDate> førsteUttaksdatoMedforelder = finnFørsteUttaksdato(annenForelder.getId());
+        var førsteUttaksdato = finnFørsteUttaksdato(behandling.getId());
+        var førsteUttaksdatoMedforelder = finnFørsteUttaksdato(annenForelder.getId());
         if (førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isPresent()) {
             return førsteUttaksdatoMedforelder.get().isAfter(førsteUttaksdato.get());
-        } else {
-            return førsteUttaksdatoMedforelder.isEmpty() || førsteUttaksdato.isPresent();
         }
+        return førsteUttaksdatoMedforelder.isEmpty() || førsteUttaksdato.isPresent();
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
@@ -146,7 +145,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

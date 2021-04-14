@@ -15,7 +15,8 @@ public final class PerioderUtenHelgUtil {
     private static LocalDate justerFom(LocalDate fom) {
         if (fom.getDayOfWeek() == DayOfWeek.SATURDAY) {
             return fom.plusDays(2);
-        } else if (fom.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        }
+        if (fom.getDayOfWeek() == DayOfWeek.SUNDAY) {
             return fom.plusDays(1);
         }
         return fom;

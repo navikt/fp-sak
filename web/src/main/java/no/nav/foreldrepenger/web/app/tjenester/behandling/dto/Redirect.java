@@ -26,7 +26,7 @@ public final class Redirect {
     }
 
     public static Response tilBehandlingPollStatus(UUID behandlingUuid, Optional<String> gruppeOpt) {
-        UriBuilder uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.STATUS_PATH);
+        var uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.STATUS_PATH);
         uriBuilder.queryParam(UuidDto.NAME, behandlingUuid);
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
         return Response.accepted().location(honorXForwardedProto(uriBuilder.build())).build();
@@ -37,33 +37,32 @@ public final class Redirect {
     }
 
     public static Response tilBehandlingEllerPollStatus(UUID behandlingUuid, AsyncPollingStatus status) {
-        UriBuilder uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.BEHANDLING_PATH);
+        var uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.BEHANDLING_PATH);
         uriBuilder.queryParam(UuidDto.NAME, behandlingUuid);
         return buildResponse(status, uriBuilder.build());
     }
 
     public static Response tilFagsakPollStatus(Saksnummer saksnummer, Optional<String> gruppeOpt) {
-        UriBuilder uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.STATUS_PATH);
+        var uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.STATUS_PATH);
         uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
         return Response.accepted().location(honorXForwardedProto(uriBuilder.build())).build();
     }
 
     public static Response tilFagsakEllerPollStatus(Saksnummer saksnummer, AsyncPollingStatus status) {
-        UriBuilder uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.FAGSAK_PATH);
+        var uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.FAGSAK_PATH);
         uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
         return buildResponse(status, uriBuilder.build());
     }
 
     private static Response buildResponse(AsyncPollingStatus status, URI resultatUri) {
-        URI uri = honorXForwardedProto(resultatUri);
+        var uri = honorXForwardedProto(resultatUri);
         if (status != null) {
             // sett alltid resultat-location i tilfelle timeout på klient
             status.setLocation(uri);
             return Response.status(status.getStatus().getHttpStatus()).entity(status).build();
-        } else {
-            return Response.seeOther(uri).build();
         }
+        return Response.seeOther(uri).build();
     }
 
     /**
@@ -73,17 +72,17 @@ public final class Redirect {
     private static URI honorXForwardedProto(URI location) {
         URI newLocation = null;
         if (relativLocationAndRequestAvailable(location)) {
-            HttpRequest httpRequest = ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class);
-            String xForwardedProto = getXForwardedProtoHeader(httpRequest);
+            var httpRequest = ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class);
+            var xForwardedProto = getXForwardedProtoHeader(httpRequest);
 
             if (mismatchedScheme(xForwardedProto, httpRequest)) {
-                String path = location.toString();
+                var path = location.toString();
                 if (path.startsWith("/")) { // NOSONAR
                     path = path.substring(1); // NOSONAR
                 }
-                URI baseUri = httpRequest.getUri().getBaseUri();
+                var baseUri = httpRequest.getUri().getBaseUri();
                 try {
-                    URI rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
+                    var rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
                             .resolve(path);
                     LOG.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
                     newLocation = rewritten;
@@ -105,7 +104,7 @@ public final class Redirect {
      * @return http, https or null
      */
     private static String getXForwardedProtoHeader(HttpRequest httpRequest) {
-        String xForwardedProto = httpRequest.getHttpHeaders().getHeaderString("X-Forwarded-Proto");
+        var xForwardedProto = httpRequest.getHttpHeaders().getHeaderString("X-Forwarded-Proto");
         if (xForwardedProto != null &&
                 ("https".equalsIgnoreCase(xForwardedProto) ||
                         "http".equalsIgnoreCase(xForwardedProto))) {
@@ -123,7 +122,7 @@ public final class Redirect {
     private static URI leggTilBaseUri(URI resultatUri) {
         // tvinger resultatUri til å være en absolutt URI (passer med Location Header og
         // Location felt når kommer i payload)
-        Response response = Response.noContent().location(resultatUri).build();
+        var response = Response.noContent().location(resultatUri).build();
         return response.getLocation();
     }
 }

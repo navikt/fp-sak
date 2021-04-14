@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER;
 
-import java.util.List;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
@@ -14,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -59,7 +56,7 @@ public class UttakOverstyringshåndterer extends AbstractOverstyringshåndterer<
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUttakDto dto) {
-        List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(
+        var historikkinnslag = UttakHistorikkUtil.forOverstyring().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeUttak.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> getHistorikkAdapter().lagInnslag(innslag));
     }

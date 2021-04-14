@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -158,7 +157,7 @@ public class GraderingDto {
 
         @Override
         public BigDecimal deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
-            ObjectCodec oc = jp.getCodec();
+            var oc = jp.getCodec();
             JsonNode node = oc.readTree(jp);
             return new BigDecimal(node.asText().replace(',', '.'));
         }

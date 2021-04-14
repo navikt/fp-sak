@@ -27,7 +27,7 @@ public class StatsborgerskapPeriode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StatsborgerskapPeriode periode = (StatsborgerskapPeriode) o;
+        var periode = (StatsborgerskapPeriode) o;
         return Objects.equals(gyldighetsperiode, periode.gyldighetsperiode) &&
             Objects.equals(statsborgerskap, periode.statsborgerskap);
     }
@@ -39,7 +39,7 @@ public class StatsborgerskapPeriode {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StatsborgerskapPeriode{");
+        final var sb = new StringBuilder("StatsborgerskapPeriode{");
         sb.append("gyldig=").append(gyldighetsperiode);
         sb.append(", land=").append(statsborgerskap != null ? statsborgerskap.getLandkode() : null);
         sb.append('}');

@@ -39,15 +39,15 @@ public class VurderFagsystemFellesTjenesteTest {
 
     @Test
     public void skal_returnere_vl_med_saknsummer_hvis_journalpost_allerede_er_journaltført_på_vl_sak() {
-        VurderFagsystem vurderFagsystem = new VurderFagsystem();
+        var vurderFagsystem = new VurderFagsystem();
         vurderFagsystem.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        JournalpostId journalpostId = new JournalpostId(123L);
+        var journalpostId = new JournalpostId(123L);
         vurderFagsystem.setJournalpostId(journalpostId);
 
-        Journalpost journalpost = new Journalpost(journalpostId, fagsakFødselES);
+        var journalpost = new Journalpost(journalpostId, fagsakFødselES);
         when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.of(journalpost));
 
-        BehandlendeFagsystem result = vurderFagsystemFellesTjeneste.vurderFagsystem(vurderFagsystem);
+        var result = vurderFagsystemFellesTjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer().get()).isEqualTo(fagsakFødselES.getSaksnummer());
     }

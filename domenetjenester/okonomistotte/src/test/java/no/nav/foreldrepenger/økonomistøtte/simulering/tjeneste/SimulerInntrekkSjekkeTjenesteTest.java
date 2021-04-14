@@ -79,7 +79,7 @@ public class SimulerInntrekkSjekkeTjenesteTest {
         when(simuleringIntegrasjonTjeneste.hentResultat(anyLong())).thenReturn(Optional.of(new SimuleringResultatDto(-2345L, 0L, false)));
         simulerInntrekkSjekkeTjeneste.sjekkIntrekk(behandling);
         verify(historikkRepository, times(1)).lagre(hisrotikkInnslagCaptor.capture());
-        Historikkinnslag historikkinnslag = hisrotikkInnslagCaptor.getValue();
+        var historikkinnslag = hisrotikkInnslagCaptor.getValue();
         assertThat(historikkinnslag).isNotNull();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.VEDTAKSLØSNINGEN);
     }

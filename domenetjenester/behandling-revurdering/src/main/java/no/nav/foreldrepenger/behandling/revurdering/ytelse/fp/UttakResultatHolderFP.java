@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +16,6 @@ import org.jboss.weld.exceptions.UnsupportedOperationException;
 import no.nav.foreldrepenger.behandling.revurdering.felles.UttakResultatHolder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
@@ -66,19 +64,19 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
 
     @Override
     public boolean kontrollerErSisteUttakAvslåttMedÅrsak() {
-        Set<PeriodeResultatÅrsak> opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
         return finnSisteUttaksperiode().map(ForeldrepengerUttakPeriode::getResultatÅrsak).map(opphørsAvslagÅrsaker::contains).orElse(false);
     }
 
     @Override
     public boolean harUlikUttaksplan(UttakResultatHolder other) {
         var uttakresultatSammenligneMed = (UttakResultatHolderFP) other;
-        LocalDateTimeline<WrapUttakPeriode> uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
-        LocalDateTimeline<WrapUttakPeriode> originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
+        var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
+        var originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
         if (uttaksTL.getLocalDateIntervals().size() != originalTL.getLocalDateIntervals().size()) {
             return true;
         }
-        LocalDateTimeline<WrapUttakPeriode> kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+        var kombinert = uttaksTL.combine(originalTL, this::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return !kombinert.filterValue(Objects::nonNull).getLocalDateIntervals().isEmpty();
     }
 
@@ -165,7 +163,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
             if ((o == null) || (getClass() != o.getClass())) {
                 return false;
             }
-            WrapUttakPeriode wrapUP = (WrapUttakPeriode) o;
+            var wrapUP = (WrapUttakPeriode) o;
             return p.erLikBortsettFraPeriode(wrapUP.getP());
         }
 
@@ -176,7 +174,7 @@ public class UttakResultatHolderFP implements UttakResultatHolder {
             if ((o == null) || (getClass() != o.getClass())) {
                 return false;
             }
-            WrapUttakPeriode wrapUP = (WrapUttakPeriode) o;
+            var wrapUP = (WrapUttakPeriode) o;
             return p.erLikBortsettFraPeriode(wrapUP.getP()) &&
                     Objects.equals(t, wrapUP.t);
         }

@@ -42,8 +42,8 @@ class OppdragMapper {
     }
 
     public void mapTil(Oppdragskontroll oppdragskontroll) {
-        Oppdrag110 oppdrag110 = mapOppdrag110(oppdragskontroll);
-        for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
+        var oppdrag110 = mapOppdrag110(oppdragskontroll);
+        for (var linje : dto.getOppdragslinjer()) {
             mapOppdragslinje(oppdrag110, linje);
         }
     }
@@ -57,7 +57,7 @@ class OppdragMapper {
     }
 
     private void mapOppdragslinje(Oppdrag110 oppdrag110, OppdragslinjePatchDto linje) {
-        Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
+        var builder = Oppdragslinje150.builder()
             .medOppdrag110(oppdrag110)
             .medVedtakFomOgTom(linje.getFom(), linje.getTom())
             .medSats(Sats.på(linje.getSats()))
@@ -75,7 +75,7 @@ class OppdragMapper {
         if (dto.erBrukerMottaker()) {
             builder.medUtbetalesTilId(fnrBruker);
         }
-        Oppdragslinje150 oppdragslinje = builder.build();
+        var oppdragslinje = builder.build();
         if (!dto.erBrukerMottaker()) {
             Refusjonsinfo156.builder()
                 .medOppdragslinje150(oppdragslinje)
@@ -101,8 +101,8 @@ class OppdragMapper {
 
     private Ompostering116 mapOmpostering116() {
         if (dto.taMedOmpostering116()) {
-            boolean erAvslåttInntrekk = dto.getOmposterFom() == null;
-            Ompostering116.Builder builder = new Ompostering116.Builder()
+            var erAvslåttInntrekk = dto.getOmposterFom() == null;
+            var builder = new Ompostering116.Builder()
                 .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
                 .medOmPostering(!erAvslåttInntrekk);
             if (!erAvslåttInntrekk) {

@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -29,14 +27,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -98,11 +94,11 @@ public class AutomatiskEtterkontrollTaskTest {
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_dersom_fødsel_mangler_i_tps() {
 
-        Behandling behandling = opprettRevurderingsKandidat(4, 1, true, false, true);
+        var behandling = opprettRevurderingsKandidat(4, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
                 Collections.emptyList());
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -113,20 +109,20 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 behandling.getFagsakId(),
                 BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
-        List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
+        var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream()
+        var årsaker = behandlingÅrsaker.stream()
                 .map(bå -> bå.getBehandlingÅrsakType())
                 .collect(Collectors.toList());
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Behandling behandling) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 behandling.getFagsakId(),
                 BehandlingType.REVURDERING)
             .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING));
@@ -143,11 +139,11 @@ public class AutomatiskEtterkontrollTaskTest {
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_fødsel_mangler_i_periode_dersom_fødsel_mangler_i_tps_og_vedtaksdato_er_før_uke29() {
 
-        Behandling behandling = opprettRevurderingsKandidat(12, 1, true, false, true);
+        var behandling = opprettRevurderingsKandidat(12, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(
                 Collections.emptyList());
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -161,11 +157,11 @@ public class AutomatiskEtterkontrollTaskTest {
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_avvik_antall_barn_dersom_TPS_returnere_ulikt_antall_barn() {
 
-        List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
-        Behandling behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
+        var barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
+        var behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -177,11 +173,11 @@ public class AutomatiskEtterkontrollTaskTest {
 
     @Test
     public void skal_registrere_fødsler_dersom_de_oppdages_i_tps() {
-        List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
-        Behandling behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
+        var barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
+        var behandling = opprettRevurderingsKandidat(0, 2, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -194,11 +190,11 @@ public class AutomatiskEtterkontrollTaskTest {
 
     @Test
     public void skal_ikke_opprette_revurdering_dersom_barn_i_tps_matcher_søknad() {
-        List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
-        Behandling behandling = opprettRevurderingsKandidat(0, 1, true, false, true);
+        var barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
+        var behandling = opprettRevurderingsKandidat(0, 1, true, false, true);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -210,11 +206,11 @@ public class AutomatiskEtterkontrollTaskTest {
 
     @Test
     public void skal_ikke_opprette_revurdering_dersom_barn_i_tps_matcher_søknad_og_bekreftet() {
-        List<FødtBarnInfo> barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
-        Behandling behandling = opprettRevurderingsKandidat(0, 1, true, true, false);
+        var barn = Collections.singletonList(byggBaby(LocalDate.now().minusDays(70)));
+        var behandling = opprettRevurderingsKandidat(0, 1, true, true, false);
         when(tpsFamilieTjenesteMock.innhentAlleFødteForBehandlingIntervaller(any(), any())).thenReturn(barn);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -226,9 +222,9 @@ public class AutomatiskEtterkontrollTaskTest {
 
     @Test
     public void skal_opprette_vurder_konsekvens_oppgave_hvis_det_finnes_åpen_førstegangs_behandling() {
-        Behandling behandling = opprettRevurderingsKandidat(0, 2, false, false, false);
+        var behandling = opprettRevurderingsKandidat(0, 2, false, false, false);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -242,9 +238,9 @@ public class AutomatiskEtterkontrollTaskTest {
             boolean avsluttet,
             boolean medBekreftet,
             boolean medOverstyrt) {
-        LocalDate terminDato = LocalDate.now().minusDays(70);
+        var terminDato = LocalDate.now().minusDays(70);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
@@ -269,7 +265,7 @@ public class AutomatiskEtterkontrollTaskTest {
                     .medAntallBarn(antallBarn);
         }
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         if (!avsluttet) {
             return behandling;
@@ -279,10 +275,10 @@ public class AutomatiskEtterkontrollTaskTest {
 
         behandling.avsluttBehandling();
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var vedtak = BehandlingVedtak.builder()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .medVedtakstidspunkt(terminDato.minusWeeks(fødselUkerFørTermin).atStartOfDay())
                 .medBehandlingsresultat(behandling.getBehandlingsresultat())
@@ -292,8 +288,8 @@ public class AutomatiskEtterkontrollTaskTest {
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, lås);
 
         var sats = legacyESBeregningRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.now()).getVerdi();
-        LegacyESBeregning beregning = new LegacyESBeregning(sats, antallBarn, antallBarn * sats, LocalDateTime.now());
-        LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
+        var beregning = new LegacyESBeregning(sats, antallBarn, antallBarn * sats, LocalDateTime.now());
+        var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(beregning)
                 .buildFor(behandling, behandling.getBehandlingsresultat());
         legacyESBeregningRepository.lagre(beregningResultat, lås);

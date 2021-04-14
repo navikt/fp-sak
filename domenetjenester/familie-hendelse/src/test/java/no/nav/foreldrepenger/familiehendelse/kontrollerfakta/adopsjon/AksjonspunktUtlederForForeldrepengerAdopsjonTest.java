@@ -21,9 +21,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -39,16 +37,16 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
 
     @BeforeEach
     public void setUp() {
-        ScenarioMorSøkerForeldrepenger morSøkerAdopsjonScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
+        var morSøkerAdopsjonScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
 
-        FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
+        var familieHendelseTjeneste = new FamilieHendelseTjeneste(null,
             familieHendelseRepositoryMock);
         utleder = new AksjonspunktUtlederForForeldrepengerAdopsjon(familieHendelseTjeneste);
 
-        FamilieHendelseBuilder familieHendelseBuilder = morSøkerAdopsjonScenario.medSøknadHendelse();
+        var familieHendelseBuilder = morSøkerAdopsjonScenario.medSøknadHendelse();
 
         morSøkerAdopsjonScenario.medSøknadHendelse().medAdopsjon(morSøkerAdopsjonScenario.medSøknadHendelse().getAdopsjonBuilder());
-        FamilieHendelseGrunnlagEntitet familieHendelseAggregat = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
+        var familieHendelseAggregat = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
             .medSøknadVersjon(familieHendelseBuilder).build();
         when(familieHendelseRepositoryMock.hentAggregat(any())).thenReturn(familieHendelseAggregat);
     }
@@ -59,7 +57,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
 
-        List<AksjonspunktResultat> aksjonspunkter = aksjonspunktForFakta(behandlingMock);
+        var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
         assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))
@@ -71,7 +69,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
-        List<AksjonspunktResultat> aksjonspunkter = aksjonspunktForFakta(behandlingMock);
+        var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
         assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))
@@ -83,7 +81,7 @@ public class AksjonspunktUtlederForForeldrepengerAdopsjonTest {
         var fagsakMock = mock(Fagsak.class);
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getFagsak()).thenReturn(fagsakMock);
-        List<AksjonspunktResultat> aksjonspunkter = aksjonspunktForFakta(behandlingMock);
+        var aksjonspunkter = aksjonspunktForFakta(behandlingMock);
 
         assertThat(aksjonspunkter).hasSize(2);
         assertThat(aksjonspunkter.stream().map(e -> e.getAksjonspunktDefinisjon()).collect(Collectors.toList()))

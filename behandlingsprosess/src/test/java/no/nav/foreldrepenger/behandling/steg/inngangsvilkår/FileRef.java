@@ -28,14 +28,14 @@ class FileRef {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        FileRef fileRef = (FileRef) o;
+        var fileRef = (FileRef) o;
         return Arrays.equals(bytes, fileRef.bytes) &&
                 Objects.equals(utfall, fileRef.utfall);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(utfall);
+        var result = Objects.hash(utfall);
         result = (31 * result) + Arrays.hashCode(bytes);
         return result;
     }

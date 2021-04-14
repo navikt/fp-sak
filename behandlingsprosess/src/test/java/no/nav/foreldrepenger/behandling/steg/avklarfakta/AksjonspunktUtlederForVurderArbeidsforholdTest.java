@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +36,8 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.fp.InntektsmeldingFilterYtels
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.PåkrevdeInntektsmeldingerTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
@@ -77,15 +73,15 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_få_aksjonspunkt_når_det_finnes_inntekt_og_ikke_arbeidsforhold() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         opprettInntekt(aktørId1, behandling, ORGNR, arbeidsforholdId);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -96,18 +92,18 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     }
 
     private AksjonspunktUtlederInput lagRef(Behandling behandling) {
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         return new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt));
     }
 
     @Test
     public void skal_få_aksjonspunkt_når_det_ikke_finnes_inntekt_eller_arbeidsforhold() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(VURDER_ARBEIDSFORHOLD));
@@ -116,16 +112,16 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_få_aksjonspunkt_når_mottatt_inntektsmelding_men_ikke_arbeidsforhold() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         sendInnInntektsmeldingPå(behandling, ORGNR, arbeidsforholdId);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isNotEmpty();
@@ -134,20 +130,20 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_ikke_få_aksjonspunkt_ved_komplett_søknad_med_inntektsmeldinger() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
 
-        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId, builder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
         sendInnInntektsmeldingPå(behandling, ORGNR, arbeidsforholdId);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -156,18 +152,18 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_ikke_få_aksjonspunkt_ved_søknad_uten_inntekter() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
 
-        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId, builder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isNotEmpty(); // TODO: Expect empty hvis man ikke venter AP når det ikke foreligger inntekt
@@ -183,14 +179,14 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_ikke_få_aksjonspunkt_ved_komplett_søknad_med_to_arbeidsforhold_etter_begge_inntektsmeldinger() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
-        String virksomhetOrgnr2 = "100000001";
+        var behandling = lagre(scenario);
+        var virksomhetOrgnr2 = "100000001";
         var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdId2 = InternArbeidsforholdRef.nyRef();
 
-        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId1, builder);
         leggTilArbeidsforholdPåBehandling(behandling, virksomhetOrgnr2, arbeidsforholdId2, builder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -200,7 +196,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
         sendInnInntektsmeldingPå(behandling, ORGNR, arbeidsforholdId1);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
 
@@ -215,17 +211,17 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_ikke_få_aksjonspunkt_på_berørt_behandling() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling originalBehandling = lagre(scenario);
+        var originalBehandling = lagre(scenario);
         scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
-        Behandling behandling = lagre(scenario);
-        String virksomhetOrgnr2 = "100000001";
+        var behandling = lagre(scenario);
+        var virksomhetOrgnr2 = "100000001";
         var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdId2 = InternArbeidsforholdRef.nyRef();
 
-        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId1, builder);
         leggTilArbeidsforholdPåBehandling(behandling, virksomhetOrgnr2, arbeidsforholdId2, builder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
@@ -233,7 +229,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
         opprettInntekt(aktørId1, behandling, virksomhetOrgnr2, arbeidsforholdId2);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -242,18 +238,18 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     @Test
     public void skal_ikke_få_aksjonspunkt_ved_endring_i_antall_arbeidsforhold_og_komplett() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
         scenario.medBehandlingStegStart(BehandlingStegType.KONTROLLER_FAKTA);
 
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
 
-        final InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId, builder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
-        final InntektArbeidYtelseAggregatBuilder builder2 = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        final var builder2 = iayTjeneste.opprettBuilderForRegister(behandling.getId());
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId, builder2);
         var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
         leggTilArbeidsforholdPåBehandling(behandling, ORGNR, arbeidsforholdId1, builder2);
@@ -263,7 +259,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
         sendInnInntektsmeldingPå(behandling, ORGNR, arbeidsforholdId1); // Kommer inntektsmelding på arbeidsforhold vi ikke kjenner før STP
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -271,10 +267,10 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
 
     private void leggTilArbeidsforholdPåBehandling(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef ref,
             InntektArbeidYtelseAggregatBuilder builder) {
-        final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
-        final InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
-        final Opptjeningsnøkkel nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(ref, arbeidsgiver);
-        final YrkesaktivitetBuilder yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel,
+        final var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
+        final var arbeidBuilder = builder.getAktørArbeidBuilder(behandling.getAktørId());
+        final var nøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(ref, arbeidsgiver);
+        final var yrkesaktivitetBuilderForType = arbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(nøkkel,
                 ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
         yrkesaktivitetBuilderForType
                 .medArbeidsgiver(arbeidsgiver)
@@ -290,7 +286,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     }
 
     private void sendInnInntektsmeldingPå(Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef arbeidsforholdId) {
-        MottattDokument mottattDokument = new MottattDokument.Builder()
+        var mottattDokument = new MottattDokument.Builder()
                 .medDokumentType(DokumentTypeId.INNTEKTSMELDING)
                 .medFagsakId(behandling.getFagsakId())
                 .medMottattDato(LocalDate.now())
@@ -299,7 +295,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
                 .medJournalPostId(new JournalpostId("2"))
                 .build();
         new MottatteDokumentRepository(getEntityManager()).lagre(mottattDokument);
-        final InntektsmeldingBuilder inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
+        final var inntektsmeldingBuilder = InntektsmeldingBuilder.builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr))
                 .medInnsendingstidspunkt(LocalDateTime.now())
                 .medArbeidsforholdId(arbeidsforholdId)
@@ -312,15 +308,15 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
     }
 
     private void opprettInntekt(AktørId aktørId1, Behandling behandling, String virksomhetOrgnr, InternArbeidsforholdRef arbeidsforholdRef) {
-        InntektArbeidYtelseAggregatBuilder builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
-        InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder inntektBuilder = builder.getAktørInntektBuilder(aktørId1);
-        final Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
-        final Opptjeningsnøkkel opptjeningsnøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(arbeidsforholdRef, arbeidsgiver);
-        InntektBuilder tilInntektspost = inntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
+        var builder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        var inntektBuilder = builder.getAktørInntektBuilder(aktørId1);
+        final var arbeidsgiver = Arbeidsgiver.virksomhet(virksomhetOrgnr);
+        final var opptjeningsnøkkel = Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(arbeidsforholdRef, arbeidsgiver);
+        var tilInntektspost = inntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
         tilInntektspost.medArbeidsgiver(arbeidsgiver);
-        InntektspostBuilder inntektspostBuilder = tilInntektspost.getInntektspostBuilder();
+        var inntektspostBuilder = tilInntektspost.getInntektspostBuilder();
 
-        InntektspostBuilder inntektspost = inntektspostBuilder
+        var inntektspost = inntektspostBuilder
                 .medBeløp(BigDecimal.TEN)
                 .medPeriode(LocalDate.now().minusMonths(1), LocalDate.now())
                 .medInntektspostType(InntektspostType.LØNN);
@@ -329,7 +325,7 @@ public class AksjonspunktUtlederForVurderArbeidsforholdTest extends EntityManage
                 .leggTilInntektspost(inntektspost)
                 .medInntektsKilde(InntektsKilde.INNTEKT_OPPTJENING);
 
-        InntektArbeidYtelseAggregatBuilder.AktørInntektBuilder aktørInntekt = inntektBuilder
+        var aktørInntekt = inntektBuilder
                 .leggTilInntekt(tilInntektspost);
 
         builder.leggTilAktørInntekt(aktørInntekt);

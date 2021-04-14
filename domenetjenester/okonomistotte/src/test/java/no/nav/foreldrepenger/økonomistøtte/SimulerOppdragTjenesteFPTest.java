@@ -40,7 +40,7 @@ public class SimulerOppdragTjenesteFPTest {
     public void simulerOppdrag_uten_behandling_vedtak_FP() {
         // Arrange
         var saksnummer = new Saksnummer("100000001");
-        Oppdragskontroll oppdragskontroll = lagOppdragskontroll(saksnummer);
+        var oppdragskontroll = lagOppdragskontroll(saksnummer);
         var o110 = lagOppdrag110(oppdragskontroll, saksnummer);
         buildOppdragslinje150(o110);
         when(oppdragInputTjeneste.lagSimuleringInput(anyLong())).thenReturn(mockInput(saksnummer));

@@ -43,7 +43,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
 
     @Column(name = "ANSVARLIG_BESLUTTER", nullable = true)
     private String ansvarligBeslutter;
-    
+
     @Column(name = "VEDTAK_RESULTAT_TYPE_KODE", nullable = true)
     public String vedtakResultatTypeKode;
 
@@ -102,7 +102,7 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        BehandlingVedtakDvh castOther = (BehandlingVedtakDvh) other;
+        var castOther = (BehandlingVedtakDvh) other;
         return Objects.equals(vedtakId, castOther.vedtakId)
             && Objects.equals(behandlingId, castOther.behandlingId)
                 && Objects.equals(opprettetDato, castOther.opprettetDato)
@@ -185,14 +185,14 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             this.endretAv = endretAv;
             return this;
         }
-        
+
         public Builder vedtakResultatTypeKode(String vedtakResultatTypeKode) {
             this.vedtakResultatTypeKode = vedtakResultatTypeKode;
             return this;
         }
 
         public BehandlingVedtakDvh build() {
-            BehandlingVedtakDvh vedtak = new BehandlingVedtakDvh();
+            var vedtak = new BehandlingVedtakDvh();
             vedtak.ansvarligBeslutter = ansvarligBeslutter;
             vedtak.ansvarligSaksbehandler = ansvarligSaksbehandler;
             vedtak.behandlingId = behandlingId;
@@ -207,6 +207,6 @@ public class BehandlingVedtakDvh extends DvhBaseEntitet {
             return vedtak;
         }
 
-        
+
     }
 }

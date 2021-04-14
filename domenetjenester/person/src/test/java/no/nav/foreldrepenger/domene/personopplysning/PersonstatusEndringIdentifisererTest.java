@@ -28,64 +28,64 @@ public class PersonstatusEndringIdentifisererTest {
 
     @Test
     public void testPersonstatusUendret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at personstatus er uendret").isFalse();
     }
 
     @Test
     public void testPersonstatusUendret_flere_statuser() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at personstatus er uendret").isFalse();
     }
 
     @Test
     public void testPersonstatusEndret_ekstra_status_lagt_til() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA, PersonstatusType.UREG));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at endring i personstatus blir detektert.").isTrue();
     }
 
     @Test
     public void testPersonstatusEndret_status_endret_type() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.UREG, PersonstatusType.FOSV));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at endring i personstatus blir detektert.").isTrue();
     }
 
     @Test
     public void testPersonstatusUendret_men_rekkefølge_i_liste_endret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
         assertThat(erEndret).as("Forventer at endring i rekkefølge ikke skal detektere endring.").isFalse();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlagMotstattRekkefølge(List<PersonstatusEntitet> personstatuser) {
-        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         personstatuser.stream()
                 .collect(Collectors.toCollection(LinkedList::new))
@@ -96,7 +96,7 @@ public class PersonstatusEndringIdentifisererTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(List<PersonstatusType> personstatuser) {
-        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID));
         // Opprett personstatuser med forskjellig fra og med dato. Går 1 mnd tilbake for
         // hver status.

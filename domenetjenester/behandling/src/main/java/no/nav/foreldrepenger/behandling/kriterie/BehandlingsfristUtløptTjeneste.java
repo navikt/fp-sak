@@ -24,7 +24,7 @@ public class BehandlingsfristUtløptTjeneste {
     }
 
     public void behandlingsfristUtløpt(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(FORLENGELSESBREV_TASK);
+        var prosessTaskData = new ProsessTaskData(FORLENGELSESBREV_TASK);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

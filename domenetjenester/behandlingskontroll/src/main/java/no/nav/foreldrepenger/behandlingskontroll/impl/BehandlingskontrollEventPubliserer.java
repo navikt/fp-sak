@@ -2,13 +2,11 @@ package no.nav.foreldrepenger.behandlingskontroll.impl;
 
 import java.lang.annotation.Annotation;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
@@ -43,8 +41,8 @@ public class BehandlingskontrollEventPubliserer {
     }
 
     public void fireEvent(BehandlingStegOvergangEvent event) {
-        Optional<BehandlingStegTilstandSnapshot> fraTilstand = event.getFraTilstand();
-        Optional<BehandlingStegTilstandSnapshot> nyTilstand = event.getTilTilstand();
+        var fraTilstand = event.getFraTilstand();
+        var nyTilstand = event.getTilTilstand();
         if ((fraTilstand.isEmpty() && nyTilstand.isEmpty())
                 || (fraTilstand.isPresent() && nyTilstand.isPresent() && Objects.equals(fraTilstand.get(), nyTilstand.get()))) {
             // ikke fyr duplikate events

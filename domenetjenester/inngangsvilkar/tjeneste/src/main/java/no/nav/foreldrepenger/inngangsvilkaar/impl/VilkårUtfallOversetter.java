@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -24,25 +22,25 @@ public class VilkårUtfallOversetter {
     }
 
     public VilkårData oversett(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
-        EvaluationSummary summary = new EvaluationSummary(evaluation);
+        var summary = new EvaluationSummary(evaluation);
 
-        String regelEvalueringJson = EvaluationSerializer.asJson(evaluation);
+        var regelEvalueringJson = EvaluationSerializer.asJson(evaluation);
 
         String jsonGrunnlag;
         try {
-            VilkårJsonObjectMapper jsonMapper = new VilkårJsonObjectMapper();
+            var jsonMapper = new VilkårJsonObjectMapper();
             jsonGrunnlag = jsonMapper.writeValueAsString(grunnlag);
         } catch (IllegalArgumentException e) {
             throw new TekniskException("FP-384257", "Kunne ikke serialisere regelinput "
                 + "for vilkår: " + vilkårType.getKode(), e);
         }
 
-        VilkårUtfallType vilkårUtfallType = getVilkårUtfallType(summary);
+        var vilkårUtfallType = getVilkårUtfallType(summary);
 
-        Properties merknadParametere = getMerknadParametere(summary);
+        var merknadParametere = getMerknadParametere(summary);
 
-        List<AksjonspunktDefinisjon> apDefinisjoner = getAksjonspunktDefinisjoner(summary);
-        VilkårUtfallMerknad vilkårUtfallMerknad = getVilkårUtfallMerknad(summary);
+        var apDefinisjoner = getAksjonspunktDefinisjoner(summary);
+        var vilkårUtfallMerknad = getVilkårUtfallMerknad(summary);
 
         return new VilkårData(vilkårType, vilkårUtfallType, merknadParametere, apDefinisjoner, vilkårUtfallMerknad, null,
             regelEvalueringJson, jsonGrunnlag, false);
@@ -50,37 +48,36 @@ public class VilkårUtfallOversetter {
     }
 
     private VilkårUtfallMerknad getVilkårUtfallMerknad(EvaluationSummary summary) {
-        Collection<Evaluation> leafEvaluations = summary.leafEvaluations();
+        var leafEvaluations = summary.leafEvaluations();
 
         if (leafEvaluations.size() > 1) {
             throw new IllegalArgumentException("Supporterer kun et utfall p.t., fikk:" + leafEvaluations);
-        } else {
-            VilkårUtfallMerknad vilkårUtfallMerknad = null;
-            for (Evaluation ev : leafEvaluations) {
-                if (ev.getOutcome() != null) {
-                    vilkårUtfallMerknad = VilkårUtfallMerknad.fraKode(ev.getOutcome().getReasonCode());
-                    break;
-                }
-            }
-            return vilkårUtfallMerknad;
         }
+        VilkårUtfallMerknad vilkårUtfallMerknad = null;
+        for (var ev : leafEvaluations) {
+            if (ev.getOutcome() != null) {
+                vilkårUtfallMerknad = VilkårUtfallMerknad.fraKode(ev.getOutcome().getReasonCode());
+                break;
+            }
+        }
+        return vilkårUtfallMerknad;
     }
 
     private List<AksjonspunktDefinisjon> getAksjonspunktDefinisjoner(EvaluationSummary summary) {
-        Collection<Evaluation> leafEvaluations = summary.leafEvaluations(Resultat.IKKE_VURDERT);
+        var leafEvaluations = summary.leafEvaluations(Resultat.IKKE_VURDERT);
         List<AksjonspunktDefinisjon> apDefinisjoner = new ArrayList<>(2);
-        for (Evaluation ev : leafEvaluations) {
-            AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(ev.getOutcome().getReasonCode());
+        for (var ev : leafEvaluations) {
+            var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(ev.getOutcome().getReasonCode());
             apDefinisjoner.add(aksjonspunktDefinisjon);
         }
         return apDefinisjoner;
     }
 
     private Properties getMerknadParametere(EvaluationSummary summary) {
-        Properties params = new Properties();
-        Collection<Evaluation> leafEvaluations = summary.leafEvaluations();
-        for (Evaluation ev : leafEvaluations) {
-            Map<String, Object> evalProps = ev.getEvaluationProperties();
+        var params = new Properties();
+        var leafEvaluations = summary.leafEvaluations();
+        for (var ev : leafEvaluations) {
+            var evalProps = ev.getEvaluationProperties();
             if (evalProps != null) {
                 params.putAll(evalProps);
             }
@@ -89,19 +86,18 @@ public class VilkårUtfallOversetter {
     }
 
     private VilkårUtfallType getVilkårUtfallType(EvaluationSummary summary) {
-        Collection<Evaluation> leafEvaluations = summary.leafEvaluations();
-        for (Evaluation ev : leafEvaluations) {
+        var leafEvaluations = summary.leafEvaluations();
+        for (var ev : leafEvaluations) {
             if (ev.getOutcome() != null) {
-                Resultat res = ev.result();
+                var res = ev.result();
                 return switch (res) {
                     case JA -> VilkårUtfallType.OPPFYLT;
                     case NEI -> VilkårUtfallType.IKKE_OPPFYLT;
                     case IKKE_VURDERT -> VilkårUtfallType.IKKE_VURDERT;
                     default -> throw new IllegalArgumentException("Ukjent Resultat:" + res + " ved evaluering av:" + ev);
                 };
-            } else {
-                return VilkårUtfallType.OPPFYLT;
             }
+            return VilkårUtfallType.OPPFYLT;
         }
 
         throw new IllegalArgumentException("leafEvaluations.isEmpty():" + leafEvaluations);

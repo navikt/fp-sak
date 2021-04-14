@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.mottak.sakskompleks.KobleSakerTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
@@ -68,7 +66,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         avsluttTidligereRegistreringsoppgave(behandling);
 
         // Prøve å koble fagsaker
@@ -91,7 +89,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
     }
 
     private boolean harOppgittUtenlandskInntekt(Long behandlingId) {
-        Optional<OppgittOpptjening> oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
+        var oppgittOpptening = iayTjeneste.finnGrunnlag(behandlingId)
                 .flatMap(InntektArbeidYtelseGrunnlag::getOppgittOpptjening);
         return oppgittOpptening.map(oppgittOpptjening -> oppgittOpptjening.getOppgittArbeidsforhold().stream()
                 .anyMatch(OppgittArbeidsforhold::erUtenlandskInntekt)).orElse(false);

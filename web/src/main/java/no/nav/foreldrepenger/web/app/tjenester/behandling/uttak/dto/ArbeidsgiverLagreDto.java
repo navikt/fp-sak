@@ -44,7 +44,7 @@ public class ArbeidsgiverLagreDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArbeidsgiverLagreDto that = (ArbeidsgiverLagreDto) o;
+        var that = (ArbeidsgiverLagreDto) o;
         return Objects.equals(identifikator, that.identifikator) &&
             Objects.equals(aktørId, that.aktørId);
     }

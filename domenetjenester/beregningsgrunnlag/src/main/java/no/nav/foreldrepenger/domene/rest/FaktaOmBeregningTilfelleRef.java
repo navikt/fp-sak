@@ -81,10 +81,9 @@ public @interface FaktaOmBeregningTilfelleRef {
                 var inst = select(cls, instances, new FaktaOmBeregningTilfelleRefLiteral(faktaOmBeregningLiteral));
                 if (inst.isResolvable()) {
                     return Optional.of(getInstance(inst));
-                } else {
-                    if (inst.isAmbiguous()) {
-                        throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", faktaOmBeregnintTilfelle=" + faktaOmBeregningLiteral);
-                    }
+                }
+                if (inst.isAmbiguous()) {
+                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", faktaOmBeregnintTilfelle=" + faktaOmBeregningLiteral);
                 }
             }
 

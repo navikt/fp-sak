@@ -20,10 +20,12 @@ public abstract class MottattDokumentWrapper<S> {
     public static MottattDokumentWrapper tilXmlWrapper(Object skjema) {
         if (skjema instanceof Soeknad) {
             return new SøknadWrapper((Soeknad) skjema);
-        } else if (skjema instanceof no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM) {
+        }
+        if (skjema instanceof no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM) {
             return new no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingWrapper(
                 (no.seres.xsd.nav.inntektsmelding_m._20180924.InntektsmeldingM) skjema);
-        } else if (skjema instanceof InntektsmeldingM) {
+        }
+        if (skjema instanceof InntektsmeldingM) {
             return new InntektsmeldingWrapper((InntektsmeldingM) skjema);
         }
         throw MottattDokumentFeil.ukjentSkjemaType(skjema.getClass().getCanonicalName());

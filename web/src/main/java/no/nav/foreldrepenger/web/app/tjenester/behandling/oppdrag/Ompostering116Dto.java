@@ -26,7 +26,7 @@ public class Ompostering116Dto extends SporingDto {
     }
 
     public static Ompostering116Dto fraDomene(Ompostering116 ompostering116) {
-        Ompostering116Dto dto = new Ompostering116Dto(ompostering116);
+        var dto = new Ompostering116Dto(ompostering116);
         dto.omPostering = ompostering116.getOmPostering();
         dto.datoOmposterFom = ompostering116.getDatoOmposterFom();
         dto.tidspktReg = ompostering116.getTidspktReg();

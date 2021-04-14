@@ -24,10 +24,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -74,7 +72,7 @@ public class BehandlingÅrsakTjenesteTest {
     }
 
     private Behandling opprettBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBruker(AKTØRID, NavBrukerKjønn.KVINNE)
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(LocalDate.now().minusMonths(1));
@@ -87,7 +85,7 @@ public class BehandlingÅrsakTjenesteTest {
     public void test_skal_ikke_returnere_behandlingsårsaker_hvis_ikke_endringer() {
         var behandling = opprettBehandling();
 
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
+        var endringsresultat = EndringsresultatDiff.opprett();
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, 1L, 1L),
             () -> diffResult);
         endringsresultat.leggTilSporetEndring(
@@ -109,7 +107,7 @@ public class BehandlingÅrsakTjenesteTest {
     @Test
     public void test_behandlingsårsaker_når_endring_i_familiehendelse() {
         var behandling = opprettBehandling();
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
+        var endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(
             EndringsresultatDiff.medDiff(FamilieHendelseGrunnlagEntitet.class, 1L, 2L), () -> diffResult);
@@ -124,12 +122,12 @@ public class BehandlingÅrsakTjenesteTest {
     @Test
     public void test_behandlingsårsaker_når_endring_dødsdato_søker() {
         var behandling = opprettBehandling();
-        final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling,
+        final var dødsdato = LocalDate.now().minusDays(10);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(behandling, null);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(behandling,
             dødsdato);
 
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
+        var endringsresultat = EndringsresultatDiff.opprett();
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(
             EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, personopplysningGrunnlag1.getId(),
@@ -144,10 +142,10 @@ public class BehandlingÅrsakTjenesteTest {
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(Behandling behandling, LocalDate dødsdato) {
-        PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        Long behandlingId = behandling.getId();
-        final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
-        final PersonInformasjonBuilder.PersonopplysningBuilder personopplysningBuilder = builder.getPersonopplysningBuilder(
+        var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        var behandlingId = behandling.getId();
+        final var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandlingId);
+        final var personopplysningBuilder = builder.getPersonopplysningBuilder(
             behandling.getAktørId());
         personopplysningBuilder.medDødsdato(dødsdato);
         builder.leggTil(personopplysningBuilder);

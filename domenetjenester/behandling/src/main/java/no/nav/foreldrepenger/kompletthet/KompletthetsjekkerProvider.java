@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.kompletthet;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.CDI;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
@@ -16,7 +15,7 @@ public class KompletthetsjekkerProvider {
 
     public Kompletthetsjekker finnKompletthetsjekkerFor(FagsakYtelseType ytelseType, BehandlingType behandlingType) {
 
-        Instance<Kompletthetsjekker> instance = CDI.current()
+        var instance = CDI.current()
                 .select(Kompletthetsjekker.class, new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(ytelseType.getKode()));
 
         if (instance.isAmbiguous()) {
@@ -33,7 +32,7 @@ public class KompletthetsjekkerProvider {
                     + "og behandlingType=%s", ytelseType.getKode(), behandlingType.getKode());
             throw new TekniskException("FP-912910", msg);
         }
-        Kompletthetsjekker minInstans = instance.get();
+        var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
                     "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());

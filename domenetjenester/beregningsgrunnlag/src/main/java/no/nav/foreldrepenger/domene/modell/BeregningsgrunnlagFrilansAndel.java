@@ -72,10 +72,11 @@ public class BeregningsgrunnlagFrilansAndel extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagFrilansAndel)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagFrilansAndel)) {
             return false;
         }
-        BeregningsgrunnlagFrilansAndel other = (BeregningsgrunnlagFrilansAndel) obj;
+        var other = (BeregningsgrunnlagFrilansAndel) obj;
         return Objects.equals(this.getMottarYtelse(), other.getMottarYtelse())
                 && Objects.equals(this.getNyoppstartet(), other.getNyoppstartet());
     }

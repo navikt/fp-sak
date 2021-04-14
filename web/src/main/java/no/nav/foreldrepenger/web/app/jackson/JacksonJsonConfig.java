@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.jackson;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         om.registerModule(simpleModule);
 
         // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
-        Collection<Class<?>> restClasses = new RestImplementationClasses().getImplementationClasses();
+        var restClasses = new RestImplementationClasses().getImplementationClasses();
 
         Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
 
@@ -82,7 +81,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     }
 
     private static SimpleModule createModule(boolean serialiserKodelisteNavn) {
-        SimpleModule module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
+        var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
 
         addSerializers(module, serialiserKodelisteNavn);
 

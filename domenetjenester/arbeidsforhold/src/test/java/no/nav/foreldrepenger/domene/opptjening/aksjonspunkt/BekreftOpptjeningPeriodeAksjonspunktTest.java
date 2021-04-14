@@ -8,9 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,7 +41,6 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.opptjening.dto.BekreftOpptjeningPeriodeDto;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -67,9 +64,9 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     public void oppsett(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
-        VirksomhetTjeneste tjeneste = mock(VirksomhetTjeneste.class);
-        Virksomhet.Builder builder = new Virksomhet.Builder();
-        Virksomhet børreAs = builder.medOrgnr(KUNSTIG_ORG)
+        var tjeneste = mock(VirksomhetTjeneste.class);
+        var builder = new Virksomhet.Builder();
+        var børreAs = builder.medOrgnr(KUNSTIG_ORG)
                 .medNavn("Børre AS")
                 .build();
         Mockito.when(tjeneste.finnOrganisasjon(ArgumentMatchers.any())).thenReturn(Optional.of(børreAs));
@@ -78,10 +75,10 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
 
     @Test
     public void skal_lagre_ned_bekreftet_kunstig_arbeidsforhold() {
-        LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling();
+        var iDag = LocalDate.now();
+        final var behandling = opprettBehandling();
 
-        DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
+        var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
 
         iayTjeneste.lagreArbeidsforhold(behandling.getId(), AKTØRID, ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty())
                 .leggTil(ArbeidsforholdOverstyringBuilder
@@ -93,7 +90,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
                         .medAngittArbeidsgiverNavn("Ambassade")));
 
         // simulerer svar fra GUI
-        BekreftOpptjeningPeriodeDto dto = new BekreftOpptjeningPeriodeDto();
+        var dto = new BekreftOpptjeningPeriodeDto();
         dto.setAktivitetType(OpptjeningAktivitetType.ARBEID);
         dto.setArbeidsforholdRef(InternArbeidsforholdRef.nullRef().getReferanse());
         dto.setArbeidsgiverNavn("Ambassade");
@@ -106,41 +103,41 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto.setErEndret(false);
         dto.setBegrunnelse("Ser greit ut");
 
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
         // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), Collections.singletonList(dto),
                 skjæringstidspunkt);
 
-        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
+        var grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId()));
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+        final var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
                 .collect(Collectors.toList());
         assertThat(perioder).contains(periode1);
     }
 
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt() {
-        LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling();
+        var iDag = LocalDate.now();
+        final var behandling = opprettBehandling();
 
-        DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
-        DatoIntervallEntitet periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
+        var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
+        var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
 
-        OppgittOpptjeningBuilder oppgitt = OppgittOpptjeningBuilder.ny();
+        var oppgitt = OppgittOpptjeningBuilder.ny();
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode1, ArbeidType.MILITÆR_ELLER_SIVILTJENESTE));
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode1, ArbeidType.MILITÆR_ELLER_SIVILTJENESTE));
         oppgitt.leggTilAnnenAktivitet(new OppgittAnnenAktivitet(periode1_2, ArbeidType.ETTERLØNN_SLUTTPAKKE));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
         // simulerer svar fra GUI
-        DatoIntervallEntitet periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
-        BekreftOpptjeningPeriodeDto dto = new BekreftOpptjeningPeriodeDto();
+        var periode2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(1));
+        var dto = new BekreftOpptjeningPeriodeDto();
         dto.setAktivitetType(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE);
         dto.setOriginalTom(periode1.getTomDato());
         dto.setOriginalFom(periode1.getFomDato());
@@ -149,7 +146,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto.setErGodkjent(true);
         dto.setErEndret(true);
         dto.setBegrunnelse("Ser greit ut");
-        BekreftOpptjeningPeriodeDto dto2 = new BekreftOpptjeningPeriodeDto();
+        var dto2 = new BekreftOpptjeningPeriodeDto();
         dto2.setAktivitetType(OpptjeningAktivitetType.ETTERLØNN_SLUTTPAKKE);
         dto2.setOpptjeningFom(periode1_2.getFomDato());
         dto2.setOpptjeningTom(periode1_2.getTomDato());
@@ -159,7 +156,7 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto2.setBegrunnelse("Ser greit ut");
         dto2.setArbeidsgiverIdentifikator("test");
         dto2.setArbeidsgiverNavn("test");
-        BekreftOpptjeningPeriodeDto dto3 = new BekreftOpptjeningPeriodeDto();
+        var dto3 = new BekreftOpptjeningPeriodeDto();
         dto3.setAktivitetType(OpptjeningAktivitetType.MILITÆR_ELLER_SIVILTJENESTE);
         dto3.setOriginalTom(periode1.getTomDato());
         dto3.setOriginalFom(periode1.getFomDato());
@@ -168,38 +165,38 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto3.setErGodkjent(true);
         dto3.setBegrunnelse("Ser greit ut");
 
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
         // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto, dto2, dto3), skjæringstidspunkt);
 
-        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
+        var grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId()));
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        final List<DatoIntervallEntitet> perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
+        final var perioder = filter.getAktivitetsAvtalerForArbeid().stream().map(AktivitetsAvtale::getPeriode)
                 .collect(Collectors.toList());
         assertThat(perioder).contains(periode1, periode2);
     }
 
     @Test
     public void skal_lagre_endring_i_periode_for_egen_næring() {
-        LocalDate iDag = LocalDate.now();
-        final Behandling behandling = opprettBehandling();
+        var iDag = LocalDate.now();
+        final var behandling = opprettBehandling();
 
         when(vurderOpptjening.girAksjonspunktForOppgittNæring(any(), any(), any(), any())).thenReturn(true);
-        DatoIntervallEntitet periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
-        DatoIntervallEntitet periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(2));
+        var periode1 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(3), iDag.minusMonths(2));
+        var periode1_2 = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2), iDag.minusMonths(2));
 
-        OppgittOpptjeningBuilder oppgitt = OppgittOpptjeningBuilder.ny();
+        var oppgitt = OppgittOpptjeningBuilder.ny();
         oppgitt.leggTilEgneNæringer(asList(OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
                 .medPeriode(periode1)));
         iayTjeneste.lagreOppgittOpptjening(behandling.getId(), oppgitt);
 
-        BekreftOpptjeningPeriodeDto dto = new BekreftOpptjeningPeriodeDto();
+        var dto = new BekreftOpptjeningPeriodeDto();
         dto.setAktivitetType(OpptjeningAktivitetType.NÆRING);
         dto.setOriginalTom(periode1.getTomDato());
         dto.setOriginalFom(periode1.getFomDato());
@@ -209,18 +206,18 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
         dto.setErEndret(true);
         dto.setBegrunnelse("Ser greit ut");
 
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(iDag).build();
 
         // Act
         bekreftOpptjeningPeriodeAksjonspunkt.oppdater(behandling.getId(), behandling.getAktørId(), asList(dto), skjæringstidspunkt);
-        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlag(behandling);
+        var grunnlag = hentGrunnlag(behandling);
         assertThat(grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId())).isPresent();
 
         var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getBekreftetAnnenOpptjening(behandling.getAktørId()));
-        Collection<Yrkesaktivitet> yrkesaktiviteter = filter.getYrkesaktiviteter();
+        var yrkesaktiviteter = filter.getYrkesaktiviteter();
 
         assertThat(yrkesaktiviteter).hasSize(1);
-        AktivitetsAvtale aktivitetsAvtale = filter.getAktivitetsAvtalerForArbeid().iterator().next();
+        var aktivitetsAvtale = filter.getAktivitetsAvtalerForArbeid().iterator().next();
         assertThat(DatoIntervallEntitet.fraOgMedTilOgMed(aktivitetsAvtale.getPeriode().getFomDato(), aktivitetsAvtale.getPeriode().getTomDato()))
                 .isEqualTo(periode1_2);
     }
@@ -230,10 +227,10 @@ public class BekreftOpptjeningPeriodeAksjonspunktTest {
     }
 
     private Behandling opprettBehandling() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
         fagsakRepository.opprettNy(fagsak);
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        final Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        final var behandling = builder.build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         return behandling;
     }

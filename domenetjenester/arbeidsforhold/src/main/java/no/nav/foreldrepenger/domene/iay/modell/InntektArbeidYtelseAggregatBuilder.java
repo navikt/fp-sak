@@ -113,7 +113,7 @@ public class InntektArbeidYtelseAggregatBuilder {
      * @return builder {@link AktørArbeidBuilder}
      */
     public AktørArbeidBuilder getAktørArbeidBuilder(AktørId aktørId) {
-        Optional<AktørArbeid> aktørArbeid = kladd.getAktørArbeid().stream().filter(aa -> aktørId.equals(aa.getAktørId())).findFirst();
+        var aktørArbeid = kladd.getAktørArbeid().stream().filter(aa -> aktørId.equals(aa.getAktørId())).findFirst();
         return AktørArbeidBuilder.oppdatere(aktørArbeid).medAktørId(aktørId);
     }
 
@@ -125,8 +125,8 @@ public class InntektArbeidYtelseAggregatBuilder {
      * @return builder {@link AktørInntektBuilder}
      */
     public AktørInntektBuilder getAktørInntektBuilder(AktørId aktørId) {
-        Optional<AktørInntekt> aktørInntekt = kladd.getAktørInntekt().stream().filter(aa -> aktørId.equals(aa.getAktørId())).findFirst();
-        final AktørInntektBuilder oppdatere = AktørInntektBuilder.oppdatere(aktørInntekt);
+        var aktørInntekt = kladd.getAktørInntekt().stream().filter(aa -> aktørId.equals(aa.getAktørId())).findFirst();
+        final var oppdatere = AktørInntektBuilder.oppdatere(aktørInntekt);
         oppdatere.medAktørId(aktørId);
         return oppdatere;
     }
@@ -139,7 +139,7 @@ public class InntektArbeidYtelseAggregatBuilder {
      * @return builder {@link AktørYtelseBuilder}
      */
     public AktørYtelseBuilder getAktørYtelseBuilder(AktørId aktørId) {
-        Optional<AktørYtelse> aktørYtelse = kladd.getAktørYtelse().stream().filter(ay -> aktørId.equals(ay.getAktørId())).findFirst();
+        var aktørYtelse = kladd.getAktørYtelse().stream().filter(ay -> aktørId.equals(ay.getAktørId())).findFirst();
         return AktørYtelseBuilder.oppdatere(aktørYtelse).medAktørId(aktørId);
     }
 
@@ -153,10 +153,10 @@ public class InntektArbeidYtelseAggregatBuilder {
 
     void oppdaterArbeidsforholdReferanseEtterErstatting(AktørId søker, Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef gammelRef,
             InternArbeidsforholdRef nyRef) {
-        final AktørArbeidBuilder builder = getAktørArbeidBuilder(søker);
+        final var builder = getAktørArbeidBuilder(søker);
         if (builder.getErOppdatering()) {
             if (eksistererIkkeFraFør(arbeidsgiver, gammelRef, builder)) {
-                final YrkesaktivitetBuilder yrkesaktivitetBuilder = builder.getYrkesaktivitetBuilderForNøkkelAvType(
+                final var yrkesaktivitetBuilder = builder.getYrkesaktivitetBuilderForNøkkelAvType(
                         Opptjeningsnøkkel.forArbeidsforholdIdMedArbeidgiver(gammelRef, arbeidsgiver),
                         ArbeidType.AA_REGISTER_TYPER);
                 if (yrkesaktivitetBuilder.getErOppdatering()) {
@@ -185,7 +185,7 @@ public class InntektArbeidYtelseAggregatBuilder {
         if ((eksternReferanse == null) || (eksternReferanse.getReferanse() == null)) {
             return InternArbeidsforholdRef.nullRef();
         }
-        InternArbeidsforholdRef nyRef = InternArbeidsforholdRef.nyRef();
+        var nyRef = InternArbeidsforholdRef.nyRef();
         nyeInternArbeidsforholdReferanser.add(new ArbeidsforholdReferanse(arbeidsgiver, nyRef, eksternReferanse));
         return nyRef;
     }
@@ -233,7 +233,7 @@ public class InntektArbeidYtelseAggregatBuilder {
         }
 
         public AktørArbeidBuilder leggTilYrkesaktivitet(YrkesaktivitetBuilder builder) {
-            Yrkesaktivitet yrkesaktivitet = builder.build();
+            var yrkesaktivitet = builder.build();
             if (!builder.getErOppdatering()) {
                 kladd.leggTilYrkesaktivitet(yrkesaktivitet);
             }
@@ -372,7 +372,7 @@ public class InntektArbeidYtelseAggregatBuilder {
         }
 
         public AktørYtelseBuilder leggTilYtelse(YtelseBuilder builder) {
-            Ytelse ytelse = builder.build();
+            var ytelse = builder.build();
             if (!builder.getErOppdatering()) {
                 this.kladd.leggTilYtelse(ytelse);
             }

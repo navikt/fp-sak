@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -59,9 +58,9 @@ public class InntektArbeidYtelseScenario {
                     .flatMap(java.util.Collection::stream)
                     .forEach(yr -> {
                         if (yr.getArbeidsgiver().getErVirksomhet()) {
-                            String orgnr = yr.getArbeidsgiver().getOrgnr();
+                            var orgnr = yr.getArbeidsgiver().getOrgnr();
                             try {
-                                Method m = Yrkesaktivitet.class.getDeclaredMethod("setArbeidsgiver", Arbeidsgiver.class);
+                                var m = Yrkesaktivitet.class.getDeclaredMethod("setArbeidsgiver", Arbeidsgiver.class);
                                 m.setAccessible(true);
                                 m.invoke(yr, Arbeidsgiver.virksomhet(orgnr));
                             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -249,7 +248,7 @@ public class InntektArbeidYtelseScenario {
 
             var aktørInntektBuilder = inntektArbeidYtelseAggregatBuilder
                     .getAktørInntektBuilder(aktørId);
-            final Opptjeningsnøkkel opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
+            final var opptjeningsnøkkel = new Opptjeningsnøkkel(yrkesaktivitetArbeidsforholdId, orgNr, aktørId.getId());
             var inntektBuilder = aktørInntektBuilder.getInntektBuilder(InntektsKilde.INNTEKT_OPPTJENING, opptjeningsnøkkel);
             var inntektspostBuilder = inntektBuilder.getInntektspostBuilder();
             if (inntektsKilde != null) {

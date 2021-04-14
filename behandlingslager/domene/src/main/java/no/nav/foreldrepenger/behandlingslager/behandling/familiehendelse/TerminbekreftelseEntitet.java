@@ -106,10 +106,11 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof TerminbekreftelseEntitet)) {
+        }
+        if (!(obj instanceof TerminbekreftelseEntitet)) {
             return false;
         }
-        TerminbekreftelseEntitet other = (TerminbekreftelseEntitet) obj;
+        var other = (TerminbekreftelseEntitet) obj;
         return Objects.equals(this.termindato, other.getTermindato())
                 && Objects.equals(this.utstedtdato, other.getUtstedtdato())
                 && Objects.equals(this.navn, other.getNavnPå());

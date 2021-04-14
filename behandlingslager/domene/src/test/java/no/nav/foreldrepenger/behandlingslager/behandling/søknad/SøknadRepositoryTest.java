@@ -38,29 +38,29 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_finne_endringssøknad_for_behandling() {
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Behandling behandling2 = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling2 = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling2, behandlingRepository.taSkriveLås(behandling2));
 
-        FamilieHendelseBuilder fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
         familieHendelseRepository.lagre(behandling, fhBuilder);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandling.getId(), behandling2.getId());
 
-        SøknadEntitet søknad = opprettSøknad(false);
+        var søknad = opprettSøknad(false);
         søknadRepository.lagreOgFlush(behandling, søknad);
 
-        SøknadEntitet søknad2 = opprettSøknad(true);
+        var søknad2 = opprettSøknad(true);
         søknadRepository.lagreOgFlush(behandling2, søknad2);
 
         // Act
-        Optional<SøknadEntitet> endringssøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
-        Optional<SøknadEntitet> endringssøknad2 = søknadRepository.hentSøknadHvisEksisterer(behandling2.getId());
+        var endringssøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var endringssøknad2 = søknadRepository.hentSøknadHvisEksisterer(behandling2.getId());
 
         // Assert
         assertThat(endringssøknad).isPresent();
@@ -70,21 +70,21 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_ikke_finne_endringssøknad_for_behandling() {
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        FamilieHendelseBuilder fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        var fhBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         fhBuilder.medFødselsDato(LocalDate.now()).medAntallBarn(1);
         familieHendelseRepository.lagre(behandling, fhBuilder);
 
-        SøknadEntitet søknad = opprettSøknad(false);
+        var søknad = opprettSøknad(false);
         søknadRepository.lagreOgFlush(behandling, søknad);
 
         // Act
-        Optional<SøknadEntitet> endringssøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var endringssøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
 
         // Assert
         assertThat(endringssøknad).isPresent();
@@ -93,22 +93,22 @@ public class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_kopiere_søknadsgrunnlaget_fra_behandling1_til_behandling2() {
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
-        Behandling behandling1 = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling1 = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling1, behandlingRepository.taSkriveLås(behandling1));
-        SøknadEntitet søknad = opprettSøknad(false);
+        var søknad = opprettSøknad(false);
         søknadRepository.lagreOgFlush(behandling1, søknad);
 
-        Behandling behandling2 = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling2 = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling2, behandlingRepository.taSkriveLås(behandling2));
 
         // Act
         søknadRepository.kopierGrunnlagFraEksisterendeBehandling(behandling1, behandling2);
 
         // Assert
-        Optional<SøknadEntitet> søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(behandling2.getId());
+        var søknadEntitet = søknadRepository.hentSøknadHvisEksisterer(behandling2.getId());
         assertThat(søknadEntitet).isPresent();
     }
 

@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,80 +24,80 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_finne_eksakt_fagsak_gitt_id() {
-        AktørId aktørId = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
-        Fagsak fagsak = opprettFagsak(saksnummer, aktørId);
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
+        var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        Fagsak resultat = fagsakRepository.finnEksaktFagsak(fagsak.getId());
+        var resultat = fagsakRepository.finnEksaktFagsak(fagsak.getId());
 
         assertThat(resultat).isNotNull();
     }
 
     @Test
     public void skal_finne_unik_fagsak_gitt_id() {
-        AktørId aktørId = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
-        Fagsak fagsak = opprettFagsak(saksnummer, aktørId);
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
+        var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        Optional<Fagsak> resultat = fagsakRepository.finnUnikFagsak(fagsak.getId());
+        var resultat = fagsakRepository.finnUnikFagsak(fagsak.getId());
 
         assertThat(resultat).isPresent();
     }
 
     @Test
     public void skal_finne_fagsak_gitt_saksnummer() {
-        AktørId aktørId = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
 
         opprettFagsak(saksnummer, aktørId);
-        Optional<Fagsak> optional = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var optional = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
         assertThat(optional).isPresent();
     }
 
     @Test
     public void skal_finne_fagsak_gitt_aktør_id() {
-        AktørId aktørId = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
 
         opprettFagsak(saksnummer, aktørId);
-        List<Fagsak> list = fagsakRepository.hentForBruker(aktørId);
+        var list = fagsakRepository.hentForBruker(aktørId);
 
         assertThat(list.stream().map(f -> f.getSaksnummer())).contains(saksnummer);
     }
 
     @Test
     public void skal_finne_fagsaker_uten_behandling() {
-        AktørId aktørId = AktørId.dummy();
-        AktørId aktørId1 = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
-        Saksnummer saksnummer1  = new Saksnummer("201");
+        var aktørId = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
+        var saksnummer1  = new Saksnummer("201");
 
         opprettFagsak(saksnummer, aktørId);
         opprettFagsak(saksnummer1, aktørId1);
-        List<Saksnummer> list = fagsakRepository.hentÅpneFagsakerUtenBehandling();
+        var list = fagsakRepository.hentÅpneFagsakerUtenBehandling();
 
         assertThat(list).contains(saksnummer, saksnummer1);
     }
 
     @Test
     public void skal_finne_journalpost_gitt_journalpost_id() {
-        AktørId aktørId = AktørId.dummy();
-        Saksnummer saksnummer  = new Saksnummer("200");
-        JournalpostId journalpostId = new JournalpostId("30000");
+        var aktørId = AktørId.dummy();
+        var saksnummer  = new Saksnummer("200");
+        var journalpostId = new JournalpostId("30000");
 
         opprettFagsakMedJournalpost(journalpostId, saksnummer, aktørId);
 
-        Optional<Journalpost> journalpost = fagsakRepository.hentJournalpost(journalpostId);
+        var journalpost = fagsakRepository.hentJournalpost(journalpostId);
         assertThat(journalpost.isPresent()).isTrue();
 
     }
 
     private Fagsak opprettFagsak(Saksnummer saksnummer, AktørId aktørId) {
-        NavBruker bruker = NavBruker.opprettNyNB(aktørId);
+        var bruker = NavBruker.opprettNyNB(aktørId);
 
         // Opprett fagsak
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, saksnummer);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, saksnummer);
         var navBrukerRepository = new NavBrukerRepository(getEntityManager());
         navBrukerRepository.lagre(bruker);
         fagsakRepository.opprettNy(fagsak);
@@ -108,10 +105,10 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak(AktørId aktørId) {
-        NavBruker bruker = NavBruker.opprettNyNB(aktørId);
+        var bruker = NavBruker.opprettNyNB(aktørId);
 
         // Opprett fagsak
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
         var navBrukerRepository = new NavBrukerRepository(getEntityManager());
         navBrukerRepository.lagre(bruker);
         fagsakRepository.opprettNy(fagsak);
@@ -119,9 +116,9 @@ public class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     private void opprettFagsakMedJournalpost(JournalpostId journalpostId, Saksnummer saksnummer, AktørId aktørId) {
-        Fagsak fagsak = opprettFagsak(saksnummer, aktørId);
+        var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        Journalpost journalpost = new Journalpost(journalpostId, fagsak);
+        var journalpost = new Journalpost(journalpostId, fagsak);
         fagsakRepository.lagre(journalpost);
         //Fagsakrepo flusher ikke
         getEntityManager().flush();

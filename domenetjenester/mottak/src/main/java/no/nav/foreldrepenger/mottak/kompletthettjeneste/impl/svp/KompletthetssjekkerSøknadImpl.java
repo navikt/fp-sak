@@ -14,9 +14,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerSøknad;
@@ -50,12 +48,12 @@ public class KompletthetssjekkerSøknadImpl implements KompletthetssjekkerSøkna
 
     @Override
     public Optional<LocalDateTime> erSøknadMottattForTidlig(BehandlingReferanse ref) {
-        Optional<LocalDate> permisjonsstart = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet();
+        var permisjonsstart = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet();
         if (permisjonsstart.isPresent()) {
-            LocalDate ventefrist = permisjonsstart.get().minus(ventefristForTidligSøknad);
-            boolean erSøknadMottattForTidlig = ventefrist.isAfter(LocalDate.now());
+            var ventefrist = permisjonsstart.get().minus(ventefristForTidligSøknad);
+            var erSøknadMottattForTidlig = ventefrist.isAfter(LocalDate.now());
             if (erSøknadMottattForTidlig) {
-                LocalDateTime ventefristTidspunkt = ventefrist.atStartOfDay();
+                var ventefristTidspunkt = ventefrist.atStartOfDay();
                 return Optional.of(ventefristTidspunkt);
             }
         }
@@ -64,8 +62,8 @@ public class KompletthetssjekkerSøknadImpl implements KompletthetssjekkerSøkna
 
     @Override
     public Boolean erSøknadMottatt(BehandlingReferanse ref) {
-        final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
-        Optional<MottattDokument> mottattSøknad = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
+        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
+        var mottattSøknad = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.getFagsakId()).stream()
             .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType())
                 || DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori()))
             .findFirst();

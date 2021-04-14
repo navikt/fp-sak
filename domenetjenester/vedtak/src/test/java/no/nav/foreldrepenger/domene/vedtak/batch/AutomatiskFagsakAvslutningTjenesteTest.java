@@ -47,7 +47,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
 
     @Test
     public void en_fagsak_avslutning() {
-        Fagsak fagsak = lagFagsak(FagsakStatus.LØPENDE);
+        var fagsak = lagFagsak(FagsakStatus.LØPENDE);
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
@@ -56,7 +56,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
 
     @Test
     public void en_fagsak_avslutning_med_berørt_sak() {
-        Fagsak fagsak = lagFagsak(FagsakStatus.LØPENDE);
+        var fagsak = lagFagsak(FagsakStatus.LØPENDE);
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
@@ -64,9 +64,9 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     }
 
     private Fagsak lagFagsak(FagsakStatus fagsakStatus) {
-        Fagsak fagsak = mock(Fagsak.class);
+        var fagsak = mock(Fagsak.class);
         // when(fagsak.getStatus()).thenReturn(fagsakStatus);
-        AktørId aktørId = mock(AktørId.class);
+        var aktørId = mock(AktørId.class);
         when(aktørId.getId()).thenReturn("1");
         when(fagsak.getAktørId()).thenReturn(aktørId);
 

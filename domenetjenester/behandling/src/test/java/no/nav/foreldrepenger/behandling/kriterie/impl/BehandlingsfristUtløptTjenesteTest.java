@@ -39,14 +39,14 @@ public class BehandlingsfristUtløptTjenesteTest {
     @Test
     public void skal_opprette_prosesstask_for_behandling() {
         // Arrange
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         behandlingsfristUtløptTjeneste.behandlingsfristUtløpt(behandling);
 
         // Assert
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(FORLENGELSESBREV_TASK);
         assertThat(new AktørId(prosessTaskData.getAktørId())).isEqualTo(AKTØR_ID);
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(BEHANDLING_ID.toString());

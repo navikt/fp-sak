@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -36,11 +35,11 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_lagre_verge_grunnlag() {
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
-        NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var bruker = NavBruker.opprettNyNB(AktørId.dummy());
 
-        VergeBuilder vergeBuilder = new VergeBuilder()
+        var vergeBuilder = new VergeBuilder()
                 .medVergeType(VergeType.BARN)
                 .medBruker(bruker);
 
@@ -51,18 +50,18 @@ public class VergeGrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandling() {
-        Fagsak fagsak = opprettFagsak();
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var fagsak = opprettFagsak();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
         return behandling;
     }
 
     private Fagsak opprettFagsak() {
-        NavBruker bruker = NavBruker.opprettNyNB(AktørId.dummy());
+        var bruker = NavBruker.opprettNyNB(AktørId.dummy());
 
         // Opprett fagsak
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, null, new Saksnummer("1000"));
         entityManager.persist(bruker);
         entityManager.persist(fagsak);
         entityManager.flush();

@@ -55,14 +55,13 @@ public class FormidlingRestTjeneste {
         if (behandlingIdDto.getBehandlingUuid() != null) {
             var behandling = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid());
             var dto = behandling.map(value -> behandlingFormidlingDtoTjeneste.lagDtoForFormidling(value)).orElse(null);
-            Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
-            return responseBuilder.build();
-        } else {
-            var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
-            var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForFormidling(behandling) : null;
-            Response.ResponseBuilder responseBuilder = Response.ok().entity(dto);
+            var responseBuilder = Response.ok().entity(dto);
             return responseBuilder.build();
         }
+        var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
+        var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForFormidling(behandling) : null;
+        var responseBuilder = Response.ok().entity(dto);
+        return responseBuilder.build();
     }
 
 }

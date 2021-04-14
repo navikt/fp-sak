@@ -58,7 +58,7 @@ public class HendelsePublisererTjeneste {
     public void lagreVedtak(BehandlingVedtak vedtak) {
         LOG.info("lagrer utgående hendelse for vedtak {}", vedtak.getId());
 
-        Behandling behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
         if (hendelseEksistererAllerede(vedtak, behandling.getFagsakYtelseType())) {
             LOG.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
@@ -72,8 +72,8 @@ public class HendelsePublisererTjeneste {
             return;
         }
 
-        Optional<LocalDateInterval> innvilgetPeriode = finnPeriode(behandling.getId());
-        Optional<LocalDateInterval> orginalPeriode = behandling.getOriginalBehandlingId().flatMap(this::finnPeriode);
+        var innvilgetPeriode = finnPeriode(behandling.getId());
+        var orginalPeriode = behandling.getOriginalBehandlingId().flatMap(this::finnPeriode);
 
         if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
             // ingen hendelse
@@ -89,10 +89,10 @@ public class HendelsePublisererTjeneste {
 
     private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,
             Optional<LocalDateInterval> orginalPeriode) {
-        FpVedtakUtgåendeHendelse.Builder fpVedtakUtgåendeHendelseBuilder = FpVedtakUtgåendeHendelse.builder();
+        var fpVedtakUtgåendeHendelseBuilder = FpVedtakUtgåendeHendelse.builder();
         fpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
 
-        Meldingstype meldingstype = mapMeldingstypeFp(innvilgetPeriode, orginalPeriode);
+        var meldingstype = mapMeldingstypeFp(innvilgetPeriode, orginalPeriode);
 
         if (meldingstype == null) {
             // ingen endring i perioder
@@ -101,9 +101,9 @@ public class HendelsePublisererTjeneste {
         fpVedtakUtgåendeHendelseBuilder.type(meldingstype.getType());
         fpVedtakUtgåendeHendelseBuilder.kildeId(VEDTAK_PREFIX + vedtak.getId());
 
-        Innhold innhold = mapVedtakTilInnholdFp(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
+        var innhold = mapVedtakTilInnholdFp(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        String payloadJason = JsonMapper.toJson(innhold);
+        var payloadJason = JsonMapper.toJson(innhold);
         fpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
@@ -111,10 +111,10 @@ public class HendelsePublisererTjeneste {
 
     private void doLagreVedtakSVP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,
             Optional<LocalDateInterval> orginalPeriode) {
-        SvpVedtakUtgåendeHendelse.Builder svpVedtakUtgåendeHendelseBuilder = SvpVedtakUtgåendeHendelse.builder();
+        var svpVedtakUtgåendeHendelseBuilder = SvpVedtakUtgåendeHendelse.builder();
         svpVedtakUtgåendeHendelseBuilder.aktørId(behandling.getAktørId().getId());
 
-        Meldingstype meldingstype = mapMeldingstypeSVP(innvilgetPeriode, orginalPeriode);
+        var meldingstype = mapMeldingstypeSVP(innvilgetPeriode, orginalPeriode);
 
         if (meldingstype == null) {
             // ingen endring i perioder
@@ -124,9 +124,9 @@ public class HendelsePublisererTjeneste {
         svpVedtakUtgåendeHendelseBuilder.type(meldingstype.getType());
         svpVedtakUtgåendeHendelseBuilder.kildeId(VEDTAK_PREFIX + vedtak.getId());
 
-        Innhold innhold = mapVedtakTilInnholdSVP(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
+        var innhold = mapVedtakTilInnholdSVP(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        String payloadJason = JsonMapper.toJson(innhold);
+        var payloadJason = JsonMapper.toJson(innhold);
         svpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(svpVedtakUtgåendeHendelseBuilder.build());
@@ -135,38 +135,39 @@ public class HendelsePublisererTjeneste {
     private static Meldingstype mapMeldingstypeFp(Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
         if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
             return Meldingstype.FORELDREPENGER_INNVILGET;
-        } else if (innvilgetPeriode.isEmpty()) {
-            return Meldingstype.FORELDREPENGER_OPPHOERT;
-        } else if (!innvilgetPeriode.map(ip -> orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
-            return Meldingstype.FORELDREPENGER_ENDRET;
-        } else {
-            // revurdering, men ingen endring i utbetalingsperiode
-            return null;
         }
+        if (innvilgetPeriode.isEmpty()) {
+            return Meldingstype.FORELDREPENGER_OPPHOERT;
+        }
+        if (!innvilgetPeriode.map(ip -> orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
+            return Meldingstype.FORELDREPENGER_ENDRET;
+        }
+        // revurdering, men ingen endring i utbetalingsperiode
+        return null;
     }
 
     private static Meldingstype mapMeldingstypeSVP(Optional<LocalDateInterval> innvilgetPeriode, Optional<LocalDateInterval> orginalPeriode) {
         if (innvilgetPeriode.isPresent() && orginalPeriode.isEmpty()) {
             return Meldingstype.SVANGERSKAPSPENGER_INNVILGET;
-        } else if (innvilgetPeriode.isEmpty()) {
-            return Meldingstype.SVANGERSKAPSPENGER_OPPHOERT;
-        } else if (!innvilgetPeriode.map(ip -> orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
-            return Meldingstype.SVANGERSKAPSPENGER_ENDRET;
-        } else {
-            // revurdering, men ingen endring i utbetalingsperiode
-            return null;
         }
+        if (innvilgetPeriode.isEmpty()) {
+            return Meldingstype.SVANGERSKAPSPENGER_OPPHOERT;
+        }
+        if (!innvilgetPeriode.map(ip -> orginalPeriode.map(ip::equals).orElse(false)).orElse(false)) {
+            return Meldingstype.SVANGERSKAPSPENGER_ENDRET;
+        }
+        // revurdering, men ingen endring i utbetalingsperiode
+        return null;
     }
 
     private Optional<LocalDateInterval> finnPeriode(Long behandlingId) {
-        Optional<LocalDate> førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
-        Optional<LocalDate> sisteUtbetDato = finnSisteUtbetDato(behandlingId);
+        var førsteUtbetDato = finnMinsteUtbetDato(behandlingId);
+        var sisteUtbetDato = finnSisteUtbetDato(behandlingId);
 
         if (førsteUtbetDato.isPresent() && sisteUtbetDato.isPresent()) {
             return Optional.of(new LocalDateInterval(førsteUtbetDato.get(), sisteUtbetDato.get()));
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     private static Innhold mapVedtakTilInnholdFp(Behandling behandling, Meldingstype meldingstype, LocalDateInterval utbetPeriode) {
@@ -206,7 +207,7 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDate> finnMinsteUtbetDato(Long behandlingId) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
+        var berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
 
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                 .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
@@ -216,7 +217,7 @@ public class HendelsePublisererTjeneste {
     }
 
     private Optional<LocalDate> finnSisteUtbetDato(Long behandlingId) {
-        Optional<BeregningsresultatEntitet> berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
+        var berResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
         return berResultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
                 .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
@@ -227,8 +228,7 @@ public class HendelsePublisererTjeneste {
     private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak, FagsakYtelseType ytelseType) {
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
-        } else {
-            return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
         }
+        return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
     }
 }

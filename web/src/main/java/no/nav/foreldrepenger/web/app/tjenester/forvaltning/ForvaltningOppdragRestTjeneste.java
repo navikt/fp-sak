@@ -12,7 +12,6 @@ import java.time.temporal.ChronoUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -31,15 +30,12 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.vedtak.task.SendØkonomiOppdragTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.KvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragslinjePatchDto;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
@@ -96,7 +92,7 @@ public class ForvaltningOppdragRestTjeneste {
             @Parameter(description = "Identifikasjon av oppdrag som kvitteres OK. Sett oppdaterProsessTask til false kun når prosesstasken allerede er flyttet til FERDIG") @NotNull @Valid KvitteringDto kvitteringDto) {
         boolean oppdaterProsessTask = kvitteringDto.getOppdaterProsessTask();
 
-        ØkonomiKvittering kvittering = new ØkonomiKvittering();
+        var kvittering = new ØkonomiKvittering();
         kvittering.setBehandlingId(kvitteringDto.getBehandlingId());
         kvittering.setFagsystemId(kvitteringDto.getFagsystemId());
         kvittering.setAlvorlighetsgrad("00"); // kode som indikerer at alt er OK
@@ -115,11 +111,11 @@ public class ForvaltningOppdragRestTjeneste {
     @Operation(description = "Patcher oppdrag som har feilet fordi fpsak har generert det på feil måte, og sender over til oppdragsysstemet. Sjekk med Team Ukelønn hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response patchOppdrag(@NotNull @Valid OppdragPatchDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Oppdragskontroll oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
                 .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        ProsessTaskData vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
 
         validerUferdigProsesstask(vurderØkonomiTask);
         utførPatching(dto, behandlingId, behandling, oppdragskontroll);
@@ -138,11 +134,11 @@ public class ForvaltningOppdragRestTjeneste {
     @Operation(description = "Som /patch-oppdrag, men kan også patche når behandling er ferdig. Sjekk med Team Ukelønn hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response patchOppdragOgRekjør(@NotNull @Valid OppdragPatchDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Oppdragskontroll oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
                 .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        ProsessTaskData vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
         validerFerdigProsesstask(vurderØkonomiTask);
 
         utførPatching(dto, behandlingId, behandling, oppdragskontroll);
@@ -159,13 +155,13 @@ public class ForvaltningOppdragRestTjeneste {
         validerFagsystemId(behandling, dto.getFagsystemId());
         validerDelytelseId(dto);
 
-        PersonIdent fnrBruker = personinfoAdapter.hentFnr(behandling.getAktørId())
+        var fnrBruker = personinfoAdapter.hentFnr(behandling.getAktørId())
                 .orElseThrow(() -> new IllegalArgumentException("Fant ikke FNR for aktør på behandlingId=" + behandlingId));
 
         kvitterBortEksisterendeOppdrag(dto, oppdragskontroll);
 
         var behandlingVedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
-        OppdragMapper mapper = new OppdragMapper(dto, behandling, fnrBruker.getIdent(), behandlingVedtak);
+        var mapper = new OppdragMapper(dto, behandling, fnrBruker.getIdent(), behandlingVedtak);
         mapper.mapTil(oppdragskontroll);
         oppdragskontroll.setVenterKvittering(true);
         økonomioppdragRepository.lagre(oppdragskontroll);
@@ -174,7 +170,7 @@ public class ForvaltningOppdragRestTjeneste {
     private void validerHyppighet() {
         // denne tjenesten skal kun brukes i antatt svært sjeldne tilfeller
         // begrenser derfor hvor ofte den kan brukes for å hindre feil bruk
-        int antallPatchedeINærFortid = finnAntallPatchedeSistePeriode(entityManager, Period.ofWeeks(4));
+        var antallPatchedeINærFortid = finnAntallPatchedeSistePeriode(entityManager, Period.ofWeeks(4));
         if (antallPatchedeINærFortid > 10) {
             throw new ForvaltningException(
                     "Ikke klar for patching enda. Vurder å øke tillatt hyppighet i ForvaltningOppdragRestTjeneste ved behov");
@@ -182,7 +178,7 @@ public class ForvaltningOppdragRestTjeneste {
     }
 
     private void kvitterBortEksisterendeOppdrag(OppdragPatchDto dto, Oppdragskontroll oppdragskontroll) {
-        for (Oppdrag110 eksisterendeOppdrag110 : oppdragskontroll.getOppdrag110Liste()) {
+        for (var eksisterendeOppdrag110 : oppdragskontroll.getOppdrag110Liste()) {
             if (eksisterendeOppdrag110.getFagsystemId() == dto.getFagsystemId() && eksisterendeOppdrag110.venterKvittering()) {
                 OppdragKvittering.builder()
                         .medOppdrag110(eksisterendeOppdrag110)
@@ -202,7 +198,7 @@ public class ForvaltningOppdragRestTjeneste {
     }
 
     private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
-        ProsessTaskData sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallId(MDCOperations.getCallId());
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
@@ -213,17 +209,17 @@ public class ForvaltningOppdragRestTjeneste {
     }
 
     private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {
-        Query query = entityManager.createNativeQuery(
+        var query = entityManager.createNativeQuery(
                 "select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
                 .setParameter("task_type", SendØkonomiOppdragTask.TASKTYPE)
                 .setParameter("opprettet_fom", ZonedDateTime.now().minus(periode));
 
-        BigDecimal result = (BigDecimal) query.getSingleResult();
+        var result = (BigDecimal) query.getSingleResult();
         return result.intValue();
     }
 
     private void validerUferdigProsesstask(ProsessTaskData task) {
-        ProsessTaskStatus status = task.getStatus();
+        var status = task.getStatus();
         if (status != ProsessTaskStatus.VENTER_SVAR && status != ProsessTaskStatus.FEILET) {
             throw new ForvaltningException("Kan ikke patche oppdrag som er ferdig. Kan kun brukes når prosesstask er FEILET eller VENTER_SVAR");
         }
@@ -234,7 +230,7 @@ public class ForvaltningOppdragRestTjeneste {
     }
 
     private void validerFerdigProsesstask(ProsessTaskData task) {
-        ProsessTaskStatus status = task.getStatus();
+        var status = task.getStatus();
         if (status != ProsessTaskStatus.FERDIG) {
             throw new ForvaltningException("Denne skal kun brukes for FERDIG prosesstask. Se om du heller skal bruke endepunktet /patch-oppdrag");
         }
@@ -251,7 +247,7 @@ public class ForvaltningOppdragRestTjeneste {
     }
 
     private void validerDelytelseId(OppdragPatchDto dto) {
-        for (OppdragslinjePatchDto linje : dto.getOppdragslinjer()) {
+        for (var linje : dto.getOppdragslinjer()) {
             if (dto.getFagsystemId() != linje.getDelytelseId() / 1000) {
                 throw new ForvaltningException("FagsystemId=" + dto.getFagsystemId() + " matcher ikke med delytelseId=" + linje.getDelytelseId());
             }

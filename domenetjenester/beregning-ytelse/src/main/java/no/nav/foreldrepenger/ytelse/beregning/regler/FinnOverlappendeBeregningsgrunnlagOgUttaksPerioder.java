@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.ytelse.beregning.BeregningsgrunnlagUttakArbeidsforholdMatcher;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodellMellomregning;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
@@ -48,40 +47,40 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         //Regelsporing
         Map<String, Object> resultater = new LinkedHashMap<>();
 
-        BeregningsresultatRegelmodell regelmodell = mellomregning.getInput();
-        Beregningsgrunnlag grunnlag = regelmodell.getBeregningsgrunnlag();
-        UttakResultat uttakResultat = regelmodell.getUttakResultat();
-        List<BeregningsresultatPeriode> periodeListe = mapPerioder(grunnlag, uttakResultat, resultater);
+        var regelmodell = mellomregning.getInput();
+        var grunnlag = regelmodell.getBeregningsgrunnlag();
+        var uttakResultat = regelmodell.getUttakResultat();
+        var periodeListe = mapPerioder(grunnlag, uttakResultat, resultater);
         periodeListe.forEach(p -> mellomregning.getOutput().addBeregningsresultatPeriode(p));
         return beregnet(resultater);
     }
 
     private List<BeregningsresultatPeriode> mapPerioder(Beregningsgrunnlag grunnlag, UttakResultat uttakResultat, Map<String, Object> resultater) {
-        LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline = mapGrunnlagTimeline(grunnlag);
-        LocalDateTimeline<UttakResultatPeriode> uttakTimeline = uttakResultat.getUttakPeriodeTimeline();
-        LocalDateTimeline<BeregningsresultatPeriode> resultatTimeline = intersectTimelines(grunnlagTimeline, uttakTimeline, resultater)
+        var grunnlagTimeline = mapGrunnlagTimeline(grunnlag);
+        var uttakTimeline = uttakResultat.getUttakPeriodeTimeline();
+        var resultatTimeline = intersectTimelines(grunnlagTimeline, uttakTimeline, resultater)
             .compress();
         return resultatTimeline.toSegments().stream().map(LocalDateSegment::getValue).collect(Collectors.toList());
     }
 
     private LocalDateTimeline<BeregningsresultatPeriode> intersectTimelines(LocalDateTimeline<BeregningsgrunnlagPeriode> grunnlagTimeline, LocalDateTimeline<UttakResultatPeriode> uttakTimeline, Map<String, Object> resultater) {
-        final int[] i = {0}; //Periode-teller til regelsporing
+        final var i = new int[]{0}; //Periode-teller til regelsporing
         return grunnlagTimeline.intersection(uttakTimeline, (dateInterval, grunnlagSegment, uttakSegment) ->
         {
-            BeregningsresultatPeriode resultatPeriode = BeregningsresultatPeriode.builder()
+            var resultatPeriode = BeregningsresultatPeriode.builder()
                 .medPeriode(dateInterval).build();
 
             //Regelsporing
-            String periodeNavn = "BeregningsresultatPeriode[" + i[0] + "]";
+            var periodeNavn = "BeregningsresultatPeriode[" + i[0] + "]";
             resultater.put(periodeNavn + ".fom", dateInterval.getFomDato());
             resultater.put(periodeNavn + ".tom", dateInterval.getTomDato());
 
-            BeregningsgrunnlagPeriode grunnlag = grunnlagSegment.getValue();
-            UttakResultatPeriode uttakResultatPeriode = uttakSegment.getValue();
+            var grunnlag = grunnlagSegment.getValue();
+            var uttakResultatPeriode = uttakSegment.getValue();
 
             grunnlag.getBeregningsgrunnlagPrStatus(AktivitetStatus.ATFL).forEach(gbps -> {
                 // for hver arbeidstaker andel: map fra grunnlag til 1-2 resultatAndel
-                List<BeregningsgrunnlagPrArbeidsforhold> arbeidsforholdList = gbps.getArbeidsforhold();
+                var arbeidsforholdList = gbps.getArbeidsforhold();
                 arbeidsforholdList.forEach(a -> opprettBeregningsresultatAndelerATFL(a, resultatPeriode, resultater, periodeNavn, uttakResultatPeriode));
             });
             grunnlag.getBeregningsgrunnlagPrStatus().stream()
@@ -98,16 +97,16 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         if (uttakResultatPeriode.getErOppholdsPeriode()) {
             return;
         }
-        Optional<UttakAktivitet> uttakAktivitetOpt = matchUttakAktivitetMedBeregningsgrunnlagPrStatus(beregningsgrunnlagPrStatus, uttakResultatPeriode.getUttakAktiviteter());
+        var uttakAktivitetOpt = matchUttakAktivitetMedBeregningsgrunnlagPrStatus(beregningsgrunnlagPrStatus, uttakResultatPeriode.getUttakAktiviteter());
         if (uttakAktivitetOpt.isEmpty()) {
             return;
         }
-        UttakAktivitet uttakAktivitet = uttakAktivitetOpt.get();
+        var uttakAktivitet = uttakAktivitetOpt.get();
 
         //Gradering
-        Tuple<Long, Long> dagsatser = kalkulerDagsatserForGradering(beregningsgrunnlagPrStatus.getRedusertBrukersAndelPrÅr(), BigDecimal.ZERO,
+        var dagsatser = kalkulerDagsatserForGradering(beregningsgrunnlagPrStatus.getRedusertBrukersAndelPrÅr(), BigDecimal.ZERO,
             uttakAktivitet, resultater, periodeNavn);
-        Long dagsatsBruker = dagsatser.getElement1();
+        var dagsatsBruker = dagsatser.getElement1();
 
         resultatPeriode.addBeregningsresultatAndel(
             BeregningsresultatAndel.builder()
@@ -121,7 +120,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
                 .build(resultatPeriode));
 
         // Regelsporing
-        String beskrivelse = periodeNavn + BRUKER_ANDEL + "['" + beregningsgrunnlagPrStatus.getAktivitetStatus().name() + "']" + DAGSATS_BRUKER;
+        var beskrivelse = periodeNavn + BRUKER_ANDEL + "['" + beregningsgrunnlagPrStatus.getAktivitetStatus().name() + "']" + DAGSATS_BRUKER;
         resultater.put(beskrivelse, dagsatsBruker);
 
     }
@@ -137,19 +136,19 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         if (uttakResultatPeriode.getErOppholdsPeriode()) {
             return;
         }
-        Optional<UttakAktivitet> uttakAktivitetOpt = matchUttakAktivitetMedArbeidsforhold(uttakResultatPeriode.getUttakAktiviteter(), arbeidsforhold);
+        var uttakAktivitetOpt = matchUttakAktivitetMedArbeidsforhold(uttakResultatPeriode.getUttakAktiviteter(), arbeidsforhold);
         if (uttakAktivitetOpt.isEmpty()) {
             return;
         }
-        UttakAktivitet uttakAktivitet = uttakAktivitetOpt.get();
-        String arbeidsgiverId = arbeidsforhold.getArbeidsgiverId();
+        var uttakAktivitet = uttakAktivitetOpt.get();
+        var arbeidsgiverId = arbeidsforhold.getArbeidsgiverId();
 
         //Gradering
-        Tuple<Long, Long> dagsatser = kalkulerDagsatserForGradering(arbeidsforhold.getRedusertBrukersAndelPrÅr(), arbeidsforhold.getRedusertRefusjonPrÅr(),
+        var dagsatser = kalkulerDagsatserForGradering(arbeidsforhold.getRedusertBrukersAndelPrÅr(), arbeidsforhold.getRedusertRefusjonPrÅr(),
             uttakAktivitet, resultater, periodeNavn);
 
-        Long dagsatsBruker = dagsatser.getElement1();
-        Long dagsatsArbeidsgiver = dagsatser.getElement2();
+        var dagsatsBruker = dagsatser.getElement1();
+        var dagsatsArbeidsgiver = dagsatser.getElement2();
 
         resultatPeriode.addBeregningsresultatAndel(
             BeregningsresultatAndel.builder()
@@ -205,28 +204,19 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
             return new Tuple<>(0L, 0L);
         }
 
-        BigDecimal utbetalingsgrad = uttakAktivitet.getUtbetalingsgrad().scaleByPowerOfTen(-2);
-        BigDecimal andelArbeidsgiver = Optional.ofNullable(redusertRefusjonPrÅr).orElse(BigDecimal.ZERO);
-        BigDecimal andelBruker = Optional.ofNullable(redusertBrukersAndelPrÅr).orElse(BigDecimal.ZERO);
-        BigDecimal redusertAndelArb = andelArbeidsgiver.multiply(utbetalingsgrad);
-        BigDecimal redusertAndelBruker = andelBruker.multiply(utbetalingsgrad);
+        var utbetalingsgrad = uttakAktivitet.getUtbetalingsgrad().scaleByPowerOfTen(-2);
+        var andelArbeidsgiver = Optional.ofNullable(redusertRefusjonPrÅr).orElse(BigDecimal.ZERO);
+        var andelBruker = Optional.ofNullable(redusertBrukersAndelPrÅr).orElse(BigDecimal.ZERO);
+        var redusertAndelArb = andelArbeidsgiver.multiply(utbetalingsgrad);
+        var redusertAndelBruker = andelBruker.multiply(utbetalingsgrad);
 
         if (skalGjøreOverkompensasjon(uttakAktivitet)) {
-            BigDecimal permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);
-            BigDecimal maksimalRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
-            BigDecimal utbetalingBruker = redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker);
+            var permisjonsProsent = finnPermisjonsprosent(uttakAktivitet);
+            var maksimalRefusjon = BigDecimal.ZERO.max(andelArbeidsgiver.multiply(permisjonsProsent));
+            var utbetalingBruker = redusertAndelArb.subtract(maksimalRefusjon).add(redusertAndelBruker);
 
-            long dagsatsArbeidsgiver = årsbeløpTilDagsats(maksimalRefusjon);
-            long dagsatsBruker = årsbeløpTilDagsats(utbetalingBruker);
-
-            // Regelsporing
-            resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
-            resultater.put(periodenavn + ".stillingsprosent", uttakAktivitet.getStillingsgrad());
-
-            return new Tuple<>(dagsatsBruker, dagsatsArbeidsgiver);
-        } else {
-            long dagsatsArbeidsgiver = årsbeløpTilDagsats(redusertAndelArb);
-            long dagsatsBruker = årsbeløpTilDagsats(redusertAndelBruker);
+            var dagsatsArbeidsgiver = årsbeløpTilDagsats(maksimalRefusjon);
+            var dagsatsBruker = årsbeløpTilDagsats(utbetalingBruker);
 
             // Regelsporing
             resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
@@ -234,6 +224,14 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
 
             return new Tuple<>(dagsatsBruker, dagsatsArbeidsgiver);
         }
+        var dagsatsArbeidsgiver = årsbeløpTilDagsats(redusertAndelArb);
+        var dagsatsBruker = årsbeløpTilDagsats(redusertAndelBruker);
+
+        // Regelsporing
+        resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
+        resultater.put(periodenavn + ".stillingsprosent", uttakAktivitet.getStillingsgrad());
+
+        return new Tuple<>(dagsatsBruker, dagsatsArbeidsgiver);
     }
 
     private static boolean skalGjøreOverkompensasjon(UttakAktivitet uttakAktivitet) {
@@ -248,8 +246,8 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         if (!uttakAktivitet.isErGradering()) {
             return BigDecimal.ONE;
         }
-        BigDecimal stillingsandel = uttakAktivitet.getStillingsgrad().scaleByPowerOfTen(-2);
-        BigDecimal arbeidstidsAndel = uttakAktivitet.getArbeidstidsprosent().scaleByPowerOfTen(-2);
+        var stillingsandel = uttakAktivitet.getStillingsgrad().scaleByPowerOfTen(-2);
+        var arbeidstidsAndel = uttakAktivitet.getArbeidstidsprosent().scaleByPowerOfTen(-2);
 
         if (stillingsandel.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
@@ -258,14 +256,14 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     private LocalDateTimeline<BeregningsgrunnlagPeriode> mapGrunnlagTimeline(Beregningsgrunnlag grunnlag) {
-        List<LocalDateSegment<BeregningsgrunnlagPeriode>> grunnlagPerioder = grunnlag.getBeregningsgrunnlagPerioder().stream()
+        var grunnlagPerioder = grunnlag.getBeregningsgrunnlagPerioder().stream()
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriode().getFom(), p.getBeregningsgrunnlagPeriode().getTom(), p))
             .collect(Collectors.toList());
         return new LocalDateTimeline<>(grunnlagPerioder);
     }
 
     private static long årsbeløpTilDagsats(BigDecimal årsbeløp) {
-        final BigDecimal toHundreSeksti = BigDecimal.valueOf(260);
+        final var toHundreSeksti = BigDecimal.valueOf(260);
         return årsbeløp.divide(toHundreSeksti, 0, RoundingMode.HALF_UP).longValue();
     }
 }

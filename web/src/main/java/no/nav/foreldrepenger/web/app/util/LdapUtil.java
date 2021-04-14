@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +27,10 @@ public class LdapUtil {
     private static String filterDNtoCNvalue(String value) {
         if(value.toLowerCase(Locale.ROOT).contains("cn=")) {
             try {
-                LdapName ldapname = new LdapName(value); //NOSONAR, only used locally
-                for (Rdn rdn : ldapname.getRdns()) {
+                var ldapname = new LdapName(value); //NOSONAR, only used locally
+                for (var rdn : ldapname.getRdns()) {
                     if ("CN".equalsIgnoreCase(rdn.getType())) {
-                        String cn = rdn.getValue().toString();
+                        var cn = rdn.getValue().toString();
                         LOG.debug("uid on DN form. Filtered from {} to {}", value, cn); //NOSONAR trusted source, validated SAML-token or LDAP memberOf
                         return cn;
                     }

@@ -312,15 +312,17 @@ public class FastsettePerioderRegelResultatKonverterer {
         var overføringÅrsak = uttakPeriode.getOverføringÅrsak();
         if (Objects.equals(overføringÅrsak, OverføringÅrsak.INNLEGGELSE)) {
             return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.INSTITUSJONSOPPHOLD_ANNEN_FORELDER;
-        } else if (Objects.equals(overføringÅrsak, OverføringÅrsak.SYKDOM_ELLER_SKADE)) {
-            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
-        } else if (Objects.equals(overføringÅrsak, OverføringÅrsak.ANNEN_FORELDER_IKKE_RETT)) {
-            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
-        } else if (Objects.equals(overføringÅrsak, OverføringÅrsak.ALENEOMSORG)) {
-            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.ALENEOMSORG;
-        } else {
-            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.UDEFINERT;
         }
+        if (Objects.equals(overføringÅrsak, OverføringÅrsak.SYKDOM_ELLER_SKADE)) {
+            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.SYKDOM_ANNEN_FORELDER;
+        }
+        if (Objects.equals(overføringÅrsak, OverføringÅrsak.ANNEN_FORELDER_IKKE_RETT)) {
+            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.IKKE_RETT_ANNEN_FORELDER;
+        }
+        if (Objects.equals(overføringÅrsak, OverføringÅrsak.ALENEOMSORG)) {
+            return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.ALENEOMSORG;
+        }
+        return no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak.UDEFINERT;
     }
 
     private boolean erOppholdsperiode(UttakPeriode uttakPeriode) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -43,16 +41,16 @@ public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
     public void skalLagreVedtak() {
         // Arrange
         var behandling = opprettBehandling();
-        BehandlingVedtak behandlingVedtak = opprettBehandlingVedtak(behandling);
+        var behandlingVedtak = opprettBehandlingVedtak(behandling);
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
 
         // Assert
-        Long behandlingVedtakId = behandlingVedtak.getId();
+        var behandlingVedtakId = behandlingVedtak.getId();
         assertThat(behandlingVedtakId).isNotNull();
-        BehandlingVedtak lagret = behandlingVedtakRepository.hentForBehandling(behandling.getId());
+        var lagret = behandlingVedtakRepository.hentForBehandling(behandling.getId());
         assertThat(lagret).isSameAs(behandlingVedtak);
     }
 
@@ -60,12 +58,12 @@ public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
     public void skalLagreOgHenteVedtak() {
         // Arrange
         var behandling = opprettBehandling();
-        BehandlingVedtak behandlingVedtak = opprettBehandlingVedtak(behandling);
+        var behandlingVedtak = opprettBehandlingVedtak(behandling);
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingVedtakRepository.lagre(behandlingVedtak, lås);
-        Optional<BehandlingVedtak> lagretVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var lagretVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
         // Assert
         assertThat(lagretVedtakOpt).hasValueSatisfying(lagretVedtak -> {
@@ -75,7 +73,7 @@ public class BehandlingVedtakRepositoryTest extends EntityManagerAwareTest {
     }
 
     private BehandlingVedtak opprettBehandlingVedtak(Behandling behandling) {
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
         return BehandlingVedtak.builder()
             .medVedtakstidspunkt(LocalDateTime.now().minusDays(3))
             .medAnsvarligSaksbehandler("E2354345")

@@ -5,10 +5,8 @@ import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -55,17 +53,17 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
     private void registrerKvittering(String oppdragXML) {
         LOG.info("Skal registrerer kvittering for økonomiOppdrag.");
         try {
-            Document oppdragDocument = getDocument(oppdragXML);
-            NodeList oppdrag110Noder = getNodes("/oppdrag/oppdrag-110", oppdragDocument, "oppdrag-110");
-            Node oppdrag110Node = oppdrag110Noder.item(0);
+            var oppdragDocument = getDocument(oppdragXML);
+            var oppdrag110Noder = getNodes("/oppdrag/oppdrag-110", oppdragDocument, "oppdrag-110");
+            var oppdrag110Node = oppdrag110Noder.item(0);
 
-            String fagSystemId = hentVerdi(oppdrag110Node, "fagsystemId");
+            var fagSystemId = hentVerdi(oppdrag110Node, "fagsystemId");
 
-            NodeList oppdragsLinjer = getNodes("oppdrags-linje-150", oppdrag110Node);
-            Node oppdragsLinje150Node = oppdragsLinjer.item(0);
-            String henvisning = hentVerdi(oppdragsLinje150Node, "henvisning");
+            var oppdragsLinjer = getNodes("oppdrags-linje-150", oppdrag110Node);
+            var oppdragsLinje150Node = oppdragsLinjer.item(0);
+            var henvisning = hentVerdi(oppdragsLinje150Node, "henvisning");
 
-            ØkonomiKvittering kvittering = new ØkonomiKvittering();
+            var kvittering = new ØkonomiKvittering();
             kvittering.setFagsystemId(Long.parseLong(fagSystemId));
             kvittering.setBehandlingId(Long.parseLong(henvisning));
             kvittering.setAlvorlighetsgrad("00");
@@ -89,12 +87,12 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
     }
 
     private Document getDocument(String xml) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        var documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         return documentBuilder.parse(new ByteArrayInputStream(xml.getBytes()));
     }
 
     private NodeList getNodes(String nodePath, Document kilde, String typeNode) {
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        var xPath = XPathFactory.newInstance().newXPath();
         try {
             return (NodeList) xPath.evaluate(nodePath, kilde, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
@@ -103,7 +101,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
     }
 
     private NodeList getNodes(String nodePath, Node parentNode) {
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        var xPath = XPathFactory.newInstance().newXPath();
         try {
             return (NodeList) xPath.evaluate(nodePath, parentNode, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
@@ -113,7 +111,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
 
     private String hentVerdi(Node node, String feltNavn) {
         try {
-            XPath xPath = XPathFactory.newInstance().newXPath();
+            var xPath = XPathFactory.newInstance().newXPath();
             return xPath.evaluate(feltNavn, node);
         } catch (XPathExpressionException e) {
             throw new IllegalStateException("Fikk exception under henting av verdi for <" + feltNavn + "> fra", e);

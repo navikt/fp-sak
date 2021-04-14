@@ -33,7 +33,7 @@ public class MapRefusjonskravDatoer {
         if (arbeidsgiverDto == null) {
             return null;
         }
-        String identifikator = arbeidsgiverDto.getIdent();
+        var identifikator = arbeidsgiverDto.getIdent();
         if (arbeidsgiverDto.getErOrganisasjon()) {
             return Arbeidsgiver.virksomhet(new OrgNummer(identifikator));
         }

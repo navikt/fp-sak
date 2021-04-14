@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -36,12 +33,10 @@ import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +67,7 @@ public class DokumentRestTjenesteTest {
     @Test
     public void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() throws Exception {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.empty());
-        final Collection<DokumentDto> response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
+        final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).isEmpty();
     }
 
@@ -80,9 +75,9 @@ public class DokumentRestTjenesteTest {
     public void skal_returnere_to_dokument() throws Exception {
         Long fagsakId = 5L;
         Long behandlingId = 150L;
-        AktørId aktørId = AktørId.dummy();
-        NavBruker navBruker = new NavBrukerBuilder().medAktørId(aktørId).build();
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor()
+        var aktørId = AktørId.dummy();
+        var navBruker = new NavBrukerBuilder().medAktørId(aktørId).build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
                 .medBruker(navBruker)
                 .medSaksnummer(new Saksnummer("123456"))
                 .build();
@@ -127,26 +122,26 @@ public class DokumentRestTjenesteTest {
 
         when(dokumentArkivTjeneste.hentAlleDokumenterForVisning(any())).thenReturn(List.of(søknadJP, søknadV, imJP));
 
-        MottattDokument mds = new MottattDokument.Builder().medId(1001L).medJournalPostId(new JournalpostId("123"))
+        var mds = new MottattDokument.Builder().medId(1001L).medJournalPostId(new JournalpostId("123"))
                 .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
-        MottattDokument mdim = new MottattDokument.Builder().medId(1002L).medJournalPostId(new JournalpostId("124"))
+        var mdim = new MottattDokument.Builder().medId(1002L).medJournalPostId(new JournalpostId("124"))
                 .medDokumentType(DokumentTypeId.INNTEKTSMELDING).medFagsakId(fagsakId).medBehandlingId(behandlingId).build();
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId)).thenReturn(List.of(mdim, mds));
 
-        String vnavn = "Sinsen Septik og Snarmat";
-        Virksomhet sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
-        Inntektsmelding imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
+        var vnavn = "Sinsen Septik og Snarmat";
+        var sinsen = new Virksomhet.Builder().medNavn(vnavn).medOrgnr(ORGNR).build();
+        var imelda = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medJournalpostId(mdim.getJournalpostId()).medInnsendingstidspunkt(LocalDateTime.now()).build();
 
         when(inntektsmeldingTjeneste.hentAlleInntektsmeldingerForAngitteBehandlinger(any())).thenReturn(Collections.singletonList(imelda));
 
         when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(sinsen));
 
-        final Collection<DokumentDto> response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
+        final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).hasSize(3);
 
         assertThat(response.iterator().next().getTidspunkt()).isNull();
-        Optional<DokumentDto> imdto = response.stream().filter(dto -> dto.getGjelderFor() != null).findAny();
+        var imdto = response.stream().filter(dto -> dto.getGjelderFor() != null).findAny();
         assertThat(imdto).isPresent();
         assertThat(imdto.get().getGjelderFor()).isEqualTo(vnavn);
         assertThat(imdto.get().getBehandlinger()).hasSize(1);

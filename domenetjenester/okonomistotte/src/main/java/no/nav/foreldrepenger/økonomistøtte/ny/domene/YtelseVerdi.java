@@ -29,7 +29,7 @@ public class YtelseVerdi {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        YtelseVerdi that = (YtelseVerdi) o;
+        var that = (YtelseVerdi) o;
         return Objects.equals(sats, that.sats) &&
             Objects.equals(utbetalingsgrad, that.utbetalingsgrad);
     }

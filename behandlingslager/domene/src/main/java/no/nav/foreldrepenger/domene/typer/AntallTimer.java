@@ -66,10 +66,11 @@ public class AntallTimer implements Serializable, IndexKey, TraverseValue {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !getClass().equals(obj.getClass())) {
+        }
+        if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        AntallTimer other = (AntallTimer) obj;
+        var other = (AntallTimer) obj;
         return Objects.equals(skalertVerdi(), other.skalertVerdi());
     }
 

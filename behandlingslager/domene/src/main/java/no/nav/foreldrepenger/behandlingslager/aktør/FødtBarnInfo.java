@@ -35,7 +35,7 @@ public class FødtBarnInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FødtBarnInfo that = (FødtBarnInfo) o;
+        var that = (FødtBarnInfo) o;
         return Objects.equals(ident, that.ident) &&
             Objects.equals(fødselsdato, that.fødselsdato) &&
             Objects.equals(dødsdato, that.dødsdato);

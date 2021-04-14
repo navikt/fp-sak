@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.RegelFastsettOpptjeningsperiode;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("SVP")
@@ -37,17 +36,17 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
     @Override
     public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
-        OpptjeningsperiodeGrunnlag grunnlag = new OpptjeningsperiodeGrunnlag();
+        var grunnlag = new OpptjeningsperiodeGrunnlag();
 
         grunnlag.setFagsakÅrsak(FagsakÅrsak.SVANGERSKAP);
         grunnlag.setFørsteUttaksDato(førsteUttaksdato);
         grunnlag.setPeriodeLengde(antallDagerOpptjeningsperiode);
         grunnlag.setTidligsteUttakFørFødselPeriode(null);
 
-        final OpptjeningsPeriode data = new OpptjeningsPeriode();
-        Evaluation evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
+        final var data = new OpptjeningsPeriode();
+        var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
 
-        VilkårData resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
+        var resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
         resultat.setEkstraVilkårresultat(data);
         return resultat;
     }

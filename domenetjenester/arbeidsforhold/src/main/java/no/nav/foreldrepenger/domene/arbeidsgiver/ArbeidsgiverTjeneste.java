@@ -40,7 +40,7 @@ public class ArbeidsgiverTjeneste {
         if (arbeidsgiver == null) {
             return null;
         }
-        ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = cache.get(arbeidsgiver.getIdentifikator());
+        var arbeidsgiverOpplysninger = cache.get(arbeidsgiver.getIdentifikator());
         if (arbeidsgiverOpplysninger != null) {
             return arbeidsgiverOpplysninger;
         }
@@ -49,30 +49,31 @@ public class ArbeidsgiverTjeneste {
             return arbeidsgiverOpplysninger;
         }
         if (arbeidsgiver.getErVirksomhet() && !Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
-            String orgnr = arbeidsgiver.getOrgnr();
+            var orgnr = arbeidsgiver.getOrgnr();
             var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgnr);
-            ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(orgnr, virksomhet.getNavn());
+            var nyOpplysninger = new ArbeidsgiverOpplysninger(orgnr, virksomhet.getNavn());
             cache.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
             return nyOpplysninger;
-        } else if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
+        }
+        if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
             return new ArbeidsgiverOpplysninger(OrgNummer.KUNSTIG_ORG, "Kunstig(Lagt til av saksbehandling)");
-        } else if (arbeidsgiver.erAktørId()) {
-            Optional<PersoninfoArbeidsgiver> personinfo = hentInformasjonFraTps(arbeidsgiver);
+        }
+        if (arbeidsgiver.erAktørId()) {
+            var personinfo = hentInformasjonFraTps(arbeidsgiver);
             if (personinfo.isPresent()) {
-                PersoninfoArbeidsgiver info = personinfo.get();
-                String fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                ArbeidsgiverOpplysninger nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(),
+                var info = personinfo.get();
+                var fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                var nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(),
                         info.getFødselsdato());
                 cache.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
-            } else {
-                // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
-                // denne i en backoff cache som benyttes for at vi ikke skal hamre på tps ved
-                // sikkerhetsbegrensning
-                ArbeidsgiverOpplysninger opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
-                failBackoffCache.put(arbeidsgiver.getIdentifikator(), opplysninger);
-                return opplysninger;
             }
+            // Putter bevist ikke denne i cache da denne aktøren ikke er kjent, men legger
+            // denne i en backoff cache som benyttes for at vi ikke skal hamre på tps ved
+            // sikkerhetsbegrensning
+            var opplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getIdentifikator(), "N/A");
+            failBackoffCache.put(arbeidsgiver.getIdentifikator(), opplysninger);
+            return opplysninger;
         }
         return null;
     }

@@ -19,7 +19,6 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -34,7 +33,6 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnsaksjonspunktDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollSkjermlenkeContextDto;
 
 public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
@@ -60,10 +58,10 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -73,10 +71,10 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         // Arrange
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -85,19 +83,19 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_tom_skjermlenkecontext_for_behandling_med_ikke_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        boolean ttvGodkjent = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_KONTROLLER_FAKTA);
 
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
-        Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
+        var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
         // Assert
         assertThat(context).isEmpty();
 
@@ -106,19 +104,19 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     @Test
     public void skal_hente_tom_skjermlenkecontext_for_behandling_med_status_FATTER_VEDTAK_og_med_totrinnsvurdering_og_ingen_aksjonspunkter(){
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        boolean ttvGodkjent = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
 
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
-        Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.empty(), Optional.empty());
+        var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -127,31 +125,31 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_en_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_omhandler_mottat_stotte_eller_omsorgsovertakelse(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        boolean ttvGodkjent = false;
-        boolean apAvbrutt = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var ttvGodkjent = false;
+        var apAvbrutt = false;
 
         opprettBehandlingForFP(Optional.empty());
 
-        Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+        var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
         opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
         // Assert
         assertThat(context).hasSize(1);
 
-        TotrinnskontrollSkjermlenkeContextDto totrinnskontrollSkjermlenkeContextDto = context.get(0);
+        var totrinnskontrollSkjermlenkeContextDto = context.get(0);
         assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
 
-        List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
+        var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
 
-        TotrinnskontrollAksjonspunkterDto enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+        var enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
         assertThat(enesteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon.getKode());
         assertThat(enesteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
 
@@ -164,8 +162,8 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
-        boolean ttvGodkjent = false;
-        boolean apAvbrutt = false;
+        var ttvGodkjent = false;
+        var apAvbrutt = false;
 
         Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
@@ -176,30 +174,30 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
 
-        for (AksjonspunktDefinisjon aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
+        for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
 
                 opprettBehandlingForFP(Optional.of(vilkårType));
 
-                Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-                TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+                var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
                 opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
                 // Act
-                List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
                 // Arrange
                 assertThat(context).hasSize(1);
 
-                TotrinnskontrollSkjermlenkeContextDto totrinnskontrollSkjermlenkeContextDto = context.get(0);
+                var totrinnskontrollSkjermlenkeContextDto = context.get(0);
                 assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
 
-                List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
+                var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
                 assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
 
-                TotrinnskontrollAksjonspunkterDto enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+                var enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
                 assertThat(enesteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon.getKode());
                 assertThat(enesteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
 
@@ -212,9 +210,9 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
-        boolean ttvGodkjent = true;
-        boolean apAvbrutt = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
+        var ttvGodkjent = true;
+        var apAvbrutt = false;
 
         Map<FagsakYtelseType, SkjermlenkeType> fagsakYtelseTypeSkjermlenkeTypeMap = new HashMap<>();
         fagsakYtelseTypeSkjermlenkeTypeMap.put(FagsakYtelseType.ENGANGSTØNAD, SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR);
@@ -228,25 +226,25 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
                 opprettBehandlingForFP(Optional.empty());
             }
 
-            Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-            TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+            var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+            var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
             opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
             setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
             // Act
-            List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
             // Arrange
             assertThat(context).hasSize(1);
 
-            TotrinnskontrollSkjermlenkeContextDto totrinnskontrollSkjermlenkeContextDto = context.get(0);
+            var totrinnskontrollSkjermlenkeContextDto = context.get(0);
             assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(fagsakYtelseTypeSkjermlenkeTypeMap.get(fagsakYtelseType).getKode());
 
-            List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
+            var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
             assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
 
-            TotrinnskontrollAksjonspunkterDto enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+            var enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
             assertThat(enesteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon.getKode());
             assertThat(enesteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isTrue();
 
@@ -261,8 +259,8 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = new ArrayList<>();
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
         aksjonspunktDefinisjons.add(AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE);
-        boolean ttvGodkjent = false;
-        boolean apAvbrutt = false;
+        var ttvGodkjent = false;
+        var apAvbrutt = false;
 
         Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT);
@@ -273,19 +271,19 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OPPTJENINGSPERIODEVILKÅR, SkjermlenkeType.UDEFINERT);
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.UDEFINERT);
 
-        for (AksjonspunktDefinisjon aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
+        for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
 
                 opprettBehandlingForFP(Optional.of(vilkårType));
 
-                Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-                TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+                var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+                var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
                 opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
                 setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
                 // Act
-                List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+                var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
                 // Arrange
                 assertThat(context).isEmpty();
 
@@ -298,24 +296,24 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_med_status_FATTE_VEDTAK_og_ingen_totrinnsvurdering_og_ett_aksjonspunkt(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        boolean apAvbrutt = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var apAvbrutt = false;
 
         opprettBehandlingForFP(Optional.empty());
         forceOppdaterBehandlingSteg(behandling, STEG_FATTE_VEDTAK);
 
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.empty());
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.empty());
         opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.emptyList());
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
         // Assert
         assertThat(context).hasSize(1);
         assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
-        List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
+        var totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
         assertThat(totrinnskontrollAksjonspunkter.get(0).getAksjonspunktKode()).isEqualTo(AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT.getKode());
 
@@ -324,31 +322,31 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     @Test
     public void skal_hente_en_skjermlenketype_og_ett_ikke_godkjent_totrinnskontrollaksjonspunkt_for_behandling_med_en_godkjent_totrinnsvurdering_og_ett_aksjonspunkt_som_ikke_har_samme_aksjonspunktdefinisjon(){
 
-        AksjonspunktDefinisjon adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        AksjonspunktDefinisjon adFraTotrinnvurdering = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
-        boolean ttvGodkjent = true;
-        boolean apAvbrutt = false;
+        var adFraAksjonspunkt = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var adFraTotrinnvurdering = AksjonspunktDefinisjon.VENT_PÅ_FØDSEL;
+        var ttvGodkjent = true;
+        var apAvbrutt = false;
 
         opprettBehandlingForFP(Optional.empty());
 
-        Totrinnsvurdering ttvFraBehandling = opprettTotrinnsvurdering(behandling, adFraTotrinnvurdering, ttvGodkjent);
-        Totrinnsvurdering ttvOpprettetAvMetode = opprettTotrinnsvurdering(behandling, adFraAksjonspunkt, !ttvGodkjent);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(adFraAksjonspunkt), Optional.of(ttvOpprettetAvMetode));
+        var ttvFraBehandling = opprettTotrinnsvurdering(behandling, adFraTotrinnvurdering, ttvGodkjent);
+        var ttvOpprettetAvMetode = opprettTotrinnsvurdering(behandling, adFraAksjonspunkt, !ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(adFraAksjonspunkt), Optional.of(ttvOpprettetAvMetode));
         opprettAksjonspunkt(behandling, adFraAksjonspunkt, apAvbrutt);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttvFraBehandling));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
         // Assert
         assertThat(context).hasSize(1);
         assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
 
-        List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
+        var totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
 
-        TotrinnskontrollAksjonspunkterDto enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+        var enesteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
         assertThat(enesteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(adFraAksjonspunkt.getKode());
         assertThat(enesteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
 
@@ -358,20 +356,20 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_tom_skjermlenkecontext_for_behandling_med_en_totrinnsvurdering_og_ett_avbrutt_aksjonspunkt(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        boolean ttvGodkjent = false;
-        boolean apAvbrutt = true;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var ttvGodkjent = false;
+        var apAvbrutt = true;
 
         opprettBehandlingForFP(Optional.empty());
 
-        Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+        var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
         opprettAksjonspunkt(behandling, aksjonspunktDefinisjon, apAvbrutt);
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsSkjermlenkeContext(behandling);
 
         // Assert
         assertThat(context).isEmpty();
@@ -382,18 +380,18 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_tom_skjermlenkecontext_for_en_behandling_med_en_totrinnsvurdering_med_et_aksjonspunktdefinisjon_som_gir_en_undefinert_skjermlenketype(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
-        boolean ttvGodkjent = false;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
+        var ttvGodkjent = false;
 
         opprettBehandlingForFP(Optional.empty());
 
-        Totrinnsvurdering ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
-        TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
+        var ttv = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon, ttvGodkjent);
+        var totrinnskontrollAksjonspunkterDto = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon), Optional.of(ttv));
 
         setFelleseMockMetoder(totrinnskontrollAksjonspunkterDto, Collections.singletonList(ttv));
 
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
 
         // Assert
         assertThat(context).isEmpty();
@@ -406,7 +404,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         opprettBehandlingForFP(Optional.empty());
         when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(Collections.emptyList());
         // Act
-        List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+        var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
         // Assert
         assertThat(context).isEmpty();
     }
@@ -415,10 +413,10 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     public void skal_hente_en_skjermlenketype_og_to_totrinnskontrollaksjonspunkt_for_behandling_med_to_totrinnsvurdering_med_aksjonspunktdefinisjoner_som_omhandler_mottat_stotte(){
 
         // Arrange
-        AksjonspunktDefinisjon aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
-        AksjonspunktDefinisjon aksjonspunktDefinisjon2 = AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE;
-        boolean ttv1Godkjent = false;
-        boolean ttv2Godkjent = true;
+        var aksjonspunktDefinisjon1 = AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE;
+        var aksjonspunktDefinisjon2 = AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE;
+        var ttv1Godkjent = false;
+        var ttv2Godkjent = true;
 
         Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
@@ -433,11 +431,11 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
             opprettBehandlingForFP(Optional.of(vilkårType));
 
-            Totrinnsvurdering ttv1 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon1, ttv1Godkjent);
-            TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1), Optional.of(ttv1));
+            var ttv1 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon1, ttv1Godkjent);
+            var totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1), Optional.of(ttv1));
 
-            Totrinnsvurdering ttv2 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon2, ttv2Godkjent);
-            TotrinnskontrollAksjonspunkterDto totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2), Optional.of(ttv2));
+            var ttv2 = opprettTotrinnsvurdering(behandling, aksjonspunktDefinisjon2, ttv2Godkjent);
+            var totrinnskontrollAksjonspunkterDto2 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon2), Optional.of(ttv2));
 
             when(totrinnTjeneste.hentTotrinngrunnlagHvisEksisterer(behandling)).thenReturn(Optional.of(totrinnresultatgrunnlag));
             when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling)).thenReturn(List.of(ttv1, ttv2));
@@ -447,22 +445,22 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
                 .thenReturn(totrinnskontrollAksjonspunkterDto2);
 
             // Act
-            List<TotrinnskontrollSkjermlenkeContextDto> context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
+            var context = totrinnskontrollAksjonspunkterTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling);
 
             // Arrange
             assertThat(context).hasSize(1);
 
-            TotrinnskontrollSkjermlenkeContextDto totrinnskontrollSkjermlenkeContextDto = context.get(0);
+            var totrinnskontrollSkjermlenkeContextDto = context.get(0);
             assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
 
-            List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
+            var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
             assertThat(totrinnskontrollAksjonspunkter).hasSize(2);
 
-            TotrinnskontrollAksjonspunkterDto førsteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
+            var førsteTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(0);
             assertThat(førsteTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon1.getKode());
             assertThat(førsteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
 
-            TotrinnskontrollAksjonspunkterDto andreTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(1);
+            var andreTotrinnskontrollAksjonspunkt = totrinnskontrollAksjonspunkter.get(1);
             assertThat(andreTotrinnskontrollAksjonspunkt.getAksjonspunktKode()).isEqualTo(aksjonspunktDefinisjon2.getKode());
             assertThat(andreTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isTrue();
 
@@ -475,13 +473,13 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     // ------------------------------------------------------------ //
 
     private void opprettBehandlingForFP(Optional<VilkårType> vilkårTypeOpt) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.UDEFINERT));
         behandling = scenario.lagMocked();
     }
 
     private void opprettBehandlingForEngangsstønad() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
     }
 
@@ -493,7 +491,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     private TotrinnskontrollAksjonspunkterDto opprettTotrinnskontrollAksjonspunkterDto(Optional<AksjonspunktDefinisjon> aksjonspunktDefinisjonOpt, Optional<Totrinnsvurdering> ttvOpt) {
-        TotrinnskontrollAksjonspunkterDto.Builder builder = new TotrinnskontrollAksjonspunkterDto.Builder();
+        var builder = new TotrinnskontrollAksjonspunkterDto.Builder();
         aksjonspunktDefinisjonOpt.ifPresent(ad -> builder.medAksjonspunktKode(ad.getKode()));
         ttvOpt.ifPresent(ttv -> builder.medTotrinnskontrollGodkjent(ttv.isGodkjent()));
         return  builder.build();
@@ -506,7 +504,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
     }
 
     private void opprettAksjonspunkt(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, boolean erAvbrutt) {
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
         if (erAvbrutt) {
             AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);

@@ -83,7 +83,7 @@ public class ForeslåVedtakRevurderingStegImplTest {
         when(behandlingsresultatRepository.hent(revurdering.getId())).thenReturn(behandlingsresultat);
 
         kontekstRevurdering = mock(BehandlingskontrollKontekst.class);
-        BehandlingLås behandlingLås = mock(BehandlingLås.class);
+        var behandlingLås = mock(BehandlingLås.class);
         when(kontekstRevurdering.getBehandlingId()).thenReturn(revurdering.getId());
         when(kontekstRevurdering.getSkriveLås()).thenReturn(behandlingLås);
         when(behandlingRepository.hentBehandling(kontekstRevurdering.getBehandlingId())).thenReturn(revurdering);

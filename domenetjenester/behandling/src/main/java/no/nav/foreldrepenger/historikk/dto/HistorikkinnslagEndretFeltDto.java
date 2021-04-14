@@ -77,15 +77,15 @@ public class HistorikkinnslagEndretFeltDto {
 
     static List<HistorikkinnslagEndretFeltDto> mapFra(List<HistorikkinnslagFelt> endretFeltList) {
         List<HistorikkinnslagEndretFeltDto> dto = new ArrayList<>();
-        for (HistorikkinnslagFelt felt : endretFeltList) {
+        for (var felt : endretFeltList) {
             dto.add(mapFra(felt));
         }
         return dto;
     }
 
     private static HistorikkinnslagEndretFeltDto mapFra(HistorikkinnslagFelt endretFelt) {
-        HistorikkinnslagEndretFeltDto dto = new HistorikkinnslagEndretFeltDto();
-        HistorikkEndretFeltType endretFeltNavn = HistorikkEndretFeltType.fraKode(endretFelt.getNavn());
+        var dto = new HistorikkinnslagEndretFeltDto();
+        var endretFeltNavn = HistorikkEndretFeltType.fraKode(endretFelt.getNavn());
         dto.setEndretFeltNavn(endretFeltNavn);
         dto.setNavnVerdi(endretFelt.getNavnVerdi());
         dto.setKlNavn(endretFelt.getKlNavn());

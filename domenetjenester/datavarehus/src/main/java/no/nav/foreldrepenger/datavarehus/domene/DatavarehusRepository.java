@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 @ApplicationScoped
 public class DatavarehusRepository {
@@ -67,7 +66,7 @@ public class DatavarehusRepository {
     }
 
     public long oppdater(Long eksisterendeBehandlingId, Long eksisterendeVedtakId, String nyVedtakXml) {
-        Optional<VedtakUtbetalingDvh> eksisterende = finn(eksisterendeBehandlingId, eksisterendeVedtakId);
+        var eksisterende = finn(eksisterendeBehandlingId, eksisterendeVedtakId);
         if (eksisterende.isPresent()) {
             return
                 oppdater(eksisterende.get(), nyVedtakXml);
@@ -76,7 +75,7 @@ public class DatavarehusRepository {
     }
 
     public List<Long> hentVedtakBehandlinger(LocalDateTime fom, LocalDateTime tom) {
-        TypedQuery<VedtakUtbetalingDvh> query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " +
+        var query = entityManager.createQuery("from VedtakUtbetalingDvh where funksjonellTid >= :fom " +
             "AND funksjonellTid <= :tom", VedtakUtbetalingDvh.class);
         query.setParameter("fom", fom); // NOSONAR $NON-NLS-1$
         query.setParameter("tom", tom); // NOSONAR $NON-NLS-1$
@@ -85,7 +84,7 @@ public class DatavarehusRepository {
     }
 
     public List<Long> hentVedtakBehandlinger(Long behandlingid) {
-        TypedQuery<VedtakUtbetalingDvh> query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :bid ", VedtakUtbetalingDvh.class);
+        var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :bid ", VedtakUtbetalingDvh.class);
         query.setParameter("bid", behandlingid); // NOSONAR $NON-NLS-1$
         return query.getResultList().stream().map(VedtakUtbetalingDvh::getBehandlingId).collect(Collectors.toList());
     }
@@ -93,12 +92,12 @@ public class DatavarehusRepository {
     public long oppdater(VedtakUtbetalingDvh vedtakUtbetalingDvh, String nyVedtakXml) {
         vedtakUtbetalingDvh.setXmlClob(nyVedtakXml);
         vedtakUtbetalingDvh.setTransTid();
-        VedtakUtbetalingDvh merge = entityManager.merge(vedtakUtbetalingDvh);
+        var merge = entityManager.merge(vedtakUtbetalingDvh);
         return merge.getId();
     }
 
     public Optional<VedtakUtbetalingDvh> finn(Long behandlingId, Long vedtakId) {
-        TypedQuery<VedtakUtbetalingDvh> query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :behandlingId " +
+        var query = entityManager.createQuery("from VedtakUtbetalingDvh where behandlingId = :behandlingId " +
             "AND vedtakId = :vedtakId order by id", VedtakUtbetalingDvh.class);
         query.setParameter("behandlingId", behandlingId); // NOSONAR $NON-NLS-1$
         query.setParameter("vedtakId", vedtakId); // NOSONAR $NON-NLS-1$
@@ -128,7 +127,7 @@ public class DatavarehusRepository {
     }
 
     public Map<String, AksjonspunktDefDvh> hentAksjonspunktDefinisjoner() {
-        TypedQuery<AksjonspunktDefDvh> query = entityManager.createQuery("from AksjonspunktDefDvh", AksjonspunktDefDvh.class);
+        var query = entityManager.createQuery("from AksjonspunktDefDvh", AksjonspunktDefDvh.class);
 
         return query.getResultList().stream().collect(Collectors.toMap(AksjonspunktDefDvh::getAksjonspunktDef, a -> a));
     }

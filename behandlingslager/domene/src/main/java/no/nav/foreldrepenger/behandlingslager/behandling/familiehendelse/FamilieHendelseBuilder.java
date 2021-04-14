@@ -47,7 +47,7 @@ public class FamilieHendelseBuilder {
     }
 
     public FamilieHendelseBuilder leggTilBarn(UidentifisertBarn barn) {
-        final UidentifisertBarnEntitet barnEntitet = new UidentifisertBarnEntitet(barn);
+        final var barnEntitet = new UidentifisertBarnEntitet(barn);
         hendelse.leggTilBarn(barnEntitet);
         return this;
     }
@@ -151,7 +151,8 @@ public class FamilieHendelseBuilder {
     public FamilieHendelseEntitet build() {
         if (hendelse.getTerminbekreftelse().isPresent() && hendelse.getAdopsjon().isPresent()) {
             throw new IllegalStateException("Utviklerfeil: Kan ikke både ha terminbekreftelse og adopsjon");
-        } else if (hendelse.getAdopsjon().isPresent()) {
+        }
+        if (hendelse.getAdopsjon().isPresent()) {
             if (hendelse.getAdopsjon().get().getOmsorgovertakelseVilkår().equals(OmsorgsovertakelseVilkårType.UDEFINERT)
                     && !erSøknadEllerBekreftetVersjonOgSattTilOmsorg()) {
                 hendelse.setType(FamilieHendelseType.ADOPSJON);

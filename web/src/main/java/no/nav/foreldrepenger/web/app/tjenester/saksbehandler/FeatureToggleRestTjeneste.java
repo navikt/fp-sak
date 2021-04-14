@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.saksbehandler;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,11 +57,11 @@ public class FeatureToggleRestTjeneste {
     @Operation(description = "Svarer på om feature-toggles er skrudd på", tags = "feature-toggle")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
     public FeatureToggleDto featureToggles(@Valid @NotNull FeatureToggleNavnListeDto featureToggleNavn) {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        UnleashContext unleashContext = UnleashContext.builder()
+        var ident = SubjectHandler.getSubjectHandler().getUid();
+        var unleashContext = UnleashContext.builder()
                 .addProperty(ByAnsvarligSaksbehandlerStrategy.SAKSBEHANDLER_IDENT, ident)
                 .build();
-        Map<String, Boolean> values = featureToggleNavn.getToggles().stream()
+        var values = featureToggleNavn.getToggles().stream()
                 .map(FeatureToggleNavnDto::getNavn)
                 .collect(Collectors.toMap(Function.identity(), toggle -> unleash.isEnabled(toggle, unleashContext)));
         return new FeatureToggleDto(values);

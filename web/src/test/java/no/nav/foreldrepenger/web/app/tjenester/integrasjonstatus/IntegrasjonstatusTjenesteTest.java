@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,13 +26,13 @@ public class IntegrasjonstatusTjenesteTest {
 
     @Test
     public void skal_kalle_oppdatering_og_returnere_info_om_system_som_er_nede() {
-        SelftestResultat selftestResultat = new SelftestResultat();
+        var selftestResultat = new SelftestResultat();
         selftestResultat.setApplication("fpsak");
         selftestResultat.leggTilResultatForKritiskTjeneste(true, "test oppe", "test");
         selftestResultat.leggTilResultatForKritiskTjeneste(false, "test nede", "test");
         when(selftests.run()).thenReturn(selftestResultat);
 
-        List<SystemNedeDto> systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
+        var systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
 
         assertThat(systemerSomErNede).hasSize(1);
         assertThat(systemerSomErNede.get(0).systemNavn()).isEqualTo("fpsak");
@@ -45,12 +43,12 @@ public class IntegrasjonstatusTjenesteTest {
 
     @Test
     public void skal_bruke_message_fra_result_hvis_throwable_ikke_er_oppgitt() {
-        SelftestResultat selftestResultat = new SelftestResultat();
+        var selftestResultat = new SelftestResultat();
         selftestResultat.setApplication("fpsak");
         selftestResultat.leggTilResultatForKritiskTjeneste(false, "test", "test");
         when(selftests.run()).thenReturn(selftestResultat);
 
-        List<SystemNedeDto> systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
+        var systemerSomErNede = integrasjonstatusTjeneste.finnSystemerSomErNede();
 
         assertThat(systemerSomErNede).hasSize(1);
         assertThat(systemerSomErNede.get(0).systemNavn()).isEqualTo("fpsak");

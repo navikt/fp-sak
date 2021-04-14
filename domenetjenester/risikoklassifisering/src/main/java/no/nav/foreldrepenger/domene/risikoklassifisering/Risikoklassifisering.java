@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -79,9 +78,9 @@ public class Risikoklassifisering {
     }
 
     private String hentBehandlingTema(BehandlingReferanse ref) {
-        Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(
+        var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(
             ref.getBehandlingId());
-        BehandlingTema behandlingTema = BehandlingTema.fraFagsak(ref.getFagsakYtelseType(),
+        var behandlingTema = BehandlingTema.fraFagsak(ref.getFagsakYtelseType(),
             grunnlag.map(FamilieHendelseGrunnlagEntitet::getSøknadVersjon).orElseThrow());
         return behandlingTema.getOffisiellKode();
     }
@@ -89,10 +88,10 @@ public class Risikoklassifisering {
     private ProsessTaskData opprettTaskForRequest(BehandlingReferanse ref,
                                                   Long behandlingId,
                                                   RisikovurderingRequest risikovurderingRequest) throws IOException {
-        ProsessTaskData taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
+        var taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
         taskData.setBehandling(ref.getFagsakId(), behandlingId, ref.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
-        RequestWrapper requestWrapper = new RequestWrapper(MDCOperations.getCallId(), risikovurderingRequest);
+        var requestWrapper = new RequestWrapper(MDCOperations.getCallId(), risikovurderingRequest);
         taskData.setProperty(RisikoklassifiseringUtførTask.KONSUMENT_ID,
             risikovurderingRequest.getKonsumentId().toString());
         taskData.setProperty(RisikoklassifiseringUtførTask.RISIKOKLASSIFISERING_JSON, getJson(requestWrapper));
@@ -100,7 +99,7 @@ public class Risikoklassifisering {
     }
 
     private RisikovurderingRequest opprettRequest(BehandlingReferanse ref, Long behandlingId) {
-        LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId)
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId)
             .getUtledetSkjæringstidspunkt();
         var interval = opplysningsPeriodeTjeneste.beregn(behandlingId, ref.getFagsakYtelseType());
         return RisikovurderingRequest.builder()
@@ -121,7 +120,7 @@ public class Risikoklassifisering {
             if (aktoerId != null) {
                 return new AnnenPart(new AktoerIdDto(aktoerId));
             }
-            String utenlandskFnr = oppgittAnnenPart.get().getUtenlandskPersonident();
+            var utenlandskFnr = oppgittAnnenPart.get().getUtenlandskPersonident();
             if (utenlandskFnr != null) {
                 return new AnnenPart(utenlandskFnr);
             }

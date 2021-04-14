@@ -38,7 +38,7 @@ public class ArbeidsforholdDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArbeidsforholdDto that = (ArbeidsforholdDto) o;
+        var that = (ArbeidsforholdDto) o;
         return Objects.equals(arbeidsgiverReferanse, that.arbeidsgiverReferanse) &&
             Objects.equals(arbeidType, that.arbeidType);
     }

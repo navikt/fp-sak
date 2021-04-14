@@ -17,9 +17,7 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag110;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
@@ -64,9 +62,9 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     @Override
     public void handle(String message) {
         try {
-            Oppdrag kvitteringsmelding = unmarshalOgKorriger(message);
+            var kvitteringsmelding = unmarshalOgKorriger(message);
             if (inneholderOppdragslinjer(kvitteringsmelding)) {
-                ØkonomiKvittering kvittering = fraKvitteringsmelding(kvitteringsmelding);
+                var kvittering = fraKvitteringsmelding(kvitteringsmelding);
                 behandleØkonomioppdragKvittering.behandleKvittering(kvittering);
             } else {
                 loggKvitteringUtenLinjer(kvitteringsmelding);
@@ -80,13 +78,13 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     }
 
     private void loggKvitteringUtenLinjer(Oppdrag kvitteringsmelding) {
-        Oppdrag110 oppdrag110 = kvitteringsmelding.getOppdrag110();
-        Mmel mmel = kvitteringsmelding.getMmel();
-        String fagsystemId = oppdrag110.getFagsystemId();
-        String fagområde = oppdrag110.getKodeFagomraade();
-        String alvorlighetsgrad = mmel.getAlvorlighetsgrad();
-        String beskrivendeMelding = mmel.getBeskrMelding();
-        String kodeMelding = mmel.getKodeMelding();
+        var oppdrag110 = kvitteringsmelding.getOppdrag110();
+        var mmel = kvitteringsmelding.getMmel();
+        var fagsystemId = oppdrag110.getFagsystemId();
+        var fagområde = oppdrag110.getKodeFagomraade();
+        var alvorlighetsgrad = mmel.getAlvorlighetsgrad();
+        var beskrivendeMelding = mmel.getBeskrMelding();
+        var kodeMelding = mmel.getKodeMelding();
         log.warn("""
             Mottok og ignorerte kvitteringsmelding uten oppdragslinjer,
             kan ikke direkte identifisere behandling. Gjelder fagsystemId={}.
@@ -105,7 +103,7 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
             kvitteringsmelding = JaxbHelper.unmarshalAndValidateXMLWithStAX(OppdragSkjemaConstants.JAXB_CLASS, message,
                 OppdragSkjemaConstants.XSD_LOCATION);
         } catch (UnmarshalException e) { // NOSONAR
-            String editedMessage = message.replace("<oppdrag ", "<xml_1:oppdrag ")
+            var editedMessage = message.replace("<oppdrag ", "<xml_1:oppdrag ")
                 .replace("xmlns=", "xmlns:xml_1=")
                 .replace("</oppdrag>", "</xml_1:oppdrag>")
                 .replace("</ns2:oppdrag>", "</xml_1:oppdrag>");
@@ -116,7 +114,7 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     }
 
     private ØkonomiKvittering fraKvitteringsmelding(Oppdrag melding) {
-        ØkonomiKvittering kvittering = new ØkonomiKvittering();
+        var kvittering = new ØkonomiKvittering();
         fraMmel(kvittering, melding.getMmel(), melding.getOppdrag110().getFagsystemId());
         fraOppdragLinje150(kvittering, melding);
         return kvittering;
@@ -124,7 +122,7 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
 
     private void fraOppdragLinje150(ØkonomiKvittering kvittering, Oppdrag melding) {
         // trenger kun en tilfeldig oppdrag150 for å hente behandlingId
-        OppdragsLinje150 oppdragsLinje150 = melding.getOppdrag110().getOppdragsLinje150().get(0);
+        var oppdragsLinje150 = melding.getOppdrag110().getOppdragsLinje150().get(0);
         kvittering.setBehandlingId(Long.valueOf(oppdragsLinje150.getHenvisning()));
     }
 

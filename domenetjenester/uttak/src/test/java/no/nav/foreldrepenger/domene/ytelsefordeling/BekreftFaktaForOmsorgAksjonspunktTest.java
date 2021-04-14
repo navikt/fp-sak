@@ -5,17 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUtenOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUtenOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -31,20 +24,20 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_omsorg() {
         var behandling = opprettBehandling();
-        LocalDate iDag = LocalDate.now();
+        var iDag = LocalDate.now();
         // simulerer svar fra GUI
         List<DatoIntervallEntitet> ikkeOmsorgPerioder = new ArrayList<>();
-        DatoIntervallEntitet ikkeOmsorgPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2),
+        var ikkeOmsorgPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(iDag.minusMonths(2),
             iDag.minusMonths(1));
         ikkeOmsorgPerioder.add(ikkeOmsorgPeriode);
-        BekreftFaktaForOmsorgVurderingAksjonspunktDto dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
+        var dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(null,
             false, ikkeOmsorgPerioder);
         bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandling.getId(), dto);
 
-        Optional<PerioderUtenOmsorgEntitet> perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(
+        var perioderUtenOmsorgOpt = ytelsesFordelingRepository.hentAggregat(
             behandling.getId()).getPerioderUtenOmsorg();
         assertThat(perioderUtenOmsorgOpt).isPresent();
-        List<PeriodeUtenOmsorgEntitet> periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
+        var periodeUtenOmsorg = perioderUtenOmsorgOpt.get().getPerioder();
         assertThat(periodeUtenOmsorg).hasSize(1);
         assertThat(periodeUtenOmsorg.get(0).getPeriode()).isEqualTo(ikkeOmsorgPeriode);
 
@@ -60,21 +53,21 @@ public class BekreftFaktaForOmsorgAksjonspunktTest {
     @Test
     public void skal_lagre_ned_bekreftet_aksjonspunkt_aleneomsorg() {
         var behandling = opprettBehandling();
-        BekreftFaktaForOmsorgVurderingAksjonspunktDto dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(false,
+        var dto = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(false,
             null, null);
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         bekreftFaktaForOmsorgAksjonspunkt.oppdater(behandlingId, dto);
 
-        Optional<PerioderAleneOmsorgEntitet> perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(
+        var perioderAleneOmsorgOptional = ytelsesFordelingRepository.hentAggregat(
             behandlingId).getPerioderAleneOmsorg();
         assertThat(perioderAleneOmsorgOptional).isPresent();
-        List<PeriodeAleneOmsorgEntitet> periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
+        var periodeAleneOmsorg = perioderAleneOmsorgOptional.get().getPerioder();
         assertThat(periodeAleneOmsorg).isEmpty();
 
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
+        var perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(
             behandlingId).getPerioderAnnenforelderHarRett();
         assertThat(perioderAnnenforelderHarRettOptional).isPresent();
-        List<PeriodeAnnenforelderHarRettEntitet> periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get()
+        var periodeAnnenforelderHarRett = perioderAnnenforelderHarRettOptional.get()
             .getPerioder();
         assertThat(periodeAnnenforelderHarRett).hasSize(1);
         assertThat(periodeAnnenforelderHarRett.get(0).getPeriode()).isEqualTo(

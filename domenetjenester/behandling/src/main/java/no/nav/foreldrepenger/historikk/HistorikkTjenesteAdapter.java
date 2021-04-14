@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.historikk.dto.HistorikkInnslagKonverter;
 import no.nav.foreldrepenger.historikk.dto.HistorikkinnslagDto;
@@ -40,8 +39,8 @@ public class HistorikkTjenesteAdapter {
     }
 
     public List<HistorikkinnslagDto> hentAlleHistorikkInnslagForSak(Saksnummer saksnummer) {
-        List<Historikkinnslag> historikkinnslagList = historikkRepository.hentHistorikkForSaksnummer(saksnummer);
-        List<JournalpostId> journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSak(saksnummer).stream()
+        var historikkinnslagList = historikkRepository.hentHistorikkForSaksnummer(saksnummer);
+        var journalPosterForSak = dokumentArkivTjeneste.hentAlleJournalposterForSak(saksnummer).stream()
                 .map(ArkivJournalPost::getJournalpostId)
                 .collect(Collectors.toList());
         return historikkinnslagList.stream()
@@ -73,7 +72,7 @@ public class HistorikkTjenesteAdapter {
         if (!builder.getHistorikkinnslagDeler().isEmpty() || (builder.antallEndredeFelter() > 0) ||
                 builder.getErBegrunnelseEndret() || builder.getErGjeldendeFraSatt()) {
 
-            Historikkinnslag innslag = new Historikkinnslag();
+            var innslag = new Historikkinnslag();
 
             builder.medHendelse(hisType);
             innslag.setAktør(historikkAktør);

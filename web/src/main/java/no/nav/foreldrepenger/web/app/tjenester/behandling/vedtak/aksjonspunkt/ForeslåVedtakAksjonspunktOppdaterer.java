@@ -50,8 +50,8 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
 
     @Override
     public OppdateringResultat oppdater(ForeslaVedtakAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        String begrunnelse = dto.getBegrunnelse();
-        Behandling behandling = param.getBehandling();
+        var begrunnelse = dto.getBegrunnelse();
+        var behandling = param.getBehandling();
         // Unntak for Klageinstans ettersom Frontend sender samme Dto uansett hvilket
         // knapp man velger (5018 -> Ferdigstill -> entrinn, men kommer hit)
         if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling) && klageAnkeVedtakTjeneste.erGodkjentHosMedunderskriver(behandling)) {
@@ -59,7 +59,7 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
         }
 
         oppdaterBegrunnelse(behandling, begrunnelse);
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        var builder = OppdateringResultat.utenTransisjon();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);
         } else {
@@ -72,13 +72,13 @@ public class ForeslåVedtakAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
     }
 
     private void oppdaterBegrunnelse(Behandling behandling, String begrunnelse) {
-        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
 
         behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).ifPresent(behandlingsresultat -> {
             if (BehandlingType.KLAGE.equals(behandling.getType()) || behandlingsresultat.isBehandlingsresultatAvslåttOrOpphørt()
                     || begrunnelse != null || skalNullstilleFritekstfelt(behandling, behandlingsresultat, behandlingDokument)) {
 
-                BehandlingDokumentEntitet.Builder behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
+                var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandlingDokument);
                 behandlingDokumentBuilder.medBehandling(behandling.getId());
                 behandlingDokumentBuilder.medVedtakFritekst(begrunnelse);
                 behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());

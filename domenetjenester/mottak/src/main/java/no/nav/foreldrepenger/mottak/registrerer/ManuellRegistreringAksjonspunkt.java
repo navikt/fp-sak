@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.registrerer;
 
-import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,7 +32,7 @@ class ManuellRegistreringAksjonspunkt {
     public Optional<AksjonspunktDefinisjon> oppdater(Behandling behandling, ManuellRegistreringAksjonspunktDto adapter) {
 
         if (adapter.getErFullstendigSøknad()) {
-            MottattDokument dokument = new MottattDokument.Builder()
+            var dokument = new MottattDokument.Builder()
                 .medDokumentType(adapter.getDokumentTypeId())
                 .medDokumentKategori(DokumentKategori.SØKNAD)
                 .medElektroniskRegistrert(false)
@@ -46,15 +45,14 @@ class ManuellRegistreringAksjonspunkt {
             mottatteDokumentRepository.lagre(dokument);
 
             return adapter.getErRegistrertVerge() ? Optional.of(AksjonspunktDefinisjon.AVKLAR_VERGE) : Optional.empty();
-        } else {
-            avsluttTidligereRegistreringsoppgave(behandling);
-
-            return Optional.of(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
         }
+        avsluttTidligereRegistreringsoppgave(behandling);
+
+        return Optional.of(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
     }
 
     private void avsluttTidligereRegistreringsoppgave(Behandling behandling) {
-        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.REGISTRER_SØKNAD, oppgaver)
             .ifPresent(aktivOppgave -> oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, aktivOppgave.getOppgaveÅrsak()));
     }

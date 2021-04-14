@@ -98,19 +98,19 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         this.kildesystem = inntektsmelding.getKildesystem();
         this.mottattDato = inntektsmelding.getMottattDato();
         this.graderinger = inntektsmelding.getGraderinger().stream().map(g -> {
-            final Gradering gradering = new Gradering(g);
+            final var gradering = new Gradering(g);
             return gradering;
         }).collect(Collectors.toList());
         this.naturalYtelser = inntektsmelding.getNaturalYtelser().stream().map(n -> {
-            final NaturalYtelse naturalYtelse = new NaturalYtelse(n);
+            final var naturalYtelse = new NaturalYtelse(n);
             return naturalYtelse;
         }).collect(Collectors.toList());
         this.utsettelsePerioder = inntektsmelding.getUtsettelsePerioder().stream().map(u -> {
-            final UtsettelsePeriode utsettelsePeriode = new UtsettelsePeriode(u);
+            final var utsettelsePeriode = new UtsettelsePeriode(u);
             return utsettelsePeriode;
         }).collect(Collectors.toList());
         this.endringerRefusjon = inntektsmelding.getEndringerRefusjon().stream().map(r -> {
-            final Refusjon refusjon = new Refusjon(r);
+            final var refusjon = new Refusjon(r);
             return refusjon;
         }).collect(Collectors.toList());
         this.ytelseType = inntektsmelding.getFagsakYtelseType();
@@ -356,7 +356,7 @@ public class Inntektsmelding extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof Inntektsmelding)) {
             return false;
         }
-        Inntektsmelding entitet = (Inntektsmelding) o;
+        var entitet = (Inntektsmelding) o;
         return Objects.equals(getArbeidsgiver(), entitet.getArbeidsgiver())
                 && Objects.equals(getArbeidsforholdRef(), entitet.getArbeidsforholdRef())
                 && Objects.equals(getJournalpostId(), entitet.getJournalpostId());

@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.økonomistøtte.ny.mapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
@@ -21,10 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjede;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.MottakerOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
@@ -47,7 +42,7 @@ public class OppdragMapper {
     }
 
     public void mapTilOppdrag110(Oppdrag oppdrag, Oppdragskontroll oppdragskontroll) {
-        Oppdrag110.Builder builder = Oppdrag110.builder()
+        var builder = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medKodeEndring(utledKodeEndring(oppdrag))
             .medKodeFagomrade(oppdrag.getKodeFagområde())
@@ -60,12 +55,12 @@ public class OppdragMapper {
             builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
         }
 
-        Oppdrag110 oppdrag110 = builder.build();
+        var oppdrag110 = builder.build();
 
-        for (Map.Entry<KjedeNøkkel, OppdragKjedeFortsettelse> entry : oppdrag.getKjeder().entrySet()) {
+        for (var entry : oppdrag.getKjeder().entrySet()) {
             var kjedeNøkkel = entry.getKey();
             var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel);
-            for (OppdragLinje oppdragLinje : entry.getValue().getOppdragslinjer()) {
+            for (var oppdragLinje : entry.getValue().getOppdragslinjer()) {
                 var oppdragslinje150 = mapTilOppdragslinje150(oppdrag110, kjedeNøkkel, oppdragLinje, input.getVedtaksdato());
                 refusjonsinfoBuilder.map(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
             }
@@ -75,7 +70,7 @@ public class OppdragMapper {
     private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel) {
         Refusjonsinfo156.Builder refusjonsinfoBuilder = null;
         if (kjedeNøkkel.getBetalingsmottaker().erArbeidsgiver()) {
-            Betalingsmottaker.ArbeidsgiverOrgnr mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
+            var mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
             var gjelderFeriepenger = kjedeNøkkel.getKlassekode().gjelderFeriepenger();
             refusjonsinfoBuilder = Refusjonsinfo156.builder()
                 .medDatoFom(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 1) : hentFørsteUtbetalingsdato(oppdrag))
@@ -129,7 +124,7 @@ public class OppdragMapper {
     }
 
     private Ompostering116 opprettOmpostering116(Oppdrag oppdrag, boolean brukInntrekk) {
-        Ompostering116.Builder ompostering116Builder = new Ompostering116.Builder()
+        var ompostering116Builder = new Ompostering116.Builder()
             .medTidspktReg(ØkonomistøtteUtils.tilSpesialkodetDatoOgKlokkeslett(LocalDateTime.now()))
             .medOmPostering(brukInntrekk);
         if (brukInntrekk) {
@@ -139,17 +134,17 @@ public class OppdragMapper {
     }
 
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
-        LocalDate endringsdato = oppdrag.getEndringsdato();
-        LocalDate korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
+        var endringsdato = oppdrag.getEndringsdato();
+        var korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
         return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato)
             ? korrigeringsdato
             : endringsdato;
     }
 
     private LocalDate hentFørsteUtbetalingsdato(Oppdrag nyttOppdrag) {
-        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        var utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
+        var førsteUtbetalingsdato = hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
         if (førsteUtbetalingsdato != null) {
             return førsteUtbetalingsdato;
         }
@@ -157,22 +152,22 @@ public class OppdragMapper {
     }
 
     private LocalDate hentFørsteUtbetalingsdatoFraForrige(Oppdrag nyttOppdrag) {
-        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
         return hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
     }
 
     private LocalDate hentFørsteUtbetalingsdato(MottakerOppdragKjedeOversikt oppdrag) {
         LocalDate førsteUtetalingsdato = null;
-        for (Map.Entry<KjedeNøkkel, OppdragKjede> entry : oppdrag.getKjeder().entrySet()) {
-            KjedeNøkkel nøkkel = entry.getKey();
+        for (var entry : oppdrag.getKjeder().entrySet()) {
+            var nøkkel = entry.getKey();
             if (nøkkel.getKlassekode().gjelderFeriepenger()) {
                 continue;
             }
-            OppdragKjede kjede = entry.getValue();
-            List<YtelsePeriode> perioder = kjede.tilYtelse().getPerioder();
+            var kjede = entry.getValue();
+            var perioder = kjede.tilYtelse().getPerioder();
             if (!perioder.isEmpty()) {
-                YtelsePeriode førstePeriode = perioder.get(0);
-                LocalDate fom = førstePeriode.getPeriode().getFom();
+                var førstePeriode = perioder.get(0);
+                var fom = førstePeriode.getPeriode().getFom();
                 if (førsteUtetalingsdato == null || fom.isBefore(førsteUtetalingsdato)) {
                     førsteUtetalingsdato = fom;
                 }
@@ -182,9 +177,9 @@ public class OppdragMapper {
     }
 
     private LocalDate hentSisteUtbetalingsdato(Oppdrag nyttOppdrag) {
-        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        LocalDate sisteUtbetalingsdato = hentSisteUtbetalingsdato(utvidetMedNyttOppdrag);
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        var utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
+        var sisteUtbetalingsdato = hentSisteUtbetalingsdato(utvidetMedNyttOppdrag);
         if (sisteUtbetalingsdato != null) {
             return sisteUtbetalingsdato;
         }
@@ -193,16 +188,16 @@ public class OppdragMapper {
 
     private LocalDate hentSisteUtbetalingsdato(MottakerOppdragKjedeOversikt oppdrag) {
         LocalDate sisteUtbetalingsdato = null;
-        for (Map.Entry<KjedeNøkkel, OppdragKjede> entry : oppdrag.getKjeder().entrySet()) {
-            KjedeNøkkel nøkkel = entry.getKey();
+        for (var entry : oppdrag.getKjeder().entrySet()) {
+            var nøkkel = entry.getKey();
             if (nøkkel.getKlassekode().gjelderFeriepenger()) {
                 continue;
             }
-            OppdragKjede kjede = entry.getValue();
-            List<YtelsePeriode> perioder = kjede.tilYtelse().getPerioder();
+            var kjede = entry.getValue();
+            var perioder = kjede.tilYtelse().getPerioder();
             if (!perioder.isEmpty()) {
-                YtelsePeriode sistePeriode = perioder.get(perioder.size() - 1);
-                LocalDate tom = sistePeriode.getPeriode().getTom();
+                var sistePeriode = perioder.get(perioder.size() - 1);
+                var tom = sistePeriode.getPeriode().getTom();
                 if (sisteUtbetalingsdato == null || tom.isAfter(sisteUtbetalingsdato)) {
                     sisteUtbetalingsdato = tom;
                 }
@@ -212,9 +207,9 @@ public class OppdragMapper {
     }
 
     private boolean erOpphørForMottaker(Oppdrag nyttOppdrag) {
-        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        MottakerOppdragKjedeOversikt inklNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        for (OppdragKjede kjede : inklNyttOppdrag.getKjeder().values()) {
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        var inklNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
+        for (var kjede : inklNyttOppdrag.getKjeder().values()) {
             if (!kjede.tilYtelse().getPerioder().isEmpty()) {
                 return false;
             }

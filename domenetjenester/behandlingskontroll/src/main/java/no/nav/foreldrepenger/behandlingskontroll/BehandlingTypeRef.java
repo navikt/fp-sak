@@ -103,18 +103,16 @@ public @interface BehandlingTypeRef {
 
                 if (inst.isUnsatisfied()) {
                     continue;
-                } else {
-                    for (var behandlingLiteral : coalesce(behandlingType, "*")) {
-                        var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
-                        if (binst.isResolvable()) {
-                            return Optional.of(getInstance(binst));
-                        } else {
-                            if (binst.isAmbiguous()) {
-                                throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
-                                        + fagsakLiteral + ", behandlingType=" + behandlingLiteral);
-                            }
-                        }
+                }
+                for (var behandlingLiteral : coalesce(behandlingType, "*")) {
+                    var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
+                    if (binst.isResolvable()) {
+                        return Optional.of(getInstance(binst));
                     }
+                    if (binst.isAmbiguous()) {
+                            throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
+                                    + fagsakLiteral + ", behandlingType=" + behandlingLiteral);
+                        }
                 }
 
             }

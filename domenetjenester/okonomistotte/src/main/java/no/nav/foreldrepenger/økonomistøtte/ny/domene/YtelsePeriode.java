@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.økonomistøtte.ny.domene;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,11 +48,11 @@ public class YtelsePeriode {
         if (!periode.overlapper(nyFomDato)) {
             throw new IllegalArgumentException("Kan ikke sette ny fom-dato som ikke er i eksisterende periode");
         }
-        SatsType satsType = verdi.getSats().getSatsType();
+        var satsType = verdi.getSats().getSatsType();
         if (satsType != SatsType.DAG) {
             throw new IllegalArgumentException("Kan ikke sette ny fom-dato for satsType: " + satsType);
         }
-        Periode nyPeriode = Periode.of(nyFomDato, periode.getTom());
+        var nyPeriode = Periode.of(nyFomDato, periode.getTom());
         return new YtelsePeriode(nyPeriode, verdi);
     }
 
@@ -69,20 +68,20 @@ public class YtelsePeriode {
             return perioder.iterator().next();
         }
 
-        Iterator<YtelsePeriode> iterator = perioder.iterator();
-        YtelsePeriode førstePeriode = iterator.next();
-        SatsType satsType = førstePeriode.getSats().getSatsType();
+        var iterator = perioder.iterator();
+        var førstePeriode = iterator.next();
+        var satsType = førstePeriode.getSats().getSatsType();
         while (iterator.hasNext()) {
-            YtelsePeriode periode = iterator.next();
+            var periode = iterator.next();
             validerNøkler(førstePeriode, periode);
         }
-        Satsen sats = summerSats(satsType, perioder);
-        Utbetalingsgrad utbetalingsgrad = summerUtbetalingsgrad(perioder);
+        var sats = summerSats(satsType, perioder);
+        var utbetalingsgrad = summerUtbetalingsgrad(perioder);
         return new YtelsePeriode(førstePeriode.getPeriode(), sats, utbetalingsgrad);
     }
 
     private static Utbetalingsgrad summerUtbetalingsgrad(Collection<YtelsePeriode> perioder) {
-        Integer utbetalingsgrad = perioder.stream()
+        var utbetalingsgrad = perioder.stream()
             .map(YtelsePeriode::getUtbetalingsgrad)
             .filter(Objects::nonNull)
             .map(Utbetalingsgrad::getUtbetalingsgrad)
@@ -95,7 +94,7 @@ public class YtelsePeriode {
     }
 
     private static Satsen summerSats(SatsType satsType, Collection<YtelsePeriode> perioder) {
-        long sats = perioder.stream()
+        var sats = perioder.stream()
             .map(YtelsePeriode::getSats)
             .mapToLong(Satsen::getSats)
             .reduce(Long::sum)
@@ -119,7 +118,7 @@ public class YtelsePeriode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        YtelsePeriode that = (YtelsePeriode) o;
+        var that = (YtelsePeriode) o;
         return periode.equals(that.periode) &&
             verdi.equals(that.verdi);
     }

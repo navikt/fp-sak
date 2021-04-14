@@ -10,13 +10,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
-import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
@@ -26,10 +24,10 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererTidligereUtenlandsopphold() throws Exception {
-        String forventetFeltnavn = "tidligereOppholdUtenlands";
+        var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Detaljer om tidligere utenlandsopphold er påkrevd hvis man har oppholdt seg i utlandet").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Detaljer om tidligere utenlandsopphold er påkrevd hvis man har oppholdt seg i utlandet")
                 .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
@@ -42,20 +40,20 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererTidligereUtenlandsoppholdDatoer() throws Exception {
-        String forventetFeltnavn = "tidligereOppholdUtenlands";
+        var forventetFeltnavn = "tidligereOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarTidligereOppholdUtenlands(true);
 
-        LocalDate idag = LocalDate.now();
-        UtenlandsoppholdDto overlappDagensDato = opprettUtenlandsOpphold(idag.minusDays(1), idag.plusDays(2), "FRA");
+        var idag = LocalDate.now();
+        var overlappDagensDato = opprettUtenlandsOpphold(idag.minusDays(1), idag.plusDays(2), "FRA");
         registreringDto.setTidligereOppholdUtenlands(singletonList(overlappDagensDato));
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Periode for utenlandsopphold kan ikke overlappe dagens dato").isPresent();
         assertThat(feltFeil.get().getMelding()).as(" Periode for utenlandsopphold kan ikke overlappe dagensdato")
                 .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        UtenlandsoppholdDto etterDagensDato = opprettUtenlandsOpphold(idag, idag.plusDays(3), "FRA");
+        var etterDagensDato = opprettUtenlandsOpphold(idag, idag.plusDays(3), "FRA");
         registreringDto.setTidligereOppholdUtenlands(singletonList(etterDagensDato));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Periode for utenlandsopphold kan ikke være etter dagens dato").isPresent();
@@ -63,7 +61,7 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.TIDLIGERE_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        final UtenlandsoppholdDto fireMånederSidenTilTreMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(3), "FRA");
+        final var fireMånederSidenTilTreMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(3), "FRA");
         registreringDto.setTidligereOppholdUtenlands(asList(fireMånederSidenTilTreMånederSiden, fireMånederSidenTilTreMånederSiden));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke fullstendig overlappe").isPresent();
@@ -71,7 +69,7 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        UtenlandsoppholdDto femMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(5), idag.minusMonths(2), "FRA");
+        var femMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(5), idag.minusMonths(2), "FRA");
         registreringDto.setTidligereOppholdUtenlands(asList(fireMånederSidenTilTreMånederSiden, femMånederSidenTilToMånederSiden));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke delvis overlappe").isPresent();
@@ -79,7 +77,7 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.OVERLAPPENDE_PERIODER);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        UtenlandsoppholdDto treMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(3), idag.minusMonths(2), "FRA");
+        var treMånederSidenTilToMånederSiden = opprettUtenlandsOpphold(idag.minusMonths(3), idag.minusMonths(2), "FRA");
         registreringDto.setTidligereOppholdUtenlands(asList(femMånederSidenTilToMånederSiden, treMånederSidenTilToMånederSiden));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Perioder for utenlandsopphold kan ikke delvis overlappe").isPresent();
@@ -91,7 +89,7 @@ public class ManuellRegistreringFellesValidatorTest {
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("To perioder kan slutte/starte på samme dag uten å overlappe").isNotPresent();
 
-        UtenlandsoppholdDto fomEtterTom = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(5), "SUI");
+        var fomEtterTom = opprettUtenlandsOpphold(idag.minusMonths(4), idag.minusMonths(5), "SUI");
         registreringDto.setTidligereOppholdUtenlands(singletonList(fomEtterTom));
         feltFeil = ManuellRegistreringFellesValidator.validerTidligereUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Dato for start av periode må være før dato for slutt av periode.").isPresent();
@@ -102,18 +100,18 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererFremtidigUtenlandsoppholdDatoer() throws Exception {
-        String forventetFeltnavn = "fremtidigOppholdUtenlands";
+        var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
-        LocalDate idag = LocalDate.now();
+        var idag = LocalDate.now();
         registreringDto.setMottattDato(idag);
 
-        UtenlandsoppholdDto sammeFomOgTom = opprettUtenlandsOpphold(idag.plusMonths(1), idag.plusMonths(1), "SWE");
+        var sammeFomOgTom = opprettUtenlandsOpphold(idag.plusMonths(1), idag.plusMonths(1), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(singletonList(sammeFomOgTom));
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Kan ha samme start- og sluttdato").isEmpty();
 
-        UtenlandsoppholdDto fomFørMottattDato = opprettUtenlandsOpphold(registreringDto.getMottattDato().minusDays(1), idag.plusMonths(1), "SWE");
+        var fomFørMottattDato = opprettUtenlandsOpphold(registreringDto.getMottattDato().minusDays(1), idag.plusMonths(1), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(singletonList(fomFørMottattDato));
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Startdato kan ikke være før mottatt dato").isPresent();
@@ -121,7 +119,7 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.LIK_ELLER_ETTER_MOTTATT_DATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        UtenlandsoppholdDto tomFørFom = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(2), "SWE");
+        var tomFørFom = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(2), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(singletonList(tomFørFom));
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Startdato må være før sluttdato").isPresent();
@@ -129,13 +127,13 @@ public class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.STARTDATO_FØR_SLUTTDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        final UtenlandsoppholdDto periode1 = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(100), "SWE");
-        UtenlandsoppholdDto tomLikPeriode1Fom = opprettUtenlandsOpphold(idag.plusDays(5), idag.plusDays(10), "SWE");
+        final var periode1 = opprettUtenlandsOpphold(idag.plusDays(10), idag.plusDays(100), "SWE");
+        var tomLikPeriode1Fom = opprettUtenlandsOpphold(idag.plusDays(5), idag.plusDays(10), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(asList(periode1, tomLikPeriode1Fom));
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Startdato kan være lik sluttdato til en annen periode").isNotPresent();
 
-        UtenlandsoppholdDto annenPeriode = opprettUtenlandsOpphold(idag.plusDays(150), idag.plusDays(200), "SWE");
+        var annenPeriode = opprettUtenlandsOpphold(idag.plusDays(150), idag.plusDays(200), "SWE");
         registreringDto.setFremtidigeOppholdUtenlands(asList(periode1, annenPeriode));
         feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Gyldige perioder skal ikke gi valideringsfeil").isNotPresent();
@@ -143,11 +141,11 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererFremtidigUtenlandsopphold() throws Exception {
-        String forventetFeltnavn = "fremtidigOppholdUtenlands";
+        var forventetFeltnavn = "fremtidigOppholdUtenlands";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setHarFremtidigeOppholdUtenlands(true);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerFremtidigUtenlandsopphold(registreringDto);
         assertThat(feltFeil).as("Detaljer om fremtidige utenlandsopphold er påkrevd hvis man skal oppholde seg i utlandet").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Detaljer om fremtidige utenlandsopphold er påkrevd hvis man skal oppholde seg i utlandet")
                 .isEqualTo(ManuellRegistreringValidatorTekster.OPPHOLDSSKJEMA_TOMT);
@@ -160,12 +158,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerTerminEllerFødsel() throws Exception {
-        String forventetFeltnavn = "terminEllerFoedsel";
+        var forventetFeltnavn = "terminEllerFoedsel";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.TRUE);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
 
         assertThat(feltFeil).as("Enten termin- eller fødselsdato må være fylt ut").isPresent();
         assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_ELLER_FØDSELSDATO);
@@ -199,19 +197,19 @@ public class ManuellRegistreringFellesValidatorTest {
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.FALSE);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTermindato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTermindato(registreringDto);
         assertThat(feltFeil).isPresent();
     }
 
     @Test
     public void validererTerminBekreftelsesdato() {
-        String forventetFeltnavn = "terminbekreftelseDato";
+        var forventetFeltnavn = "terminbekreftelseDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.FALSE);
         registreringDto.setTerminbekreftelseDato(now());
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Terminbekreftelsesdato kan være lik dagens dato").isNotPresent();
 
         registreringDto.setTerminbekreftelseDato(now().minusDays(1));
@@ -253,12 +251,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererTerminbekreftelseAntallBarn() {
-        String forventetFeltnavn = "antallBarnFraTerminbekreftelse";
+        var forventetFeltnavn = "antallBarnFraTerminbekreftelse";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setErBarnetFodt(Boolean.FALSE);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
         assertThat(feltFeil).as("Antall barn fra terminbekreftelse er ikke påkrevd dersom termindato ikke er satt").isNotPresent();
 
         registreringDto.setTermindato(LocalDate.now().plusWeeks(14));
@@ -278,12 +276,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererAntallBarnFoedsel() {
-        String forventetFeltnavn = "antallBarn";
+        var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
         registreringDto.setFoedselsDato(singletonList(LocalDate.now()));
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
 
         assertThat(feltFeil).as("Antall barn er påkrevd når fødselsdato er fylt ut").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Antall barn er påkrevd når fødselsdato er fylt ut").isEqualTo(PAAKREVD_FELT);
@@ -298,12 +296,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerAntallBarnAdopsjon() {
-        String forventetFeltnavn = "antallBarn";
+        var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
         registreringDto.setOmsorg(new OmsorgDto());
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
 
         assertThat(feltFeil).as("Antall barn er påkrevd ved adopsjon").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Antall barn er påkrevd ved adopsjon").isEqualTo(PAAKREVD_FELT);
@@ -318,7 +316,7 @@ public class ManuellRegistreringFellesValidatorTest {
         registreringDto.setAntallBarn(1);
         registreringDto.setFoedselsDato(Collections.singletonList(LocalDate.now().minusMonths(1)));
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
 
         assertThat(feltFeil).isNotPresent();
 
@@ -332,19 +330,19 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validererFødselsdatoAdopsjon() {
-        String forventetFeltnavn = "foedselsDato";
+        var forventetFeltnavn = "foedselsDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
         registreringDto.setErBarnetFodt(Boolean.TRUE);
 
-        OmsorgDto omsorgDto = new OmsorgDto();
+        var omsorgDto = new OmsorgDto();
         omsorgDto.setAntallBarn(2);
         omsorgDto.setOmsorgsovertakelsesdato(LocalDate.now().minusWeeks(2));
         List<LocalDate> fødselsdatoer = new ArrayList<>();
         omsorgDto.setFoedselsDato(fødselsdatoer);
         registreringDto.setOmsorg(omsorgDto);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
         assertThat(feltFeil).as("En fødselsdato pr barn er påkrevd (ingen er fylt ut)").isPresent();
         assertThat(feltFeil.get().getMelding()).as("En fødselsdato pr barn er påkrevd (ingen er fylt ut)")
                 .isEqualTo(ManuellRegistreringValidatorTekster.LIKT_ANTALL_BARN_OG_FØDSELSDATOER);
@@ -364,12 +362,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerOmsorgsoveFrtakelsesdato() throws Exception {
-        String forventetFeltnavn = "omsorgsovertakelsesdato";
+        var forventetFeltnavn = "omsorgsovertakelsesdato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
         registreringDto.setOmsorg(new OmsorgDto());
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerOmsorgsovertakelsesdato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerOmsorgsovertakelsesdato(registreringDto);
 
         assertThat(feltFeil).as("Dato for omsorgsovertakelse er påkrevd").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Dato for omsorgsovertakelse er påkrevd").isEqualTo(PAAKREVD_FELT);
@@ -384,16 +382,16 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerAnnenForelderUtenlandskFoedselsnummer() {
-        String forventetFeltnavn = "utenlandskFoedselsnummer";
+        var forventetFeltnavn = "utenlandskFoedselsnummer";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
-        AnnenForelderDto annenForelderDto = new AnnenForelderDto();
+        var annenForelderDto = new AnnenForelderDto();
         registreringDto.setAnnenForelder(annenForelderDto);
         annenForelderDto.setKanIkkeOppgiAnnenForelder(true);
         annenForelderDto.setKanIkkeOppgiBegrunnelse(new AnnenForelderDto.KanIkkeOppgiBegrunnelse());
-        AnnenForelderDto.KanIkkeOppgiBegrunnelse kanIkkeOppgiBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
+        var kanIkkeOppgiBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
 
         kanIkkeOppgiBegrunnelse.setUtenlandskFoedselsnummer("123456789012345678801");
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderUtenlandskFoedselsnummer(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderUtenlandskFoedselsnummer(registreringDto);
         assertThat(feltFeil.get().getMelding()).as("Fornavn til annen forelder er stoerre enn 20")
                 .isEqualTo(ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE + "20");
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
@@ -401,12 +399,12 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerAnnenForelderFødselsnummer() {
-        String forventetFeltnavn = "foedselsnummer";
+        var forventetFeltnavn = "foedselsnummer";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
-        AnnenForelderDto annenForelderDto = new AnnenForelderDto();
+        var annenForelderDto = new AnnenForelderDto();
         registreringDto.setAnnenForelder(annenForelderDto);
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderFødselsnummer(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderFødselsnummer(registreringDto);
         assertThat(feltFeil).as("Fødselsnummer til annen forelder er påkrevd").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Fødselsnummer til annen forelder er påkrevd").isEqualTo(PAAKREVD_FELT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
@@ -423,10 +421,10 @@ public class ManuellRegistreringFellesValidatorTest {
 
     @Test
     public void validerMottattdato() {
-        String forventetFeltnavn = "mottattDato";
+        var forventetFeltnavn = "mottattDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
 
-        Optional<FeltFeilDto> feltFeil = ManuellRegistreringFellesValidator.validerMottattDato(registreringDto);
+        var feltFeil = ManuellRegistreringFellesValidator.validerMottattDato(registreringDto);
 
         assertThat(feltFeil).as("Dato for mottatt er påkrevd").isPresent();
         assertThat(feltFeil.get().getMelding()).as("Dato for mottatt er påkrevd").isEqualTo(PAAKREVD_FELT);
@@ -440,7 +438,7 @@ public class ManuellRegistreringFellesValidatorTest {
     }
 
     private UtenlandsoppholdDto opprettUtenlandsOpphold(LocalDate fom, LocalDate tom, String land) {
-        UtenlandsoppholdDto utenlandsopphold = new UtenlandsoppholdDto();
+        var utenlandsopphold = new UtenlandsoppholdDto();
         utenlandsopphold.setPeriodeFom(fom);
         utenlandsopphold.setPeriodeTom(tom);
         utenlandsopphold.setLand(land);

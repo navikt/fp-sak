@@ -49,12 +49,12 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
     @Override
     public String launch(BatchArguments arguments) {
         // Etterkontrolltidspunkt er allerede satt 60D fram i EK-repo
-        List<Behandling> kontrollKandidater = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
+        var kontrollKandidater = etterkontrollRepository.finnKandidaterForAutomatiskEtterkontroll();
 
-        String callId = (MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId()) + "_";
+        var callId = (MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId()) + "_";
 
-        for (Behandling kandidat : kontrollKandidater) {
-            String nyCallId = callId + kandidat.getId();
+        for (var kandidat : kontrollKandidater) {
+            var nyCallId = callId + kandidat.getId();
             opprettEtterkontrollTask(kandidat, nyCallId);
         }
         return BATCHNAME;
@@ -62,8 +62,8 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
 
     @Override
     public BatchStatus status(String batchInstanceNumber) {
-        final String gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
-        final List<TaskStatus> taskStatuses = prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, gruppe);
+        final var gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
+        final var taskStatuses = prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskEtterkontrollTask.TASKTYPE, gruppe);
 
         if (isCompleted(taskStatuses)) {
             if (isContainingFailures(taskStatuses)) {
@@ -89,7 +89,7 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
     }
 
     private void opprettEtterkontrollTask(Behandling kandidat, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskEtterkontrollTask.TASKTYPE);
         prosessTaskData.setBehandling(kandidat.getFagsakId(), kandidat.getId(), kandidat.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);

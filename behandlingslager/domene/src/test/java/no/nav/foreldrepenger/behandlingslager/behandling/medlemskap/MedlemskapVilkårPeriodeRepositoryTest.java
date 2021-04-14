@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -37,40 +36,40 @@ public class MedlemskapVilkårPeriodeRepositoryTest extends EntityManagerAwareTe
 
     @Test
     public void skal_lagre_overstyring() {
-        Behandling behandling = lagBehandling();
-        MedlemskapVilkårPeriodeGrunnlagEntitet.Builder builderIkkeOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        MedlemskapsvilkårPeriodeEntitet.Builder periodeBuilderIkkeOppylt = builderIkkeOppfylt.getPeriodeBuilder();
+        var behandling = lagBehandling();
+        var builderIkkeOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var periodeBuilderIkkeOppylt = builderIkkeOppfylt.getPeriodeBuilder();
         periodeBuilderIkkeOppylt.opprettOverstryingAvslag(LocalDate.now(), Avslagsårsak.SØKER_ER_IKKE_MEDLEM);
         builderIkkeOppfylt.medMedlemskapsvilkårPeriode(periodeBuilderIkkeOppylt);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builderIkkeOppfylt);
 
-        Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> grunnlag = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
+        var grunnlag = medlemskapVilkårPeriodeRepository.hentAggregatHvisEksisterer(behandling);
 
         assertThat(grunnlag).isPresent();
-        Optional<LocalDate> localDate = medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
+        var localDate = medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
         assertThat(localDate).isEqualTo(Optional.of(LocalDate.now()));
 
-        MedlemskapVilkårPeriodeGrunnlagEntitet.Builder builderOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var builderOppfylt = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
 
-        MedlemskapsvilkårPeriodeEntitet.Builder periodeBuilderOppfylt = builderOppfylt.getPeriodeBuilder();
+        var periodeBuilderOppfylt = builderOppfylt.getPeriodeBuilder();
         periodeBuilderOppfylt.opprettOverstryingOppfylt(LocalDate.now());
         builderOppfylt.medMedlemskapsvilkårPeriode(periodeBuilderOppfylt);
 
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builderOppfylt);
-        Optional<LocalDate> localDate2 = medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
+        var localDate2 = medlemskapVilkårPeriodeRepository.hentOpphørsdatoHvisEksisterer(behandling);
         assertThat(localDate2).isNotPresent();
     }
 
     private Behandling lagBehandling() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        final Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        final var behandling = builder.build();
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
-        Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
+        var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
+        var behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         behandlingRepository.lagre(behandling, lås);
         return behandling;

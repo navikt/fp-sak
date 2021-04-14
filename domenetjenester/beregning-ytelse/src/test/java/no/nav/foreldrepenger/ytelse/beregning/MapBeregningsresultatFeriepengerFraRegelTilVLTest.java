@@ -34,9 +34,9 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     @Test
     public void skal_ikkje_lage_feriepengeresultat_om_årsbeløp_avrundes_til_0() {
         // Arrange
-        BeregningsresultatPeriode periode = lagPeriodeMedAndel(BigDecimal.valueOf(0.1));
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet beregningsresultat = lagVlBeregningsresultat();
-        BeregningsresultatFeriepengerRegelModell regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
+        var periode = lagPeriodeMedAndel(BigDecimal.valueOf(0.1));
+        var beregningsresultat = lagVlBeregningsresultat();
+        var regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode))
                 .medFeriepengerPeriode(STP, STP.plusMonths(10))
                 .build();
@@ -53,9 +53,9 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     @Test
     public void skal_lage_feriepengeresultat_om_årsbeløp_ikkje_avrundes_til_0() {
         // Arrange
-        BeregningsresultatPeriode periode = lagPeriodeMedAndel(BigDecimal.valueOf(1.5));
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet beregningsresultat = lagVlBeregningsresultat();
-        BeregningsresultatFeriepengerRegelModell regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
+        var periode = lagPeriodeMedAndel(BigDecimal.valueOf(1.5));
+        var beregningsresultat = lagVlBeregningsresultat();
+        var regelmodell = BeregningsresultatFeriepengerRegelModell.builder()
                 .medBeregningsresultatPerioder(List.of(periode))
                 .medFeriepengerPeriode(STP, STP.plusMonths(10))
                 .build();
@@ -70,12 +70,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     }
 
     private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet lagVlBeregningsresultat() {
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet beregningsresultat = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet
+        var beregningsresultat = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet
                 .builder()
                 .medRegelInput("Regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
-        no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode vlBeregningsresultatPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode
+        var vlBeregningsresultatPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode
                 .builder()
                 .medBeregningsresultatPeriodeFomOgTom(PERIODE.getFomDato(), PERIODE.getTomDato())
                 .build(beregningsresultat);
@@ -94,8 +94,8 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
     }
 
     private BeregningsresultatPeriode lagPeriodeMedAndel(BigDecimal årsbeløp) {
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder().medPeriode(PERIODE).build();
-        BeregningsresultatAndel andel = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
+        var periode = BeregningsresultatPeriode.builder().medPeriode(PERIODE).build();
+        var andel = BeregningsresultatAndel.builder().medAktivitetStatus(AktivitetStatus.ATFL)
                 .medBrukerErMottaker(true)
                 .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
                 .medArbeidsforhold(ARBEIDSFORHOLD)

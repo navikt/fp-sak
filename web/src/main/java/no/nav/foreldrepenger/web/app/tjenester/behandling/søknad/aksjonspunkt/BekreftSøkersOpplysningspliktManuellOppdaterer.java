@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,8 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
@@ -41,14 +38,14 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
 
     @Override
     public OppdateringResultat oppdater(BekreftSokersOpplysningspliktManuDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        final boolean erVilkårOk = dto.getErVilkarOk() &&
+        var behandling = param.getBehandling();
+        final var erVilkårOk = dto.getErVilkarOk() &&
             dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).collect(Collectors.toList()).isEmpty();
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);
 
-        Avslagsårsak avslagsårsak = erVilkårOk ? null : Avslagsårsak.MANGLENDE_DOKUMENTASJON;
-        List<Aksjonspunkt> åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
-        OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
+        var avslagsårsak = erVilkårOk ? null : Avslagsårsak.MANGLENDE_DOKUMENTASJON;
+        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
+        var resultatBuilder = OppdateringResultat.utenTransisjon();
         if (erVilkårOk) {
             // Reverser vedtak uten totrinnskontroll
             behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL)
@@ -58,24 +55,23 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             resultatBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
 
             return resultatBuilder.build();
-        } else {
-            // Hoppe rett til foreslå vedtak uten totrinnskontroll
-            åpneAksjonspunkter.stream()
-                .filter(a -> !a.getAksjonspunktDefinisjon().getKode().equals(dto.getKode())) // Ikke seg selv
-                .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-
-            resultatBuilder.leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, avslagsårsak);
-            resultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-
-            return resultatBuilder
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-                .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
-                .build();
         }
+        // Hoppe rett til foreslå vedtak uten totrinnskontroll
+        åpneAksjonspunkter.stream()
+            .filter(a -> !a.getAksjonspunktDefinisjon().getKode().equals(dto.getKode())) // Ikke seg selv
+            .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+
+        resultatBuilder.leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, avslagsårsak);
+        resultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+
+        return resultatBuilder
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
+            .build();
     }
 
     private void leggTilEndretFeltIHistorikkInnslag(String begrunnelse, Boolean vilkårOppfylt) {
-        HistorikkEndretFeltVerdiType tilVerdi = Boolean.TRUE.equals(vilkårOppfylt) ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
+        var tilVerdi = Boolean.TRUE.equals(vilkårOppfylt) ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
 
         if (begrunnelse != null) {
             historikkTjenesteAdapter.tekstBuilder().medBegrunnelse(begrunnelse);

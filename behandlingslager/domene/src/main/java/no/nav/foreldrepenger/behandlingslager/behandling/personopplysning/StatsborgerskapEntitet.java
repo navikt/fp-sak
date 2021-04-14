@@ -117,7 +117,7 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        StatsborgerskapEntitet entitet = (StatsborgerskapEntitet) o;
+        var entitet = (StatsborgerskapEntitet) o;
         return Objects.equals(aktørId, entitet.aktørId) &&
                 Objects.equals(periode, entitet.periode) &&
                 Objects.equals(statsborgerskap, entitet.statsborgerskap);
@@ -132,7 +132,7 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StatsborgerskapEntitet{");
+        final var sb = new StringBuilder("StatsborgerskapEntitet{");
         sb.append("gyldighetsperiode=").append(periode);
         sb.append(", statsborgerskap=").append(statsborgerskap);
         sb.append('}');

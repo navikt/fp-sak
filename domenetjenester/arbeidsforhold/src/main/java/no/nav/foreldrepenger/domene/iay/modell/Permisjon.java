@@ -89,7 +89,8 @@ public class Permisjon extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof Permisjon)) {
+        }
+        if (!(obj instanceof Permisjon)) {
             return false;
         }
         var other = (Permisjon) obj;
@@ -109,7 +110,7 @@ public class Permisjon extends BaseEntitet implements IndexKey {
                 "permisjonsbeskrivelseType=" + permisjonsbeskrivelseType +
                 ", fraOgMed=" + periode.getFomDato() +
                 ", tilOgMed=" + periode.getTomDato() +
-                ", prosentsats=" + prosentsats + 
+                ", prosentsats=" + prosentsats +
                 '}';
     }
 

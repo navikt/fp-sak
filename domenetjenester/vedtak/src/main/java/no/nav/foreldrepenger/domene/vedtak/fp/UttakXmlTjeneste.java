@@ -13,9 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -57,9 +55,9 @@ public class UttakXmlTjeneste {
     }
 
     public void setUttak(Beregningsresultat beregningsresultat, Behandling behandling) {
-        UttakForeldrepenger uttakForeldrepenger = uttakObjectFactory.createUttakForeldrepenger();
+        var uttakForeldrepenger = uttakObjectFactory.createUttakForeldrepenger();
 
-        Optional<Uttaksperiodegrense> uttaksperiodegrenseOptional = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
+        var uttaksperiodegrenseOptional = uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId());
         uttaksperiodegrenseOptional.ifPresent(uttaksperiodegrense ->
             VedtakXmlUtil.lagDateOpplysning(uttaksperiodegrense.getFørsteLovligeUttaksdag()).ifPresent(dateOpplysning -> uttakForeldrepenger.setFoersteLovligeUttaksdag(dateOpplysning)));
 
@@ -67,7 +65,7 @@ public class UttakXmlTjeneste {
         setUttaksresultatPerioder(uttakForeldrepenger, behandling);
         setFordelingPerioder(uttakForeldrepenger, behandling);
 
-        Uttak uttak = new Uttak();
+        var uttak = new Uttak();
         uttak.getAny().add(uttakObjectFactory.createUttak(uttakForeldrepenger));
         beregningsresultat.setUttak(uttak);
     }
@@ -84,16 +82,16 @@ public class UttakXmlTjeneste {
     }
 
     private void setUttakFordelingPerioder(UttakForeldrepenger uttakForeldrepenger, List<OppgittPeriodeEntitet> perioderDomene) {
-        List<FordelingPeriode> kontrakt = perioderDomene
+        var kontrakt = perioderDomene
             .stream()
             .map(fordelingPeriode -> konverterFraDomene(fordelingPeriode)).collect(Collectors.toList());
-        UttakForeldrepenger.FordelingPerioder fordelingPerioder = new UttakForeldrepenger.FordelingPerioder();
+        var fordelingPerioder = new UttakForeldrepenger.FordelingPerioder();
         fordelingPerioder.getFordelingPeriode().addAll(kontrakt);
         uttakForeldrepenger.setFordelingPerioder(fordelingPerioder);
     }
 
     private FordelingPeriode konverterFraDomene(OppgittPeriodeEntitet periodeDomene) {
-        FordelingPeriode kontrakt = new FordelingPeriode();
+        var kontrakt = new FordelingPeriode();
         kontrakt.setMorsAktivitet(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getMorsAktivitet()));
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
         kontrakt.setPeriodetype(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeType()));
@@ -101,14 +99,14 @@ public class UttakXmlTjeneste {
     }
 
     private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<ForeldrepengerUttakPeriode> perioderDomene) {
-        List<UttaksresultatPeriode> kontrakt = perioderDomene
+        var kontrakt = perioderDomene
             .stream()
             .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
         uttakForeldrepenger.getUttaksresultatPerioder().addAll(kontrakt);
     }
 
     private UttaksresultatPeriode konverterFraDomene(ForeldrepengerUttakPeriode periodeDomene) {
-        UttaksresultatPeriode kontrakt = new UttaksresultatPeriode();
+        var kontrakt = new UttaksresultatPeriode();
 
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
         kontrakt.setPeriodeResultatType(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getResultatType()));
@@ -127,14 +125,14 @@ public class UttakXmlTjeneste {
                                                      List<ForeldrepengerUttakPeriodeAktivitet> aktiviteterDomene) {
         var tidsperiode = uttaksresultatPeriodeKontrakt.getPeriode();
         var antVirkedager = Virkedager.beregnAntallVirkedager(tidsperiode.getFom(), tidsperiode.getTom());
-        List<UttaksresultatPeriodeAktivitet> resultat = aktiviteterDomene
+        var resultat = aktiviteterDomene
             .stream()
             .map(periode -> konverterFraDomene(periode, antVirkedager)).collect(Collectors.toList());
         uttaksresultatPeriodeKontrakt.getUttaksresultatPeriodeAktiviteter().addAll(resultat);
     }
 
     private UttaksresultatPeriodeAktivitet konverterFraDomene(ForeldrepengerUttakPeriodeAktivitet periodeAktivitet, int antVirkedager) {
-        UttaksresultatPeriodeAktivitet kontrakt = new UttaksresultatPeriodeAktivitet();
+        var kontrakt = new UttaksresultatPeriodeAktivitet();
         kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(periodeAktivitet.getTrekkonto()));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
         if (periodeAktivitet.getArbeidsgiver().isPresent()) {
@@ -155,9 +153,9 @@ public class UttakXmlTjeneste {
     }
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         if(fagsakRelasjon.isPresent()){
-            Optional<Set<Stønadskonto>> stønadskontoerOptional = fagsakRelasjon.get()
+            var stønadskontoerOptional = fagsakRelasjon.get()
                 .getGjeldendeStønadskontoberegning()
                 .map(Stønadskontoberegning::getStønadskontoer);
             stønadskontoerOptional.ifPresent(stønadskontoer -> setStoenadskontoer(uttakForeldrepenger, stønadskontoer));
@@ -165,14 +163,14 @@ public class UttakXmlTjeneste {
     }
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Set<Stønadskonto> stønadskontoerDomene) {
-        List<Stoenadskonto> stønadskontoer = stønadskontoerDomene
+        var stønadskontoer = stønadskontoerDomene
             .stream()
             .map(konto -> konverterFraDomene(konto)).collect(Collectors.toList());
         uttakForeldrepenger.getStoenadskontoer().addAll(stønadskontoer);
     }
 
     private Stoenadskonto konverterFraDomene(Stønadskonto stønadskontoDomene) {
-        Stoenadskonto stønadskonto = new Stoenadskonto();
+        var stønadskonto = new Stoenadskonto();
         stønadskonto.setMaxdager(VedtakXmlUtil.lagIntOpplysning(stønadskontoDomene.getMaxDager()));
         stønadskonto.setStoenadskontotype(VedtakXmlUtil.lagKodeverksOpplysning(stønadskontoDomene.getStønadskontoType()));
         return stønadskonto;

@@ -1,23 +1,17 @@
 package no.nav.foreldrepenger.domene.vedtak.xml;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
@@ -65,9 +59,9 @@ public class VedtakXmlTjeneste {
     }
 
     private void setSøknadsdato(Vedtak vedtak, Behandling behandling) {
-        Optional<SøknadEntitet> søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
         if (søknadOptional.isPresent()) {
-            SøknadEntitet søknad = søknadOptional.get();
+            var søknad = søknadOptional.get();
             vedtak.setSoeknadsdato(søknad.getSøknadsdato());
         }
     }
@@ -79,7 +73,7 @@ public class VedtakXmlTjeneste {
     }
 
     private void setBehandlingsTema(Vedtak vedtak, Behandling behandling) {
-        final FamilieHendelseEntitet familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
+        final var familieHendelse = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId()).map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).orElse(null);
         var behandlingTema = BehandlingTema.fraFagsak(behandling.getFagsak(), familieHendelse);
         vedtak.setBehandlingsTema(VedtakXmlUtil.lagKodeverksOpplysning(behandlingTema));
     }
@@ -99,7 +93,7 @@ public class VedtakXmlTjeneste {
     }
 
     private void setFagsakType(Vedtak vedtak, Fagsak fagsak) {
-        KodeverksOpplysning kodeverksOpplysning = new KodeverksOpplysning();
+        var kodeverksOpplysning = new KodeverksOpplysning();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             kodeverksOpplysning.setValue(FagsakType.ENGANGSSTOENAD.value());
         } else if( (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()))) {
@@ -114,7 +108,7 @@ public class VedtakXmlTjeneste {
 
     private void setFagsakAnnenForelder(Vedtak vedtak, Fagsak fagsak) {
 
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak);
 
         if(fagsakRelasjon.isPresent()){
             if (fagsakRelasjon.get().getErAktivt()) {
@@ -129,12 +123,12 @@ public class VedtakXmlTjeneste {
     }
 
     private void setVedtaksdato(Behandling behandling, Vedtak vedtakKontrakt) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksdato(v.getVedtaksdato()));
     }
 
     private void setVedtaksResultat(Vedtak vedtakKontrakt, Behandling behandling) {
-        Optional<BehandlingVedtak> vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         vedtak.ifPresent(v -> vedtakKontrakt.setVedtaksresultat((VedtakXmlUtil.lagKodeverksOpplysning(v.getVedtakResultatType()))));
     }
 }

@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.domene.medlem.api.BekreftBosattVurderingAksjonspunktDto;
@@ -17,9 +14,9 @@ public class BekreftBosattVurderingAksjonspunkt {
     }
 
     public void oppdater(Long behandlingId, BekreftBosattVurderingAksjonspunktDto adapter) {
-        Optional<VurdertMedlemskap> vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
+        var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
 
-        VurdertMedlemskap nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap)
+        var nytt = new VurdertMedlemskapBuilder(vurdertMedlemskap)
             .medBosattVurdering(adapter.getBosattVurdering())
             .medBegrunnelse(adapter.getBegrunnelse())
             .build();

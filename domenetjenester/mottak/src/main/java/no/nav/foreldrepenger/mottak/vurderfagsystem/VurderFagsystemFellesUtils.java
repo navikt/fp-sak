@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -132,7 +130,7 @@ public class VurderFagsystemFellesUtils {
 
     public boolean erFagsakMedFamilieHendelsePassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         // Finn behandling
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+        var fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
         if (fhGrunnlag.isEmpty()) {
             return false;
@@ -143,13 +141,13 @@ public class VurderFagsystemFellesUtils {
     public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak, boolean vurderHenlagte) {
         // Vurder omskriving av denne og neste til Predicate<Fagsak> basert på bruksmønster
         // Finn behandling
-        Optional<Behandling> behandling = vurderHenlagte ? behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()) :
+        var behandling = vurderHenlagte ? behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()) :
             behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId());
         if (behandling.isEmpty()) {
             return true;
         }
 
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
+        var fhGrunnlag = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
         if (fhGrunnlag.isEmpty()) {
             // Her har vi en sak m/behandling uten FH - 3 hovedtilfelle uregistrert papirsøknad, infobrev far, im før søknad.
             // Innkommende kan være søknad, IM, eller ustrukturert For ES godtar man alt.
@@ -159,8 +157,8 @@ public class VurderFagsystemFellesUtils {
     }
 
     private boolean erGrunnlagPassendeFor(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {
-        FamilieHendelseType fhType = grunnlag.getGjeldendeVersjon().getType();
-        BehandlingTema bhTemaFagsak = BehandlingTema.fraFagsakHendelse(ytelseType, fhType);
+        var fhType = grunnlag.getGjeldendeVersjon().getType();
+        var bhTemaFagsak = BehandlingTema.fraFagsakHendelse(ytelseType, fhType);
         if (!vurderFagsystem.getBehandlingTema().erKompatibelMed(bhTemaFagsak)) {
             return false;
         }
@@ -168,7 +166,8 @@ public class VurderFagsystemFellesUtils {
         if (FamilieHendelseType.gjelderFødsel(fhType)) {
             return familieHendelseTjeneste.matcherFødselsSøknadMedBehandling(grunnlag,
                 vurderFagsystem.getBarnTermindato().orElse(null), vurderFagsystem.getBarnFodselsdato().orElse(null));
-        } else if (FamilieHendelseType.gjelderAdopsjon(fhType)) {
+        }
+        if (FamilieHendelseType.gjelderAdopsjon(fhType)) {
             return familieHendelseTjeneste.matcherOmsorgsSøknadMedBehandling(grunnlag,
                 vurderFagsystem.getOmsorgsovertakelsedato().orElse(null), vurderFagsystem.getAdopsjonsbarnFodselsdatoer());
         }
@@ -181,7 +180,7 @@ public class VurderFagsystemFellesUtils {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         // Sorter saker etter om de har søknad, tidligere IM eller ikke + matching. Evaluer i rekkefølge
-        Map<SorteringSaker, List<Fagsak>> sorterteSaker = saker.stream()
+        var sorterteSaker = saker.stream()
             .collect(Collectors.groupingBy(f -> sorterFagsakForStartdatoIM(f, startdatoIM)));
 
         if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_DATO_MATCH, List.of()).isEmpty()) {
@@ -217,14 +216,14 @@ public class VurderFagsystemFellesUtils {
     }
 
     private SorteringSaker sorterFagsakForStartdatoIM(Fagsak fagsak, LocalDate startdatoIM) {
-        Behandling behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
+        var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).stream()
             .findFirst().orElseGet(() -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null));
         if (behandling == null) {
             return SorteringSaker.TOM_SAK;
         }
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId());
+        var fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId());
         if (fhGrunnlag.isEmpty()) {
-            Map<Arbeidsgiver, List<Inntektsmelding>> alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(behandling.getFagsak().getSaksnummer());
+            var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(behandling.getFagsak().getSaksnummer());
             var match = alleInntektsmeldinger.values().stream().flatMap(Collection::stream).map(Inntektsmelding::getStartDatoPermisjon).flatMap(Optional::stream)
                 .anyMatch(d -> startdatoIM.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(d) && startdatoIM.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(d));
             if (match) {
@@ -233,15 +232,15 @@ public class VurderFagsystemFellesUtils {
             return alleInntektsmeldinger.isEmpty() ?  SorteringSaker.TOM_SAK : SorteringSaker.INNTEKTSMELDING_MISMATCH;
         }
         // Her har vi registrert søknad
-        LocalDate førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
+        var førsteDagBehandling = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato();
         var referanseDatoForSaker = LocalDate.now().isBefore(startdatoIM) ? LocalDate.now() : startdatoIM;
         if (førsteDagBehandling.minus(MAKS_AVVIK_DAGER_IM_INPUT).isBefore(startdatoIM) && førsteDagBehandling.plus(MAKS_AVVIK_DAGER_IM_INPUT).isAfter(startdatoIM)) {
             return SorteringSaker.GRUNNLAG_DATO_MATCH;
-        } else if ((fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
-            return SorteringSaker.GRUNNLAG_MULIG_MATCH;
-        } else {
-            return SorteringSaker.GRUNNLAG_MISMATCH;
         }
+        if ((fagsak.erÅpen() && harSakOpprettetInnenIntervallForIM(List.of(fagsak), referanseDatoForSaker)) || erBehandlingAvsluttetFørOpplysningspliktIntervall(behandling)) {
+            return SorteringSaker.GRUNNLAG_MULIG_MATCH;
+        }
+        return SorteringSaker.GRUNNLAG_MISMATCH;
     }
 
     /**
@@ -250,8 +249,8 @@ public class VurderFagsystemFellesUtils {
      */
     private boolean kanFagsakUtenGrunnlagBrukesForDokument(VurderFagsystem vurderFagsystem, Behandling sisteBehandling) {
         if (vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().isPresent()) {
-            LocalDate oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get(); // NOSONAR
-            Map<Arbeidsgiver, List<Inntektsmelding>> alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getFagsak().getSaksnummer());
+            var oppgittFørsteDag = vurderFagsystem.getStartDatoForeldrepengerInntektsmelding().get(); // NOSONAR
+            var alleInntektsmeldinger = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsakInkludertInaktive(sisteBehandling.getFagsak().getSaksnummer());
             if (alleInntektsmeldinger.isEmpty()) {
                 return true;
             }
@@ -262,13 +261,14 @@ public class VurderFagsystemFellesUtils {
     }
 
     public Optional<BehandlendeFagsystem> standardUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
-        List<Fagsak> åpneFagsaker = finnÅpneSaker(sakerTilVurdering);
+        var åpneFagsaker = finnÅpneSaker(sakerTilVurdering);
         if (åpneFagsaker.size() == 1) {
             return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(åpneFagsaker.get(0).getSaksnummer()));
-        } else if (åpneFagsaker.size() > 1) {
+        }
+        if (åpneFagsaker.size() > 1) {
             return Optional.of(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
-        List<Fagsak> avslagDokumentasjon = harSakMedAvslagGrunnetManglendeDok(sakerTilVurdering);
+        var avslagDokumentasjon = harSakMedAvslagGrunnetManglendeDok(sakerTilVurdering);
         if (avslagDokumentasjon.size() == 1) {
             return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(avslagDokumentasjon.get(0).getSaksnummer()));
         }
@@ -303,12 +303,12 @@ public class VurderFagsystemFellesUtils {
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {
-        Optional<Behandling> behandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(s.getId());
+        var behandling = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(s.getId());
         if (behandling.isEmpty()) {
             return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), FamilieHendelseType.UDEFINERT);
         }
 
-        final FamilieHendelseType fhType = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
+        final var fhType = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()))
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), fhType);

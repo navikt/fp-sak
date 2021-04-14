@@ -33,7 +33,7 @@ public class BehandleNegativeKvitteringTjenesteTest {
 
     @Test
     public void skal_nullstille_hendelse() {
-        ProsessTaskData taskData = lagØkonomioppragTaskPåVent();
+        var taskData = lagØkonomioppragTaskPåVent();
 
         when(prosessTaskRepository.finn(taskData.getId())).thenReturn(taskData);
 
@@ -56,7 +56,7 @@ public class BehandleNegativeKvitteringTjenesteTest {
     }
 
     private ProsessTaskData lagØkonomioppragTaskPåVent() {
-        ProsessTaskData taskData = new ProsessTaskData(TASKTYPE);
+        var taskData = new ProsessTaskData(TASKTYPE);
         taskData.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID);
         taskData.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
         return taskData;

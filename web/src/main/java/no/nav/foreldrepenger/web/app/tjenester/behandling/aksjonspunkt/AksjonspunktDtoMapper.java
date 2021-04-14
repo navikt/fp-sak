@@ -27,9 +27,9 @@ class AksjonspunktDtoMapper {
     }
 
     private static AksjonspunktDto mapFra(Aksjonspunkt aksjonspunkt, Behandling behandling, Collection<Totrinnsvurdering> ttVurderinger) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
+        var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
 
-        AksjonspunktDto dto = new AksjonspunktDto();
+        var dto = new AksjonspunktDto();
         dto.setDefinisjon(aksjonspunktDefinisjon);
         dto.setStatus(aksjonspunkt.getStatus());
         dto.setBegrunnelse(aksjonspunkt.getBegrunnelse());
@@ -39,7 +39,7 @@ class AksjonspunktDtoMapper {
         dto.setEndretAv(aksjonspunkt.getEndretAv());
         dto.setEndretTidspunkt(aksjonspunkt.getEndretTidspunkt());
 
-        Optional<Totrinnsvurdering> vurdering = ttVurderinger.stream().filter(v -> v.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon()).findFirst();
+        var vurdering = ttVurderinger.stream().filter(v -> v.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon()).findFirst();
         vurdering.ifPresent(ttVurdering -> {
             dto.setBesluttersBegrunnelse(ttVurdering.getBegrunnelse());
             dto.setToTrinnsBehandlingGodkjent(ttVurdering.isGodkjent());
@@ -57,7 +57,7 @@ class AksjonspunktDtoMapper {
     // AKsjonspunkt 5031 og 5032 er ikke knyttet til et bestemt vilkår da de skal ha 5 forskjellige.
     //TODO(OJR) modellen burde utvides til å støtte dette...
     private static VilkårType finnVilkårType(Aksjonspunkt aksjonspunkt, Behandling behandling) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
+        var aksjonspunktDefinisjon = aksjonspunkt.getAksjonspunktDefinisjon();
         if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon) ||
                 AksjonspunktDefinisjon.AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
@@ -73,7 +73,7 @@ class AksjonspunktDtoMapper {
         if (def.erAutopunkt()) {
             return false;
         }
-        Optional<BehandlingStegType> aktivtBehandlingSteg = Optional.ofNullable(behandling.getAktivtBehandlingSteg());
+        var aktivtBehandlingSteg = Optional.ofNullable(behandling.getAktivtBehandlingSteg());
         return aktivtBehandlingSteg.map(steg ->
                 skalLøsesIStegKode(def, behandling.getBehandlingStegStatus().getKode(), steg))
                 .orElse(false);

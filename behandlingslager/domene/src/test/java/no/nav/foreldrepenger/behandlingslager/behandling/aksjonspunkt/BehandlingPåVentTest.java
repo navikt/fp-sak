@@ -23,29 +23,29 @@ public class BehandlingPåVentTest {
 
     @Test
     public void testErIkkePåVentUtenInnslag() {
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         assertFalse(behandling.isBehandlingPåVent());
     }
 
     @Test
     public void testErPåVentEttInnslag() {
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
         assertTrue(behandling.isBehandlingPåVent());
     }
 
     @Test
     public void testErIkkePåVentEttInnslag() {
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AUTO_MANUELT_SATT_PÅ_VENT);
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");
         assertFalse(behandling.isBehandlingPåVent());
     }
 
     @Test
     public void testErPåVentNårVenterPåOpptjeningsopplysninger() {
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING);
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING);
         assertTrue(behandling.isBehandlingPåVent());
         assertEquals(behandling.getOpprettetDato().plusWeeks(4).toLocalDate(), aksjonspunkt.getFristTid().toLocalDate());
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "");

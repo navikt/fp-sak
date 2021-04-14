@@ -53,7 +53,7 @@ public class PersoninfoBasis {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PersoninfoBasis that = (PersoninfoBasis) o;
+        var that = (PersoninfoBasis) o;
         return aktørId.equals(that.aktørId) &&
             Objects.equals(navn, that.navn) &&
             Objects.equals(personIdent, that.personIdent) &&

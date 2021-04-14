@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -55,11 +54,11 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     @BeforeEach
     public void setUp() {
         behandlingRepository = new BehandlingRepository(getEntityManager());
-        MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        MottattDokumentPersisterer mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
+        var mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
+        var mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(MottattDokumentPersistertPubliserer.class));
 
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        MottatteDokumentTjeneste mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,
+        var mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,
             mottattDokumentPersisterer,
                 mottatteDokumentRepository, behandlingRepositoryProvider);
 
@@ -77,12 +76,12 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     public void skalTilManuellVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
         opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_ETTER_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vfData.setStrukturertSøknad(false);
 
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
@@ -92,14 +91,14 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     @Test
     public void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisBehandlingErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
         // Arrange
-        Behandling behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
+        var behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vfData.setStrukturertSøknad(false);
 
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -109,15 +108,15 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     @Test
     public void skalReturnereVedtaksløsningMedSaksnummerVurderingHvisEttersendelsePåAngittSak() {
         // Arrange
-        Behandling behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
+        var behandling = opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.MANGLENDE_DOKUMENTASJON,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
         vfData.setStrukturertSøknad(false);
         vfData.setSaksnummer(behandling.getFagsak().getSaksnummer());
 
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -128,12 +127,12 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     public void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErFørFristForInnsending() {
         opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING,
                 VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setStrukturertSøknad(false);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
 
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
@@ -144,12 +143,12 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     public void skalTilManuellVurderingHvisBehandlingIkkeErAvslåttPgaManglendeDokOgInnsendtDokErEtterFristForInnsending() {
         opprettBehandling(BehandlingType.REVURDERING, BehandlingResultatType.AVSLÅTT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING,
                 VedtakResultatType.AVSLAG, DATO_ETTER_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
+        var vfData = opprettVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         vfData.setStrukturertSøknad(false);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
 
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
@@ -160,10 +159,10 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
     public void skalTilManuellVurderingHvisBehandlingstypeErKlage() {
         var behandling = opprettBehandling(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT,
                 Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING, VedtakResultatType.AVSLAG, DATO_FØR_FRISTEN);
-        VurderFagsystem vfData = opprettVurderFagsystem(BehandlingTema.UDEFINERT);
+        var vfData = opprettVurderFagsystem(BehandlingTema.UDEFINERT);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
         // Act
-        BehandlendeFagsystem resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
+        var resultat = vurderFagsystemFellesTjeneste.vurderFagsystem(vfData);
 
         // Assert
         assertThat(resultat.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
@@ -173,7 +172,7 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
 
     private Behandling opprettBehandling(BehandlingType behandlingType, BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak,
             VedtakResultatType vedtakResultatType, LocalDate vedtaksdato) {
-        ScenarioMorSøkerEngangsstønad scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(AKTØR_ID)
+        var scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel().medBruker(AKTØR_ID)
                 .medFagsakId(1234L)
                 .medSaksnummer(new Saksnummer("2345"))
                 .medBehandlingType(behandlingType);
@@ -185,20 +184,20 @@ public class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingT
                 .medVedtakResultatType(vedtakResultatType)
                 .medAnsvarligSaksbehandler("fornavn etternavn");
 
-        Behandling behandling = scenarioES.lagre(behandlingRepositoryProvider);
+        var behandling = scenarioES.lagre(behandlingRepositoryProvider);
 
         behandling.getFagsak().setAvsluttet();
         behandling.avsluttBehandling();
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
 
         return behandling;
     }
 
     private VurderFagsystem opprettVurderFagsystem(BehandlingTema behandlingTema) {
-        LocalDate terminDatdato = LocalDate.of(2017, 7, 1);
-        VurderFagsystem vfData = new VurderFagsystem();
+        var terminDatdato = LocalDate.of(2017, 7, 1);
+        var vfData = new VurderFagsystem();
         vfData.setBehandlingTema(behandlingTema);
         vfData.setAktørId(AKTØR_ID);
         vfData.setStrukturertSøknad(true);

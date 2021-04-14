@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.web.app.healthchecks.checks;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Locale;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,11 +46,11 @@ public class DatabaseHealthCheck {
             return false;
         }
 
-        try (Connection connection = dataSource.getConnection()) {
+        try (var connection = dataSource.getConnection()) {
             if (endpoint == null) {
                 endpoint = extractEndpoint(connection);
             }
-            try (Statement statement = connection.createStatement()) {
+            try (var statement = connection.createStatement()) {
                 if (!statement.execute(SQL_QUERY)) {
                     throw new SQLException("SQL-spørring ga ikke et resultatsett");
                 }
@@ -66,10 +64,10 @@ public class DatabaseHealthCheck {
     }
 
     private String extractEndpoint(Connection connection) {
-        String result = "?";
+        var result = "?";
         try {
-            DatabaseMetaData metaData = connection.getMetaData();
-            String url = metaData.getURL();
+            var metaData = connection.getMetaData();
+            var url = metaData.getURL();
             if (url != null) {
                 if (!url.toUpperCase(Locale.US).contains("SERVICE_NAME=")) { // don't care about Norwegian letters here
                     url = url + "/" + connection.getSchema();

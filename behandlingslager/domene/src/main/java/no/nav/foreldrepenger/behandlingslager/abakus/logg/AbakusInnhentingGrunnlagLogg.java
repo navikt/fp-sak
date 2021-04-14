@@ -57,7 +57,7 @@ public class AbakusInnhentingGrunnlagLogg extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AbakusInnhentingGrunnlagLogg that = (AbakusInnhentingGrunnlagLogg) o;
+        var that = (AbakusInnhentingGrunnlagLogg) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(uuid, that.uuid);
     }

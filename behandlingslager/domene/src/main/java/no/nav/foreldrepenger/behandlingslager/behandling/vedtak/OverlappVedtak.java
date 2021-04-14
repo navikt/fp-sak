@@ -112,7 +112,7 @@ public class OverlappVedtak extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OverlappVedtak that = (OverlappVedtak) o;
+        var that = (OverlappVedtak) o;
         return versjon == that.versjon &&
             utbetalingsprosent == that.utbetalingsprosent &&
             Objects.equals(saksnummer, that.saksnummer) &&

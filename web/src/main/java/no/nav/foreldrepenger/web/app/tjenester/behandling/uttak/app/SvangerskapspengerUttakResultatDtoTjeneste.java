@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatArbeidsforholdDto;
@@ -32,16 +31,16 @@ public class SvangerskapspengerUttakResultatDtoTjeneste {
     }
 
     public Optional<SvangerskapspengerUttakResultatDto> mapFra(Behandling behandling) {
-        Optional<SvangerskapspengerUttakResultatEntitet> optionalUttakResultat = svpUttakResultatRepository.hentHvisEksisterer(behandling.getId());
+        var optionalUttakResultat = svpUttakResultatRepository.hentHvisEksisterer(behandling.getId());
         if (optionalUttakResultat.isEmpty()) {
             return Optional.empty();
         }
-        SvangerskapspengerUttakResultatEntitet uttakResultat = optionalUttakResultat.get();
+        var uttakResultat = optionalUttakResultat.get();
 
         List<SvangerskapspengerUttakResultatArbeidsforholdDto> arbeidsforholdDtos = new ArrayList<>();
-        for (SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforholdEntitet : uttakResultat.getUttaksResultatArbeidsforhold()) {
+        for (var arbeidsforholdEntitet : uttakResultat.getUttaksResultatArbeidsforhold()) {
 
-            List<SvangerskapspengerUttakResultatPeriodeDto> uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream()
+            var uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream()
                 .map(this::mapSvpUttakResultatPeriodeDto).collect(Collectors.toList());
 
             arbeidsforholdDtos.add(mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet,

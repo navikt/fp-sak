@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
@@ -55,18 +54,18 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalTesteSVPUttaksperioderMedForskjelligeAntallAktiviteter() {
         // Arrange
-        Map<LocalDateInterval, List<Arbeidsforhold>> periodeMap = Map.of(
+        var periodeMap = Map.of(
                 PERIODE_1, List.of(ARBEIDSFORHOLD_1),
                 PERIODE_2, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2),
                 PERIODE_3, List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2, ARBEIDSFORHOLD_3));
-        BeregningsresultatRegelmodell modell = opprettRegelmodell(periodeMap);
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodell(periodeMap);
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(3);
         assertThat(perioder.get(0).getBeregningsresultatAndelList()).hasSize(2);
         assertThat(perioder.get(1).getBeregningsresultatAndelList()).hasSize(4);
@@ -75,13 +74,13 @@ public class RegelFastsettBeregningsresultatTest {
     }
 
     private BeregningsresultatRegelmodell opprettRegelmodell(Map<LocalDateInterval, List<Arbeidsforhold>> periodeMap) {
-        List<BeregningsgrunnlagPrArbeidsforhold> arbeidsforhold = periodeMap.entrySet().stream()
+        var arbeidsforhold = periodeMap.entrySet().stream()
                 .flatMap(entry -> entry.getValue().stream())
                 .distinct()
                 .map(arb -> lagPrArbeidsforhold(1000, 500, arb))
                 .collect(Collectors.toList());
-        Beregningsgrunnlag beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
-        UttakResultat uttakResultat = opprettUttak(periodeMap);
+        var beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
+        var uttakResultat = opprettUttak(periodeMap);
         return new BeregningsresultatRegelmodell(beregningsgrunnlag, uttakResultat);
     }
 
@@ -94,13 +93,13 @@ public class RegelFastsettBeregningsresultatTest {
     }
 
     private Beregningsgrunnlag opprettBeregningsgrunnlag(List<BeregningsgrunnlagPrArbeidsforhold> ekstraArbeidsforhold) {
-        BeregningsgrunnlagPrStatus.Builder prStatusBuilder = BeregningsgrunnlagPrStatus.builder()
+        var prStatusBuilder = BeregningsgrunnlagPrStatus.builder()
                 .medAktivitetStatus(AktivitetStatus.ATFL);
-        for (BeregningsgrunnlagPrArbeidsforhold arbeidsforhold : ekstraArbeidsforhold) {
+        for (var arbeidsforhold : ekstraArbeidsforhold) {
             prStatusBuilder.medArbeidsforhold(arbeidsforhold);
         }
-        BeregningsgrunnlagPrStatus prStatus = prStatusBuilder.build();
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        var prStatus = prStatusBuilder.build();
+        var periode = BeregningsgrunnlagPeriode.builder()
                 .medPeriode(Periode.of(START, LocalDate.MAX))
                 .medBeregningsgrunnlagPrStatus(prStatus)
                 .build();
@@ -114,9 +113,9 @@ public class RegelFastsettBeregningsresultatTest {
     private UttakResultat opprettUttak(Map<LocalDateInterval, List<Arbeidsforhold>> arbeidsforholdPerioder) {
         List<UttakResultatPeriode> periodeListe = new ArrayList<>();
         for (var arbPeriode : arbeidsforholdPerioder.entrySet()) {
-            LocalDateInterval periode = arbPeriode.getKey();
-            List<Arbeidsforhold> arbeidsforhold = arbPeriode.getValue();
-            List<UttakAktivitet> uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(100), arbeidsforhold);
+            var periode = arbPeriode.getKey();
+            var arbeidsforhold = arbPeriode.getValue();
+            var uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(100), arbeidsforhold);
             periodeListe.add(new UttakResultatPeriode(periode.getFomDato(), periode.getTomDato(), uttakAktiviteter, false));
         }
         return new UttakResultat(periodeListe);

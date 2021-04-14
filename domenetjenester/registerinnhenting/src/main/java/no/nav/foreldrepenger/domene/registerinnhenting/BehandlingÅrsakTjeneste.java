@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterinnhentingHistorikkinnslagTjeneste;
@@ -46,18 +45,18 @@ public class BehandlingÅrsakTjeneste {
     }
 
     public void lagHistorikkForRegisterEndringerMotOriginalBehandling(Behandling revurdering) {
-        Long origBehandling = revurdering.getOriginalBehandlingId()
+        var origBehandling = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
-        EndringsresultatSnapshot snapshotOrig = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandling);
-        EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOrig);
+        var snapshotOrig = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandling);
+        var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOrig);
 
-        Set<EndringResultatType> endringsTyper = utledEndringsResultatTyperBasertPåDiff(revurdering, diff);
+        var endringsTyper = utledEndringsResultatTyperBasertPåDiff(revurdering, diff);
         lagHistorikkinnslag(revurdering, endringsTyper, false);
     }
 
     public void lagHistorikkForRegisterEndringsResultat(Behandling behandling, EndringsresultatDiff endringsresultatDiff) {
-        Set<EndringResultatType> endringsTyper = utledEndringsResultatTyperBasertPåDiff(behandling, endringsresultatDiff);
+        var endringsTyper = utledEndringsResultatTyperBasertPåDiff(behandling, endringsresultatDiff);
         lagHistorikkinnslag(behandling, endringsTyper, true);
     }
 
@@ -90,18 +89,19 @@ public class BehandlingÅrsakTjeneste {
     }
 
     private BehandlingÅrsakUtleder finnUtleder(Class<?> aggregat) {
-        String aggrNavn = aggregat.getSimpleName();
+        var aggrNavn = aggregat.getSimpleName();
         if(aggregat.isAnnotationPresent(Entity.class)) {
             aggrNavn = aggregat.getAnnotation(Entity.class).name();
         }
 
-        Instance<BehandlingÅrsakUtleder> selected = utledere.select(new GrunnlagRef.GrunnlagRefLiteral(aggrNavn));
+        var selected = utledere.select(new GrunnlagRef.GrunnlagRefLiteral(aggrNavn));
         if (selected.isAmbiguous()) {
             throw new IllegalArgumentException("Mer enn en implementasjon funnet for BehandlingÅrsakUtleder:" + aggrNavn);
-        } else if (selected.isUnsatisfied()) {
+        }
+        if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("Ingen implementasjoner funnet for BehandlingÅrsakUtleder:" + aggrNavn);
         }
-        BehandlingÅrsakUtleder minInstans = selected.get();
+        var minInstans = selected.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }

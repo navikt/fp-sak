@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,7 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setup() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
         prosessTaskRepository = new ProsessTaskRepositoryImpl(getEntityManager(), null, null);
         opprettProsessTaskIverksettFP = new OpprettProsessTaskIverksett(prosessTaskRepository, null, null, null,oppgaveTjeneste);
@@ -62,8 +61,8 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
         opprettProsessTaskIverksettFP.opprettIverksettingTasks(behandling);
 
         // Assert
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
             VurderOgSendØkonomiOppdragTask.TASKTYPE, SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE,
             VurderOppgaveArenaTask.TASKTYPE, VEDTAK_TIL_DATAVAREHUS_TASK, SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
@@ -78,8 +77,8 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
         opprettProsessTaskIverksettFP.opprettIverksettingTasks(behandling);
 
         // Assert
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(AvsluttBehandlingTask.TASKTYPE, SendVedtaksbrevTask.TASKTYPE,
             AvsluttOppgaveTask.TASKTYPE, VurderOgSendØkonomiOppdragTask.TASKTYPE,
             SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE,
@@ -87,7 +86,7 @@ public class OpprettProsessTaskIverksettTest extends EntityManagerAwareTest {
     }
 
     private void mockOpprettTaskAvsluttOppgave() {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setOppgaveId("1001");
         when(oppgaveTjeneste.opprettTaskAvsluttOppgave(any(Behandling.class), any(OppgaveÅrsak.class), anyBoolean())).thenReturn(Optional.of(prosessTaskData));

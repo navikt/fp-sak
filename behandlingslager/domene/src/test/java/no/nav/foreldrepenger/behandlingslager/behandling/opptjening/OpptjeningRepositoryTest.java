@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,13 +31,13 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_lagre_opptjeningsperiode() {
         // Arrange
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
+        var today = LocalDate.now();
+        var tomorrow = today.plusDays(1);
 
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         // Act
-        Opptjening opptjeningsperiode = opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
+        var opptjeningsperiode = opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
 
         // Assert
         assertThat(opptjeningsperiode.getFom()).isEqualTo(today);
@@ -48,7 +47,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
         assertThat(opptjeningsperiode.getOpptjentPeriode()).isNull();
 
         // Act
-        Opptjening funnet = opptjeningRepository.finnOpptjening(behandling.getId()).orElseThrow();
+        var funnet = opptjeningRepository.finnOpptjening(behandling.getId()).orElseThrow();
 
         // Assert
         assertThat(funnet).isEqualTo(opptjeningsperiode);
@@ -57,15 +56,15 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void kopierGrunnlagFraEksisterendeBehandling() {
         // Arrange
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        Behandling behandling = opprettBehandling();
-        Behandling revurdering = opprettBehandling();
-        Opptjening opptjeningsperiode = opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
+        var today = LocalDate.now();
+        var tomorrow = today.plusDays(1);
+        var behandling = opprettBehandling();
+        var revurdering = opprettBehandling();
+        var opptjeningsperiode = opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
 
         // Act
         opptjeningRepository.kopierGrunnlagFraEksisterendeBehandling(behandling, revurdering);
-        Opptjening funnet = opptjeningRepository.finnOpptjening(revurdering.getId()).orElseThrow();
+        var funnet = opptjeningRepository.finnOpptjening(revurdering.getId()).orElseThrow();
 
         // Assert
         assertThat(funnet).isEqualTo(opptjeningsperiode);
@@ -74,27 +73,27 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void deaktiverOpptjening() {
         // Arrange
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        Behandling behandling = opprettBehandling();
+        var today = LocalDate.now();
+        var tomorrow = today.plusDays(1);
+        var behandling = opprettBehandling();
 
         // Act
         opptjeningRepository.lagreOpptjeningsperiode(behandling, today, tomorrow, false);
         opptjeningRepository.deaktiverOpptjening(behandling);
 
         // Assert
-        Optional<Opptjening> funnetOpt = opptjeningRepository.finnOpptjening(behandling.getId());
+        var funnetOpt = opptjeningRepository.finnOpptjening(behandling.getId());
         assertThat(funnetOpt).isEmpty();
     }
 
     @Test
     public void lagreOpptjeningResultat() {
         // Arrange
-        LocalDate today = LocalDate.now();
-        LocalDate tomorrow = today.plusDays(1);
-        Behandling behandling = opprettBehandling();
+        var today = LocalDate.now();
+        var tomorrow = today.plusDays(1);
+        var behandling = opprettBehandling();
         List<OpptjeningAktivitet> aktiviteter = new ArrayList<>();
-        OpptjeningAktivitet opptjeningAktivitet = new OpptjeningAktivitet(tomorrow.minusMonths(10),
+        var opptjeningAktivitet = new OpptjeningAktivitet(tomorrow.minusMonths(10),
             tomorrow,
             OpptjeningAktivitetType.ARBEID,
             OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT,
@@ -107,9 +106,9 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
         opptjeningRepository.lagreOpptjeningResultat(behandling, Period.ofDays(100), aktiviteter);
 
         // Assert
-        Opptjening funnet = opptjeningRepository.finnOpptjening(behandling.getId()).orElseThrow();
+        var funnet = opptjeningRepository.finnOpptjening(behandling.getId()).orElseThrow();
         assertThat(funnet.getOpptjeningAktivitet()).hasSize(1);
-        OpptjeningAktivitet aktivitet = funnet.getOpptjeningAktivitet().get(0);
+        var aktivitet = funnet.getOpptjeningAktivitet().get(0);
         assertThat(aktivitet.getFom()).isEqualTo(tomorrow.minusMonths(10));
         assertThat(aktivitet.getTom()).isEqualTo(tomorrow);
         assertThat(aktivitet.getAktivitetReferanseType()).isEqualTo(ReferanseType.ORG_NR);
@@ -119,7 +118,7 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandling() {
         var behandlingBuilder = new BasicBehandlingBuilder(getEntityManager());
-        Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
         var resultat = Behandlingsresultat.builder().build();
         behandlingBuilder.lagreBehandlingsresultat(behandling.getId(), resultat);
 
@@ -131,8 +130,8 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void getOpptjeningAktivitetTypeForKode() {
         // Act
-        String næringKode = OpptjeningAktivitetType.NÆRING.getKode();
-        OpptjeningAktivitetType næring = OpptjeningAktivitetType.fraKode(næringKode);
+        var næringKode = OpptjeningAktivitetType.NÆRING.getKode();
+        var næring = OpptjeningAktivitetType.fraKode(næringKode);
 
         // Assert
         assertThat(næring.getKode()).isEqualTo(næringKode);
@@ -142,8 +141,8 @@ public class OpptjeningRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void getOpptjeningAktivitetKlassifisering() {
         // Act
-        String kode = OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT.getKode();
-        OpptjeningAktivitetKlassifisering resultat = OpptjeningAktivitetKlassifisering.fraKode(kode);
+        var kode = OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT.getKode();
+        var resultat = OpptjeningAktivitetKlassifisering.fraKode(kode);
 
         // Assert
         assertThat(resultat.getKode()).isEqualTo(kode);

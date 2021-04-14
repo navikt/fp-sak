@@ -41,7 +41,7 @@ public class DiffResult {
         result1.getValues().forEach((key, value) -> diffs.put(key, new Pair(value, null)));
 
         result2.getValues().forEach((key, value) -> {
-            Object elem1 = diffs.containsKey(key) ? diffs.get(key).getElement1() : null;
+            var elem1 = diffs.containsKey(key) ? diffs.get(key).getElement1() : null;
             if (!areEqual(key, elem1, value)) {
                 diffs.put(key, new Pair(elem1, value));
                 if (returnOnFirstDiff) {
@@ -57,13 +57,12 @@ public class DiffResult {
     private boolean areEqual(Node key, Object left, Object right) {
         if (Objects.equals(left, right)) {
             return true;
-        } else {
-            // corner caser som kan være ansett som like.
+        }
+        // corner caser som kan være ansett som like.
 
-            // List caser - tolerer at lister kan ha forskjellig rekkefølge
-            if (left instanceof List && right instanceof List) {
-                return areEqualListsOutOfOrder(key, (List) left, (List) right);
-            }
+        // List caser - tolerer at lister kan ha forskjellig rekkefølge
+        if (left instanceof List && right instanceof List) {
+            return areEqualListsOutOfOrder(key, (List) left, (List) right);
         }
 
         return false;
@@ -77,7 +76,8 @@ public class DiffResult {
         if (lhsSet.size() != lhsList.size()) {
             throw new IllegalArgumentException("Bad Equals eller duplikater i List.  lhsList har forskjellig størrelse fra lhsSet. Key=\"" + key //$NON-NLS-1$
                 + "\"\n,\"lhsList\"=" + lhsList + "\n,\"rhsList\"=" + rhsList); //$NON-NLS-1$ //$NON-NLS-2$
-        } else if (rhsSet.size() != rhsList.size()) {
+        }
+        if (rhsSet.size() != rhsList.size()) {
             throw new IllegalArgumentException("Bad Equals eller duplikater i List.  rhsList har forskjellig størrelse fra rhsSet. Key=\"" + key //$NON-NLS-1$
                 + "\"\n,\"lhsList\"=" + lhsList + "\n,\"rhsList\"=" + rhsList); //$NON-NLS-1$ //$NON-NLS-2$
         }

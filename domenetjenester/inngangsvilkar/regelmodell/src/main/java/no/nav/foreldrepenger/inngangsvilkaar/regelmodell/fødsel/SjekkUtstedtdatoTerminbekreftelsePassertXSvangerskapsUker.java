@@ -18,8 +18,7 @@ public class SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker extends L
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
         if (t.isErTerminBekreftelseUtstedtEtterXUker()) {
             return ja();
-        } else {
-            return nei(IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO);
         }
+        return nei(IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO);
     }
 }

@@ -111,7 +111,7 @@ public class MedlemPeriodeDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MedlemPeriodeDto that = (MedlemPeriodeDto) o;
+        var that = (MedlemPeriodeDto) o;
         return Objects.equals(vurderingsdato, that.vurderingsdato);
     }
 

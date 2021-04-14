@@ -5,7 +5,6 @@ import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,9 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -52,20 +49,20 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
 
     @Override
     public OppdateringResultat oppdater(AvklarArbeidsforholdDto avklarArbeidsforholdDto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
 
-        List<ArbeidsforholdDto> arbeidsforhold = avklarArbeidsforholdDto.getArbeidsforhold();
-        List<ArbeidsforholdDto> arbeidsforholdLagtTilAvSaksbehandler = arbeidsforhold.stream()
+        var arbeidsforhold = avklarArbeidsforholdDto.getArbeidsforhold();
+        var arbeidsforholdLagtTilAvSaksbehandler = arbeidsforhold.stream()
                 .filter(dto -> Boolean.TRUE.equals(dto.getLagtTilAvSaksbehandler()))
                 .collect(Collectors.toList());
-        List<ArbeidsforholdDto> arbeidsforholdBasertPåInntektsmelding = arbeidsforhold.stream()
+        var arbeidsforholdBasertPåInntektsmelding = arbeidsforhold.stream()
                 .filter(dto -> Boolean.TRUE.equals(dto.getBasertPaInntektsmelding()))
                 .collect(Collectors.toList());
-        List<ArbeidsforholdDto> opprinneligeArbeidsforhold = arbeidsforhold.stream()
+        var opprinneligeArbeidsforhold = arbeidsforhold.stream()
                 .filter(dto -> !Boolean.TRUE.equals(dto.getLagtTilAvSaksbehandler()) && !Boolean.TRUE.equals(dto.getBasertPaInntektsmelding()))
                 .collect(Collectors.toList());
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingId).tilbakestillOverstyringer();
+        var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandlingId).tilbakestillOverstyringer();
         if (!arbeidsforholdLagtTilAvSaksbehandler.isEmpty() || !arbeidsforholdBasertPåInntektsmelding.isEmpty()) {
             håndterManuelleArbeidsforhold(param);
         }
@@ -86,8 +83,8 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     private void leggTilArbeidsforholdBasertPåInntektsmelding(ArbeidsforholdInformasjonBuilder informasjonBuilder,
             List<ArbeidsforholdDto> arbeidsforholdBasertPåInntektsmelding) {
         for (var arbeidsforholdDto : arbeidsforholdBasertPåInntektsmelding) {
-            ArbeidsforholdHandlingType handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
-            ArbeidsforholdOverstyringBuilder overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType,
+            var handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            var overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType,
                     OrgNummer.erGyldigOrgnr(arbeidsforholdDto.getArbeidsgiverIdentifikator())
                             ? Arbeidsgiver.virksomhet(arbeidsforholdDto.getArbeidsgiverIdentifikator())
                             : Arbeidsgiver.person(new AktørId(arbeidsforholdDto.getArbeidsgiverIdentifikator())));
@@ -98,10 +95,10 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
 
     private void leggTilArbeidsforholdOppgittAvSaksbehandler(ArbeidsforholdInformasjonBuilder informasjonBuilder,
             List<ArbeidsforholdDto> arbeidsforholdLagtTilAvSaksbehandler) {
-        Arbeidsgiver fiktivArbeidsgiver = Arbeidsgiver.virksomhet(FIKTIVT_ORG);
+        var fiktivArbeidsgiver = Arbeidsgiver.virksomhet(FIKTIVT_ORG);
         for (var arbeidsforholdDto : arbeidsforholdLagtTilAvSaksbehandler) {
-            ArbeidsforholdHandlingType handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
-            ArbeidsforholdOverstyringBuilder overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType, fiktivArbeidsgiver);
+            var handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            var overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType, fiktivArbeidsgiver);
             informasjonBuilder.leggTil(overstyrt);
             arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(arbeidsforholdDto, arbeidsforholdDto.getNavn(), Optional.empty());
         }
@@ -126,23 +123,23 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     private void leggPåOverstyringPåOpprinnligeArbeidsforhold(AksjonspunktOppdaterParameter param,
             ArbeidsforholdInformasjonBuilder informasjonBuilder,
             List<ArbeidsforholdDto> arbeidsforhold) {
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
+        var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
                 .getArbeidsforholdOverstyringer();
         var aktuelle = filtrerUtArbeidsforholdSomHarBlittErsattet(arbeidsforhold);
-        for (ArbeidsforholdDto arbeidsforholdDto : aktuelle) {
+        for (var arbeidsforholdDto : aktuelle) {
 
-            final ArbeidsforholdHandlingType handling = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
-            final Arbeidsgiver arbeidsgiver = hentArbeidsgiver(arbeidsforholdDto);
-            final InternArbeidsforholdRef ref = InternArbeidsforholdRef.ref(arbeidsforholdDto.getArbeidsforholdId());
+            final var handling = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            final var arbeidsgiver = hentArbeidsgiver(arbeidsforholdDto);
+            final var ref = InternArbeidsforholdRef.ref(arbeidsforholdDto.getArbeidsforholdId());
 
-            ArbeidsforholdOverstyringBuilder overstyringBuilderFor = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+            var overstyringBuilderFor = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                     .medBeskrivelse(arbeidsforholdDto.getBegrunnelse())
                     .medHandling(handling.equals(ArbeidsforholdHandlingType.SLÅTT_SAMMEN_MED_ANNET)
                             ? ArbeidsforholdHandlingType.BRUK
                             : handling);
 
             if (arbeidsforholdDto.getBrukPermisjon() != null) {
-                BekreftetPermisjon bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
+                var bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
                 overstyringBuilderFor.medBekreftetPermisjon(bekreftetPermisjon);
             }
 
@@ -151,10 +148,10 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
             }
 
             if (ArbeidsforholdHandlingTypeUtleder.skalErstatteAnnenInntektsmelding(arbeidsforholdDto)) {
-                InternArbeidsforholdRef gammelRef = utledArbeidsforholdIdSomSkalErstattes(arbeidsforholdDto.getErstatterArbeidsforholdId(),
+                var gammelRef = utledArbeidsforholdIdSomSkalErstattes(arbeidsforholdDto.getErstatterArbeidsforholdId(),
                         arbeidsforhold);
                 informasjonBuilder.erstattArbeidsforhold(arbeidsgiver, gammelRef, ref);
-                final ArbeidsforholdOverstyringBuilder erstattBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, gammelRef);
+                final var erstattBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, gammelRef);
                 erstattBuilder.medNyArbeidsforholdRef(ref);
                 erstattBuilder.medHandling(handling);
                 informasjonBuilder.leggTil(erstattBuilder);
@@ -166,7 +163,7 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private InternArbeidsforholdRef utledArbeidsforholdIdSomSkalErstattes(String erstatterArbeidsforhold, List<ArbeidsforholdDto> arbeidsforhold) {
-        final String arbeidsforholdId = arbeidsforhold.stream()
+        final var arbeidsforholdId = arbeidsforhold.stream()
                 .filter(af -> af.getId().equalsIgnoreCase(erstatterArbeidsforhold))
                 .findAny()
                 .map(ArbeidsforholdDto::getArbeidsforholdId)
@@ -175,7 +172,7 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private List<ArbeidsforholdDto> filtrerUtArbeidsforholdSomHarBlittErsattet(List<ArbeidsforholdDto> arbeidsforhold) {
-        Set<String> filtrertUt = arbeidsforhold.stream()
+        var filtrertUt = arbeidsforhold.stream()
                 .map(ArbeidsforholdDto::getErstatterArbeidsforholdId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -185,7 +182,7 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private Arbeidsgiver hentArbeidsgiver(ArbeidsforholdDto dto) {
-        String identifikator = dto.getArbeidsgiverIdentifikator();
+        var identifikator = dto.getArbeidsgiverIdentifikator();
         return OrgNummer.erGyldigOrgnr(identifikator)
                 ? Arbeidsgiver.virksomhet(identifikator)
                 : Arbeidsgiver.person(new AktørId(identifikator));
@@ -193,7 +190,7 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private void håndterManuelleArbeidsforhold(AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
         inntektArbeidYtelseTjeneste.fjernSaksbehandletVersjon(behandlingId);
     }
 }

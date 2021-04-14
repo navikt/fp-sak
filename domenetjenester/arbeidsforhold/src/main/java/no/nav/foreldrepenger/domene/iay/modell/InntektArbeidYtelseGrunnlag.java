@@ -187,19 +187,18 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
     public List<InntektsmeldingSomIkkeKommer> getInntektsmeldingerSomIkkeKommer() {
         if (arbeidsforholdInformasjon == null) {
             return Collections.emptyList();
-        } else {
-            var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
-            return overstyringer.stream()
-                    .filter(ov -> ov.kreverIkkeInntektsmelding())
-                    .map(ov -> {
-                        // TODO (FC): fiks/fjern eksternRef herfra
-                        EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
-                                                                    // ov.getArbeidsforholdRef()); //
-                                                                    // NOSONAR
-                        return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
-                    }) // NOSONAR
-                    .collect(Collectors.toList());
         }
+        var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
+        return overstyringer.stream()
+                .filter(ov -> ov.kreverIkkeInntektsmelding())
+                .map(ov -> {
+                    // TODO (FC): fiks/fjern eksternRef herfra
+                    EksternArbeidsforholdRef eksternRef = null; // arbeidsforholdInformasjon.finnEkstern(ov.getArbeidsgiver(),
+                                                                // ov.getArbeidsforholdRef()); //
+                                                                // NOSONAR
+                    return new InntektsmeldingSomIkkeKommer(ov.getArbeidsgiver(), ov.getArbeidsforholdRef(), eksternRef);
+                }) // NOSONAR
+                .collect(Collectors.toList());
     }
 
     public List<ArbeidsforholdOverstyring> getArbeidsforholdOverstyringer() {
@@ -254,7 +253,7 @@ public class InntektArbeidYtelseGrunnlag extends BaseEntitet {
         if ((o == null) || !(o instanceof InntektArbeidYtelseGrunnlag)) {
             return false;
         }
-        InntektArbeidYtelseGrunnlag that = (InntektArbeidYtelseGrunnlag) o;
+        var that = (InntektArbeidYtelseGrunnlag) o;
         return (aktiv == that.aktiv) &&
                 Objects.equals(register, that.register) &&
                 Objects.equals(saksbehandlet, that.saksbehandlet);

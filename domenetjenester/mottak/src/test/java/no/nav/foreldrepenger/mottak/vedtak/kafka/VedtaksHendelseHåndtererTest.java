@@ -38,9 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -107,39 +105,39 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     public void opprettRiktigeTasksForFpsakVedtakForeldrepenger() {
-        Behandling fpBehandling = lagBehandlingFP();
-        YtelseV1 fpYtelse = genererYtelseFpsak(fpBehandling);
+        var fpBehandling = lagBehandlingFP();
+        var fpYtelse = genererYtelseFpsak(fpBehandling);
 
         vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(fpYtelse);
 
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
         assertThat(tasktyper).contains(VurderOpphørAvYtelserTask.TASKTYPE, StartBerørtBehandlingTask.TASKTYPE);
 
     }
 
     @Test
     public void opprettRiktigeTasksForFpsakVedtakSvangerskapspenger() {
-        Behandling svpBehandling = lagBehandlingSVP();
-        YtelseV1 svpYtelse = genererYtelseFpsak(svpBehandling);
+        var svpBehandling = lagBehandlingSVP();
+        var svpYtelse = genererYtelseFpsak(svpBehandling);
 
         vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(svpYtelse);
 
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<String> tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
+        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
 
         assertThat(tasktyper).contains(VurderOpphørAvYtelserTask.TASKTYPE);
     }
 
     @Test
     public void opprettIngenTasksForFpsakVedtakEngangsstønad() {
-        Behandling esBehandling = lagBehandlingES();
-        YtelseV1 esYtelse = genererYtelseFpsak(esBehandling);
+        var esBehandling = lagBehandlingES();
+        var esYtelse = genererYtelseFpsak(esBehandling);
 
         vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(esYtelse);
 
-        List<ProsessTaskData> prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        List<ProsessTaskData> tasktyper = prosessTaskDataList.stream()
+        var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var tasktyper = prosessTaskDataList.stream()
             .filter(t -> t.getFagsakId().equals(esBehandling.getFagsakId()))
             .collect(Collectors.toList());
 
@@ -149,25 +147,25 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void ingenOverlappOmsorgspengerSVP() {
         // SVP sak
-        Behandling svp = lagBehandlingSVP();
-        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
+        var svp = lagBehandlingSVP();
+        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
         beregningsresultatRepository.lagre(svp, berResSvp);
         // Omsorgspenger vedtak
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(svp.getAktørId().getId());
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(LocalDate.of(2020, 4, 1));
         periode.setTom(LocalDate.of(2020, 5, 4));
         List<Anvisning> anvistList = new ArrayList<>();
-        Desimaltall utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
 
-        Anvisning anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        Anvisning anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
+        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
+        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
 
         anvistList.add(anvist1);
         anvistList.add(anvist2);
 
-        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
+        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
@@ -177,33 +175,33 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void overlappOmsorgspengerSVP() {
         // SVP sak
-        Behandling svp = lagBehandlingSVP();
+        var svp = lagBehandlingSVP();
         var stp = LocalDate.of(2020, 3, 1);
         var eksternbase = LocalDate.of(2020, 4, 1);
         lagBeregningsgrunnlag(svp, stp, 100);
-        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
+        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
         leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(24), 442, 100, 100);
         beregningsresultatRepository.lagre(svp, berResSvp);
         // Omsorgspenger vedtak
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(svp.getAktørId().getId());
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(eksternbase);
         periode.setTom(eksternbase.plusMonths(1).plusDays(3));
         List<Anvisning> anvistList = new ArrayList<>();
-        Desimaltall utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
 
-        Anvisning anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgrad);
-        Anvisning anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetgrad);
+        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgrad);
+        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetgrad);
 
         anvistList.add(anvist1);
         anvistList.add(anvist2);
 
-        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
+        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        List<OverlappVedtak> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
+        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(200);
@@ -215,30 +213,30 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void ingenOverlappOMPSVPGradertPeriode() {
         // SVP sak
-        Behandling svp = lagBehandlingSVP();
+        var svp = lagBehandlingSVP();
         var stp = LocalDate.of(2020, 3, 1);
         var eksternbase = LocalDate.of(2020, 4, 1);
         lagBeregningsgrunnlag(svp, stp, 50);
-        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
+        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
         leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(24), 221, 50, 100);
         beregningsresultatRepository.lagre(svp, berResSvp);
         // Omsorgspenger vedtak
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(svp.getAktørId().getId());
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(eksternbase);
         periode.setTom(eksternbase.plusMonths(1).plusDays(3));
         List<Anvisning> anvistList = new ArrayList<>();
-        Desimaltall utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
-        Desimaltall utbetGrad = new Desimaltall(BigDecimal.valueOf(50));
+        var utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
+        var utbetGrad = new Desimaltall(BigDecimal.valueOf(50));
 
-        Anvisning anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
-        Anvisning anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
+        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
+        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
 
         anvistList.add(anvist1);
         anvistList.add(anvist2);
 
-        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
+        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
@@ -250,32 +248,32 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         // SVP sak
         var stp = LocalDate.of(2020, 3, 1);
         var eksternbase = LocalDate.of(2020, 4, 1);
-        Behandling svp = lagBehandlingSVP();
+        var svp = lagBehandlingSVP();
         lagBeregningsgrunnlag(svp, stp, 60);
-        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
+        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
         leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(25), 266, 60, 100);
         beregningsresultatRepository.lagre(svp, berResSvp);
         // Omsorgspenger vedtak
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(svp.getAktørId().getId());
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(eksternbase);
         periode.setTom(eksternbase.plusMonths(1).plusDays(3));
         List<Anvisning> anvistList = new ArrayList<>();
-        Desimaltall utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
-        Desimaltall utbetGrad = new Desimaltall(BigDecimal.valueOf(60));
+        var utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
+        var utbetGrad = new Desimaltall(BigDecimal.valueOf(60));
 
-        Anvisning anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
-        Anvisning anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
+        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
+        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
 
         anvistList.add(anvist1);
         anvistList.add(anvist2);
 
-        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
+        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
         vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
 
-        List<OverlappVedtak> behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
+        var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(120);
@@ -287,28 +285,28 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void overlappOpplæringspengerSVP() {
         // SVP sak
-        Behandling svp = lagBehandlingSVP();
-        BeregningsresultatEntitet berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
+        var svp = lagBehandlingSVP();
+        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
         leggTilBerPeriode(berResSvp, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 25), 442, 100, 100);
         beregningsresultatRepository.lagre(svp, berResSvp);
         // Omsorgspenger vedtak
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(svp.getAktørId().getId());
-        Periode periode = new Periode();
+        var periode = new Periode();
         periode.setFom(LocalDate.of(2020, 4, 1));
         periode.setTom(LocalDate.of(2020, 5, 4));
         List<Anvisning> anvistList = new ArrayList<>();
-        Desimaltall utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
 
-        Anvisning anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        Anvisning anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
+        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
+        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
 
         anvistList.add(anvist1);
         anvistList.add(anvist2);
 
-        YtelseV1 ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList);
+        var ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList);
 
-        boolean erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
 
         assertThat(erOverlapp).isTrue();
     }
@@ -322,7 +320,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioFP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        Behandling behandling = scenarioFP.lagre(repositoryProvider);
+        var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         return behandling;
     }
@@ -336,7 +334,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioSVP.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        Behandling behandling = scenarioSVP.lagre(repositoryProvider);
+        var behandling = scenarioSVP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         return behandling;
     }
@@ -350,7 +348,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         scenarioES.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        Behandling behandling = scenarioES.lagre(repositoryProvider);
+        var behandling = scenarioES.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         return behandling;
     }
@@ -358,7 +356,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private void lagBeregningsgrunnlag(Behandling svp, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(stp)
             .medGrunnbeløp(new BigDecimal(100000))
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
@@ -377,8 +375,8 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int utbetalingsgrad) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(periodeFom, periodeTom)
                 .build(beregningsresultat);
         BeregningsresultatAndel.builder()
@@ -395,7 +393,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     private void leggTilBerPeriode(BeregningsresultatEntitet beregningsresultatEntitet, LocalDate fom, LocalDate tom, int dagsats, int utbetGrad,
             int stillingsprosent) {
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(fom, tom)
                 .build(beregningsresultatEntitet);
 
@@ -413,13 +411,13 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     public YtelseV1 genererYtelseFpsak(Behandling behandling) {
-        final BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+        final var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .orElseThrow();
 
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(behandling.getAktørId().getId());
 
-        YtelseV1 ytelse = new YtelseV1();
+        var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
@@ -433,7 +431,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     public YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
-        YtelseV1 ytelse = new YtelseV1();
+        var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPABAKUS);
         ytelse.setSaksnummer("6T5NM");
         ytelse.setVedtattTidspunkt(LocalDateTime.now());
@@ -447,9 +445,9 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     }
 
     private Anvisning genererAnvist(LocalDate dateFom, LocalDate dateTom, Desimaltall utbetGrad) {
-        Anvisning anvist = new Anvisning();
-        Desimaltall dagsats = new Desimaltall();
-        Periode periode = new Periode();
+        var anvist = new Anvisning();
+        var dagsats = new Desimaltall();
+        var periode = new Periode();
         periode.setFom(dateFom);
         periode.setTom(dateTom);
         dagsats.setVerdi(BigDecimal.valueOf(300));
@@ -464,10 +462,11 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private YtelseType map(FagsakYtelseType type) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(type)) {
             return YtelseType.ENGANGSTØNAD;
-        } else if (FagsakYtelseType.FORELDREPENGER.equals(type)) {
+        }
+        if (FagsakYtelseType.FORELDREPENGER.equals(type)) {
             return YtelseType.FORELDREPENGER;
-        } else
-            return YtelseType.SVANGERSKAPSPENGER;
+        }
+        return YtelseType.SVANGERSKAPSPENGER;
     }
 
     private YtelseStatus map(FagsakStatus kode) {

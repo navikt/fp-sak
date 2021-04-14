@@ -49,7 +49,7 @@ public class SykepengeUtbetaling {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SykepengeUtbetaling that = (SykepengeUtbetaling) o;
+        var that = (SykepengeUtbetaling) o;
         return Objects.equals(fom, that.fom) &&
                 Objects.equals(tom, that.tom) &&
                 Objects.equals(grad, that.grad);

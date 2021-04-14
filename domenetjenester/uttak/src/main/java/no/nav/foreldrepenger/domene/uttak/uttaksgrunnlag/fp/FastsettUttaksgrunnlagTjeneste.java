@@ -143,20 +143,18 @@ public class FastsettUttaksgrunnlagTjeneste {
         if (fpGrunnlag.getOriginalBehandling().isPresent()) {
             var fødselsdatoForrigeBehandling = fpGrunnlag.getOriginalBehandling().get().getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
             return new Tuple<>(Optional.ofNullable(fødselsdatoForrigeBehandling), gjeldendeFødselsdato);
-        } else {
-            var søknadVersjon = fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse();
-            var søknadFødselsdato = søknadVersjon.getFødselsdato();
-            var søknadTermindato = søknadVersjon.getTermindato();
-            if (søknadTermindato.isPresent()) {
-                if (søknadFødselsdato.isPresent()) {
-                    return new Tuple<>(søknadFødselsdato, gjeldendeFødselsdato);
-                }
-                var termindato = søknadTermindato.get();
-                return new Tuple<>(Optional.of(termindato), gjeldendeFødselsdato);
-            } else {
+        }
+        var søknadVersjon = fpGrunnlag.getFamilieHendelser().getSøknadFamilieHendelse();
+        var søknadFødselsdato = søknadVersjon.getFødselsdato();
+        var søknadTermindato = søknadVersjon.getTermindato();
+        if (søknadTermindato.isPresent()) {
+            if (søknadFødselsdato.isPresent()) {
                 return new Tuple<>(søknadFødselsdato, gjeldendeFødselsdato);
             }
+            var termindato = søknadTermindato.get();
+            return new Tuple<>(Optional.of(termindato), gjeldendeFødselsdato);
         }
+        return new Tuple<>(søknadFødselsdato, gjeldendeFødselsdato);
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {

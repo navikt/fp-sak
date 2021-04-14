@@ -43,7 +43,8 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
     protected Arbeidsgiver(String arbeidsgiverOrgnr, AktørId arbeidsgiverAktørId) {
         if(arbeidsgiverAktørId==null && arbeidsgiverOrgnr==null) {
             throw new IllegalArgumentException("Utvikler-feil: arbeidsgiver uten hverken orgnr eller aktørId");
-        } else if (arbeidsgiverAktørId!=null && arbeidsgiverOrgnr!=null) {
+        }
+        if (arbeidsgiverAktørId!=null && arbeidsgiverOrgnr!=null) {
             throw new IllegalArgumentException("Utvikler-feil: arbeidsgiver med både orgnr og aktørId");
         }
         this.arbeidsgiverOrgnr = arbeidsgiverOrgnr;
@@ -110,7 +111,7 @@ public class Arbeidsgiver implements Serializable, TraverseValue, IndexKey {
             return true;
         if (o == null || !(o instanceof Arbeidsgiver))
             return false;
-        Arbeidsgiver that = (Arbeidsgiver) o;
+        var that = (Arbeidsgiver) o;
         return Objects.equals(getOrgnr(), that.getOrgnr()) &&
             Objects.equals(getAktørId(), that.getAktørId());
     }

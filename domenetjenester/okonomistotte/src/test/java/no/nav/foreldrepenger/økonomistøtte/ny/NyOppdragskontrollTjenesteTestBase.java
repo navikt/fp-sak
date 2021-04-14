@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
@@ -165,32 +164,32 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatFP(boolean medFeriepenger) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
-        BeregningsresultatAndel andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
+        var andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
             BigDecimal.valueOf(80), virksomhet);
-        BeregningsresultatAndel andelArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
+        var andelArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
             BigDecimal.valueOf(100), virksomhet);
 
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
         buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), virksomhet2);
-        BeregningsresultatAndel andelArbeidsforhold2 = buildBeregningsresultatAndel(brPeriode2, false, 450,
+        var andelArbeidsforhold2 = buildBeregningsresultatAndel(brPeriode2, false, 450,
             BigDecimal.valueOf(100), virksomhet2);
 
-        BeregningsresultatPeriode brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, 16, 22);
+        var brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, 16, 22);
         buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(80), virksomhet3);
-        BeregningsresultatAndel andelArbeidsforhold3 = buildBeregningsresultatAndel(brPeriode3, false, 2160,
+        var andelArbeidsforhold3 = buildBeregningsresultatAndel(brPeriode3, false, 2160,
             BigDecimal.valueOf(80), virksomhet3);
 
-        BeregningsresultatPeriode brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, 23, 30);
+        var brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, 23, 30);
         buildBeregningsresultatAndel(brPeriode4, true, 2160, BigDecimal.valueOf(80), virksomhet3);
         buildBeregningsresultatAndel(brPeriode4, false, 0, BigDecimal.valueOf(80), virksomhet3);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold, 15000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
@@ -217,7 +216,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                    String virksomhetOrgnr,
                                                                    AktivitetStatus aktivitetStatus,
                                                                    Inntektskategori inntektskategori) {
-        BeregningsresultatAndel.Builder andelBuilder = BeregningsresultatAndel.builder()
+        var andelBuilder = BeregningsresultatAndel.builder()
             .medBrukerErMottaker(brukerErMottaker);
         if (!AktivitetStatus.FRILANSER.equals(aktivitetStatus) && virksomhetOrgnr != null) {
             andelBuilder.medArbeidsgiver(Arbeidsgiver.virksomhet(virksomhetOrgnr));
@@ -262,7 +261,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                           BeregningsresultatAndel andel,
                                                           Long årsBeløp,
                                                           List<LocalDate> opptjeningsårList) {
-        for (LocalDate opptjeningsår : opptjeningsårList) {
+        for (var opptjeningsår : opptjeningsårList) {
             buildBeregningsresultatFeriepengerPrÅr(beregningsresultatFeriepenger, andel, årsBeløp, opptjeningsår);
         }
     }
@@ -331,26 +330,26 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean medFeriepenger) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
 
-        BeregningsresultatAndel andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
+        var andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
             BigDecimal.valueOf(80), virksomhet);
         buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet2,
             AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER);
-        BeregningsresultatAndel andelArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
+        var andelArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
             BigDecimal.valueOf(100), virksomhet);
 
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
         buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), virksomhet2);
-        BeregningsresultatAndel andelArbeidsforhold2 = buildBeregningsresultatAndel(brPeriode2, false, 400,
+        var andelArbeidsforhold2 = buildBeregningsresultatAndel(brPeriode2, false, 400,
             BigDecimal.valueOf(100), virksomhet2);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold, 15000L, List.of(DAGENS_DATO));
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsforhold2, 20000L, List.of(DAGENS_DATO));
@@ -393,8 +392,8 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     protected void verifiserOppdrag110_ENDR(List<Oppdrag110> nyOpp110Liste,
                                             List<Oppdrag110> originaltOpp110Liste,
                                             boolean medFeriepenger) {
-        for (Oppdrag110 oppdr110Revurd : nyOpp110Liste) {
-            Optional<Refusjonsinfo156> refusjonsinfo156 = oppdr110Revurd.getOppdragslinje150Liste()
+        for (var oppdr110Revurd : nyOpp110Liste) {
+            var refusjonsinfo156 = oppdr110Revurd.getOppdragslinje150Liste()
                 .stream()
                 .map(Oppdragslinje150::getRefusjonsinfo156)
                 .filter(Objects::nonNull)
@@ -402,7 +401,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                     .equals(OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_4)))
                 .findFirst();
             if (refusjonsinfo156.isPresent()) {
-                Oppdrag110 opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
+                var opp110 = refusjonsinfo156.get().getOppdragslinje150().getOppdrag110();
                 assertThat(opp110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             } else {
                 assertThat(oppdr110Revurd.getKodeEndring()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER
@@ -410,14 +409,14 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                         oppdr110Revurd.getKodeFagomrade()) ? KodeEndring.ENDRING : KodeEndring.ENDRING);
             }
             assertThat(oppdr110Revurd.getOppdragslinje150Liste()).isNotEmpty();
-            boolean nyMottaker = erMottakerNy(oppdr110Revurd);
+            var nyMottaker = erMottakerNy(oppdr110Revurd);
             if (!nyMottaker) {
                 assertThat(originaltOpp110Liste).anySatisfy(
                     oppdrag110 -> assertThat(oppdrag110.getFagsystemId()).isEqualTo(oppdr110Revurd.getFagsystemId()));
             }
         }
         if (medFeriepenger) {
-            List<Oppdragslinje150> opp150List = nyOpp110Liste.stream()
+            var opp150List = nyOpp110Liste.stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
                 .collect(Collectors.toList());
             assertThat(opp150List).anySatisfy(opp150 -> assertThat(opp150.getKodeKlassifik()).isEqualTo(
@@ -443,21 +442,21 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                         List<Integer> dagsatsBruker,
                                                                         List<Integer> dagsatsArbeidsgiver,
                                                                         LocalDate... perioder) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(endringsdato)
             .build();
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
-        for (int i = 0; i < dagsatsBruker.size(); i++) {
+        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        for (var i = 0; i < dagsatsBruker.size(); i++) {
             var fom = perioder[i * 2];
             var tom = perioder[i * 2 + 1];
-            BeregningsresultatPeriode brPeriode = buildBeregningsresultatPeriode(beregningsresultat, fom, tom);
-            BeregningsresultatAndel andelBruker = buildBeregningsresultatAndel(brPeriode, true, dagsatsBruker.get(i),
+            var brPeriode = buildBeregningsresultatPeriode(beregningsresultat, fom, tom);
+            var andelBruker = buildBeregningsresultatAndel(brPeriode, true, dagsatsBruker.get(i),
                 BigDecimal.valueOf(100), virksomhet);
             if (dagsatsArbeidsgiver.get(i) != 0) {
-                BeregningsresultatAndel andelArbeidsgiver = buildBeregningsresultatAndel(brPeriode, false,
+                var andelArbeidsgiver = buildBeregningsresultatAndel(brPeriode, false,
                     dagsatsArbeidsgiver.get(i), BigDecimal.valueOf(100), virksomhet);
                 buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver, 5000L, List.of(DAGENS_DATO));
             }
@@ -472,22 +471,22 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     protected BeregningsresultatEntitet buildBeregningsresultatMedFlereInntektskategoriFP(boolean sammeKlasseKodeForFlereAndeler,
                                                                                           AktivitetStatus aktivitetStatus,
                                                                                           Inntektskategori inntektskategori) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
-        BeregningsresultatAndel andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
+        var andelBruker = buildBeregningsresultatAndel(brPeriode1, true, 1500,
             BigDecimal.valueOf(80), virksomhet, aktivitetStatus, inntektskategori);
         if (sammeKlasseKodeForFlereAndeler) {
             buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet2,
                 AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
         }
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
-        BeregningsresultatAndel andelArbeidsgiver2 = buildBeregningsresultatAndel(brPeriode2, false, 400,
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 8, 15);
+        var andelArbeidsgiver2 = buildBeregningsresultatAndel(brPeriode2, false, 400,
             BigDecimal.valueOf(100), virksomhet2);
 
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker, 20000L, List.of(DAGENS_DATO));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver2, 20000L, List.of(DAGENS_DATO));
 
@@ -496,17 +495,17 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
 
     protected BeregningsresultatEntitet buildBeregningsresultatEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
                                                                                          boolean medFeriepenger) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
-        BeregningsresultatAndel andel1 = buildBeregningsresultatAndel(brPeriode1, erBrukerMottaker, 1500,
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var andel1 = buildBeregningsresultatAndel(brPeriode1, erBrukerMottaker, 1500,
             BigDecimal.valueOf(100), virksomhet);
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode2, erBrukerMottaker, 1500, BigDecimal.valueOf(100), virksomhet);
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+            var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 20000L, List.of(DAGENS_DATO));
         }
 
@@ -517,17 +516,17 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                                                      boolean erOpptjentOverFlereÅr,
                                                                                                      Long årsbeløp1,
                                                                                                      Long årsbeløp2) {
-        BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
+        var builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");
         endringsdatoOpt.ifPresent(builder::medEndringsdato);
-        BeregningsresultatEntitet beregningsresultat = builder.build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
-        BeregningsresultatAndel andel1 = buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(100),
+        var beregningsresultat = builder.build();
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var andel1 = buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(100),
             virksomhet);
-        BeregningsresultatAndel andel2 = buildBeregningsresultatAndel(brPeriode1, false, 1300, BigDecimal.valueOf(100),
+        var andel2 = buildBeregningsresultatAndel(brPeriode1, false, 1300, BigDecimal.valueOf(100),
             virksomhet);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel1, feriepenger);
         oppsettFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2, andel2, feriepenger);
 
@@ -547,43 +546,43 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
         } else {
             opptjeningsårListe = Collections.emptyList();
         }
-        List<Long> årsbeløpListe = List.of(årsbeløp1, årsbeløp2);
-        int size = opptjeningsårListe.size();
-        for (int i = 0; i < årsbeløpListe.size(); i++) {
-            Long årsbeløp = årsbeløpListe.get(i);
+        var årsbeløpListe = List.of(årsbeløp1, årsbeløp2);
+        var size = opptjeningsårListe.size();
+        for (var i = 0; i < årsbeløpListe.size(); i++) {
+            var årsbeløp = årsbeløpListe.get(i);
             if (årsbeløp > 0) {
-                LocalDate opptjeningsår = size == 2 ? opptjeningsårListe.get(i) : opptjeningsårListe.get(0);
+                var opptjeningsår = size == 2 ? opptjeningsårListe.get(i) : opptjeningsårListe.get(0);
                 buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, årsbeløp, opptjeningsår);
             }
         }
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatRevurderingFP(boolean medFeriepenger) {
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(LocalDate.now().plusDays(25))
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
         buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet);
-        BeregningsresultatAndel andelRevurderingArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
+        var andelRevurderingArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 500,
             BigDecimal.valueOf(100), virksomhet);
 
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 15);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 15);
         buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), virksomhet4);
-        BeregningsresultatAndel andelRevurderingArbeidsforhold4 = buildBeregningsresultatAndel(brPeriode2, false, 400,
+        var andelRevurderingArbeidsforhold4 = buildBeregningsresultatAndel(brPeriode2, false, 400,
             BigDecimal.valueOf(100), virksomhet4);
 
-        BeregningsresultatPeriode brPeriode3 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 16, 22);
+        var brPeriode3 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 16, 22);
         buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(80), virksomhet3);
         buildBeregningsresultatAndel(brPeriode3, false, 2160, BigDecimal.valueOf(80), virksomhet3);
 
-        BeregningsresultatPeriode brPeriode4 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 23, 29);
+        var brPeriode4 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 23, 29);
         buildBeregningsresultatAndel(brPeriode4, true, 2160, BigDecimal.valueOf(80), virksomhet3);
         buildBeregningsresultatAndel(brPeriode4, false, 0, BigDecimal.valueOf(80), virksomhet3);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
+            var feriepengerRevurdering = buildBeregningsresultatFeriepenger(
                 beregningsresultatRevurderingFP);
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold, 15000L,
                 List.of(DAGENS_DATO));
@@ -618,25 +617,25 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                              String andreVirksomhetOrgnr,
                                                                              LocalDate endringsdato,
                                                                              boolean medFeriepenger) {
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(endringsdato)
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
         buildBeregningsresultatAndel(brPeriode1, true, 1600, BigDecimal.valueOf(80), førsteVirksomhetOrgnr,
             aktivitetStatus, inntektskategori);
-        BeregningsresultatAndel andelRevurderingArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 400,
+        var andelRevurderingArbeidsforhold = buildBeregningsresultatAndel(brPeriode1, false, 400,
             BigDecimal.valueOf(100), førsteVirksomhetOrgnr, aktivitetStatus, inntektskategori);
 
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 20);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 20);
         buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), andreVirksomhetOrgnr,
             aktivitetStatus, inntektskategori);
-        BeregningsresultatAndel andelRevurderingArbeidsforhold4 = buildBeregningsresultatAndel(brPeriode2, false, 400,
+        var andelRevurderingArbeidsforhold4 = buildBeregningsresultatAndel(brPeriode2, false, 400,
             BigDecimal.valueOf(100), andreVirksomhetOrgnr, aktivitetStatus, inntektskategori);
 
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
+            var feriepengerRevurdering = buildBeregningsresultatFeriepenger(
                 beregningsresultatRevurderingFP);
             buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsforhold, 15000L,
                 List.of(DAGENS_DATO));
@@ -660,25 +659,25 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     protected BeregningsresultatEntitet buildBeregningsresultatRevurderingMedFlereInntektskategoriFP(AktivitetStatus aktivitetStatus,
                                                                                                      Inntektskategori inntektskategori,
                                                                                                      LocalDate endringsdato) {
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(endringsdato)
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 7);
         buildBeregningsresultatAndel(brPeriode1, true, 1600, BigDecimal.valueOf(80), virksomhet4);
 
-        BeregningsresultatAndel andelRevurderingArbeidsiver = buildBeregningsresultatAndel(brPeriode1, false, 400,
+        var andelRevurderingArbeidsiver = buildBeregningsresultatAndel(brPeriode1, false, 400,
             BigDecimal.valueOf(100), virksomhet4, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
 
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 15);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 8, 15);
 
         buildBeregningsresultatAndel(brPeriode2, true, 1600, BigDecimal.valueOf(80), virksomhet,
             AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER);
         buildBeregningsresultatAndel(brPeriode2, true, 1500, BigDecimal.valueOf(80), virksomhet4, aktivitetStatus,
             inntektskategori);
 
-        BeregningsresultatFeriepenger feriepengerRevurdering = buildBeregningsresultatFeriepenger(
+        var feriepengerRevurdering = buildBeregningsresultatFeriepenger(
             beregningsresultatRevurderingFP);
         buildBeregningsresultatFeriepengerPrÅr(feriepengerRevurdering, andelRevurderingArbeidsiver, 16000L,
             List.of(DAGENS_DATO));
@@ -689,18 +688,18 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     protected BeregningsresultatEntitet buildBeregningsresultatRevurderingEntenForBrukerEllerArbgvr(boolean erBrukerMottaker,
                                                                                                     boolean medFeriepenger,
                                                                                                     LocalDate endringsdato) {
-        BeregningsresultatEntitet beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurderingFP = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .medEndringsdato(endringsdato)
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 8);
-        BeregningsresultatAndel andel1 = buildBeregningsresultatAndel(brPeriode1, erBrukerMottaker, 2000,
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 8);
+        var andel1 = buildBeregningsresultatAndel(brPeriode1, erBrukerMottaker, 2000,
             BigDecimal.valueOf(100), virksomhet);
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 9, 20);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 9, 20);
         buildBeregningsresultatAndel(brPeriode2, erBrukerMottaker, 1500, BigDecimal.valueOf(100), virksomhet);
         if (medFeriepenger) {
-            BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(
+            var feriepenger = buildBeregningsresultatFeriepenger(
                 beregningsresultatRevurderingFP);
             buildBeregningsresultatFeriepengerPrÅr(feriepenger, andel1, 21000L, List.of(DAGENS_DATO));
         }
@@ -709,7 +708,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     protected BeregningsresultatEntitet buildBeregningsresultatFP(Optional<LocalDate> endringsdato) {
-        BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
+        var builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");
         endringsdato.ifPresent(builder::medEndringsdato);
@@ -727,19 +726,19 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
                                                                                            boolean gjelderFødsel,
                                                                                            Long årsbeløp1,
                                                                                            Long årsbeløp2) {
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
+        var beregningsresultat = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
             Optional.empty(), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
 
         if (gjelderFødsel) {
-            TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-            GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+            var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+            var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
             var builder = getInputStandardBuilder(gruppertYtelse);
 
             return OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         }
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
         var builder = getInputStandardBuilder(gruppertYtelse);
 
         return OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());

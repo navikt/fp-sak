@@ -50,12 +50,12 @@ public class SelftestResultat {
     }
 
     public AggregateResult getAggregateResult() {
-        for (InternalResult result : kritiskeResultater) {
+        for (var result : kritiskeResultater) {
             if (!result.isReady()) {
                 return AggregateResult.ERROR;
             }
         }
-        for (InternalResult result : ikkeKritiskeResultater) {
+        for (var result : ikkeKritiskeResultater) {
             if (!result.isReady()) {
                 return AggregateResult.WARNING;
             }

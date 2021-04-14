@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Risikoklassif
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.rest.FaresignalerRespons;
 
 @ApplicationScoped
 public class RisikovurderingTjeneste {
@@ -55,7 +54,7 @@ public class RisikovurderingTjeneste {
     }
 
     public void lagreKontrollresultat(KontrollresultatWrapper resultatWrapper) {
-        Optional<Behandling> behandling = behandlingRepository.hentBehandlingHvisFinnes(resultatWrapper.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(resultatWrapper.getBehandlingUuid());
         behandling.ifPresent(beh -> {
             if (!behandlingHarBlittRisikoklassifisert(beh.getId())) {
                 lagre(resultatWrapper, beh);
@@ -78,20 +77,19 @@ public class RisikovurderingTjeneste {
     }
 
     public Optional<FaresignalWrapper> finnKontrollresultatForBehandling(Behandling behandling) {
-        Optional<RisikoklassifiseringEntitet> resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
+        var resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandling.getId());
         if (resultat.isPresent()) {
             if (erHøyRisiko(resultat.get())) {
                 return hentFaresignalerForBehandling(behandling);
-            } else {
-                return lagKontrollresultatIkkeHøyRisiko(resultat.get());
             }
+            return lagKontrollresultatIkkeHøyRisiko(resultat.get());
         }
         return Optional.empty();
     }
 
     public boolean skalVurdereFaresignaler(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
-        Optional<RisikoklassifiseringEntitet> resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandlingId);
+        var resultat = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(behandlingId);
         return resultat.map(this::erHøyRisiko).orElse(false);
     }
 
@@ -113,7 +111,7 @@ public class RisikovurderingTjeneste {
     }
 
     private Optional<FaresignalWrapper> hentFaresignalerForBehandling(Behandling behandling) {
-        Optional<FaresignalerRespons> faresignalerRespons = hentFaresignalerTjeneste.hentFaresignalerForBehandling(behandling.getUuid());
+        var faresignalerRespons = hentFaresignalerTjeneste.hentFaresignalerForBehandling(behandling.getUuid());
         if (faresignalerRespons.isEmpty()) {
             return Optional.empty();
         }
@@ -122,7 +120,7 @@ public class RisikovurderingTjeneste {
 
 
     private void lagre(KontrollresultatWrapper resultatWrapper, Behandling beh) {
-        RisikoklassifiseringEntitet entitet = RisikoklassifiseringEntitet.builder()
+        var entitet = RisikoklassifiseringEntitet.builder()
             .medKontrollresultat(resultatWrapper.getKontrollresultatkode())
             .buildFor(beh.getId());
         risikoklassifiseringRepository.lagreRisikoklassifisering(entitet, beh.getId());

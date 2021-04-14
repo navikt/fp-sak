@@ -221,13 +221,13 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
         if (aktivitetStatuser.size() == 1) {
             return aktivitetStatuser.get(0).getHjemmel();
         }
-        Optional<BeregningsgrunnlagAktivitetStatus> dagpenger = aktivitetStatuser.stream()
+        var dagpenger = aktivitetStatuser.stream()
             .filter(as -> Hjemmel.F_14_7_8_49.equals(as.getHjemmel()))
             .findFirst();
         if (dagpenger.isPresent()) {
             return dagpenger.get().getHjemmel();
         }
-        Optional<BeregningsgrunnlagAktivitetStatus> gjelder = aktivitetStatuser.stream()
+        var gjelder = aktivitetStatuser.stream()
             .filter(as -> !Hjemmel.F_14_7.equals(as.getHjemmel()))
             .findFirst();
         return gjelder.isPresent() ? gjelder.get().getHjemmel() : Hjemmel.F_14_7;
@@ -252,10 +252,11 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagEntitet)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagEntitet)) {
             return false;
         }
-        BeregningsgrunnlagEntitet other = (BeregningsgrunnlagEntitet) obj;
+        var other = (BeregningsgrunnlagEntitet) obj;
         return Objects.equals(this.getSkjæringstidspunkt(), other.getSkjæringstidspunkt());
     }
 

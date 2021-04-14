@@ -40,7 +40,7 @@ public final class TilretteleggingArbeidsforhold {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        TilretteleggingArbeidsforhold that = (TilretteleggingArbeidsforhold) o;
+        var that = (TilretteleggingArbeidsforhold) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(internArbeidsforholdRef, that.internArbeidsforholdRef) &&
                 Objects.equals(uttakArbeidType, that.uttakArbeidType);

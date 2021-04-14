@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.FastsattBrukersAndel;
-import no.nav.foreldrepenger.domene.rest.dto.FastsettBgKunYtelseDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAndeltype;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -46,18 +45,18 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                              BeregningsgrunnlagEntitet nyttBeregningsgrunnlag,
                              Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                              InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        FastsettBgKunYtelseDto kunYtelseDto = dto.getKunYtelseFordeling();
-        BeregningsgrunnlagPeriode periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
-        Optional<BeregningsgrunnlagPeriode> forrigePeriode = forrigeGrunnlag
+        var kunYtelseDto = dto.getKunYtelseFordeling();
+        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var forrigePeriode = forrigeGrunnlag
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag)
             .map(bg -> bg.getBeregningsgrunnlagPerioder().get(0));
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
-        List<FastsattBrukersAndel> andeler = kunYtelseDto.getAndeler();
-        for (FastsattBrukersAndel andel : andeler) {
+        var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
+        var andeler = kunYtelseDto.getAndeler();
+        for (var andel : andeler) {
             if (andel.getNyAndel()) {
                 leggTilHistorikkinnslagForNyAndel(andel, tekstBuilder);
             } else {
-                BeregningsgrunnlagPrStatusOgAndel korrektAndel = getKorrektAndel(andel, periode, forrigePeriode);
+                var korrektAndel = getKorrektAndel(andel, periode, forrigePeriode);
                 leggTilHistorikkinnslag(andel, korrektAndel, tekstBuilder, forrigePeriode, arbeidsforholdOverstyringer);
             }
         }
@@ -69,15 +68,15 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                                          Optional<BeregningsgrunnlagPeriode> forrigePeriode,
                                          List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         Integer fastsattÅrsbeløp = andel.getFastsattBeløp() * MND_I_1_ÅR;
-        String andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
+        var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(
             korrektAndel.getAktivitetStatus(),
             korrektAndel.getArbeidsgiver(),
             korrektAndel.getArbeidsforholdRef(),
             arbeidsforholdOverstyringer);
         if (forrigePeriode.isPresent()) {
-            BeregningsgrunnlagPrStatusOgAndel andelIForrige = finnAndelFraPeriode(forrigePeriode.get(), andel);
-            Inntektskategori forrigeInntektskategori = andelIForrige.getInntektskategori();
-            Integer forrigeBeløp = andelIForrige.getBeregnetPrÅr() == null ? null : andelIForrige.getBeregnetPrÅr().intValue();
+            var andelIForrige = finnAndelFraPeriode(forrigePeriode.get(), andel);
+            var forrigeInntektskategori = andelIForrige.getInntektskategori();
+            var forrigeBeløp = andelIForrige.getBeregnetPrÅr() == null ? null : andelIForrige.getBeregnetPrÅr().intValue();
             if (forrigeBeløp != null && !forrigeBeløp.equals(fastsattÅrsbeløp)) {
                 lagHistorikkinnslagdelForFordeling(andelsInfo, forrigeInntektskategori, andel.getFastsattBeløp(), andelIForrige.getBeregnetPrÅr().divide(BigDecimal.valueOf(MND_I_1_ÅR), RoundingMode.HALF_UP).intValue(),
                     tekstBuilder);
@@ -86,7 +85,7 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
                 lagHistorikkinnslagdelForInntektskategori(andelsInfo, andel.getInntektskategori(), forrigeInntektskategori, tekstBuilder);
             }
         } else {
-            Integer forrigeBeløp = korrektAndel.getBeregnetPrÅr() == null ? null : korrektAndel.getBeregnetPrÅr().divide(BigDecimal.valueOf(MND_I_1_ÅR), RoundingMode.HALF_UP).intValue();
+            var forrigeBeløp = korrektAndel.getBeregnetPrÅr() == null ? null : korrektAndel.getBeregnetPrÅr().divide(BigDecimal.valueOf(MND_I_1_ÅR), RoundingMode.HALF_UP).intValue();
             lagHistorikkinnslagdelForFordeling(andelsInfo, andel.getInntektskategori(), andel.getFastsattBeløp(), forrigeBeløp, tekstBuilder);
             lagHistorikkinnslagdelForInntektskategori(andelsInfo, andel.getInntektskategori(), null, tekstBuilder);
         }
@@ -102,7 +101,7 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
 
     private void lagHistorikkinnslagdelForFordeling(String andel, Inntektskategori inntektskategori, Integer fastsattBeløp,
                                                     Integer forrigeBeløp, HistorikkInnslagTekstBuilder tekstBuilder) {
-        Integer fastsattÅrsbeløp = fastsattBeløp == null ? null : fastsattBeløp * MND_I_1_ÅR;
+        var fastsattÅrsbeløp = fastsattBeløp == null ? null : fastsattBeløp * MND_I_1_ÅR;
         if (fastsattÅrsbeløp != null && !fastsattÅrsbeløp.equals(forrigeBeløp)){
             tekstBuilder
                 .medTema(HistorikkEndretFeltType.FORDELING_FOR_ANDEL, andel)
@@ -122,7 +121,7 @@ public class KunYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjenest
 
     private BeregningsgrunnlagPrStatusOgAndel getKorrektAndel(FastsattBrukersAndel andel, BeregningsgrunnlagPeriode periode, Optional<BeregningsgrunnlagPeriode> forrigePeriodeOpt) {
         if (andel.getLagtTilAvSaksbehandler() && !andel.getNyAndel()) {
-            BeregningsgrunnlagPeriode forrigePeriode = forrigePeriodeOpt
+            var forrigePeriode = forrigePeriodeOpt
                 .orElseThrow(() -> new IllegalStateException("Skal ha bereninsgrunnlag fra KOFAKBER_UT om man har lagt til en andel tidligere"));
             return finnAndelFraPeriode(forrigePeriode, andel);
         }

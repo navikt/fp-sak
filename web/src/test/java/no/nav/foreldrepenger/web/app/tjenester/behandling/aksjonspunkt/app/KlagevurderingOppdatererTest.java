@@ -22,17 +22,14 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -84,10 +81,10 @@ public class KlagevurderingOppdatererTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
 
         var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
-        Behandling behandling = klageScenario.lagre(repositoryProvider, klageRepository);
+        var behandling = klageScenario.lagre(repositoryProvider, klageRepository);
 
-        KlageVurdering klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        KlageVurderingResultatNfpAksjonspunktDto dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
+        var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
+        var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
                 klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
 
         // Act
@@ -97,34 +94,34 @@ public class KlagevurderingOppdatererTest {
         // Assert
 
         // verifiserer KlageVurderingResultat
-        KlageVurderingResultat klageVurderingResultat = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP).get();
+        var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP).get();
         assertThat(klageVurderingResultat.getKlageVurdering()).isEqualTo(KlageVurdering.STADFESTE_YTELSESVEDTAK);
         assertThat(klageVurderingResultat.getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NFP);
         assertThat(klageRepository.hentKlageVurderingResultat(behandling.getId(), KlageVurdertAv.NFP)).isEqualTo(Optional.of(klageVurderingResultat));
 
         // verifiserer BestillBrevDto
-        ArgumentCaptor<BestillBrevDto> brevDtoCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
+        var brevDtoCaptor = ArgumentCaptor.forClass(BestillBrevDto.class);
         verify(dokumentBestillerTjeneste).bestillDokument(brevDtoCaptor.capture(), eq(HistorikkAktør.SAKSBEHANDLER), eq(false));
-        BestillBrevDto bestillBrevDto = brevDtoCaptor.getValue();
+        var bestillBrevDto = brevDtoCaptor.getValue();
         assertThat(bestillBrevDto.getBrevmalkode()).isEqualTo(DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS.getKode());
         assertThat(bestillBrevDto.getFritekst()).isNull();
 
         // Verifiserer HistorikkinnslagDto
-        ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        Historikkinnslag historikkinnslag = historikkCapture.getValue();
+        var historikkinnslag = historikkCapture.getValue();
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NFP);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
                 .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NFP.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP)).isNotNull();
 
         // Verifiserer at behandlende enhet er byttet til NAV Klageinstans
-        ArgumentCaptor<OrganisasjonsEnhet> enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
+        var enhetCapture = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
         verify(behandlingsutredningTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""),
                 eq(HistorikkAktør.VEDTAKSLØSNINGEN));
-        OrganisasjonsEnhet enhet = enhetCapture.getValue();
+        var enhet = enhetCapture.getValue();
         assertThat(enhet.getEnhetId()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId());
         assertThat(enhet.getEnhetNavn()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetNavn());
         assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
@@ -137,11 +134,11 @@ public class KlagevurderingOppdatererTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
 
         var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
-        Behandling behandling = klageScenario.lagre(repositoryProvider, klageRepository);
+        var behandling = klageScenario.lagre(repositoryProvider, klageRepository);
         behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
 
-        KlageVurdering klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
-        KlageVurderingResultatNfpAksjonspunktDto dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
+        var klageVurdering = KlageVurdering.STADFESTE_YTELSESVEDTAK;
+        var dto = new KlageVurderingResultatNfpAksjonspunktDto("begrunnelse bla. bla.",
                 klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
 
         // Act
@@ -154,7 +151,7 @@ public class KlagevurderingOppdatererTest {
 
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
-        final KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste,
+        final var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste,
                 prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
                 repositoryProvider.getBehandlingsresultatRepository());
         return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, klageVurderingTjeneste,
@@ -164,13 +161,13 @@ public class KlagevurderingOppdatererTest {
     @Test
     public void skal_sette_BehandlingResultatType_AvvisKlage_for_Nk_når_klaget_er_for_sent() {
         // Arrange
-        KlageVurdering klageVurdering = KlageVurdering.AVVIS_KLAGE;
-        KlageAvvistÅrsak klageAvvistÅrsak = KlageAvvistÅrsak.KLAGET_FOR_SENT;
-        KlageVurderingResultatNkAksjonspunktDto dto = new KlageVurderingResultatNkAksjonspunktDto("begrunnelse for avvist klage NK...",
+        var klageVurdering = KlageVurdering.AVVIS_KLAGE;
+        var klageAvvistÅrsak = KlageAvvistÅrsak.KLAGET_FOR_SENT;
+        var dto = new KlageVurderingResultatNkAksjonspunktDto("begrunnelse for avvist klage NK...",
                 klageVurdering, null, klageAvvistÅrsak, LocalDate.now(), "Fritekst til Brev", null, false);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var klageScenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(scenario);
-        Behandling klageBehandling = klageScenario.lagre(repositoryProvider, klageRepository);
+        var klageBehandling = klageScenario.lagre(repositoryProvider, klageRepository);
 
         // Act
         var aksjonspunkt = klageBehandling.getAksjonspunktFor(dto.getKode());
@@ -180,17 +177,17 @@ public class KlagevurderingOppdatererTest {
         assertThat(klageBehandling.getBehandlingsresultat().getBehandlingResultatType()).isEqualTo(BehandlingResultatType.KLAGE_AVVIST);
 
         // verifiserer KlageVurderingResultat
-        KlageVurderingResultat klageVurderingResultat = klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK).get();
+        var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(klageBehandling.getId(), KlageVurdertAv.NK).get();
         assertThat(klageVurderingResultat.getKlageVurdering()).isEqualTo(KlageVurdering.AVVIS_KLAGE);
         assertThat(klageVurderingResultat.getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NK);
 
         // Verifiserer HistorikkinnslagDto
-        ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        Historikkinnslag historikkinnslag = historikkCapture.getValue();
+        var historikkinnslag = historikkCapture.getValue();
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.KLAGE_BEH_NK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
                 .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.KLAGE_BEH_NK.getKode()));
         assertThat(del.getEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_KA)).isNotNull();

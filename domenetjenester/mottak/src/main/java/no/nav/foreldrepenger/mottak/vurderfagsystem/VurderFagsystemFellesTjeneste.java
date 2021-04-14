@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -46,7 +44,7 @@ public class VurderFagsystemFellesTjeneste {
 
     public BehandlendeFagsystem vurderFagsystem(VurderFagsystem vurderFagsystem) {
         if (vurderFagsystem.getJournalpostId().isPresent()) {
-            Optional<Journalpost> journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
+            var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
             if (journalpost.isPresent()) {
                 return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(journalpost.get().getFagsak().getSaksnummer());
             }
@@ -55,9 +53,9 @@ public class VurderFagsystemFellesTjeneste {
         if (vurderFagsystem.getSaksnummer().isPresent()) {
             return vurderSøknadMedSaksnummer(vurderFagsystem.getSaksnummer().get());
         }
-        BehandlingTema behandlingTema = vurderFagsystem.getBehandlingTema();
-        FagsakYtelseType ytelseType = behandlingTema.getFagsakYtelseType();
-        List<Fagsak> alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
+        var behandlingTema = vurderFagsystem.getBehandlingTema();
+        var ytelseType = behandlingTema.getFagsakYtelseType();
+        var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
 
         if (DokumentTypeId.KLAGE_DOKUMENT.equals(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(vurderFagsystem.getDokumentKategori())) {
             return fellesUtils.vurderFagsystemKlageAnke(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
@@ -71,7 +69,7 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     private BehandlendeFagsystem vurderSøknadMedSaksnummer(Saksnummer saksnummer) {
-        Optional<Fagsak> sak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
+        var sak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
         if (sak.isEmpty() || sak.map(Fagsak::getSkalTilInfotrygd).orElse(Boolean.FALSE)) {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -79,9 +77,9 @@ public class VurderFagsystemFellesTjeneste {
     }
 
     private BehandlendeFagsystem håndterHenvendelse(VurderFagsystem vurderFagsystem, FagsakYtelseType ytelseType, List<Fagsak> alleBrukersFagsaker) {
-        List<Fagsak> brukersSakerAvType = alleBrukersFagsaker.stream().filter(s -> ytelseType.equals(s.getYtelseType())).collect(Collectors.toList());
+        var brukersSakerAvType = alleBrukersFagsaker.stream().filter(s -> ytelseType.equals(s.getYtelseType())).collect(Collectors.toList());
 
-        VurderFagsystemTjeneste vurderFagsystemTjeneste = FagsakYtelseTypeRef.Lookup.find(vurderFagsystemTjenester, ytelseType)
+        var vurderFagsystemTjeneste = FagsakYtelseTypeRef.Lookup.find(vurderFagsystemTjenester, ytelseType)
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode()));
 
         if (vurderFagsystem.erInntektsmelding()) {

@@ -40,17 +40,17 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
      */
     InntektArbeidYtelseAggregat(UUID eksternReferanse, LocalDateTime opprettetTidspunkt, InntektArbeidYtelseAggregat kopierFra) {
         this.setAktørInntekt(kopierFra.getAktørInntekt().stream().map(ai -> {
-            AktørInntekt aktørInntekt = new AktørInntekt(ai);
+            var aktørInntekt = new AktørInntekt(ai);
             return aktørInntekt;
         }).collect(Collectors.toList()));
 
         this.setAktørArbeid(kopierFra.getAktørArbeid().stream().map(aktørArbied -> {
-            AktørArbeid aktørArbeid = new AktørArbeid(aktørArbied);
+            var aktørArbeid = new AktørArbeid(aktørArbied);
             return aktørArbeid;
         }).collect(Collectors.toList()));
 
         this.setAktørYtelse(kopierFra.getAktørYtelse().stream().map(ay -> {
-            AktørYtelse aktørYtelse = new AktørYtelse(ay);
+            var aktørYtelse = new AktørYtelse(ay);
             return aktørYtelse;
         }).collect(Collectors.toList()));
 
@@ -115,10 +115,11 @@ public class InntektArbeidYtelseAggregat extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof InntektArbeidYtelseAggregat)) {
+        }
+        if (!(obj instanceof InntektArbeidYtelseAggregat)) {
             return false;
         }
-        InntektArbeidYtelseAggregat other = (InntektArbeidYtelseAggregat) obj;
+        var other = (InntektArbeidYtelseAggregat) obj;
         return Objects.equals(this.getAktørInntekt(), other.getAktørInntekt())
                 && Objects.equals(this.getAktørArbeid(), other.getAktørArbeid())
                 && Objects.equals(this.getAktørYtelse(), other.getAktørYtelse());

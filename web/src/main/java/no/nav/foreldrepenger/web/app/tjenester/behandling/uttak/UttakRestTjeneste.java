@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
@@ -107,7 +106,7 @@ public class UttakRestTjeneste {
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaldoerDto getStonadskontoer(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = hentBehandling(uuidDto);
+        var behandling = hentBehandling(uuidDto);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             return saldoerDtoTjeneste.lagStønadskontoerDto(uttakInput);
@@ -122,10 +121,10 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaldoerDto getStonadskontoerGittUttaksperioder(
             @NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
-        BehandlingIdDto behandlingIdDto = dto.getBehandlingId();
-        Behandling behandling = hentBehandling(behandlingIdDto);
+        var behandlingIdDto = dto.getBehandlingId();
+        var behandling = hentBehandling(behandlingIdDto);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            UttakInput uttakInput = uttakInputTjeneste.lagInput(behandling);
+            var uttakInput = uttakInputTjeneste.lagInput(behandling);
             return saldoerDtoTjeneste.lagStønadskontoerDto(uttakInput, dto.getPerioder());
         }
         return defaultSvar();
@@ -150,7 +149,7 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = hentBehandling(uuidDto);
+        var behandling = hentBehandling(uuidDto);
         return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
     }
 
@@ -160,7 +159,7 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public UttakResultatPerioderDto hentUttakResultatPerioder(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = hentBehandling(uuidDto);
+        var behandling = hentBehandling(uuidDto);
         return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
     }
 
@@ -170,7 +169,7 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public UttakPeriodegrenseDto hentUttakPeriodegrense(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = hentBehandling(uuidDto);
+        var behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return uttakPeriodegrenseDtoTjeneste.mapFra(input).orElse(null);
     }
@@ -181,7 +180,7 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public List<ArbeidsforholdDto> hentArbeidsforhold(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = hentBehandling(uuidDto);
+        var behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
         return FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
     }
@@ -197,7 +196,7 @@ public class UttakRestTjeneste {
     }
 
     private Behandling hentBehandling(BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
+        var behandlingId = behandlingIdDto.getBehandlingId();
         return behandlingIdDto.getBehandlingId() != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());

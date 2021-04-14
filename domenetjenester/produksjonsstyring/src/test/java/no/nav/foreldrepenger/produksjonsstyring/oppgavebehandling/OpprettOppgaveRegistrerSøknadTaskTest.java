@@ -28,10 +28,10 @@ public class OpprettOppgaveRegistrerSøknadTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_registere_søknad() {
         // Arrange
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveRegistrerSøknadTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(OpprettOppgaveRegistrerSøknadTask.TASKTYPE);
         prosessTaskData.setBehandling(1L, BEHANDLING_ID, "99");
-        ArgumentCaptor<Long> behandlingIdCaptor = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<OppgaveÅrsak> årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
+        var behandlingIdCaptor = ArgumentCaptor.forClass(Long.class);
+        var årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
 
         // Act
         opprettOppgaveRegistrerSøknadTask.doTask(prosessTaskData);

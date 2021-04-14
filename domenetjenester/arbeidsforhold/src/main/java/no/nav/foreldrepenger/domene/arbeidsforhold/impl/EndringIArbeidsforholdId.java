@@ -27,17 +27,17 @@ public class EndringIArbeidsforholdId {
             Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM,
             InntektArbeidYtelseGrunnlag grunnlag,
             Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver) {
-        final Arbeidsgiver arbeidsgiver = nyInntektsmelding.getKey();
-        Set<InternArbeidsforholdRef> påkrevdRefSet = yrkesaktiviteterPerArbeidsgiver.getOrDefault(arbeidsgiver, Collections.emptySet());
-        final Set<InternArbeidsforholdRef> nyRefSet = nyInntektsmelding.getValue();
-        final Set<InternArbeidsforholdRef> eksisterendeRefSet = eksisterendeIM.getOrDefault(arbeidsgiver, Collections.emptySet());
+        final var arbeidsgiver = nyInntektsmelding.getKey();
+        var påkrevdRefSet = yrkesaktiviteterPerArbeidsgiver.getOrDefault(arbeidsgiver, Collections.emptySet());
+        final var nyRefSet = nyInntektsmelding.getValue();
+        final var eksisterendeRefSet = eksisterendeIM.getOrDefault(arbeidsgiver, Collections.emptySet());
 
         if (!påkrevdRefSet.equals(nyRefSet) && !endretTilIkkeSpesifiktArbeidsforhold(nyRefSet)) {
-            Set<InternArbeidsforholdRef> manglerIM = påkrevdRefSet.stream()
+            var manglerIM = påkrevdRefSet.stream()
                     .filter(ref -> !nyRefSet.contains(ref))
                     .filter(it -> IkkeTattStillingTil.vurder(arbeidsgiver, it, grunnlag))
                     .collect(Collectors.toSet());
-            Set<InternArbeidsforholdRef> uventetIM = nyRefSet.stream()
+            var uventetIM = nyRefSet.stream()
                     .filter(ref -> !påkrevdRefSet.contains(ref))
                     .collect(Collectors.toSet());
 

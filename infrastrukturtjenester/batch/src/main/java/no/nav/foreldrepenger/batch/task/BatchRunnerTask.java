@@ -11,9 +11,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
-import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -48,26 +46,26 @@ public class BatchRunnerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        String batchName = prosessTaskData.getPropertyValue(BATCH_NAME);
-        String batchParams = prosessTaskData.getPropertyValue(BATCH_PARAMS);
-        String batchDate = prosessTaskData.getPropertyValue(BATCH_RUN_DATE);
+        var batchName = prosessTaskData.getPropertyValue(BATCH_NAME);
+        var batchParams = prosessTaskData.getPropertyValue(BATCH_PARAMS);
+        var batchDate = prosessTaskData.getPropertyValue(BATCH_RUN_DATE);
         if (BATCH_NAME_RETRY_TASKS.equals(batchName)) {
             batchSupportTjeneste.retryAlleProsessTasksFeilet();
             return;
         }
         if (batchDate != null && !batchDate.equals(LocalDate.now().toString())) {
-            String logMessage = batchName + " dato passert " + batchDate;
+            var logMessage = batchName + " dato passert " + batchDate;
             LOG.warn("Kjører ikke batch {}", logMessage);
             return;
         }
-        final BatchTjeneste batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
+        final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
         if (batchTjeneste == null) {
             throw new TekniskException("FP-630260", "Ugyldig job-navn " + batchName);
         }
-        final BatchArguments batchArguments = batchTjeneste.createArguments(parseJobParams(batchParams));
+        final var batchArguments = batchTjeneste.createArguments(parseJobParams(batchParams));
 
         if (batchArguments.isValid()) {
-            String logMessage = batchName + " parametere " + (batchParams != null ? batchParams : "");
+            var logMessage = batchName + " parametere " + (batchParams != null ? batchParams : "");
             LOG.info("Starter batch {}", logMessage);
             batchTjeneste.launch(batchArguments);
         } else {
@@ -78,10 +76,10 @@ public class BatchRunnerTask implements ProsessTaskHandler {
     private static Map<String, String> parseJobParams(String jobParameters) {
         Map<String, String> resultat = new HashMap<>();
         if (jobParameters != null && jobParameters.length() > 0) {
-            StringTokenizer tokenizer = new StringTokenizer(jobParameters, ",");
+            var tokenizer = new StringTokenizer(jobParameters, ",");
             while (tokenizer.hasMoreTokens()) {
-                String keyValue = tokenizer.nextToken().trim();
-                String[] keyValArr = keyValue.split("=");
+                var keyValue = tokenizer.nextToken().trim();
+                var keyValArr = keyValue.split("=");
                 if (keyValArr.length == 2) {
                     resultat.put(keyValArr[0], keyValArr[1]);
                 }

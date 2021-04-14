@@ -14,8 +14,6 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapBehandlingRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import javax.inject.Inject;
@@ -73,11 +71,11 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
      * Optional.empty().
      */
     private Optional<BeregningsgrunnlagGUIInput> lagInput(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<RefusjonskravDato> refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
-        List<Inntektsmelding> inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
-        List<InntektsmeldingDto> inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
+        var refusjonskravDatoer = inntektsmeldingTjeneste.hentAlleRefusjonskravDatoerForFagsak(ref.getSaksnummer());
+        var inntektsmeldingDiff = inntektsmeldingTjeneste.hentInntektsmeldingDiffFraOriginalbehandling(ref);
+        var inntektsmeldingDiffDto = inntektsmeldingDiff.stream().map(IAYMapperTilKalkulus::mapInntektsmeldingDto)
                 .collect(Collectors.toList());
-        InntektArbeidYtelseGrunnlagDto iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
+        var iayGrunnlagDtoUtenIMDiff = IAYMapperTilKalkulus.mapGrunnlag(iayGrunnlag, ref.getAktørId());
 
         var ytelseGrunnlag = getYtelsespesifiktGrunnlag(ref);
 
@@ -88,7 +86,7 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
             iayGrunnlagDto = iayGrunnlagDtoUtenIMDiff;
         }
 
-        BeregningsgrunnlagGUIInput input = new BeregningsgrunnlagGUIInput(
+        var input = new BeregningsgrunnlagGUIInput(
             MapBehandlingRef.mapRef(ref),
             iayGrunnlagDto,
             IAYMapperTilKalkulus.mapRefusjonskravDatoer(refusjonskravDatoer),
@@ -102,10 +100,10 @@ public abstract class BeregningsgrunnlagGUIInputFelles {
 
     private InntektArbeidYtelseGrunnlagDto settInntektsmeldingDiffPåIAYGrunnlag(InntektArbeidYtelseGrunnlagDto iayGrunnlagDto,
             List<InntektsmeldingDto> inntektsmeldingDiffDto) {
-        List<InntektsmeldingDto> inntektsmeldingDtos = iayGrunnlagDto.getInntektsmeldinger()
+        var inntektsmeldingDtos = iayGrunnlagDto.getInntektsmeldinger()
                 .map(InntektsmeldingAggregatDto::getAlleInntektsmeldinger)
                 .orElse(Collections.emptyList());
-        InntektArbeidYtelseGrunnlagDtoBuilder builder = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
+        var builder = InntektArbeidYtelseGrunnlagDtoBuilder.oppdatere(iayGrunnlagDto)
                 .medInntektsmeldinger(inntektsmeldingDtos, inntektsmeldingDiffDto);
         return builder.build();
     }

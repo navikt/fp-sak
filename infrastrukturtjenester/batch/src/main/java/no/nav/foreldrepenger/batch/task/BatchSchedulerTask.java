@@ -90,14 +90,14 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        LocalDate dagensDato = LocalDate.now();
-        DayOfWeek dagensUkedag = DayOfWeek.from(dagensDato);
+        var dagensDato = LocalDate.now();
+        var dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt
-        ProsessTaskData batchScheduler = new ProsessTaskData(BatchSchedulerTask.TASKTYPE);
-        LocalDateTime nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(1).plusMinutes(1);
+        var batchScheduler = new ProsessTaskData(BatchSchedulerTask.TASKTYPE);
+        var nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(1).plusMinutes(1);
         batchScheduler.setNesteKjøringEtter(nesteScheduler);
-        ProsessTaskGruppe gruppeScheduler = new ProsessTaskGruppe(batchScheduler);
+        var gruppeScheduler = new ProsessTaskGruppe(batchScheduler);
         batchSupportTjeneste.opprettScheduledTasks(gruppeScheduler);
 
         // Ingenting å kjøre i helgene enn så lenge
@@ -105,15 +105,15 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
             return;
         }
 
-        String antallDager = Integer.toString(beregnAntallDager(dagensDato));
+        var antallDager = Integer.toString(beregnAntallDager(dagensDato));
         List<BatchConfig> batchOppsett = new ArrayList<>(BATCH_OPPSETT_VIRKEDAGER);
         BATCH_OPPSETT_ANTALL_DAGER.stream().map(b -> new BatchConfig(b, antallDager)).forEach(batchOppsett::add);
 
         if (!batchOppsett.isEmpty()) {
-            List<ProsessTaskData> batchtasks = batchOppsett.stream()
+            var batchtasks = batchOppsett.stream()
                     .map(bc -> mapBatchConfigTilBatchRunnerTask(bc, dagensDato))
                     .collect(Collectors.toList());
-            ProsessTaskGruppe gruppeRunner = new ProsessTaskGruppe();
+            var gruppeRunner = new ProsessTaskGruppe();
             gruppeRunner.addNesteParallell(batchtasks);
 
             batchSupportTjeneste.opprettScheduledTasks(gruppeRunner);
@@ -121,7 +121,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
     }
 
     private static ProsessTaskData mapBatchConfigTilBatchRunnerTask(BatchConfig config, LocalDate dagensDato) {
-        ProsessTaskData batchRunnerTask = new ProsessTaskData(BatchRunnerTask.TASKTYPE);
+        var batchRunnerTask = new ProsessTaskData(BatchRunnerTask.TASKTYPE);
         batchRunnerTask.setProperty(BatchRunnerTask.BATCH_NAME, config.getName());
         if (config.getParams() != null) {
             batchRunnerTask.setProperty(BatchRunnerTask.BATCH_PARAMS, config.getParams());

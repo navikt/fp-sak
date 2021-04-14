@@ -44,15 +44,15 @@ public class HentFaresignalerTjeneste {
     public Optional<FaresignalerRespons> hentFaresignalerForBehandling(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid");
 
-        String uuidString = behandlingUuid.toString();
+        var uuidString = behandlingUuid.toString();
         if (faresignalerCache.get(uuidString) != null) {
             return Optional.of(faresignalerCache.get(uuidString));
         }
 
-        FaresignalerRequest request = new FaresignalerRequest();
+        var request = new FaresignalerRequest();
         request.setKonsumentId(behandlingUuid);
         try {
-            FaresignalerRespons respons = oidcRestClient.post(endpoint, request, FaresignalerRespons.class);
+            var respons = oidcRestClient.post(endpoint, request, FaresignalerRespons.class);
             if (respons != null && respons.getRisikoklasse() != null) {
                 faresignalerCache.put(uuidString, respons);
             }

@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +15,6 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -25,7 +22,6 @@ import no.nav.foreldrepenger.dokumentbestiller.BrevHistorikkinnslag;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
@@ -47,10 +43,10 @@ public class DokumentKafkaBestillerTest {
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
-        BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
-        ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -66,15 +62,15 @@ public class DokumentKafkaBestillerTest {
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_og_logge_dokumentbestilt() {
         // Arrange
         var innhentDok = DokumentMalType.INNHENT_DOK;
-        BestillBrevDto bestillBrevDto = lagBestillBrevDto(innhentDok, null, null);
-        HistorikkAktør aktør = HistorikkAktør.SAKSBEHANDLER;
+        var bestillBrevDto = lagBestillBrevDto(innhentDok, null, null);
+        var aktør = HistorikkAktør.SAKSBEHANDLER;
 
         // Act
         dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
 
         // Assert
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
-        List<ProsessTaskData> prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
+        var prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isNull();
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
@@ -86,13 +82,13 @@ public class DokumentKafkaBestillerTest {
     @Test
     public void skal_opprette_historikkinnslag_og_lagre_prosesstask_med_fritekst_og_årsak() {
         var innhentDok = DokumentMalType.INNHENT_DOK;
-        String fritekst = "FRITEKST";
-        RevurderingVarslingÅrsak årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
-        BestillBrevDto bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);
-        HistorikkAktør aktør = HistorikkAktør.SAKSBEHANDLER;
+        var fritekst = "FRITEKST";
+        var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
+        var bestillBrevDto = lagBestillBrevDto(innhentDok, årsak.getKode(), fritekst);
+        var aktør = HistorikkAktør.SAKSBEHANDLER;
         dokumentKafkaBestiller.bestillBrevFraKafka(bestillBrevDto, aktør);
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
-        List<ProsessTaskData> prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
+        var prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isEqualTo(årsak.getKode());
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());

@@ -47,7 +47,7 @@ public class YtelseGrunnlag extends BaseEntitet {
         this.inntektProsent = ytelseGrunnlag.getInntektsgrunnlagProsent().orElse(null);
         this.opprinneligIdentdato = ytelseGrunnlag.getOpprinneligIdentdato().orElse(null);
         this.ytelseStørrelse = ytelseGrunnlag.getYtelseStørrelse().stream().map(ys -> {
-            YtelseStørrelse ytelseStørrelse = new YtelseStørrelse(ys);
+            var ytelseStørrelse = new YtelseStørrelse(ys);
             return ytelseStørrelse;
         }).collect(Collectors.toList());
         this.vedtaksDagsats = ytelseGrunnlag.getVedtaksDagsats().orElse(null);
@@ -122,7 +122,7 @@ public class YtelseGrunnlag extends BaseEntitet {
         if ((o == null) || !(o instanceof YtelseGrunnlag)) {
             return false;
         }
-        YtelseGrunnlag that = (YtelseGrunnlag) o;
+        var that = (YtelseGrunnlag) o;
         return Objects.equals(arbeidskategori, that.arbeidskategori) &&
                 Objects.equals(dekngradProsent, that.dekngradProsent) &&
                 Objects.equals(graderingProsent, that.graderingProsent) &&

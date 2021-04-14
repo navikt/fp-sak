@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,14 +24,14 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void splittet_perioder_uten_endring_i_andeler_skal_ikke_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now(), LocalDate.now().plusMonths(1).minusDays(1), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), 100);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
+        var endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
                 originalEntitet.getBeregningsresultatPerioder());
 
         assertThat(endringsdato).isEmpty();
@@ -41,14 +40,14 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void splittet_perioder_med_endring_i_andeler_skal_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now(), LocalDate.now().plusMonths(1).minusDays(1), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), 50);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
+        var endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
                 originalEntitet.getBeregningsresultatPerioder());
 
         assertThat(endringsdato.get()).isEqualTo(LocalDate.now().plusMonths(1));
@@ -57,13 +56,13 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     @Test
     public void perioder_med_ulik_fom_uten_endring_i_andeler_skal_gi_endringsdato() {
 
-        BeregningsresultatEntitet originalEntitet = lagEntitet();
-        BeregningsresultatEntitet revurderingEntitet = lagEntitet();
+        var originalEntitet = lagEntitet();
+        var revurderingEntitet = lagEntitet();
 
         byggPeriodeOgAndel(originalEntitet, LocalDate.now(), LocalDate.now().plusMonths(2), 100);
         byggPeriodeOgAndel(revurderingEntitet, LocalDate.now().minusDays(1), LocalDate.now().plusMonths(2), 100);
 
-        Optional<LocalDate> endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
+        var endringsdato = finnEndringsdatoMellomPeriodeLister.finnEndringsdato(revurderingEntitet.getBeregningsresultatPerioder(),
                 originalEntitet.getBeregningsresultatPerioder());
 
         assertThat(endringsdato.get()).isEqualTo(LocalDate.now().minusDays(1));
@@ -77,7 +76,7 @@ public class FinnEndringsdatoMellomPeriodeListerTest_NoMock {
     }
 
     private void byggPeriodeOgAndel(BeregningsresultatEntitet originalEntitet, LocalDate fom, LocalDate tom, int dagsats) {
-        BeregningsresultatPeriode originalPeriode = BeregningsresultatPeriode.builder()
+        var originalPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(fom, tom)
                 .build(originalEntitet);
         BeregningsresultatAndel.builder()

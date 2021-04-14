@@ -6,7 +6,6 @@ import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
-import no.nav.foreldrepenger.behandlingslager.diff.DiffResult;
 import no.nav.foreldrepenger.behandlingslager.diff.Node;
 import no.nav.foreldrepenger.behandlingslager.diff.Pair;
 import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph;
@@ -25,7 +24,7 @@ public class RegisterdataDiffsjekker {
     }
 
     public  <T extends Comparable<? super T>> boolean erForskjellPå(List<T> list1, List<T> list2) {
-        Map<Node, Pair> leafDifferences = finnForskjellerPåLister(list1, list2);
+        var leafDifferences = finnForskjellerPåLister(list1, list2);
         return leafDifferences.size() > 0;
     }
 
@@ -40,7 +39,7 @@ public class RegisterdataDiffsjekker {
     }
 
     public Map<Node, Pair> finnForskjellerPå(Object object1, Object object2) {
-        DiffResult diff = diffEntity.diff(object1, object2);
+        var diff = diffEntity.diff(object1, object2);
         return diff.getLeafDifferences();
     }
 

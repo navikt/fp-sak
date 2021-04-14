@@ -97,7 +97,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     }
 
     private Behandling lagBehandling() {
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(40));
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         return scenario.lagMocked();
@@ -106,17 +106,17 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     @Test
     public void finner_avslutningsdato_fra_sisteuttaksdato(){
         // Arrange
-        FagsakRelasjon fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
-        Optional<Behandlingsresultat> behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
+        var behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(behandlingsresultat);
-        LocalDate sisteUttaksdato = LocalDate.now().plusDays(10);
+        var sisteUttaksdato = LocalDate.now().plusDays(10);
         when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnGyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat.get()));
 
         // Act
-        LocalDate avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
         assertThat(avslutningdato).isEqualTo(sisteUttaksdato.plusDays(1));
@@ -126,17 +126,17 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdatererTest {
     @Test
     public void finner_ingen_sisteuttaksdato_for_avslutning(){
         // Arrange
-        FagsakRelasjon fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak)).thenReturn(Optional.of(fagsakRelasjon));
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())).thenReturn(Optional.of(behandling));
-        Optional<Behandlingsresultat> behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
+        var behandlingsresultat = lagBehandlingsresultat(behandling, BehandlingResultatType.INNVILGET, KonsekvensForYtelsen.UDEFINERT);
         when(behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()))
             .thenReturn(behandlingsresultat);
-        LocalDate sisteUttaksdato = LocalDate.now().plusDays(10);
+        var sisteUttaksdato = LocalDate.now().plusDays(10);
         when(svpUttakRepository.hentHvisEksisterer(behandling.getId())).thenReturn(lagUttakMedEnUgyldigPeriode(LocalDate.now().minusDays(10), sisteUttaksdato, behandlingsresultat.get()));
 
         // Act
-        LocalDate avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
+        var avslutningdato = fagsakRelasjonAvslutningsdatoOppdaterer.finnAvslutningsdato(fagsak.getId(),fagsakRelasjon);
 
         // Assert
         assertThat(avslutningdato).isEqualTo(LocalDate.now().plusDays(1));

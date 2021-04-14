@@ -62,7 +62,7 @@ public class Selftests {
     }
 
     private SelftestResultat innhentSelftestResultat() {
-        SelftestResultat samletResultat = new SelftestResultat();
+        var samletResultat = new SelftestResultat();
         samletResultat.setApplication(applicationName);
         samletResultat.setTimestamp(LocalDateTime.now());
 

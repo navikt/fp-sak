@@ -61,7 +61,7 @@ public enum KlageVurdering implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(KlageVurdering.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(KlageVurdering.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent KlageVurdering: " + kode);

@@ -10,8 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -64,17 +62,17 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     @Test
     public void skal_velge_sak_som_er_åpen_foreldrepengesak() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var aktørId = AktørId.dummy();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
 
-        DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
+        var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
 
         // Act
-        Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
+        var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);
@@ -86,15 +84,15 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     @Test
     public void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var aktørId = AktørId.dummy();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         fagsak.setAvsluttet();
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
-        DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
+        var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
 
         // Act
-        Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
+        var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);
@@ -105,14 +103,14 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     @Test
     public void skal_ikke_velge_engangsstønadsak() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
+        var aktørId = AktørId.dummy();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
-        DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
+        var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
 
         // Act
-        Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
+        var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);
@@ -123,14 +121,14 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     @Test
     public void annullert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var aktørId = AktørId.dummy();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
-        DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.ANNULLERT);
+        var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.ANNULLERT);
 
         // Act
-        Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
+        var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);
@@ -143,17 +141,17 @@ public class DødfødselForretningshendelseSaksvelgerTest {
     @Test
     public void korrigert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var aktørId = AktørId.dummy();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
 
-        DødfødselForretningshendelse hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.KORRIGERT);
+        var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.KORRIGERT);
 
         // Act
-        Map<BehandlingÅrsakType, List<Fagsak>> behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
+        var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
 
         // Assert
         assertThat(behandlingÅrsakTypeListMap).hasSize(1);

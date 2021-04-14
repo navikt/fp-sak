@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 
@@ -32,7 +31,7 @@ public class KlageRepository {
     public KlageResultatEntitet hentEvtOpprettKlageResultat(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
-        final TypedQuery<KlageResultatEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             " FROM KlageResultat WHERE klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageResultatEntitet.class);// NOSONAR
 
@@ -43,7 +42,7 @@ public class KlageRepository {
     private List<KlageVurderingResultat> hentVurderingsResultaterForKlageBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
-        final TypedQuery<KlageVurderingResultat> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             " FROM KlageVurderingResultat WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageVurderingResultat.class);// NOSONAR
 
@@ -54,7 +53,7 @@ public class KlageRepository {
     private List<KlageFormkravEntitet> hentKlageFormkravForKlageBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
-        final TypedQuery<KlageFormkravEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             " FROM KlageFormkrav WHERE klageResultat.klageBehandlingId = :behandlingId", //$NON-NLS-1$
             KlageFormkravEntitet.class);// NOSONAR
         query.setParameter("behandlingId", behandlingId);
@@ -62,14 +61,14 @@ public class KlageRepository {
     }
 
     private KlageResultatEntitet leggTilKlageResultat(Long klageBehandlingId) {
-        KlageResultatEntitet resultatEntitet = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandlingId).build();
+        var resultatEntitet = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandlingId).build();
         entityManager.persist(resultatEntitet);
         entityManager.flush();
         return resultatEntitet;
     }
 
     public void settPåklagdBehandlingId(Long klageBehandlingId, Long påKlagdBehandlingId) {
-        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+        var klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
         klageResultat.settPåKlagdBehandlingId(påKlagdBehandlingId);
         klageResultat.settPåKlagdEksternBehandlingUuid(null);
 
@@ -78,7 +77,7 @@ public class KlageRepository {
     }
 
     public void settPåklagdEksternBehandlingUuid(Long klageBehandlingId, UUID påKlagdEksternBehandlingUuid) {
-        KlageResultatEntitet klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
+        var klageResultat = hentEvtOpprettKlageResultat(klageBehandlingId);
         klageResultat.settPåKlagdEksternBehandlingUuid(påKlagdEksternBehandlingUuid);
         klageResultat.settPåKlagdBehandlingId(null);
 
@@ -87,7 +86,7 @@ public class KlageRepository {
     }
 
     public Optional<KlageFormkravEntitet> hentGjeldendeKlageFormkrav(Long behandlingId) {
-        List<KlageFormkravEntitet> klageFormkravListe = hentKlageFormkravForKlageBehandling(behandlingId);
+        var klageFormkravListe = hentKlageFormkravForKlageBehandling(behandlingId);
 
         var gjeldende = klageFormkravListe.stream()
             .filter(kf -> KlageVurdertAv.NK.equals(kf.getKlageVurdertAv()))
@@ -97,14 +96,14 @@ public class KlageRepository {
     }
 
     public Optional<KlageFormkravEntitet> hentKlageFormkrav(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
-        List<KlageFormkravEntitet> klageFormkravList = hentKlageFormkravForKlageBehandling(klageBehandlingId);
+        var klageFormkravList = hentKlageFormkravForKlageBehandling(klageBehandlingId);
         return klageFormkravList.stream()
             .filter(kf -> klageVurdertAv.equals(kf.getKlageVurdertAv()))
             .findFirst();
     }
 
     public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
-        List<KlageVurderingResultat> klageVurderingResultat = hentVurderingsResultaterForKlageBehandling(behandling.getId());
+        var klageVurderingResultat = hentVurderingsResultaterForKlageBehandling(behandling.getId());
 
         var resultat = klageVurderingResultat.stream()
             .filter(kvr -> KlageVurdertAv.NK.equals(kvr.getKlageVurdertAv()))
@@ -116,7 +115,7 @@ public class KlageRepository {
 
     public void lagreFormkrav(Behandling klageBehandling, KlageFormkravEntitet.Builder klageFormkravBuilder) {
         klageFormkravBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling.getId()));
-        KlageFormkravEntitet nyKlageFormkravEntitet = klageFormkravBuilder.build();
+        var nyKlageFormkravEntitet = klageFormkravBuilder.build();
         hentKlageFormkrav(klageBehandling.getId(), nyKlageFormkravEntitet.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(nyKlageFormkravEntitet);
         entityManager.flush();
@@ -124,7 +123,7 @@ public class KlageRepository {
 
     public Long lagreVurderingsResultat(Behandling klageBehandling, KlageVurderingResultat.Builder klageVurderingResultatBuilder) {
         klageVurderingResultatBuilder.medKlageResultat(hentEvtOpprettKlageResultat(klageBehandling.getId()));
-        KlageVurderingResultat nyKlageVurderingResultat = klageVurderingResultatBuilder.build();
+        var nyKlageVurderingResultat = klageVurderingResultatBuilder.build();
         hentKlageVurderingResultat(klageBehandling.getId(), nyKlageVurderingResultat.getKlageVurdertAv()).ifPresent(entityManager::remove);
         entityManager.persist(nyKlageVurderingResultat);
         entityManager.flush();
@@ -139,7 +138,7 @@ public class KlageRepository {
     }
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Long klageBehandlingId, KlageVurdertAv klageVurdertAv) {
-        List<KlageVurderingResultat> klageVurderingResultatList = hentVurderingsResultaterForKlageBehandling(klageBehandlingId);
+        var klageVurderingResultatList = hentVurderingsResultaterForKlageBehandling(klageBehandlingId);
         return klageVurderingResultatList.stream()
             .filter(krv -> klageVurdertAv.equals(krv.getKlageVurdertAv()))
             .findFirst();

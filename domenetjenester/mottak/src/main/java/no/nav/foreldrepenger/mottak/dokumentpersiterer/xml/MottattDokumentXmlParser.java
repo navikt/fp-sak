@@ -32,10 +32,10 @@ public final class MottattDokumentXmlParser {
     @SuppressWarnings("rawtypes")
     public static MottattDokumentWrapper unmarshallXml(String xml) {
         final Object mottattDokument;
-        final String namespace = hentNamespace(xml);
+        final var namespace = hentNamespace(xml);
 
         try {
-            DokumentParserKonfig dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
+            var dokumentParserKonfig = SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.get(namespace);
             if (dokumentParserKonfig == null) {
                 throw new TekniskException("FP-958724", "Fant ikke xsd for namespacet " + namespace);
             }

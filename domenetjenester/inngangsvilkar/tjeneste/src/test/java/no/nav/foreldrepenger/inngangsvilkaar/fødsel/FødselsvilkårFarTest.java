@@ -9,7 +9,6 @@ import java.time.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -27,14 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -53,12 +49,12 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        PersonopplysningTjeneste personopplysningTjeneste = new PersonopplysningTjeneste(
+        var personopplysningTjeneste = new PersonopplysningTjeneste(
             repositoryProvider.getPersonopplysningRepository());
         oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, new YtelseMaksdatoTjeneste(repositoryProvider, new RelatertBehandlingTjeneste(repositoryProvider)),
             iayTjeneste, Period.parse("P6M"));
-        YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
+        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste, stputil);
     }
@@ -66,14 +62,14 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
     public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_bekreftet() throws IOException {
         // Arrange
-        Behandling behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, true, false, true);
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, true, false, true);
 
         // Act
-        VilkårData data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String soekersKjonn = jsonNode.get("soekersKjonn").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -89,14 +85,14 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
     public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_bekreftet() throws IOException {
         // Arrange
-        Behandling behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, true, false, true);
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, true, false, true);
 
         // Act
-        VilkårData data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String soekersKjonn = jsonNode.get("soekersKjonn").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -108,10 +104,10 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     @Test // FP_VK 11.4 Vilkårsutfall ikke oppfylt
     public void skal_vurdere_vilkår_som_ikke_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_og_mor_frisk() {
         // Arrange
-        Behandling behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
 
         // Act
-        VilkårData data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -122,10 +118,10 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     @Test // FP_VK 11.4 Vilkårsutfall oppfylt
     public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_ikke_bekreftet_og_søkt_om_termin_og_mor_syk() {
         // Arrange
-        Behandling behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, false, true, false);
+        var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, false, true, false);
 
         // Act
-        VilkårData data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -135,8 +131,8 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
     private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,
                                                       boolean morErSykVedFødsel, boolean erFødsel) {
         // Setup basis scenario
-        LocalDate fødselsdato = LocalDate.now();
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var fødselsdato = LocalDate.now();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         if (erFødsel) {
             scenario.medSøknadHendelse()
                 .medFødselsDato(fødselsdato)
@@ -165,17 +161,17 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
                     .medNavnPå("LEGEN min"));
         }
 
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId barnAktørId = AktørId.dummy();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon fødtBarn = builderForRegisteropplysninger
+        var fødtBarn = builderForRegisteropplysninger
             .medPersonas()
             .fødtBarn(barnAktørId, fødselsdato)
             .relasjonTil(søkerAktørId, rolle, null)
             .build();
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.GIFT, kjønn, Region.NORDEN)
             .statsborgerskap(Landkoder.NOR)

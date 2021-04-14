@@ -56,7 +56,7 @@ public abstract class BaseCreateableEntitet implements Serializable {
     }
 
     protected static String finnBrukernavn() {
-        String brukerident = SubjectHandler.getSubjectHandler().getUid();
+        var brukerident = SubjectHandler.getSubjectHandler().getUid();
         return brukerident != null ? brukerident : BRUKERNAVN_NÅR_SIKKERHETSKONTEKST_IKKE_FINNES;
     }
 }

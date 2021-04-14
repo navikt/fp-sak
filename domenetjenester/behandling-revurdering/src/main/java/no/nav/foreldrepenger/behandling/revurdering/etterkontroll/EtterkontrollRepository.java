@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -70,9 +68,9 @@ public class EtterkontrollRepository {
 
     public List<Behandling> finnKandidaterForAutomatiskEtterkontroll() {
 
-        LocalDateTime datoTidTilbake = LocalDate.now().atStartOfDay().plusHours(1);
+        var datoTidTilbake = LocalDate.now().atStartOfDay().plusHours(1);
 
-        TypedQuery<Fagsak> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "select f from Fagsak f inner join Etterkontroll k on f.id = k.fagsakId " +
                         "where k.erBehandlet = false and k.kontrollTidspunkt <= :periodeTilbake",
                 Fagsak.class);

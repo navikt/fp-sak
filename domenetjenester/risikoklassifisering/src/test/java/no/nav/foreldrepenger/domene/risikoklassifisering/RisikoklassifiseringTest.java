@@ -18,7 +18,6 @@ import org.slf4j.MDC;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -130,10 +129,10 @@ public class RisikoklassifiseringTest {
     }
 
     private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) throws IOException {
-        ObjectNode objectNode = OM.readValue(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON),
+        var objectNode = OM.readValue(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON),
             ObjectNode.class);
         assertThat(objectNode.get("callId").asText()).isEqualTo("callId");
-        JsonNode request = objectNode.get("request");
+        var request = objectNode.get("request");
 
         assertThat(request.get("konsumentId").asText()).isEqualTo(
             prosessTaskData.getProperties().getProperty(KONSUMENT_ID));
@@ -154,13 +153,13 @@ public class RisikoklassifiseringTest {
     }
 
     private void forberedelse(BehandlingReferanse behandling, boolean annenPart) {
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
             .build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId())).thenReturn(skjæringstidspunkt);
         when(opplysningsPeriodeTjeneste.beregn(behandling.getId(), behandling.getFagsakYtelseType())).thenReturn(
             SimpleLocalDateInterval.fraOgMedTomNotNull(LocalDate.now(), LocalDate.now()));
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(15),
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(15),
             BARN_FØDSELSDATO.minusDays(10));
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(
             Optional.of(familieHendelseGrunnlag));
@@ -173,7 +172,7 @@ public class RisikoklassifiseringTest {
     }
 
     public static FamilieHendelseGrunnlagEntitet byggFødselGrunnlag(LocalDate termindato, LocalDate fødselsdato) {
-        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
+        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(),
             HendelseVersjonType.SØKNAD);
         if (termindato != null) {
             hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
@@ -188,9 +187,9 @@ public class RisikoklassifiseringTest {
     }
 
     private BehandlingReferanse getBehandling() {
-        LocalDate terminDato = LocalDate.now().minusDays(70);
+        var terminDato = LocalDate.now().minusDays(70);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medSøknadDato(terminDato.minusDays(20));
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()

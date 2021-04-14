@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -128,8 +127,8 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
      */
 
     public boolean gjelderFor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        boolean gjelderForArbeidsgiver = Objects.equals(getArbeidsgiver(), arbeidsgiver);
-        boolean gjelderFor = gjelderForArbeidsgiver && getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
+        var gjelderForArbeidsgiver = Objects.equals(getArbeidsgiver(), arbeidsgiver);
+        var gjelderFor = gjelderForArbeidsgiver && getArbeidsforholdRef().gjelderFor(arbeidsforholdRef);
         return gjelderFor;
     }
 
@@ -161,7 +160,7 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
      * @return Stillingsprosent {@link Stillingsprosent}
      */
     public Optional<Stillingsprosent> getStillingsprosentFor(LocalDate dato) {
-        List<AktivitetsAvtale> avtaler = getAlleAktivitetsAvtaler()
+        var avtaler = getAlleAktivitetsAvtaler()
                 .stream()
                 .filter(a -> !a.erAnsettelsesPeriode())
                 .filter(a -> a.getPeriode().inkluderer(dato))
@@ -231,10 +230,11 @@ public class Yrkesaktivitet extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof Yrkesaktivitet)) {
+        }
+        if (!(obj instanceof Yrkesaktivitet)) {
             return false;
         }
-        Yrkesaktivitet other = (Yrkesaktivitet) obj;
+        var other = (Yrkesaktivitet) obj;
         return Objects.equals(this.getArbeidsforholdRef(), other.getArbeidsforholdRef()) &&
                 Objects.equals(this.getNavnArbeidsgiverUtland(), other.getNavnArbeidsgiverUtland()) &&
                 Objects.equals(this.getArbeidType(), other.getArbeidType()) &&

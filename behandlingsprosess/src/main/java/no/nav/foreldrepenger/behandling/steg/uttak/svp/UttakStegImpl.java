@@ -31,7 +31,7 @@ public class UttakStegImpl implements UttakSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
 
-        Long behandlingId = kontekst.getBehandlingId();
+        var behandlingId = kontekst.getBehandlingId();
 
         var input = uttakInputTjeneste.lagInput(behandlingId);
 

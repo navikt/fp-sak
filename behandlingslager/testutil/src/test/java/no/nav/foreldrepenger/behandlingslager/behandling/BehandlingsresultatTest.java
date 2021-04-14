@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
@@ -25,8 +24,8 @@ public class BehandlingsresultatTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_opprette_ny_behandlingsresultat() {
-        Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.build();
+        var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
+        var behandlingsresultat = behandlingsresultatBuilder.build();
 
         assertThat(behandlingsresultat).isNotNull();
         assertThat(behandlingsresultat.getVilkårResultat()).isNotNull();
@@ -36,20 +35,20 @@ public class BehandlingsresultatTest extends EntityManagerAwareTest {
     public void skal_opprette_ny_behandlingsresultat_og_lagre_med_ikke_fastsatt_vilkårresultat() {
         var behandling = opprettBehandling();
 
-        Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
+        var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
+        var behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
 
         assertThat(behandling.getBehandlingsresultat()).isEqualTo(behandlingsresultat);
         assertThat(behandlingsresultat.getBehandlingId()).isNotNull();
         assertThat(behandlingsresultat.getVilkårResultat().getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
 
-        Long id = behandling.getId();
+        var id = behandling.getId();
         assertThat(id).isNotNull();
 
-        Behandling lagretBehandling = behandlingRepository.hentBehandling(behandling.getId());
+        var lagretBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(lagretBehandling).isEqualTo(behandling);
         assertThat(lagretBehandling.getBehandlingsresultat()).isEqualTo(behandlingsresultat);
     }

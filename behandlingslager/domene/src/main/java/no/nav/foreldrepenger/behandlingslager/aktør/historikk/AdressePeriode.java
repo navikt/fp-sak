@@ -30,7 +30,7 @@ public class AdressePeriode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AdressePeriode that = (AdressePeriode) o;
+        var that = (AdressePeriode) o;
         return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) &&
             Objects.equals(adresse, that.adresse);
     }
@@ -116,7 +116,7 @@ public class AdressePeriode {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Adresse adresse = (Adresse) o;
+            var adresse = (Adresse) o;
             return Objects.equals(adresseType, adresse.adresseType) &&
                 Objects.equals(matrikkelId, adresse.matrikkelId) &&
                 Objects.equals(adresselinje1, adresse.adresselinje1) &&

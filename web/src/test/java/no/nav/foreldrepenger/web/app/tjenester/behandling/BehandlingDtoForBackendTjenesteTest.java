@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -22,8 +21,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingÅrsakDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,19 +51,19 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
 
     @Test
     public void skal_lage_BehandlingDto() {
-        Saksnummer saksnummer = new Saksnummer("12345");
-        Fagsak fagsak = byggFagsak(aktørId, saksnummer);
-        Behandling behandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
+        var saksnummer = new Saksnummer("12345");
+        var fagsak = byggFagsak(aktørId, saksnummer);
+        var behandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
         lagBehandligVedtak(behandling);
         avsluttBehandling(behandling);
 
-        UtvidetBehandlingDto utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, null);
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.isBehandlingPåVent()).isFalse();
 
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).hasSize(1);
-        BehandlingÅrsakDto behandlingÅrsak = utvidetBehandlingDto.getBehandlingÅrsaker().get(0);
+        var behandlingÅrsak = utvidetBehandlingDto.getBehandlingÅrsaker().get(0);
         assertThat(behandlingÅrsak.getBehandlingArsakType()).isEqualByComparingTo(BEHANDLING_ÅRSAK_TYPE);
 
         assertThat(utvidetBehandlingDto.getSpråkkode()).isEqualByComparingTo(Språkkode.NB);
@@ -76,19 +74,19 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
 
     @Test
     public void skal_lage_BehandlingDto_og_finne_opprinnelig_søknad_med_språkvalgNN() {
-        Saksnummer saksnummer = new Saksnummer("111112");
-        Fagsak fagsak = byggFagsak(aktørId, saksnummer);
-        Behandling førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
-        SøknadEntitet søknad = lagSøknadMedNynorskSpråk();
+        var saksnummer = new Saksnummer("111112");
+        var fagsak = byggFagsak(aktørId, saksnummer);
+        var førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
+        var søknad = lagSøknadMedNynorskSpråk();
         repositoryProvider.getSøknadRepository().lagreOgFlush(førstegangsBehandling, søknad);
         lagBehandligVedtak(førstegangsBehandling);
         avsluttBehandling(førstegangsBehandling);
 
-        Behandling innsyn = lagBehandling(fagsak, BehandlingType.INNSYN);
+        var innsyn = lagBehandling(fagsak, BehandlingType.INNSYN);
         lagBehandligVedtak(innsyn);
         avsluttBehandling(innsyn);
 
-        UtvidetBehandlingDto utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
 
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
@@ -100,17 +98,17 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
 
     @Test
     public void skal_lage_BehandlingDto_og_hente_språkvalg_fra_navbruker() {
-        Saksnummer saksnummer = new Saksnummer("111113");
-        Fagsak fagsak = byggFagsak(aktørId, saksnummer);
-        Behandling førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
+        var saksnummer = new Saksnummer("111113");
+        var fagsak = byggFagsak(aktørId, saksnummer);
+        var førstegangsBehandling = lagBehandling(fagsak, BehandlingType.FØRSTEGANGSSØKNAD);
         lagBehandligVedtak(førstegangsBehandling);
         avsluttBehandling(førstegangsBehandling);
 
-        Behandling innsyn = lagBehandling(fagsak, BehandlingType.INNSYN);
+        var innsyn = lagBehandling(fagsak, BehandlingType.INNSYN);
         lagBehandligVedtak(innsyn);
         avsluttBehandling(innsyn);
 
-        UtvidetBehandlingDto utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
 
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
@@ -121,8 +119,8 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     }
 
     private Fagsak byggFagsak(AktørId aktørId, Saksnummer saksnummer) {
-        NavBruker navBruker = NavBruker.opprettNyNB(aktørId);
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, saksnummer);
+        var navBruker = NavBruker.opprettNyNB(aktørId);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, RelasjonsRolleType.MORA, saksnummer);
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         return fagsak;
     }
@@ -139,36 +137,36 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
 
     private Behandling lagBehandling(Fagsak fagsak, BehandlingType behandlingType) {
 
-        Behandling behandling = Behandling.nyBehandlingFor(fagsak, behandlingType)
+        var behandling = Behandling.nyBehandlingFor(fagsak, behandlingType)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BEHANDLING_ÅRSAK_TYPE))
             .build();
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
+        var behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BEHANDLING_RESULTAT_TYPE)
             .build();
 
         behandling.setBehandlingresultat(behandlingsresultat);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
-        Long behandlingId = behandlingRepository.lagre(behandling, behandlingLås);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingId = behandlingRepository.lagre(behandling, behandlingLås);
 
         return behandlingRepository.hentBehandling(behandlingId);
     }
 
     private void lagBehandligVedtak(Behandling behandling) {
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakResultatType(VedtakResultatType.INNVILGET)
+        var behandlingVedtak = BehandlingVedtak.builder().medVedtakResultatType(VedtakResultatType.INNVILGET)
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
             .medBehandlingsresultat(behandling.getBehandlingsresultat())
             .medIverksettingStatus(IverksettingStatus.IVERKSATT)
             .medVedtakstidspunkt(now)
             .medBeslutning(true).build();
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, behandlingLås);
     }
 
     private void avsluttBehandling(Behandling behandling) {
         behandling.avsluttBehandling();
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
     }
 }

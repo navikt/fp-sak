@@ -52,7 +52,7 @@ public class ScenarioMorSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     public static ScenarioMorSøkerForeldrepenger forFødselUtenSøknad(AktørId aktørId) {
-        ScenarioMorSøkerForeldrepenger scenario = new ScenarioMorSøkerForeldrepenger(aktørId);
+        var scenario = new ScenarioMorSøkerForeldrepenger(aktørId);
         scenario.utenSøknad();
         return scenario;
     }
@@ -70,8 +70,8 @@ public class ScenarioMorSøkerForeldrepenger extends AbstractTestScenario<Scenar
     }
 
     public ScenarioMorSøkerForeldrepenger medDefaultFordeling(LocalDate førsteuttaksdag) {
-        OppgittPeriodeEntitet førFødsel = førFødsel(førsteuttaksdag);
-        OppgittPeriodeEntitet mødreKvote = mødrekvote(førsteuttaksdag);
+        var førFødsel = førFødsel(førsteuttaksdag);
+        var mødreKvote = mødrekvote(førsteuttaksdag);
         medFordeling(new OppgittFordelingEntitet(List.of(førFødsel, mødreKvote), true));
         return this;
     }

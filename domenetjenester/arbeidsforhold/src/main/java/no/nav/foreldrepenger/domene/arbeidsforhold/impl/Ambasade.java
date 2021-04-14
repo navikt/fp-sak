@@ -110,7 +110,7 @@ public enum Ambasade {
     private static ArrayList<String> LISTE_MED_ORGNR = new ArrayList<>();
 
     static {
-        for (Ambasade a : Ambasade.values()) {
+        for (var a : Ambasade.values()) {
             LISTE_MED_ORGNR.add(a.getOrgnr());
         }
     }

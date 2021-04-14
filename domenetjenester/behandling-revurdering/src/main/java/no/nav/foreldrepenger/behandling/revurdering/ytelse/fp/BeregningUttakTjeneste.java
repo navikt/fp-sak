@@ -22,7 +22,6 @@ import no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -58,7 +57,7 @@ public class BeregningUttakTjeneste {
      * @return
      */
     public Optional<LocalDate> finnSisteTilnærmedeUttaksdato(BehandlingReferanse ref) {
-        Optional<YtelseFordelingAggregat> yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
+        var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         return yfAggregat.map(this::finnSisteSøkteUttaksdag)
             .orElseGet(() -> ref.getOriginalBehandlingId()
             .flatMap(oid -> uttakTjeneste.hentUttakHvisEksisterer(oid))
@@ -81,7 +80,7 @@ public class BeregningUttakTjeneste {
     }
 
     public AktivitetGradering finnAktivitetGraderinger(BehandlingReferanse ref) {
-        Optional<YtelseFordelingAggregat> ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
+        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(ref.getBehandlingId());
         return new AktivitetGradering(utled(ref, ytelseFordelingAggregat));
     }
 
@@ -89,15 +88,15 @@ public class BeregningUttakTjeneste {
         if (!ytelseFordelingAggregat.isPresent()) {
             return List.of();
         }
-        OppgittFordelingEntitet søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeSøknadsperioder();
-        List<PeriodeMedGradering> perioderMedGradering = fraSøknad(søknadsperioder.getOppgittePerioder());
+        var søknadsperioder = ytelseFordelingAggregat.get().getGjeldendeSøknadsperioder();
+        var perioderMedGradering = fraSøknad(søknadsperioder.getOppgittePerioder());
 
         if (ref.erRevurdering()) {
-            Long originalBehandling = ref.getOriginalBehandlingId()
+            var originalBehandling = ref.getOriginalBehandlingId()
                     .orElseThrow(() -> new IllegalStateException("Forventer original behandling i revurdering"));
             // Første periode i søknad kan starte midt i periode i vedtak
-            Optional<LocalDate> førsteDatoSøknad = førsteDatoSøknad(søknadsperioder.getOppgittePerioder());
-            List<PeriodeMedGradering> perioderMedGraderingFraVedtak = fraVedtak(førsteDatoSøknad, originalBehandling);
+            var førsteDatoSøknad = førsteDatoSøknad(søknadsperioder.getOppgittePerioder());
+            var perioderMedGraderingFraVedtak = fraVedtak(førsteDatoSøknad, originalBehandling);
             perioderMedGradering.addAll(perioderMedGraderingFraVedtak);
         }
 
@@ -107,17 +106,17 @@ public class BeregningUttakTjeneste {
     private List<AndelGradering> map(List<PeriodeMedGradering> perioderMedGradering) {
         Map<AndelGradering, AndelGradering.Builder> map = new HashMap<>();
         perioderMedGradering.forEach(periodeMedGradering -> {
-            AktivitetStatus aktivitetStatus = periodeMedGradering.aktivitetStatus;
-            AndelGradering.Builder nyBuilder = AndelGradering.builder()
+            var aktivitetStatus = periodeMedGradering.aktivitetStatus;
+            var nyBuilder = AndelGradering.builder()
                     .medStatus(no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus.fraKode(aktivitetStatus.getKode()));
             if (AktivitetStatus.ARBEIDSTAKER.equals(aktivitetStatus)) {
-                Arbeidsgiver arbeidsgiver = periodeMedGradering.arbeidsgiver;
+                var arbeidsgiver = periodeMedGradering.arbeidsgiver;
                 Objects.requireNonNull(arbeidsgiver, "arbeidsgiver");
                 nyBuilder.medArbeidsgiver(arbeidsgiver);
             }
-            AndelGradering andelGradering = nyBuilder.build();
+            var andelGradering = nyBuilder.build();
 
-            AndelGradering.Builder builder = map.get(andelGradering);
+            var builder = map.get(andelGradering);
             if (builder == null) {
                 builder = nyBuilder;
                 map.put(andelGradering, nyBuilder);
@@ -209,13 +208,14 @@ public class BeregningUttakTjeneste {
     private static AktivitetStatus mapAktivitetStatus(OppgittPeriodeEntitet oppgittPeriode) {
         if (oppgittPeriode.isArbeidstaker()) {
             return AktivitetStatus.ARBEIDSTAKER;
-        } else if (oppgittPeriode.isFrilanser()) {
-            return AktivitetStatus.FRILANSER;
-        } else if (oppgittPeriode.isSelvstendig()) {
-            return AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
-        } else {
-            throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
         }
+        if (oppgittPeriode.isFrilanser()) {
+            return AktivitetStatus.FRILANSER;
+        }
+        if (oppgittPeriode.isSelvstendig()) {
+            return AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
+        }
+        throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
     }
 
     public static class PeriodeMedGradering {

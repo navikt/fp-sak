@@ -59,7 +59,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
                 .medElektroniskRegistrert(ELEKTRONISK_SØKNAD)
                 .medXmlPayload(PAYLOAD_XML)
                 .build();
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
@@ -67,7 +67,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         // Assert
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
     }
@@ -84,7 +84,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medXmlPayload(PAYLOAD_XML)
                 .build();
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         saksbehandlingDokumentmottakTjeneste.dokumentAnkommet(saksdokument, null);
@@ -97,7 +97,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     @Test
     public void motta_ubehandlet() {
         // Arrange
-        MottattDokument md1 = new MottattDokument.Builder()
+        var md1 = new MottattDokument.Builder()
             .medJournalPostId(new JournalpostId("123"))
             .medFagsakId(456L)
             .medDokumentType(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL)
@@ -105,14 +105,14 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
             .medElektroniskRegistrert(true)
             .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
             .medId(1L).build();
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(md1, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData data = captor.getValue();
+        var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isNull();
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
@@ -125,7 +125,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         when(behandling.getId()).thenReturn(789L);
         when(behandling.getFagsakId()).thenReturn(456L);
         when(behandling.getAktørId()).thenReturn(new AktørId("0000000000000"));
-        MottattDokument md1 = new MottattDokument.Builder()
+        var md1 = new MottattDokument.Builder()
             .medJournalPostId(new JournalpostId("123"))
             .medFagsakId(456L)
             .medBehandlingId(789L)
@@ -134,14 +134,14 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
             .medElektroniskRegistrert(true)
             .medXmlPayload("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") // Skal bare være en string slik at XmlPayLoad ikke er null
             .medId(1L).build();
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
 
         // Act
         saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(md1, behandling, BehandlingÅrsakType.ETTER_KLAGE);
 
         // Assert
         verify(prosessTaskRepository).lagre(captor.capture());
-        ProsessTaskData data = captor.getValue();
+        var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isEqualTo("789");
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");

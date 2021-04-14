@@ -14,8 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.persistence.EntityManager;
-
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -120,16 +118,16 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     private BehandlingRepository lagBasicMockBehandlingRepository(IAYRepositoryProvider repositoryProvider) {
-        BehandlingRepository behandlingRepository = mock(BehandlingRepository.class);
+        var behandlingRepository = mock(BehandlingRepository.class);
 
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
 
-        FagsakRepository mockFagsakRepository = mockFagsakRepository();
-        PersonopplysningRepository mockPersonopplysningRepository = lagMockPersonopplysningRepository();
-        SøknadRepository søknadRepository = mockSøknadRepository();
-        MottatteDokumentRepository mottatteDokumentRepository = mockMottatteDokumentRepository();
-        OpptjeningRepository opptjeningRepository = Mockito.mock(OpptjeningRepository.class);
-        FamilieHendelseRepository familieHendelseRepository = mockFamilieHendelseGrunnlagRepository();
+        var mockFagsakRepository = mockFagsakRepository();
+        var mockPersonopplysningRepository = lagMockPersonopplysningRepository();
+        var søknadRepository = mockSøknadRepository();
+        var mottatteDokumentRepository = mockMottatteDokumentRepository();
+        var opptjeningRepository = Mockito.mock(OpptjeningRepository.class);
+        var familieHendelseRepository = mockFamilieHendelseGrunnlagRepository();
         // ikke ideelt å la mocks returnere mocks, men forenkler enormt mye test kode,
         // forhindrer feil oppsett, så det
         // blir enklere å refactorere
@@ -192,7 +190,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
             @Override
             public void lagre(Behandling behandling, FamilieHendelseBuilder hendelseBuilder) {
-                Long behandlingId = behandling.getId();
+                var behandlingId = behandling.getId();
                 var kladd = hentAggregatHvisEksisterer(behandlingId);
                 var builder = FamilieHendelseGrunnlagBuilder.oppdatere(kladd);
                 var type = utledTypeFor(kladd);
@@ -245,11 +243,11 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                 if (aggregat.isPresent()) {
                     if (aggregat.get().getHarOverstyrteData()) {
                         return HendelseVersjonType.OVERSTYRT;
-                    } else if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
-                        return HendelseVersjonType.BEKREFTET;
-                    } else {
-                        return HendelseVersjonType.SØKNAD;
                     }
+                    if (aggregat.get().getHarBekreftedeData() || aggregat.get().getSøknadVersjon() != null) {
+                        return HendelseVersjonType.BEKREFTET;
+                    }
+                    return HendelseVersjonType.SØKNAD;
                 }
                 return HendelseVersjonType.SØKNAD;
             }
@@ -270,7 +268,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             return mockBehandlingRepository;
         }
         repositoryProvider = mock(IAYRepositoryProvider.class);
-        BehandlingRepository behandlingRepository = lagBasicMockBehandlingRepository(repositoryProvider);
+        var behandlingRepository = lagBasicMockBehandlingRepository(repositoryProvider);
 
         when(behandlingRepository.hentBehandling(ArgumentMatchers.any(Long.class))).thenAnswer(a -> {
             Long id = a.getArgument(0);
@@ -287,7 +285,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
                             .findFirst();
                 });
 
-        ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
+        var behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
         when(behandlingRepository.taSkriveLås(behandlingCaptor.capture())).thenAnswer((Answer<BehandlingLås>) invocation -> {
             Behandling beh = invocation.getArgument(0);
             return new BehandlingLås(beh.getId()) {
@@ -297,7 +295,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         when(behandlingRepository.lagre(behandlingCaptor.capture(), ArgumentMatchers.any()))
                 .thenAnswer((Answer<Long>) invocation -> {
                     Behandling beh = invocation.getArgument(0);
-                    Long id = beh.getId();
+                    var id = beh.getId();
                     if (id == null) {
                         id = nyId();
                         beh.setId(id);
@@ -324,13 +322,13 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     public FagsakRepository mockFagsakRepository() {
-        FagsakRepository fagsakRepository = mock(FagsakRepository.class);
+        var fagsakRepository = mock(FagsakRepository.class);
         when(fagsakRepository.hentForBruker(ArgumentMatchers.any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
 
-        ArgumentCaptor<Fagsak> fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
+        var fagsakCaptor = ArgumentCaptor.forClass(Fagsak.class);
         when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {
             Fagsak fagsak = invocation.getArgument(0); // NOSONAR
-            Long id = fagsak.getId();
+            var id = fagsak.getId();
             if (id == null) {
                 id = fagsakId;
                 fagsak.setId(id);
@@ -372,8 +370,8 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     private void lagrePersonopplysning(IAYRepositoryProvider repositoryProvider, Behandling behandling) {
-        PersonopplysningRepository personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        Long behandlingId = behandling.getId();
+        var personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
+        var behandlingId = behandling.getId();
         if (oppgittAnnenPartBuilder != null) {
             personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
         }
@@ -397,7 +395,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
         if (behandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        Builder behandlingBuilder = grunnBuild(repositoryProvider);
+        var behandlingBuilder = grunnBuild(repositoryProvider);
 
         this.behandling = behandlingBuilder.build();
 
@@ -405,7 +403,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
             InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, startSteg);
         }
 
-        BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
+        var lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
 
         lagrePersonopplysning(repositoryProvider, behandling);
@@ -421,7 +419,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     }
 
     private Builder grunnBuild(IAYRepositoryProvider repositoryProvider) {
-        FagsakRepository fagsakRepo = repositoryProvider.getFagsakRepository();
+        var fagsakRepo = repositoryProvider.getFagsakRepository();
 
         if (fagsak == null) {
             lagFagsak(fagsakRepo);
@@ -435,22 +433,22 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = fagsakRepo.getEntityManager();
+            final var entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
-                NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
-                final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                var brukerRepository = new NavBrukerRepository(entityManager);
+                final var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
                         .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(), Språkkode.NB));
                 fagsakBuilder.medBruker(navBruker);
             }
         }
         fagsak = fagsakBuilder.build();
-        Long fagsakId = fagsakRepo.opprettNy(fagsak);
+        var fagsakId = fagsakRepo.opprettNy(fagsak);
         fagsak.setId(fagsakId);
     }
 
     private void lagreBehandlingsresultatOgVilkårResultat(IAYRepositoryProvider repoProvider, BehandlingLås lås) {
         // opprett og lagre behandlingsresultat med VilkårResultat og BehandlingVedtak
-        Behandlingsresultat behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
+        var behandlingsresultat = (behandlingresultatBuilder == null ? Behandlingsresultat.builderForInngangsvilkår()
                 : behandlingresultatBuilder).buildFor(behandling);
 
         repoProvider.getBehandlingRepository().lagre(behandlingsresultat.getVilkårResultat(), lås);
@@ -523,7 +521,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
     private final class MockPersonopplysningRepository extends PersonopplysningRepository {
         @Override
         public void kopierGrunnlagFraEksisterendeBehandlingForRevurdering(Long eksisterendeBehandlingId, Long nyBehandlingId) {
-            final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(eksisterendeBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());
@@ -545,7 +543,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, PersonInformasjonBuilder builder) {
-            final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             if (builder.getType().equals(PersonopplysningVersjonType.REGISTRERT)) {
                 oppdatere.medRegistrertVersjon(builder);
@@ -558,7 +556,7 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public void lagre(Long behandlingId, OppgittAnnenPartEntitet oppgittAnnenPart) {
-            final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null)));
             oppdatere.medOppgittAnnenPart(oppgittAnnenPart);
             personopplysningMap.put(behandlingId, oppdatere.build());
@@ -566,14 +564,14 @@ abstract class AbstractIAYTestScenario<S extends AbstractIAYTestScenario<S>> {
 
         @Override
         public PersonInformasjonBuilder opprettBuilderForRegisterdata(Long behandlingId) {
-            final Optional<PersonopplysningGrunnlagEntitet> grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
+            final var grunnlag = Optional.ofNullable(personopplysningMap.getOrDefault(behandlingId, null));
             return PersonInformasjonBuilder.oppdater(grunnlag.flatMap(PersonopplysningGrunnlagEntitet::getRegisterVersjon),
                     PersonopplysningVersjonType.REGISTRERT);
         }
 
         @Override
         public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
-            final PersonopplysningGrunnlagBuilder oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
+            final var oppdatere = PersonopplysningGrunnlagBuilder.oppdatere(
                     Optional.ofNullable(personopplysningMap.getOrDefault(gammelBehandlingId, null)));
 
             personopplysningMap.put(nyBehandlingId, oppdatere.build());

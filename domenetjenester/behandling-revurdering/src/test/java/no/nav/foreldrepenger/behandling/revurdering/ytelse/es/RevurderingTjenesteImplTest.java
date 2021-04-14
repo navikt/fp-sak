@@ -52,7 +52,7 @@ public class RevurderingTjenesteImplTest {
     @Test
     public void skal_opprette_automatisk_revurdering_basert_på_siste_innvilgede_behandling() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
-        final Behandling revurdering = revurderingTjeneste
+        final var revurdering = revurderingTjeneste
                 .opprettAutomatiskRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN, new OrganisasjonsEnhet("1234", "Test"));
 
@@ -64,8 +64,8 @@ public class RevurderingTjenesteImplTest {
     @Test
     public void skal_opprette_manuell_behandling_med_saksbehandler_som_historikk_aktør() {
         var behandlingSomSkalRevurderes = opprettRevurderingsKandidat();
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
-        final Behandling revurdering = revurderingTjeneste
+        var enhet = new OrganisasjonsEnhet("4806", "Nye Nav FP");
+        final var revurdering = revurderingTjeneste
                 .opprettManuellRevurdering(behandlingSomSkalRevurderes.getFagsak(),
                         BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE, enhet);
 

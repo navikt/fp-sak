@@ -15,12 +15,10 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.SøktPeriodeTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.svp.SøktPeriodeTjenesteImpl;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -56,7 +54,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         em.flush();
         em.clear();
 
-        RegelmodellSøknaderMapper regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
+        var regelmodellSøknaderMapper = new RegelmodellSøknaderMapper();
         SøktPeriodeTjeneste søktPeriodeTjeneste = new SøktPeriodeTjenesteImpl(regelmodellSøknaderMapper);
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(repositoryProvider, uttakInputTjeneste,
                 søktPeriodeTjeneste, førsteLovligeUttaksdatoTjeneste);
@@ -75,9 +73,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
-        BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
+        var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
         // Assert
@@ -104,9 +102,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
         var fagsak = behandling.getFagsak();
 
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
-        BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
+        var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
         em.flush();
         em.clear();
 
@@ -123,7 +121,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest {
     }
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato) {
-        final FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
+        final var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
                 .medAntallBarn(1)
                 .medFødselsDato(fødselsdato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);

@@ -27,7 +27,7 @@ class TilkjentYtelseForEngangsstønad {
 
     void overstyrTilkjentYtelse(Long behandlingId, LegacyESBeregning forrigeBeregning, Long tilkjentYtelse) {
 
-        LegacyESBeregning overstyrtBeregning = new LegacyESBeregning(forrigeBeregning.getSatsVerdi(),
+        var overstyrtBeregning = new LegacyESBeregning(forrigeBeregning.getSatsVerdi(),
                 forrigeBeregning.getAntallBarn(),
                 tilkjentYtelse,
                 LocalDateTime.now(),

@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.AvklarFaktaUttakPerioderTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.KontrollerFaktaData;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttakperioder.KontrollerFaktaPeriode;
@@ -38,13 +36,13 @@ public class KontrollerFaktaPeriodeTjeneste {
     }
 
     private KontrollerFaktaDataDto mapTilDto(KontrollerFaktaData kontrollerFaktaData) {
-        List<KontrollerFaktaPeriodeDto> dtoPerioder = kontrollerFaktaData.getPerioder().stream()
+        var dtoPerioder = kontrollerFaktaData.getPerioder().stream()
             .map(periode -> new KontrollerFaktaPeriodeDto.Builder(periode, arbeidsgiverReferanse(periode)).build()).collect(Collectors.toList());
         return new KontrollerFaktaDataDto(dtoPerioder);
     }
 
     private String arbeidsgiverReferanse(KontrollerFaktaPeriode periode) {
-        Arbeidsgiver arbeidsgiver = periode.getOppgittPeriode().getArbeidsgiver();
+        var arbeidsgiver = periode.getOppgittPeriode().getArbeidsgiver();
         return arbeidsgiver == null ?  null : arbeidsgiver.getIdentifikator();
     }
 }

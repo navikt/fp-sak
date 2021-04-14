@@ -9,10 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
 
 public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
 
@@ -29,7 +27,7 @@ public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_sette_totrinns_ved_endring_fakta_uttak() {
         //Scenario med avklar fakta uttak
-        ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
+        var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(behandlingRepositoryProvider);
@@ -37,9 +35,9 @@ public class FaktaUttakToTrinnsTjenesteTest extends EntityManagerAwareTest {
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
         // dto
-        FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
+        var dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
 
-        boolean totrinn = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste).oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
+        var totrinn = new FaktaUttakToTrinnsTjeneste(ytelseFordelingTjeneste).oppdaterTotrinnskontrollVedEndringerFaktaUttak(dto);
         //assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER)).isTrue();
         assertThat(totrinn).isTrue();

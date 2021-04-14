@@ -35,7 +35,7 @@ public class PerioderAleneOmsorgEntitet extends DokumentasjonPerioderEntitet {
     }
 
     private void leggTil(PeriodeAleneOmsorgEntitet periode) {
-        final PeriodeAleneOmsorgEntitet entitet = new PeriodeAleneOmsorgEntitet(periode);
+        final var entitet = new PeriodeAleneOmsorgEntitet(periode);
         entitet.setPerioder(this);
         this.perioder.add(entitet);
     }

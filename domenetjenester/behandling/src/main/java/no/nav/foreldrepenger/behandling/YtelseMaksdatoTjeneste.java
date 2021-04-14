@@ -17,19 +17,15 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -54,21 +50,21 @@ public class YtelseMaksdatoTjeneste {
             return Optional.empty();
         }
 
-        Optional<UttakResultatEntitet> uttakResultat = annenpartsUttak(saksnummer);
+        var uttakResultat = annenpartsUttak(saksnummer);
         if (uttakResultat.isPresent()) {
-            UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
+            var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
-            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(
+            var perArbeidsforhold = finnPerioderPerArbeidsforhold(
                     gjeldenePerioder.getPerioder());
             LocalDate maksdato = null;
-            for (Map.Entry<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> entry : perArbeidsforhold.entrySet()) {
-                List<UttakResultatPeriodeAktivitetEntitet> perioder = entry.getValue();
-                Optional<LocalDate> sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
+            for (var entry : perArbeidsforhold.entrySet()) {
+                var perioder = entry.getValue();
+                var sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
                 if (sisteUttaksdag.isEmpty()) {
                     return Optional.empty();
                 }
-                int tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, saksnummer);
-                LocalDate tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
+                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdager(perioder, saksnummer);
+                var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
                 if ((maksdato == null) || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
                 }
@@ -89,22 +85,22 @@ public class YtelseMaksdatoTjeneste {
 
     // TODO PK-48734 Her trengs det litt refaktorering
     public Optional<LocalDate> beregnMaksdatoForeldrepenger(BehandlingReferanse ref) {
-        Behandling behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.getBehandlingId());
-        Optional<UttakResultatEntitet> uttakResultat = annenpartsUttak(ref.getSaksnummer());
+        var behandling = repositoryProvider.getBehandlingRepository().hentBehandling(ref.getBehandlingId());
+        var uttakResultat = annenpartsUttak(ref.getSaksnummer());
         if (uttakResultat.isPresent()) {
-            UttakResultatPerioderEntitet gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
+            var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
-            Map<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> perArbeidsforhold = finnPerioderPerArbeidsforhold(
+            var perArbeidsforhold = finnPerioderPerArbeidsforhold(
                     gjeldenePerioder.getPerioder());
             LocalDate maksdato = null;
-            for (Map.Entry<UttakAktivitetEntitet, List<UttakResultatPeriodeAktivitetEntitet>> entry : perArbeidsforhold.entrySet()) {
-                List<UttakResultatPeriodeAktivitetEntitet> perioder = entry.getValue();
-                Optional<LocalDate> sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
+            for (var entry : perArbeidsforhold.entrySet()) {
+                var perioder = entry.getValue();
+                var sisteUttaksdag = finnMorsSisteUttaksdag(perioder);
                 if (!sisteUttaksdag.isPresent()) {
                     return Optional.empty();
                 }
-                int tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, behandling.getFagsak());
-                LocalDate tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
+                var tilgjengeligeStønadsdager = beregnTilgjengeligeStønadsdagerForeldrepenger(perioder, behandling.getFagsak());
+                var tmpMaksdato = plusVirkedager(sisteUttaksdag.get(), tilgjengeligeStønadsdager);
                 if ((maksdato == null) || maksdato.isBefore(tmpMaksdato)) {
                     maksdato = tmpMaksdato;
                 }
@@ -130,23 +126,23 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private int beregnTilgjengeligeStønadsdager(List<UttakResultatPeriodeAktivitetEntitet> perioder, Saksnummer saksnummer) {
-        FagsakRelasjon fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(saksnummer);
-        Optional<Stønadskontoberegning> optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
+        var fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(saksnummer);
+        var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
         if (optionalStønadskontoberegning.isPresent()) {
-            Set<Stønadskonto> stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
-            int tilgjengeligMødrekvote = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.MØDREKVOTE, perioder, stønadskontoer));
-            int tilgjengeligFellesperiode = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.FELLESPERIODE, perioder, stønadskontoer));
+            var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
+            var tilgjengeligMødrekvote = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.MØDREKVOTE, perioder, stønadskontoer));
+            var tilgjengeligFellesperiode = rundOpp(beregnTilgjengeligeDagerFor(StønadskontoType.FELLESPERIODE, perioder, stønadskontoer));
             return tilgjengeligFellesperiode + tilgjengeligMødrekvote;
         }
         return 0;
     }
 
     private int beregnTilgjengeligeStønadsdagerForeldrepenger(List<UttakResultatPeriodeAktivitetEntitet> perioder, Fagsak fagsak) {
-        FagsakRelasjon fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(fagsak);
-        Optional<Stønadskontoberegning> optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
+        var fagsakRelasjon = repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(fagsak);
+        var optionalStønadskontoberegning = fagsakRelasjon.getGjeldendeStønadskontoberegning();
         if (optionalStønadskontoberegning.isPresent()) {
-            Set<Stønadskonto> stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
-            BigDecimal tilgjengeligeDager = beregnTilgjengeligeDagerFor(StønadskontoType.FORELDREPENGER, perioder, stønadskontoer);
+            var stønadskontoer = optionalStønadskontoberegning.get().getStønadskontoer();
+            var tilgjengeligeDager = beregnTilgjengeligeDagerFor(StønadskontoType.FORELDREPENGER, perioder, stønadskontoer);
             return rundOpp(tilgjengeligeDager);
         }
         return 0;
@@ -158,20 +154,20 @@ public class YtelseMaksdatoTjeneste {
 
     private BigDecimal beregnTilgjengeligeDagerFor(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter,
             Set<Stønadskonto> stønadskontoer) {
-        Optional<Stønadskonto> optionalStønadskonto = stønadskontoer.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType()))
+        var optionalStønadskonto = stønadskontoer.stream().filter(s -> stønadskontoType.equals(s.getStønadskontoType()))
                 .findFirst();
         if (optionalStønadskonto.isPresent()) {
-            BigDecimal brukteDager = brukteDager(stønadskontoType, aktiviteter);
+            var brukteDager = brukteDager(stønadskontoType, aktiviteter);
 
-            BigDecimal tilgjengeligeDager = BigDecimal.valueOf(optionalStønadskonto.get().getMaxDager()).subtract(brukteDager);
+            var tilgjengeligeDager = BigDecimal.valueOf(optionalStønadskonto.get().getMaxDager()).subtract(brukteDager);
             return tilgjengeligeDager.compareTo(BigDecimal.ZERO) > 0 ? tilgjengeligeDager : BigDecimal.ZERO;
         }
         return BigDecimal.ZERO;
     }
 
     private BigDecimal brukteDager(StønadskontoType stønadskontoType, List<UttakResultatPeriodeAktivitetEntitet> aktiviteter) {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : aktiviteter) {
+        var sum = BigDecimal.ZERO;
+        for (var aktivitet : aktiviteter) {
             if (Objects.equals(aktivitet.getTrekkonto(), stønadskontoType)) {
                 sum = sum.add(aktivitet.getTrekkdager().decimalValue());
             }
@@ -180,18 +176,18 @@ public class YtelseMaksdatoTjeneste {
     }
 
     private static LocalDate plusVirkedager(LocalDate fom, int virkedager) {
-        int virkedager_pr_uke = 5;
-        int dager_pr_uke = 7;
-        LocalDate justertDatoForHelg = fom;
+        var virkedager_pr_uke = 5;
+        var dager_pr_uke = 7;
+        var justertDatoForHelg = fom;
         if (fom.getDayOfWeek().equals(DayOfWeek.SATURDAY) || fom.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             justertDatoForHelg = fom.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
         }
-        int padBefore = justertDatoForHelg.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
+        var padBefore = justertDatoForHelg.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue();
 
-        int paddedVirkedager = virkedager + padBefore;
+        var paddedVirkedager = virkedager + padBefore;
 
-        int uker = paddedVirkedager / virkedager_pr_uke;
-        int dager = paddedVirkedager % virkedager_pr_uke;
+        var uker = paddedVirkedager / virkedager_pr_uke;
+        var dager = paddedVirkedager % virkedager_pr_uke;
         return justertDatoForHelg.plusDays(((uker * dager_pr_uke) + dager) - (long) padBefore);
     }
 }

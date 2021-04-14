@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -127,14 +126,14 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     @Test
     public void skal_opprette_vedtaks_xml_med_oppdrag(EntityManager em) {
-        Behandling behandling = byggFødselBehandlingMedVedtak(em, true);
+        var behandling = byggFødselBehandlingMedVedtak(em, true);
         Long delytelseId = 65L;
-        String delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
-        String fagsystemIdXmlElement = String.format("fagsystemId>%s</", OPPDRAG_FAGSYSTEM_ID);
+        var delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
+        var fagsystemIdXmlElement = String.format("fagsystemId>%s</", OPPDRAG_FAGSYSTEM_ID);
         buildOppdragskontroll(behandling.getId(), delytelseId);
 
         // Act
-        String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
+        var xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
         assertThat(xml).isNotNull();
@@ -145,11 +144,11 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     @Test
     public void skal_opprette_vedtaks_xml_innvilget_uten_oppdrag(EntityManager em) {
-        Behandling behandling = byggFødselBehandlingMedVedtak(em, true);
-        String delytelseXmlElement = "delytelseId>";
+        var behandling = byggFødselBehandlingMedVedtak(em, true);
+        var delytelseXmlElement = "delytelseId>";
 
         // Act
-        String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
+        var xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
         assertThat(xml).isNotNull();
@@ -159,11 +158,11 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     @Test
     public void skal_opprette_vedtaks_xml_avslag_uten_oppdrag(EntityManager em) {
-        Behandling behandling = byggFødselBehandlingMedVedtak(em, false);
-        String delytelseXmlElement = "delytelseId>";
+        var behandling = byggFødselBehandlingMedVedtak(em, false);
+        var delytelseXmlElement = "delytelseId>";
 
         // Act
-        String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
+        var xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
         assertThat(xml).isNotNull();
@@ -173,11 +172,11 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     @Test
     public void skal_opprette_vedtaks_xml_adopsjon(EntityManager em) {
-        Behandling behandling = byggAdopsjonMedVedtak(em, true);
-        String adopsjonXmlElement = "adopsjon>";
+        var behandling = byggAdopsjonMedVedtak(em, true);
+        var adopsjonXmlElement = "adopsjon>";
 
         // Act
-        String xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
+        var xml = dvhVedtakXmlTjenesteES.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
         assertThat(xml).isNotNull();
@@ -190,14 +189,14 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
      * fødselsnummer. Men istedenfor aktørId.
      */
     private void assertPersonopplysningDvh(AktørId aktørId, String vedtaksXml) {
-        String aktørIdXmlElement = String.format("aktoerId>%s</", aktørId.getId());
-        String fødselsnummerXmlElement = "norskIdent>";
+        var aktørIdXmlElement = String.format("aktoerId>%s</", aktørId.getId());
+        var fødselsnummerXmlElement = "norskIdent>";
         assertThat(vedtaksXml).contains(aktørIdXmlElement);
         assertThat(vedtaksXml).doesNotContain(fødselsnummerXmlElement);
     }
 
     private Behandling byggAdopsjonMedVedtak(EntityManager em, boolean innvilget) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
                 .medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
@@ -212,7 +211,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private Behandling byggFødselBehandlingMedVedtak(EntityManager em, boolean innvilget) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
                 .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
                 .medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);
@@ -223,10 +222,10 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private Behandling lagreBehandlingOgVedtak(EntityManager em, boolean innvilget, ScenarioMorSøkerEngangsstønad scenario) {
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
-        BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        var vedtak = BehandlingVedtak.builder()
                 .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
                 .medIverksettingStatus(IVERKSETTING_STATUS)
                 .medVedtakstidspunkt(VEDTAK_DATO)
@@ -241,7 +240,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private void oppdaterMedBehandlingsresultat(EntityManager em, Behandling behandling, boolean innvilget) {
-        VilkårResultat vilkårResultat = VilkårResultat.builder()
+        var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null,
                         new Properties(), null, false, false, null, null)
                 .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
@@ -249,7 +248,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
         em.persist(vilkårResultat);
         if (innvilget) {
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-            LegacyESBeregningsresultat beregningResultat = LegacyESBeregningsresultat.builder()
+            var beregningResultat = LegacyESBeregningsresultat.builder()
                     .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
                     .buildFor(behandling, bres);
             em.persist(beregningResultat);
@@ -257,14 +256,14 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private void buildOppdragskontroll(Long behandlingId, Long delytelseId) {
-        Oppdragskontroll oppdrag = Oppdragskontroll.builder()
+        var oppdrag = Oppdragskontroll.builder()
                 .medBehandlingId(behandlingId)
                 .medSaksnummer(SAKSNUMMER)
                 .medVenterKvittering(false)
                 .medProsessTaskId(56L)
                 .build();
 
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag);
+        var oppdrag110 = buildOppdrag110(oppdrag);
         buildOppdragslinje150(oppdrag110, delytelseId);
         buildOppdragKvittering(oppdrag110);
 

@@ -34,7 +34,7 @@ public class FødselsvilkårFar implements RuleService<FødselsvilkårGrunnlag> 
     @SuppressWarnings("unchecked")
     @Override
     public Specification<FødselsvilkårGrunnlag> getSpecification() {
-        Ruleset<FødselsvilkårGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<FødselsvilkårGrunnlag>();
 
         Specification<FødselsvilkårGrunnlag> kanMorTaSegAvBarnetEtterFødselNode =
             rs.hvisRegel("FP_VK_11.4", "Er det sannsynlig at mor er så syk etter fødselen at hun ikke kan ta seg av barnet ...")

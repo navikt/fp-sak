@@ -33,8 +33,8 @@ class HistorikkInnslagTemaDto {
     }
 
     static HistorikkInnslagTemaDto mapFra(HistorikkinnslagFelt felt) {
-        HistorikkInnslagTemaDto dto = new HistorikkInnslagTemaDto();
-        HistorikkEndretFeltType endretFeltNavn = HistorikkEndretFeltType.fraKode(felt.getNavn());
+        var dto = new HistorikkInnslagTemaDto();
+        var endretFeltNavn = HistorikkEndretFeltType.fraKode(felt.getNavn());
         dto.setEndretFeltNavn(endretFeltNavn);
         dto.setNavnVerdi(felt.getNavnVerdi());
         dto.setKlNavn(felt.getKlNavn());

@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Period;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -64,23 +62,23 @@ public class EtterkontrollEventObserverTest {
     @Test
     public void observerFamiliehendelseEvent() {
 
-        Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
+        var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
-        Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
+        var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId()).medErBehandlet(false)
                 .medKontrollTidspunkt(LocalDate.now().atStartOfDay())
                 .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                 .build();
         etterkontrollRepository.lagre(etterkontroll);
 
-        FamiliehendelseEvent familiehendelseEvent = new FamiliehendelseEvent(
+        var familiehendelseEvent = new FamiliehendelseEvent(
                 FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL, behandling.getAktørId(),
                 behandling.getFagsakId(), behandling.getId(), FagsakYtelseType.FORELDREPENGER, null, null);
         etterkontrollEventObserver.observerFamiliehendelseEvent(familiehendelseEvent);
 
-        List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
+        var ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
                 KontrollType.MANGLENDE_FØDSEL);
 
-        for (Etterkontroll ek : ekListe) {
+        for (var ek : ekListe) {
             ek.setErBehandlet(true);
             assertThat(ek.isBehandlet()).isTrue();
         }
@@ -90,17 +88,17 @@ public class EtterkontrollEventObserverTest {
     @Test
     public void observerBehandlingVedtakEvent() {
 
-        Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
+        var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO);
 
-        BehandlingVedtak vedtak = byggVedtak();
-        BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak, behandling);
+        var vedtak = byggVedtak();
+        var event = new BehandlingVedtakEvent(vedtak, behandling);
         etterkontrollEventObserver.observerBehandlingVedtakEvent(event);
 
-        List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
+        var ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(),
                 KontrollType.MANGLENDE_FØDSEL);
 
         // Assert
-        for (Etterkontroll ek : ekListe) {
+        for (var ek : ekListe) {
             ek.setErBehandlet(true);
             assertThat(ek.isBehandlet()).isTrue();
         }
@@ -109,12 +107,12 @@ public class EtterkontrollEventObserverTest {
 
     private Behandling opprettBehandlingMedOppgittTermin(LocalDate termindato) {
 
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
                 .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT_OPPTJENING)
                 .medOpprinneligEndringsdato(SKJÆRINGSTIDSPUNKT_OPPTJENING)
                 .build();
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
                 .forFødselMedGittAktørId(GITT_MOR_AKTØR_ID);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medUtstedtDato(LocalDate.now())
@@ -122,14 +120,14 @@ public class EtterkontrollEventObserverTest {
                 .medNavnPå("LEGEN MIN"));
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
 
-        PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
+        var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
                 .kvinne(GITT_MOR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
                 .statsborgerskap(Landkoder.NOR)
                 .build();
         scenario.medRegisterOpplysninger(søker);
 
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = new OppgittRettighetEntitet(true, true, false);
         scenario.medOppgittRettighet(rettighet);
         return scenario.lagre(repositoryProvider);
     }

@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,13 +66,13 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     }
 
     InntektBuilder getInntektBuilder(InntektsKilde inntektsKilde, Opptjeningsnøkkel nøkkel) {
-        Optional<Inntekt> inntektOptional = getInntekt()
+        var inntektOptional = getInntekt()
                 .stream()
                 .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
                 .filter(i -> ((i.getArbeidsgiver() != null) && new Opptjeningsnøkkel(i.getArbeidsgiver()).matcher(nøkkel))
                         || inntektsKilde.equals(InntektsKilde.SIGRUN))
                 .findFirst();
-        InntektBuilder oppdatere = InntektBuilder.oppdatere(inntektOptional);
+        var oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {
             oppdatere.medInntektsKilde(inntektsKilde);
         }
@@ -81,14 +80,14 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     }
 
     public InntektBuilder getInntektBuilderForYtelser(InntektsKilde inntektsKilde) {
-        Optional<Inntekt> inntektOptional = getInntekt()
+        var inntektOptional = getInntekt()
                 .stream()
                 .filter(i -> i.getArbeidsgiver() == null)
                 .filter(i -> inntektsKilde.equals(i.getInntektsKilde()))
                 .filter(i -> i.getAlleInntektsposter().stream()
                         .anyMatch(post -> post.getInntektspostType().equals(InntektspostType.YTELSE)))
                 .findFirst();
-        InntektBuilder oppdatere = InntektBuilder.oppdatere(inntektOptional);
+        var oppdatere = InntektBuilder.oppdatere(inntektOptional);
         if (!oppdatere.getErOppdatering()) {
             oppdatere.medInntektsKilde(inntektsKilde);
         }
@@ -108,10 +107,11 @@ public class AktørInntekt extends BaseEntitet implements IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof AktørInntekt)) {
+        }
+        if (!(obj instanceof AktørInntekt)) {
             return false;
         }
-        AktørInntekt other = (AktørInntekt) obj;
+        var other = (AktørInntekt) obj;
         return Objects.equals(this.getAktørId(), other.getAktørId());
     }
 

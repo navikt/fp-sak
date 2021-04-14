@@ -36,8 +36,8 @@ public class Periode {
         if (måneder < 1) {
             throw new IllegalArgumentException("Perioden må inneholde minst 1 måned");
         }
-        LocalDate tom = dato.withDayOfMonth(1).minusDays(1);
-        LocalDate fom = tom.withDayOfMonth(1).minusMonths(måneder - 1);
+        var tom = dato.withDayOfMonth(1).minusDays(1);
+        var fom = tom.withDayOfMonth(1).minusMonths(måneder - 1);
         return new Periode(fom, tom);
     }
 
@@ -54,8 +54,8 @@ public class Periode {
         if (år < 1) {
             throw new IllegalArgumentException("Perioden må inneholde minst 1 år");
         }
-        LocalDate fom = date.minusYears(år).withDayOfYear(1);
-        LocalDate tom = fom.plusYears(år - 1).withMonth(12).withDayOfMonth(31);
+        var fom = date.minusYears(år).withDayOfYear(1);
+        var tom = fom.plusYears(år - 1).withMonth(12).withDayOfMonth(31);
         return new Periode(fom, tom);
     }
 
@@ -64,7 +64,7 @@ public class Periode {
         if (!(annen instanceof Periode)) {
             return false;
         }
-        Periode annenPeriode = (Periode) annen;
+        var annenPeriode = (Periode) annen;
         return fom.equals(annenPeriode.fom) && tom.equals(annenPeriode.tom);
     }
 
@@ -91,8 +91,8 @@ public class Periode {
     }
 
     public int antallMåneder() {
-        int antall = 0;
-        LocalDate fra = fom;
+        var antall = 0;
+        var fra = fom;
         while (fra.isBefore(tom)) {
             antall++;
             fra = fra.plusMonths(1);

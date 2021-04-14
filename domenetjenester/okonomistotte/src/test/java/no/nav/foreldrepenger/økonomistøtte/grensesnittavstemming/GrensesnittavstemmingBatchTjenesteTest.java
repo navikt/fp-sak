@@ -52,13 +52,13 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     @Test
     public void avstemmingUtenOppdragSkalIkkeSendeAvstemmingsmeldinger() {
         // Arrange
-        final HashMap<String, String> argMap = new HashMap<>();
+        final var argMap = new HashMap<String, String>();
         argMap.put("tom", "23-08-2017");
         argMap.put("fom", "17-08-2017");
         argMap.put("fagomrade", "FP");
 
         // Act
-        final String launch = grensesnittavstemmingApplikasjonTjeneste.launch(
+        final var launch = grensesnittavstemmingApplikasjonTjeneste.launch(
             new GrensesnittavstemmingBatchArguments(argMap));
         assertThat(launch).startsWith(grensesnittavstemmingApplikasjonTjeneste.getBatchName());
 
@@ -67,7 +67,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     }
 
     private void setupOppdragsliste() {
-        Oppdragskontroll oppdrag = opprettOppdrag();
+        var oppdrag = opprettOppdrag();
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
     }
 
@@ -75,7 +75,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     public void avstemmingSkalSendeAvstemmingsmeldingerUtenParametere() {
         // Arrange
         setupOppdragsliste();
-        final HashMap<String, String> argMap = new HashMap<>();
+        final var argMap = new HashMap<String, String>();
         argMap.put("fagomrade", "REFUTG");
 
         // Act
@@ -89,7 +89,7 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     public void avstemmingSkalSendeAvstemmingsmeldinger() {
         // Arrange
         setupOppdragsliste();
-        final HashMap<String, String> argMap = new HashMap<>();
+        final var argMap = new HashMap<String, String>();
         argMap.put("tom", "23-08-2017");
         argMap.put("fom", "17-08-2017");
         argMap.put("fagomrade", "REFUTG");
@@ -102,8 +102,8 @@ public class GrensesnittavstemmingBatchTjenesteTest {
     }
 
     private Oppdragskontroll opprettOppdrag() {
-        Oppdragskontroll oppdrag = new Oppdragskontroll();
-        Oppdrag110 o110 = new Oppdrag110.Builder()
+        var oppdrag = new Oppdragskontroll();
+        var o110 = new Oppdrag110.Builder()
             .medAvstemming(Avstemming.ny())
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(BehandleØkonomioppdragKvitteringTest.KODEFAGOMRADE_ES)

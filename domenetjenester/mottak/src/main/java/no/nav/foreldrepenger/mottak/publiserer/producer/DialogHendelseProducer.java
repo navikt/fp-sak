@@ -44,7 +44,7 @@ public class DialogHendelseProducer {
                                   @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                   @KonfigVerdi("systembruker.username") String username,
                                   @KonfigVerdi("systembruker.password") String password) {
-        Properties properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, topic.getProducerClientId(), username, password);
+        var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, topic.getProducerClientId(), username, password);
 
         this.producer = createProducer(properties);
     }
@@ -86,7 +86,7 @@ public class DialogHendelseProducer {
 
 
     public void sendJsonMedNøkkel(String nøkkel, String json) {
-        String callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
+        var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
         runProducerWithSingleJson(new ProducerRecord<>(topic.getTopic(), null, nøkkel, json, new RecordHeaders().add(CALLID_NAME, callId.getBytes()))); // NOSONAR
     }
 

@@ -38,7 +38,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -59,7 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -115,17 +113,17 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedFagsak() {
-        ScenarioMorSøkerEngangsstønad scenario = opprettFørstegangssøknad();
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Fagsak fagsak = behandling.getFagsak();
+        var scenario = opprettFørstegangssøknad();
+        var behandling = scenario.lagre(repositoryProvider);
+        var fagsak = behandling.getFagsak();
 
-        ArgumentCaptor<FagsakDvh> captor = ArgumentCaptor.forClass(FagsakDvh.class);
+        var captor = ArgumentCaptor.forClass(FagsakDvh.class);
 
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
         datavarehusTjeneste.lagreNedFagsak(fagsak.getId());
 
         verify(datavarehusRepository).lagre(captor.capture());
-        FagsakDvh fagsakDvh = captor.getValue();
+        var fagsakDvh = captor.getValue();
         assertThat(fagsakDvh.getFagsakId()).isEqualTo(fagsak.getId());
     }
 
@@ -137,24 +135,24 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedAksjonspunkter() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlingStegStart(BEHANDLING_STEG_TYPE);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 
         List<Aksjonspunkt> aksjonspunkter = new ArrayList<>(behandling.getAksjonspunkter());
-        ArgumentCaptor<AksjonspunktDvh> captor = ArgumentCaptor.forClass(AksjonspunktDvh.class);
+        var captor = ArgumentCaptor.forClass(AksjonspunktDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
 
         // Act
         datavarehusTjeneste.lagreNedAksjonspunkter(aksjonspunkter, behandling.getId(), BEHANDLING_STEG_TYPE);
 
         verify(datavarehusRepository, times(2)).lagre(captor.capture());
-        List<AksjonspunktDvh> aksjonspunktDvhList = captor.getAllValues();
+        var aksjonspunktDvhList = captor.getAllValues();
         assertThat(aksjonspunktDvhList.get(0).getAksjonspunktId()).isEqualTo(aksjonspunkter.get(0).getId());
         assertThat(aksjonspunktDvhList.get(0).getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(aksjonspunktDvhList.get(0).getBehandlingStegId())
@@ -164,34 +162,34 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedBehandlingStegTilstand() {
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
-        BehandlingStegTilstandSnapshot behandlingStegTilstand = new BehandlingStegTilstandSnapshot(behandling.getId(),
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
+        var behandlingStegTilstand = new BehandlingStegTilstandSnapshot(behandling.getId(),
             BEHANDLING_STEG_TYPE, BEHANDLING_STEG_STATUS);
 
-        ArgumentCaptor<BehandlingStegDvh> captor = ArgumentCaptor.forClass(BehandlingStegDvh.class);
+        var captor = ArgumentCaptor.forClass(BehandlingStegDvh.class);
 
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
         datavarehusTjeneste.lagreNedBehandlingStegTilstand(behandling.getId(), behandlingStegTilstand);
 
         verify(datavarehusRepository).lagre(captor.capture());
 
-        BehandlingStegDvh behandlingStegDvh = captor.getValue();
+        var behandlingStegDvh = captor.getValue();
         assertThat(behandlingStegDvh.getBehandlingStegId()).isEqualTo(behandlingStegTilstand.getId());
         assertThat(behandlingStegDvh.getBehandlingId()).isEqualTo(behandling.getId());
     }
 
     @Test
     public void lagreNedBehandling() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 
-        ArgumentCaptor<BehandlingDvh> captor = ArgumentCaptor.forClass(BehandlingDvh.class);
+        var captor = ArgumentCaptor.forClass(BehandlingDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
         datavarehusTjeneste.lagreNedBehandling(behandling.getId());
         // Act
@@ -202,15 +200,15 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedBehandlingMedMottattSøknadDokument() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
-        BehandlingRepositoryProvider behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandlingRepositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Simuler mottatt dokument
         when(mottattDokument.getDokumentType()).thenReturn(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
@@ -219,7 +217,7 @@ public class DatavarehusTjenesteImplTest {
         mottatteDokumenter.add(mottattDokument);
         when(mottatteDokumentRepository.hentMottatteDokument(behandling.getId())).thenReturn(mottatteDokumenter);
 
-        ArgumentCaptor<BehandlingDvh> captor = ArgumentCaptor.forClass(BehandlingDvh.class);
+        var captor = ArgumentCaptor.forClass(BehandlingDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(behandlingRepositoryProvider);
         datavarehusTjeneste.lagreNedBehandling(behandling.getId());
         // Act
@@ -231,17 +229,17 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreNedBehandlingMedId() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
 
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
 
-        ArgumentCaptor<BehandlingDvh> captor = ArgumentCaptor.forClass(BehandlingDvh.class);
+        var captor = ArgumentCaptor.forClass(BehandlingDvh.class);
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
         // Act
         datavarehusTjeneste.lagreNedBehandling(behandling.getId());
@@ -265,10 +263,10 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void skal_lagre_Ned_Vedtak_Xml() {
-        BehandlingVedtak vedtak = byggBehandlingVedtak();
-        Long behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
-        ArgumentCaptor<VedtakUtbetalingDvh> captor = ArgumentCaptor.forClass(VedtakUtbetalingDvh.class);
-        String xml = "<bob>bob</bob";
+        var vedtak = byggBehandlingVedtak();
+        var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
+        var captor = ArgumentCaptor.forClass(VedtakUtbetalingDvh.class);
+        var xml = "<bob>bob</bob";
         when(dvhVedtakTjenesteEngangsstønad.opprettDvhVedtakXml(any())).thenReturn(xml);
 
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(repositoryProvider);
@@ -280,18 +278,18 @@ public class DatavarehusTjenesteImplTest {
 
     @Test
     public void lagreKlageFormkrav() {
-        ScenarioMorSøkerEngangsstønad scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
-        Behandling påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
-        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
-        Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
+        var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
+        var påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
+        var scenarioKlageEngangsstønad = ScenarioKlageEngangsstønad.forFormKrav(scenarioMorSøkerEngangsstønad);
+        var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(VURDERING_AV_FORMKRAV_KLAGE_NFP), "Begrunnelse");
         var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
 
-        ArgumentCaptor<KlageFormkravDvh> captor = ArgumentCaptor.forClass(KlageFormkravDvh.class);
-        BehandlingRepositoryProvider behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
+        var captor = ArgumentCaptor.forClass(KlageFormkravDvh.class);
+        var behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
         DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(behandlingRepositoryProvider);
 
-        KlageFormkravEntitet.Builder formkravBuilder = KlageFormkravEntitet.builder()
+        var formkravBuilder = KlageFormkravEntitet.builder()
             .medKlageResultat(klageResultat)
             .medErFristOverholdt(true)
             .medErKlagerPart(true)
@@ -300,7 +298,7 @@ public class DatavarehusTjenesteImplTest {
             .medGjelderVedtak(true)
             .medKlageVurdertAv(KlageVurdertAv.NFP)
             .medBegrunnelse("dette er en begrunnelse.");
-        KlageFormkravEntitet klageFormkrav = formkravBuilder.build();
+        var klageFormkrav = formkravBuilder.build();
 
         when(klageRepository.hentGjeldendeKlageFormkrav(anyLong())).thenReturn(Optional.of(klageFormkrav));
 
@@ -318,16 +316,16 @@ public class DatavarehusTjenesteImplTest {
     @Test
     public void lagreKlageVurderingResultat() {
 
-        ScenarioMorSøkerEngangsstønad scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
-        Behandling påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
-        ScenarioKlageEngangsstønad scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad, KlageMedholdÅrsak.NYE_OPPLYSNINGER,
+        var scenarioMorSøkerEngangsstønad = opprettFørstegangssøknad();
+        var påklagdBehandling = scenarioMorSøkerEngangsstønad.lagMocked();
+        var scenarioKlageEngangsstønad = opprettKlageScenario(scenarioMorSøkerEngangsstønad, KlageMedholdÅrsak.NYE_OPPLYSNINGER,
             KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE);
         scenarioKlageEngangsstønad.medAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP, BehandlingStegType.KLAGE_NFP);
-        Behandling klageBehandling = scenarioKlageEngangsstønad.lagMocked();
+        var klageBehandling = scenarioKlageEngangsstønad.lagMocked();
         AksjonspunktTestSupport.setTilUtført(klageBehandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP), "Blah");
         var klageResultat = KlageResultatEntitet.builder().medKlageBehandlingId(klageBehandling.getId()).medPåKlagdBehandlingId(påklagdBehandling.getId()).build();
 
-        KlageVurderingResultat.Builder klageVurderingResultatBuilder = KlageVurderingResultat.builder();
+        var klageVurderingResultatBuilder = KlageVurderingResultat.builder();
         klageVurderingResultatBuilder
             .medKlageResultat(klageResultat)
             .medKlageMedholdÅrsak(KlageMedholdÅrsak.NYE_OPPLYSNINGER)
@@ -335,11 +333,11 @@ public class DatavarehusTjenesteImplTest {
             .medKlageVurderingOmgjør(KlageVurderingOmgjør.GUNST_MEDHOLD_I_KLAGE)
             .medKlageVurdertAv(KlageVurdertAv.NFP);
 
-        KlageVurderingResultat klageVurderingResultat = klageVurderingResultatBuilder.build();
+        var klageVurderingResultat = klageVurderingResultatBuilder.build();
 
-        ArgumentCaptor<KlageVurderingResultatDvh> captor = ArgumentCaptor.forClass(KlageVurderingResultatDvh.class);
+        var captor = ArgumentCaptor.forClass(KlageVurderingResultatDvh.class);
 
-        BehandlingRepositoryProvider behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
+        var behandlingRepositoryProvider = scenarioKlageEngangsstønad.mockBehandlingRepositoryProvider();
 
         when(klageRepository.hentGjeldendeKlageVurderingResultat(any())).thenReturn(Optional.of(klageVurderingResultat));
 
@@ -356,17 +354,17 @@ public class DatavarehusTjenesteImplTest {
 
     private ScenarioKlageEngangsstønad opprettKlageScenario(AbstractTestScenario<?> abstractTestScenario,
                                                             KlageMedholdÅrsak klageMedholdÅrsak, KlageVurderingOmgjør klageVurderingOmgjør) {
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
+        var scenario = ScenarioKlageEngangsstønad.forMedholdNFP(abstractTestScenario);
         return scenario.medKlageMedholdÅrsak(klageMedholdÅrsak).medKlageVurderingOmgjør(klageVurderingOmgjør);
     }
 
     private BehandlingVedtak byggBehandlingVedtak() {
-        ScenarioMorSøkerEngangsstønad scenario = opprettFørstegangssøknad();
+        var scenario = opprettFørstegangssøknad();
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var vedtak = BehandlingVedtak.builder()
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
             .medIverksettingStatus(IVERKSETTING_STATUS)
             .medVedtakstidspunkt(VEDTAK_DATO)
@@ -379,9 +377,9 @@ public class DatavarehusTjenesteImplTest {
     }
 
     private ScenarioMorSøkerEngangsstønad opprettFørstegangssøknad() {
-        LocalDate terminDato = LocalDate.now().plusDays(10);
+        var terminDato = LocalDate.now().plusDays(10);
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
             .medSaksnummer(SAKSNUMMER);
         scenario.medSøknadAnnenPart().medAktørId(ANNEN_PART_AKTØR_ID);

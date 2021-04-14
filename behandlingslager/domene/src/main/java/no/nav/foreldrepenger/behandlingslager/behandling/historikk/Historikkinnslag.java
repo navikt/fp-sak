@@ -237,7 +237,7 @@ public class Historikkinnslag extends BaseEntitet {
         if (!(o instanceof Historikkinnslag)) {
             return false;
         }
-        Historikkinnslag that = (Historikkinnslag) o;
+        var that = (Historikkinnslag) o;
         // FIXME: Her burde ikke generert id vært del av equals/hashcode. Bør fjernes. Evt. droppe equals/hashcode helt
         return Objects.equals(id, that.id) &&
             Objects.equals(behandlingId, that.behandlingId) &&

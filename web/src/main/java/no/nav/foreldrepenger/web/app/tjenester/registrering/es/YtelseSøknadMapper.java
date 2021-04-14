@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.ObjectFactory;
-import no.nav.vedtak.felles.xml.soeknad.felles.v3.SoekersRelasjonTilBarnet;
 import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
@@ -36,9 +35,9 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
     @Override
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
-        Soeknad søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
-        Engangsstønad engangsstønad = new Engangsstønad();
-        SoekersRelasjonTilBarnet søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto);
+        var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
+        var engangsstønad = new Engangsstønad();
+        var søkersRelasjonTilBarnet = mapRelasjonTilBarnet(registreringDto);
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         engangsstønad.setMedlemskap(SøknadMapperFelles.mapMedlemskap(registreringDto));
         engangsstønad.setAnnenForelder(mapAnnenForelder(registreringDto, personinfoAdapter));
@@ -48,7 +47,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     public OmYtelse mapOmYtelse(Engangsstønad ytelse) {
-        OmYtelse omYtelse = new OmYtelse();
+        var omYtelse = new OmYtelse();
         omYtelse.getAny().add(new ObjectFactory().createEngangsstønad(ytelse));
         return omYtelse;
     }

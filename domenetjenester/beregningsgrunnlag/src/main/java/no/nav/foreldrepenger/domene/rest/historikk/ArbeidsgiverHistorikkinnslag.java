@@ -34,7 +34,8 @@ public class ArbeidsgiverHistorikkinnslag {
         if (arbeidsgiver != null && arbeidsforholdRef != null
             && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
             return lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, arbeidsforholdRef, overstyringer);
-        } else if (arbeidsgiver != null) {
+        }
+        if (arbeidsgiver != null) {
             return lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer);
         }
         throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");

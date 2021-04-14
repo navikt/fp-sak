@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -54,14 +53,14 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         // Placeholder for å opprettet VKY når det kommer inn overlappende vedtak fra K9sak, VLSP, mfl
         if (prosessTaskData.getPropertyValue(K9_SAK_KEY) != null) {
-            String saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
-            String ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
-            LocalDate fom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-            LocalDate tom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            var saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
+            var ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
+            var fom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
+            var tom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
             LOG.info("Vedtatt-Ytelse task skal opprette VKY for {} {} {} {}", ytelse, saksnr, fom, tom);
             return;
         }
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         //kjøres for førstegangsvedtak og revurderingsvedtak for fp og SVP
         overlappsLoggerTjeneste.loggOverlappForVedtakFPSAK(behandlingId, behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         //kjøres kun for førstegangsvedtak for svp og fp

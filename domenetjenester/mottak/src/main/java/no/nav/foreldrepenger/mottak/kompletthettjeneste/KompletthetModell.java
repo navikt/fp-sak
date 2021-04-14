@@ -94,7 +94,7 @@ public class KompletthetModell {
     }
 
     public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, List<AksjonspunktDefinisjon> åpneAksjonspunkter) {
-        Optional<AksjonspunktDefinisjon> åpentAutopunkt = åpneAksjonspunkter.stream()
+        var åpentAutopunkt = åpneAksjonspunkter.stream()
             .findFirst();
         if (åpentAutopunkt.isPresent() && erAutopunktTilknyttetKompletthetssjekk(åpentAutopunkt)) {
             return vurderKompletthet(ref, åpentAutopunkt.get());
@@ -104,7 +104,7 @@ public class KompletthetModell {
             return KompletthetResultat.oppfylt();
         }
         // Default dersom ingen match på åpent autopunkt tilknyttet kompletthet OG kompletthetssjekk er passert
-        AksjonspunktDefinisjon defaultAutopunkt = finnSisteAutopunktKnyttetTilKompletthetssjekk(ref);
+        var defaultAutopunkt = finnSisteAutopunktKnyttetTilKompletthetssjekk(ref);
         return vurderKompletthet(ref, defaultAutopunkt);
     }
 
@@ -113,7 +113,7 @@ public class KompletthetModell {
     }
 
     private AksjonspunktDefinisjon finnSisteAutopunktKnyttetTilKompletthetssjekk(BehandlingReferanse ref) {
-        List<AksjonspunktDefinisjon> rangerteAutopunkter = rangerKompletthetsfunksjonerKnyttetTilAutopunkt(ref.getFagsakYtelseType(), ref.getBehandlingType());
+        var rangerteAutopunkter = rangerKompletthetsfunksjonerKnyttetTilAutopunkt(ref.getFagsakYtelseType(), ref.getBehandlingType());
         if (rangerteAutopunkter.isEmpty()) {
             throw new IllegalArgumentException("Utvklerfeil: Skal alltid finnes kompletthetsfunksjoner");
         }
@@ -122,7 +122,7 @@ public class KompletthetModell {
     }
 
     public KompletthetResultat vurderKompletthet(BehandlingReferanse ref, AksjonspunktDefinisjon autopunkt) {
-        BiFunction<KompletthetModell, BehandlingReferanse, KompletthetResultat> kompletthetsfunksjon = KOMPLETTHETSFUNKSJONER.get(autopunkt);
+        var kompletthetsfunksjon = KOMPLETTHETSFUNKSJONER.get(autopunkt);
         if (kompletthetsfunksjon == null) {
             throw new IllegalStateException("Utviklerfeil: Kan ikke finne kompletthetsfunksjon for autopunkt: " + autopunkt.getKode());
         }

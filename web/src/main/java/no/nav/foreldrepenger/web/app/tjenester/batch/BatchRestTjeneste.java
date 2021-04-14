@@ -25,9 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchSupportTjeneste;
-import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.batch.feil.BatchFeil;
 import no.nav.foreldrepenger.web.app.tjenester.batch.args.BatchArgumentsDto;
 import no.nav.vedtak.log.util.LoggerUtils;
@@ -83,16 +81,15 @@ public class BatchRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.BATCH)
     public Response startBatch(@NotNull @QueryParam("batchName") @Valid BatchNameDto batchName, @Valid BatchArgumentsDto args) {
-        String name = batchName.getVerdi();
-        final BatchTjeneste batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(name);
+        var name = batchName.getVerdi();
+        final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(name);
         if (batchTjeneste != null) {
-            final BatchArguments arguments = batchTjeneste.createArguments(args.getArguments());
+            final var arguments = batchTjeneste.createArguments(args.getArguments());
             if (arguments.isValid()) {
                 LOG.info("Starter batch {}", LoggerUtils.removeLineBreaks(name)); // NOSONAR
                 return Response.ok(batchTjeneste.launch(arguments)).build();
-            } else {
-                throw BatchFeil.ugyldigeJobParametere(arguments);
             }
+            throw BatchFeil.ugyldigeJobParametere(arguments);
         }
         LOG.warn("Ugyldig job-navn " + name);
         return Response.status(Response.Status.BAD_REQUEST).build();
@@ -108,8 +105,8 @@ public class BatchRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response poll(@NotNull @QueryParam("executionId") @Valid BatchExecutionDto dto) {
-        final String batchName = retrieveBatchServiceFrom(dto.getExecutionId());
-        final BatchTjeneste batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
+        final var batchName = retrieveBatchServiceFrom(dto.getExecutionId());
+        final var batchTjeneste = batchSupportTjeneste.finnBatchTjenesteForNavn(batchName);
         if (batchTjeneste != null) {
             return Response.ok(batchTjeneste.status(dto.getExecutionId()).value()).build();
         }

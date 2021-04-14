@@ -9,8 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -18,9 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningTjenesteTest extends EntityManagerAwareTest {
 
@@ -37,12 +33,12 @@ public class PersonopplysningTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_hente_gjeldende_personinformasjon_på_tidspunkt() {
-        LocalDate tidspunkt = LocalDate.now();
+        var tidspunkt = LocalDate.now();
         scenario.medDefaultSøknadTerminbekreftelse();
 
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
-        PersonInformasjon personInformasjon = scenario
+        var personInformasjon = scenario
             .opprettBuilderForRegisteropplysninger()
             .medPersonas()
             .kvinne(søkerAktørId, SivilstandType.SAMBOER)
@@ -56,10 +52,10 @@ public class PersonopplysningTjenesteTest extends EntityManagerAwareTest {
             .medPeriode(LocalDate.now().plusWeeks(8), LocalDate.now().plusWeeks(12))
             .build()), true));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        PersonopplysningerAggregat personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
+        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
             behandling.getAktørId(), tidspunkt);
         // Assert
         assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId())).isNotEmpty();

@@ -10,9 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.kontrakter.tilkjentytelse.v1.TilkjentYtelsePeriodeV1;
 import no.nav.foreldrepenger.økonomistøtte.tilkjentytelse.YtelseTypeTilkjentYtelseTjeneste;
@@ -36,15 +33,15 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
 
     @Override
     public List<TilkjentYtelsePeriodeV1> hentTilkjentYtelsePerioder(Long behandlingId) {
-        BehandlingVedtak vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
+        var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Vedtak er ikke fattet enda. Denne tjenesten er kun designet for bruk etter at vedta er fattet."));
 
-        Behandlingsresultat behandlingsresultat = vedtak.getBehandlingsresultat();
-        LegacyESBeregningsresultat beregningResultat = behandlingsresultat.getBeregningResultat();
+        var behandlingsresultat = vedtak.getBehandlingsresultat();
+        var beregningResultat = behandlingsresultat.getBeregningResultat();
         if (beregningResultat == null) {
             return Collections.emptyList();
         }
-        LegacyESBeregning beregning = beregningResultat.getSisteBeregning()
+        var beregning = beregningResultat.getSisteBeregning()
             .orElseThrow(() -> {
                 var msg = String.format("Behandlingen %s har ikke beregning", behandlingId);
                 return new TekniskException("FP-598399", msg);

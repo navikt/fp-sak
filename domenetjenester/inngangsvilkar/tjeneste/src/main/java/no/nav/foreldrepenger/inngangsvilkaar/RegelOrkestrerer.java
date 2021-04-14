@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,33 +43,33 @@ public class RegelOrkestrerer {
     }
 
     public RegelResultat vurderInngangsvilkår(Set<VilkårType> vilkårHåndtertAvSteg, Behandling behandling, BehandlingReferanse ref) {
-        VilkårResultat vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.getBehandlingId()).getVilkårResultat();
-        List<Vilkår> matchendeVilkårPåBehandling = vilkårResultat.getVilkårene().stream()
+        var vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.getBehandlingId()).getVilkårResultat();
+        var matchendeVilkårPåBehandling = vilkårResultat.getVilkårene().stream()
             .filter(v -> vilkårHåndtertAvSteg.contains(v.getVilkårType()))
             .collect(toList());
         validerMaksEttVilkår(matchendeVilkårPåBehandling);
 
-        Vilkår vilkår = matchendeVilkårPåBehandling.isEmpty() ? null : matchendeVilkårPåBehandling.get(0);
+        var vilkår = matchendeVilkårPåBehandling.isEmpty() ? null : matchendeVilkårPåBehandling.get(0);
         if (vilkår == null) {
             // Intet vilkår skal eksekveres i regelmotor, men sikrer at det samlede inngangsvilkår-utfallet blir korrekt
             // ved å utlede det fra alle vilkårsutfallene
-            Set<VilkårUtfallType> alleUtfall = hentAlleVilkårsutfall(vilkårResultat);
-            VilkårResultatType inngangsvilkårUtfall = utledInngangsvilkårUtfall(alleUtfall);
+            var alleUtfall = hentAlleVilkårsutfall(vilkårResultat);
+            var inngangsvilkårUtfall = utledInngangsvilkårUtfall(alleUtfall);
             oppdaterBehandlingMedVilkårresultat(behandling, inngangsvilkårUtfall);
             return new RegelResultat(vilkårResultat, emptyList(), emptyMap());
         }
 
-        VilkårData vilkårDataResultat = kjørRegelmotor(ref, vilkår);
+        var vilkårDataResultat = kjørRegelmotor(ref, vilkår);
 
         // Ekstraresultat
-        HashMap<VilkårType, Object> ekstraResultater = new HashMap<>();
+        var ekstraResultater = new HashMap<VilkårType, Object>();
         if (vilkårDataResultat.getEkstraVilkårresultat() != null) {
             ekstraResultater.put(vilkårDataResultat.getVilkårType(), vilkårDataResultat.getEkstraVilkårresultat());
         }
 
         // Inngangsvilkårutfall utledet fra alle vilkårsutfallene
-        Set<VilkårUtfallType> alleUtfall = sammenslåVilkårUtfall(vilkårResultat, vilkårDataResultat);
-        VilkårResultatType inngangsvilkårUtfall = utledInngangsvilkårUtfall(alleUtfall);
+        var alleUtfall = sammenslåVilkårUtfall(vilkårResultat, vilkårDataResultat);
+        var inngangsvilkårUtfall = utledInngangsvilkårUtfall(alleUtfall);
         oppdaterBehandlingMedVilkårresultat(behandling, vilkårDataResultat, inngangsvilkårUtfall);
 
         // Aksjonspunkter
@@ -97,18 +96,18 @@ public class RegelOrkestrerer {
     }
 
     protected VilkårData vurderVilkår(VilkårType vilkårType, BehandlingReferanse ref) {
-        Inngangsvilkår inngangsvilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, ref.getFagsakYtelseType());
+        var inngangsvilkår = inngangsvilkårTjeneste.finnVilkår(vilkårType, ref.getFagsakYtelseType());
         return inngangsvilkår.vurderVilkår(ref);
     }
 
     private Set<VilkårUtfallType> sammenslåVilkårUtfall(VilkårResultat vilkårResultat,
                                                         VilkårData vdRegelmotor) {
-        Map<VilkårType, Vilkår> vilkårTyper = vilkårResultat.getVilkårene().stream()
+        var vilkårTyper = vilkårResultat.getVilkårene().stream()
             .collect(toMap(v -> v.getVilkårType(), v -> v));
-        Map<VilkårType, VilkårUtfallType> vilkårUtfall = vilkårResultat.getVilkårene().stream()
+        var vilkårUtfall = vilkårResultat.getVilkårene().stream()
             .collect(toMap(v -> v.getVilkårType(), v -> v.getGjeldendeVilkårUtfall()));
 
-        Vilkår matchendeVilkår = vilkårTyper.get(vdRegelmotor.getVilkårType());
+        var matchendeVilkår = vilkårTyper.get(vdRegelmotor.getVilkårType());
         java.util.Objects.requireNonNull(matchendeVilkår, "skal finnes match"); //$NON-NLS-1$
         // Utfall fra automatisk regelvurdering skal legges til settet av utfall, dersom vilkår ikke er manuelt vurdert
         if (!(matchendeVilkår.erManueltVurdert() || matchendeVilkår.erOverstyrt())) {
@@ -123,11 +122,11 @@ public class RegelOrkestrerer {
     }
 
     public VilkårResultatType utledInngangsvilkårUtfall(Collection<VilkårUtfallType> vilkårene) {
-        boolean oppfylt = vilkårene.stream()
+        var oppfylt = vilkårene.stream()
             .anyMatch(utfall -> utfall.equals(VilkårUtfallType.OPPFYLT));
-        boolean ikkeOppfylt = vilkårene.stream()
+        var ikkeOppfylt = vilkårene.stream()
             .anyMatch(vilkår -> vilkår.equals(VilkårUtfallType.IKKE_OPPFYLT));
-        boolean ikkeVurdert = vilkårene.stream()
+        var ikkeVurdert = vilkårene.stream()
             .anyMatch(vilkår -> vilkår.equals(VilkårUtfallType.IKKE_VURDERT));
 
         // Enkeltutfallene per vilkår sammenstilles til et samlet vilkårsresultat.
@@ -147,7 +146,7 @@ public class RegelOrkestrerer {
     }
 
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling, VilkårResultatType inngangsvilkårUtfall) {
-        VilkårResultat.Builder builder = VilkårResultat
+        var builder = VilkårResultat
             .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
         builder.buildFor(behandling);
@@ -156,7 +155,7 @@ public class RegelOrkestrerer {
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling,
                                                      VilkårData vilkårData, VilkårResultatType inngangsvilkårUtfall) {
 
-        VilkårResultat.Builder builder = VilkårResultat
+        var builder = VilkårResultat
             .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
         builder.leggTilVilkårResultat(vilkårData.getVilkårType(),

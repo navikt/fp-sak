@@ -50,13 +50,16 @@ public class GrensesnittavstemmingBatchArguments extends BatchArguments {
         if (ANTALL_DAGER_KEY.equals(key)) {
             this.antallDager = Integer.valueOf(value);
             return true;
-        } else if (FOM_KEY.equals(key)) {
+        }
+        if (FOM_KEY.equals(key)) {
             this.fom = parsedato(value);
             return true;
-        } else if (TOM_KEY.equals(key)) {
+        }
+        if (TOM_KEY.equals(key)) {
             this.tom = parsedato(value);
             return true;
-        } else if (FAGOMRÅDE_KEY.equals(key)) {
+        }
+        if (FAGOMRÅDE_KEY.equals(key)) {
             this.fagområde = value;
             return true;
         }

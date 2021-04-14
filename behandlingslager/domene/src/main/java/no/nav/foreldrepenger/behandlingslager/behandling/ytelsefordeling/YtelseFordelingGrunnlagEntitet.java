@@ -215,7 +215,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        YtelseFordelingGrunnlagEntitet that = (YtelseFordelingGrunnlagEntitet) o;
+        var that = (YtelseFordelingGrunnlagEntitet) o;
         return aktiv == that.aktiv &&
             Objects.equals(oppgittFordeling, that.oppgittFordeling) &&
             Objects.equals(oppgittRettighet, that.oppgittRettighet) &&

@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -95,9 +94,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status, LocalDate uttakFom) {
-        LocalDate terminDato = uttakFom.plusWeeks(3);
+        var terminDato = uttakFom.plusWeeks(3);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse()
@@ -106,33 +105,33 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
 
         scenario.medBehandlingsresultat(
                 Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         if (BehandlingStatus.AVSLUTTET.equals(status)) {
             behandling.avsluttBehandling();
         }
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(uttakFom)
                 .build();
         BeregningsgrunnlagAktivitetStatus.builder()
                 .medAktivitetStatus(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)
                 .build(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.ny()
+        var periode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(uttakFom, uttakFom.plusMonths(3))
                 .build(beregningsgrunnlag);
         BeregningsgrunnlagPeriode.oppdater(periode)
                 .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        BeregningsresultatEntitet brFP = BeregningsresultatEntitet.builder()
+        var brFP = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();
-        BeregningsresultatPeriode brFPper = BeregningsresultatPeriode.builder()
+        var brFPper = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
                 .medBeregningsresultatAndeler(Collections.emptyList())
                 .build(brFP);

@@ -99,7 +99,7 @@ public class BehandlingVedtak extends BaseEntitet {
         if (!(object instanceof BehandlingVedtak)) {
             return false;
         }
-        BehandlingVedtak vedtak = (BehandlingVedtak) object;
+        var vedtak = (BehandlingVedtak) object;
         return Objects.equals(vedtakstidspunkt, vedtak.getVedtakstidspunkt())
                 && Objects.equals(ansvarligSaksbehandler, vedtak.getAnsvarligSaksbehandler())
                 && Objects.equals(getVedtakResultatType(), vedtak.getVedtakResultatType());
@@ -162,7 +162,7 @@ public class BehandlingVedtak extends BaseEntitet {
 
         public BehandlingVedtak build() {
             verifyStateForBuild();
-            BehandlingVedtak vedtak = new BehandlingVedtak();
+            var vedtak = new BehandlingVedtak();
             vedtak.vedtakstidspunkt = vedtakstidspunkt;
             vedtak.ansvarligSaksbehandler = ansvarligSaksbehandler;
             vedtak.vedtakResultatType = vedtakResultatType;

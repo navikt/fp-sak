@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.jsonfeed;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.domene.feed.UtgåendeHendelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.jsonfeed.dto.VedtakDto;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedElement;
-import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Innhold;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.VedtakMetadata;
 
@@ -46,20 +44,20 @@ public class VedtakFattetTjeneste {
 
     private <V extends UtgåendeHendelse> VedtakDto hentVedtak(Long sisteLestSekvensId, Long maxAntall, String hendelseType, Optional<AktørId> aktørId,
             Class<V> cls) {
-        HendelseCriteria.Builder builder = new HendelseCriteria.Builder()
+        var builder = new HendelseCriteria.Builder()
                 .medSisteLestSekvensId(sisteLestSekvensId)
                 .medType(hendelseType)
                 .medMaxAntall(maxAntall + 1); // sender med pluss 1 for å få utledet harFlereElementer
 
         aktørId.ifPresent(it -> builder.medAktørId(it.getId()));
 
-        HendelseCriteria hendelseCriteria = builder.build();
+        var hendelseCriteria = builder.build();
 
-        List<V> utgåendeHendelser = feedRepository.hentUtgåendeHendelser(cls, hendelseCriteria);
+        var utgåendeHendelser = feedRepository.hentUtgåendeHendelser(cls, hendelseCriteria);
 
-        List<FeedElement> feedElementer = utgåendeHendelser.stream().map(this::mapTilFeedElement).filter(Objects::nonNull)
+        var feedElementer = utgåendeHendelser.stream().map(this::mapTilFeedElement).filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        boolean harFlereElementer = feedElementer.size() > maxAntall;
+        var harFlereElementer = feedElementer.size() > maxAntall;
         if (harFlereElementer) {
             feedElementer.remove(feedElementer.size() - 1); // Ba om 1 ekstra for å få utledet harFlereElementer, så fjerner den fra
                                                             // outputen
@@ -69,12 +67,12 @@ public class VedtakFattetTjeneste {
     }
 
     private FeedElement mapTilFeedElement(UtgåendeHendelse hendelse) {
-        Meldingstype type = Meldingstype.fromType(hendelse.getType());
+        var type = Meldingstype.fromType(hendelse.getType());
         if (type == null) {
             throw new IllegalStateException("Utviklerfeil: Udefinert hendelsetype");
         }
 
-        Innhold innhold = JsonMapper.fromJson(hendelse.getPayload(), type.getMeldingsDto());
+        var innhold = JsonMapper.fromJson(hendelse.getPayload(), type.getMeldingsDto());
         return new FeedElement.Builder()
                 .medSekvensId(hendelse.getSekvensnummer())
                 .medType(hendelse.getType())

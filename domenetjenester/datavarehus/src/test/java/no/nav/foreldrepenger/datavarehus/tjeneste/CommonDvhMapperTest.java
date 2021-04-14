@@ -27,14 +27,14 @@ public class CommonDvhMapperTest {
     }
 
     private Behandling byggNyBehandling() {
-        Behandling behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
+        var behandling = ScenarioMorSøkerEngangsstønad.forFødsel().lagMocked();
         behandling.setOpprettetAv(OPPRETTET_AV);
         behandling.setOpprettetTidspunkt(OPPRETTET_TIDSPUNKT);
         return behandling;
     }
 
     private Behandling byggOppdatertBehandling() {
-        Behandling behandling = byggNyBehandling();
+        var behandling = byggNyBehandling();
         behandling.setEndretAv(ENDRET_AV);
         behandling.setEndretTidspunkt(ENDRET_TIDSPUNKT);
         return behandling;

@@ -39,7 +39,7 @@ public class RefusjonInfo156Dto extends SporingDto {
     }
 
     public static RefusjonInfo156Dto fraDomene(Refusjonsinfo156 refusjonsInfo156) {
-        RefusjonInfo156Dto refusjonInfo156Dto = new RefusjonInfo156Dto(refusjonsInfo156);
+        var refusjonInfo156Dto = new RefusjonInfo156Dto(refusjonsInfo156);
         refusjonInfo156Dto.maksDato = refusjonsInfo156.getMaksDato();
         refusjonInfo156Dto.refunderesId = refusjonsInfo156.getRefunderesId();
         refusjonInfo156Dto.datoFom = refusjonsInfo156.getDatoFom();

@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.PermisjonDto;
-import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 
@@ -22,14 +21,14 @@ public class UtledBekreftetPermisjonTest {
     @Test
     public void skal_utlede_bekreftet_permisjon_med_status_UGYLDIGE_PERIODER_og_periode_lik_null() {
         // Arrange
-        PermisjonDto permisjonDto1 = new PermisjonDto(DAGENS_DATO, DAGENS_DATO.plusWeeks(1), BigDecimal.valueOf(100),
+        var permisjonDto1 = new PermisjonDto(DAGENS_DATO, DAGENS_DATO.plusWeeks(1), BigDecimal.valueOf(100),
                 PermisjonsbeskrivelseType.PERMISJON);
-        PermisjonDto permisjonDto2 = new PermisjonDto(DAGENS_DATO, null, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.PERMISJON);
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var permisjonDto2 = new PermisjonDto(DAGENS_DATO, null, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.PERMISJON);
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(false);
         arbeidsforholdDto.setPermisjoner(List.of(permisjonDto1, permisjonDto2));
         // Act
-        BekreftetPermisjon bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
+        var bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
         // Assert
         assertThat(bekreftetPermisjon.getStatus()).isEqualTo(BekreftetPermisjonStatus.UGYLDIGE_PERIODER);
         assertThat(bekreftetPermisjon.getPeriode()).isNull();
@@ -38,13 +37,13 @@ public class UtledBekreftetPermisjonTest {
     @Test
     public void skal_utlede_bekreftet_permisjon_med_status_BRUK_PERMISJON_og_periode_med_tom_definert() {
         // Arrange
-        PermisjonDto permisjonDto = new PermisjonDto(DAGENS_DATO, DAGENS_DATO.plusWeeks(1), BigDecimal.valueOf(100),
+        var permisjonDto = new PermisjonDto(DAGENS_DATO, DAGENS_DATO.plusWeeks(1), BigDecimal.valueOf(100),
                 PermisjonsbeskrivelseType.PERMISJON);
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(true);
         arbeidsforholdDto.setPermisjoner(List.of(permisjonDto));
         // Act
-        BekreftetPermisjon bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
+        var bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
         // Assert
         assertThat(bekreftetPermisjon.getStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
         assertThat(bekreftetPermisjon.getPeriode().getFomDato()).isEqualTo(DAGENS_DATO);
@@ -54,12 +53,12 @@ public class UtledBekreftetPermisjonTest {
     @Test
     public void skal_utlede_bekreftet_permisjon_med_status_BRUK_PERMISJON_og_periode_med_tom_lik_null() {
         // Arrange
-        PermisjonDto permisjonDto = new PermisjonDto(DAGENS_DATO, null, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.PERMISJON);
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var permisjonDto = new PermisjonDto(DAGENS_DATO, null, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.PERMISJON);
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(true);
         arbeidsforholdDto.setPermisjoner(List.of(permisjonDto));
         // Act
-        BekreftetPermisjon bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
+        var bekreftetPermisjon = UtledBekreftetPermisjon.utled(arbeidsforholdDto);
         // Assert
         assertThat(bekreftetPermisjon.getStatus()).isEqualTo(BekreftetPermisjonStatus.BRUK_PERMISJON);
         assertThat(bekreftetPermisjon.getPeriode().getFomDato()).isEqualTo(DAGENS_DATO);
@@ -69,7 +68,7 @@ public class UtledBekreftetPermisjonTest {
     @Test
     public void skal_kaste_exception_hvis_utledet_status_er_udefinert() {
         // Arrange
-        ArbeidsforholdDto arbeidsforholdDto = new ArbeidsforholdDto();
+        var arbeidsforholdDto = new ArbeidsforholdDto();
         arbeidsforholdDto.setBrukPermisjon(null);
         arbeidsforholdDto.setPermisjoner(List.of());
         // Act

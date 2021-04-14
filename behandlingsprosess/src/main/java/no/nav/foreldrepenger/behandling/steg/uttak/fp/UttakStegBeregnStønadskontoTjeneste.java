@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
-import java.time.LocalDate;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -57,7 +55,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
         if (fagsakRelasjon.getStønadskontoberegning().isEmpty() || !finnesLøpendeInnvilgetFP(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
             return BeregningingAvStønadskontoResultat.BEREGNET;
-        } else if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)) {
+        }
+        if (dekningsgradTjeneste.behandlingHarEndretDekningsgrad(ref) || oppfyllerPrematurUker(fpGrunnlag)) {
             beregnStønadskontoerTjeneste.overstyrStønadskontoberegning(input);
             return BeregningingAvStønadskontoResultat.OVERSTYRT;
         }
@@ -80,8 +79,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
 
     private boolean oppfyllerPrematurUker(ForeldrepengerGrunnlag fpGrunnlag) {
         var gjeldendeFamilieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        LocalDate fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
-        LocalDate termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
+        var fødselsdato = gjeldendeFamilieHendelse.getFødselsdato().orElse(null);
+        var termindato = gjeldendeFamilieHendelse.getTermindato().orElse(null);
         return PrematurukerUtil.oppfyllerKravTilPrematuruker(fødselsdato, termindato, StandardKonfigurasjon.KONFIGURASJON);
     }
 

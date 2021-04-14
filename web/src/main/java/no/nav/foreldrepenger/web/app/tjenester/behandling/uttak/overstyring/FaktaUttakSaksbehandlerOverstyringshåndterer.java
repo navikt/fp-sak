@@ -68,7 +68,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndterer extends AbstractOvers
     }
 
     private boolean erManuellRevurdering(Behandling behandling) {
-        boolean erÅrsakHendelse = behandling.getBehandlingÅrsaker().stream().anyMatch(årsak -> Objects.equals(BehandlingÅrsakType.RE_HENDELSE_FØDSEL, årsak.getBehandlingÅrsakType()));
+        var erÅrsakHendelse = behandling.getBehandlingÅrsaker().stream().anyMatch(årsak -> Objects.equals(BehandlingÅrsakType.RE_HENDELSE_FØDSEL, årsak.getBehandlingÅrsakType()));
         return Objects.equals(BehandlingType.REVURDERING, behandling.getType()) && (behandling.erManueltOpprettet() || erÅrsakHendelse);
     }
 

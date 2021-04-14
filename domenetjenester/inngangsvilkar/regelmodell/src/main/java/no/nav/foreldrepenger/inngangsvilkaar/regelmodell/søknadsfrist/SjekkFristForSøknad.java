@@ -12,7 +12,6 @@ import no.nav.fpsak.nare.doc.RuleOutcomeDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
-import no.nav.fpsak.nare.evaluation.node.SingleEvaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 /**
@@ -51,8 +50,8 @@ public class SjekkFristForSøknad extends LeafSpecification<SoeknadsfristvilkarG
 
     @Override
     public Evaluation evaluate(SoeknadsfristvilkarGrunnlag t) {
-        LocalDate skjæringstidspunktDato = t.getSkjaeringstidspunkt();
-        LocalDate søknadsDato = t.getSoeknadMottatDato();
+        var skjæringstidspunktDato = t.getSkjaeringstidspunkt();
+        var søknadsDato = t.getSoeknadMottatDato();
 
         if (skjæringstidspunktDato == null) {
             throw new IllegalArgumentException("Mangler skjæringstidspunktDato i :" + t);
@@ -61,26 +60,25 @@ public class SjekkFristForSøknad extends LeafSpecification<SoeknadsfristvilkarG
             throw new IllegalArgumentException("Mangler søknadsDato i :" + t);
         }
 
-        LocalDate fraFristDato = skjæringstidspunktDato.plus(fristFørSøknad);
-        int tellVirkedagerFra = antallDagerTotaltNårTellerVirkedager(fraFristDato, utvidAntallVirkedager);
-        LocalDate sisteDato = fraFristDato.plusDays(tellVirkedagerFra);
+        var fraFristDato = skjæringstidspunktDato.plus(fristFørSøknad);
+        var tellVirkedagerFra = antallDagerTotaltNårTellerVirkedager(fraFristDato, utvidAntallVirkedager);
+        var sisteDato = fraFristDato.plusDays(tellVirkedagerFra);
 
-        long diffFrist = DAYS.between(sisteDato, søknadsDato);
+        var diffFrist = DAYS.between(sisteDato, søknadsDato);
 
         if (diffFrist <= 0) {
             return ja();
-        } else {
-            SingleEvaluation kanIkkeVurdere = kanIkkeVurdere(IKKE_OPPFYLT_ETTER_FRIST, søknadsDato, diffFrist, fristFørSøknad,
-                    skjæringstidspunktDato);
-            kanIkkeVurdere.setEvaluationProperty(DAGER_FOR_SENT_PROPERTY, String.valueOf(diffFrist));
-            return kanIkkeVurdere;
         }
+        var kanIkkeVurdere = kanIkkeVurdere(IKKE_OPPFYLT_ETTER_FRIST, søknadsDato, diffFrist, fristFørSøknad,
+                skjæringstidspunktDato);
+        kanIkkeVurdere.setEvaluationProperty(DAGER_FOR_SENT_PROPERTY, String.valueOf(diffFrist));
+        return kanIkkeVurdere;
 
     }
 
     private int antallDagerTotaltNårTellerVirkedager(LocalDate dato, int antallVirkedager) {
-        LocalDate result = dato;
-        int addedDays = 0;
+        var result = dato;
+        var addedDays = 0;
         while (addedDays < antallVirkedager) {
             result = result.plusDays(1);
             if (!(WEEKEND.contains(result.getDayOfWeek()))) {

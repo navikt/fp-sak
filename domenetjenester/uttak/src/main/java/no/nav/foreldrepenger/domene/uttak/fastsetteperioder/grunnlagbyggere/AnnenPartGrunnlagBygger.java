@@ -78,7 +78,8 @@ public class AnnenPartGrunnlagBygger {
     private static AnnenpartUttakPeriode.Builder utledBuilder(UttakResultatPeriodeEntitet periode) {
         if (periode.erUtsettelse()) {
             return utsettelseBuilder(periode);
-        } else if (erOpphold(periode)) {
+        }
+        if (erOpphold(periode)) {
             return oppholdBuilder(periode);
         }
         return uttakBuilder(periode);

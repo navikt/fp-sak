@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 
 public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
@@ -82,13 +81,13 @@ public class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
 
         var event = new AksjonspunktStatusEvent(behandlingskontrollKontekst, List.of(manuellpunkt, autopunkt), null);
 
-        ArgumentCaptor<Historikkinnslag> captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
         observer.oppretteHistorikkForBehandlingPåVent(event);
 
         verify(historikkRepository).lagre(captor.capture());
-        Historikkinnslag historikkinnslag = captor.getValue();
-        HistorikkinnslagDel historikkinnslagDel = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var historikkinnslag = captor.getValue();
+        var historikkinnslagDel = historikkinnslag.getHistorikkinnslagDeler().get(0);
 
         assertThat(historikkinnslag.getBehandlingId()).isEqualTo(behandlingId);
         assertThat(historikkinnslagDel.getHendelse()).hasValueSatisfying(hendelse -> {

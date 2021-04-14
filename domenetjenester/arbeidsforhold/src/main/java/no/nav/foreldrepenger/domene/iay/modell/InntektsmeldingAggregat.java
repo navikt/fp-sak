@@ -35,7 +35,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
 
     public InntektsmeldingAggregat(Collection<Inntektsmelding> inntektsmeldinger) {
         this.inntektsmeldinger.addAll(inntektsmeldinger.stream().map(i -> {
-            final Inntektsmelding inntektsmelding = new Inntektsmelding(i);
+            final var inntektsmelding = new Inntektsmelding(i);
             return inntektsmelding;
         }).collect(Collectors.toList()));
     }
@@ -85,10 +85,10 @@ public class InntektsmeldingAggregat extends BaseEntitet {
      */
     public void leggTil(Inntektsmelding inntektsmelding) {
 
-        boolean fjernet = inntektsmeldinger.removeIf(it -> skalFjerneInntektsmelding(it, inntektsmelding));
+        var fjernet = inntektsmeldinger.removeIf(it -> skalFjerneInntektsmelding(it, inntektsmelding));
 
         if (fjernet || inntektsmeldinger.stream().noneMatch(it -> it.gjelderSammeArbeidsforhold(inntektsmelding))) {
-            final Inntektsmelding entitet = inntektsmelding;
+            final var entitet = inntektsmelding;
             inntektsmeldinger.add(entitet);
         }
 
@@ -136,7 +136,7 @@ public class InntektsmeldingAggregat extends BaseEntitet {
         if ((o == null) || !(o instanceof InntektsmeldingAggregat)) {
             return false;
         }
-        InntektsmeldingAggregat that = (InntektsmeldingAggregat) o;
+        var that = (InntektsmeldingAggregat) o;
         return Objects.equals(inntektsmeldinger, that.inntektsmeldinger);
     }
 

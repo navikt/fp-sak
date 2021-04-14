@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -21,7 +19,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en
@@ -54,17 +51,17 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
 
     @Override
     public String launch(BatchArguments arguments) {
-        AutomatiskGrunnbelopReguleringBatchArguments opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments) arguments;
-        String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
-        BeregningSats gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
-        BeregningSats forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
+        var opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments) arguments;
+        var executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
+        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
+        var gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
+        var forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
                 gjeldende.getPeriode().getFomDato().minusDays(1));
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        long avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
-        List<Tuple<Long, AktørId>> tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(),
+        var avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
+        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(),
                 avkortingAntallG, gjeldende.getPeriode().getFomDato());
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
@@ -85,7 +82,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
     }
 
     private void opprettReguleringTask(Long fagsakId, AktørId aktørId, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskRepository.lagre(prosessTaskData);

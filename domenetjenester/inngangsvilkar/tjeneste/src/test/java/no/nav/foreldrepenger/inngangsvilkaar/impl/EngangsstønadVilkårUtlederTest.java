@@ -15,12 +15,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -30,15 +27,15 @@ public class EngangsstønadVilkårUtlederTest {
     @Test
     public void skal_opprette_vilkår_for_mor_som_søker_stønad_fødsel() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling behandling = scenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final Optional<FamilieHendelseType> familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
+        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
 
         // Assert
         assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(FØDSELSVILKÅRET_MOR);
@@ -49,15 +46,15 @@ public class EngangsstønadVilkårUtlederTest {
     @Test
     public void skal_opprette_vilkår_for_mor_som_søker_stønad_adopsjon() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now()));
-        Behandling behandling = scenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final Optional<FamilieHendelseType> familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
+        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
 
         // Assert
         assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
@@ -68,17 +65,17 @@ public class EngangsstønadVilkårUtlederTest {
     @Test
     public void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medAdoptererAlene(true)
             .medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
-        Behandling behandling = scenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final Optional<FamilieHendelseType> familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
+        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
 
         // Assert
         assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper()).containsExactly(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
@@ -89,17 +86,17 @@ public class EngangsstønadVilkårUtlederTest {
     @Test
     public void skal_opprette_vilkår_for_far_som_søker_stønad_adopsjon_ikke_alene() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now())
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ANDRE_FORELDER_DØD);
-        Behandling behandling = scenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final Optional<FamilieHendelseType> familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
+        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
 
         // Assert
         assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper())
@@ -111,17 +108,17 @@ public class EngangsstønadVilkårUtlederTest {
     @Test
     public void skal_opprette_vilkår_når_far_søker_om_omsorgsovertakelse_ved_fødsel() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
             .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET).medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG_F);
-        Behandling behandling = scenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var behandling = scenario.lagMocked();
+        final var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         // Act
-        final Optional<FamilieHendelseType> familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
+        final var familieHendelseType = repositoryProvider.getFamilieHendelseRepository().hentAggregatHvisEksisterer(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon).map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, familieHendelseType);
 
         // Assert
         assertThat(utledeteVilkår.getPotensielleBetingedeVilkårtyper())

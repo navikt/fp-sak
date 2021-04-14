@@ -18,11 +18,11 @@ public final class HistorikkinnslagTekstBuilderFormater {
             return null;
         }
         if (verdi instanceof LocalDate) {
-            LocalDate localDate = (LocalDate) verdi;
+            var localDate = (LocalDate) verdi;
             return formatDate(localDate);
         }
         if (verdi instanceof LocalDateInterval) {
-            LocalDateInterval interval = (LocalDateInterval) verdi;
+            var interval = (LocalDateInterval) verdi;
             return formatDate(interval.getFomDato()) + " - " + formatDate(interval.getTomDato());
         }
         return verdi.toString();

@@ -108,9 +108,9 @@ public class InformasjonssakRepository {
          * uttaksdato i gitt intervall - Begrenset til ikke aleneomsorg - Begrenset til
          * levende barm - Begrenset til at det er oppgitt annen part
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
-        Query query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_VANLIG);
+        var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_VANLIG);
         query.setParameter("fomdato", fom); //$NON-NLS-1$
         query.setParameter("tomdato", tom); //$NON-NLS-1$ 7
         query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode()); //$NON-NLS-1$
@@ -170,9 +170,9 @@ public class InformasjonssakRepository {
          * aleneomsorg - Begrenset til levende barm - Begrenset til at det er oppgitt
          * annen part
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
-        Query query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_OPPHOLD);
+        var query = entityManager.createNativeQuery(QUERY_INFORMASJONSBREV_OPPHOLD);
         query.setParameter("tomdato", tom); //$NON-NLS-1$
         query.setParameter("fomdato", fom); //$NON-NLS-1$ 7
         query.setParameter("uttakinnvilget", PeriodeResultatType.INNVILGET.getKode()); //$NON-NLS-1$
@@ -192,7 +192,7 @@ public class InformasjonssakRepository {
     private List<InformasjonssakData> toInformasjonssakData(List<Object[]> resultatList) {
         List<InformasjonssakData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
-            InformasjonssakData.InformasjonssakDataBuilder builder = InformasjonssakData.InformasjonssakDataBuilder
+            var builder = InformasjonssakData.InformasjonssakDataBuilder
                     .ny(((BigDecimal) resultat[POS_FAGSAKID]).longValue()) // NOSONAR
                     .medAktørIdAnnenPart((String) resultat[POS_AKTORID]) // NOSONAR
                     .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate()) // NOSONAR
@@ -236,7 +236,7 @@ public class InformasjonssakRepository {
          * periode, inkusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
          * første periode
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
@@ -262,7 +262,7 @@ public class InformasjonssakRepository {
     private List<OverlappData> toOverlappData(List<Object[]> resultatList) {
         List<OverlappData> returnList = new ArrayList<>();
         resultatList.forEach(resultat -> {
-            OverlappData.OverlappDataBuilder builder = OverlappData.OverlappDataBuilder.ny()
+            var builder = OverlappData.OverlappDataBuilder.ny()
                     .medSaksnummer((String) resultat[0]) // NOSONAR
                     .medYtelseType((String) resultat[1]) // NOSONAR
                     .medAktørId((String) resultat[2]) // NOSONAR
@@ -301,7 +301,7 @@ public class InformasjonssakRepository {
          * periode, inkusive innvilget utsettelse. - Kan gi noen tilfelle med avslått
          * første periode
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
@@ -340,7 +340,7 @@ public class InformasjonssakRepository {
         /*
          * Plukker behandlingId for senest avsluttetde behandling for fagsaker opprettet innen gitt tidsrom
          */
-        List<String> avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
+        var avsluttendeStatus = BehandlingStatus.getFerdigbehandletStatuser().stream().map(BehandlingStatus::getKode)
             .collect(Collectors.toList());
         Query query;
         query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FERIE); //$NON-NLS-1$

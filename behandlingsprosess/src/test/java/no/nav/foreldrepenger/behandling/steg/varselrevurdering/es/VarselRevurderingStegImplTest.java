@@ -5,12 +5,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -19,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 
 public class VarselRevurderingStegImplTest {
@@ -34,7 +31,7 @@ public class VarselRevurderingStegImplTest {
 
     @BeforeEach
     public void setup() {
-        Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
         behandlingBuilder = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).medBehandlingstidFrist(BEHANDLINGSTID_FRIST);
 
         behandlingRepository = mock(BehandlingRepository.class);
@@ -47,41 +44,41 @@ public class VarselRevurderingStegImplTest {
 
     @Test
     public void utførerUtenAksjonspunktVedAvvikIAntallBarn() {
-        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
+        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
+        var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).isEmpty();
     }
 
     @Test
     public void utførerUtenAksjonspunktVedVedtakMellomUke26Og29() {
-        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
+        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE))
                 .build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
+        var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).isEmpty();
     }
 
     @Test
     public void varslerAutomatiskOgSetterBehandlingPåVentNårIngenBarnITps() {
-        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
+        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)).build();
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         behandling.setId(behandlingId);
 
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
 
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandleStegResultat.getAksjonspunktListe()).hasSize(1);
@@ -93,14 +90,14 @@ public class VarselRevurderingStegImplTest {
 
     @Test
     public void utførerMedAksjonspunktVedManueltOpprettetRevurdering() {
-        Behandling behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE)).build();
+        var behandling = behandlingBuilder.medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE)).build();
         behandling.setId(behandlingId);
         // Whitebox.setInternalState(behandling, "id", behandlingId);
         when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(behandling);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
+        var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).hasSize(1);
         assertThat(aksjonspunkter.get(0)).isEqualTo(AksjonspunktDefinisjon.VARSEL_REVURDERING_MANUELL);
     }

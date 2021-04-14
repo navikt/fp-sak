@@ -64,10 +64,11 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !getClass().equals(obj.getClass())) {
+        }
+        if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        AktørId other = (AktørId) obj;
+        var other = (AktørId) obj;
         return Objects.equals(aktørId, other.aktørId);
     }
 
@@ -95,7 +96,7 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
         if (aktørId == null) {
             return "";
         }
-        int length = aktørId.length();
+        var length = aktørId.length();
         if (length <= 4) {
             return "*".repeat(length);
         }

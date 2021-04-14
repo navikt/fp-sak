@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,7 @@ public class HistorikkinnslagDtoTest {
 
     @Test
     public void skal_sortere_basert_på_tidligste_opprettetDato_first() {
-        List<HistorikkinnslagDto> historikkInnslagDtos = Arrays.asList(
+        var historikkInnslagDtos = Arrays.asList(
                 lagHistorikkInnslagDtos(NOW.plusMonths(2)),
                 lagHistorikkInnslagDtos(NOW.minusWeeks(8)),
                 lagHistorikkInnslagDtos(NOW.plusDays(3)),
@@ -43,7 +42,7 @@ public class HistorikkinnslagDtoTest {
 
     @Test
     public void skal_revurdOpprettet_kommer_før_brev_sent_og_brev_vent_hvis_samme_tids_punkt() {
-        List<HistorikkinnslagDto> historikkInnslagDtos = Arrays.asList(
+        var historikkInnslagDtos = Arrays.asList(
                 lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.REVURD_OPPR),
                 lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BEH_VENT),
                 lagHistorikkInnslagDtos(NOW, HistorikkinnslagType.BREV_SENT),
@@ -55,14 +54,14 @@ public class HistorikkinnslagDtoTest {
     }
 
     private HistorikkinnslagDto lagHistorikkInnslagDtos(LocalDateTime periodeFraDato, HistorikkinnslagType innslagType) {
-        HistorikkinnslagDto historikkInnslagDto = new HistorikkinnslagDto();
+        var historikkInnslagDto = new HistorikkinnslagDto();
         historikkInnslagDto.setOpprettetTidspunkt(periodeFraDato);
         historikkInnslagDto.setType(innslagType);
         return historikkInnslagDto;
     }
 
     private HistorikkinnslagDto lagHistorikkInnslagDtos(LocalDateTime periodeFraDato) {
-        HistorikkinnslagDto historikkInnslagDto = new HistorikkinnslagDto();
+        var historikkInnslagDto = new HistorikkinnslagDto();
         historikkInnslagDto.setOpprettetTidspunkt(periodeFraDato);
         return historikkInnslagDto;
     }

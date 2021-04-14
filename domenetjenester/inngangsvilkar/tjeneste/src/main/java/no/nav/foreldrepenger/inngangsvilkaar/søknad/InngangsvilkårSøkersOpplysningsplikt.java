@@ -40,20 +40,20 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
     }
 
     private VilkårData vurderOpplysningspliktOppfyltAutomatisk(BehandlingReferanse ref) {
-        VilkårData oppfylt = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT, Collections.emptyList());
+        var oppfylt = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT, Collections.emptyList());
 
-        VilkårData manuellVurdering = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_VURDERT,
+        var manuellVurdering = new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_VURDERT,
             singletonList(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU));
 
-        FagsakYtelseType ytelseType = ref.getFagsakYtelseType();
-        BehandlingType behandlingType = ref.getBehandlingType();
+        var ytelseType = ref.getFagsakYtelseType();
+        var behandlingType = ref.getBehandlingType();
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType) &&
             BehandlingType.REVURDERING.equals(behandlingType)) {
             // For revurdering FP skal det ikke utføres vilkårskontroll om opplysningsplikt (NOOP)
             return oppfylt;
         }
 
-        boolean søknadKomplett = this.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ytelseType, behandlingType).erForsendelsesgrunnlagKomplett(ref);
+        var søknadKomplett = this.kompletthetsjekkerProvider.finnKompletthetsjekkerFor(ytelseType, behandlingType).erForsendelsesgrunnlagKomplett(ref);
         if (søknadKomplett) {
             return oppfylt;
         }

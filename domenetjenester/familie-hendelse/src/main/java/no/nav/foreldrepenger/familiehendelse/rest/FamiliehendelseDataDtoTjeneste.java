@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.familiehendelse.rest;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,9 +31,9 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     public static FamilieHendelseGrunnlagDto mapGrunnlagFra(Behandling behandling, Optional<FamilieHendelseGrunnlagEntitet> grunnlag, Optional<LocalDate> vedtaksdato) {
-        FamilieHendelseGrunnlagDto dto = new FamilieHendelseGrunnlagDto();
+        var dto = new FamilieHendelseGrunnlagDto();
         if (grunnlag.isPresent()) {
-            FamilieHendelseGrunnlagEntitet grunnlaget = grunnlag.get();
+            var grunnlaget = grunnlag.get();
             dto.setOppgitt(mapHendelse(grunnlaget.getSøknadVersjon(), behandling, vedtaksdato));
             grunnlaget.getBekreftetVersjon().ifPresent(versjon -> dto.setRegister(mapHendelse(versjon, behandling, vedtaksdato)));
 
@@ -46,17 +45,19 @@ public class FamiliehendelseDataDtoTjeneste {
     private static FamiliehendelseDto mapHendelse(FamilieHendelseEntitet hendelse, Behandling behandling, Optional<LocalDate> vedtaksdato) {
         if (hendelse.getGjelderFødsel()) {
             return lagFodselDto(hendelse, behandling, vedtaksdato);
-        } else if (FamilieHendelseType.ADOPSJON.equals(hendelse.getType())) {
+        }
+        if (FamilieHendelseType.ADOPSJON.equals(hendelse.getType())) {
             return lagAdopsjonDto(hendelse);
-        } else if (FamilieHendelseType.OMSORG.equals(hendelse.getType())) {
+        }
+        if (FamilieHendelseType.OMSORG.equals(hendelse.getType())) {
             return lagOmsorgDto(hendelse);
         }
         return null;
     }
 
     private static FamiliehendelseDto lagOmsorgDto(FamilieHendelseEntitet hendelse) {
-        AvklartDataOmsorgDto dto = new AvklartDataOmsorgDto(SøknadType.fra(hendelse));
-        Map<Integer, LocalDate> fødselsdatoer = tilFødselsMap(hendelse);
+        var dto = new AvklartDataOmsorgDto(SøknadType.fra(hendelse));
+        var fødselsdatoer = tilFødselsMap(hendelse);
         mapOmsorg(hendelse, dto, fødselsdatoer);
 
         return dto;
@@ -73,8 +74,8 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static FamiliehendelseDto lagAdopsjonDto(FamilieHendelseEntitet hendelse) {
-        AvklartDataAdopsjonDto dto = new AvklartDataAdopsjonDto();
-        Map<Integer, LocalDate> fødselsdatoer = tilFødselsMap(hendelse);
+        var dto = new AvklartDataAdopsjonDto();
+        var fødselsdatoer = tilFødselsMap(hendelse);
 
         mapAdopsjon(hendelse, dto, fødselsdatoer);
 
@@ -98,7 +99,7 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static FamiliehendelseDto lagFodselDto(FamilieHendelseEntitet hendelse, Behandling behandling, Optional<LocalDate> vedtaksdato) {
-        AvklartDataFodselDto dto = new AvklartDataFodselDto();
+        var dto = new AvklartDataFodselDto();
         mapTerminbekreftelse(hendelse, behandling, dto, vedtaksdato);
         mapFødsler(hendelse, dto);
         dto.setMorForSykVedFodsel(hendelse.erMorForSykVedFødsel());
@@ -107,7 +108,7 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static void mapFødsler(FamilieHendelseEntitet hendelse, AvklartDataFodselDto dto) {
-        List<AvklartBarnDto> barn = hendelse.getBarna().stream().map(barna ->
+        var barn = hendelse.getBarna().stream().map(barna ->
             new AvklartBarnDto(barna.getFødselsdato(), barna.getDødsdato().orElse(null))).collect(Collectors.toList());
         dto.setAvklartBarn(barn);
     }
@@ -124,21 +125,23 @@ public class FamiliehendelseDataDtoTjeneste {
     private static Optional<FamiliehendelseDto> mapHendelseGrunnlag(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling, Optional<LocalDate> vedtaksdato) {
         if (grunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
             return lagFodselDto(grunnlag, behandling, vedtaksdato);
-        } else if (FamilieHendelseType.ADOPSJON.equals(grunnlag.getGjeldendeVersjon().getType())) {
+        }
+        if (FamilieHendelseType.ADOPSJON.equals(grunnlag.getGjeldendeVersjon().getType())) {
             return lagAdopsjonDto(grunnlag);
-        } else if (FamilieHendelseType.OMSORG.equals(grunnlag.getGjeldendeVersjon().getType())) {
+        }
+        if (FamilieHendelseType.OMSORG.equals(grunnlag.getGjeldendeVersjon().getType())) {
             return lagOmsorgDto(grunnlag);
         }
         return Optional.empty();
     }
 
     private static Optional<FamiliehendelseDto> lagFodselDto(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling, Optional<LocalDate> vedtaksdato) {
-        AvklartDataFodselDto dto = new AvklartDataFodselDto();
+        var dto = new AvklartDataFodselDto();
         grunnlag.getGjeldendeBekreftetVersjon().ifPresent(hendelse -> {
             mapTerminbekreftelse(hendelse, behandling, dto, vedtaksdato);
             mapFødsler(hendelse, dto);
             if (grunnlag.getHarOverstyrteData() && grunnlag.getOverstyrtVersjon().get().getType().equals(FamilieHendelseType.FØDSEL)) {
-                final boolean brukAntallBarnFraTps = harValgtSammeSomBekreftet(grunnlag);
+                final var brukAntallBarnFraTps = harValgtSammeSomBekreftet(grunnlag);
                 dto.setBrukAntallBarnFraTps(brukAntallBarnFraTps);
                 dto.setErOverstyrt(grunnlag.getHarOverstyrteData());
             }
@@ -149,22 +152,21 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static Optional<Long> finnUkerUtISvangerskapet(TerminbekreftelseEntitet terminbekreftelse, LocalDate originalVedtaksDato) {
-        LocalDate termindato = terminbekreftelse.getTermindato();
+        var termindato = terminbekreftelse.getTermindato();
 
         if (originalVedtaksDato != null && termindato != null) {
-            LocalDate termindatoMinusUkerISvangerskap = termindato.minusWeeks(ANTALL_UKER_I_SVANGERSKAP);
+            var termindatoMinusUkerISvangerskap = termindato.minusWeeks(ANTALL_UKER_I_SVANGERSKAP);
             return Optional.of(ChronoUnit.WEEKS.between(termindatoMinusUkerISvangerskap, originalVedtaksDato) + 1);
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     private static boolean harValgtSammeSomBekreftet(FamilieHendelseGrunnlagEntitet grunnlag) {
-        final Optional<FamilieHendelseEntitet> bekreftet = grunnlag.getBekreftetVersjon();
-        final FamilieHendelseEntitet overstyrt = grunnlag.getOverstyrtVersjon().get(); // NOSONAR
+        final var bekreftet = grunnlag.getBekreftetVersjon();
+        final var overstyrt = grunnlag.getOverstyrtVersjon().get(); // NOSONAR
 
-        boolean antallBarnLike = false;
-        boolean fødselsdatoLike = false;
+        var antallBarnLike = false;
+        var fødselsdatoLike = false;
         if (bekreftet.isPresent()) {
             antallBarnLike = Objects.equals(bekreftet.get().getAntallBarn(), overstyrt.getAntallBarn());
             fødselsdatoLike = Objects.equals(bekreftet.get().getFødselsdato(), overstyrt.getFødselsdato());
@@ -173,14 +175,14 @@ public class FamiliehendelseDataDtoTjeneste {
     }
 
     private static Optional<FamiliehendelseDto> lagAdopsjonDto(FamilieHendelseGrunnlagEntitet grunnlag) {
-        AvklartDataAdopsjonDto dto = new AvklartDataAdopsjonDto();
+        var dto = new AvklartDataAdopsjonDto();
 
         grunnlag.getGjeldendeBekreftetVersjon().ifPresent(bekreftet -> mapAdopsjon(bekreftet, dto, tilFødselsMap(bekreftet)));
         return Optional.of(dto);
     }
 
     private static Optional<FamiliehendelseDto> lagOmsorgDto(FamilieHendelseGrunnlagEntitet grunnlag) {
-        AvklartDataOmsorgDto dto = new AvklartDataOmsorgDto(SøknadType.fra(grunnlag.getGjeldendeVersjon()));
+        var dto = new AvklartDataOmsorgDto(SøknadType.fra(grunnlag.getGjeldendeVersjon()));
         grunnlag.getGjeldendeBekreftetVersjon().ifPresent(bekreftet -> mapOmsorg(bekreftet, dto, tilFødselsMap(bekreftet)));
         return Optional.of(dto);
     }

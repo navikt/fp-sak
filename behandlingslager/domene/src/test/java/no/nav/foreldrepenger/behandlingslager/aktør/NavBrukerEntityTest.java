@@ -14,8 +14,8 @@ public class NavBrukerEntityTest extends EntityManagerAwareTest {
         var entityManager = getEntityManager();
         var navBrukerRepo = new NavBrukerRepository(entityManager);
 
-        AktørId aktørId = AktørId.dummy();
-        NavBruker søker = NavBruker.opprettNyNB(aktørId);
+        var aktørId = AktørId.dummy();
+        var søker = NavBruker.opprettNyNB(aktørId);
 
         entityManager.persist(søker);
         entityManager.flush();

@@ -48,10 +48,11 @@ public class BehandlingLås {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof BehandlingLås)) {
+        }
+        if (obj == null || !(obj instanceof BehandlingLås)) {
             return false;
         }
-        BehandlingLås other = (BehandlingLås) obj;
+        var other = (BehandlingLås) obj;
         return Objects.equals(getBehandlingId(), other.getBehandlingId());
     }
 

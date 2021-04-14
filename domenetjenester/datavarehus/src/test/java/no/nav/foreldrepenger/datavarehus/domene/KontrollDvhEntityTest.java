@@ -8,7 +8,7 @@ public class KontrollDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_kontrollDvh() {
-        KontrollDvh kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
+        var kontrollDvh = DatavarehusTestUtils.byggKontrollDvh();
 
         assertThat(kontrollDvh.getBehandlingAksjonTransIdMax()).isEqualTo(DatavarehusTestUtils.BEHANDLING_AKSJON_TRANS_ID_MAX);
         assertThat(kontrollDvh.getBehandlingTransIdMax()).isEqualTo(DatavarehusTestUtils.BEHANDLING_TRANS_ID_MAX);

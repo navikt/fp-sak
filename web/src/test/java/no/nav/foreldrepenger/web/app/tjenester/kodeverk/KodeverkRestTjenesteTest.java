@@ -8,12 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.Response;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -36,10 +32,10 @@ public class KodeverkRestTjenesteTest {
     @Test
     public void skal_hente_kodeverk_og_gruppere_på_kodeverknavn() throws IOException {
 
-        KodeverkRestTjeneste tjeneste = new KodeverkRestTjeneste(hentKodeverkTjeneste);
-        Response response = tjeneste.hentGruppertKodeliste();
+        var tjeneste = new KodeverkRestTjeneste(hentKodeverkTjeneste);
+        var response = tjeneste.hentGruppertKodeliste();
 
-        String rawJson = (String) response.getEntity();
+        var rawJson = (String) response.getEntity();
         assertThat(rawJson).isNotNull();
 
         Map<String, Object> gruppertKodeliste = new JacksonJsonConfig().getObjectMapper().readValue(rawJson, Map.class);
@@ -67,11 +63,11 @@ public class KodeverkRestTjenesteTest {
 
     @Test
     public void serialize_kodeverdi_enums() throws Exception {
-        JacksonJsonConfig jsonConfig = new JacksonJsonConfig();
+        var jsonConfig = new JacksonJsonConfig();
 
-        ObjectMapper om = jsonConfig.getObjectMapper();
+        var om = jsonConfig.getObjectMapper();
 
-        String json = om.writer().withDefaultPrettyPrinter().writeValueAsString(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
+        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
 
         System.out.println(json);
     }

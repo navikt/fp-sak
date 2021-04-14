@@ -16,20 +16,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -69,19 +65,19 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     public void skal_generere_historikkinnslag_ved_slettet_søknadsperiode() {
 
         // Behandling
-        Behandling behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        var behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         lagreIAYGrunnlag(behandling.getId());
 
         // dto
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
+        var dto = opprettOverstyringUttaksperioderDto();
 
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // Verifiserer HistorikkinnslagDto
-        Historikkinnslag historikkinnslag = behandlingRepositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId()).get(0);
+        var historikkinnslag = behandlingRepositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId()).get(0);
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.UTTAK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
                 .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
         assertThat(del.getResultat()).isEmpty();
@@ -93,16 +89,16 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     @Test
     public void skal_sette_totrinns_ved_endring_manuell_fakta_uttak() {
         // Behandling
-        Behandling behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        var behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         lagreIAYGrunnlag(behandling.getId());
 
         // dto
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
+        var dto = opprettOverstyringUttaksperioderDto();
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING)).isTrue();
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
+        var aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
         assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
 
     }
@@ -110,37 +106,37 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     @Test
     public void skal_aktivere_manuell_avklar_fakta_uttak_hvis_finnes_fakta_uttak_med_avbrutt_status() {
 
-        Behandling behandling = opprettRevurderingBehandlingMedAksjonspunktFaktaUttak();
+        var behandling = opprettRevurderingBehandlingMedAksjonspunktFaktaUttak();
         lagreIAYGrunnlag(behandling.getId());
 
         // dto
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
+        var dto = opprettOverstyringUttaksperioderDto();
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId());
 
         // assert
         assertThat(behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING)).isTrue();
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
+        var aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
         assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
     }
 
     @Test
     public void skal_aktivere_manuell_avklar_fakta_uttak_hvis_det_er_gjenåpnet() {
 
-        Behandling behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        var behandling = opprettRevurderingBehandling(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         lagreIAYGrunnlag(behandling.getId());
         AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING);
 
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = opprettOverstyringUttaksperioderDto();
+        var dto = opprettOverstyringUttaksperioderDto();
 
         assertThatCode(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(dto), behandling.getId())).doesNotThrowAnyException();
 
     }
 
     private OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto opprettOverstyringUttaksperioderDto() {
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = new OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto();
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20),
+        var dto = new OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto();
+        var bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(LocalDate.now().minusDays(20),
                 LocalDate.now().minusDays(11));
-        SlettetUttakPeriodeDto slettetPeriodeDto = new SlettetUttakPeriodeDto();
+        var slettetPeriodeDto = new SlettetUttakPeriodeDto();
         slettetPeriodeDto.setBegrunnelse("ugyldig søknadsperiode");
         slettetPeriodeDto.setUttakPeriodeType(UttakPeriodeType.FORELDREPENGER);
         slettetPeriodeDto.setFom(LocalDate.now().minusDays(10));
@@ -151,7 +147,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     }
 
     private Behandling opprettRevurderingBehandlingMedAksjonspunktFaktaUttak() {
-        Behandling revurdering = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
+        var revurdering = opprettRevurderingBehandling(BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(revurdering.getId());
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
                 .medMottattDato(LocalDate.of(2010, 1, 1))
@@ -159,7 +155,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
                 .build();
         behandlingRepositoryProvider.getUttaksperiodegrenseRepository().lagre(revurdering.getId(), uttaksperiodegrense);
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering,
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(revurdering,
                 AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER);
         AksjonspunktTestSupport.setToTrinnsBehandlingKreves(aksjonspunkt);
         // Der var aksjonspunkt 5070 pga avvik inntektsmelding men fikk nye
@@ -170,22 +166,22 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     }
 
     private Behandling opprettRevurderingBehandling(BehandlingÅrsakType behandlingÅrsakType) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
-        OppgittRettighetEntitet rettighet = new OppgittRettighetEntitet(false, false, true);
+        var rettighet = new OppgittRettighetEntitet(false, false, true);
         scenario.medOppgittRettighet(rettighet);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER, BehandlingStegType.KONTROLLER_FAKTA_UTTAK);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        final OppgittPeriodeEntitet periode_1 = OppgittPeriodeBuilder.ny()
+        final var periode_1 = OppgittPeriodeBuilder.ny()
                 .medPeriode(LocalDate.now().minusDays(10), LocalDate.now())
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .build();
-        final OppgittPeriodeEntitet periode_2 = OppgittPeriodeBuilder.ny()
+        final var periode_2 = OppgittPeriodeBuilder.ny()
                 .medPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(11))
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .build();
         scenario.medFordeling(new OppgittFordelingEntitet(List.of(periode_1, periode_2), true));
-        Behandling førstegangsbehandling = scenario.lagre(behandlingRepositoryProvider);
+        var førstegangsbehandling = scenario.lagre(behandlingRepositoryProvider);
 
         var behandlingsresultat = behandlingRepositoryProvider.getBehandlingsresultatRepository().hent(førstegangsbehandling.getId());
         var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
@@ -194,7 +190,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
                 .build();
         uttaksperiodegrenseRepository.lagre(førstegangsbehandling.getId(), uttaksperiodegrense);
 
-        ScenarioMorSøkerForeldrepenger revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medOriginalBehandling(førstegangsbehandling, behandlingÅrsakType)
                 .medBehandlingType(BehandlingType.REVURDERING);
 
@@ -207,13 +203,13 @@ public class FaktaUttakSaksbehandlerOverstyringshåndtererTest {
     }
 
     private BekreftetOppgittPeriodeDto getBekreftetUttakPeriodeDto(LocalDate fom, LocalDate tom) {
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
-        OppgittPeriodeEntitet bekreftetperiode = OppgittPeriodeBuilder.ny()
+        var bekreftetOppgittPeriodeDto = new BekreftetOppgittPeriodeDto();
+        var bekreftetperiode = OppgittPeriodeBuilder.ny()
                 .medPeriode(fom, tom)
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
                 .medMottattDato(fom)
                 .build();
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
+        var bekreftetPeriodeDto = new KontrollerFaktaPeriodeLagreDto.Builder(
                 KontrollerFaktaPeriode.ubekreftet(bekreftetperiode),
                 null)
                         .build();

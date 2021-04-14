@@ -75,10 +75,11 @@ public class BeregningsgrunnlagAktivitetStatus extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagAktivitetStatus)) {
             return false;
         }
-        BeregningsgrunnlagAktivitetStatus other = (BeregningsgrunnlagAktivitetStatus) obj;
+        var other = (BeregningsgrunnlagAktivitetStatus) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getBeregningsgrunnlag(), other.getBeregningsgrunnlag());
     }

@@ -66,12 +66,14 @@ public class OpplysningsPeriodeTjeneste {
     }
 
     private SimpleLocalDateInterval beregning(Long behandlingId, FagsakYtelseType ytelseType, boolean tilOgMedIdag) {
-        final LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        final var skjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
             return beregnIntervalFP(skjæringstidspunkt, tilOgMedIdag);
-        } else if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
+        }
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return beregnIntervalES(skjæringstidspunkt, tilOgMedIdag);
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
             return beregnIntervalSVP(skjæringstidspunkt, tilOgMedIdag);
         }
         throw new TekniskException("FP-783491", "Kan ikke utlede opplysningsperiode for %s");

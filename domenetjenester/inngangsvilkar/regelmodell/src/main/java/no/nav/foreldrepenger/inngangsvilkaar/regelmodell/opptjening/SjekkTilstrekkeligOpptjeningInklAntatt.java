@@ -10,7 +10,6 @@ import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 /**
  * Sjekk om bruker har tilstrekkelig opptjening inklusiv antatt godkjente perioder for arbeidsforhold uten innrapportert
@@ -37,8 +36,8 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
 
     @Override
     public Evaluation evaluate(OpptjeningsvilkårMellomregning data) {
-        Period antattTotalOpptjening = data.getAntattTotalOpptjening().getOpptjentPeriode();
-        Period bekreftetOpptjeningPeriode = data.getBekreftetOpptjening().getOpptjentPeriode();
+        var antattTotalOpptjening = data.getAntattTotalOpptjening().getOpptjentPeriode();
+        var bekreftetOpptjeningPeriode = data.getBekreftetOpptjening().getOpptjentPeriode();
 
 
         if (data.sjekkErInnenforMinstePeriodeGodkjent(bekreftetOpptjeningPeriode)) {
@@ -50,24 +49,23 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         //TODO(OJR) burde kanskje lage et egen regelsett for SVP, da det er store forskjeller
         if ((data.getGrunnlag().getSkalGodkjenneBasertPåAntatt())) {
             // SVP godkjenner basert på antatt opptjening hvis behandling er før frist for inntektsrapportering.
-            LocalDate fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
-            boolean skalKreveRapportertInntekt = data.getGrunnlag().getBehandlingsTidspunkt().isAfter(fristForInntektsrapportering);
-            OpptjentTidslinje antattOpptjeningTidsserie = data.getAntattTotalOpptjening();
-            LocalDateTimeline<Boolean> avkortetTidsserie = antattOpptjeningTidsserie.getTidslinje().intersection(data.getGrunnlag().getOpptjeningPeriode());
+            var fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
+            var skalKreveRapportertInntekt = data.getGrunnlag().getBehandlingsTidspunkt().isAfter(fristForInntektsrapportering);
+            var antattOpptjeningTidsserie = data.getAntattTotalOpptjening();
+            var avkortetTidsserie = antattOpptjeningTidsserie.getTidslinje().intersection(data.getGrunnlag().getOpptjeningPeriode());
             // Avslå hvis antattopptjening ikke har nok dager (bytte aktivitet, mv) eller rapporteringsfrist passert
             if (skalKreveRapportertInntekt || !data.sjekkErInnenforMinstePeriodeGodkjent(antattTotalOpptjening) || avkortetTidsserie.isEmpty()) {
-                Period opptjentPeriode = antattOpptjeningTidsserie.getOpptjentPeriode();
+                var opptjentPeriode = antattOpptjeningTidsserie.getOpptjentPeriode();
                 data.setTotalOpptjening(antattOpptjeningTidsserie);
                 return nei(IKKE_TILSTREKKELIG_OPPTJENING, opptjentPeriode);
             }
-            OpptjentTidslinje totalOpptjening = new OpptjentTidslinje(Period.between(avkortetTidsserie.getMinLocalDate(), avkortetTidsserie.getMaxLocalDate().plusDays(1)), avkortetTidsserie);
+            var totalOpptjening = new OpptjentTidslinje(Period.between(avkortetTidsserie.getMinLocalDate(), avkortetTidsserie.getMaxLocalDate().plusDays(1)), avkortetTidsserie);
             data.setTotalOpptjening(totalOpptjening);
-            Period opptjentPeriode = totalOpptjening.getOpptjentPeriode();
+            var opptjentPeriode = totalOpptjening.getOpptjentPeriode();
             if (data.sjekkErInnenforMinstePeriodeGodkjent(opptjentPeriode)) {
                 return ja();
-            } else {
-                return nei(IKKE_TILSTREKKELIG_OPPTJENING, opptjentPeriode);
             }
+            return nei(IKKE_TILSTREKKELIG_OPPTJENING, opptjentPeriode);
         }
 
         data.setTotalOpptjening(data.getBekreftetOpptjening());
@@ -78,15 +76,15 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
     }
 
     private LocalDate beregnFristForOpptjeningsopplysninger(OpptjeningsvilkårMellomregning data) {
-        LocalDate skjæringstidspunkt = data.getGrunnlag().getSisteDatoForOpptjening();
+        var skjæringstidspunkt = data.getGrunnlag().getSisteDatoForOpptjening();
 
         // first er 5 i måned etter skjæringstidspunktet
-        LocalDate frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);
+        var frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);
         return frist;
     }
 
     private void loggAntattOpptjeningPeriode(OpptjeningsvilkårMellomregning data, Evaluation ev) {
-        OpptjentTidslinje antattTotalOpptjening = data.getAntattTotalOpptjening();
+        var antattTotalOpptjening = data.getAntattTotalOpptjening();
         ev.setEvaluationProperty(OpptjeningsvilkårForeldrepenger.EVAL_RESULT_ANTATT_AKTIVITET_TIDSLINJE, antattTotalOpptjening.getTidslinje());
         ev.setEvaluationProperty(OpptjeningsvilkårForeldrepenger.EVAL_RESULT_ANTATT_GODKJENT, antattTotalOpptjening.getOpptjentPeriode());
     }

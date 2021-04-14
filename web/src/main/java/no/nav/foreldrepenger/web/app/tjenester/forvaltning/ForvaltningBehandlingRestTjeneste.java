@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
-import java.util.List;
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -40,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -103,22 +99,21 @@ public class ForvaltningBehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response henleggVentendeBehandling(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            List<Behandling> behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
-            if (!behandlinger.isEmpty()) {
-                LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-                behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
-            }
-            return Response.ok().build();
         }
+        var behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
+        if (!behandlinger.isEmpty()) {
+            LOG.info("Henlegger behandlinger for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.HENLAGT_FEILOPPRETTET));
+        }
+        return Response.ok().build();
     }
 
     private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
@@ -137,23 +132,22 @@ public class ForvaltningBehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response henleggÅpenFørstegangsbehandlingOgOpprettNy(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus()) ||
                 FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             LOG.warn("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            Optional<Behandling> behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
-                    BehandlingType.FØRSTEGANGSSØKNAD);
-            if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
-                LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
-                behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
-                return Response.ok().build();
-            }
-            LOG.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
-            return Response.status(Response.Status.BAD_REQUEST).build();
         }
+        var behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
+                BehandlingType.FØRSTEGANGSSØKNAD);
+        if (behandling.isPresent() && !behandling.get().erAvsluttet()) {
+            LOG.info("Henlegger og oppretter ny førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+            behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
+            return Response.ok().build();
+        }
+        LOG.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @POST
@@ -167,14 +161,14 @@ public class ForvaltningBehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response reInnsendInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
-        JournalpostId journalpostId = new JournalpostId(dto.getJournalpostId());
-        Saksnummer saksnummer = new Saksnummer(dto.getSaksnummer());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var journalpostId = new JournalpostId(dto.getJournalpostId());
+        var saksnummer = new Saksnummer(dto.getSaksnummer());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             LOG.warn("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Long fagsakId = fagsak.getId();
+        var fagsakId = fagsak.getId();
         mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId).stream()
                 .filter(md -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()))
                 .filter(md -> journalpostId.equals(md.getJournalpostId()))
@@ -185,7 +179,7 @@ public class ForvaltningBehandlingRestTjeneste {
     }
 
     private void opprettMottaDokumentTask(Long fagsakId, MottattDokument mottattDokument) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING.getKode());
@@ -205,8 +199,8 @@ public class ForvaltningBehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response opprettNyRevurderingBerørtBehandling(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             LOG.warn("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -256,8 +250,8 @@ public class ForvaltningBehandlingRestTjeneste {
     }
 
     private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType) {
-        Historikkinnslag innslag = new Historikkinnslag();
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var innslag = new Historikkinnslag();
+        var builder = new HistorikkInnslagTekstBuilder();
 
         innslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         innslag.setBehandlingId(behandlingId);

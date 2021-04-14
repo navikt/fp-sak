@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
@@ -58,7 +57,7 @@ public class BehandlingKandidaterRepository {
 
     private List<Behandling> finnUtløpteBehandlingerEndringssøknader() {
 
-        TypedQuery<Behandling> query = entityManager.createQuery("""
+        var query = entityManager.createQuery("""
             SELECT behandling FROM Behandling behandling
             INNER JOIN BehandlingÅrsak behandling_arsak ON behandling=behandling_arsak.behandling
             WHERE NOT behandling.status IN (:avsluttetOgIverksetterStatus)
@@ -76,9 +75,9 @@ public class BehandlingKandidaterRepository {
     }
 
     private List<Behandling> finnUtløpteBehandlingerForEnkleTyper() {
-        Set<BehandlingType> behandlingTyperMedVarselBrev = hentBehandlingTyperMedBehandlingstidVarselBrev();
+        var behandlingTyperMedVarselBrev = hentBehandlingTyperMedBehandlingstidVarselBrev();
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "FROM Behandling behandling " +
                 "WHERE NOT behandling.status IN (:avsluttetOgIverksetterStatus) " +
                 "AND behandling.behandlingstidFrist< :idag " +
@@ -100,13 +99,13 @@ public class BehandlingKandidaterRepository {
 
     public List<Behandling> finnBehandlingerForAutomatiskGjenopptagelse() {
 
-        Set<AksjonspunktDefinisjon> køetKode = Set.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
+        var køetKode = Set.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
 
-        Set<AksjonspunktDefinisjon> autopunktKoder = AUTOPUNKTER.stream().filter(a -> !køetKode.contains(a)).collect(Collectors.toSet());
+        var autopunktKoder = AUTOPUNKTER.stream().filter(a -> !køetKode.contains(a)).collect(Collectors.toSet());
 
-        LocalDateTime naa = LocalDateTime.now();
+        var naa = LocalDateTime.now();
 
-        TypedQuery<Behandling> query = getEntityManager().createQuery(
+        var query = getEntityManager().createQuery(
             " SELECT DISTINCT b " +
                 " FROM Aksjonspunkt ap " +
                 " INNER JOIN ap.behandling b " +
@@ -124,7 +123,7 @@ public class BehandlingKandidaterRepository {
 
     public List<Behandling> finnRevurderingerPåVentIKompletthet() {
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT behandling FROM Behandling behandling " +
                 "INNER JOIN Aksjonspunkt ap on ap.behandling.id=behandling.id " +
                 " WHERE ap.status IN :aapneAksjonspunktKoder " +
@@ -141,7 +140,7 @@ public class BehandlingKandidaterRepository {
 
     public List<Behandling> finnBehandlingerIkkeAvsluttetPåAngittEnhet(String enhetId) {
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "FROM Behandling behandling " +
                 "WHERE behandling.status NOT IN (:avsluttetOgIverksetterStatus) " +
                 "  AND behandling.behandlendeEnhet = :enhet ", //$NON-NLS-1$
@@ -155,7 +154,7 @@ public class BehandlingKandidaterRepository {
 
     public List<Behandling> finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt() {
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT bh FROM Behandling bh " +
                 "WHERE bh.status NOT IN (:avsluttetOgIverksetterStatus) " +
                 "  AND NOT EXISTS (SELECT ap FROM Aksjonspunkt ap WHERE ap.behandling=bh AND ap.status = :status) ", //$NON-NLS-1$

@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
@@ -54,17 +53,17 @@ public class DatavarehusEventObserverTest {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunktUtførtEvent() throws Exception {
-        Behandling behandling = byggBehandling();
-        Long behandlingId = behandling.getId();
+        var behandling = byggBehandling();
+        var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
 
         var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        var captor = ArgumentCaptor.forClass(List.class);
 
         datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
 
         verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        List resultList = captor.getValue();
+        var resultList = captor.getValue();
         assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
@@ -72,17 +71,17 @@ public class DatavarehusEventObserverTest {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunkterFunnetEvent() throws Exception {
-        Behandling behandling = byggBehandling();
-        Long behandlingId = behandling.getId();
+        var behandling = byggBehandling();
+        var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
 
         var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        var captor = ArgumentCaptor.forClass(List.class);
 
         datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
 
         verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        List resultList = captor.getValue();
+        var resultList = captor.getValue();
         assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
@@ -90,27 +89,27 @@ public class DatavarehusEventObserverTest {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void observerAksjonspunkterAvbruttEvent() throws Exception {
-        Behandling behandling = byggBehandling();
-        Long behandlingId = behandling.getId();
+        var behandling = byggBehandling();
+        var behandlingId = behandling.getId();
         List<Aksjonspunkt> aksjonspunktListe = new ArrayList<>(behandling.getAksjonspunkter());
 
         var event = new AksjonspunktStatusEvent(byggKontekst(behandling), aksjonspunktListe, BehandlingStegType.BEREGN_YTELSE);
-        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        var captor = ArgumentCaptor.forClass(List.class);
 
         datavarehusEventObserver.observerAksjonspunktStatusEvent(event);
 
         verify(datavarehusTjeneste).lagreNedAksjonspunkter(captor.capture(), eq(behandlingId), eq(BehandlingStegType.BEREGN_YTELSE));
-        List resultList = captor.getValue();
+        var resultList = captor.getValue();
         assertThat(resultList.get(0)).isEqualTo(aksjonspunktListe.get(0));
         assertThat(resultList.get(1)).isEqualTo(aksjonspunktListe.get(1));
     }
 
     @Test
     public void observerFagsakStatus() throws Exception {
-        Behandling behandling = byggBehandling();
-        Fagsak fagsak = behandling.getFagsak();
+        var behandling = byggBehandling();
+        var fagsak = behandling.getFagsak();
 
-        FagsakStatusEvent event = new FagsakStatusEvent(fagsak.getId(), fagsak.getAktørId(), FagsakStatus.OPPRETTET, fagsak.getStatus());
+        var event = new FagsakStatusEvent(fagsak.getId(), fagsak.getAktørId(), FagsakStatus.OPPRETTET, fagsak.getStatus());
 
         datavarehusEventObserver.observerFagsakStatus(event);
 
@@ -119,51 +118,51 @@ public class DatavarehusEventObserverTest {
 
     @Test
     public void observerBehandlingStegTilstandEndringEvent() throws Exception {
-        Behandling behandling = byggBehandling();
+        var behandling = byggBehandling();
 
-        BehandlingskontrollKontekst kontekst = byggKontekst(behandling);
-        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.BEREGN_YTELSE,
+        var kontekst = byggKontekst(behandling);
+        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.BEREGN_YTELSE,
                 BehandlingStegStatus.UTFØRT);
-        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.FATTE_VEDTAK,
+        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.FATTE_VEDTAK,
                 BehandlingStegStatus.INNGANG);
-        BehandlingStegTilstandEndringEvent event = new BehandlingStegTilstandEndringEvent(kontekst,
+        var event = new BehandlingStegTilstandEndringEvent(kontekst,
                 fraTilstand,
                 tilTilstand);
         datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
 
-        ArgumentCaptor<BehandlingStegTilstandSnapshot> captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
+        var captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
 
         verify(datavarehusTjeneste, times(2)).lagreNedBehandlingStegTilstand(any(Long.class), captor.capture());
-        List<BehandlingStegTilstandSnapshot> tilstandListe = captor.getAllValues();
+        var tilstandListe = captor.getAllValues();
         assertThat(tilstandListe.get(0)).isEqualTo(fraTilstand);
         assertThat(tilstandListe.get(1)).isEqualTo(tilTilstand);
     }
 
     @Test
     public void observerBehandlingStegTilstandEndringEvent_regsøk_til_insøk() throws Exception {
-        Behandling behandling = byggBehandling();
+        var behandling = byggBehandling();
 
-        BehandlingskontrollKontekst kontekst = byggKontekst(behandling);
-        BehandlingStegTilstandSnapshot fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.REGISTRER_SØKNAD,
+        var kontekst = byggKontekst(behandling);
+        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, BehandlingStegType.REGISTRER_SØKNAD,
                 BehandlingStegStatus.UTFØRT);
-        BehandlingStegTilstandSnapshot tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.INNHENT_SØKNADOPP,
+        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, BehandlingStegType.INNHENT_SØKNADOPP,
                 BehandlingStegStatus.INNGANG);
-        BehandlingStegTilstandEndringEvent event = new BehandlingStegTilstandEndringEvent(kontekst,
+        var event = new BehandlingStegTilstandEndringEvent(kontekst,
                 fraTilstand,
                 tilTilstand);
         datavarehusEventObserver.observerBehandlingStegTilstandEndringEvent(event);
 
-        ArgumentCaptor<BehandlingStegTilstandSnapshot> captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
+        var captor = ArgumentCaptor.forClass(BehandlingStegTilstandSnapshot.class);
 
         verify(datavarehusTjeneste, times(2)).lagreNedBehandlingStegTilstand(any(Long.class), captor.capture());
-        List<BehandlingStegTilstandSnapshot> tilstandListe = captor.getAllValues();
+        var tilstandListe = captor.getAllValues();
         assertThat(tilstandListe.get(0)).isEqualTo(fraTilstand);
         assertThat(tilstandListe.get(1)).isEqualTo(tilTilstand);
     }
 
     @Test
     public void observerBehandlingOpprettetEvent() throws Exception {
-        Behandling behandling = byggBehandling();
+        var behandling = byggBehandling();
         BehandlingStatusEvent.BehandlingOpprettetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.OPPRETTET);
 
         datavarehusEventObserver.observerBehandlingStatusEvent(event);
@@ -172,7 +171,7 @@ public class DatavarehusEventObserverTest {
 
     @Test
     public void observerBehandlingAvsluttetEvent() throws Exception {
-        Behandling behandling = byggBehandling();
+        var behandling = byggBehandling();
         BehandlingStatusEvent.BehandlingAvsluttetEvent event = BehandlingStatusEvent.nyEvent(byggKontekst(behandling), BehandlingStatus.AVSLUTTET);
 
         datavarehusEventObserver.observerBehandlingStatusEvent(event);
@@ -181,9 +180,9 @@ public class DatavarehusEventObserverTest {
 
     @Test
     public void observerBehandlingVedtakEvent() throws Exception {
-        BehandlingVedtak vedtak = byggVedtak();
-        Behandling behandling = byggBehandling();
-        BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak, behandling);
+        var vedtak = byggVedtak();
+        var behandling = byggBehandling();
+        var event = new BehandlingVedtakEvent(vedtak, behandling);
 
         datavarehusEventObserver.observerBehandlingVedtakEvent(event);
         verify(datavarehusTjeneste).lagreNedVedtak(eq(vedtak), eq(behandling));
@@ -199,18 +198,18 @@ public class DatavarehusEventObserverTest {
     }
 
     private BehandlingskontrollKontekst byggKontekst(Behandling behandling) {
-        BehandlingLås behandlingLås = new BehandlingLås(behandling.getId()) {
+        var behandlingLås = new BehandlingLås(behandling.getId()) {
         };
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
     }
 
     private Behandling byggBehandling() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, BehandlingStegType.VURDER_UTTAK);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, BehandlingStegType.VURDER_UTTAK);
 
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         return behandling;
     }
 

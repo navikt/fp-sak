@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,7 +11,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -40,15 +38,15 @@ public class FatterVedtakAksjonspunktOppdaterer implements AksjonspunktOppdatere
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtoList = dto.getAksjonspunktGodkjenningDtos() != null ?
             dto.getAksjonspunktGodkjenningDtos() : Collections.emptyList();
 
-        Set<VedtakAksjonspunktData> aksjonspunkter = aksjonspunktGodkjenningDtoList.stream()
+        var aksjonspunkter = aksjonspunktGodkjenningDtoList.stream()
                 .map(a -> {
                     // map til VedtakAksjonsonspunktData fra DTO
-                    AksjonspunktDefinisjon aksDef = AksjonspunktDefinisjon.fraKode(a.getAksjonspunktKode());
+                    var aksDef = AksjonspunktDefinisjon.fraKode(a.getAksjonspunktKode());
                     return new VedtakAksjonspunktData(aksDef, a.isGodkjent(), a.getBegrunnelse(), fraDto(a.getArsaker()));
                 })
                 .collect(Collectors.toSet());
 
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
         fatterVedtakAksjonspunkt.oppdater(behandling, aksjonspunkter);
 
         return OppdateringResultat.utenOveropp();

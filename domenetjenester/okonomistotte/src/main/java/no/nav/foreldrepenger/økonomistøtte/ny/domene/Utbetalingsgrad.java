@@ -25,7 +25,7 @@ public class Utbetalingsgrad {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Utbetalingsgrad that = (Utbetalingsgrad) o;
+        var that = (Utbetalingsgrad) o;
         return utbetalingsgrad == that.utbetalingsgrad;
     }
 

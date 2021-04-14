@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +21,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
@@ -44,64 +41,64 @@ public class LagOppdragTjenesteTest {
 
     @Test
     public void skal_få_ingen_oppdrag_for_tomt_førstegangsvedtak() {
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(lagTomInput());
+        var resultat = LagOppdragTjeneste.lagOppdrag(lagTomInput());
         assertThat(resultat).isEmpty();
     }
 
     @Test
     public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_selvstendig_næringsdrivende() {
-        BeregningsresultatEntitet tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
-        BeregningsresultatPeriode tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
+        var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
+        var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
         BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
 
-        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        OppdragInput input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        var input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
+        var resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
         assertThat(resultat).hasSize(1);
-        Oppdrag oppdrag = resultat.get(0);
+        var oppdrag = resultat.get(0);
         assertThat(oppdrag.getBetalingsmottaker()).isEqualTo(Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
         assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FORELDREPENGER_BRUKER);
 
-        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
+        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse);
 
-        OppdragKjedeFortsettelse kjede = oppdrag.getKjeder().get(nøkkelYtelse);
+        var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(kjede.getOppdragslinjer()).hasSize(1);
         assertLik(kjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
     }
 
     @Test
     public void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
-        BeregningsresultatEntitet tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
-        BeregningsresultatPeriode tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
-        BeregningsresultatAndel andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
-        BeregningsresultatFeriepenger feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
+        var tilkjentYtelse = BeregningsresultatEntitet.builder().medRegelInput("foo").medRegelSporing("bar").build();
+        var tyPeriode = BeregningsresultatPeriode.builder().medBeregningsresultatPeriodeFomOgTom(periode.getFom(), periode.getTom()).build(tilkjentYtelse);
+        var andel = BeregningsresultatAndel.builder().medBrukerErMottaker(true).medInntektskategori(Inntektskategori.ARBEIDSTAKER).medDagsatsFraBg(1000).medDagsats(1000).medUtbetalingsgrad(BigDecimal.valueOf(100)).medStillingsprosent(BigDecimal.valueOf(100)).build(tyPeriode);
+        var feriepenger = BeregningsresultatFeriepenger.builder().medFeriepengerRegelInput("foo").medFeriepengerRegelSporing("bar").medFeriepengerPeriodeFom(nesteMai.getFom()).medFeriepengerPeriodeTom(nesteMai.getTom()).build(tilkjentYtelse);
         BeregningsresultatFeriepengerPrÅr.builder().medÅrsbeløp(200).medOpptjeningsår(dag1.getYear()).build(feriepenger, andel);
 
-        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
         var gruppertYtelse = tilkjentYtelseMapper.fordelPåNøkler(tilkjentYtelse);
 
-        OppdragInput input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
+        var input = lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, gruppertYtelse);
         //act
-        List<Oppdrag> resultat = LagOppdragTjeneste.lagOppdrag(input);
+        var resultat = LagOppdragTjeneste.lagOppdrag(input);
         //assert
         assertThat(resultat).hasSize(1);
-        Oppdrag oppdrag = resultat.get(0);
+        var oppdrag = resultat.get(0);
 
-        KjedeNøkkel nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        KjedeNøkkel nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
+        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
+        var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
         assertThat(oppdrag.getKjeder().keySet()).containsOnly(nøkkelYtelse, nøkkelFeriepenger);
 
-        OppdragKjedeFortsettelse ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
+        var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);
         assertThat(ytelsekjede.getOppdragslinjer()).hasSize(1);
         assertLik(ytelsekjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-100")).medPeriode(periode).medSats(Satsen.dagsats(1000)).medUtbetalingsgrad(new Utbetalingsgrad(100)).build());
 
-        OppdragKjedeFortsettelse feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
+        var feriepengeKjede = oppdrag.getKjeder().get(nøkkelFeriepenger);
         assertThat(feriepengeKjede.getOppdragslinjer()).hasSize(1);
         assertLik(feriepengeKjede.getOppdragslinjer().get(0), OppdragLinje.builder().medDelytelseId(delytelseId("100-101")).medPeriode(nesteMai).medSats(Satsen.engang(200)).build());
     }
@@ -120,7 +117,7 @@ public class LagOppdragTjenesteTest {
     }
 
     OppdragInput lagTomInput() {
-        GruppertYtelse tomtResultat = GruppertYtelse.builder().build();
+        var tomtResultat = GruppertYtelse.builder().build();
         return lagInput(FagsakYtelseType.FORELDREPENGER, FamilieYtelseType.FØDSEL, tomtResultat);
     }
 

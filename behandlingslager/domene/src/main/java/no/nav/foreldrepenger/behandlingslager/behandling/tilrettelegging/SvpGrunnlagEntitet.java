@@ -99,20 +99,20 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
         public SvpGrunnlagEntitet build() {
             Objects.requireNonNull(behandlingId, "Behandling er påkrevet");
 
-            SvpGrunnlagEntitet entitet = new SvpGrunnlagEntitet();
+            var entitet = new SvpGrunnlagEntitet();
             entitet.behandlingId = this.behandlingId;
             entitet.aktiv = true;
 
             if (this.opprinneligeTilrettelegginger != null) {
                 entitet.opprinneligeTilrettelegginger = opprinneligeTilrettelegginger;
             } else if (!opprinneligeTilretteleggingListe.isEmpty()) {
-                SvpTilretteleggingerEntitet.Builder opprinneligeTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
+                var opprinneligeTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
                 opprinneligeTrlgBuilder.medTilretteleggingListe(this.opprinneligeTilretteleggingListe);
                 entitet.opprinneligeTilrettelegginger = opprinneligeTrlgBuilder.build();
             }
 
             if  (!overstyrteTilretteleggingerListe.isEmpty()) {
-                SvpTilretteleggingerEntitet.Builder overstyrteTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
+                var overstyrteTrlgBuilder = new SvpTilretteleggingerEntitet.Builder();
                 overstyrteTrlgBuilder.medTilretteleggingListe(this.overstyrteTilretteleggingerListe);
                 entitet.overstyrteTilrettelegginger = overstyrteTrlgBuilder.build();
             } else if (this.overstyrteTilrettelegginger != null) {

@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -123,15 +121,15 @@ public class VedtakXmlTest {
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         svangerskapspengerRepository = repositoryProvider.getSvangerskapspengerRepository();
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);
 
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
-        PersonopplysningXmlTjenesteImpl personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles,
+        var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles,
             repositoryProvider, personopplysningTjeneste, iayTjeneste, ytelseFordelingTjeneste,
             mock(VergeRepository.class), mock(VirksomhetTjeneste.class));
-        VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
         fpSakVedtakXmlTjeneste = new FatteVedtakXmlTjeneste(repositoryProvider, vedtakXmlTjeneste,
                 new UnitTestLookupInstanceImpl<>(personopplysningXmlTjeneste),
                 behandlingsresultatXmlTjeneste,
@@ -146,20 +144,20 @@ public class VedtakXmlTest {
     public void skal_opprette_vedtaks_xml(EntityManager em) {
 
         // Arrange
-        ScenarioMorSøkerSvangerskapspenger scenario = byggBehandlingMedMorSøkerSVP();
+        var scenario = byggBehandlingMedMorSøkerSVP();
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         lagreUttak(behandling, em);
         lagreTilrettelegging(behandling);
         lagreSvp(behandling, jordmorsdato);
 
-        Behandlingsresultat behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
+        var behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
 
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(true);
+        var beregningsresultat = buildBeregningsresultatFP(true);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
-        BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        var vedtak = BehandlingVedtak.builder()
                 .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
                 .medIverksettingStatus(IVERKSETTING_STATUS)
                 .medVedtakstidspunkt(VEDTAK_DATO)
@@ -167,7 +165,7 @@ public class VedtakXmlTest {
                 .medBehandlingsresultat(behandlingsresultat)
                 .build();
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
-        String xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
+        var xml = fpSakVedtakXmlTjeneste.opprettVedtakXml(behandling.getId());
         assertThat(xml).isNotNull();
 
     }
@@ -253,7 +251,7 @@ public class VedtakXmlTest {
     }
 
     private ScenarioMorSøkerSvangerskapspenger byggBehandlingMedMorSøkerSVP() {
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
 
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
         leggTilSøker(scenario);
@@ -262,9 +260,9 @@ public class VedtakXmlTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario) {
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
                 .build();
@@ -272,7 +270,7 @@ public class VedtakXmlTest {
     }
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
-        SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
                 .medIngenTilrettelegging(jordmorsdato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -280,7 +278,7 @@ public class VedtakXmlTest {
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false)
                 .build();
-        SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
                 .medBehandlingId(behandling.getId())
                 .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
                 .build();
@@ -289,11 +287,11 @@ public class VedtakXmlTest {
 
     private Behandlingsresultat opprettBehandlingsresultatMedVilkårResultatForBehandling(Behandling behandling) {
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
+        var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
 
-        VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
+        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
@@ -327,16 +325,16 @@ public class VedtakXmlTest {
     }
 
     private BeregningsresultatEntitet buildBeregningsresultatFP(Boolean brukerErMottaker) {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode1, brukerErMottaker, 2160);
         if (!brukerErMottaker) {
             buildBeregningsresultatAndel(brPeriode1, true, 0);
         }
-        BeregningsresultatPeriode brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 21, 28);
+        var brPeriode2 = buildBeregningsresultatPeriode(beregningsresultat, 21, 28);
         buildBeregningsresultatAndel(brPeriode2, brukerErMottaker, 2160);
         if (!brukerErMottaker) {
             buildBeregningsresultatAndel(brPeriode2, true, 0);
@@ -357,7 +355,7 @@ public class VedtakXmlTest {
     }
 
     private BeregningsgrunnlagEntitet buildBeregningsgrunnlag() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .medGrunnbeløp(BigDecimal.valueOf(91425))
                 .medRegelloggSkjæringstidspunkt("input1", "clob1")
@@ -366,7 +364,7 @@ public class VedtakXmlTest {
                 .build();
         buildSammenligningsgrunnlag(beregningsgrunnlag);
         buildBgAktivitetStatus(beregningsgrunnlag);
-        BeregningsgrunnlagPeriode bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
+        var bgPeriode = buildBeregningsgrunnlagPeriode(beregningsgrunnlag);
         buildBgPrStatusOgAndel(bgPeriode);
         return beregningsgrunnlag;
     }
@@ -386,7 +384,7 @@ public class VedtakXmlTest {
     }
 
     private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(BeregningsgrunnlagPeriode beregningsgrunnlagPeriode) {
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+        var bga = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medNaturalytelseBortfaltPrÅr(BigDecimal.valueOf(3232.32))

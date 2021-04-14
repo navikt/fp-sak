@@ -75,7 +75,7 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        VergeOrganisasjonEntitet entitet = (VergeOrganisasjonEntitet) o;
+        var entitet = (VergeOrganisasjonEntitet) o;
         return Objects.equals(organisasjonsnummer, entitet.organisasjonsnummer) &&
             Objects.equals(navn, entitet.navn);
     }
@@ -87,7 +87,7 @@ public class VergeOrganisasjonEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("VergeOrganisasjonEntitet{");
+        final var sb = new StringBuilder("VergeOrganisasjonEntitet{");
         sb.append("id=").append(id);
         sb.append(", organisasjonsnummer=").append(organisasjonsnummer);
         sb.append(", navn='").append(navn).append('\'');

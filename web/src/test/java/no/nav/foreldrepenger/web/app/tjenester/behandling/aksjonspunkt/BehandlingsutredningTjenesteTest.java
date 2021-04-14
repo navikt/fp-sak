@@ -69,12 +69,12 @@ public class BehandlingsutredningTjenesteTest {
     @BeforeEach
     public void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        Behandling behandling = ScenarioMorSøkerEngangsstønad
+        var behandling = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .lagre(repositoryProvider);
         behandlingId = behandling.getId();
 
-        BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
+        var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(behandlingskontrollServiceProvider);
 
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class)))
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
@@ -93,7 +93,7 @@ public class BehandlingsutredningTjenesteTest {
         behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
 
         // Assert
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         assertThat(behandling.isBehandlingPåVent()).isTrue();
         assertThat(behandling.getÅpneAksjonspunkter()).hasSize(1);
         assertThat(behandling.getÅpneAksjonspunkter().get(0)).isExactlyInstanceOf(Aksjonspunkt.class);
@@ -102,14 +102,14 @@ public class BehandlingsutredningTjenesteTest {
     @Test
     public void skal_oppdatere_ventefrist_og_arsakskode() {
         // Arrange
-        LocalDate toUkerFrem = LocalDate.now().plusWeeks(2);
+        var toUkerFrem = LocalDate.now().plusWeeks(2);
 
         // Act
         behandlingsutredningTjeneste.settBehandlingPaVent(behandlingId, LocalDate.now(), Venteårsak.AVV_DOK);
         behandlingsutredningTjeneste.endreBehandlingPaVent(behandlingId, toUkerFrem, Venteårsak.AVV_FODSEL);
 
         // Assert
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         assertThat(behandling.getFristDatoBehandlingPåVent()).isEqualTo(toUkerFrem);
         assertThat(behandling.getVenteårsak()).isEqualTo(Venteårsak.AVV_FODSEL);
     }
@@ -117,7 +117,7 @@ public class BehandlingsutredningTjenesteTest {
     @Test
     public void skal_kaste_feil_når_oppdatering_av_ventefrist_av_behandling_som_ikke_er_på_vent() {
         // Arrange
-        LocalDate toUkerFrem = LocalDate.now().plusWeeks(2);
+        var toUkerFrem = LocalDate.now().plusWeeks(2);
 
         // Act
         assertThrows(FunksjonellException.class,
@@ -127,8 +127,8 @@ public class BehandlingsutredningTjenesteTest {
     @Test
     public void skal_sette_behandling_med_oppgave_pa_vent_og_opprette_task_avslutt_oppgave() {
         // Arrange
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1",
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, "1",
                 behandling.getFagsak().getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
@@ -145,16 +145,16 @@ public class BehandlingsutredningTjenesteTest {
     @Test
     public void skal_bytte_behandlende_enhet() {
         // Arrange
-        String enhetNavn = "OSLO";
-        String enhetId = "22";
-        String årsak = "Test begrunnelse";
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet(enhetId, enhetNavn);
+        var enhetNavn = "OSLO";
+        var enhetId = "22";
+        var årsak = "Test begrunnelse";
+        var enhet = new OrganisasjonsEnhet(enhetId, enhetNavn);
 
         // Act
         behandlingsutredningTjeneste.byttBehandlendeEnhet(behandlingId, enhet, årsak, HistorikkAktør.SAKSBEHANDLER);
 
         // Assert
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         verify(behandlendeEnhetTjeneste).oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.SAKSBEHANDLER, årsak);
     }
 }

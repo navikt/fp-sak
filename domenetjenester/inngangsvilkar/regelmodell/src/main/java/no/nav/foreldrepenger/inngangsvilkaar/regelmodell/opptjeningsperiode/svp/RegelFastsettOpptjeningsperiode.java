@@ -24,7 +24,7 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
 
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
-        Evaluation evaluation = getSpecification().evaluate(input);
+        var evaluation = getSpecification().evaluate(input);
 
         ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(input.getOpptjeningsperiodeFom());
         ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(input.getOpptjeningsperiodeTom());
@@ -36,10 +36,10 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
     @Override
     public Specification<OpptjeningsperiodeGrunnlag> getSpecification() {
 
-        Ruleset<OpptjeningsperiodeGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<OpptjeningsperiodeGrunnlag>();
         Specification<OpptjeningsperiodeGrunnlag> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
 
-        Specification<OpptjeningsperiodeGrunnlag> fastsettSkjæringsdatoSvp =
+        var fastsettSkjæringsdatoSvp =
             rs.beregningsRegel("FP_VK 21.1", "Fastsett periode: Svangerskap",
                 new FastsettSkjæringsdatoForSvangerskap(), fastsettOpptjeningsperiode);
 

@@ -1,12 +1,9 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 public class SammenlignBeregningsresultat {
 
@@ -25,7 +22,7 @@ public class SammenlignBeregningsresultat {
             return false;
         }
         for (var periode1 : liste1) {
-            Optional<BeregningsresultatPeriode> matchendePeriode = liste2.stream()
+            var matchendePeriode = liste2.stream()
                 .filter(periode2 -> periodeErLik(periode1, periode2))
                 .findFirst();
             if (matchendePeriode.isEmpty()) {

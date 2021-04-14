@@ -21,8 +21,8 @@ public class BehandlingslagerTestUtil {
     }
 
     public static final Fagsak buildFagsak(final Long fagsakid, final boolean erAvsluttet, FagsakYtelseType ytelseType) {
-        NavBruker bruker = lagNavBruker();
-        Fagsak fagsak = Fagsak.opprettNy(ytelseType, bruker, null, new Saksnummer(fagsakid * 2 + ""));
+        var bruker = lagNavBruker();
+        var fagsak = Fagsak.opprettNy(ytelseType, bruker, null, new Saksnummer(fagsakid * 2 + ""));
         fagsak.setId(fagsakid);
         if (erAvsluttet) {
             fagsak.setAvsluttet();
@@ -35,12 +35,12 @@ public class BehandlingslagerTestUtil {
     }
 
     public static final Behandling byggBehandlingFødsel(final Fagsak fagsakFødsel) {
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsakFødsel);
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsakFødsel);
         return behandlingBuilder.build();
     }
 
     public static final FamilieHendelseGrunnlagEntitet byggFødselGrunnlag(LocalDate termindato, LocalDate fødselsdato) {
-        final FamilieHendelseBuilder hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
+        final var hendelseBuilder = FamilieHendelseBuilder.oppdatere(Optional.empty(), HendelseVersjonType.SØKNAD);
         if (termindato != null) {
             hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
                 .medUtstedtDato(termindato.minusDays(40))

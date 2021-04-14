@@ -87,9 +87,8 @@ public class UttakResultatPeriodeLagreDto {
     public GraderingAvslagÅrsak getGraderingAvslagÅrsak() {
         if (graderingAvslagÅrsak == null || graderingInnvilget) {
             return GraderingAvslagÅrsak.UKJENT;
-        } else {
-            return graderingAvslagÅrsak;
         }
+        return graderingAvslagÅrsak;
     }
 
     public PeriodeResultatÅrsak getPeriodeResultatÅrsak() {

@@ -76,7 +76,7 @@ public class KlageResultatEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KlageResultatEntitet that = (KlageResultatEntitet) o;
+        var that = (KlageResultatEntitet) o;
         return Objects.equals(klageBehandlingId, that.klageBehandlingId);
     }
 

@@ -6,11 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -35,17 +33,17 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     @Test
     public void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
-        Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
+        var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
-        Behandling behandling = opprettBehandling(
+        var behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
             BehandlingType.FØRSTEGANGSSØKNAD,
             BehandlingResultatType.AVSLÅTT,
             Avslagsårsak.MANGLENDE_DOKUMENTASJON,
             VedtakResultatType.AVSLAG,
             DATO_FØR_INNSENDINGSFRISTEN);
-        MottattDokument vedlegg = dummyVedleggDokument(behandling);
+        var vedlegg = dummyVedleggDokument(behandling);
 
         // Act
         dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
@@ -58,14 +56,14 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     public void gittAvslåttBehandlingPgaManglendeDokMedUtløptFristForInnsendingSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
-        Behandling behandling = opprettBehandling(
+        var behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
             BehandlingType.FØRSTEGANGSSØKNAD,
             BehandlingResultatType.AVSLÅTT,
             Avslagsårsak.MANGLENDE_DOKUMENTASJON,
             VedtakResultatType.AVSLAG,
             DATO_ETTER_INNSENDINGSFRISTEN);
-        MottattDokument vedlegg = dummyVedleggDokument(behandling);
+        var vedlegg = dummyVedleggDokument(behandling);
 
         // Act
         dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
@@ -79,14 +77,14 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
     public void gittAvslåttBehandlingMenIkkePgaManglendeDokMedSkalOppretteTaskForÅVurdereDokument() {
         //Arrange
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
-        Behandling behandling = opprettBehandling(
+        var behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
             BehandlingType.FØRSTEGANGSSØKNAD,
             BehandlingResultatType.AVSLÅTT,
             Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG,
             VedtakResultatType.AVSLAG,
             DATO_ETTER_INNSENDINGSFRISTEN);
-        MottattDokument vedlegg = dummyVedleggDokument(behandling);
+        var vedlegg = dummyVedleggDokument(behandling);
 
         // Act
         dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);
@@ -101,14 +99,14 @@ public class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends
         //Arrange
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettTaskForÅVurdereDokument(Mockito.any(), Mockito.any(), Mockito.any());
-        Behandling behandling = opprettBehandling(
+        var behandling = opprettBehandling(
             FagsakYtelseType.FORELDREPENGER,
             BehandlingType.FØRSTEGANGSSØKNAD,
             BehandlingResultatType.AVSLÅTT,
             Avslagsårsak.MANGLENDE_DOKUMENTASJON,
             VedtakResultatType.AVSLAG,
             DATO_FØR_INNSENDINGSFRISTEN);
-        MottattDokument vedlegg = dummyVedleggDokumentTypeAnnet(behandling);
+        var vedlegg = dummyVedleggDokumentTypeAnnet(behandling);
 
         // Act
         dokumentmottakerVedlegg.mottaDokument(vedlegg, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);

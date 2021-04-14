@@ -79,7 +79,7 @@ public class AksjonspunktRestTjenesteTest {
     @Test
     public void skal_bekrefte_fødsel() throws URISyntaxException {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
-        UidentifisertBarnDto[] uidentifiserteBarn = { new UidentifisertBarnDto(fødselsdato, null) };
+        var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
         aksjonspunkt.add(
                 new SjekkManglendeFodselDto(
                         begrunnelse,
@@ -113,7 +113,7 @@ public class AksjonspunktRestTjenesteTest {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
-        AksjonspunktGodkjenningDto godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt(true);
+        var godkjentAksjonspunkt = opprettetGodkjentAksjonspunkt(true);
         aksjonspunktGodkjenningDtos.add(godkjentAksjonspunkt);
         aksjonspunkt.add(
                 new FatterVedtakAksjonspunktDto(
@@ -140,7 +140,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {
-        AksjonspunktGodkjenningDto endretDto = new AksjonspunktGodkjenningDto();
+        var endretDto = new AksjonspunktGodkjenningDto();
         endretDto.setAksjonspunktKode(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         endretDto.setGodkjent(godkjent);
         return endretDto;

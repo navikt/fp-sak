@@ -38,7 +38,7 @@ public class HentMedlemskapFraRegisterTest {
     @Test
     public void skal_hente_medlemsperioder_og_logge_dem_til_saksopplysningslageret() throws Exception {
         // Arrange
-        Medlemskapsunntak unntak = mock(Medlemskapsunntak.class);
+        var unntak = mock(Medlemskapsunntak.class);
         when(unntak.getUnntakId()).thenReturn(MEDL_ID_1);
         when(unntak.getFraOgMed()).thenReturn(LocalDate.of(2019, 8, 1));
         when(unntak.getTilOgMed()).thenReturn(LocalDate.of(2019, 12, 31));
@@ -53,13 +53,13 @@ public class HentMedlemskapFraRegisterTest {
         when(restKlient.finnMedlemsunntak(eq(AKTØR_ID.getId()), any(), any())).thenReturn(List.of(unntak));
 
         // Act
-        List<Medlemskapsperiode> medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1),
+        var medlemskapsperioder = medlemTjeneste.finnMedlemskapPerioder(AKTØR_ID, LocalDate.now().minusYears(1),
                 LocalDate.now().plusYears(1));
 
         // Assert
         assertThat(medlemskapsperioder).hasSize(1);
 
-        Medlemskapsperiode medlemskapsperiode1 = new Medlemskapsperiode.Builder()
+        var medlemskapsperiode1 = new Medlemskapsperiode.Builder()
                 .medFom(LocalDate.of(2010, 8, 1))
                 .medTom(LocalDate.of(2010, 12, 31))
                 .medDatoBesluttet(LocalDate.of(2012, 5, 26))

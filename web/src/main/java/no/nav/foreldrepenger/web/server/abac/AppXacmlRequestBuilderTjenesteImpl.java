@@ -26,20 +26,20 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
 
     @Override
     public XacmlRequestBuilder lagXacmlRequestBuilder(PdpRequest pdpRequest) {
-        XacmlRequestBuilder xacmlBuilder = new XacmlRequestBuilder();
+        var xacmlBuilder = new XacmlRequestBuilder();
 
-        XacmlAttributeSet actionAttributeSet = new XacmlAttributeSet();
+        var actionAttributeSet = new XacmlAttributeSet();
         actionAttributeSet.addAttribute(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID,
                 pdpRequest.getString(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID));
         xacmlBuilder.addActionAttributeSet(actionAttributeSet);
 
-        List<Tuple<String, String>> identer = hentIdenter(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
+        var identer = hentIdenter(pdpRequest, NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_FNR,
                 NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE);
 
         if (identer.isEmpty()) {
             populerResources(xacmlBuilder, pdpRequest, null);
         } else {
-            for (Tuple<String, String> ident : identer) {
+            for (var ident : identer) {
                 populerResources(xacmlBuilder, pdpRequest, ident);
             }
         }
@@ -48,18 +48,18 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
     }
 
     private static void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
-        List<String> aksjonspunktTyper = pdpRequest.getListOfString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
+        var aksjonspunktTyper = pdpRequest.getListOfString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
         if (aksjonspunktTyper.isEmpty()) {
             xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident, null));
         } else {
-            for (String aksjonspunktType : aksjonspunktTyper) {
+            for (var aksjonspunktType : aksjonspunktTyper) {
                 xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident, aksjonspunktType));
             }
         }
     }
 
     private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident, String aksjonsounktType) {
-        XacmlAttributeSet resourceAttributeSet = new XacmlAttributeSet();
+        var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
         resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE,
@@ -83,7 +83,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
 
     private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
         List<Tuple<String, String>> identer = new ArrayList<>();
-        for (String key : identNøkler) {
+        for (var key : identNøkler) {
             identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).collect(Collectors.toList()));
         }
         return identer;

@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -38,7 +37,7 @@ public class MottatteDokumentRepository {
     }
 
     public Optional<MottattDokument> hentMottattDokument(long mottattDokumentId) {
-        TypedQuery<MottattDokument> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select m from MottattDokument m where m.id = :param", MottattDokument.class)
             .setParameter(PARAM_KEY, mottattDokumentId);
         return HibernateVerktøy.hentUniktResultat(query);
@@ -50,7 +49,7 @@ public class MottatteDokumentRepository {
      * ikke å anbefale å bruke.
      */
     public List<MottattDokument> hentMottatteDokument(long behandlingId) {
-        String strQueryTemplate = "select m from MottattDokument m where m.behandlingId = :param";
+        var strQueryTemplate = "select m from MottattDokument m where m.behandlingId = :param";
         return entityManager.createQuery(
             strQueryTemplate, MottattDokument.class)
             .setParameter(PARAM_KEY, behandlingId)
@@ -74,7 +73,7 @@ public class MottatteDokumentRepository {
      * ikke å anbefale å bruke.
      */
     public List<MottattDokument> hentMottatteDokumentMedFagsakId(long fagsakId) {
-        String strQueryTemplate = "select m from MottattDokument m where m.fagsakId = :param";
+        var strQueryTemplate = "select m from MottattDokument m where m.fagsakId = :param";
         return entityManager.createQuery(
             strQueryTemplate, MottattDokument.class)
             .setParameter(PARAM_KEY, fagsakId)

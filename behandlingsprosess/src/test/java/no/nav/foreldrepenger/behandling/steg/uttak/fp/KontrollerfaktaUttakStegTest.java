@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -22,20 +20,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakTjeneste;
@@ -69,7 +64,7 @@ public class KontrollerfaktaUttakStegTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
 
-        PersonInformasjon personInformasjon = scenario
+        var personInformasjon = scenario
                 .opprettBuilderForRegisteropplysninger()
                 .medPersonas()
                 .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
@@ -79,7 +74,7 @@ public class KontrollerfaktaUttakStegTest {
 
         var rettighet = new OppgittRettighetEntitet(true, false, false);
         scenario.medOppgittRettighet(rettighet);
-        LocalDate now = LocalDate.now();
+        var now = LocalDate.now();
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
                 .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
@@ -96,13 +91,13 @@ public class KontrollerfaktaUttakStegTest {
 
     @Test
     public void utførerMedAksjonspunktFaktaForOmsorg() {
-        Fagsak fagsak = behandling.getFagsak();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var fagsak = behandling.getFagsak();
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
-        BehandleStegResultat behandleStegResultat = steg.utførSteg(kontekst);
+        var behandleStegResultat = steg.utførSteg(kontekst);
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
-        List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
+        var aksjonspunkter = behandleStegResultat.getAksjonspunktListe();
         assertThat(aksjonspunkter).hasSize(1);
         assertThat(aksjonspunkter.get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG);
 
@@ -122,8 +117,8 @@ public class KontrollerfaktaUttakStegTest {
     }
 
     private Behandling byggBehandingMedMorSøkerTypeOgHarAleneOmsorgOgAnnenforelderHarIkkeRett() {
-        AktørId AKTØR_ID_MOR = AktørId.dummy();
-        AktørId AKTØR_ID_FAR = AktørId.dummy();
+        var AKTØR_ID_MOR = AktørId.dummy();
+        var AKTØR_ID_FAR = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID_MOR);
         var rettighet = new OppgittRettighetEntitet(false, true, true);
@@ -132,7 +127,7 @@ public class KontrollerfaktaUttakStegTest {
 
         var bostedsadresse = PersonAdresse.builder().adresselinje1("Portveien 2").postnummer("7000").land(Landkoder.NOR);
 
-        PersonInformasjon annenPrt = builderForRegisteropplysninger
+        var annenPrt = builderForRegisteropplysninger
                 .medPersonas()
                 .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
                 .bostedsadresse(bostedsadresse)
@@ -140,7 +135,7 @@ public class KontrollerfaktaUttakStegTest {
                 .build();
         scenario.medRegisterOpplysninger(annenPrt);
 
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT, Region.NORDEN)
                 .bostedsadresse(bostedsadresse)
@@ -156,7 +151,7 @@ public class KontrollerfaktaUttakStegTest {
         scenario.medSøknad();
         scenario.medOppgittRettighet(rettighet);
         var hendelseBuilder = scenario.medSøknadHendelse();
-        LocalDate termindato = LocalDate.now().plusDays(35);
+        var termindato = LocalDate.now().plusDays(35);
         hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
                 .medNavnPå("asdf")
                 .medUtstedtDato(LocalDate.now())

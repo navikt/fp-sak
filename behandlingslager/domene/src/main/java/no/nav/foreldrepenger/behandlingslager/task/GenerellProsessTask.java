@@ -14,8 +14,8 @@ public abstract class GenerellProsessTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Long fagsakId = prosessTaskData.getFagsakId();
-        Long behandlingId = getBehandlingId(prosessTaskData);
+        var fagsakId = prosessTaskData.getFagsakId();
+        var behandlingId = getBehandlingId(prosessTaskData);
 
         prosesser(prosessTaskData, fagsakId, behandlingId);
     }

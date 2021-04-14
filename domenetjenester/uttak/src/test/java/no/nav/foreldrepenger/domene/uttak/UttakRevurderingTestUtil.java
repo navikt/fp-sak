@@ -122,7 +122,8 @@ public class UttakRevurderingTestUtil {
     private Dekningsgrad map(OppgittDekningsgradEntitet oppgittDekningsgrad) {
         if (oppgittDekningsgrad.getDekningsgrad() == 80) {
             return Dekningsgrad._80;
-        } else if (oppgittDekningsgrad.getDekningsgrad() == 100) {
+        }
+        if (oppgittDekningsgrad.getDekningsgrad() == 100) {
             return Dekningsgrad._100;
         }
         throw new IllegalArgumentException("Ukjent dekningsgrad " + oppgittDekningsgrad.getDekningsgrad());

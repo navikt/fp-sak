@@ -14,15 +14,12 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -49,12 +46,12 @@ public class OpptjeningRepository {
 
     private VilkårResultat validerRiktigBehandling(Behandling behandling) {
         Objects.requireNonNull(behandling, "behandling"); //$NON-NLS-1$
-        Behandlingsresultat behandlingresultat = getBehandlingsresultat(behandling.getId());
+        var behandlingresultat = getBehandlingsresultat(behandling.getId());
         if (behandlingresultat == null) {
             throw new IllegalArgumentException(
                 "Utvikler-feil: kan ikke sette opptjening før Behandlingresultat er lagd for Behandling:" + behandling.getId()); //$NON-NLS-1$
         }
-        VilkårResultat vilkårResultat = behandlingresultat.getVilkårResultat();
+        var vilkårResultat = behandlingresultat.getVilkårResultat();
         if (vilkårResultat == null) {
             throw new IllegalArgumentException(
                 "Utvikler-feil: kan ikke sette opptjening før VilkårResultat er lagd for Behandling:" + behandling.getId()); //$NON-NLS-1$
@@ -71,19 +68,18 @@ public class OpptjeningRepository {
      * Finn gjeldende opptjening for denne behandlingen.
      */
     public Optional<Opptjening> finnOpptjening(Long behandlingId) {
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandlingId);
+        var behandlingsresultat = getBehandlingsresultat(behandlingId);
 
         if (behandlingsresultat == null) {
             return Optional.empty();
-        } else {
-
-            VilkårResultat vilkårResultat = behandlingsresultat.getVilkårResultat();
-            if (vilkårResultat == null) {
-                return Optional.empty();
-            }
-
-            return finnOpptjening(vilkårResultat);
         }
+
+        var vilkårResultat = behandlingsresultat.getVilkårResultat();
+        if (vilkårResultat == null) {
+            return Optional.empty();
+        }
+
+        return finnOpptjening(vilkårResultat);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
@@ -97,7 +93,7 @@ public class OpptjeningRepository {
 
     private Optional<Opptjening> hentTidligereOpptjening(Long vilkårResultatId, boolean readOnly) {
         // slår opp med HQL istedf. å traverse grafen
-        TypedQuery<Opptjening> query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = 'J'", Opptjening.class); //$NON-NLS-1$
+        var query = em.createQuery("from Opptjening o where o.vilkårResultat.id=:id and o.aktiv = 'J'", Opptjening.class); //$NON-NLS-1$
         query.setParameter("id", vilkårResultatId); //$NON-NLS-1$
 
         if (readOnly) {
@@ -108,9 +104,9 @@ public class OpptjeningRepository {
     }
 
     private Optional<Opptjening> deaktivereTidligereOpptjening(Long vilkårResultatId, boolean readOnly) {
-        Optional<Opptjening> opptjening = hentTidligereOpptjening(vilkårResultatId, readOnly);
+        var opptjening = hentTidligereOpptjening(vilkårResultatId, readOnly);
         if (opptjening.isPresent()) {
-            Query query = em.createNativeQuery("UPDATE OPPTJENING SET AKTIV = 'N' WHERE ID=:id"); //$NON-NLS-1$
+            var query = em.createNativeQuery("UPDATE OPPTJENING SET AKTIV = 'N' WHERE ID=:id"); //$NON-NLS-1$
             query.setParameter("id", opptjening.get().getId()); //$NON-NLS-1$
             query.executeUpdate();
             em.flush();
@@ -126,9 +122,9 @@ public class OpptjeningRepository {
 
         Function<Opptjening, Opptjening> oppdateringsfunksjon = (tidligereOpptjening) -> {
             // lager ny opptjening alltid ved ny opptjeningsperiode.
-            Opptjening nyOpptjening = new Opptjening(opptjeningFom, opptjeningTom);
+            var nyOpptjening = new Opptjening(opptjeningFom, opptjeningTom);
             if (skalBevareResultat) {
-                Set<OpptjeningAktivitet> kopiListe = duplikatSjekk(tidligereOpptjening.getOpptjeningAktivitet());
+                var kopiListe = duplikatSjekk(tidligereOpptjening.getOpptjeningAktivitet());
                 nyOpptjening.setOpptjentPeriode(tidligereOpptjening.getOpptjentPeriode());
                 nyOpptjening.setOpptjeningAktivitet(kopiListe);
             }
@@ -139,9 +135,9 @@ public class OpptjeningRepository {
     }
 
     public void deaktiverOpptjening(Behandling behandling) {
-        VilkårResultat vilkårResultat = validerRiktigBehandling(behandling);
+        var vilkårResultat = validerRiktigBehandling(behandling);
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         deaktivereTidligereOpptjening(vilkårResultat.getId(), false);
         em.flush();
 
@@ -149,15 +145,15 @@ public class OpptjeningRepository {
     }
 
     private Opptjening lagre(Behandling behandling, Function<Opptjening, Opptjening> oppdateringsfunksjon) {
-        Long behandlingId = behandling.getId();
-        VilkårResultat vilkårResultat = validerRiktigBehandling(behandling);
+        var behandlingId = behandling.getId();
+        var vilkårResultat = validerRiktigBehandling(behandling);
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
 
 
         Opptjening tidligereOpptjening = null;
         Opptjening opptjening;
-        Optional<Opptjening> optTidligereOpptjening = deaktivereTidligereOpptjening(vilkårResultat.getId(), false);
+        var optTidligereOpptjening = deaktivereTidligereOpptjening(vilkårResultat.getId(), false);
         if (optTidligereOpptjening.isPresent()) {
             tidligereOpptjening = optTidligereOpptjening.get();
         }
@@ -178,10 +174,10 @@ public class OpptjeningRepository {
     public Opptjening lagreOpptjeningResultat(Behandling behandling, Period opptjentPeriode,
                                               Collection<OpptjeningAktivitet> opptjeningAktiviteter) {
 
-        Set<OpptjeningAktivitet> kopiListe = duplikatSjekk(opptjeningAktiviteter);
+        var kopiListe = duplikatSjekk(opptjeningAktiviteter);
 
         Function<Opptjening, Opptjening> oppdateringsfunksjon = (tidligereOpptjening) -> {
-            Opptjening ny = new Opptjening(tidligereOpptjening);
+            var ny = new Opptjening(tidligereOpptjening);
             ny.setOpptjeningAktivitet(kopiListe);
             ny.setOpptjentPeriode(opptjentPeriode);
             return ny;
@@ -195,8 +191,8 @@ public class OpptjeningRepository {
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Behandling origBehandling, Behandling nyBehandling) {
         // Opptjening er ikke koblet til Behandling gjennom aggregatreferanse. Må derfor kopieres som deep copy
-        Long orgBehandlingId = origBehandling.getId();
-        Opptjening origOpptjening = hentTidligereOpptjening(getBehandlingsresultat(orgBehandlingId).getVilkårResultat().getId(), true)
+        var orgBehandlingId = origBehandling.getId();
+        var origOpptjening = hentTidligereOpptjening(getBehandlingsresultat(orgBehandlingId).getVilkårResultat().getId(), true)
             .orElseThrow(() -> new IllegalStateException("Original behandling har ikke opptjening."));
 
         lagreOpptjeningsperiode(nyBehandling, origOpptjening.getFom(), origOpptjening.getTom(), false);

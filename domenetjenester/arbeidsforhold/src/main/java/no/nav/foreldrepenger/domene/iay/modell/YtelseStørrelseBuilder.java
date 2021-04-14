@@ -22,7 +22,7 @@ public class YtelseStørrelseBuilder {
     }
 
     public YtelseStørrelseBuilder medBeløp(BigDecimal verdi) {
-        BigDecimal verdiNotNull = verdi != null ? verdi : new BigDecimal(0);
+        var verdiNotNull = verdi != null ? verdi : new BigDecimal(0);
         this.ytelseStørrelse.setBeløp(new Beløp(verdiNotNull));
         return this;
     }

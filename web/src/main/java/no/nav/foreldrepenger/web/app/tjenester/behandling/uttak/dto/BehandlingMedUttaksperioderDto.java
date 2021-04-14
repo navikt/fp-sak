@@ -39,8 +39,8 @@ public class BehandlingMedUttaksperioderDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abac = AbacDataAttributter.opprett();
-        
+        var abac = AbacDataAttributter.opprett();
+
         if(getBehandlingId().getBehandlingId()!=null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId().getBehandlingId());
         } else if (getBehandlingId().getBehandlingUuid() != null) {

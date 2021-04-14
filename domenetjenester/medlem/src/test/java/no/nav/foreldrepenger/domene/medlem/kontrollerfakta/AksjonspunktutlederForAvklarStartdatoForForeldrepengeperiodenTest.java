@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -69,19 +68,19 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_ikke_opprette_aksjonspunkt_fordi_startdatoer_samsvarer() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now().minusDays(1);
+        var aktørId = AktørId.dummy();
+        var fødselsdato = LocalDate.now().minusDays(1);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidsforhold(behandling, fødselsdato, Tid.TIDENES_ENDE);
 
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato, behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -94,19 +93,19 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_opprette_aksjonspunkt_for_aktivt_arbeidsforhold_er_løpende_når_startdatoene_ikke_samsvarer() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = DayOfWeek.from(LocalDate.now()).getValue() > DayOfWeek.FRIDAY.getValue() ? LocalDate.now().minusDays(3) : LocalDate.now().minusDays(1);
+        var aktørId = AktørId.dummy();
+        var fødselsdato = DayOfWeek.from(LocalDate.now()).getValue() > DayOfWeek.FRIDAY.getValue() ? LocalDate.now().minusDays(3) : LocalDate.now().minusDays(1);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidsforhold(behandling, fødselsdato.minusMonths(1), fødselsdato.plusMonths(3L));
 
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato.plusDays(2L), behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -116,19 +115,19 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_ikke_opprette_aksjonspunkt_for_aktivt_arbeidsforhold_er_løpende_når_startdatoene_samsvarer() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now();
+        var aktørId = AktørId.dummy();
+        var fødselsdato = LocalDate.now();
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidsforhold(behandling, fødselsdato.minusMonths(1), fødselsdato.plusMonths(3L));
 
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato, behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -141,12 +140,12 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_ikke_opprette_aksjonspunkt_fordi_startdatoene_på_alle_løpende_arbeidsforhold_samsvarer_med_oppgitt_av_bruker() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now();
+        var aktørId = AktørId.dummy();
+        var fødselsdato = LocalDate.now();
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidsforhold(behandling, fødselsdato, Tid.TIDENES_ENDE);
 
         opprettOppgittFordeling(fødselsdato, behandling);
@@ -154,7 +153,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
         opprettInntektsmelding(fødselsdato, behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -163,19 +162,19 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_ikke_opprette_aksjonspunkt_fordi_startdatoene_skal_tolkes_som_påfølgende_mandag() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = endreDatoTilLørdag(LocalDate.now());
+        var aktørId = AktørId.dummy();
+        var fødselsdato = endreDatoTilLørdag(LocalDate.now());
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         opprettArbeidsforhold(behandling, fødselsdato, Tid.TIDENES_ENDE);
 
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato.plusDays(1L), behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -184,19 +183,19 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     @Test
     public void skal_opprette_aksjonspunkt_fordi_startdatoene_på_alle_løpende_arbeidsforhold_ikke_samsvarer_med_oppgitt_av_bruker() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        LocalDate fødselsdato = endreDatoHvisLørdagEllerSøndag(LocalDate.now());
+        var aktørId = AktørId.dummy();
+        var fødselsdato = endreDatoHvisLørdagEllerSøndag(LocalDate.now());
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         opprettArbeidsforhold(behandling, fødselsdato.minusDays(2), Tid.TIDENES_ENDE);
         opprettOppgittFordeling(fødselsdato, behandling);
         opprettInntektsmelding(fødselsdato.plusDays(2L), behandling);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling, fødselsdato));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -206,7 +205,8 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     LocalDate endreDatoHvisLørdagEllerSøndag(LocalDate dato) {
         if (dato.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
             return dato.plusDays(2L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             return dato.plusDays(1L);
         }
         return dato;
@@ -215,13 +215,17 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     LocalDate endreDatoTilLørdag(LocalDate dato) {
         if (dato.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
             return dato.plusDays(5L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.TUESDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.TUESDAY)) {
             return dato.plusDays(4L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.WEDNESDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.WEDNESDAY)) {
             return dato.plusDays(3L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.THURSDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.THURSDAY)) {
             return dato.plusDays(2L);
-        } else if (dato.getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
+        }
+        if (dato.getDayOfWeek().equals(DayOfWeek.FRIDAY)) {
             return dato.plusDays(1L);
         }
         return dato;
@@ -262,7 +266,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
 
     void opprettInntektsmelding(LocalDate fødselsdato, Behandling behandling) {
 
-        InntektsmeldingBuilder inntektsmeldingBuilder = InntektsmeldingBuilder.builder();
+        var inntektsmeldingBuilder = InntektsmeldingBuilder.builder();
         inntektsmeldingBuilder.medStartDatoPermisjon(fødselsdato);
         inntektsmeldingBuilder.medBeløp(BigDecimal.TEN);
         inntektsmeldingBuilder.medInnsendingstidspunkt(LocalDateTime.now());

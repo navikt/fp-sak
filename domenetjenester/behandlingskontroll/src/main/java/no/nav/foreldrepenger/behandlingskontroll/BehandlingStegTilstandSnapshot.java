@@ -37,7 +37,7 @@ public class BehandlingStegTilstandSnapshot {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        BehandlingStegTilstandSnapshot that = (BehandlingStegTilstandSnapshot) o;
+        var that = (BehandlingStegTilstandSnapshot) o;
         return Objects.equals(steg, that.steg) &&
                 Objects.equals(status, that.status);
     }

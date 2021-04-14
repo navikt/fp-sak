@@ -11,10 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -50,11 +48,11 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
     @Test
     public void skal_opprette_ny_førstegangsbehandling_ved_innsending_av_ny_søknad_kompletthet_ikke_passert() {
         // Pre-Arrange: Registerdata + fagsak
-        MottatteDokumentTjeneste mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
-        HistorikkinnslagTjeneste mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
-        BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        ProsessTaskRepository taskrepo = mock(ProsessTaskRepository.class);
-        DokumentmottakerFelles felles = new DokumentmottakerFelles(repositoryProvider,
+        var mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
+        var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
+        var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
+        var taskrepo = mock(ProsessTaskRepository.class);
+        var felles = new DokumentmottakerFelles(repositoryProvider,
             taskrepo,
             enhetsTjeneste,
             mockHist,
@@ -66,7 +64,7 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
                 behandlingsoppretterSpied,
             kompletthetskontroller,
             køKontroller, fpUttakTjeneste);
-        Behandling nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
+        var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doReturn(nyBehandling).when(behandlingsoppretterSpied).oppdaterBehandlingViaHenleggelse(Mockito.any(),  Mockito.any());
         doNothing().when(mockMD).persisterDokumentinnhold(any(), any(), any());
         when(mockMD.harMottattDokumentSet(any(), any())).thenReturn(Boolean.TRUE);
@@ -75,11 +73,11 @@ public class DokmentmottakerSøknadHåndterÅpenFørstegang extends Dokumentmott
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusDays(6)).medAntallBarn(1);
         scenario.medBehandlingStegStart(BehandlingStegType.VURDER_KOMPLETTHET);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
 
-        MottattDokument søknadDokument = dummySøknadDokument(behandling);
+        var søknadDokument = dummySøknadDokument(behandling);
 
         // Act
         dokumentmottakerSøknad.mottaDokument(søknadDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ANNET);

@@ -58,9 +58,9 @@ public class EngangsstønadVilkårUtleder implements VilkårUtleder {
 
     static {
         Map<FamilieHendelseType, UtledeteVilkår> map = new HashMap<>();
-        UtledeteVilkår utledeteAdopsjonsvilkår = forAvklartRelasjonsvilkårTilBarn(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, STANDARDVILKÅR);
-        UtledeteVilkår utledeteFødselsvilkår = forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_MOR, STANDARDVILKÅR);
-        UtledeteVilkår utledeteOmsorgsvilkår = forPotensielleRelasjonsvilkårTilBarn(POTENSIELLE_OMSORGSVILKÅR, STANDARDVILKÅR);
+        var utledeteAdopsjonsvilkår = forAvklartRelasjonsvilkårTilBarn(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, STANDARDVILKÅR);
+        var utledeteFødselsvilkår = forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_MOR, STANDARDVILKÅR);
+        var utledeteOmsorgsvilkår = forPotensielleRelasjonsvilkårTilBarn(POTENSIELLE_OMSORGSVILKÅR, STANDARDVILKÅR);
 
         map.put(FamilieHendelseType.FØDSEL, utledeteFødselsvilkår);
         map.put(FamilieHendelseType.TERMIN, utledeteFødselsvilkår);
@@ -75,8 +75,8 @@ public class EngangsstønadVilkårUtleder implements VilkårUtleder {
             throw behandlingsmotivKanIkkeUtledes(behandling.getId());
         }
 
-        FamilieHendelseType behandlingsmotiv = behandlingsmotiv1.get();
-        UtledeteVilkår vilkår = FAKTA_TIL_UTLEDETE_VILKÅR.get(behandlingsmotiv);
+        var behandlingsmotiv = behandlingsmotiv1.get();
+        var vilkår = FAKTA_TIL_UTLEDETE_VILKÅR.get(behandlingsmotiv);
 
         if (vilkår == null) {
             throw kunneIkkeUtledeVilkårFor(behandling.getId(), behandlingsmotiv.getNavn());

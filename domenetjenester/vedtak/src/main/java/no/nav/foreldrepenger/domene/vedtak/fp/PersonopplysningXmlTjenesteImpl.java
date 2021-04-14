@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
@@ -52,16 +50,11 @@ import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.FamilieHendelse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Familierelasjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Inntekt;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Inntektspost;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Medlemskap;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.RelatertYtelse;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Terminbekreftelse;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Verge;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseStorrelse;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.Foedsel;
-import no.nav.vedtak.felles.xml.vedtak.personopplysninger.v2.PersonIdentifiserbar;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
@@ -102,13 +95,13 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     @Override
     public Object lagPersonopplysning(PersonopplysningerAggregat personopplysningerAggregat, Long behandlingId, AktørId aktørId,
                                       Skjæringstidspunkt skjæringstidspunkter) {
-        PersonopplysningerForeldrepenger personopplysninger = personopplysningObjectFactory.createPersonopplysningerForeldrepenger();
+        var personopplysninger = personopplysningObjectFactory.createPersonopplysningerForeldrepenger();
         familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId).ifPresent(familieHendelseGrunnlag -> {
             setVerge(behandlingId, personopplysninger);
             setMedlemskapsperioder(behandlingId, personopplysninger);
             setFamiliehendelse(personopplysninger, familieHendelseGrunnlag);
         });
-        LocalDate skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = skjæringstidspunkter.getUtledetSkjæringstidspunkt();
         setAdresse(personopplysninger, personopplysningerAggregat);
         setDokumentasjonsperioder(behandlingId, personopplysninger);
         setInntekter(behandlingId, personopplysninger, skjæringstidspunkt);
@@ -120,7 +113,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setFamiliehendelse(PersonopplysningerForeldrepenger personopplysninger, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        FamilieHendelse familieHendelse = personopplysningObjectFactory.createFamilieHendelse();
+        var familieHendelse = personopplysningObjectFactory.createFamilieHendelse();
         setFoedsel(familieHendelse, familieHendelseGrunnlag);
         setAdopsjon(familieHendelse, familieHendelseGrunnlag);
         setTerminbekreftelse(familieHendelse, familieHendelseGrunnlag);
@@ -132,7 +125,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
         var ytelser = ytelseFilter.getFiltrertYtelser();
         if (!ytelser.isEmpty()) {
-            PersonopplysningerForeldrepenger.RelaterteYtelser relaterteYtelser = personopplysningObjectFactory
+            var relaterteYtelser = personopplysningObjectFactory
                 .createPersonopplysningerForeldrepengerRelaterteYtelser();
             ytelser.forEach(ytelse -> relaterteYtelser.getRelatertYtelse().add(konverterFraDomene(ytelse)));
             personopplysninger.setRelaterteYtelser(relaterteYtelser);
@@ -140,7 +133,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private RelatertYtelse konverterFraDomene(Ytelse ytelse) {
-        RelatertYtelse relatertYtelse = personopplysningObjectFactory.createRelatertYtelse();
+        var relatertYtelse = personopplysningObjectFactory.createRelatertYtelse();
         relatertYtelse.setBehandlingstema(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getBehandlingsTema()));
         relatertYtelse.setKilde(VedtakXmlUtil.lagKodeverksOpplysning(ytelse.getKilde()));
         Optional.ofNullable(ytelse.getPeriode())
@@ -159,15 +152,15 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setYtelsesStørrelse(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
         if (ytelseGrunnlagDomene.isPresent()) {
-            YtelseGrunnlag ytelseGrunnlag = ytelseGrunnlagDomene.get();
-            List<YtelseStorrelse> ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(this::konverterFraDomene)
+            var ytelseGrunnlag = ytelseGrunnlagDomene.get();
+            var ytelseStorrelser = ytelseGrunnlag.getYtelseStørrelse().stream().map(this::konverterFraDomene)
                 .collect(Collectors.toList());
             relatertYtelseKontrakt.getYtelsesstorrelse().addAll(ytelseStorrelser);
         }
     }
 
     private YtelseStorrelse konverterFraDomene(YtelseStørrelse domene) {
-        YtelseStorrelse kontrakt = personopplysningObjectFactory.createYtelseStorrelse();
+        var kontrakt = personopplysningObjectFactory.createYtelseStorrelse();
         domene.getOrgnr().flatMap(virksomhetTjeneste::finnOrganisasjon)
             .ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
         kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(domene.getBeløp().getVerdi()));
@@ -176,20 +169,20 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private Virksomhet tilVirksomhet(no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet domene) {
-        Virksomhet kontrakt = personopplysningObjectFactory.createVirksomhet();
+        var kontrakt = personopplysningObjectFactory.createVirksomhet();
         kontrakt.setNavn(VedtakXmlUtil.lagStringOpplysning(domene.getNavn()));
         kontrakt.setOrgnr(VedtakXmlUtil.lagStringOpplysning(domene.getOrgnr()));
         return kontrakt;
     }
 
     private void setYtelsesgrunnlag(RelatertYtelse relatertYtelseKontrakt, Optional<YtelseGrunnlag> ytelseGrunnlagDomene) {
-        Optional<no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseGrunnlag> ytelseGrunnlagOptional = ytelseGrunnlagDomene
+        var ytelseGrunnlagOptional = ytelseGrunnlagDomene
             .map(this::konverterFraDomene);
         ytelseGrunnlagOptional.ifPresent(relatertYtelseKontrakt::setYtelsesgrunnlag);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseGrunnlag konverterFraDomene(YtelseGrunnlag domene) {
-        no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseGrunnlag kontrakt = personopplysningObjectFactory.createYtelseGrunnlag();
+        var kontrakt = personopplysningObjectFactory.createYtelseGrunnlag();
         domene.getArbeidskategori()
             .ifPresent(arbeidskategori -> kontrakt.setArbeidtype(VedtakXmlUtil.lagKodeverksOpplysning(arbeidskategori)));
         domene.getDekningsgradProsent().ifPresent(dp -> kontrakt.setDekningsgradprosent(VedtakXmlUtil.lagDecimalOpplysning(dp.getVerdi())));
@@ -202,13 +195,13 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setYtelseAnvist(RelatertYtelse relatertYtelseKontrakt, Collection<YtelseAnvist> ytelseAnvistDomene) {
-        List<no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseAnvist> alleYtelserAnvist = ytelseAnvistDomene.stream()
+        var alleYtelserAnvist = ytelseAnvistDomene.stream()
             .map(this::konverterFraDomene).collect(Collectors.toList());
         relatertYtelseKontrakt.getYtelseanvist().addAll(alleYtelserAnvist);
     }
 
     private no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseAnvist konverterFraDomene(YtelseAnvist domene) {
-        no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.YtelseAnvist kontrakt = personopplysningObjectFactory.createYtelseAnvist();
+        var kontrakt = personopplysningObjectFactory.createYtelseAnvist();
         domene.getBeløp().ifPresent(beløp -> kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(beløp.getVerdi())));
         domene.getDagsats().ifPresent(dagsats -> kontrakt.setDagsats(VedtakXmlUtil.lagDecimalOpplysning(dagsats.getVerdi())));
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(domene.getAnvistFOM(), domene.getAnvistTOM()));
@@ -218,12 +211,12 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setFamilierelasjoner(PersonopplysningerForeldrepenger personopplysninger, PersonopplysningerAggregat aggregat) {
-        final Map<AktørId, PersonopplysningEntitet> aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
-        final List<PersonRelasjonEntitet> tilPersoner = aggregat.getSøkersRelasjoner().stream()
+        final var aktørPersonopplysningMap = aggregat.getAktørPersonopplysningMap();
+        final var tilPersoner = aggregat.getSøkersRelasjoner().stream()
             .filter(r -> aktørPersonopplysningMap.get(r.getTilAktørId()) != null)
             .collect(Collectors.toList());
         if (!tilPersoner.isEmpty()) {
-            PersonopplysningerForeldrepenger.Familierelasjoner familierelasjoner = personopplysningObjectFactory
+            var familierelasjoner = personopplysningObjectFactory
                 .createPersonopplysningerForeldrepengerFamilierelasjoner();
             personopplysninger.setFamilierelasjoner(familierelasjoner);
             tilPersoner.forEach(relasjon -> personopplysninger.getFamilierelasjoner().getFamilierelasjon()
@@ -232,15 +225,15 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private Familierelasjon lagRelasjon(PersonRelasjonEntitet relasjon, PersonopplysningEntitet tilPerson, PersonopplysningerAggregat aggregat) {
-        Familierelasjon familierelasjon = personopplysningObjectFactory.createFamilierelasjon();
-        PersonIdentifiserbar person = personopplysningFellesTjeneste.lagBruker(aggregat, tilPerson);
+        var familierelasjon = personopplysningObjectFactory.createFamilierelasjon();
+        var person = personopplysningFellesTjeneste.lagBruker(aggregat, tilPerson);
         familierelasjon.setTilPerson(person);
         familierelasjon.setRelasjon(VedtakXmlUtil.lagKodeverksOpplysning(relasjon.getRelasjonsrolle()));
         return familierelasjon;
     }
 
     private void setDokumentasjonsperioder(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger) {
-        PersonopplysningerForeldrepenger.Dokumentasjonsperioder dokumentasjonsperioder = personopplysningObjectFactory
+        var dokumentasjonsperioder = personopplysningObjectFactory
             .createPersonopplysningerForeldrepengerDokumentasjonsperioder();
 
         ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandlingId).ifPresent(aggregat -> {
@@ -266,7 +259,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private List<? extends DokumentasjonPeriode> lagDokumentasjonPerioder(List<? extends no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.DokumentasjonPeriodeEntitet<?>> perioder) {
         List<DokumentasjonPeriode> result = new ArrayList<>();
         perioder.forEach(periode -> {
-            DokumentasjonPeriode dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
+            var dokumentasjonPeriode = personopplysningObjectFactory.createDokumentasjonPeriode();
             dokumentasjonPeriode.setDokumentasjontype(VedtakXmlUtil.lagKodeverksOpplysning(periode.getDokumentasjonType()));
             dokumentasjonPeriode.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getPeriode().getFomDato(), periode.getPeriode().getTomDato()));
             result.add(dokumentasjonPeriode);
@@ -277,7 +270,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private void setInntekter(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger, LocalDate skjæringstidspunkt) {
 
         iayTjeneste.finnGrunnlag(behandlingId).ifPresent(grunnlag -> {
-            Collection<AktørInntekt> aktørInntekt = grunnlag.getAlleAktørInntektFraRegister();
+            var aktørInntekt = grunnlag.getAlleAktørInntektFraRegister();
             if (aktørInntekt != null) {
                 var inntekter = personopplysningObjectFactory.createPersonopplysningerForeldrepengerInntekter();
                 aktørInntekt.forEach(inntekt -> {
@@ -295,9 +288,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         List<Inntektspost> inntektspostList = new ArrayList<>();
 
         filter.forFilter((inntekt, inntektsposter) -> {
-            Inntekt inntektXML = personopplysningObjectFactory.createInntekt();
+            var inntektXML = personopplysningObjectFactory.createInntekt();
             inntektsposter.forEach(inntektspost -> {
-                Inntektspost inntektspostXML = personopplysningObjectFactory.createInntektspost();
+                var inntektspostXML = personopplysningObjectFactory.createInntektspost();
                 if (inntekt.getArbeidsgiver() != null) {
                     inntektXML.setArbeidsgiver(VedtakXmlUtil.lagStringOpplysning(inntekt.getArbeidsgiver().getIdentifikator()));
                 }
@@ -315,20 +308,20 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setBruker(PersonopplysningerForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        PersonIdentifiserbar person = personopplysningFellesTjeneste.lagBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
+        var person = personopplysningFellesTjeneste.lagBruker(personopplysningerAggregat, personopplysningerAggregat.getSøker());
         personopplysninger.setBruker(person);
     }
 
     private void setAdresse(PersonopplysningerForeldrepenger personopplysninger, PersonopplysningerAggregat personopplysningerAggregat) {
-        final PersonopplysningEntitet personopplysning = personopplysningerAggregat.getSøker();
-        List<PersonAdresseEntitet> opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
+        final var personopplysning = personopplysningerAggregat.getSøker();
+        var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId());
         if (opplysningAdresser != null) {
             opplysningAdresser.forEach(adresse -> personopplysninger.getAdresse().add(lagAdresse(personopplysning, adresse)));
         }
     }
 
     private Addresse lagAdresse(PersonopplysningEntitet personopplysning, PersonAdresseEntitet adresseFraBehandling) {
-        Addresse adresse = personopplysningObjectFactory.createAddresse();
+        var adresse = personopplysningObjectFactory.createAddresse();
         adresse.setAdressetype(VedtakXmlUtil.lagKodeverksOpplysning(adresseFraBehandling.getAdresseType()));
         adresse.setAddresselinje1(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getAdresselinje1()));
         if (adresseFraBehandling.getAdresselinje2() != null) {
@@ -347,10 +340,10 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private void setFoedsel(FamilieHendelse familieHendelse, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet gjeldendeFamiliehendelse = familieHendelseGrunnlag
+        var gjeldendeFamiliehendelse = familieHendelseGrunnlag
             .getGjeldendeVersjon();
         if (Arrays.asList(FamilieHendelseType.FØDSEL, FamilieHendelseType.TERMIN).contains(gjeldendeFamiliehendelse.getType())) {
-            Foedsel fødsel = personopplysningBaseObjectFactory.createFoedsel();
+            var fødsel = personopplysningBaseObjectFactory.createFoedsel();
             fødsel.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(gjeldendeFamiliehendelse.getAntallBarn()));
             gjeldendeFamiliehendelse.getFødselsdato().flatMap(VedtakXmlUtil::lagDateOpplysning).ifPresent(fødsel::setFoedselsdato);
             familieHendelse.setFoedsel(fødsel);
@@ -359,7 +352,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setAdopsjon(FamilieHendelse familieHendelse, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         familieHendelseGrunnlag.getGjeldendeAdopsjon().ifPresent(adopsjonhendelse -> {
-            Adopsjon adopsjon = personopplysningObjectFactory.createAdopsjon();
+            var adopsjon = personopplysningObjectFactory.createAdopsjon();
             if (adopsjonhendelse.getErEktefellesBarn() != null) {
                 adopsjon.setErEktefellesBarn(VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.getErEktefellesBarn()));
             }
@@ -375,7 +368,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     }
 
     private Adopsjon.Adopsjonsbarn leggTilAdopsjonsbarn(UidentifisertBarn aBarn) {
-        Adopsjon.Adopsjonsbarn adopsjonsbarn = personopplysningObjectFactory.createAdopsjonAdopsjonsbarn();
+        var adopsjonsbarn = personopplysningObjectFactory.createAdopsjonAdopsjonsbarn();
         VedtakXmlUtil.lagDateOpplysning(aBarn.getFødselsdato()).ifPresent(adopsjonsbarn::setFoedselsdato);
         return adopsjonsbarn;
     }
@@ -383,7 +376,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private void setTerminbekreftelse(FamilieHendelse familieHendelse, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag.getGjeldendeVersjon().getType().equals(FamilieHendelseType.TERMIN)) {
             familieHendelseGrunnlag.getGjeldendeTerminbekreftelse().ifPresent(terminbekreftelseFraBehandling -> {
-                Terminbekreftelse terminbekreftelse = personopplysningObjectFactory.createTerminbekreftelse();
+                var terminbekreftelse = personopplysningObjectFactory.createTerminbekreftelse();
                 terminbekreftelse.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(familieHendelseGrunnlag.getGjeldendeAntallBarn()));
                 VedtakXmlUtil.lagDateOpplysning(terminbekreftelseFraBehandling.getUtstedtdato()).ifPresent(terminbekreftelse::setUtstedtDato);
                 VedtakXmlUtil.lagDateOpplysning(terminbekreftelseFraBehandling.getTermindato()).ifPresent(terminbekreftelse::setTermindato);
@@ -394,7 +387,7 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     private void setMedlemskapsperioder(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger) {
         medlemskapRepository.hentMedlemskap(behandlingId).ifPresent(medlemskapAggregat -> {
-            Medlemskap medlemskap = personopplysningObjectFactory.createMedlemskap();
+            var medlemskap = personopplysningObjectFactory.createMedlemskap();
             personopplysninger.setMedlemskap(medlemskap);
 
             medlemskapAggregat.getRegistrertMedlemskapPerioder()
@@ -406,13 +399,13 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private void setVerge(Long behandlingId, PersonopplysningerForeldrepenger personopplysninger) {
         vergeRepository.hentAggregat(behandlingId).ifPresent(vergeAggregat -> {
             vergeAggregat.getVerge().ifPresent(vergeFraBehandling -> {
-                Verge verge = personopplysningObjectFactory.createVerge();
+                var verge = personopplysningObjectFactory.createVerge();
                 if( vergeFraBehandling.getVergeOrganisasjon().isPresent()){
                     verge.setNavn(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getNavn()));
                     verge.setOrganisasjonsnummer(VedtakXmlUtil.lagStringOpplysning( vergeFraBehandling.getVergeOrganisasjon().get().getOrganisasjonsnummer()));
                 }
                 else {
-                    Optional<AktørId> aktørId = vergeAggregat.getAktørId();
+                    var aktørId = vergeAggregat.getAktørId();
                     aktørId.ifPresent(id -> verge.setNavn(VedtakXmlUtil.lagStringOpplysning(personopplysningFellesTjeneste.hentVergeNavn(id))));
                 }
                 verge.setVergetype(VedtakXmlUtil.lagKodeverksOpplysning(vergeFraBehandling.getVergeType()));

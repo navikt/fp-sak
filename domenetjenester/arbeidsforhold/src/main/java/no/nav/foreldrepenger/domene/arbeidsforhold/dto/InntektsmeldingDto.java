@@ -7,11 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.iay.modell.Gradering;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.UtsettelsePeriode;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class InntektsmeldingDto {
@@ -31,7 +28,7 @@ public class InntektsmeldingDto {
 
     public InntektsmeldingDto(Inntektsmelding inntektsmelding, Optional<Virksomhet> virksomhet) {
         this.arbeidsgiverReferanse = inntektsmelding.getArbeidsgiver().getIdentifikator();
-        Arbeidsgiver arb = inntektsmelding.getArbeidsgiver();
+        var arb = inntektsmelding.getArbeidsgiver();
         this.arbeidsgiver = arb.getErVirksomhet()
                 ? virksomhet.orElseThrow(() -> {
                     return new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + arb.getOrgnr());
@@ -41,7 +38,7 @@ public class InntektsmeldingDto {
         this.arbeidsgiverStartdato = inntektsmelding.getStartDatoPermisjon().orElse(null);
         this.innsendingstidspunkt = inntektsmelding.getInnsendingstidspunkt();
 
-        List<UtsettelsePeriode> utsettelser = inntektsmelding.getUtsettelsePerioder();
+        var utsettelser = inntektsmelding.getUtsettelsePerioder();
         if (utsettelser != null) {
             this.utsettelsePerioder.addAll(utsettelser
                     .stream()
@@ -49,7 +46,7 @@ public class InntektsmeldingDto {
                     .collect(Collectors.toList()));
         }
 
-        List<Gradering> graderinger = inntektsmelding.getGraderinger();
+        var graderinger = inntektsmelding.getGraderinger();
         if (graderinger != null) {
             this.graderingPerioder.addAll(graderinger
                     .stream()

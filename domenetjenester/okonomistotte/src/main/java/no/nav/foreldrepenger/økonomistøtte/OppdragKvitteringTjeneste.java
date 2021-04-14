@@ -16,7 +16,7 @@ public class OppdragKvitteringTjeneste {
     }
 
     private static boolean erPositivKvittering(OppdragKvittering oppdragKvittering) {
-        int alvorlighetsgrad = Integer.parseInt(oppdragKvittering.getAlvorlighetsgrad());
+        var alvorlighetsgrad = Integer.parseInt(oppdragKvittering.getAlvorlighetsgrad());
         return alvorlighetsgrad <= POSITIV_KVITTERING;
     }
 }

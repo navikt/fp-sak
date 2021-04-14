@@ -30,8 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -109,7 +107,7 @@ public class OpprettNyFørstegangsbehandlingTest {
 
     @BeforeEach
     public void setup(EntityManager em) {
-        ProsessTaskEventPubliserer prosessTaskEventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
+        var prosessTaskEventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
         Mockito.lenient().doNothing().when(prosessTaskEventPubliserer).fireEvent(Mockito.any(ProsessTaskData.class), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.any());
         prosessTaskRepository = Mockito.spy(new ProsessTaskRepositoryImpl(em, null, prosessTaskEventPubliserer));
@@ -130,24 +128,24 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockMottatteDokumentRepository(BehandlingRepositoryProvider repositoryProvider) {
-        MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
+        var mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
         lenient().when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
-            MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
-            MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md2d);
-            MottattDokument md3d = md3.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md3d = md3.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             // Whitebox.setInternalState(md3d, "opprettetTidspunkt", LocalDateTime.now());
             md3d.setOpprettetTidspunkt(LocalDateTime.now());
             mottatteDokumentList.add(md3d);
-            MottattDokument md4d = md4.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md4d = md4.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             // Whitebox.setInternalState(md4d, "opprettetTidspunkt",
             // LocalDateTime.now().plusSeconds(1L));
             md4d.setOpprettetTidspunkt(LocalDateTime.now().plusSeconds(1L));
@@ -159,15 +157,15 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockMottatteDokumentRepositoryElsokMedBehandling(BehandlingRepositoryProvider repositoryProvider) {
-        MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
+        var mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
-            MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md1d = md1.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
             mottatteDokumentList.add(md1d);
-            MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
@@ -179,10 +177,10 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockMottatteDokumentRepositoryElsokUtenBehandling(BehandlingRepositoryProvider repositoryProvider) {
-        MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
+        var mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
-            MottattDokument md1d = md1.medFagsakId(behandling.getFagsakId()).build();
+            var md1d = md1.medFagsakId(behandling.getFagsakId()).build();
             md1d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             // Whitebox.setInternalState(md1d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
@@ -194,10 +192,10 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockMottatteDokumentRepositoryImMedBehandling(BehandlingRepositoryProvider repositoryProvider) {
-        MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
+        var mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
-            MottattDokument md5d = md5.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md5d = md5.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md5d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
 
             // Whitebox.setInternalState(md5d, "opprettetTidspunkt",
@@ -210,10 +208,10 @@ public class OpprettNyFørstegangsbehandlingTest {
     }
 
     private void mockMottatteDokumentRepositoryUtenSøknadEllerIm(BehandlingRepositoryProvider repositoryProvider) {
-        MottatteDokumentRepository mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
+        var mottatteDokumentRepository = mock(MottatteDokumentRepository.class);
         when(mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId())).thenAnswer(invocation -> {
             List<MottattDokument> mottatteDokumentList = new ArrayList<>();
-            MottattDokument md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
+            var md2d = md2.medFagsakId(behandling.getFagsakId()).medBehandlingId(behandling.getId()).build();
             md2d.setOpprettetTidspunkt(LocalDateTime.now().minusSeconds(1L));
             // Whitebox.setInternalState(md2d, "opprettetTidspunkt",
             // LocalDateTime.now().minusSeconds(1L));
@@ -245,9 +243,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         mockMottatteDokumentRepository(repositoryProvider);
         behandling.avsluttBehandling();
 
-        Behandling klage = Behandling.forKlage(behandling.getFagsak()).build();
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(klage);
+        var klage = Behandling.forKlage(behandling.getFagsak()).build();
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var lås = behandlingRepository.taSkriveLås(klage);
         behandlingRepository.lagre(klage, lås);
         klageRepository.hentEvtOpprettKlageResultat(klage.getId());
 
@@ -262,9 +260,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), true);
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_ID, false);
     }
 
@@ -278,9 +276,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, false);
     }
 
@@ -294,9 +292,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, true);
     }
 
@@ -310,9 +308,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.opprettNyFørstegangsbehandling(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer(), false);
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_IM_ID, true);
     }
 
@@ -345,9 +343,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_ID, false);
     }
 
@@ -358,9 +356,9 @@ public class OpprettNyFørstegangsbehandlingTest {
         behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(behandling.getFagsakId(), behandling.getFagsak().getSaksnummer());
 
         // Assert
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository, times(1)).lagre(captor.capture());
-        ProsessTaskData prosessTaskData = captor.getValue();
+        var prosessTaskData = captor.getValue();
         verifiserProsessTaskData(behandling, prosessTaskData, MOTTATT_DOKUMENT_EL_SØKNAD_ID, true);
     }
 

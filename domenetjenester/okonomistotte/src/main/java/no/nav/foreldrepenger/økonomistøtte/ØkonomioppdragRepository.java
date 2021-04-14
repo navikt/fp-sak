@@ -10,7 +10,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -40,7 +39,7 @@ public class ØkonomioppdragRepository {
 
 
     public Oppdragskontroll hentOppdragskontroll(long oppdragskontrollId) {
-        TypedQuery<Oppdragskontroll> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from Oppdragskontroll where id=:oppdragskontrollId", Oppdragskontroll.class); //$NON-NLS-1$
         query.setParameter("oppdragskontrollId", oppdragskontrollId); //$NON-NLS-1$
         return hentEksaktResultat(query);
@@ -55,7 +54,7 @@ public class ØkonomioppdragRepository {
             throw new IllegalArgumentException("Datointervall for økonomioppdrag må inneholde minst 1 dag");
         }
 
-        List<Oppdrag110> resultList = entityManager
+        var resultList = entityManager
             .createQuery("""
                 select o110 from Oppdrag110 as o110
                 where o110.opprettetTidspunkt >= :fomTidspunkt
@@ -89,7 +88,7 @@ public class ØkonomioppdragRepository {
     }
 
     public Optional<Oppdragskontroll> finnOppdragForBehandling(long behandlingId) {
-        List<Oppdragskontroll> resultList = entityManager.createQuery(
+        var resultList = entityManager.createQuery(
             "from Oppdragskontroll where behandlingId = :behandlingId", Oppdragskontroll.class)//$NON-NLS-1$
             .setParameter("behandlingId", behandlingId)
             .getResultList();

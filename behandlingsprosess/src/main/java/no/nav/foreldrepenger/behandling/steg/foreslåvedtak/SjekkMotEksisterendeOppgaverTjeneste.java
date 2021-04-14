@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -48,7 +47,7 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
             return new ArrayList<>();
         }
 
-        List<Historikkinnslag> historikkInnslagFraRepo = historikkRepository.hentHistorikk(behandling.getId());
+        var historikkInnslagFraRepo = historikkRepository.hentHistorikk(behandling.getId());
         List<AksjonspunktDefinisjon> aksjonspunktliste = new ArrayList<>();
 
         if (oppgaveTjeneste.harÅpneOppgaverAvType(aktørid, Oppgavetyper.VURDER_KONSEKVENS_YTELSE)) {
@@ -79,18 +78,18 @@ public class SjekkMotEksisterendeOppgaverTjeneste {
     private void opprettHistorikkinnslagOmVurderingFørVedtak(Behandling behandling, OppgaveÅrsak begrunnelse,
             List<Historikkinnslag> historikkInnslagFraRepo) {
         // finne historikkinnslag hvor vi har en begrunnelse?
-        List<Historikkinnslag> eksisterendeVurderHistInnslag = historikkInnslagFraRepo.stream()
+        var eksisterendeVurderHistInnslag = historikkInnslagFraRepo.stream()
                 .filter(historikkinnslag -> {
-                    List<HistorikkinnslagDel> historikkinnslagDeler = historikkinnslag.getHistorikkinnslagDeler();
+                    var historikkinnslagDeler = historikkinnslag.getHistorikkinnslagDeler();
                     return historikkinnslagDeler.stream().anyMatch(del -> del.getBegrunnelse().isPresent());
                 })
                 .collect(Collectors.toList());
 
         if (eksisterendeVurderHistInnslag.isEmpty()) {
-            Historikkinnslag vurderFørVedtakInnslag = new Historikkinnslag();
+            var vurderFørVedtakInnslag = new Historikkinnslag();
             vurderFørVedtakInnslag.setType(HistorikkinnslagType.BEH_AVBRUTT_VUR);
             vurderFørVedtakInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-            HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
+            var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
                     .medHendelse(HistorikkinnslagType.BEH_AVBRUTT_VUR)
                     .medBegrunnelse(begrunnelse);
             historikkInnslagTekstBuilder.build(vurderFørVedtakInnslag);

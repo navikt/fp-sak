@@ -111,7 +111,8 @@ public class FagsakRelasjon extends BaseEntitet {
     public Optional<Fagsak> getRelatertFagsakFraId(Long fagsakId) {
         if (fagsakNrEn.getId().equals(fagsakId)) {
             return getFagsakNrTo();
-        } else if (fagsakNrTo != null && fagsakNrTo.getId().equals(fagsakId)) {
+        }
+        if (fagsakNrTo != null && fagsakNrTo.getId().equals(fagsakId)) {
             return Optional.of(fagsakNrEn);
         }
         return Optional.empty();

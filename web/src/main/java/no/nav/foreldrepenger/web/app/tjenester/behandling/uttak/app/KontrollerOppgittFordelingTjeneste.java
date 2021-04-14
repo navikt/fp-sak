@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -33,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsgiverLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.KontrollerFaktaPeriodeLagreDto;
@@ -75,9 +73,9 @@ public class KontrollerOppgittFordelingTjeneste {
         final List<OppgittPeriodeEntitet> overstyrtPerioder = new ArrayList<>();
         final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonsperioder = new ArrayList<>();
 
-        for (BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto : bekreftedePerioder) {
-            KontrollerFaktaPeriodeLagreDto bekreftetPeriode = bekreftetOppgittPeriodeDto.getBekreftetPeriode();
-            final OppgittPeriodeBuilder oppgittPeriodeBuilder = oversettPeriode(bekreftetPeriode);
+        for (var bekreftetOppgittPeriodeDto : bekreftedePerioder) {
+            var bekreftetPeriode = bekreftetOppgittPeriodeDto.getBekreftetPeriode();
+            final var oppgittPeriodeBuilder = oversettPeriode(bekreftetPeriode);
             if (bekreftetPeriode.getÅrsak().isPresent()) {
                 dokumentasjonsperioder.addAll(oversettDokumentasjonsperioder(bekreftetPeriode.getÅrsak().get(), bekreftetPeriode.getDokumentertePerioder()));
             }
@@ -100,7 +98,7 @@ public class KontrollerOppgittFordelingTjeneste {
     }
 
     private void valider(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
-        Optional<LocalDate> førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling);
+        var førsteUttaksdato = førsteUttaksdatoTjeneste.finnFørsteUttaksdato(behandling);
         AvklarFaktaUttakValidator.validerOpplysninger(bekreftedePerioder, førsteUttaksdato);
     }
 
@@ -132,7 +130,7 @@ public class KontrollerOppgittFordelingTjeneste {
 
     private OppgittPeriodeBuilder oversettPeriode(KontrollerFaktaPeriodeLagreDto faktaPeriodeDto) {
         Objects.requireNonNull(faktaPeriodeDto, "kontrollerFaktaPeriodeDto"); // NOSONAR $NON-NLS-1$
-        final OppgittPeriodeBuilder periodeBuilder = OppgittPeriodeBuilder.ny()
+        final var periodeBuilder = OppgittPeriodeBuilder.ny()
             .medPeriode(faktaPeriodeDto.getFom(), faktaPeriodeDto.getTom())
             .medSamtidigUttak(faktaPeriodeDto.getSamtidigUttak())
             .medSamtidigUttaksprosent(faktaPeriodeDto.getSamtidigUttaksprosent())
@@ -176,11 +174,11 @@ public class KontrollerOppgittFordelingTjeneste {
     }
 
     private Arbeidsgiver hentArbeidsgiver(KontrollerFaktaPeriodeLagreDto faktaPeriodeDto) {
-        ArbeidsgiverLagreDto arbeidsgiver = faktaPeriodeDto.getArbeidsgiver();
+        var arbeidsgiver = faktaPeriodeDto.getArbeidsgiver();
         if (!arbeidsgiver.erVirksomhet()) {
             return Arbeidsgiver.person(arbeidsgiver.getAktørId());
         }
-        String arbeidsgiverIdentifikator = arbeidsgiver.getIdentifikator();
+        var arbeidsgiverIdentifikator = arbeidsgiver.getIdentifikator();
         return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
     }
 

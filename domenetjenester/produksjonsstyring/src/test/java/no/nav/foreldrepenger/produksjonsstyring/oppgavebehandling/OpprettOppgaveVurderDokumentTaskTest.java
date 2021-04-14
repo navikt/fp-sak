@@ -42,14 +42,14 @@ public class OpprettOppgaveVurderDokumentTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_vurdere_dokument_basert_på_fagsakId() {
         // Arrange
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         prosessTaskData.setFagsakId(FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
-        ArgumentCaptor<Long> fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<OppgaveÅrsak> årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
-        ArgumentCaptor<String> fordelingsoppgaveEnhetsIdCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Boolean> priCaptor = ArgumentCaptor.forClass(Boolean.class);
+        var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
+        var årsakCaptor = ArgumentCaptor.forClass(OppgaveÅrsak.class);
+        var fordelingsoppgaveEnhetsIdCaptor = ArgumentCaptor.forClass(String.class);
+        var beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
+        var priCaptor = ArgumentCaptor.forClass(Boolean.class);
 
         // Act
         opprettOppgaveVurderDokumentTask.doTask(prosessTaskData);
