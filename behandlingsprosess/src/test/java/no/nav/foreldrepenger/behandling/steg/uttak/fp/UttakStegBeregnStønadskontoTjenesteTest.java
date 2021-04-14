@@ -65,7 +65,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_beregne_hvis_vedtak_uten_uttak() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
 
@@ -73,10 +73,10 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
@@ -85,7 +85,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_beregne_hvis_vedtak_har_uttak_der_alle_periodene_er_avslått() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         lagreUttak(førsteBehandling, avslåttUttak());
         avsluttMedVedtak(førsteBehandling, repositoryProvider);
@@ -94,10 +94,10 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
@@ -106,10 +106,10 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_ikke_beregne_hvis_vedtak_har_uttak_der_en_periode_er_innvilget_og_en_avslått() {
         var førsteScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling førsteBehandling = førsteScenario.lagre(repositoryProvider);
+        var førsteBehandling = førsteScenario.lagre(repositoryProvider);
         opprettStønadskontoer(førsteBehandling);
         var uttak = avslåttUttak();
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
+        var periode = new UttakResultatPeriodeEntitet.Builder(uttak.getPerioder().get(0).getFom().minusWeeks(1),
                 uttak.getPerioder().get(0).getFom().minusDays(1))
                         .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
                         .build();
@@ -128,11 +128,11 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
                 .medOriginalBehandling(førsteBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         revurderingScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling revurdering = revurderingScenario.lagre(repositoryProvider);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(false, førsteBehandling.getId()));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
@@ -141,7 +141,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_ikke_beregne_hvis_annenpart_vedtak_har_uttak_innvilget() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);
         var uttak = innvilgetUttak();
         lagreUttak(morBehandling, uttak);
@@ -150,12 +150,12 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
                 .medAnnenpart(new Annenpart(false, morBehandling.getId()));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.INGEN_BEREGNING);
@@ -169,18 +169,18 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_beregne_hvis_annenpart_vedtak_har_uten_uttak() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);
         avsluttMedVedtak(morBehandling, repositoryProvider);
 
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
@@ -189,7 +189,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
     @Test
     public void skal_beregne_hvis_annenpart_vedtak_har_uttak_avslått() {
         var morScenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morBehandling = morScenario.lagre(repositoryProvider);
+        var morBehandling = morScenario.lagre(repositoryProvider);
         opprettStønadskontoer(morBehandling);
         lagreUttak(morBehandling, avslåttUttak());
         avsluttMedVedtak(morBehandling, repositoryProvider);
@@ -197,11 +197,11 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         var farScenario = ScenarioFarSøkerForeldrepenger.forFødsel()
                 .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         farScenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        Behandling farBehandling = farScenario.lagre(repositoryProvider);
+        var farBehandling = farScenario.lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
-        UttakInput input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
+        var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1));
+        var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
         assertThat(resultat).isEqualTo(BeregningingAvStønadskontoResultat.BEREGNET);
@@ -213,7 +213,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
 
     private UttakResultatPerioderEntitet innvilgetUttak() {
         var uttak = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
+        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(),
                 LocalDate.now().plusWeeks(1))
                         .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
                         .build();
@@ -230,7 +230,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
 
     private UttakResultatPerioderEntitet avslåttUttak() {
         var uttak = new UttakResultatPerioderEntitet();
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
+        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusWeeks(1))
                 .medResultatType(PeriodeResultatType.AVSLÅTT, IkkeOppfyltÅrsak.BARNET_ER_DØD)
                 .build();
         new UttakResultatPeriodeAktivitetEntitet.Builder(periode,

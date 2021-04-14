@@ -101,7 +101,7 @@ public class UttakPerioderDtoTjeneste {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling);
         List<UttakResultatPeriodeDto> list = new ArrayList<>();
         for (var entitet : gjeldenePerioder) {
-            UttakResultatPeriodeDto periode = map(entitet, iayGrunnlag);
+            var periode = map(entitet, iayGrunnlag);
             list.add(periode);
         }
 
@@ -143,7 +143,7 @@ public class UttakPerioderDtoTjeneste {
     private UttakResultatPeriodeAktivitetDto map(ForeldrepengerUttakPeriodeAktivitet aktivitet,
                                                  Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                  boolean opprinneligSendtTilManuellBehandling) {
-        UttakResultatPeriodeAktivitetDto.Builder builder = new UttakResultatPeriodeAktivitetDto.Builder()
+        var builder = new UttakResultatPeriodeAktivitetDto.Builder()
             .medProsentArbeid(aktivitet.getArbeidsprosent())
             .medGradering(aktivitet.isSøktGraderingForAktivitetIPeriode())
             .medTrekkdager(aktivitet.getTrekkdager())
@@ -160,7 +160,7 @@ public class UttakPerioderDtoTjeneste {
                                    UttakResultatPeriodeAktivitetDto.Builder builder,
                                    Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         var arbeidsgiverOptional = aktivitet.getUttakAktivitet().getArbeidsgiver();
-        String arbeidsgiverReferanse = arbeidsgiverOptional.map(Arbeidsgiver::getIdentifikator).orElse(null);
+        var arbeidsgiverReferanse = arbeidsgiverOptional.map(Arbeidsgiver::getIdentifikator).orElse(null);
         var ref = aktivitet.getArbeidsforholdRef();
         if (ref != null && inntektArbeidYtelseGrunnlag.isPresent() && inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().isPresent() && arbeidsgiverOptional.isPresent()) {
             var eksternArbeidsforholdId = inntektArbeidYtelseGrunnlag.get().getArbeidsforholdInformasjon().get().finnEkstern(arbeidsgiverOptional.get(), ref);

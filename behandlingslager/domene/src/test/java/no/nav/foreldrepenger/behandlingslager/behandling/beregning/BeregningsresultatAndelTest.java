@@ -19,7 +19,7 @@ public class BeregningsresultatAndelTest {
 
     @BeforeEach
     public void oppsett() {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();
@@ -32,7 +32,7 @@ public class BeregningsresultatAndelTest {
 
     @Test
     public void andel_hvor_alle_feltene_er_satt_uten_arbeidsgiver() {
-        BeregningsresultatAndel andel = BeregningsresultatAndel.builder()
+        var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
                 .medStillingsprosent(BigDecimal.valueOf(100))
@@ -52,7 +52,7 @@ public class BeregningsresultatAndelTest {
 
     @Test
     public void andel_hvor_alle_feltene_er_satt_med_arbeidsgiver() {
-        BeregningsresultatAndel andel = BeregningsresultatAndel.builder()
+        var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(false)
                 .medDagsats(550)
                 .medStillingsprosent(BigDecimal.valueOf(100))
@@ -72,7 +72,7 @@ public class BeregningsresultatAndelTest {
 
     @Test
     public void andel_hvor_brukerErMottaker_er_true_og_arbeidsgiver_er_satt() {
-        BeregningsresultatAndel andel = BeregningsresultatAndel.builder()
+        var andel = BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(true)
                 .medDagsats(550)
                 .medStillingsprosent(BigDecimal.valueOf(100))

@@ -35,8 +35,7 @@ public class RegelResultat {
     }
 
     public <V> Optional<V> getEkstraResultat(VilkårType vilkårType) {
-        @SuppressWarnings("unchecked")
-        V val = (V) ekstraResultater.get(vilkårType);
+        @SuppressWarnings("unchecked") var val = (V) ekstraResultater.get(vilkårType);
         return Optional.ofNullable(val);
     }
 }

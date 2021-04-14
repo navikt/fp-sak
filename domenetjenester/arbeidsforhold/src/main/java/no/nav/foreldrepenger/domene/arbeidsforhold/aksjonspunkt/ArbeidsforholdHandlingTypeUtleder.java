@@ -24,19 +24,26 @@ class ArbeidsforholdHandlingTypeUtleder {
 
         if (inntektSkalIkkeMedTilBeregningsgrunnlaget(arbeidsforholdDto)) {
             return INNTEKT_IKKE_MED_I_BG;
-        } else if (skalLeggeTilNyttArbeidsforhold(arbeidsforholdDto)) {
+        }
+        if (skalLeggeTilNyttArbeidsforhold(arbeidsforholdDto)) {
             return LAGT_TIL_AV_SAKSBEHANDLER;
-        } else if (skalLeggeTilNyttArbeidsforholdBasertPåInntektsmelding(arbeidsforholdDto)) {
+        }
+        if (skalLeggeTilNyttArbeidsforholdBasertPåInntektsmelding(arbeidsforholdDto)) {
             return BASERT_PÅ_INNTEKTSMELDING;
-        } else if (skalOverstyrePerioder(arbeidsforholdDto)) {
+        }
+        if (skalOverstyrePerioder(arbeidsforholdDto)) {
             return BRUK_MED_OVERSTYRT_PERIODE;
-        } else if (skalBrukeUtenInnteksmelding(arbeidsforholdDto)) {
+        }
+        if (skalBrukeUtenInnteksmelding(arbeidsforholdDto)) {
             return BRUK_UTEN_INNTEKTSMELDING;
-        } else if (skalErstatteAnnenInntektsmelding(arbeidsforholdDto)) {
+        }
+        if (skalErstatteAnnenInntektsmelding(arbeidsforholdDto)) {
             return SLÅTT_SAMMEN_MED_ANNET;
-        } else if (erNyttArbeidsforhold(arbeidsforholdDto)) {
+        }
+        if (erNyttArbeidsforhold(arbeidsforholdDto)) {
             return NYTT_ARBEIDSFORHOLD;
-        } else if (brukArbeidsforholdet(arbeidsforholdDto)) {
+        }
+        if (brukArbeidsforholdet(arbeidsforholdDto)) {
             return BRUK;
         }
         return IKKE_BRUK;

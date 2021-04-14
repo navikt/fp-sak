@@ -17,8 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegUtfall;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
@@ -28,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -66,25 +63,25 @@ public class BehandlingModellTest {
     @Test
     public void skal_finne_aksjonspunkter_som_ligger_etter_et_gitt_steg() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        AksjonspunktDefinisjon a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        AksjonspunktDefinisjon a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        AksjonspunktDefinisjon a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        AksjonspunktDefinisjon a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
-        AksjonspunktDefinisjon a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-        AksjonspunktDefinisjon a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
+        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
+        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
+        var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
+        var a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
 
-        DummySteg steg = new DummySteg();
-        DummySteg steg0 = new DummySteg();
-        DummySteg steg1 = new DummySteg();
-        DummySteg steg2 = new DummySteg();
+        var steg = new DummySteg();
+        var steg0 = new DummySteg();
+        var steg1 = new DummySteg();
+        var steg2 = new DummySteg();
 
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)),
                 new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, steg2, ap(a2_0), ap(a2_1)));
 
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
         Set<String> ads = null;
 
@@ -139,21 +136,21 @@ public class BehandlingModellTest {
     @Test
     public void skal_finne_aksjonspunkter_ved_inngang_eller_utgang_av_steg() {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
-        AksjonspunktDefinisjon a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
-        AksjonspunktDefinisjon a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        AksjonspunktDefinisjon a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
-        AksjonspunktDefinisjon a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
+        var a0_0 = AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT;
+        var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
+        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
 
-        DummySteg steg = new DummySteg();
-        DummySteg steg0 = new DummySteg();
-        DummySteg steg1 = new DummySteg();
+        var steg = new DummySteg();
+        var steg0 = new DummySteg();
+        var steg1 = new DummySteg();
 
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, steg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, steg0, ap(a0_0), ap(a0_1)),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, steg1, ap(a1_0), ap(a1_1)));
 
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
         Set<String> ads = null;
 
@@ -171,18 +168,18 @@ public class BehandlingModellTest {
     @Test
     public void skal_stoppe_på_steg_2_når_får_aksjonspunkt() throws Exception {
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, aksjonspunktSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
                         ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()),
                 new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
-        BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
-        BehandlingStegUtfall siste = modell.prosesserFra(STEG_1, visitor);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
+        var visitor = lagVisitor(behandling);
+        var siste = modell.prosesserFra(STEG_1, visitor);
 
         assertThat(siste.getBehandlingStegType()).isEqualTo(STEG_3);
         assertThat(visitor.kjørteSteg).isEqualTo(List.of(STEG_1, STEG_2, STEG_3));
@@ -195,16 +192,16 @@ public class BehandlingModellTest {
     @Test
     public void skal_kjøre_til_siste_når_ingen_gir_aksjonspunkt() throws Exception {
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
-        BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
-        BehandlingStegUtfall siste = modell.prosesserFra(STEG_1, visitor);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
+        var visitor = lagVisitor(behandling);
+        var siste = modell.prosesserFra(STEG_1, visitor);
 
         assertThat(siste).isNull();
         assertThat(visitor.kjørteSteg).isEqualTo(List.of(STEG_1, STEG_2, STEG_3));
@@ -213,19 +210,19 @@ public class BehandlingModellTest {
     @Test
     public void skal_stoppe_når_settes_på_vent_deretter_fortsette() {
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullVenterSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
 
         // Act 1
-        BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
+        var visitor = lagVisitor(behandling);
 
-        BehandlingStegUtfall første = modell.prosesserFra(STEG_1, visitor);
+        var første = modell.prosesserFra(STEG_1, visitor);
 
         assertThat(første).isNotNull();
         assertThat(første.getBehandlingStegType()).isEqualTo(STEG_2);
@@ -233,8 +230,8 @@ public class BehandlingModellTest {
         assertThat(visitor.kjørteSteg).isEqualTo(List.of(STEG_1, STEG_2));
 
         // Act 2
-        BehandlingStegVisitorUtenLagring visitorNeste = lagVisitor(behandling);
-        BehandlingStegUtfall neste = modell.prosesserFra(STEG_2, visitorNeste);
+        var visitorNeste = lagVisitor(behandling);
+        var neste = modell.prosesserFra(STEG_2, visitorNeste);
 
         assertThat(neste).isNotNull();
         assertThat(neste.getBehandlingStegType()).isEqualTo(STEG_2);
@@ -242,8 +239,8 @@ public class BehandlingModellTest {
         assertThat(visitorNeste.kjørteSteg).isEqualTo(List.of(STEG_2));
 
         // Act 3
-        BehandlingStegVisitorUtenLagring visitorNeste2 = lagVisitor(behandling);
-        BehandlingStegUtfall neste2 = modell.prosesserFra(STEG_2, visitorNeste2);
+        var visitorNeste2 = lagVisitor(behandling);
+        var neste2 = modell.prosesserFra(STEG_2, visitorNeste2);
 
         assertThat(neste2).isNotNull();
         assertThat(neste2.getBehandlingStegType()).isEqualTo(STEG_2);
@@ -251,9 +248,9 @@ public class BehandlingModellTest {
         assertThat(visitorNeste2.kjørteSteg).isEqualTo(List.of(STEG_2));
 
         // Act 4
-        BehandlingStegVisitorVenterUtenLagring gjenoppta = lagVisitorVenter(behandling);
+        var gjenoppta = lagVisitorVenter(behandling);
 
-        BehandlingStegUtfall fortsett = modell.prosesserFra(STEG_2, gjenoppta);
+        var fortsett = modell.prosesserFra(STEG_2, gjenoppta);
         assertThat(fortsett).isNull();
         assertThat(gjenoppta.kjørteSteg).isEqualTo(List.of(STEG_2, STEG_3));
     }
@@ -261,79 +258,79 @@ public class BehandlingModellTest {
     @Test
     public void skal_feile_ved_gjenopptak_vanlig_steg() {
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
 
         // Act 1
-        BehandlingStegVisitorVenterUtenLagring visitor = lagVisitorVenter(behandling);
+        var visitor = lagVisitorVenter(behandling);
         assertThrows(IllegalStateException.class, () -> modell.prosesserFra(STEG_1, visitor));
     }
 
     @Test
     public void tilbakefører_til_tidligste_steg_med_åpent_aksjonspunkt() {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerUtgang().get(0);
-        DummySteg tilbakeføringssteg = new DummySteg(true, opprettForAksjonspunkt(aksjonspunktDefinisjon));
+        var aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerUtgang().get(0);
+        var tilbakeføringssteg = new DummySteg(true, opprettForAksjonspunkt(aksjonspunktDefinisjon));
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, tilbakeføringssteg, ap(), ap()),
                 new TestStegKonfig(STEG_4, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
 
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
-        BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
+        var visitor = lagVisitor(behandling);
 
-        Aksjonspunkt aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository()
+        var aksjonspunkt = serviceProvider.getAksjonspunktKontrollRepository()
                 .leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon, STEG_1);
         serviceProvider.getAksjonspunktKontrollRepository().setReåpnet(aksjonspunkt);
 
-        BehandlingStegUtfall siste = modell.prosesserFra(STEG_3, visitor);
+        var siste = modell.prosesserFra(STEG_3, visitor);
         assertThat(siste.getBehandlingStegType()).isEqualTo(STEG_3);
 
-        Behandling beh = hentBehandling(behandling.getId());
+        var beh = hentBehandling(behandling.getId());
         assertThat(beh.getAktivtBehandlingSteg()).isEqualTo(STEG_2);
     }
 
     @Test
     public void finner_tidligste_steg_for_aksjonspunkter() {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerInngang().get(0);
-        List<TestStegKonfig> modellData = List.of(
+        var aksjonspunktDefinisjon = STEG_2.getAksjonspunktDefinisjonerInngang().get(0);
+        var modellData = List.of(
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(aksjonspunktDefinisjon), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()));
 
-        BehandlingModellImpl modell = setupModell(modellData);
+        var modell = setupModell(modellData);
         Set<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new HashSet<>();
         aksjonspunktDefinisjoner.add(aksjonspunktDefinisjon);
-        BehandlingStegModell behandlingStegModell = modell.finnTidligsteStegFor(aksjonspunktDefinisjoner);
+        var behandlingStegModell = modell.finnTidligsteStegFor(aksjonspunktDefinisjoner);
         assertThat(behandlingStegModell.getBehandlingStegType()).isEqualTo(STEG_2);
     }
 
     @Test
     public void skal_modifisere_aksjonspunktet_ved_å_kalle_funksjon_som_legger_til_frist() throws Exception {
         // Arrange
-        List<TestStegKonfig> modellData = List.of(
+        var modellData = List.of(
                 new TestStegKonfig(STEG_1, behandlingType, fagsakYtelseType, aksjonspunktModifisererSteg, ap(), ap()),
                 new TestStegKonfig(STEG_2, behandlingType, fagsakYtelseType, nullSteg, ap(), ap()),
                 new TestStegKonfig(STEG_3, behandlingType, fagsakYtelseType, nullSteg,
                         ap(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL), ap()));
-        BehandlingModellImpl modell = setupModell(modellData);
-        TestScenario scenario = TestScenario.forEngangsstønad();
-        Behandling behandling = scenario.lagre(serviceProvider);
-        BehandlingStegVisitorUtenLagring visitor = lagVisitor(behandling);
+        var modell = setupModell(modellData);
+        var scenario = TestScenario.forEngangsstønad();
+        var behandling = scenario.lagre(serviceProvider);
+        var visitor = lagVisitor(behandling);
 
         // Act
         modell.prosesserFra(STEG_1, visitor);
 
         // Assert
-        Behandling beh = hentBehandling(behandling.getId());
+        var beh = hentBehandling(behandling.getId());
         assertThat(beh.getÅpneAksjonspunkter()).hasSize(1);
         assertThat(beh.getÅpneAksjonspunkter().get(0).getFristTid()).isEqualTo(FRIST_TID);
     }
@@ -347,14 +344,14 @@ public class BehandlingModellTest {
     }
 
     private BehandlingStegVisitorUtenLagring lagVisitor(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
                 serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorUtenLagring(lokalServiceProvider, kontekst);
     }
 
     private BehandlingStegVisitorVenterUtenLagring lagVisitorVenter(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = kontrollTjeneste.initBehandlingskontroll(behandling);
         var lokalServiceProvider = new BehandlingskontrollServiceProvider(serviceProvider.getEntityManager(),
                 serviceProvider.getBehandlingModellRepository(), null);
         return new BehandlingStegVisitorVenterUtenLagring(lokalServiceProvider, kontekst);

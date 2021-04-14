@@ -6,7 +6,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,13 +55,13 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void setter_behandlingsresultat_avslag_med_avslagsårsak() {
         // Arrange
-        Behandling behandling = vilkårOppsett(VilkårUtfallType.IKKE_OPPFYLT, VilkårResultatType.AVSLÅTT);
+        var behandling = vilkårOppsett(VilkårUtfallType.IKKE_OPPFYLT, VilkårResultatType.AVSLÅTT);
 
         // Act
         foreslåBehandlingsresultat(behandling);
 
         // Assert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.AVSLÅTT);
         assertThat(behandlingsresultat.getAvslagsårsak()).isEqualTo(Avslagsårsak.SØKT_FOR_SENT);
     }
@@ -82,13 +81,13 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void setter_behandlingsresultat_innvilget() {
         // Arrange
-        Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
 
         // Act
         foreslåBehandlingsresultat(behandling);
 
         // Assert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         assertThat(behandlingsresultat.getBehandlingResultatType()).isEqualTo(BehandlingResultatType.INNVILGET);
         assertThat(behandlingsresultat.getAvslagsårsak()).isNull();
     }
@@ -96,26 +95,26 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     @Test
     public void setter_konsekvens_for_ytelse_ingen_endring() {
         doReturn(true).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
-        Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
-        List<KonsekvensForYtelsen> konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
+        var konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen.size()).isOne();
         assertThat(konsekvenserForYtelsen.get(0)).isEqualTo(KonsekvensForYtelsen.INGEN_ENDRING);
     }
 
     @Test
     public void setter_ikke_konsekvens_for_ytelse() {
-        Behandling behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
+        var behandling = vilkårOppsett(VilkårUtfallType.OPPFYLT, VilkårResultatType.INNVILGET);
         foreslåBehandlingsresultat(behandling);
-        List<KonsekvensForYtelsen> konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
+        var konsekvenserForYtelsen = getBehandlingsresultat(behandling).getKonsekvenserForYtelsen();
         assertThat(konsekvenserForYtelsen).isEmpty();
     }
 
     private Behandling vilkårOppsett(VilkårUtfallType vilkårUtfallType, VilkårResultatType resultatType) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårResultat vilkårResultat = VilkårResultat.builder()
+        var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(resultatType)

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.jms.JMSException;
@@ -41,8 +40,8 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        final DefaultDatabaseOppePreconditionChecker mockDefaultDatabaseOppePreconditionChecker = mock(DefaultDatabaseOppePreconditionChecker.class);
-        final BaseJmsKonfig jmsKonfig = new BaseJmsKonfig("qu");
+        final var mockDefaultDatabaseOppePreconditionChecker = mock(DefaultDatabaseOppePreconditionChecker.class);
+        final var jmsKonfig = new BaseJmsKonfig("qu");
         jmsKonfig.setQueueName("asdf");
         jmsKonfig.setQueueManagerChannelName("asdf");
         jmsKonfig.setQueueManagerHostname("asdf");
@@ -53,7 +52,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
     @Test
     public void testHandleMessageWithUnparseableMessage() throws JMSException, IOException, URISyntaxException {
         // Arrange
-        TextMessage message = opprettKvitteringXml("parsingFeil.xml");
+        var message = opprettKvitteringXml("parsingFeil.xml");
 
         // Act
         assertThrows(TekniskException.class, () -> økonomioppdragAsyncJmsConsumerImpl.handle(message));
@@ -62,14 +61,14 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
     @Test
     public void testHandleMessageWithStatusOk() throws JMSException, IOException, URISyntaxException {
         // Arrange
-        TextMessage message = opprettKvitteringXml("statusOk.xml");
+        var message = opprettKvitteringXml("statusOk.xml");
 
         // Act
         økonomioppdragAsyncJmsConsumerImpl.handle(message);
 
         // Assert
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
-        ØkonomiKvittering kvittering = captor.getValue();
+        var kvittering = captor.getValue();
         assertThat(kvittering).isNotNull();
         verifiserKvittering(kvittering, "00", null, BEHANDLINGID, "Oppdrag behandlet");
     }
@@ -77,27 +76,27 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
     @Test
     public void testHandleMessageWithStatusFeil() throws JMSException, IOException, URISyntaxException {
         // Arrange
-        TextMessage message = opprettKvitteringXml("statusFeil.xml");
+        var message = opprettKvitteringXml("statusFeil.xml");
 
         // Act
         økonomioppdragAsyncJmsConsumerImpl.handle(message);
 
         // Assert
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
-        ØkonomiKvittering kvittering = captor.getValue();
+        var kvittering = captor.getValue();
         assertThat(kvittering).isNotNull();
         verifiserKvittering(kvittering, "08", "B110006F", 341L, "UTBET-FREKVENS har en ugyldig verdi: ENG");
     }
 
     private TextMessage opprettKvitteringXml(String filename) throws JMSException, IOException, URISyntaxException {
-        TextMessage textMessage = mock(TextMessage.class);
-        String xml = getInputXML("xml/" + filename);
+        var textMessage = mock(TextMessage.class);
+        var xml = getInputXML("xml/" + filename);
         when(textMessage.getText()).thenReturn(xml);
         return textMessage;
     }
 
     private String getInputXML(String filename) throws IOException, URISyntaxException {
-        Path path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
+        var path = Paths.get(getClass().getClassLoader().getResource(filename).toURI());
         return Files.readString(path);
     }
 

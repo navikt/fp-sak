@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem.aksjonspunkt.fp;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,7 +40,7 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        var builder = OppdateringResultat.utenTransisjon();
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), new BekreftStartdatoForPerioden(dto.getStartdatoFraSoknad()));
         avbrytOverflødignormaltAksjonpunkt(behandling)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
@@ -54,8 +53,8 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer extends AbstractOve
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringAvklarStartdatoForPeriodenDto dto) {
-        LocalDate opprinneligDato = dto.getOpprinneligDato();
-        LocalDate startdatoFraSoknad = dto.getStartdatoFraSoknad();
+        var opprinneligDato = dto.getOpprinneligDato();
+        var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.equals(opprinneligDato)) {
             getHistorikkAdapter().tekstBuilder()
                 .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)

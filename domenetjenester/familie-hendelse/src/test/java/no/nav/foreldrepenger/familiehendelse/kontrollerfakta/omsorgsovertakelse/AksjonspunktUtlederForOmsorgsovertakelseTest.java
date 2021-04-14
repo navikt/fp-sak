@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -28,11 +27,11 @@ public class AksjonspunktUtlederForOmsorgsovertakelseTest {
 
     @Test
     public void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
-        List<AksjonspunktResultat> overtattOmsorg = aksjonspunktForFakta(OVERTATT_OMSORG);
+        var overtattOmsorg = aksjonspunktForFakta(OVERTATT_OMSORG);
         assertThat(overtattOmsorg).hasSize(1);
         assertThat(overtattOmsorg.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
 
-        List<AksjonspunktResultat> andreForelderDød = aksjonspunktForFakta(ANDRE_FORELDER_DØD);
+        var andreForelderDød = aksjonspunktForFakta(ANDRE_FORELDER_DØD);
         assertThat(andreForelderDød).hasSize(1);
         assertThat(andreForelderDød.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE);
 
@@ -40,13 +39,13 @@ public class AksjonspunktUtlederForOmsorgsovertakelseTest {
     }
 
     private List<AksjonspunktResultat> aksjonspunktForFakta(FarSøkerType farSøkerType) {
-        Behandling behandling = byggBehandling(farSøkerType);
+        var behandling = byggBehandling(farSøkerType);
         return aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(BehandlingReferanse.fra(behandling)));
     }
 
     private Behandling byggBehandling(FarSøkerType farSøkerType) {
 
-        ScenarioFarSøkerEngangsstønad farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         farSøkerAdopsjonScenario.medSøknad()
             .medFarSøkerType(farSøkerType);
@@ -58,9 +57,9 @@ public class AksjonspunktUtlederForOmsorgsovertakelseTest {
                     .medAdoptererAlene(true));
         }
 
-        final Behandling behandling = farSøkerAdopsjonScenario.lagMocked();
-        final BehandlingRepositoryProvider repositoryProvider = farSøkerAdopsjonScenario.mockBehandlingRepositoryProvider();
-        final FamilieHendelseTjeneste familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        final var behandling = farSøkerAdopsjonScenario.lagMocked();
+        final var repositoryProvider = farSøkerAdopsjonScenario.mockBehandlingRepositoryProvider();
+        final var familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         aksjonspunktUtleder = new AksjonspunktUtlederForOmsorgsovertakelse(familieHendelseTjeneste);
         return behandling;
     }

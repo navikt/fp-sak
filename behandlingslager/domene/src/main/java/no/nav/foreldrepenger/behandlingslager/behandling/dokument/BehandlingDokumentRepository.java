@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -25,7 +24,7 @@ public class BehandlingDokumentRepository {
     }
 
     public Optional<BehandlingDokumentEntitet> hentHvisEksisterer(Long behandlingId) {
-        TypedQuery<BehandlingDokumentEntitet> query = entityManager.createQuery("from BehandlingDokument where behandlingId = :behandlingId", BehandlingDokumentEntitet.class);
+        var query = entityManager.createQuery("from BehandlingDokument where behandlingId = :behandlingId", BehandlingDokumentEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }

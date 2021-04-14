@@ -135,7 +135,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonopplysningGrunnlagEntitet that = (PersonopplysningGrunnlagEntitet) o;
+        var that = (PersonopplysningGrunnlagEntitet) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
                 Objects.equals(søknadAnnenPart, that.søknadAnnenPart) &&
                 Objects.equals(registrertePersonopplysninger, that.registrertePersonopplysninger) &&
@@ -151,7 +151,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PersonopplysningGrunnlagEntitet{");
+        final var sb = new StringBuilder("PersonopplysningGrunnlagEntitet{");
         sb.append("id=").append(id);
         sb.append(", søknadAnnenPart=").append(søknadAnnenPart);
         sb.append(", aktiv=").append(aktiv);

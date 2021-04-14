@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.steg.medlemskap.KontrollerFaktaLøpendeMedlemskapSteg;
@@ -91,8 +90,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             if (!(behandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()))) {
                 throw new IllegalStateException("Utvikler-feil: Behandler bare revudering i foreldrepengerkontekst!.");
             }
-            Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-            BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+            var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+            var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
             var finnVurderingsdatoer = tjeneste.finnVurderingsdatoer(ref);
             var resultat = new HashSet<>();
             if (!finnVurderingsdatoer.isEmpty()) {

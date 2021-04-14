@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBe
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.CDI;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -28,11 +27,11 @@ public class StartBehandlingTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData data) {
 
         // dynamisk lookup siden finnes ikke nødvendigvis (spesielt når vi kompilerer)
-        CDI<Object> cdi = CDI.current();
-        BehandlingskontrollTjeneste behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
+        var cdi = CDI.current();
+        var behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(getBehandlingId(data));
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(getBehandlingId(data));
             // TODO (FC): assert at behandlingen starter fra første steg?
             behandlingskontrollTjeneste.prosesserBehandling(kontekst);
         } finally {

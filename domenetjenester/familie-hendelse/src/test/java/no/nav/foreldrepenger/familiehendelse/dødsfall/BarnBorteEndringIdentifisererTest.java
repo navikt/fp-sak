@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -42,12 +41,12 @@ public class BarnBorteEndringIdentifisererTest {
 
     @Test
     public void ingen_endring_i_registrerte_barn() {
-        Behandling behandlingOrig = førstegangsbehandling();
-        Behandling behandlingNy = revurdering(behandlingOrig);
+        var behandlingOrig = førstegangsbehandling();
+        var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
         opprettPersonopplysningGrunnlag(behandlingNy, true);
 
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
+        var erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
 
         assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isFalse();
     }
@@ -73,24 +72,24 @@ public class BarnBorteEndringIdentifisererTest {
 
     @Test
     public void barn_fjernet_fra_tps_på_ny_behandling() {
-        Behandling behandlingOrig = førstegangsbehandling();
-        Behandling behandlingNy = revurdering(behandlingOrig);
+        var behandlingOrig = førstegangsbehandling();
+        var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, true);
         opprettPersonopplysningGrunnlag(behandlingNy, false);
 
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
+        var erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
 
         assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isTrue();
     }
 
     @Test
     public void barn_lagt_til_i_tps_på_ny_behandling() {
-        Behandling behandlingOrig = førstegangsbehandling(ScenarioMorSøkerForeldrepenger.forFødsel());
-        Behandling behandlingNy = revurdering(behandlingOrig);
+        var behandlingOrig = førstegangsbehandling(ScenarioMorSøkerForeldrepenger.forFødsel());
+        var behandlingNy = revurdering(behandlingOrig);
         opprettPersonopplysningGrunnlag(behandlingOrig, false);
         opprettPersonopplysningGrunnlag(behandlingNy, true);
 
-        boolean erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
+        var erEndret = endringIdentifiserer.erEndret(lagReferanse(behandlingNy));
 
         assertThat(erEndret).as("Idenfifiserer færre registrerte barn på ny behandling").isFalse();
     }
@@ -103,7 +102,7 @@ public class BarnBorteEndringIdentifisererTest {
     }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {
-        final PersonInformasjonBuilder builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        final var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)));

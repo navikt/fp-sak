@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -96,7 +95,7 @@ public class ForvaltningUttakTjeneste {
 
         var forrigeUttaksresultat = hentForrigeUttaksresultat(behandling);
         var perioder = new UttakResultatPerioderEntitet();
-        for (UttakResultatPeriodeEntitet uttaksperiode : forrigeUttaksresultat.getGjeldendePerioder().getPerioder()) {
+        for (var uttaksperiode : forrigeUttaksresultat.getGjeldendePerioder().getPerioder()) {
             perioder.leggTilPeriode(opphørPeriode(behandling, uttaksperiode));
         }
 
@@ -111,7 +110,7 @@ public class ForvaltningUttakTjeneste {
     }
 
     private UttakResultatPeriodeEntitet opphørPeriode(Behandling behandling, UttakResultatPeriodeEntitet periode) {
-        UttakResultatPeriodeEntitet.Builder builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(),
+        var builder = new UttakResultatPeriodeEntitet.Builder(periode.getFom(),
             periode.getTom()).medResultatType(PeriodeResultatType.AVSLÅTT, opphørAvslagsårsak(behandling))
             .medUtsettelseType(periode.getUtsettelseType())
             .medOppholdÅrsak(periode.getOppholdÅrsak())
@@ -124,7 +123,7 @@ public class ForvaltningUttakTjeneste {
         }
 
         var kopiertPeriode = builder.build();
-        for (UttakResultatPeriodeAktivitetEntitet aktivitet : periode.getAktiviteter()) {
+        for (var aktivitet : periode.getAktiviteter()) {
             kopiertPeriode.leggTilAktivitet(opphørAktivitet(periode, aktivitet));
         }
 
@@ -132,7 +131,7 @@ public class ForvaltningUttakTjeneste {
     }
 
     private IkkeOppfyltÅrsak opphørAvslagsårsak(Behandling behandling) {
-        VilkårResultat vilkårResultat = vilkårResultatRepository.hent(behandling.getId());
+        var vilkårResultat = vilkårResultatRepository.hent(behandling.getId());
         if (!opptjeningsvilkåretOppfylt(vilkårResultat)) {
             return IkkeOppfyltÅrsak.OPPTJENINGSVILKÅRET_IKKE_OPPFYLT;
         }

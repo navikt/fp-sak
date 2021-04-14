@@ -99,7 +99,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
     // Skulle i teorien vært egen klasse for å understreke ACL i BehandlingStatusDto - men egenskapen er der.
     private void behandlingStatusEndret(BehandlingStatusDto dto) {
-        boolean erAvsluttet = dto.erBehandlingAvsluttet();
+        var erAvsluttet = dto.erBehandlingAvsluttet();
 
         var callId = MDCOperations.getCallId() != null ? MDCOperations.getCallId() : MDCOperations.generateCallId();
 

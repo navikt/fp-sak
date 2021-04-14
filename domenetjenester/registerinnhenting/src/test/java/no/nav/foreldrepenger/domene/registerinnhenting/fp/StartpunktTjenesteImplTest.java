@@ -50,7 +50,7 @@ public class StartpunktTjenesteImplTest {
         // Arrange
         // To forskjellige id-er indikerer endring på grunnlag
         long grunnlagId1 = 1L, grunnlagId2 = 2L;
-        EndringsresultatDiff endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId2);
+        var endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId2);
 
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
             .thenReturn(endringsresultat);
@@ -69,8 +69,8 @@ public class StartpunktTjenesteImplTest {
     public void skal_gi_startpunkt_udefinert_dersom_ingen_endringer_på_aggregater() {
         // Arrange
         // To lik id-er indikerer ingen endring på grunnlag
-        long grunnlagId1 = 1L;
-        EndringsresultatDiff endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId1);
+        var grunnlagId1 = 1L;
+        var endringsresultat = opprettEndringsresultat(grunnlagId1, grunnlagId1);
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class)))
             .thenReturn(endringsresultat);
 
@@ -80,7 +80,7 @@ public class StartpunktTjenesteImplTest {
 
     @Test
     public void rotnode_skal_ikke_tas_med() {
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprettForSporingsendringer();
+        var endringsresultat = EndringsresultatDiff.opprettForSporingsendringer();
 
         when(endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(Mockito.anyLong(), any(EndringsresultatSnapshot.class))).thenReturn(endringsresultat);
 
@@ -90,8 +90,8 @@ public class StartpunktTjenesteImplTest {
 
     private EndringsresultatDiff opprettEndringsresultat(Long grunnlagId1, Long grunnlagId2) {
 
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
-        DiffResult diffResult = mock(DiffResult.class);
+        var endringsresultat = EndringsresultatDiff.opprett();
+        var diffResult = mock(DiffResult.class);
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(Object.class, grunnlagId1, grunnlagId2), () -> diffResult);
 

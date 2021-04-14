@@ -38,16 +38,16 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
 
     @BeforeEach
     void setUp() {
-        BeregningsresultatEntitet beregningsresultatFørstegangsbehandling = BeregningsresultatEntitet.builder()
+        var beregningsresultatFørstegangsbehandling = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();
-        BeregningsresultatEntitet beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
+        var beregningsresultatRevurdering = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2")
                 .build();
-        LocalDate fom = LocalDate.now();
-        LocalDate tom = LocalDate.now().plusWeeks(1);
+        var fom = LocalDate.now();
+        var tom = LocalDate.now().plusWeeks(1);
         nyPeriode = opprettBeregningsresultatPeriode(beregningsresultatRevurdering, fom, tom);
         gammelPeriode = opprettBeregningsresultatPeriode(beregningsresultatFørstegangsbehandling, fom, tom);
         sjekkOmPerioderHarEndringIAndeler = new SjekkOmPerioderHarEndringIAndeler();
@@ -66,7 +66,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -84,7 +84,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -102,7 +102,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.ARBEID);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -120,7 +120,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(50), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -138,7 +138,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(80), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -160,7 +160,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
                 Inntektskategori.FRILANSER, ORGNR2, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500,
                 OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -179,7 +179,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
                 Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -197,7 +197,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -215,7 +215,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
         opprettBeregningsresultatAndel(gammelPeriode, true, InternArbeidsforholdRef.nyRef(), AktivitetStatus.FRILANSER, Inntektskategori.FRILANSER,
                 ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500, OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -236,7 +236,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
                 Inntektskategori.FRILANSER, ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500,
                 OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -258,7 +258,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
                 Inntektskategori.FRILANSER, ORGNR2, 500, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 500,
                 OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -277,7 +277,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(80), BigDecimal.valueOf(80), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -285,7 +285,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     @Test
     public void skal_kaste_exception_når_det_er_flere_korresponderende_andeler_for_en_andel() {
         // Arrange : nyPeriode
-        BeregningsresultatAndel andel = opprettBeregningsresultatAndel(nyPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var andel = opprettBeregningsresultatAndel(nyPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettBeregningsresultatAndel(nyPeriode, true, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
@@ -308,18 +308,18 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     @Test
     public void skal_gi_forskjell_om_samme_perioder_men_ulike_feriepenger_pr_år() {
         // Arrange : nyPeriode
-        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 40000, nyAndel);
         // Arrange : gammelPeriode
-        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 40001, gammelAndel);
 
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
 
         // Assert
         assertThat(erEndring).isTrue();
@@ -328,19 +328,19 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     @Test
     public void skal_gi_forskjell_om_samme_perioder_men_ulike_mengde_feriepengeandeler() {
         // Arrange : nyPeriode
-        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 20000, nyAndel);
         opprettFeriepenger(2019, 20000, nyAndel);
         // Arrange : gammelPeriode
-        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 4000, gammelAndel);
 
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
 
         // Assert
         assertThat(erEndring).isTrue();
@@ -349,18 +349,18 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
     @Test
     public void skal_ikke_gi_forskjell_ved_like_feriepengeandeler() {
         // Arrange : nyPeriode
-        BeregningsresultatAndel nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var nyAndel = opprettBeregningsresultatAndel(nyPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 20000, nyAndel);
         // Arrange : gammelPeriode
-        BeregningsresultatAndel gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
+        var gammelAndel = opprettBeregningsresultatAndel(gammelPeriode, false, ARBEIDSFORHOLD_ID, AktivitetStatus.ARBEIDSTAKER,
                 Inntektskategori.ARBEIDSTAKER, ORGNR1, 1000, BigDecimal.valueOf(100), BigDecimal.valueOf(100), 1000,
                 OpptjeningAktivitetType.FORELDREPENGER);
         opprettFeriepenger(2020, 20000, gammelAndel);
 
         // Act
-        boolean erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
+        var erEndring = sjekkOmPerioderHarEndringIAndeler.sjekk(nyPeriode, gammelPeriode);
 
         // Assert
         assertThat(erEndring).isFalse();
@@ -381,7 +381,7 @@ public class SjekkOmPerioderHarEndringIAndelerTest {
             Inntektskategori inntektskategori, String orgNr, int dagsats,
             BigDecimal stillingsprosent, BigDecimal utbetalingsgrad, int dagsatsFraBg,
             OpptjeningAktivitetType opptjeningAktivitetType) {
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(orgNr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(orgNr);
         return BeregningsresultatAndel.builder()
                 .medBrukerErMottaker(erBrukerMottaker)
                 .medArbeidsgiver(arbeidsgiver)

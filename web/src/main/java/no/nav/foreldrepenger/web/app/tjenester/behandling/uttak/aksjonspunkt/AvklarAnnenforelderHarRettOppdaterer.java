@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakHistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakToTrinnsTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerOppgittFordelingTjeneste;
@@ -36,8 +35,8 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        boolean totrinn = faktaUttakToTrinnsTjeneste.oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(dto, behandling);
+        var behandling = param.getBehandling();
+        var totrinn = faktaUttakToTrinnsTjeneste.oppdaterToTrinnskontrollVedEndringerAnnenforelderHarRett(dto, behandling);
         faktaUttakHistorikkTjeneste.byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(dto, param);
         kontrollerOppgittFordelingTjeneste.avklarAnnenforelderHarIkkeRett(dto, behandling);
 

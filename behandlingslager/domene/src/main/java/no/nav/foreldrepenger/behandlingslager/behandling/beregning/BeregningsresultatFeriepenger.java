@@ -88,7 +88,7 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
         if (!(obj instanceof BeregningsresultatFeriepenger)) {
             return false;
         }
-        BeregningsresultatFeriepenger other = (BeregningsresultatFeriepenger) obj;
+        var other = (BeregningsresultatFeriepenger) obj;
         return Objects.equals(this.getId(), other.getId());
     }
 

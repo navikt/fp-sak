@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.task;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -49,17 +48,17 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
     }
 
     private void oppdaterAksjonspunktDefinisjonDVH() {
-        Map<String, AksjonspunktDefDvh> eksisterende = datavarehusRepository.hentAksjonspunktDefinisjoner();
+        var eksisterende = datavarehusRepository.hentAksjonspunktDefinisjoner();
         AksjonspunktDefinisjon.kodeMap().values().stream().filter(ad -> ad.getKode() != null).forEach(ad -> {
             if (eksisterende.get(ad.getKode()) == null) {
-                AksjonspunktDefDvh defDvh = AksjonspunktDefDvh.builder()
+                var defDvh = AksjonspunktDefDvh.builder()
                     .aksjonspunktDef(ad.getKode())
                     .aksjonspunktType(ad.getAksjonspunktType().getKode())
                     .aksjonspunktNavn(ad.getNavn())
                     .build();
                 datavarehusRepository.lagre(defDvh);
             } else {
-                AksjonspunktDefDvh dvhDefinisjon = eksisterende.get(ad.getKode());
+                var dvhDefinisjon = eksisterende.get(ad.getKode());
                 if (!Objects.equals(ad.getNavn(), dvhDefinisjon.getAksjonspunktNavn())) {
                     dvhDefinisjon.setAksjonspunktNavn(ad.getNavn());
                     datavarehusRepository.lagre(dvhDefinisjon);

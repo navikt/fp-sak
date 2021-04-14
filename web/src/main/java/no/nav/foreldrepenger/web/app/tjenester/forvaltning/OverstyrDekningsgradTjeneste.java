@@ -71,29 +71,29 @@ public class OverstyrDekningsgradTjeneste {
 
     Response overstyr(@Parameter(description = "Saksnummer") @NotNull @Valid String saksnummer,
                       @Parameter(description = "Dekningsgrad") @NotNull int dekningsgrad) {
-        Optional<Fagsak> fagsakOpt = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer));
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(saksnummer));
         if (fagsakOpt.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        Fagsak fagsak = fagsakOpt.get();
-        Optional<Dekningsgrad> overstyrtVerdi = utledDekningsgrad(dekningsgrad);
+        var fagsak = fagsakOpt.get();
+        var overstyrtVerdi = utledDekningsgrad(dekningsgrad);
         if (overstyrtVerdi.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak);
         if (fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             throw new ForvaltningException("Ikke støttet: Berørt sak");
         }
-        Dekningsgrad fraVerdi = fagsakRelasjon.orElseThrow().getDekningsgrad();
-        Dekningsgrad tilVerdi = overstyrtVerdi.get();
+        var fraVerdi = fagsakRelasjon.orElseThrow().getDekningsgrad();
+        var tilVerdi = overstyrtVerdi.get();
         if (fraVerdi.equals(tilVerdi)) {
             return Response.noContent().build();
         }
 
         lagHistorikkinnslagOverstyrtDekningsgrad(fagsak.getId(), fraVerdi, tilVerdi);
         fagsakRelasjonTjeneste.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, tilVerdi);
-        Behandling behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
+        var behandling = hentÅpenBehandlingEllerOpprettRevurdering(fagsak);
 
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(uttakInput);
@@ -104,7 +104,7 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private Behandling hentÅpenBehandlingEllerOpprettRevurdering(Fagsak fagsak) {
-        Optional<Behandling> ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
+        var ytelseBehandlingOpt = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
             .stream().findFirst();
         return ytelseBehandlingOpt.orElseGet(() -> revurderingTjeneste.opprettManuellRevurdering(fagsak, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER,
             behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak)
@@ -112,12 +112,12 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private void lagHistorikkinnslagOverstyrtDekningsgrad(Long fagsakId, Dekningsgrad fraVerdi, Dekningsgrad tilVerdi) {
-        Historikkinnslag endretDekningsgrad = new Historikkinnslag();
+        var endretDekningsgrad = new Historikkinnslag();
         endretDekningsgrad.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         endretDekningsgrad.setType(HistorikkinnslagType.FAKTA_ENDRET);
         endretDekningsgrad.setFagsakId(fagsakId);
 
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD, fraVerdi.getVerdi() + "%", tilVerdi.getVerdi() + "%");
         historieBuilder.build(endretDekningsgrad);
@@ -135,7 +135,7 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private void opprettTaskForÅStarteBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

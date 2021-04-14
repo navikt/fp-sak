@@ -11,8 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -28,7 +26,7 @@ public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
     public static boolean erUtenRelevantOppgittOpptjening(AksjonspunktUtlederInput param,
             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOpt) {
         if (inntektArbeidYtelseGrunnlagOpt.isPresent()) {
-            InntektArbeidYtelseGrunnlag grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
+            var grunnlag = inntektArbeidYtelseGrunnlagOpt.get();
             if (finnesIkkeArbeidsforhold(grunnlag, param.getAktørId(), param.getSkjæringstidspunkt())
                     && !finnesYtelseAAPEllerDP(grunnlag, param.getAktørId())) {
                 return sjekkForUtenOppgittOpptjening(grunnlag);
@@ -39,7 +37,7 @@ public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
     }
 
     private static boolean finnesYtelseAAPEllerDP(InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
-        YtelseFilter ytelseFilter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
+        var ytelseFilter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId));
         return ytelseFilter.getAlleYtelser().stream().anyMatch(yt -> erDPEllerAAP(yt.getRelatertYtelseType()));
     }
 
@@ -48,21 +46,21 @@ public final class ArbeidsforholdUtenRelevantOppgittOpptjening {
     }
 
     private static boolean sjekkForUtenOppgittOpptjening(InntektArbeidYtelseGrunnlag grunnlag) {
-        Optional<OppgittOpptjening> oppgittOpptjeningOpt = grunnlag.getOppgittOpptjening();
+        var oppgittOpptjeningOpt = grunnlag.getOppgittOpptjening();
         if (oppgittOpptjeningOpt.isPresent()) {
-            OppgittOpptjening oppgittOpptjening = oppgittOpptjeningOpt.get();
+            var oppgittOpptjening = oppgittOpptjeningOpt.get();
             // Militær- og siviltjeneste, Vartpenger/Ventelønn, og Etterlønn/Sluttpakke
-            List<OppgittAnnenAktivitet> annenAktiviteter = finnRelevanteAnnenAktiviteter(oppgittOpptjening);
+            var annenAktiviteter = finnRelevanteAnnenAktiviteter(oppgittOpptjening);
             if (!annenAktiviteter.isEmpty()) {
                 return false;
             }
             // Frilansvirksomhet
-            Optional<OppgittFrilans> frilansOpt = oppgittOpptjening.getFrilans();
+            var frilansOpt = oppgittOpptjening.getFrilans();
             if (frilansOpt.isPresent()) {
                 return false;
             }
             // Selvstending næringsdrivende
-            List<OppgittEgenNæring> egenNæring = oppgittOpptjening.getEgenNæring();
+            var egenNæring = oppgittOpptjening.getEgenNæring();
             return egenNæring.isEmpty();
         }
         return true;

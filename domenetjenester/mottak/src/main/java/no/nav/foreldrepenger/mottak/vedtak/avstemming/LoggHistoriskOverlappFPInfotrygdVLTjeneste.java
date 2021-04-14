@@ -77,7 +77,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
         if (FagsakYtelseType.FORELDREPENGER.equals(overlappData.getYtelseType())) {
             // Her skal vi oppdage alle ytelser som strekker seg forbi førsteDatoVL .
-            LocalDate førsteDatoVL = VirkedagUtil.fomVirkedag(overlappData.getTidligsteDato());
+            var førsteDatoVL = VirkedagUtil.fomVirkedag(overlappData.getTidligsteDato());
 
             // Brukers FP-saker i Infotrygd
             infotrygdFpPerioderEtterDato(førsteDatoVL, overlappData.getAktørId()).getLocalDateIntervals()
@@ -89,8 +89,8 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
             }
         } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(overlappData.getYtelseType())) {
             // Her skal vi oppdage alle ytelser med netto overlapp - kun utbetalinger
-            LocalDateTimeline<Boolean> perioderVL = hentPerioderSVP(overlappData.getBehandlingId());
-            LocalDate førsteDatoVL = perioderVL.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
+            var perioderVL = hentPerioderSVP(overlappData.getBehandlingId());
+            var førsteDatoVL = perioderVL.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
             if (førsteDatoVL != null) {
                 infotrygdFpPerioderEtterDato(førsteDatoVL, overlappData.getAktørId())
                     .intersection(perioderVL, StandardCombinators::alwaysTrueForMatch).compress().getLocalDateIntervals()
@@ -103,7 +103,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     private LocalDateTimeline<Boolean> infotrygdFpPerioderEtterDato(LocalDate førsteDatoVL, AktørId finnForAktørId) {
         var ident = getFnrFraAktørId(finnForAktørId);
 
-        List<Grunnlag> infotrygdFPGrunnlag = infotrygdFPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteDatoVL.minusWeeks(4), førsteDatoVL.plusYears(3));
+        var infotrygdFPGrunnlag = infotrygdFPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteDatoVL.minusWeeks(4), førsteDatoVL.plusYears(3));
 
         return finnTidslinjeFraGrunnlagene(infotrygdFPGrunnlag, førsteDatoVL);
     }
@@ -123,7 +123,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
     }
 
     private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag, LocalDate førsteUttaksdatoFp) {
-        List<LocalDateSegment<Boolean>> segmenter = grunnlag.stream()
+        var segmenter = grunnlag.stream()
             .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
             .filter(v -> !v.getPeriode().getTom().isBefore(førsteUttaksdatoFp))

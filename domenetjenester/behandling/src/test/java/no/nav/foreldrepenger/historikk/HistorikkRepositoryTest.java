@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.historikk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -46,20 +44,20 @@ public class HistorikkRepositoryTest {
     public void lagrerHistorikkinnslag() {
         var behandling = opprettBehandling();
 
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setType(HistorikkinnslagType.VEDTAK_FATTET);
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
                 .medSkjermlenke(SkjermlenkeType.VEDTAK);
         builder.build(historikkinnslag);
 
         historikkRepository.lagre(historikkinnslag);
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).hasSize(1);
 
-        Historikkinnslag lagretHistorikk = historikk.get(0);
+        var lagretHistorikk = historikk.get(0);
         assertThat(lagretHistorikk.getAktør().getKode()).isEqualTo(historikkinnslag.getAktør().getKode());
         assertThat(lagretHistorikk.getType().getKode()).isEqualTo(historikkinnslag.getType().getKode());
         assertThat(lagretHistorikk.getHistorikkTid()).isNull();
@@ -81,26 +79,26 @@ public class HistorikkRepositoryTest {
     public void henterAlleHistorikkinnslagForBehandling() {
         var behandling = opprettBehandling();
 
-        Historikkinnslag vedtakFattet = new Historikkinnslag();
+        var vedtakFattet = new Historikkinnslag();
         vedtakFattet.setAktør(HistorikkAktør.SØKER);
         vedtakFattet.setBehandling(behandling);
         vedtakFattet.setType(HistorikkinnslagType.VEDTAK_FATTET);
-        HistorikkInnslagTekstBuilder vedtakFattetBuilder = new HistorikkInnslagTekstBuilder()
+        var vedtakFattetBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.VEDTAK_FATTET)
                 .medSkjermlenke(SkjermlenkeType.VEDTAK);
         vedtakFattetBuilder.build(vedtakFattet);
         historikkRepository.lagre(vedtakFattet);
 
-        Historikkinnslag brevSent = new Historikkinnslag();
+        var brevSent = new Historikkinnslag();
         brevSent.setBehandling(behandling);
         brevSent.setType(HistorikkinnslagType.BREV_SENT);
         brevSent.setAktør(HistorikkAktør.SØKER);
-        HistorikkInnslagTekstBuilder mottattDokBuilder = new HistorikkInnslagTekstBuilder()
+        var mottattDokBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.BREV_SENT);
         mottattDokBuilder.build(brevSent);
         historikkRepository.lagre(brevSent);
 
-        List<Historikkinnslag> historikk = historikkRepository.hentHistorikk(behandling.getId());
+        var historikk = historikkRepository.hentHistorikk(behandling.getId());
         assertThat(historikk).hasSize(2);
         assertThat(historikk.stream().anyMatch(h -> HistorikkinnslagType.VEDTAK_FATTET.equals(h.getType()))).isTrue();
         assertThat(historikk.stream().anyMatch(h -> HistorikkinnslagType.BREV_SENT.equals(h.getType()))).isTrue();

@@ -69,14 +69,14 @@ public class OppdragKvitteringEntityTest {
         oppdragKvitteringBuilder = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvittering = oppdragKvitteringBuilder.build();
 
-        OppdragKvittering.Builder oppdragKvitteringBuilder2 = lagOppdragKvitteringMedPaakrevdeFelter();
+        var oppdragKvitteringBuilder2 = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvittering_2 = oppdragKvitteringBuilder2.build();
 
         assertThat(oppdragKvittering).isEqualTo(oppdragKvittering_2);
         assertThat(oppdragKvittering_2).isEqualTo(oppdragKvittering);
 
-        OppdragKvittering.Builder oppdragKvitteringBuilder3 = lagOppdragKvitteringMedPaakrevdeFelter();
-        OppdragKvittering oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad("01").build();
+        var oppdragKvitteringBuilder3 = lagOppdragKvitteringMedPaakrevdeFelter();
+        var oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad("01").build();
         assertThat(oppdragKvittering).isNotEqualTo(oppdragKvittering_3);
         assertThat(oppdragKvittering_3).isNotEqualTo(oppdragKvittering);
     }
@@ -86,7 +86,7 @@ public class OppdragKvitteringEntityTest {
         oppdragKvitteringBuilder = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvittering = oppdragKvitteringBuilder.build();
 
-        OppdragKvittering.Builder oppdragKvitteringBuilder2 = lagOppdragKvitteringMedPaakrevdeFelter();
+        var oppdragKvitteringBuilder2 = lagOppdragKvitteringMedPaakrevdeFelter();
         oppdragKvitteringBuilder2.medMeldingKode("Melding kode 2");
         oppdragKvittering_2 = oppdragKvitteringBuilder2.build();
 

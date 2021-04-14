@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -92,10 +91,10 @@ public class PersonInformasjonBuilder {
 
     private void ryddBortGamlePersonopplysninger() {
         if (gjelderOppdatering() && søkerAktørId != null) {
-            Set<AktørId> aktørerIRelasjoner = kladd.getRelasjoner().stream().map(e -> e.getAktørId()).collect(Collectors.toSet());
+            var aktørerIRelasjoner = kladd.getRelasjoner().stream().map(e -> e.getAktørId()).collect(Collectors.toSet());
             aktørerIRelasjoner.addAll(kladd.getRelasjoner().stream().map(e -> e.getTilAktørId()).collect(Collectors.toSet()));
 
-            Set<AktørId> personer = kladd.getPersonopplysninger()
+            var personer = kladd.getPersonopplysninger()
                     .stream()
                     .filter(e -> !søkerAktørId.equals(e.getAktørId()))
                     .filter(e -> annenpartAktørId.isEmpty() || !annenpartAktørId.get().equals(e.getAktørId()))

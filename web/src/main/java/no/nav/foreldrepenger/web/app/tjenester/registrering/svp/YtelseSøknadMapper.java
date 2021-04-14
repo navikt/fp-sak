@@ -19,7 +19,6 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.ObjectFactory;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.TilretteleggingListe;
-import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @FagsakYtelseTypeRef("SVP")
@@ -39,13 +38,13 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
     @Override
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
-        Soeknad søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
+        var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
 
         var dto = (ManuellRegistreringSvangerskapspengerDto) registreringDto;
         var svangerskapspenger = mapTilSvangerskapspenger(dto);
         svangerskapspenger.setMedlemskap(SøknadMapperFelles.mapMedlemskap(registreringDto));
         svangerskapspenger.setOpptjening(SøknadMapperFelles.mapOpptjening(dto, virksomhetTjeneste));
-        OmYtelse omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
+        var omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
         omYtelse.getAny().add(new ObjectFactory().createSvangerskapspenger(svangerskapspenger));
         søknad.setOmYtelse(omYtelse);
 
@@ -142,13 +141,13 @@ public class YtelseSøknadMapper implements SøknadMapper {
             var privatArbeidsgiver = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver();
             privatArbeidsgiver.setIdentifikator(arbeidsgiverIdentifikator);
             return privatArbeidsgiver;
-        } else if (arbeidsgiverIdentifikator.length() == 9) {
+        }
+        if (arbeidsgiverIdentifikator.length() == 9) {
             var virksomhet = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet();
             virksomhet.setIdentifikator(arbeidsgiverIdentifikator);
             return virksomhet;
-        } else {
-            throw new IllegalArgumentException("Arbeidsgiver identifikator må være 9 eller 11 tegn langt.");
         }
+        throw new IllegalArgumentException("Arbeidsgiver identifikator må være 9 eller 11 tegn langt.");
     }
 
 }

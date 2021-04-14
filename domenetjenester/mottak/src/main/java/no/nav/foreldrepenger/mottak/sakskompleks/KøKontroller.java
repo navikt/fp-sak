@@ -69,8 +69,8 @@ public class KøKontroller {
 
 
     public void dekøFørsteBehandlingISakskompleks(Behandling behandling) {
-        Optional<Behandling> køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak());
-        boolean medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
+        var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak());
+        var medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
         if (medforelderEndringsSøknad) {
 
             // Legger nyopprettet behandling i kø, siden denne ikke skal behandles nå
@@ -94,8 +94,8 @@ public class KøKontroller {
     }
 
     public void håndterSakskompleks(Fagsak fagsak) {
-        Optional<Behandling> køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Optional<Behandling> køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
+        var køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
         var nesteBehandling = finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> true));
         nesteBehandling.ifPresent(b -> {
@@ -132,7 +132,7 @@ public class KøKontroller {
     void oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(Behandling behandling) {
 
         if (skalOppdatereKøetBehandling(behandling)) {
-            Behandling oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
+            var oppdatertBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling);
 
             if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
                 // Må ha YF fra original ettersom berørt ikke har med evt endringssøknad da den snek i køen.
@@ -153,7 +153,7 @@ public class KøKontroller {
     }
 
     void lagreOppdaterKøetProsesstask(Behandling behandling) {
-        ProsessTaskData data = new ProsessTaskData(GjenopptaKøetBehandlingTask.TASKTYPE);
+        var data = new ProsessTaskData(GjenopptaKøetBehandlingTask.TASKTYPE);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(data);

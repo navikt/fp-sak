@@ -9,7 +9,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -59,9 +58,9 @@ public class VurderMedlemskapTjeneste {
      * @return Liste med MedlemResultat
      */
     public Set<MedlemResultat> vurderMedlemskap(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        Long behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.getBehandlingId();
         Set<MedlemResultat> resultat = new HashSet<>();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         avklarOmErBosatt.utled(behandling, vurderingsdato).ifPresent(resultat::add);
         avklarGyldigPeriode.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
         avklarBarnFødtUtenlands.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);

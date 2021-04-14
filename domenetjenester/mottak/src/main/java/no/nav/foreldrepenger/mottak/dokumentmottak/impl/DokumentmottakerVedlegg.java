@@ -40,8 +40,8 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
-        Optional<Behandling> åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
-        Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        var åpenBehandling = revurderingRepository.finnÅpenYtelsesbehandling(fagsak.getId());
+        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
 
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
@@ -59,8 +59,8 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     public void mottaDokumentForKøetBehandling(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.opprettHistorikkinnslagForVedlegg(fagsak, mottattDokument);
 
-        Optional<Behandling> eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
-        Optional<Behandling> åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+        var eksisterendeKøetBehandling = revurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var åpenAnnenBehandling = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
             .filter(b -> !b.erYtelseBehandling()).findFirst();
         if (åpenAnnenBehandling.isPresent()) { // Klage, anke, etc
             dokumentmottakerFelles.opprettTaskForÅVurdereDokument(fagsak, åpenAnnenBehandling.get(), mottattDokument);
@@ -78,7 +78,7 @@ class DokumentmottakerVedlegg implements Dokumentmottaker {
     }
 
     private boolean mottattDokumentHarTypeAnnetEllerUdefinert(MottattDokument mottattDokument) {
-        DokumentTypeId fraDokument = mottattDokument.getDokumentType();
+        var fraDokument = mottattDokument.getDokumentType();
         return DokumentTypeId.ANNET.equals(fraDokument) || DokumentTypeId.UDEFINERT.equals(fraDokument);
     }
 

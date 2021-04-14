@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public final class OmfordelRevurderingsandelerUtenReferanse {
 
@@ -15,26 +14,26 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
     }
 
     public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
-        List<InternArbeidsforholdRef> revurderingReferanser = revurderingNøkkelMedAndeler.getAlleReferanserForDenneNøkkelen();
+        var revurderingReferanser = revurderingNøkkelMedAndeler.getAlleReferanserForDenneNøkkelen();
         List<EndringIBeregningsresultat> list = new ArrayList<>();
-        List<BeregningsresultatAndel> andelerMedRefSomIkkeFinnesIRevurdering = originalNøkkelMedAndeler.getAlleAndelerMedRefSomIkkeFinnesIListe(revurderingReferanser);
+        var andelerMedRefSomIkkeFinnesIRevurdering = originalNøkkelMedAndeler.getAlleAndelerMedRefSomIkkeFinnesIListe(revurderingReferanser);
 
-        Optional<BeregningsresultatAndel> brukersAndelUtenreferanse = revurderingNøkkelMedAndeler.getBrukersAndelUtenreferanse();
-        Optional<BeregningsresultatAndel> arbeidsgiversAndelUtenReferanse = revurderingNøkkelMedAndeler.getArbeidsgiversAndelUtenReferanse();
+        var brukersAndelUtenreferanse = revurderingNøkkelMedAndeler.getBrukersAndelUtenreferanse();
+        var arbeidsgiversAndelUtenReferanse = revurderingNøkkelMedAndeler.getArbeidsgiversAndelUtenReferanse();
 
         if (brukersAndelUtenreferanse.isPresent()) {
-            int omberegnetDagsats = beregnDagsatsBrukerAndelUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
+            var omberegnetDagsats = beregnDagsatsBrukerAndelUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
                 brukersAndelUtenreferanse.get(), arbeidsgiversAndelUtenReferanse);
             if (erDagsatsEndret(brukersAndelUtenreferanse.get(), omberegnetDagsats)) {
-                EndringIBeregningsresultat endring = new EndringIBeregningsresultat(brukersAndelUtenreferanse.get(), omberegnetDagsats);
+                var endring = new EndringIBeregningsresultat(brukersAndelUtenreferanse.get(), omberegnetDagsats);
                 list.add(endring);
             }
         }
         if (arbeidsgiversAndelUtenReferanse.isPresent()) {
-            int omberegnetDagsats = beregnDagsatsAGUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
+            var omberegnetDagsats = beregnDagsatsAGUtenReferanse(originalNøkkelMedAndeler, andelerMedRefSomIkkeFinnesIRevurdering ,
                 arbeidsgiversAndelUtenReferanse.get(), brukersAndelUtenreferanse);
             if (erDagsatsEndret(arbeidsgiversAndelUtenReferanse.get(), omberegnetDagsats)) {
-                EndringIBeregningsresultat endring = new EndringIBeregningsresultat(arbeidsgiversAndelUtenReferanse.get(), omberegnetDagsats);
+                var endring = new EndringIBeregningsresultat(arbeidsgiversAndelUtenReferanse.get(), omberegnetDagsats);
                 list.add(endring);
             }
         }
@@ -45,14 +44,14 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
                                                     List<BeregningsresultatAndel> alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering,
                                                     BeregningsresultatAndel arbeidsgiversAndelUtenReferanse,
                                                     Optional<BeregningsresultatAndel> brukersAndelUtenreferanse) {
-        int originalDagsatsBrukersAndelUtenMatchendeRef = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
+        var originalDagsatsBrukersAndelUtenMatchendeRef = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
             .filter(BeregningsresultatAndel::erBrukerMottaker)
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
         int originalDagsatsBrukersAndelUtenRef = originalNøkkelMedAndeler.getBrukersAndelUtenreferanse()
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
-        int originalDagsatsBrukerTotal = originalDagsatsBrukersAndelUtenRef + originalDagsatsBrukersAndelUtenMatchendeRef;
+        var originalDagsatsBrukerTotal = originalDagsatsBrukersAndelUtenRef + originalDagsatsBrukersAndelUtenMatchendeRef;
         int revurderingBrukersDagsats = brukersAndelUtenreferanse
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
@@ -64,8 +63,8 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
                                                              List<BeregningsresultatAndel> alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering,
                                                              BeregningsresultatAndel brukersAndelUtenreferanse,
                                                              Optional<BeregningsresultatAndel> arbeidsgiversAndelUtenReferanse) {
-        int totalOriginalBrukersDagsats = finnOriginalBrukerDagsats(originalNøkkelMedAndeler, alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering);
-        int revurderingBrukerDagsats = brukersAndelUtenreferanse.getDagsats();
+        var totalOriginalBrukersDagsats = finnOriginalBrukerDagsats(originalNøkkelMedAndeler, alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering);
+        var revurderingBrukerDagsats = brukersAndelUtenreferanse.getDagsats();
         int revurderingDagsatsArbeidsgiver = arbeidsgiversAndelUtenReferanse
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
@@ -76,10 +75,10 @@ public final class OmfordelRevurderingsandelerUtenReferanse {
         int originalDagsatsAndelUtenReferanse = originalNøkkelMedAndeler.getBrukersAndelUtenreferanse()
             .map(BeregningsresultatAndel::getDagsats)
             .orElse(0);
-        List<BeregningsresultatAndel> originaleBrukersAndelSomIkkeMatcherRevurderingAndeler = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
+        var originaleBrukersAndelSomIkkeMatcherRevurderingAndeler = alleOriginaleAndelerMedReferanseSomIkkeFinnesIRevurdering.stream()
             .filter(BeregningsresultatAndel::erBrukerMottaker)
             .collect(Collectors.toList());
-        int originalDagsatsAndelerUtenMatchendeRef = originaleBrukersAndelSomIkkeMatcherRevurderingAndeler.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
+        var originalDagsatsAndelerUtenMatchendeRef = originaleBrukersAndelSomIkkeMatcherRevurderingAndeler.stream().mapToInt(BeregningsresultatAndel::getDagsats).sum();
         return originalDagsatsAndelUtenReferanse + originalDagsatsAndelerUtenMatchendeRef;
     }
 

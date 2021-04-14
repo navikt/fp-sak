@@ -11,8 +11,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårFar;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 
 /**
  * Adapter for å evaluere fødselsvilkåret for far.
@@ -33,9 +31,9 @@ class InngangsvilkårFødselFar implements Inngangsvilkår {
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        FødselsvilkårGrunnlag grunnlag = inngangsvilkårOversetter.oversettTilRegelModellFødsel(ref);
+        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellFødsel(ref);
 
-        Evaluation evaluation = new FødselsvilkårFar().evaluer(grunnlag);
+        var evaluation = new FødselsvilkårFar().evaluer(grunnlag);
 
         return inngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, evaluation, grunnlag);
     }

@@ -61,7 +61,7 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
         if (antallAvslåtteArbeidsforhold == uttakresultat.get().getUttaksResultatArbeidsforhold().size()) {
             return true;
         }
-        for (SvangerskapspengerUttakResultatPeriodeEntitet periode : finnSisteUttaksperiodePrArbeidsforhold()) {
+        for (var periode : finnSisteUttaksperiodePrArbeidsforhold()) {
             if (PeriodeIkkeOppfyltÅrsak.opphørsAvslagÅrsaker().contains(periode.getPeriodeIkkeOppfyltÅrsak())) {
                 return true;
             }
@@ -88,9 +88,9 @@ class UttakResultatHolderSVP implements UttakResultatHolder {
             return true;
         }
 
-        List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> listeMedArbeidsforhold_1 = uttakresultat.get().getUttaksResultatArbeidsforhold();
-        SvangerskapspengerUttakResultatEntitet resultatSammenligne = uttakresultatSammenligneMed.getUttakResultat();
-        List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> listeMedArbeidsforhold_2 = resultatSammenligne.getUttaksResultatArbeidsforhold();
+        var listeMedArbeidsforhold_1 = uttakresultat.get().getUttaksResultatArbeidsforhold();
+        var resultatSammenligne = uttakresultatSammenligneMed.getUttakResultat();
+        var listeMedArbeidsforhold_2 = resultatSammenligne.getUttaksResultatArbeidsforhold();
 
         return !erLikresultat(listeMedArbeidsforhold_1, listeMedArbeidsforhold_2);
 

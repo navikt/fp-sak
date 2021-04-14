@@ -83,7 +83,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BehandlingDokumentEntitet that = (BehandlingDokumentEntitet) o;
+        var that = (BehandlingDokumentEntitet) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
             Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift) &&
             Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) &&
@@ -115,7 +115,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         }
 
         public static BehandlingDokumentEntitet.Builder fraEksisterende(BehandlingDokumentEntitet behandlingDokument) {
-            BehandlingDokumentEntitet.Builder builder = new Builder()
+            var builder = new Builder()
                 .medBehandling(behandlingDokument.getBehandlingId())
                 .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
                 .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())

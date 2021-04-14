@@ -15,15 +15,15 @@ class ErInntektNærSkjæringstidspunkt {
     static boolean erNær(Collection<Inntektspost> inntektsposter, LocalDate skjæringstidspunkt, LocalDate behandlingstidspunkt) {
         return inntektsposter.stream().anyMatch(ip -> erNær(ip, skjæringstidspunkt, behandlingstidspunkt));
     }
-    
+
     static boolean erNær(Inntektspost inntektspost, LocalDate skjæringstidspunkt, LocalDate behandlingstidspunkt) {
-        LocalDate inntektpåkrevdMåned = inntektPåkrevdMåned(skjæringstidspunkt, behandlingstidspunkt);
+        var inntektpåkrevdMåned = inntektPåkrevdMåned(skjæringstidspunkt, behandlingstidspunkt);
         return inntektspost.getPeriode().inkluderer(inntektpåkrevdMåned);
     }
 
     private static LocalDate inntektPåkrevdMåned(LocalDate skjæringstidspunkt, LocalDate behandlingstidspunkt) {
-        LocalDate skjæringstidspunktMåned = skjæringstidspunkt.with(firstDayOfMonth());
-        LocalDate behandlingstidspunktMåned = behandlingstidspunkt.with(firstDayOfMonth());
+        var skjæringstidspunktMåned = skjæringstidspunkt.with(firstDayOfMonth());
+        var behandlingstidspunktMåned = behandlingstidspunkt.with(firstDayOfMonth());
         if (skjæringstidspunktMåned.isEqual(behandlingstidspunktMåned)){
             return skjæringstidspunktMåned.minusMonths(1);
         }

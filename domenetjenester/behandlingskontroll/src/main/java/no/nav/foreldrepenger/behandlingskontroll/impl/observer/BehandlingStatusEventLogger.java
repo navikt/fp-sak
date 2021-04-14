@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 
 @ApplicationScoped
 public class BehandlingStatusEventLogger {
@@ -18,11 +17,11 @@ public class BehandlingStatusEventLogger {
     }
 
     public void loggBehandlingStatusEndring(@Observes BehandlingStatusEvent event) {
-        Long behandlingId = event.getBehandlingId();
-        Long fagsakId = event.getKontekst().getFagsakId();
+        var behandlingId = event.getBehandlingId();
+        var fagsakId = event.getKontekst().getFagsakId();
 
-        BehandlingStatus nyStatus = event.getNyStatus();
-        String kode = nyStatus == null ? null : nyStatus.getKode();
+        var nyStatus = event.getNyStatus();
+        var kode = nyStatus == null ? null : nyStatus.getKode();
         LOG.info("Behandling status oppdatert; behandlingId [{}]; fagsakId [{}]; status [{}]]", behandlingId, fagsakId, kode);
     }
 }

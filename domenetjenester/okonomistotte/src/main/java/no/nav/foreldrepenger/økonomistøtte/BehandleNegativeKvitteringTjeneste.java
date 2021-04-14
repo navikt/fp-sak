@@ -39,7 +39,7 @@ public class BehandleNegativeKvitteringTjeneste {
      */
     public void nullstilleØkonomioppdragTask(Long prosessTaskId) {
         try {
-            ProsessTaskData prosessTaskData = repository.finn(prosessTaskId);
+            var prosessTaskData = repository.finn(prosessTaskId);
             if (prosessTaskData == null) {
                 throw new IllegalStateException(String.format("Prosess task med prossess task id = %d finnes ikke", prosessTaskId));
             }
@@ -48,7 +48,7 @@ public class BehandleNegativeKvitteringTjeneste {
                 prosessTaskData.setProperty(ProsessTaskData.HENDELSE_PROPERTY, null);
                 prosessTaskData.setStatus(ProsessTaskStatus.FEILET);
 
-                NegativeKvitteringFeil feil = new NegativeKvitteringFeil("Det finnes negativ kvittering for minst en av oppdragsmottakerne.");
+                var feil = new NegativeKvitteringFeil("Det finnes negativ kvittering for minst en av oppdragsmottakerne.");
                 try {
                     prosessTaskData.setSisteFeil(OBJECT_MAPPER.writeValueAsString(feil));
                 } catch (JsonProcessingException jpe) {

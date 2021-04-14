@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.observer;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -57,14 +55,14 @@ public class OpprettOppgaveEventObserver {
      * Håndterer oppgave etter at behandlingskontroll er kjørt ferdig.
      */
     public void opprettOppgaveDersomDetErÅpneAksjonspunktForAktivtBehandlingSteg(@Observes BehandlingskontrollEvent.StoppetEvent event) {
-        Behandling behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(event.getBehandlingId());
         if (behandling.isBehandlingPåVent()) {
             oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling);
             return;
         }
-        List<Aksjonspunkt> åpneAksjonspunkt = filterAksjonspunkt(behandling.getÅpneAksjonspunkter(AksjonspunktType.MANUELL), event);
+        var åpneAksjonspunkt = filterAksjonspunkt(behandling.getÅpneAksjonspunkter(AksjonspunktType.MANUELL), event);
 
-        Collection<Totrinnsvurdering> totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
         //TODO(OJR) kunne informasjonen om hvilken oppgaveårsak som skal opprettes i GSAK være knyttet til AksjonspunktDef?
         if (!åpneAksjonspunkt.isEmpty()) {
             if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD) ||
@@ -72,7 +70,7 @@ public class OpprettOppgaveEventObserver {
                 harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER) ||
                 harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER)) {
 
-                ProsessTaskData enkeltTask = opprettProsessTaskData(behandling, OpprettOppgaveRegistrerSøknadTask.TASKTYPE);
+                var enkeltTask = opprettProsessTaskData(behandling, OpprettOppgaveRegistrerSøknadTask.TASKTYPE);
                 enkeltTask.setCallIdFraEksisterende();
                 prosessTaskRepository.lagre(enkeltTask);
             } else if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.FATTER_VEDTAK)) {
@@ -89,10 +87,10 @@ public class OpprettOppgaveEventObserver {
     }
 
     private void opprettOppgaveVedBehov(Behandling behandling) {
-        List<OppgaveBehandlingKobling> oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
-        Optional<OppgaveBehandlingKobling> aktivOppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, oppgaveBehandlingKoblinger);
+        var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var aktivOppgave = OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, oppgaveBehandlingKoblinger);
         if (!aktivOppgave.isPresent()) {
-            ProsessTaskData enkeltTask = opprettProsessTaskData(behandling, OpprettOppgaveForBehandlingTask.TASKTYPE);
+            var enkeltTask = opprettProsessTaskData(behandling, OpprettOppgaveForBehandlingTask.TASKTYPE);
             enkeltTask.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(enkeltTask);
         }
@@ -107,13 +105,13 @@ public class OpprettOppgaveEventObserver {
     }
 
     private ProsessTaskData opprettProsessTaskData(Behandling behandling, String prosesstaskType) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(prosesstaskType);
+        var prosessTaskData = new ProsessTaskData(prosesstaskType);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         return prosessTaskData;
     }
 
     private List<Aksjonspunkt> filterAksjonspunkt(List<Aksjonspunkt> åpneAksjonspunkter, BehandlingskontrollEvent event) {
-        Set<String> aksjonspunktForSteg = event.getBehandlingModell().finnAksjonspunktDefinisjoner(event.getStegType());
+        var aksjonspunktForSteg = event.getBehandlingModell().finnAksjonspunktDefinisjoner(event.getStegType());
         return åpneAksjonspunkter.stream()
                 .filter(ad -> aksjonspunktForSteg.contains(ad.getAksjonspunktDefinisjon().getKode()))
                 .collect(Collectors.toList());

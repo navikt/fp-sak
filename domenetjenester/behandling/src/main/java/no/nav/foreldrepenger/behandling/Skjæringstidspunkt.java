@@ -88,10 +88,11 @@ public class Skjæringstidspunkt {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
+        }
+        if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
-        Skjæringstidspunkt other = (Skjæringstidspunkt) obj;
+        var other = (Skjæringstidspunkt) obj;
         return Objects.equals(this.utledetSkjæringstidspunkt, other.utledetSkjæringstidspunkt)
                 && Objects.equals(this.skjæringstidspunktBeregning, other.skjæringstidspunktBeregning)
                 && Objects.equals(this.skjæringstidspunktOpptjening, other.skjæringstidspunktOpptjening)

@@ -28,7 +28,7 @@ public class BehandlingEnhetEventPubliserer {
         if (beanManager == null) {
             return;
         }
-        BehandlingEnhetEvent event = new BehandlingEnhetEvent(behandling);
+        var event = new BehandlingEnhetEvent(behandling);
         beanManager.fireEvent(event, new Annotation[] {});
     }
 }

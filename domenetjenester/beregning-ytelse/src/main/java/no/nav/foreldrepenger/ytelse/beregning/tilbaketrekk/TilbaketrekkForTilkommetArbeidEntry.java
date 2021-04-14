@@ -40,7 +40,7 @@ class TilbaketrekkForTilkommetArbeidEntry {
 
     public List<BRNøkkelMedAndeler> getAndelerIRevurderingMedSluttFørDatoSortertPåDato() {
 
-        List<BRNøkkelMedAndeler> sorterteAndeler = andelerIRevurderingSluttdatoTilNøkkelMap.entrySet().stream()
+        var sorterteAndeler = andelerIRevurderingSluttdatoTilNøkkelMap.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .flatMap(e -> e.getValue().stream())
             .collect(Collectors.toList());
@@ -57,8 +57,8 @@ class TilbaketrekkForTilkommetArbeidEntry {
     }
 
     int finnTotalbeløpTilTilbaketrekkForAndelerMedAvsluttetArbeid() {
-        Integer totalBrukersAndelOriginalt = finnTotalBrukersAndel(andelerIOriginalMedSluttFørDato);
-        Integer totalBrukersAndelRevurdering = finnTotalBrukersAndel(andelerIRevurderingMedSluttFørDato);
+        var totalBrukersAndelOriginalt = finnTotalBrukersAndel(andelerIOriginalMedSluttFørDato);
+        var totalBrukersAndelRevurdering = finnTotalBrukersAndel(andelerIRevurderingMedSluttFørDato);
         return totalBrukersAndelOriginalt - totalBrukersAndelRevurdering;
     }
 
@@ -73,8 +73,8 @@ class TilbaketrekkForTilkommetArbeidEntry {
     }
 
     int finnHindretTilbaketrekk() {
-        int totalrefusjon = finnTotalRefusjonForTilkomneAndeler();
-        int totaltRedusertBeløp = finnTotalbeløpTilTilbaketrekkForAndelerMedAvsluttetArbeid();
+        var totalrefusjon = finnTotalRefusjonForTilkomneAndeler();
+        var totaltRedusertBeløp = finnTotalbeløpTilTilbaketrekkForAndelerMedAvsluttetArbeid();
         return Math.min(totalrefusjon, totaltRedusertBeløp);
     }
 

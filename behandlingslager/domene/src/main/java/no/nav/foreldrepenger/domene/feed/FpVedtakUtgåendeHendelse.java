@@ -13,8 +13,8 @@ public class FpVedtakUtgåendeHendelse extends UtgåendeHendelse {
 
     private FpVedtakUtgåendeHendelse() {
         super();
-    }    
-    
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -39,14 +39,14 @@ public class FpVedtakUtgåendeHendelse extends UtgåendeHendelse {
             this.aktørId = aktørId;
             return this;
         }
-        
+
         public Builder kildeId(String kildeId) {
             this.kildeId = kildeId;
             return this;
-        }  
+        }
 
         public FpVedtakUtgåendeHendelse build() {
-            FpVedtakUtgåendeHendelse hendelse = new FpVedtakUtgåendeHendelse();
+            var hendelse = new FpVedtakUtgåendeHendelse();
             hendelse.setType(type);
             hendelse.setPayload(payload);
             hendelse.setAktørId(aktørId);

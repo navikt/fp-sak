@@ -36,12 +36,12 @@ public class LesKontrollresultatTaskTest {
     @Test
     public void skal_kalle_mapper_og_tjeneste() throws IOException {
         // Arrange
-        KontrollResultatV1.Builder builder = new KontrollResultatV1.Builder();
-        UUID uuid = UUID.randomUUID();
-        KontrollResultatV1 resultatV1 = builder.medBehandlingUuid(uuid).medResultatkode(KontrollResultatkode.HØY).build();
-        ProsessTaskData prosessTaskData = new ProsessTaskData(LesKontrollresultatTask.TASKTYPE);
+        var builder = new KontrollResultatV1.Builder();
+        var uuid = UUID.randomUUID();
+        var resultatV1 = builder.medBehandlingUuid(uuid).medResultatkode(KontrollResultatkode.HØY).build();
+        var prosessTaskData = new ProsessTaskData(LesKontrollresultatTask.TASKTYPE);
         prosessTaskData.setPayload(JsonObjectMapper.getJson(resultatV1));
-        KontrollresultatWrapper wrapper = new KontrollresultatWrapper(uuid, Kontrollresultat.HØY);
+        var wrapper = new KontrollresultatWrapper(uuid, Kontrollresultat.HØY);
         when(kontrollresultatMapper.fraKontrakt(any(KontrollResultatV1.class))).thenReturn(wrapper);
 
         // Act

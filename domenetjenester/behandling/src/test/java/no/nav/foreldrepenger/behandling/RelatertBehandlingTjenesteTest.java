@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -93,7 +91,7 @@ public class RelatertBehandlingTjenesteTest {
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
-        Optional<Behandling> behandling = relatertBehandlingTjeneste
+        var behandling = relatertBehandlingTjeneste
                 .hentAnnenPartsGjeldendeVedtattBehandling(farsBehandling.getFagsak().getSaksnummer());
 
         assertThat(behandling.get().getId()).isEqualTo(morsBehandling.getId());
@@ -248,7 +246,7 @@ public class RelatertBehandlingTjenesteTest {
         var aktivitet = new UttakAktivitetEntitet.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
                 .build();
-        LocalDate uttakStart = LocalDate.of(2018, 5, 14);
+        var uttakStart = LocalDate.of(2018, 5, 14);
         var uttakMødrekvote = new UttakResultatPeriodeEntitet.Builder(uttakStart, uttakStart.plusWeeks(6).minusDays(1))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
@@ -289,7 +287,7 @@ public class RelatertBehandlingTjenesteTest {
         uttak2.leggTilPeriode(uttakMødrekvote2);
         morRevurdering.medUttak(uttak2);
 
-        Behandling morsRevurdering = morRevurdering.lagre(repositoryProvider);
+        var morsRevurdering = morRevurdering.lagre(repositoryProvider);
 
         morsRevurdering.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(morsRevurdering,

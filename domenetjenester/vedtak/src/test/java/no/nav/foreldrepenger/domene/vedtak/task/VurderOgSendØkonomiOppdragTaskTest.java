@@ -77,7 +77,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     @Test
     public void testSkalSendeOppdrag() {
         // Arrange
-        Oppdragskontroll oppdragskontroll = Oppdragskontroll.builder()
+        var oppdragskontroll = Oppdragskontroll.builder()
             .medBehandlingId(BEHANDLING_ID)
             .medProsessTaskId(1L)
             .medVenterKvittering(true)
@@ -104,7 +104,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         task.doTask(prosessTaskData);
 
         // Assert oppretter bare prosesstask for å sende tilkjent ytelse
-        ArgumentCaptor<ProsessTaskData> captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(repo).lagre(captor.capture());
         Assertions.assertThat(captor.getValue().getTaskType()).isEqualTo(SendTilkjentYtelseTask.TASKTYPE);
         verifyNoMoreInteractions(repo);

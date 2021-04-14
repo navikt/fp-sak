@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -18,7 +17,6 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -73,7 +71,7 @@ public class DokumentBehandlingTjenesteTest {
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)))
                 .medDefaultBekreftetTerminbekreftelse();
         lagBehandling();
-        Period aksjonspunktPeriode = Period.ofWeeks(3);
+        var aksjonspunktPeriode = Period.ofWeeks(3);
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling, aksjonspunktPeriode))
                 .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
@@ -86,8 +84,8 @@ public class DokumentBehandlingTjenesteTest {
                 .medDefaultBekreftetTerminbekreftelse();
         this.fristUker = BehandlingType.FØRSTEGANGSSØKNAD.getBehandlingstidFristUker();
         lagBehandling();
-        Period aksjonspunktPeriode = Period.ofWeeks(0);
-        LocalDate termindato = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeTerminbekreftelse()
+        var aksjonspunktPeriode = Period.ofWeeks(0);
+        var termindato = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeTerminbekreftelse()
                 .get().getTermindato();
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling, aksjonspunktPeriode))
                 .isEqualTo(termindato.plus(aksjonspunktPeriode));
@@ -101,7 +99,7 @@ public class DokumentBehandlingTjenesteTest {
         scenario.medBekreftetHendelse().medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(LocalDate.now().minusWeeks(6)));
         lagBehandling();
-        Period aksjonspunktPeriode = Period.ofWeeks(3);
+        var aksjonspunktPeriode = Period.ofWeeks(3);
         assertThat(dokumentBehandlingTjeneste.utledFristMedlemskap(behandling, aksjonspunktPeriode))
                 .isEqualTo(LocalDate.now().plusWeeks(fristUker));
     }
@@ -126,7 +124,7 @@ public class DokumentBehandlingTjenesteTest {
         dokumentBehandlingTjeneste.loggDokumentBestilt(behandling, DokumentMalType.INNHENT_DOK);
 
         // Assert
-        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter()).hasSize(1);
         assertThat(behandlingDokument.get().getBestilteDokumenter().get(0).getDokumentMalType()).isEqualTo(DokumentMalType.INNHENT_DOK.getKode());

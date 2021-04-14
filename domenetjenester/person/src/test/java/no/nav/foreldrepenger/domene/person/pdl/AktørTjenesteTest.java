@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ public class AktørTjenesteTest {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(aktørId.getId(), IdentGruppe.AKTORID, false))));
 
-        Optional<AktørId> optAktørId = aktørTjeneste.hentAktørIdForPersonIdent(fnr);
+        var optAktørId = aktørTjeneste.hentAktørIdForPersonIdent(fnr);
         assertThat(optAktørId).isPresent();
         assertThat(optAktørId).hasValueSatisfying(v -> assertThat(v).isEqualTo(aktørId));
     }
@@ -47,7 +46,7 @@ public class AktørTjenesteTest {
         Mockito.when(pdlMock.hentIdenter(any(), any()))
                 .thenReturn(new Identliste(List.of(new IdentInformasjon(fnr.getIdent(), IdentGruppe.FOLKEREGISTERIDENT, false))));
 
-        Optional<PersonIdent> optFnr = aktørTjeneste.hentPersonIdentForAktørId(aktørId);
+        var optFnr = aktørTjeneste.hentPersonIdentForAktørId(aktørId);
         assertThat(optFnr).isPresent();
         assertThat(optFnr).hasValueSatisfying(v -> assertThat(v).isEqualTo(fnr));
     }

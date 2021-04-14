@@ -72,34 +72,34 @@ public class FagsakRelasjonTjeneste {
     }
 
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        FagsakRelasjon fagsakRelasjon = fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
+        var fagsakRelasjon = fagsakRelasjonRepository.opprettRelasjon(fagsak, dekningsgrad);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
         return fagsakRelasjon;
     }
 
     public FagsakRelasjon overstyrDekningsgrad(Fagsak fagsak, Dekningsgrad overstyrtVerdi) {
-        FagsakRelasjon fagsakRelasjon = fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
+        var fagsakRelasjon = fagsakRelasjonRepository.overstyrDekningsgrad(fagsak, overstyrtVerdi);
         fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon);
         return fagsakRelasjon;
     }
 
     public void opprettEllerOppdaterRelasjon(Fagsak fagsak, Optional<FagsakRelasjon> fagsakRelasjon, Dekningsgrad dekningsgrad) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.opprettEllerOppdaterRelasjon(fagsak, fagsakRelasjon, dekningsgrad);
         fagsakRelasjonOpt.ifPresent(relasjon -> fagsakRelasjonEventPubliserer.fireEvent(relasjon));
     }
 
     public void kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.kobleFagsaker(fagsakEn, fagsakTo, behandlingEn);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.fraKobleFagsaker(fagsakEn, fagsakTo);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }
 
     public void nullstillOverstyrtDekningsgrad(Fagsak fagsak) {
-        FagsakRelasjon fr = fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
+        var fr = fagsakRelasjonRepository.nullstillOverstyrtDekningsgrad(fagsak);
         fagsakRelasjonEventPubliserer.fireEvent(fr);
     }
 
@@ -114,7 +114,7 @@ public class FagsakRelasjonTjeneste {
 
     public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
             Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
-        Optional<FagsakRelasjon> fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
+        var fagsakRelasjonOpt = fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås,
                 fagsak2Lås);
         fagsakRelasjonOpt.ifPresent(fagsakRelasjon -> fagsakRelasjonEventPubliserer.fireEvent(fagsakRelasjon));
     }

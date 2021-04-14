@@ -29,9 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -153,12 +151,12 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
@@ -175,10 +173,10 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktEntrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(Aksjonspunkt::isToTrinnsBehandling)
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         aksjonspunktRepository.fjernToTrinnsBehandlingKreves(aksjonspunkt);
@@ -197,10 +195,10 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktTotrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(ap -> !ap.isToTrinnsBehandling())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
@@ -218,9 +216,9 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingEntrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         LOG.info("Setter behandling={} til entrinn", behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
         behandling.nullstillToTrinnsBehandling();
@@ -238,9 +236,9 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingTotrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         LOG.info("Setter behandling={} til totrinn", behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
         behandling.setToTrinnsBehandling();
@@ -264,7 +262,7 @@ public class ForvaltningTekniskRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER).ifPresent(ap -> {
-            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, behandling.getAktivtBehandlingSteg(),
                     List.of(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER));
             behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(ap));
@@ -283,15 +281,15 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response leggtilManglendeSøknadsGrunnlag(@BeanParam @Valid SøknadGrunnlagManglerDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         LOG.info("Setter behandling={} til totrinn", behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         var relrolletype = "FARA".equals(dto.getRolle()) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
-        SøknadEntitet.Builder søknadBuilder = new SøknadEntitet.Builder()
+        var søknadBuilder = new SøknadEntitet.Builder()
                 .medSøknadsdato(dto.getSøknadDato())
                 .medMottattDato(dto.getMottattDato())
                 .medElektroniskRegistrert(true)

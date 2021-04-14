@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
@@ -31,7 +30,6 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPart
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
-import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -55,22 +53,22 @@ public class EndringssøknadSøknadMapperTest {
 
     @Test
     public void skal_treffe_guard_hvis_endringssøknad_sendes_inn_uten_at_det_er_reflektert_i_dokumenttypeid() {
-        NavBruker navBruker = opprettBruker();
-        ManuellRegistreringEndringsøknadDto manuellRegistreringEndringsøknadDto = new ManuellRegistreringEndringsøknadDto();
+        var navBruker = opprettBruker();
+        var manuellRegistreringEndringsøknadDto = new ManuellRegistreringEndringsøknadDto();
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
-        Soeknad soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
+        var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
-        SøknadOversetter oversetter = new SøknadOversetter(repositoryProvider,
+        var oversetter = new SøknadOversetter(repositoryProvider,
             virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste,
             new AnnenPartOversetter(personinfoAdapter));
 
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        MottattDokument.Builder mottattDokumentBuilder = new MottattDokument.Builder().medDokumentType(
+        var mottattDokumentBuilder = new MottattDokument.Builder().medDokumentType(
             DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
             .medMottattDato(LocalDate.now())
             .medFagsakId(fagsak.getId())

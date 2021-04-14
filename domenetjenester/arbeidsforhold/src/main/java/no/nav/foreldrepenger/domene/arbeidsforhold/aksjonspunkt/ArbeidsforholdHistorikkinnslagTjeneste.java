@@ -37,13 +37,13 @@ class ArbeidsforholdHistorikkinnslagTjeneste {
 
     public void opprettHistorikkinnslag(AksjonspunktOppdaterParameter param, ArbeidsforholdDto arbeidsforholdDto, Arbeidsgiver arbeidsgiver,
             InternArbeidsforholdRef ref, List<ArbeidsforholdOverstyring> overstyringer) {
-        final LocalDate stp = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        String arbeidsforholdNavn = arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, ref, overstyringer);
+        final var stp = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var arbeidsforholdNavn = arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, ref, overstyringer);
         opprettHistorikkinnslag(arbeidsforholdDto, arbeidsforholdNavn, Optional.of(stp));
     }
 
     public void opprettHistorikkinnslag(ArbeidsforholdDto arbeidsforholdDto, String arbeidsforholdNavn, Optional<LocalDate> stpOpt) {
-        List<VurderArbeidsforholdHistorikkinnslag> historikkinnslagKoder = utledKoderForHistorikkinnslagdeler(arbeidsforholdDto, stpOpt);
+        var historikkinnslagKoder = utledKoderForHistorikkinnslagdeler(arbeidsforholdDto, stpOpt);
         historikkinnslagKoder.forEach(kode -> opprettHistorikkinnslagDel(kode, arbeidsforholdDto.getBegrunnelse(), arbeidsforholdNavn));
     }
 
@@ -71,7 +71,7 @@ class ArbeidsforholdHistorikkinnslagTjeneste {
 
     private void opprettHistorikkinnslagDel(VurderArbeidsforholdHistorikkinnslag tilVerdi, String begrunnelse, String arbeidsforholdNavn) {
         historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
+        var historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
         historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.ARBEIDSFORHOLD, arbeidsforholdNavn, null, tilVerdi);
         historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
         if (!harSkjermlenke(historikkDeler)) {

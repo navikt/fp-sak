@@ -12,7 +12,6 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
@@ -35,7 +34,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
             OpptjeningAktivitetVurdering vurderForSaksbehandling,
             Map<ArbeidType, Set<OpptjeningAktivitetType>> mapArbeidOpptjening,
             Yrkesaktivitet overstyrtAktivitet) {
-        final OpptjeningAktivitetType type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
+        final var type = utledOpptjeningType(mapArbeidOpptjening, registerAktivitet.getArbeidType());
         return new ArrayList<>(mapAktivitetsavtaler(behandlingReferanse, registerAktivitet, grunnlag,
                 vurderForSaksbehandling, type, overstyrtAktivitet));
     }
@@ -55,8 +54,8 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
             OpptjeningAktivitetType type,
             Yrkesaktivitet overstyrtAktivitet) {
         List<OpptjeningsperiodeForSaksbehandling> perioderForAktivitetsavtaler = new ArrayList<>();
-        LocalDate skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
-        for (AktivitetsAvtale avtale : gjeldendeAvtaler(grunnlag, skjæringstidspunkt, registerAktivitet, overstyrtAktivitet)) {
+        var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
+        for (var avtale : gjeldendeAvtaler(grunnlag, skjæringstidspunkt, registerAktivitet, overstyrtAktivitet)) {
             var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
                     .medOpptjeningAktivitetType(type)
                     .medPeriode(avtale.getPeriode())
@@ -76,7 +75,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     }
 
     public static void settArbeidsgiverInformasjon(Yrkesaktivitet yrkesaktivitet, OpptjeningsperiodeForSaksbehandling.Builder builder) {
-        Arbeidsgiver arbeidsgiver = yrkesaktivitet.getArbeidsgiver();
+        var arbeidsgiver = yrkesaktivitet.getArbeidsgiver();
         if (arbeidsgiver != null) {
             builder.medArbeidsgiver(arbeidsgiver);
             builder.medOpptjeningsnøkkel(new Opptjeningsnøkkel(yrkesaktivitet.getArbeidsforholdRef(), arbeidsgiver));
@@ -101,7 +100,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     }
 
     private static Stillingsprosent finnStillingsprosent(Yrkesaktivitet registerAktivitet) {
-        final Stillingsprosent defaultStillingsprosent = new Stillingsprosent(0);
+        final var defaultStillingsprosent = new Stillingsprosent(0);
         if (registerAktivitet.erArbeidsforhold() || ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER.equals(registerAktivitet.getArbeidType())) {
             var filter = new YrkesaktivitetFilter(null, List.of(registerAktivitet));
             return filter.getAktivitetsAvtalerForArbeid()
@@ -118,7 +117,7 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
             LocalDate skjæringstidspunktForOpptjening,
             Yrkesaktivitet registerAktivitet,
             Yrkesaktivitet overstyrtAktivitet) {
-        Yrkesaktivitet gjeldendeAktivitet = gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet);
+        var gjeldendeAktivitet = gjeldendeAktivitet(registerAktivitet, overstyrtAktivitet);
         if (registerAktivitet.erArbeidsforhold()) {
             return MapAnsettelsesPeriodeOgPermisjon.beregn(grunnlag, gjeldendeAktivitet);
         }

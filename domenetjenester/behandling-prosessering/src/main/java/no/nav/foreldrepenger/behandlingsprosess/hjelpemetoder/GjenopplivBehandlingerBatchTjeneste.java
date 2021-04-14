@@ -34,14 +34,14 @@ public class GjenopplivBehandlingerBatchTjeneste implements BatchTjeneste {
     @Override
     public String launch(BatchArguments arguments) {
         automatiskGjenopptagelseTjeneste.gjenopplivBehandlinger();
-        String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
+        var executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
         return executionId;
     }
 
     @Override
     public BatchStatus status(String executionId) {
-        final String gruppe = executionId.substring(executionId.indexOf(EXECUTION_ID_SEPARATOR.charAt(0)) + 1);
-        final List<TaskStatus> taskStatuses = automatiskGjenopptagelseTjeneste.hentStatusForGjenopptaBehandlingGruppe(gruppe);
+        final var gruppe = executionId.substring(executionId.indexOf(EXECUTION_ID_SEPARATOR.charAt(0)) + 1);
+        final var taskStatuses = automatiskGjenopptagelseTjeneste.hentStatusForGjenopptaBehandlingGruppe(gruppe);
 
         BatchStatus res;
         if (isCompleted(taskStatuses)) {

@@ -71,7 +71,7 @@ public class Poststed extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Poststed that = (Poststed) o;
+        var that = (Poststed) o;
         return poststednummer.equals(that.poststednummer);
     }
 

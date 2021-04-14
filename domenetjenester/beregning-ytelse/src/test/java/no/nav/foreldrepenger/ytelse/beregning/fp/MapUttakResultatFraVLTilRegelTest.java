@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -32,7 +31,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilde
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -44,7 +42,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
@@ -70,7 +67,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @BeforeEach
     public void setup() {
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
         Behandlingsresultat.opprettFor(behandling);
         vlPlan = lagUttakResultatPlan();
@@ -86,7 +83,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     @Test
     public void skalMappeUttakResultatPlan() {
         // Act
-        UttakResultat regelPlan = overriddenMapper.mapFra(vlPlan, lagRef(behandling));
+        var regelPlan = overriddenMapper.mapFra(vlPlan, lagRef(behandling));
 
         // Assert
         assertThat(regelPlan).isNotNull();
@@ -94,10 +91,10 @@ public class MapUttakResultatFraVLTilRegelTest {
         assertThat(uttakResultatPerioder).isNotNull();
         assertThat(uttakResultatPerioder).hasSize(3);
 
-        no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode førFødselPeriode = getPeriodeByFom(uttakResultatPerioder,
+        var førFødselPeriode = getPeriodeByFom(uttakResultatPerioder,
                 FOM_FØR_FØDSEL);
-        no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode mødrePeriode = getPeriodeByFom(uttakResultatPerioder, FOM_MØDREKVOTE);
-        no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode fellesPeriode = getPeriodeByFom(uttakResultatPerioder,
+        var mødrePeriode = getPeriodeByFom(uttakResultatPerioder, FOM_MØDREKVOTE);
+        var fellesPeriode = getPeriodeByFom(uttakResultatPerioder,
                 FOM_FELLESPERIODE);
 
         assertPeriode(førFødselPeriode, FOM_FØR_FØDSEL, TOM_FØR_FØDSEL);
@@ -106,21 +103,21 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private UttakInput lagRef(Behandling behandling) {
-        LocalDate skjæringstidspunkt = LocalDate.now();
+        var skjæringstidspunkt = LocalDate.now();
         return new UttakInput(BehandlingReferanse.fra(behandling, skjæringstidspunkt), null, null);
     }
 
     @Test
     public void skalMappeUttakAktivitet() {
         // Arrange
-        BigDecimal prosentArbeid = BigDecimal.valueOf(10);
+        var prosentArbeid = BigDecimal.valueOf(10);
         var utbetalingsgrad = new Utbetalingsgrad(66); // overstyrt
-        ForeldrepengerUttak uttakPlan = lagUttaksPeriode(prosentArbeid, utbetalingsgrad);
+        var uttakPlan = lagUttaksPeriode(prosentArbeid, utbetalingsgrad);
         // Act
-        UttakResultat resultat = overriddenMapper.mapFra(uttakPlan, lagRef(behandling));
+        var resultat = overriddenMapper.mapFra(uttakPlan, lagRef(behandling));
         // Assert
-        UttakResultatPeriode resultPeriode = onlyOne(resultat);
-        UttakAktivitet uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
+        var resultPeriode = onlyOne(resultat);
+        var uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
         assertThat(uttakAktivitet.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad.decimalValue());
         assertThat(uttakAktivitet.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeid);
         assertThat(uttakAktivitet.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
@@ -132,7 +129,7 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private ArbeidsforholdInformasjon lagArbeidsforholdInformasjon(Arbeidsgiver arbeidsgiver) {
-        ArbeidsforholdInformasjonBuilder arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var arbeidsforholdInformasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         var internArbeidsforholdId_1 = InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID.getReferanse());
         var eksternArbeidsforholdId_1 = EksternArbeidsforholdRef.ref("ID1");
         var internArbeidsforholdId_2 = InternArbeidsforholdRef.ref(ARBEIDSFORHOLD_ID_2.getReferanse());
@@ -146,26 +143,26 @@ public class MapUttakResultatFraVLTilRegelTest {
     private List<YrkesaktivitetBuilder> lagYrkesAkiviteter(Arbeidsgiver arbeidsgiver) {
         List<YrkesaktivitetBuilder> yrkesAktiviteter = new ArrayList<>();
 
-        LocalDate fom = LocalDate.of(2015, 8, 1);
-        LocalDate tom = Tid.TIDENES_ENDE;
+        var fom = LocalDate.of(2015, 8, 1);
+        var tom = Tid.TIDENES_ENDE;
 
-        AktivitetsAvtaleBuilder aa1 = AktivitetsAvtaleBuilder.ny()
+        var aa1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
-        AktivitetsAvtaleBuilder aa1_2 = AktivitetsAvtaleBuilder.ny()
+        var aa1_2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
                 .medProsentsats(new BigDecimal(20));
 
-        AktivitetsAvtaleBuilder aa2 = AktivitetsAvtaleBuilder.ny()
+        var aa2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
 
-        AktivitetsAvtaleBuilder aa2_2 = AktivitetsAvtaleBuilder.ny()
+        var aa2_2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
                 .medProsentsats(new BigDecimal(60));
 
-        YrkesaktivitetBuilder ya1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var ya1 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).medArbeidsgiver(arbeidsgiver)
                 .leggTilAktivitetsAvtale(aa1).leggTilAktivitetsAvtale(aa1_2).medArbeidsforholdId(ARBEIDSFORHOLD_ID);
-        YrkesaktivitetBuilder ya2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+        var ya2 = YrkesaktivitetBuilder.oppdatere(Optional.empty())
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).medArbeidsgiver(arbeidsgiver)
                 .leggTilAktivitetsAvtale(aa2).leggTilAktivitetsAvtale(aa2_2).medArbeidsforholdId(ARBEIDSFORHOLD_ID_2);
 
@@ -177,24 +174,24 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     private InntektArbeidYtelseGrunnlagBuilder opprettGrunnlag(List<YrkesaktivitetBuilder> yrkesaktivitetList, AktørId aktørId,
             ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
-        InntektArbeidYtelseAggregatBuilder aggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = aggregat.getAktørArbeidBuilder(aktørId);
-        for (YrkesaktivitetBuilder yrkesaktivitet : yrkesaktivitetList) {
+        var aggregat = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var aktørArbeidBuilder = aggregat.getAktørArbeidBuilder(aktørId);
+        for (var yrkesaktivitet : yrkesaktivitetList) {
             aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitet);
         }
         aggregat.leggTilAktørArbeid(aktørArbeidBuilder);
 
-        InntektArbeidYtelseGrunnlagBuilder inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty());
         inntektArbeidYtelseGrunnlagBuilder.medInformasjon(arbeidsforholdInformasjon);
         inntektArbeidYtelseGrunnlagBuilder.medData(aggregat);
         return inntektArbeidYtelseGrunnlagBuilder;
     }
 
     private UttakInput lagRefMedIay(Behandling behandling, List<YrkesaktivitetBuilder> yrkesaktiviteter, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        LocalDate skjæringstidspunkt = LocalDate.now();
+        var skjæringstidspunkt = LocalDate.now();
 
         var bgStatuser = yrkesaktiviteter.stream().map((YrkesaktivitetBuilder yb) -> {
-            Yrkesaktivitet y = yb.build();
+            var y = yb.build();
             var arbeidsforholdRef = y.getArbeidsforholdRef();
             var arbeidsgiver = y.getArbeidsgiver();
             return new BeregningsgrunnlagStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER,
@@ -209,24 +206,24 @@ public class MapUttakResultatFraVLTilRegelTest {
         // Arrange
         var arbeidsgiver = Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR);
 
-        ArbeidsforholdInformasjon arbeidsforholdInformasjon = lagArbeidsforholdInformasjon(arbeidsgiver);
+        var arbeidsforholdInformasjon = lagArbeidsforholdInformasjon(arbeidsgiver);
 
-        List<YrkesaktivitetBuilder> yrkesaktiviteter = lagYrkesAkiviteter(arbeidsgiver);
-        InntektArbeidYtelseGrunnlag iayGrunnlag = opprettGrunnlag(yrkesaktiviteter, behandling.getAktørId(), arbeidsforholdInformasjon).build();
+        var yrkesaktiviteter = lagYrkesAkiviteter(arbeidsgiver);
+        var iayGrunnlag = opprettGrunnlag(yrkesaktiviteter, behandling.getAktørId(), arbeidsforholdInformasjon).build();
 
-        BigDecimal prosentArbeid = BigDecimal.valueOf(60);
+        var prosentArbeid = BigDecimal.valueOf(60);
 
-        BigDecimal prosentArbeidAndel1 = BigDecimal.valueOf(15);
-        BigDecimal prosentArbeidAndel2 = BigDecimal.valueOf(45);
+        var prosentArbeidAndel1 = BigDecimal.valueOf(15);
+        var prosentArbeidAndel2 = BigDecimal.valueOf(45);
 
         var utbetalingsgrad1 = new Utbetalingsgrad(15); // overstyrt
         var utbetalingsgrad2 = new Utbetalingsgrad(45); // overstyrt
-        ForeldrepengerUttak uttakPlan = lagUttaksPeriodeMedMultipleAktiviteter(prosentArbeid, utbetalingsgrad1, utbetalingsgrad2);
+        var uttakPlan = lagUttaksPeriodeMedMultipleAktiviteter(prosentArbeid, utbetalingsgrad1, utbetalingsgrad2);
         // Act
-        UttakResultat resultat = mapper.mapFra(uttakPlan, lagRefMedIay(behandling, yrkesaktiviteter, iayGrunnlag));
+        var resultat = mapper.mapFra(uttakPlan, lagRefMedIay(behandling, yrkesaktiviteter, iayGrunnlag));
         // Assert
-        UttakResultatPeriode resultPeriode = onlyOne(resultat);
-        UttakAktivitet uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
+        var resultPeriode = onlyOne(resultat);
+        var uttakAktivitet = resultPeriode.getUttakAktiviteter().get(0);
         assertThat(uttakAktivitet.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad1.decimalValue());
         assertThat(uttakAktivitet.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel1);
         assertThat(uttakAktivitet.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(20));
@@ -236,7 +233,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         assertThat(uttakAktivitet.getArbeidsforhold().getArbeidsforholdId()).isEqualTo(ARBEIDSFORHOLD_ID.getReferanse());
         assertThat(uttakAktivitet.getArbeidsforhold().erFrilanser()).isFalse();
 
-        UttakAktivitet uttakAktivitet2 = resultPeriode.getUttakAktiviteter().get(1);
+        var uttakAktivitet2 = resultPeriode.getUttakAktiviteter().get(1);
         assertThat(uttakAktivitet2.getUtbetalingsgrad()).isEqualByComparingTo(utbetalingsgrad2.decimalValue());
         assertThat(uttakAktivitet2.getArbeidstidsprosent()).isEqualByComparingTo(prosentArbeidAndel2);
         assertThat(uttakAktivitet2.getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(60));
@@ -259,9 +256,9 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private ForeldrepengerUttak lagUttakResultatPlan() {
-        ForeldrepengerUttakPeriode førFødselPeriode = lagUttakResultatPeriode(FOM_FØR_FØDSEL, TOM_FØR_FØDSEL, INNVILGET);
-        ForeldrepengerUttakPeriode mødrekvote = lagUttakResultatPeriode(FOM_MØDREKVOTE, TOM_MØDREKVOTE, INNVILGET);
-        ForeldrepengerUttakPeriode fellesperiode = lagUttakResultatPeriode(FOM_FELLESPERIODE, TOM_FELLESPERIODE, AVSLÅTT);
+        var førFødselPeriode = lagUttakResultatPeriode(FOM_FØR_FØDSEL, TOM_FØR_FØDSEL, INNVILGET);
+        var mødrekvote = lagUttakResultatPeriode(FOM_MØDREKVOTE, TOM_MØDREKVOTE, INNVILGET);
+        var fellesperiode = lagUttakResultatPeriode(FOM_FELLESPERIODE, TOM_FELLESPERIODE, AVSLÅTT);
 
         List<ForeldrepengerUttakPeriode> perioder = new ArrayList<>();
 
@@ -269,7 +266,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         perioder.add(mødrekvote);
         perioder.add(fellesperiode);
 
-        ForeldrepengerUttak resultat = new ForeldrepengerUttak(perioder);
+        var resultat = new ForeldrepengerUttak(perioder);
         return resultat;
     }
 
@@ -279,10 +276,10 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private ForeldrepengerUttak lagUttaksPeriode(BigDecimal prosentArbeid, Utbetalingsgrad prosentUtbetaling) {
-        LocalDate idag = LocalDate.now();
-        ForeldrepengerUttakAktivitet uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
+        var idag = LocalDate.now();
+        var uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
                 Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID);
-        ForeldrepengerUttakPeriodeAktivitet periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet)
+        var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet)
                 .medUtbetalingsgrad(prosentUtbetaling)
                 .medArbeidsprosent(prosentArbeid)
                 .medSøktGraderingForAktivitetIPeriode(true)
@@ -291,7 +288,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
         aktiviteter.add(periodeAktivitet);
 
-        ForeldrepengerUttakPeriode periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(idag, idag.plusDays(6))
+        var periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(idag, idag.plusDays(6))
                 .medResultatType(PeriodeResultatType.INNVILGET)
                 .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medGraderingInnvilget(true)
@@ -305,19 +302,19 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     private ForeldrepengerUttak lagUttaksPeriodeMedMultipleAktiviteter(BigDecimal prosentArbeid, Utbetalingsgrad utbetalingsgrad1,
             Utbetalingsgrad utbetalingsgrad2) {
-        LocalDate idag = LocalDate.now();
-        ForeldrepengerUttakAktivitet uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
+        var idag = LocalDate.now();
+        var uttakAktivtet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
                 Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID);
-        ForeldrepengerUttakPeriodeAktivitet periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet)
+        var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet)
                 .medUtbetalingsgrad(utbetalingsgrad1)
                 .medArbeidsprosent(prosentArbeid)
                 .medSøktGraderingForAktivitetIPeriode(true)
                 .build();
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
 
-        ForeldrepengerUttakAktivitet uttakAktivtet2 = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
+        var uttakAktivtet2 = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
                 Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID_2);
-        ForeldrepengerUttakPeriodeAktivitet periodeAktivitet2 = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet2)
+        var periodeAktivitet2 = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivtet2)
                 .medUtbetalingsgrad(utbetalingsgrad2)
                 .medArbeidsprosent(prosentArbeid)
                 .medSøktGraderingForAktivitetIPeriode(true)
@@ -326,7 +323,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         aktiviteter.add(periodeAktivitet);
         aktiviteter.add(periodeAktivitet2);
 
-        ForeldrepengerUttakPeriode periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(idag, idag.plusDays(6))
+        var periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(idag, idag.plusDays(6))
                 .medResultatType(PeriodeResultatType.INNVILGET)
                 .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medGraderingInnvilget(true)
@@ -339,16 +336,16 @@ public class MapUttakResultatFraVLTilRegelTest {
     }
 
     private ForeldrepengerUttakPeriode lagUttakResultatPeriode(LocalDate fom, LocalDate tom, PeriodeResultatType periodeResultatType) {
-        ForeldrepengerUttakAktivitet uttakAktivitet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
+        var uttakAktivitet = new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID,
                 Arbeidsgiver.virksomhet(ARBEIDSFORHOLD_ORGNR), ARBEIDSFORHOLD_ID);
         List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter = new ArrayList<>();
-        ForeldrepengerUttakPeriodeAktivitet periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivitet)
+        var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(uttakAktivitet)
                 .medArbeidsprosent(BigDecimal.ZERO)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medSøktGraderingForAktivitetIPeriode(true)
                 .build();
         aktiviteter.add(periodeAktivitet);
-        ForeldrepengerUttakPeriode periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(fom, tom)
+        var periode = new ForeldrepengerUttakPeriode.Builder().medTidsperiode(fom, tom)
                 .medResultatType(periodeResultatType)
                 .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medAktiviteter(aktiviteter)

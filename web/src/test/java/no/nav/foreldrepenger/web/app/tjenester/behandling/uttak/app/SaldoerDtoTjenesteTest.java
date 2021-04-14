@@ -64,9 +64,7 @@ import no.nav.foreldrepenger.domene.uttak.saldo.fp.MaksDatoUttakTjenesteImpl;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetIdentifikatorDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AktivitetSaldoDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeAktivitetLagreDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeLagreDto;
@@ -110,7 +108,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private static Stønadskontoberegning lagStønadskontoberegning(Stønadskonto... stønadskontoer) {
-        Stønadskontoberegning.Builder builder = Stønadskontoberegning.builder()
+        var builder = Stønadskontoberegning.builder()
             .medRegelEvaluering("asdf")
             .medRegelInput("asdf");
         Stream.of(stønadskontoer)
@@ -121,18 +119,18 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void riktig_saldo_for_mors_uttaksplan() {
 
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         //
         // --- Mors behandling
         //
-        Behandling morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
+        var morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
 
         lagreEndringsdato(morsBehandling);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -141,7 +139,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
             fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
+        var behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
@@ -154,22 +152,22 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         //
         // --- Stønadskontoer
         //
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
+        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -212,24 +210,24 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void saldo_for_arbeidstype_uten_arbeidsgiver() {
 
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         //
         // --- Mors behandling
         //
-        Behandling morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
+        var morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
 
         lagreEndringsdato(morsBehandling);
 
-        UttakAktivitetEntitet uttakAktivitetForMor = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitetForMor = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .build();
-        UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
             StønadskontoType.MØDREKVOTE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
+        var behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
@@ -241,30 +239,30 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         //
         // --- Stønadskontoer
         //
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
-        UttakResultatPeriodeAktivitetLagreDto aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
+        var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
             .medArbeidsgiver(null)
             .medUttakArbeidType(UttakArbeidType.FRILANS)
             .medTrekkdager(BigDecimal.valueOf(6 * 5))
             .medStønadskontoType(StønadskontoType.MØDREKVOTE)
             .build();
-        UttakResultatPeriodeLagreDto dto = new UttakResultatPeriodeLagreDto.Builder()
+        var dto = new UttakResultatPeriodeLagreDto.Builder()
             .medTidsperiode(LocalDate.of(2019, 2, 19), LocalDate.of(2019, 2, 19))
             .medAktiviteter(Collections.singletonList(aktivitetDto))
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
             .medPeriodeResultatÅrsak(InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato),
+        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato),
             Collections.singletonList(dto));
 
         // Assert
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
     }
 
@@ -276,18 +274,18 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void riktig_saldo_for_mors_dersom_for_mange_dager_blir_trukket() {
 
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         //
         // --- Mors behandling
         //
-        Behandling morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
+        var morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
 
         lagreEndringsdato(morsBehandling);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -296,7 +294,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(15),
             fødseldato.plusWeeks(15 + 17).minusDays(1), StønadskontoType.FELLESPERIODE);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
+        var behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
@@ -309,21 +307,21 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         //
         // --- Stønadskontoer
         //
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(morsBehandling, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
+        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (15 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (17 * 5));
         //Info: ikke relevant å teste maxdato da denne datoen ikke skal være satt dersom det finnes manuelle perioder som er eneste måten en kan få en negativ saldo.
     }
@@ -335,18 +333,18 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void riktig_saldo_for_mors_uttaksplan_ved_flerbarnsdager() {
 
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
         //
         // --- Mors behandling
         //
-        Behandling morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
+        var morsBehandling = lagBehandling(RelasjonsRolleType.MORA);
 
         lagreEndringsdato(morsBehandling);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakResultatPerioderForMor = new UttakResultatPerioderEntitet();
 
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
@@ -355,7 +353,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakResultatPerioderForMor, uttakAktivitetForMor, fødseldato.plusWeeks(6),
             fødseldato.plusWeeks(16).minusDays(1), StønadskontoType.FELLESPERIODE, true, true);
 
-        Behandlingsresultat behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
+        var behandlingsresultatForMor = getBehandlingsresultat(morsBehandling.getId());
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultatForMor)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         lagre(behandlingsresultatForMor);
@@ -368,12 +366,12 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         //
         // --- Stønadskontoer
         //
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 33 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
-        int maxDagerFlerbarn = 17 * 5;
-        final Stønadskontoberegning stønadskontoberegning = lagStønadskontoberegning(
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 33 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
+        var maxDagerFlerbarn = 17 * 5;
+        final var stønadskontoberegning = lagStønadskontoberegning(
             lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
             lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP),
             lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK),
@@ -385,16 +383,16 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
+        var saldoer = tjeneste.lagStønadskontoerDto(input(morsBehandling, fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (10 * 5));
-        StønadskontoDto fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
+        var fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
         assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (10 * 5));
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -404,26 +402,26 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void riktig_saldo_for_far_som_stjeler_flerbarnsdager_fra_mor() {
 
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.plusWeeks(6), fødseldato.plusWeeks(16).minusDays(1),
             StønadskontoType.FELLESPERIODE, false, true);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
+        var behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
-        int maxDagerFlerbarn = 17 * 5;
-        Stønadskontoberegning stønadskontoberegning = lagStønadskontoberegning(
+        var maxDagerFlerbarn = 17 * 5;
+        var stønadskontoberegning = lagStønadskontoberegning(
             lagStønadskonto(StønadskontoType.FLERBARNSDAGER, maxDagerFlerbarn));
         repositoryProvider.getFagsakRelasjonRepository()
             .lagre(behandlingMor.getFagsak(), behandlingMor.getId(), stønadskontoberegning);
 
-        Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
-        UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
-        UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
+        var virksomhetForFar = arbeidsgiver("456");
+        var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakFar = new UttakResultatPerioderEntitet();
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(15).minusDays(1),
             StønadskontoType.FELLESPERIODE, false, true);
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(15), fødseldato.plusWeeks(16).minusDays(1),
@@ -431,14 +429,14 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             StønadskontoType.FELLESPERIODE, false, true);
 
-        Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+        var saldoer = tjeneste.lagStønadskontoerDto(
             input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
-        StønadskontoDto fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
+        var fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
         //5 uker mor, 4 uker som far stjeler fra mor, 1 uker der far og mor har samtidig uttak, 5 uker far
         assertKonto(fbDto, maxDagerFlerbarn, maxDagerFlerbarn - (15 * 5));
     }
@@ -456,14 +454,14 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void riktig_saldo_for_mors_uttaksplan_med_flere_arbeidsforhold() {
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor1 = arbeidsgiver("123");
-        Arbeidsgiver virksomhetForMor2 = arbeidsgiver("456");
-        UttakAktivitetEntitet uttakAktivitetForMor1 = lagUttakAktivitet(virksomhetForMor1);
-        UttakAktivitetEntitet uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
+        var virksomhetForMor1 = arbeidsgiver("123");
+        var virksomhetForMor2 = arbeidsgiver("456");
+        var uttakAktivitetForMor1 = lagUttakAktivitet(virksomhetForMor1);
+        var uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
 
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
@@ -481,42 +479,42 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         scenarioMor.medOppgittDekningsgrad(OppgittDekningsgradEntitet.bruk100());
         scenarioMor.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         scenarioMor.medUttak(uttakMor);
-        Behandling behandlingMor = scenarioMor.lagre(repositoryProvider);
+        var behandlingMor = scenarioMor.lagre(repositoryProvider);
 
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
         // Act
-        SaldoerDtoTjeneste tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
+        var tjeneste = new SaldoerDtoTjeneste(stønadskontoSaldoTjeneste,
             new MaksDatoUttakTjenesteImpl(repositoryProvider.getFpUttakRepository(), stønadskontoSaldoTjeneste),
             stønadskontoRegelAdapter,
             repositoryProvider,
             uttakTjeneste,
             tapteDagerFpffTjeneste);
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(input(behandlingMor, fødseldato));
+        var saldoer = tjeneste.lagStønadskontoerDto(input(behandlingMor, fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertThat(fpffDto.getMaxDager()).isEqualTo(maxDagerFPFF);
         assertThat(fpffDto.getAktivitetSaldoDtoList()).hasSize(2);
         assertThat(fpffDto.getAktivitetSaldoDtoList().get(0).getSaldo()).isEqualTo(0);
         assertThat(fpffDto.getAktivitetSaldoDtoList().get(1).getSaldo()).isEqualTo(0);
 
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertThat(mkDto.getMaxDager()).isEqualTo(maxDagerMK);
         assertThat(mkDto.getAktivitetSaldoDtoList()).hasSize(2);
         assertThat(mkDto.getAktivitetSaldoDtoList().get(0).getSaldo()).isEqualTo(maxDagerMK - (6 * 5));
         assertThat(mkDto.getAktivitetSaldoDtoList().get(1).getSaldo()).isEqualTo(maxDagerMK - (6 * 5));
 
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertThat(fpDto.getMaxDager()).isEqualTo(maxDagerFP);
         assertThat(fpDto.getAktivitetSaldoDtoList()).hasSize(2);
-        Optional<AktivitetSaldoDto> aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+        var aktivitetSaldo1 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
             uttakAktivitetForMor1);
-        Optional<AktivitetSaldoDto> aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
+        var aktivitetSaldo2 = finnRiktigAktivitetSaldo(fpDto.getAktivitetSaldoDtoList(),
             uttakAktivitetForMor2);
         assertThat(aktivitetSaldo1).isPresent();
         assertThat(aktivitetSaldo2).isPresent();
@@ -531,45 +529,45 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void riktig_saldo_med_uttak_på_både_mor_og_fars_uten_overlapp() {
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
             StønadskontoType.MØDREKVOTE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
+        var behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
-        Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
-        UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
-        UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
+        var virksomhetForFar = arbeidsgiver("456");
+        var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakFar = new UttakResultatPerioderEntitet();
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(6), fødseldato.plusWeeks(18).minusDays(1),
             StønadskontoType.FELLESPERIODE);
 
-        Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+        var saldoer = tjeneste.lagStønadskontoerDto(
             input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (12 * 5));
-        StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
+        var fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -582,11 +580,11 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp() {
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet aktiviteterMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var aktiviteterMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, aktiviteterMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         lagPeriode(uttakMor, aktiviteterMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
@@ -595,36 +593,36 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             StønadskontoType.FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
+        var behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
-        Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
-        UttakAktivitetEntitet aktiviteterFar = lagUttakAktivitet(virksomhetForFar);
-        UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
+        var virksomhetForFar = arbeidsgiver("456");
+        var aktiviteterFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakFar = new UttakResultatPerioderEntitet();
         lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
             StønadskontoType.FELLESPERIODE);
         lagPeriode(uttakFar, aktiviteterFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             StønadskontoType.FELLESPERIODE);
 
-        Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+        var saldoer = tjeneste.lagStønadskontoerDto(
             input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
-        StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
+        var fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -634,13 +632,13 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandlingMedUttakFar(LocalDate fødseldato,
                                              Behandling behandlingMor,
                                              UttakResultatPerioderEntitet uttakFar) {
-        ScenarioFarSøkerForeldrepenger scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioFar.medFordeling(new OppgittFordelingEntitet(List.of(), true));
         scenarioFar.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
         scenarioFar.medSøknadHendelse().medFødselsDato(fødseldato);
         scenarioFar.medUttak(uttakFar);
 
-        Behandling behandlingFar = scenarioFar.lagre(repositoryProvider);
+        var behandlingFar = scenarioFar.lagre(repositoryProvider);
 
         repositoryProvider.getFagsakRelasjonRepository()
             .kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
@@ -652,7 +650,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                                             int maxDagerFP,
                                             int maxDagerFK,
                                             int maxDagerMK) {
-        final Stønadskontoberegning stønadskontoberegning = lagStønadskontoberegning(
+        final var stønadskontoberegning = lagStønadskontoberegning(
             lagStønadskonto(StønadskontoType.FORELDREPENGER_FØR_FØDSEL, maxDagerFPFF),
             lagStønadskonto(StønadskontoType.FELLESPERIODE, maxDagerFP),
             lagStønadskonto(StønadskontoType.FEDREKVOTE, maxDagerFK),
@@ -672,7 +670,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagAvsluttet(AbstractTestScenario<?> scenario) {
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling,
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
@@ -681,11 +679,11 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_samtidig_uttak() {
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor = arbeidsgiver("123");
-        UttakAktivitetEntitet uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor = arbeidsgiver("123");
+        var uttakAktivitetForMor = lagUttakAktivitet(virksomhetForMor);
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         lagPeriode(uttakMor, uttakAktivitetForMor, fødseldato, fødseldato.plusWeeks(6).minusDays(1),
@@ -694,35 +692,35 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             StønadskontoType.FELLESPERIODE);
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
+        var behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
-        Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
-        UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
-        UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
+        var virksomhetForFar = arbeidsgiver("456");
+        var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakFar = new UttakResultatPerioderEntitet();
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
             StønadskontoType.FELLESPERIODE, true, false);
 
 
-        Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+        var saldoer = tjeneste.lagStønadskontoerDto(
             input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (15 * 5));
-        StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
+        var fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -731,13 +729,13 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void riktig_saldo_med_uttak_på_både_mor_og_fars_med_overlapp_og_gradering_på_motpart() {
-        LocalDate fødseldato = LocalDate.of(2018, Month.MAY, 1);
+        var fødseldato = LocalDate.of(2018, Month.MAY, 1);
 
-        Arbeidsgiver virksomhetForMor1 = arbeidsgiver("123");
-        Arbeidsgiver virksomhetForMor2 = arbeidsgiver("789");
-        UttakAktivitetEntitet uttakAktivitetForMor1 = lagUttakAktivitet(virksomhetForMor1);
-        UttakAktivitetEntitet uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
-        UttakResultatPerioderEntitet uttakMor = new UttakResultatPerioderEntitet();
+        var virksomhetForMor1 = arbeidsgiver("123");
+        var virksomhetForMor2 = arbeidsgiver("789");
+        var uttakAktivitetForMor1 = lagUttakAktivitet(virksomhetForMor1);
+        var uttakAktivitetForMor2 = lagUttakAktivitet(virksomhetForMor2);
+        var uttakMor = new UttakResultatPerioderEntitet();
         lagPeriode(uttakMor, fødseldato.minusWeeks(3), fødseldato.minusDays(1),
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL, false, false,
             new Tuple<>(uttakAktivitetForMor1, Optional.empty()), new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
@@ -750,36 +748,36 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
             new Tuple<>(uttakAktivitetForMor2, Optional.empty()));
 
         AbstractTestScenario<?> scenarioMor = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
+        var behandlingMor = avsluttetBehandlingMedUttak(fødseldato, scenarioMor, uttakMor);
 
-        int maxDagerFPFF = 3 * 5;
-        int maxDagerFP = 16 * 5;
-        int maxDagerFK = 15 * 5;
-        int maxDagerMK = 15 * 5;
+        var maxDagerFPFF = 3 * 5;
+        var maxDagerFP = 16 * 5;
+        var maxDagerFK = 15 * 5;
+        var maxDagerMK = 15 * 5;
         lagreStønadskontoBeregning(behandlingMor, maxDagerFPFF, maxDagerFP, maxDagerFK, maxDagerMK);
 
-        Arbeidsgiver virksomhetForFar = arbeidsgiver("456");
-        UttakAktivitetEntitet uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
-        UttakResultatPerioderEntitet uttakFar = new UttakResultatPerioderEntitet();
+        var virksomhetForFar = arbeidsgiver("456");
+        var uttakAktivitetForFar = lagUttakAktivitet(virksomhetForFar);
+        var uttakFar = new UttakResultatPerioderEntitet();
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(11), fødseldato.plusWeeks(16).minusDays(1),
             StønadskontoType.FELLESPERIODE);
         lagPeriode(uttakFar, uttakAktivitetForFar, fødseldato.plusWeeks(16), fødseldato.plusWeeks(21).minusDays(1),
             StønadskontoType.FELLESPERIODE);
 
-        Behandling behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
+        var behandlingFar = behandlingMedUttakFar(fødseldato, behandlingMor, uttakFar);
 
         // Act
-        SaldoerDto saldoer = tjeneste.lagStønadskontoerDto(
+        var saldoer = tjeneste.lagStønadskontoerDto(
             input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
 
         // Assert
-        StønadskontoDto fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
+        var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
         assertKonto(fpffDto, maxDagerFPFF, 0);
-        StønadskontoDto mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
+        var mkDto = saldoer.getStonadskontoer().get(StønadskontoType.MØDREKVOTE.getKode());
         assertKonto(mkDto, maxDagerMK, maxDagerMK - (6 * 5));
-        StønadskontoDto fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
+        var fpDto = saldoer.getStonadskontoer().get(StønadskontoType.FELLESPERIODE.getKode());
         assertKonto(fpDto, maxDagerFP, maxDagerFP - (5 /* gradert uttak 20% 5 uker */ + 50 /* fullt uttak 10 uker */));
-        StønadskontoDto fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
+        var fkDto = saldoer.getStonadskontoer().get(StønadskontoType.FEDREKVOTE.getKode());
         assertKonto(fkDto, maxDagerFK, maxDagerFK);
         assertThat(saldoer.getMaksDatoUttak()).isPresent();
         assertThat(saldoer.getMaksDatoUttak().get()).isEqualTo(
@@ -789,7 +787,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private Optional<AktivitetSaldoDto> finnRiktigAktivitetSaldo(List<AktivitetSaldoDto> aktivitetSaldoer,
                                                                  UttakAktivitetEntitet aktivitetEntitet) {
         return aktivitetSaldoer.stream().filter(as -> {
-            AktivitetIdentifikatorDto aktId = as.getAktivitetIdentifikator();
+            var aktId = as.getAktivitetIdentifikator();
             return aktId.getUttakArbeidType().equals(aktivitetEntitet.getUttakArbeidType()) &&
                 aktId.getArbeidsgiverReferanse()
                     .equals(aktivitetEntitet.getArbeidsgiver().isPresent() ? aktivitetEntitet.getArbeidsgiver()
@@ -834,14 +832,14 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                             boolean flerbarnsdager,
                             Tuple<UttakAktivitetEntitet, Optional<Trekkdager>>... aktiviteter) {
 
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medResultatType(PeriodeResultatType.INNVILGET, InnvilgetÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .medSamtidigUttak(samtidigUttak)
             .medFlerbarnsdager(flerbarnsdager)
             .build();
         uttakResultatPerioder.leggTilPeriode(periode);
 
-        for (Tuple<UttakAktivitetEntitet, Optional<Trekkdager>> aktivitetTuple : aktiviteter) {
+        for (var aktivitetTuple : aktiviteter) {
             Trekkdager trekkdager;
             if (aktivitetTuple.getElement2().isPresent()) {
                 trekkdager = aktivitetTuple.getElement2().get();
@@ -853,7 +851,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
                     null).decimalValue());
             }
 
-            UttakResultatPeriodeAktivitetEntitet aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+            var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
                 aktivitetTuple.getElement1())
                 .medTrekkdager(trekkdager)
                 .medTrekkonto(stønadskontoType)

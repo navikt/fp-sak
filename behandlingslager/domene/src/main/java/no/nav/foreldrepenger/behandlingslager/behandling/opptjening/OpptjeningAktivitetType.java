@@ -172,7 +172,7 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(OpptjeningAktivitetType.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(OpptjeningAktivitetType.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent OpptjeningAktivitetType: " + kode);

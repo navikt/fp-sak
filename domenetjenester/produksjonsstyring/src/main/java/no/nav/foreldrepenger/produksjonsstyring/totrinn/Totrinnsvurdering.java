@@ -105,7 +105,7 @@ public class Totrinnsvurdering extends BaseEntitet {
         }
 
         public Totrinnsvurdering.Builder medVurderÅrsak(VurderÅrsak vurderÅrsak) {
-            VurderÅrsakTotrinnsvurdering vurderPåNyttÅrsak = new VurderÅrsakTotrinnsvurdering(vurderÅrsak, totrinnsvurderingMal);
+            var vurderPåNyttÅrsak = new VurderÅrsakTotrinnsvurdering(vurderÅrsak, totrinnsvurderingMal);
             totrinnsvurderingMal.vurderPåNyttÅrsaker.add(vurderPåNyttÅrsak);
             return this;
         }

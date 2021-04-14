@@ -119,7 +119,7 @@ public class ForeldrepengerUttakPeriodeAktivitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ForeldrepengerUttakPeriodeAktivitet that = (ForeldrepengerUttakPeriodeAktivitet) o;
+        var that = (ForeldrepengerUttakPeriodeAktivitet) o;
         return trekkdager.equals(that.trekkdager) && likBortsettFraTrekkdager(that);
     }
 

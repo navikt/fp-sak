@@ -49,8 +49,8 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        Long behandlingId = param.getBehandlingId();
-        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var behandlingId = param.getBehandlingId();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
 
         var inntektArbeidYtelseGrunnlag = iayTjeneste.finnGrunnlag(behandlingId);
         if (!inntektArbeidYtelseGrunnlag.isPresent()) {
@@ -68,8 +68,8 @@ class AksjonspunktUtlederForTidligereMottattYtelse implements AksjonspunktUtlede
 
     private Utfall harMottattStønadSiste10Mnd(Saksnummer saksnummer, AktørId aktørId, InntektArbeidYtelseGrunnlag grunnlag,
             LocalDate skjæringstidspunkt) {
-        LocalDate vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
-        List<TilgrensendeYtelserDto> ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
+        var vedtakEtterDato = skjæringstidspunkt.minusMonths(ANTALL_MÅNEDER);
+        var ytelser = ytelseTjeneste.utledYtelserRelatertTilBehandling(aktørId, grunnlag,
                 Optional.of(RELEVANTE_YTELSE_TYPER));
         Boolean senerevedtak = ytelser.stream()
                 .filter(y -> (y.getSaksNummer() == null) || !saksnummer.getVerdi().equals(y.getSaksNummer()))

@@ -43,7 +43,7 @@ public class DokumentKafkaBestiller {
         if (bestillBrevDto.getÅrsakskode() != null && !bestillBrevDto.getÅrsakskode().isEmpty()) {
             årsak = RevurderingVarslingÅrsak.fraKode(bestillBrevDto.getÅrsakskode());
         }
-        Behandling behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
         bestillBrev(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), årsak, aktør);
     }
 
@@ -58,7 +58,7 @@ public class DokumentKafkaBestiller {
     }
 
     private void opprettKafkaTask(Behandling behandling, DokumentMalType dokumentMalType, String fritekst, RevurderingVarslingÅrsak årsak, HistorikkAktør aktør) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(DokumentbestillerKafkaTaskProperties.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(DokumentbestillerKafkaTaskProperties.TASKTYPE);
         prosessTaskData.setPayload(JsonMapper.toJson(fritekst));
         prosessTaskData.setProperty(DokumentbestillerKafkaTaskProperties.BEHANDLING_ID, behandling.getId().toString());
         prosessTaskData.setProperty(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE, dokumentMalType.getKode());

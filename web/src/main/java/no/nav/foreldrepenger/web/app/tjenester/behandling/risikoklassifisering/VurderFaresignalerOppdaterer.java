@@ -37,7 +37,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     @Override
     public OppdateringResultat oppdater(VurderFaresignalerDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
         var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandlingId)
             .filter(rk -> Kontrollresultat.HØY.equals(rk.getKontrollresultat()))
             .orElseThrow(() -> new IllegalStateException("Skal ikke kunne vurdere faresignaler for behandling med id " + behandlingId));
@@ -74,7 +74,8 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
     private HistorikkEndretFeltVerdiType finnEndretVerdiType(FaresignalVurdering faresignalVurdering) {
         if (faresignalVurdering == null || FaresignalVurdering.UDEFINERT.equals(faresignalVurdering)) {
             return null;
-        } else return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING)
+        }
+        return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING)
             ? HistorikkEndretFeltVerdiType.INGEN_INNVIRKNING : HistorikkEndretFeltVerdiType.INNVIRKNING;
     }
 

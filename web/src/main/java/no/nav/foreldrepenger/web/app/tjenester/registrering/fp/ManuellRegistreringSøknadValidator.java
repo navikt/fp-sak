@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.DekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.EgenVirksomhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.FrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.VirksomhetDto;
 
@@ -51,12 +50,12 @@ public class ManuellRegistreringSøknadValidator {
 
     public static List<FeltFeilDto> validerEgenVirksomhet(EgenVirksomhetDto egenVirksomhet) {
         List<FeltFeilDto> feltFeil = new ArrayList<>();
-        String feltnavn = "harArbeidetIEgenVirksomhet";
+        var feltnavn = "harArbeidetIEgenVirksomhet";
         if (egenVirksomhet.getHarArbeidetIEgenVirksomhet() == null) {
             feltFeil.add(new FeltFeilDto(feltnavn, ManuellRegistreringValidatorTekster.PAAKREVD_FELT));
         }
         if (Boolean.TRUE.equals(egenVirksomhet.getHarArbeidetIEgenVirksomhet())) {
-            for (VirksomhetDto virksomhet : egenVirksomhet.getVirksomheter()) {
+            for (var virksomhet : egenVirksomhet.getVirksomheter()) {
                 leggTilFeilForVirksomhet(feltFeil, virksomhet);
             }
         }
@@ -85,7 +84,7 @@ public class ManuellRegistreringSøknadValidator {
 
     static List<FeltFeilDto> validerDekningsgrad(DekningsgradDto dekningsgrad) {
         List<FeltFeilDto> feltFeil = new ArrayList<>();
-        String feltnavn = "dekningsgrad";
+        var feltnavn = "dekningsgrad";
         if (dekningsgrad == null) {
             feltFeil.add(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
@@ -103,8 +102,8 @@ public class ManuellRegistreringSøknadValidator {
         validerTidsromPermisjonFarEllerMedmor(registreringDto).ifPresent(feltFeilDto1 -> result.add(feltFeilDto1));
 
         //Valider tidspermisjonsfelter som er felles for alle foreldretyper
-        TidsromPermisjonDto tidsromPermisjon = registreringDto.getTidsromPermisjon();
-        Optional<FeltFeilDto> feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
+        var tidsromPermisjon = registreringDto.getTidsromPermisjon();
+        var feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
         feltFeilPermisjonsperiode.ifPresent(feil -> result.add(feil));
 
         result.addAll(validerUtsettelse(tidsromPermisjon.getUtsettelsePeriode()));
@@ -114,14 +113,14 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     private static Optional<FeltFeilDto> validerTidsromPermisjonFarEllerMedmor(ManuellRegistreringForeldrepengerDto registreringDto) {
-        TidsromPermisjonDto tidsromPermisjon = registreringDto.getTidsromPermisjon();
-        List<OverføringsperiodeDto> overføringsperioder = tidsromPermisjon.getOverforingsperioder();
-        for (OverføringsperiodeDto overføringsperiode : overføringsperioder) {
+        var tidsromPermisjon = registreringDto.getTidsromPermisjon();
+        var overføringsperioder = tidsromPermisjon.getOverforingsperioder();
+        for (var overføringsperiode : overføringsperioder) {
             if (isNull(overføringsperiode.getOverforingArsak())) {
                 return Optional.of(new FeltFeilDto("årsakForOverføring", PAAKREVD_FELT));
             }
             //Opprett periode av fra til dato.
-            List<ManuellRegistreringValidatorUtil.Periode> perioder = Collections.singletonList(new ManuellRegistreringValidatorUtil.Periode(overføringsperiode.getPeriodeFom(),
+            var perioder = Collections.singletonList(new ManuellRegistreringValidatorUtil.Periode(overføringsperiode.getPeriodeFom(),
                 overføringsperiode.getPeriodeTom()));
             return validerSomIkkePåkrevdePerioder(perioder, "årsakForOverføring");
 
@@ -130,15 +129,15 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     static List<FeltFeilDto> validerGradering(List<GraderingDto> graderingPerioder) {
-        String feltnavnGradering = "gradering";
+        var feltnavnGradering = "gradering";
         List<FeltFeilDto> feltFeilGradering = new ArrayList<>();
-        List<ManuellRegistreringValidatorUtil.Periode> perioder = graderingPerioder.stream().map(fkp ->
+        var perioder = graderingPerioder.stream().map(fkp ->
             new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).collect(Collectors.toList());
 
-        Optional<FeltFeilDto> feilIPerioder = validerSomPåkrevdePerioder(perioder, feltnavnGradering);
+        var feilIPerioder = validerSomPåkrevdePerioder(perioder, feltnavnGradering);
         feilIPerioder.ifPresent(feil -> feltFeilGradering.add(feil));
 
-        for (GraderingDto gradering : graderingPerioder) {
+        for (var gradering : graderingPerioder) {
             if (gradering.getPeriodeForGradering() == null) {
                 feltFeilGradering.add(new FeltFeilDto("periodeForGradering", PAAKREVD_FELT));
             }
@@ -186,11 +185,11 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     static List<FeltFeilDto> validerUtsettelse(List<UtsettelseDto> utsettelsePerioder) {
-        String feltnavnTidsromForPermisjon = "utsettelsePerioder";
+        var feltnavnTidsromForPermisjon = "utsettelsePerioder";
         List<String> feilUtsettelsePerioder = new ArrayList<>();
         List<FeltFeilDto> feltFeilUtsettelse = new ArrayList<>();
 
-        List<ManuellRegistreringValidatorUtil.Periode> perioder = utsettelsePerioder.stream().map(fkp ->
+        var perioder = utsettelsePerioder.stream().map(fkp ->
             new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).collect(Collectors.toList());
 
         feilUtsettelsePerioder.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
@@ -198,11 +197,11 @@ public class ManuellRegistreringSøknadValidator {
         feilUtsettelsePerioder.addAll(ManuellRegistreringValidatorUtil.overlappendePerioder(perioder));
 
         if (!feilUtsettelsePerioder.isEmpty()) {
-            FeltFeilDto feltFeilUtsettelsePerioder = new FeltFeilDto(feltnavnTidsromForPermisjon, feilUtsettelsePerioder.stream().collect(Collectors.joining(", ")));
+            var feltFeilUtsettelsePerioder = new FeltFeilDto(feltnavnTidsromForPermisjon, feilUtsettelsePerioder.stream().collect(Collectors.joining(", ")));
             feltFeilUtsettelse.add(feltFeilUtsettelsePerioder);
         }
 
-        for (UtsettelseDto utsettelse : utsettelsePerioder) {
+        for (var utsettelse : utsettelsePerioder) {
             if (utsettelse.getArsakForUtsettelse() == null) {
                 feltFeilUtsettelse.add(new FeltFeilDto("arsakForUtsettelse", PAAKREVD_FELT));
             }
@@ -211,10 +210,10 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     static Optional<FeltFeilDto> validerPermisjonsperiode(TidsromPermisjonDto tidsromPermisjon) {
-        String feltnavn = "permisjonperioder";
+        var feltnavn = "permisjonperioder";
         List<String> feil = new ArrayList<>();
-        List<PermisjonPeriodeDto> permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
-        List<ManuellRegistreringValidatorUtil.Periode> perioder = permisjonperioder.stream().map(fkp ->
+        var permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
+        var perioder = permisjonperioder.stream().map(fkp ->
             new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).collect(Collectors.toList());
         feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
         feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));

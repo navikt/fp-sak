@@ -62,7 +62,7 @@ public enum FaresignalVurdering implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(FaresignalVurdering.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(FaresignalVurdering.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent FaresignalVurdering: " + kode);

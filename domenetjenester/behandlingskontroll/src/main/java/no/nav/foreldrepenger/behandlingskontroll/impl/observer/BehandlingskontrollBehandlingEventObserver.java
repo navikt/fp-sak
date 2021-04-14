@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingskontroll.impl.observer;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -10,7 +9,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
@@ -48,8 +46,8 @@ public class BehandlingskontrollBehandlingEventObserver {
             return;
         }
 
-        Optional<BehandlingStegTilstandSnapshot> fraTilstand = event.getFraTilstand();
-        Optional<BehandlingStegTilstandSnapshot> tilTilstand = event.getTilTilstand();
+        var fraTilstand = event.getFraTilstand();
+        var tilTilstand = event.getTilTilstand();
 
         if ((fraTilstand.isEmpty() && tilTilstand.isEmpty())
                 || (fraTilstand.isPresent() && tilTilstand.isPresent() && Objects.equals(fraTilstand.get(), tilTilstand.get()))) {

@@ -24,10 +24,11 @@ public class Node implements Comparable<Node>{
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof Node)) {
+        }
+        if (obj == null || !(obj instanceof Node)) {
             return false;
         }
-        Node other = (Node) obj;
+        var other = (Node) obj;
         return Objects.equals(localName, other.localName)
                 && Objects.equals(parent, other.parent);
     }
@@ -53,7 +54,7 @@ public class Node implements Comparable<Node>{
     public Node getParent() {
         return parent;
     }
-    
+
     public String getFullName() {
         if (fullName == null) {
             if (parent == null) {

@@ -43,7 +43,7 @@ public class RyddDekningsgradTjeneste {
     }
 
     private void ryddIBehandlingsresultat(Behandling behandling) {
-        Behandlingsresultat resultat = behandlingsresultatRepository.hent(behandling.getId());
+        var resultat = behandlingsresultatRepository.hent(behandling.getId());
         Behandlingsresultat.builderEndreEksisterende(resultat).medEndretDekningsgrad(false).buildFor(behandling);
         behandlingRepository.lagre(behandling, behandlingLåsRepository.taLås(behandling.getId()));
     }

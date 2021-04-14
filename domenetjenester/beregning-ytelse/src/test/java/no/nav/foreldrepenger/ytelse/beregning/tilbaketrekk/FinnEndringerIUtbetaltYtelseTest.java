@@ -42,10 +42,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     public void ingen_endring_bruker_arbeidsgiver() {
         // Arrange
 
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
 
@@ -62,8 +62,8 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void ingen_endring_bruker() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(lagAndel(true, 2100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(lagAndel(true, 2100));
+        var forrigeAndeler = List.of(lagAndel(true, 2100));
+        var bgAndeler = List.of(lagAndel(true, 2100));
 
         // Act
         var resultat = FinnEndringerIUtbetaltYtelse.finnEndringer(forrigeAndeler, bgAndeler);
@@ -78,10 +78,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void ingen_endring_arbeidsgiver() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
 
@@ -98,10 +98,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void utbetaling_tidligere_til_bruker_skulle_vært_til_ag() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1800),
                 lagAndel(false, 300));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 1100));
 
@@ -126,10 +126,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void utbetaling_var_tidligere_til_ag_skulle_vært_til_bruker() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1200),
                 lagAndel(false, 900));
 
@@ -146,10 +146,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void økt_inntekt_økning_utbetales_arbeidsgiver() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 800));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1300),
                 lagAndel(false, 800));
 
@@ -166,9 +166,9 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void økt_inntekt_økning_utbetales_bruker() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 900));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 2100));
 
         // Act
@@ -184,10 +184,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void økt_inntekt_utbetales_arbeidsgiver() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 800));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 2000));
 
@@ -204,10 +204,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void økt_inntekt_utbetales_arbeidsgiver_0_til_bruker() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 900));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
 
@@ -224,10 +224,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case6a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 800));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 1200));
 
@@ -244,10 +244,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case6b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 1100));
 
@@ -264,10 +264,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case6c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 900));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 1100));
 
@@ -284,10 +284,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case7a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
 
@@ -312,10 +312,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case7b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
 
@@ -340,10 +340,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case7c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
 
@@ -368,10 +368,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case8a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 800));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 700));
 
@@ -388,10 +388,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case8b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 2100),
                 lagAndel(false, 0));
 
@@ -408,10 +408,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case8c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 900));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 700));
 
@@ -428,10 +428,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case9a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 0));
 
@@ -448,9 +448,9 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case9b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0));
 
         // Act
@@ -467,10 +467,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case10a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 1200));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 200),
                 lagAndel(false, 1200));
 
@@ -496,10 +496,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case10b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1200),
                 lagAndel(false, 900));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 900));
 
@@ -517,10 +517,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case10c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1500),
                 lagAndel(false, 600));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 600));
 
@@ -537,10 +537,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case11a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 1100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 400));
 
@@ -557,10 +557,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case11b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 700));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 0));
 
@@ -577,10 +577,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case12a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1000),
                 lagAndel(false, 1100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 900),
                 lagAndel(false, 300));
 
@@ -605,10 +605,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case12b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 1500));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 1400));
 
@@ -633,10 +633,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case12c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 700));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 600));
 
@@ -661,10 +661,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case12d() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1900),
                 lagAndel(false, 200));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1300),
                 lagAndel(false, 100));
 
@@ -681,10 +681,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case13a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 500),
                 lagAndel(false, 1600));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 800));
 
@@ -701,10 +701,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case13b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 500),
                 lagAndel(false, 1600));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 0));
 
@@ -721,10 +721,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case13c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 200),
                 lagAndel(false, 1200));
 
@@ -741,10 +741,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case14a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1400),
                 lagAndel(false, 700));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 800));
 
@@ -769,10 +769,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case14b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 800),
                 lagAndel(false, 1300));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 1400));
 
@@ -797,10 +797,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case14c() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2000),
                 lagAndel(false, 100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1200),
                 lagAndel(false, 200));
 
@@ -817,10 +817,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case14d() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2000),
                 lagAndel(false, 100));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 200));
 
@@ -839,10 +839,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case15a() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 600),
                 lagAndel(false, 800));
 
@@ -861,10 +861,10 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void case15b() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2100),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 1800),
                 lagAndel(false, 200));
 
@@ -881,12 +881,12 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void slåttSammenAndelerMistetReferanse() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 1100, REF1),
                 lagAndel(true, 1000, REF2),
                 lagAndel(false, 0, REF1),
                 lagAndel(false, 0, REF2));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 0),
                 lagAndel(false, 2100));
 
@@ -912,14 +912,14 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void slåSammenAndelerMedOgUtenRefTilEnSomManglerRef() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 500, REF1),
                 lagAndel(true, 1000, REF2),
                 lagAndel(true, 500),
                 lagAndel(false, 0, REF1),
                 lagAndel(false, 0, REF2),
                 lagAndel(false, 0));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 100),
                 lagAndel(false, 2000));
 
@@ -949,9 +949,9 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void skalKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårKunEnAndelFinnes() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 100, REF1),
                 lagAndel(false, 2000, REF1));
 
@@ -978,11 +978,11 @@ public class FinnEndringerIUtbetaltYtelseTest {
     @Test
     public void skalIkkeKunneMatcheAndelerHvisDeHarSammeNøkkelMenHarFåttArbIdNårFlereAndelerFinnes() {
         // Arrange
-        List<BeregningsresultatAndel> forrigeAndeler = List.of(
+        var forrigeAndeler = List.of(
                 lagAndel(true, 2000, InternArbeidsforholdRef.nullRef()),
                 lagAndel(false, 100, InternArbeidsforholdRef.nullRef()),
                 lagAndel(false, 300, InternArbeidsforholdRef.nullRef()));
-        List<BeregningsresultatAndel> bgAndeler = List.of(
+        var bgAndeler = List.of(
                 lagAndel(true, 400, REF1),
                 lagAndel(false, 2000, REF1));
 
@@ -994,7 +994,7 @@ public class FinnEndringerIUtbetaltYtelseTest {
     }
 
     private BeregningsresultatPeriode lagBeregningsresultatPeriode() {
-        BeregningsresultatEntitet br = BeregningsresultatEntitet.builder()
+        var br = BeregningsresultatEntitet.builder()
                 .medRegelInput("input")
                 .medRegelSporing("sporing")
                 .build();

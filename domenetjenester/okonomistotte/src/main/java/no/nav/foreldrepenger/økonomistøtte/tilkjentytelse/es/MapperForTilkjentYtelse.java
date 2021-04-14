@@ -17,12 +17,12 @@ public class MapperForTilkjentYtelse {
     }
 
     public static List<TilkjentYtelsePeriodeV1> mapTilkjentYtelse(LegacyESBeregning resultat, LocalDate vedtaksdato) {
-        TilkjentYtelseAndelV1 andel = TilkjentYtelseAndelV1.tilBruker(
+        var andel = TilkjentYtelseAndelV1.tilBruker(
             TilkjentYtelseV1.Inntektskategori.IKKE_RELEVANT,
             resultat.getBeregnetTilkjentYtelse(),
             TilkjentYtelseV1.SatsType.ENGANGSUTBETALING);
         andel.setUtbetalingsgrad(BigDecimal.valueOf(100));
-        TilkjentYtelsePeriodeV1 periode = new TilkjentYtelsePeriodeV1(vedtaksdato, vedtaksdato, Collections.singleton(andel));
+        var periode = new TilkjentYtelsePeriodeV1(vedtaksdato, vedtaksdato, Collections.singleton(andel));
         return Collections.singletonList(periode);
     }
 }

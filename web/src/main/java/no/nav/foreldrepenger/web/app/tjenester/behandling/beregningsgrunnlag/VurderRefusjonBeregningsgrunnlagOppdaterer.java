@@ -1,24 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.historikk.VurderRefusjonBeregningsgrunnlagHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
 @ApplicationScoped
@@ -47,10 +41,10 @@ public class VurderRefusjonBeregningsgrunnlagOppdaterer implements AksjonspunktO
 
     @Override
     public OppdateringResultat oppdater(VurderRefusjonBeregningsgrunnlagDto dto, AksjonspunktOppdaterParameter param) {
-        BehandlingReferanse behandlingRef = param.getRef();
-        BeregningsgrunnlagInputFelles tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.getFagsakYtelseType());
-        BeregningsgrunnlagInput input = tjeneste.lagInput(behandlingRef.getBehandlingId());
-        Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag = beregningsgrunnlagTjeneste
+        var behandlingRef = param.getRef();
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(behandlingRef.getFagsakYtelseType());
+        var input = tjeneste.lagInput(behandlingRef.getBehandlingId());
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste
             .hentSisteBeregningsgrunnlagGrunnlagEntitetForBehandlinger(
                 behandlingRef.getBehandlingId(),
                 behandlingRef.getOriginalBehandlingId(),

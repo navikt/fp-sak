@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
@@ -53,20 +51,20 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_som_oppfylt_når_elektronisk_søknad_og_søknad_mottat_innen_6_mnd_fra_skjæringstidspunkt() throws JsonProcessingException, IOException {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medElektroniskRegistrert(true);
         scenario.medSøknad().medMottattDato(LocalDate.now().plusMonths(6));
         scenario.medBekreftetHendelse()
             .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now()));
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         // Act
-        VilkårData data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String elektroniskSoeknad = jsonNode.get("elektroniskSoeknad").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var elektroniskSoeknad = jsonNode.get("elektroniskSoeknad").asText();
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -78,14 +76,14 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_vurdere_vilkår_som_ikke_vurdert_når_elektronisk_søknad_og_søknad_ikke_mottat_innen_6_mnd_fra_skjæringstidspunkt() {
-        final int ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
+        final var ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT = 100;
 
         // Arrange
-        Behandling behandling = mockBehandling(true, LocalDate.now().plusMonths(6).plusDays(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT),
+        var behandling = mockBehandling(true, LocalDate.now().plusMonths(6).plusDays(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT),
             LocalDate.now());
 
         // Act
-        VilkårData data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -101,10 +99,10 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_som_oppfylt_når_papirsøknad_og_søknad_mottat_innen_6_mnd_og_2_dager_fra_skjæringstidspunkt() {
         // Arrange
-        Behandling behandling = mockBehandling(false, LocalDate.now().minusMonths(6), LocalDate.now());
+        var behandling = mockBehandling(false, LocalDate.now().minusMonths(6), LocalDate.now());
 
         // Act
-        VilkårData data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
@@ -113,7 +111,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private Behandling mockBehandling(boolean elektronisk, LocalDate mottakDato, LocalDate omsorgsovertakelsesDato) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioMorSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medElektroniskRegistrert(elektronisk);
         scenario.medSøknad().medMottattDato(mottakDato);
         scenario.medBekreftetHendelse()
@@ -125,15 +123,15 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_lørdag_pluss_2_virkedager() {
 
-        LocalDate mottattMandag = LocalDate.of(2017, 9, 4);
-        LocalDate mottattTirsdag = mottattMandag.plusDays(1);
-        LocalDate mottattOnsdag = mottattMandag.plusDays(2);
-        LocalDate mottattTorsdag = mottattMandag.plusDays(3);
-        LocalDate mottattFredag = mottattMandag.plusDays(4);
-        LocalDate mottattLørdag = mottattMandag.plusDays(5);
-        LocalDate mottattSøndag = mottattMandag.plusDays(6);
+        var mottattMandag = LocalDate.of(2017, 9, 4);
+        var mottattTirsdag = mottattMandag.plusDays(1);
+        var mottattOnsdag = mottattMandag.plusDays(2);
+        var mottattTorsdag = mottattMandag.plusDays(3);
+        var mottattFredag = mottattMandag.plusDays(4);
+        var mottattLørdag = mottattMandag.plusDays(5);
+        var mottattSøndag = mottattMandag.plusDays(6);
 
-        LocalDate skjæringstidspunktMedOrginalFristLørdag = mottattMandag.minusDays(2).minusMonths(6);
+        var skjæringstidspunktMedOrginalFristLørdag = mottattMandag.minusDays(2).minusMonths(6);
 
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristLørdag));
@@ -149,15 +147,15 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_søndag_pluss_2_virkedager() {
 
-        LocalDate mottattMandag = LocalDate.of(2017, 9, 4);
-        LocalDate mottattTirsdag = mottattMandag.plusDays(1);
-        LocalDate mottattOnsdag = mottattMandag.plusDays(2);
-        LocalDate mottattTorsdag = mottattMandag.plusDays(3);
-        LocalDate mottattFredag = mottattMandag.plusDays(4);
-        LocalDate mottattLørdag = mottattMandag.plusDays(5);
-        LocalDate mottattSøndag = mottattMandag.plusDays(6);
+        var mottattMandag = LocalDate.of(2017, 9, 4);
+        var mottattTirsdag = mottattMandag.plusDays(1);
+        var mottattOnsdag = mottattMandag.plusDays(2);
+        var mottattTorsdag = mottattMandag.plusDays(3);
+        var mottattFredag = mottattMandag.plusDays(4);
+        var mottattLørdag = mottattMandag.plusDays(5);
+        var mottattSøndag = mottattMandag.plusDays(6);
 
-        LocalDate skjæringstidspunktMedOrginalFristSøndag = mottattMandag.minusDays(1).minusMonths(6);
+        var skjæringstidspunktMedOrginalFristSøndag = mottattMandag.minusDays(1).minusMonths(6);
 
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristSøndag));
@@ -173,15 +171,15 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_fredag_pluss_2_virkedager() {
 
-        LocalDate mottattMandag = LocalDate.of(2017, 9, 4);
-        LocalDate mottattTirsdag = mottattMandag.plusDays(1);
-        LocalDate mottattOnsdag = mottattMandag.plusDays(2);
-        LocalDate mottattTorsdag = mottattMandag.plusDays(3);
-        LocalDate mottattFredag = mottattMandag.plusDays(4);
-        LocalDate mottattLørdag = mottattMandag.plusDays(5);
-        LocalDate mottattSøndag = mottattMandag.plusDays(6);
+        var mottattMandag = LocalDate.of(2017, 9, 4);
+        var mottattTirsdag = mottattMandag.plusDays(1);
+        var mottattOnsdag = mottattMandag.plusDays(2);
+        var mottattTorsdag = mottattMandag.plusDays(3);
+        var mottattFredag = mottattMandag.plusDays(4);
+        var mottattLørdag = mottattMandag.plusDays(5);
+        var mottattSøndag = mottattMandag.plusDays(6);
 
-        LocalDate skjæringstidspunktMedOrginalFristFredag = mottattMandag.minusDays(3).minusMonths(6);
+        var skjæringstidspunktMedOrginalFristFredag = mottattMandag.minusDays(3).minusMonths(6);
 
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristFredag));
@@ -197,15 +195,15 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     @Test
     public void skal_vurdere_vilkår_for_papirsøknad_med_original_frist_torsdag_pluss_2_virkedager_og_her_treffer_månedsslutt() {
 
-        LocalDate mottattMandag = LocalDate.of(2017, 9, 11);
-        LocalDate mottattTirsdag = mottattMandag.plusDays(1);
-        LocalDate mottattOnsdag = mottattMandag.plusDays(2);
-        LocalDate mottattTorsdag = mottattMandag.plusDays(3);
-        LocalDate mottattFredag = mottattMandag.plusDays(4);
-        LocalDate mottattLørdag = mottattMandag.plusDays(5);
-        LocalDate mottattSøndag = mottattMandag.plusDays(6);
+        var mottattMandag = LocalDate.of(2017, 9, 11);
+        var mottattTirsdag = mottattMandag.plusDays(1);
+        var mottattOnsdag = mottattMandag.plusDays(2);
+        var mottattTorsdag = mottattMandag.plusDays(3);
+        var mottattFredag = mottattMandag.plusDays(4);
+        var mottattLørdag = mottattMandag.plusDays(5);
+        var mottattSøndag = mottattMandag.plusDays(6);
 
-        LocalDate skjæringstidspunktMedOrginalFristTorsdag = mottattMandag.minusDays(4).minusMonths(6);
+        var skjæringstidspunktMedOrginalFristTorsdag = mottattMandag.minusDays(4).minusMonths(6);
 
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristTorsdag));
@@ -219,12 +217,12 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private Behandling mockPapirSøknad(LocalDate mottattDag, LocalDate omsorgDato) {
-        Behandling behandling = mockBehandling(false, mottattDag, omsorgDato);
+        var behandling = mockBehandling(false, mottattDag, omsorgDato);
         return behandling;
     }
 
     private void assertOppfylt(Behandling behandling) {
-        VilkårData data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -233,7 +231,7 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
     }
 
     private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
-        VilkårData data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 

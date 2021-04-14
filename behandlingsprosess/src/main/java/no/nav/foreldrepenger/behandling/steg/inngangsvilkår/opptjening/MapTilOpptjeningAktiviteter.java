@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.ReferanseType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class MapTilOpptjeningAktiviteter {
@@ -20,16 +19,16 @@ public class MapTilOpptjeningAktiviteter {
     public List<OpptjeningAktivitet> map(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder,
             OpptjeningAktivitetKlassifisering klassifiseringType) {
         // slå opp fra kodeverk for å sikre instans fra db.
-        OpptjeningAktivitetKlassifisering klassifisering = OpptjeningAktivitetKlassifisering.fraKode(klassifiseringType.getKode());
+        var klassifisering = OpptjeningAktivitetKlassifisering.fraKode(klassifiseringType.getKode());
         List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
-        for (Map.Entry<Aktivitet, LocalDateTimeline<Boolean>> entry : perioder.entrySet()) {
-            for (LocalDateSegment<Boolean> seg : entry.getValue().toSegments()) {
-                Aktivitet key = entry.getKey();
-                OpptjeningAktivitetType aktType = OpptjeningAktivitetType.fraKode(key.getAktivitetType());
-                String aktivitetReferanse = key.getAktivitetReferanse();
-                ReferanseType refType = getAktivitetReferanseType(aktivitetReferanse, key);
+        for (var entry : perioder.entrySet()) {
+            for (var seg : entry.getValue().toSegments()) {
+                var key = entry.getKey();
+                var aktType = OpptjeningAktivitetType.fraKode(key.getAktivitetType());
+                var aktivitetReferanse = key.getAktivitetReferanse();
+                var refType = getAktivitetReferanseType(aktivitetReferanse, key);
 
-                OpptjeningAktivitet oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering,
+                var oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering,
                         aktivitetReferanse, refType);
                 opptjeningAktivitet.add(oppAkt);
             }
@@ -41,15 +40,15 @@ public class MapTilOpptjeningAktiviteter {
         if (aktivitetReferanse != null) {
             if (key.getReferanseType() == Aktivitet.ReferanseType.ORGNR) {
                 return ReferanseType.ORG_NR;
-            } else if (key.getReferanseType() == Aktivitet.ReferanseType.AKTØRID) {
-                return ReferanseType.AKTØR_ID;
-            } else {
-                throw new IllegalArgumentException(
-                        "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse[" //$NON-NLS-1$
-                                + key.getReferanseType()
-                                + "]: " //$NON-NLS-1$
-                                + aktivitetReferanse);
             }
+            if (key.getReferanseType() == Aktivitet.ReferanseType.AKTØRID) {
+                return ReferanseType.AKTØR_ID;
+            }
+            throw new IllegalArgumentException(
+                    "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse[" //$NON-NLS-1$
+                            + key.getReferanseType()
+                            + "]: " //$NON-NLS-1$
+                            + aktivitetReferanse);
 
         }
 

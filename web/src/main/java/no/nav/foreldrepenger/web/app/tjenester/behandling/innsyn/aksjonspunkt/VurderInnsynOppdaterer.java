@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -44,7 +43,7 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
     public OppdateringResultat oppdater(VurderInnsynDto dto, AksjonspunktOppdaterParameter param) {
         var resultatBuilder = new OppdateringResultat.Builder();
         resultatBuilder.medVilkårResultatType(VilkårResultatType.UDEFINERT); // Kvifor settes denne her?
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
         var builder = InnsynEntitet.InnsynBuilder.builder();
         builder
             .medBehandlingId(param.getBehandlingId())

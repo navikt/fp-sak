@@ -98,7 +98,7 @@ public class FagsakDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        FagsakDvh castOther = (FagsakDvh) other;
+        var castOther = (FagsakDvh) other;
         return Objects.equals(fagsakId, castOther.fagsakId)
                 && Objects.equals(brukerId, castOther.brukerId)
                 && Objects.equals(brukerAktørId, castOther.brukerAktørId)
@@ -192,7 +192,7 @@ public class FagsakDvh extends DvhBaseEntitet {
         }
 
         public FagsakDvh build() {
-            FagsakDvh fagsakDvh = new FagsakDvh();
+            var fagsakDvh = new FagsakDvh();
             fagsakDvh.fagsakId = fagsakId;
             fagsakDvh.brukerId = brukerId;
             fagsakDvh.brukerAktørId = brukerAktørId;

@@ -85,8 +85,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response kontrollerFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
-        boolean avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(behandlingId);
-        String melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
+        var avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(behandlingId);
+        var melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
         return Response.ok(melding).build();
     }
 
@@ -97,8 +97,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response avstemFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         long behandlingId = dto.getBehandlingId();
-        boolean avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId, true);
-        String melding = "Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
+        var avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId, true);
+        var melding = "Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
         return Response.ok(melding).build();
     }
 

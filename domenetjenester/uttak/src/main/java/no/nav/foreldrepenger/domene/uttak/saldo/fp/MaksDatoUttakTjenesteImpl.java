@@ -57,11 +57,10 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
                 return Optional.of(beregnMaksDato(saldoUtregning,
                     List.of(Stønadskontotype.MØDREKVOTE, Stønadskontotype.FELLESPERIODE,
                         Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
-            } else {
-                return Optional.of(beregnMaksDato(saldoUtregning,
-                    List.of(Stønadskontotype.FEDREKVOTE, Stønadskontotype.FELLESPERIODE,
-                        Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
             }
+            return Optional.of(beregnMaksDato(saldoUtregning,
+                List.of(Stønadskontotype.FEDREKVOTE, Stønadskontotype.FELLESPERIODE,
+                    Stønadskontotype.FORELDREPENGER), sisteUttaksdato.get()));
         }
         return Optional.empty();
     }

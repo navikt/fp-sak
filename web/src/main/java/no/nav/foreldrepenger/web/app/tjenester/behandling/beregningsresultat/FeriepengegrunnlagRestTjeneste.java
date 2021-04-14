@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -19,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.FeriepengegrunnlagMapper;
@@ -57,8 +54,8 @@ public class FeriepengegrunnlagRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FeriepengegrunnlagDto hentFeriepenger(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        Optional<FeriepengegrunnlagDto> dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var dto = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
             .flatMap(FeriepengegrunnlagMapper::map);
         return dto.orElse(null);
     }

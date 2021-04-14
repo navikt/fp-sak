@@ -123,7 +123,7 @@ public class OppgittOpptjening extends BaseEntitet {
         if ((o == null) || !(o instanceof OppgittOpptjening)) {
             return false;
         }
-        OppgittOpptjening that = (OppgittOpptjening) o;
+        var that = (OppgittOpptjening) o;
         return Objects.equals(oppgittArbeidsforhold, that.oppgittArbeidsforhold) &&
                 Objects.equals(egenNæring, that.egenNæring) &&
                 Objects.equals(annenAktivitet, that.annenAktivitet);

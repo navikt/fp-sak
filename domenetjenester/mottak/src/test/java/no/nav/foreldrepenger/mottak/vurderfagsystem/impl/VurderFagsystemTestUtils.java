@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -35,14 +34,14 @@ public class VurderFagsystemTestUtils {
 
     public static Optional<Behandling> byggBehandlingMedEndretDato(Fagsak fagsak, int dagerSidenSisteBehandling) {
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak)
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak)
                 .medOpprettetDato(LocalDateTime.now().minusDays(dagerSidenSisteBehandling));
-        Behandling behandling = behandlingBuilder.build();
+        var behandling = behandlingBuilder.build();
         return Optional.of(behandling);
     }
 
     public static VurderFagsystem byggVurderFagsystemMedTermin(LocalDate terminDatdato, BehandlingTema behandlingTema, boolean erStrukturertSøknad) {
-        VurderFagsystem vfData = new VurderFagsystem();
+        var vfData = new VurderFagsystem();
         vfData.setBehandlingTema(behandlingTema);
         vfData.setAktørId(BRUKER_AKTØR_ID);
         vfData.setStrukturertSøknad(erStrukturertSøknad);
@@ -53,13 +52,13 @@ public class VurderFagsystemTestUtils {
 
     public static Fagsak fagsakFødselMedId(Long forventetFagsakId) {
 
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, BehandlingslagerTestUtil.lagNavBruker());
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, BehandlingslagerTestUtil.lagNavBruker());
         fagsak.setId(forventetFagsakId);
         return fagsak;
     }
 
     public static VurderFagsystem byggVurderFagsystem(BehandlingTema behandlingTema, boolean erStrukturertSøknad) {
-        VurderFagsystem vfData = new VurderFagsystem();
+        var vfData = new VurderFagsystem();
         vfData.setBehandlingTema(behandlingTema);
         vfData.setAktørId(BRUKER_AKTØR_ID);
         vfData.setStrukturertSøknad(erStrukturertSøknad);
@@ -70,7 +69,7 @@ public class VurderFagsystemTestUtils {
     public static VurderFagsystem byggVurderFagsystemForInntektsmelding(String årsakInnsending, BehandlingTema behandlingTema,
             LocalDateTime forsendelseMottatt,
             AktørId aktørId, JournalpostId journalpostId, String arbeidsforholdsid, String setArbeidsgiverIdentifikator) {
-        VurderFagsystem fagsystem = new VurderFagsystem();
+        var fagsystem = new VurderFagsystem();
         fagsystem.setAktørId(aktørId);
         fagsystem.setJournalpostId(journalpostId);
         fagsystem.setBehandlingTema(behandlingTema);
@@ -82,14 +81,14 @@ public class VurderFagsystemTestUtils {
     }
 
     public static Behandling byggBehandlingUdefinert(Fagsak fagsak) {
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
         return behandlingBuilder.build();
     }
 
     public static VurderFagsystem byggVurderFagsystemMedAnnenPart(BehandlingTema behandlingTema, AktørId annenPartId, Saksnummer saksnr,
             AktørId aktørId,
             JournalpostId journalpostId, LocalDate barnTermindato, LocalDate barnFødselsdato) {
-        VurderFagsystem fagsystem = new VurderFagsystem();
+        var fagsystem = new VurderFagsystem();
         fagsystem.setAnnenPart(annenPartId);
         fagsystem.setSaksnummer(saksnr);
         fagsystem.setStrukturertSøknad(true);
@@ -102,8 +101,8 @@ public class VurderFagsystemTestUtils {
     }
 
     public static Fagsak buildFagsakMedUdefinertRelasjon(Long fagsakid, boolean erAvsluttet) {
-        NavBruker navBruker = BehandlingslagerTestUtil.lagNavBruker();
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.MORA)
+        var navBruker = BehandlingslagerTestUtil.lagNavBruker();
+        var fagsak = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.MORA)
                 .medBruker(navBruker)
                 .medSaksnummer(new Saksnummer(fagsakid + ""))
                 .build();

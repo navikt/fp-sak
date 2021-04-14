@@ -211,7 +211,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonAdresseEntitet entitet = (PersonAdresseEntitet) o;
+        var entitet = (PersonAdresseEntitet) o;
         return Objects.equals(aktørId, entitet.aktørId) &&
             Objects.equals(periode, entitet.periode) &&
             Objects.equals(adresseType, entitet.adresseType) &&

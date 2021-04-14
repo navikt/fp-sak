@@ -14,17 +14,12 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -220,22 +215,22 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerOgArbeidsgiverErMottakerOgBrukerHarFlereAndeler() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();
-        BeregningsresultatPeriode brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
+        var brPeriode1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 7);
         buildBeregningsresultatAndel(brPeriode1, true, 1500, BigDecimal.valueOf(80), virksomhet);
 
-        BeregningsresultatPeriode brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, 16, 22);
+        var brPeriode3 = buildBeregningsresultatPeriode(beregningsresultat, 16, 22);
         buildBeregningsresultatAndel(brPeriode3, true, 0, BigDecimal.valueOf(80), virksomhet3);
 
-        BeregningsresultatPeriode brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, 23, 30);
+        var brPeriode4 = buildBeregningsresultatPeriode(beregningsresultat, 23, 30);
         buildBeregningsresultatAndel(brPeriode4, false, 2160, BigDecimal.valueOf(80), virksomhet3);
         buildBeregningsresultatAndel(brPeriode4, false, 0, BigDecimal.valueOf(80), virksomhet3);
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -247,7 +242,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
             var ok = oppdragskontroll.get();
 
             verifiserOppdragslinje150MedFlereKlassekode(ok);
-            List<Oppdragslinje150> oppdragslinje150Liste = ok.getOppdrag110Liste().stream()
+            var oppdragslinje150Liste = ok.getOppdrag110Liste().stream()
                 .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
                 .collect(Collectors.toList());
             assertThat(oppdragslinje150Liste).hasSize(2);
@@ -263,7 +258,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalOppretteFørstegangsoppdragFP() {
         // Arrange
-        GruppertYtelse gruppertYtelse = buildTilkjentYtelseFP();
+        var gruppertYtelse = buildTilkjentYtelseFP();
         var builder = getInputStandardBuilder(gruppertYtelse);
 
         // Act
@@ -277,15 +272,15 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
             // Assert
             assertThat(ok).isNotNull();
 
-            List<Oppdrag110> oppdrag110Liste = ok.getOppdrag110Liste();
+            var oppdrag110Liste = ok.getOppdrag110Liste();
             assertThat(oppdrag110Liste).isNotNull();
-            for (Oppdrag110 oppdrag110Lest : oppdrag110Liste) {
+            for (var oppdrag110Lest : oppdrag110Liste) {
                 assertThat(oppdrag110Lest.getOppdragslinje150Liste()).isNotNull();
                 assertThat(oppdrag110Lest.getAvstemming()).isNotNull();
                 assertThat(oppdrag110Lest.getOmpostering116()).isNotPresent();
 
-                List<Oppdragslinje150> oppdrlinje150Liste = oppdrag110Lest.getOppdragslinje150Liste();
-                for (Oppdragslinje150 oppdrlinje150 : oppdrlinje150Liste) {
+                var oppdrlinje150Liste = oppdrag110Lest.getOppdragslinje150Liste();
+                for (var oppdrlinje150 : oppdrlinje150Liste) {
                     assertThat(oppdrlinje150).isNotNull();
                     assertThat(oppdrlinje150.getOppdrag110()).isNotNull();
                 }
@@ -307,16 +302,16 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBruker() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), null);
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -327,10 +322,10 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
             //Assert
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(1);
             assertThat(oppdrag110List.get(0).getOmpostering116()).isNotPresent();
-            List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
+            var oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
             assertThat(oppdragslinje150List).hasSize(2);
             assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(1500L));
@@ -342,16 +337,16 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilPrivatArbeidsgiver() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), null);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), null);
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -361,9 +356,9 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         //Assert
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(1);
-            List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
+            var oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
             assertThat(oppdragslinje150List).hasSize(2);
             assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
@@ -375,16 +370,16 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBådePrivatArbeidsgiverOgBruker() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), null);
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -394,9 +389,9 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         //Assert
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(1);
-            List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
+            var oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
             assertThat(oppdragslinje150List).hasSize(2);
             assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
@@ -408,19 +403,19 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBruker() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_1, false, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 0, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, true, 500, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 0, BigDecimal.valueOf(100L), virksomhet);
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -431,9 +426,9 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
 
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(1);
-            List<Oppdragslinje150> oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
+            var oppdragslinje150List = oppdrag110List.get(0).getOppdragslinje150Liste();
             assertThat(oppdragslinje150List).hasSize(2);
             assertThat(oppdragslinje150List).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(1000L));
@@ -445,19 +440,19 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBeggeToArbeidsgivere() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, true, 0, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), virksomhet);
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -467,23 +462,23 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         //Assert
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(2);
             //Oppdrag110 for bruker/privat arbeidsgiver
-            Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110List);
+            var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110List);
             assertThat(oppdrag110Bruker).isNotNull();
             //Oppdrag110 for arbeidsgiver
-            Oppdrag110 oppdrag110Virksomhet = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110List, virksomhet);
+            var oppdrag110Virksomhet = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110List, virksomhet);
             assertThat(oppdrag110Virksomhet).isNotNull();
             //Oppdragslinj150 for bruker/privat arbeidsgiver
-            List<Oppdragslinje150> opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
+            var opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
             assertThat(opp150ListPrivatArbgvr).hasSize(2);
             assertThat(opp150ListPrivatArbgvr).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
                 assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
             });
             //Oppdragslinj150 for arbeidsgiver
-            List<Oppdragslinje150> opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
+            var opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
             assertThat(opp150ListVirksomhet).hasSize(2);
             assertThat(opp150ListVirksomhet).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
@@ -495,19 +490,19 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilAlle() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, true, 500, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_2, false, 500, BigDecimal.valueOf(100L), virksomhet);
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -517,23 +512,23 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         //Assert
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(2);
             //Oppdrag110 for bruker/privat arbeidsgiver
-            Oppdrag110 oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110List);
+            var oppdrag110Bruker = OppdragskontrollTestVerktøy.getOppdrag110ForBruker(oppdrag110List);
             assertThat(oppdrag110Bruker).isNotNull();
             //Oppdrag110 for arbeidsgiver
-            Oppdrag110 oppdrag110Virksomhet = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110List, virksomhet);
+            var oppdrag110Virksomhet = OppdragskontrollTestVerktøy.getOppdrag110ForArbeidsgiver(oppdrag110List, virksomhet);
             assertThat(oppdrag110Virksomhet).isNotNull();
             //Oppdragslinj150 for bruker/privat arbeidsgiver
-            List<Oppdragslinje150> opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
+            var opp150ListPrivatArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(oppdrag110List);
             assertThat(opp150ListPrivatArbgvr).hasSize(2);
             assertThat(opp150ListPrivatArbgvr).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(1500L));
                 assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_ARBEIDSTAKER);
             });
             //Oppdragslinj150 for arbeidsgiver
-            List<Oppdragslinje150> opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
+            var opp150ListVirksomhet = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(oppdrag110List, virksomhet);
             assertThat(opp150ListVirksomhet).hasSize(2);
             assertThat(opp150ListVirksomhet).allSatisfy(opp150 -> {
                 assertThat(opp150.getSats()).isEqualTo(Sats.på(500L));
@@ -545,12 +540,12 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragForAdopsjonMedTilsvarendeKlassekode() {
         // Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), virksomhet);
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.ADOPSJON);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
 
         var builder = getInputStandardBuilder(gruppertYtelse);
 
@@ -561,11 +556,11 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
         if (oppdragskontroll.isPresent()) {
             var ok = oppdragskontroll.get();
             // Bruker
-            List<Oppdragslinje150> opp150ListeForBruker = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(ok.getOppdrag110Liste());
+            var opp150ListeForBruker = OppdragskontrollTestVerktøy.getOpp150ListeForBruker(ok.getOppdrag110Liste());
             assertThat(opp150ListeForBruker).hasSize(1);
             assertThat(opp150ListeForBruker.get(0).getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_ARBEIDSTAKER);
             // Arbeidsgiver
-            List<Oppdragslinje150> opp150ListeForArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(ok.getOppdrag110Liste(), virksomhet);
+            var opp150ListeForArbgvr = OppdragskontrollTestVerktøy.getOpp150ListeForEnVirksomhet(ok.getOppdrag110Liste(), virksomhet);
             assertThat(opp150ListeForArbgvr).hasSize(1);
             assertThat(opp150ListeForArbgvr.get(0).getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_REFUSJON_AG);
         }
@@ -574,19 +569,19 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
-        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
-        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
-        BeregningsresultatAndel andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatAndel andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
+        var andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);
+        var brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
         buildBeregningsresultatAndel(brPeriode_2, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100L), virksomhet);
-        BeregningsresultatFeriepenger feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
+        var feriepenger = buildBeregningsresultatFeriepenger(beregningsresultat);
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelBruker_1, 10000L, LocalDate.of(2018, 12, 31));
         buildBeregningsresultatFeriepengerPrÅr(feriepenger, andelArbeidsgiver_1, 10000L, LocalDate.of(2018, 12, 31));
 
-        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
-        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var mapper = new TilkjentYtelseMapper(FamilieYtelseType.SVANGERSKAPSPENGER);
+        var gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
         var builder = getInputStandardBuilder(gruppertYtelse)
             .medFagsakYtelseType(FagsakYtelseType.SVANGERSKAPSPENGER);
 
@@ -598,27 +593,27 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
             var ok = oppdragskontroll.get();
 
             assertThat(oppdragskontroll).isNotNull();
-            List<Oppdrag110> oppdrag110List = ok.getOppdrag110Liste();
+            var oppdrag110List = ok.getOppdrag110Liste();
             assertThat(oppdrag110List).hasSize(2);
             //Oppdrag110 - Bruker
-            Optional<Oppdrag110> oppdrag110_Bruker = oppdrag110List.stream()
+            var oppdrag110_Bruker = oppdrag110List.stream()
                 .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
                 .findFirst();
             assertThat(oppdrag110_Bruker).isPresent();
             //Oppdrag110 - Arbeidsgiver
-            Optional<Oppdrag110> oppdrag110_Arbeidsgiver = oppdrag110List.stream()
+            var oppdrag110_Arbeidsgiver = oppdrag110List.stream()
                 .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
                 .findFirst();
             assertThat(oppdrag110_Arbeidsgiver).isPresent();
             //Oppdragslinje150 - Bruker
-            List<Oppdragslinje150> opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
+            var opp150List_Bruker = oppdrag110_Bruker.get().getOppdragslinje150Liste();
             assertThat(opp150List_Bruker).anySatisfy(opp150 ->
                 assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
                     KodeKlassifik.SVP_ARBEDISTAKER,
                     KodeKlassifik.FERIEPENGER_BRUKER.getKode())
                 ));
             //Oppdragslinje150 - Arbeidsgiver
-            List<Oppdragslinje150> opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
+            var opp150List_Arbeidsgiver = oppdrag110_Arbeidsgiver.get().getOppdragslinje150Liste();
             assertThat(opp150List_Arbeidsgiver).anySatisfy(opp150 ->
                 assertThat(opp150.getKodeKlassifik()).isIn(Arrays.asList(
                     KodeKlassifik.SVP_REFUSJON_AG,
@@ -637,15 +632,15 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     }
 
     private void verifiserOppdragslinje150MedFlereKlassekode(Oppdragskontroll oppdrag) {
-        List<Oppdragslinje150> oppdr150ListeAT = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_ARBEIDSTAKER);
-        List<Oppdragslinje150> oppdr150ListeFL = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_FRILANSER);
+        var oppdr150ListeAT = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_ARBEIDSTAKER);
+        var oppdr150ListeFL = OppdragskontrollTestVerktøy.getOppdragslinje150MedKlassekode(oppdrag, KodeKlassifik.FPF_FRILANSER);
 
         OppdragskontrollTestVerktøy.verifiserKjedingForOppdragslinje150(oppdr150ListeAT, oppdr150ListeFL);
     }
 
     private void verifiserAvstemming(List<Oppdrag110> oppdrag110Liste) {
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
-            Avstemming avstemming = oppdrag110.getAvstemming();
+            var avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getNøkkel()).isNotNull();
             assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
@@ -681,7 +676,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
                 assertThat(periode150.getUtbetalesTilId()).isEqualTo(OppdragskontrollTestVerktøy.endreTilElleveSiffer(BRUKER_FNR));
             } else {
                 assertThat(periode150.getUtbetalesTilId()).isNull();
-                Refusjonsinfo156 ref156 = periode150.getRefusjonsinfo156();
+                var ref156 = periode150.getRefusjonsinfo156();
                 assertThat(ref156.getRefunderesId()).isIn(
                     OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID),
                     OppdragskontrollTestVerktøy.endreTilElleveSiffer(ARBEIDSFORHOLD_ID_2),

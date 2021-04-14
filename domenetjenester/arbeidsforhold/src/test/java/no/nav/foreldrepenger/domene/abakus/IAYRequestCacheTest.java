@@ -13,7 +13,7 @@ public class IAYRequestCacheTest {
     @Test
     public void skal_levere_ut_siste_grunnlag_ref() throws InterruptedException {
 
-        IAYRequestCache cache = new IAYRequestCache();
+        var cache = new IAYRequestCache();
 
         final var koblingReferanse = UUID.randomUUID();
         final var grunnlag1 = new AbakusInntektArbeidYtelseGrunnlag(InntektArbeidYtelseGrunnlagBuilder.nytt().build(), koblingReferanse);

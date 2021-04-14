@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -51,20 +50,20 @@ public class BehandlingDtoForBackendTjeneste {
     }
 
     public UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, AsyncPollingStatus taskStatus) {
-        Optional<BehandlingVedtak> behandlingVedtak = vedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var behandlingVedtak = vedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
         return lagBehandlingDto(behandling, behandlingVedtak, taskStatus);
     }
 
     private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, Optional<BehandlingVedtak> behandlingVedtak, AsyncPollingStatus asyncStatus) {
-        UtvidetBehandlingDto dto = new UtvidetBehandlingDto();
+        var dto = new UtvidetBehandlingDto();
         var vedtaksDato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }
 
-        UuidDto uuidDto = new UuidDto(behandling.getUuid());
+        var uuidDto = new UuidDto(behandling.getUuid());
 
         dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", new SaksnummerDto(behandling.getFagsak().getSaksnummer())));
         dto.leggTil(get(PersonRestTjeneste.VERGE_BACKEND_PATH, "verge-backend", uuidDto));
@@ -81,7 +80,7 @@ public class BehandlingDtoForBackendTjeneste {
     }
 
     private boolean erBehandlingGjeldendeVedtak(Behandling behandling) {
-        Optional<BehandlingVedtak> gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(behandling.getFagsak());
+        var gjeldendeVedtak = vedtakRepository.hentGjeldendeVedtak(behandling.getFagsak());
         return gjeldendeVedtak
             .filter(v -> v.getBehandlingsresultat().getBehandlingId().equals(behandling.getId()))
             .isPresent();
@@ -93,8 +92,8 @@ public class BehandlingDtoForBackendTjeneste {
 
     private void setBehandlingsresultat(BehandlingDto dto, Optional<BehandlingVedtak> behandlingsVedtak) {
         if (behandlingsVedtak.isPresent()) {
-            Behandlingsresultat behandlingsresultat = behandlingsVedtak.get().getBehandlingsresultat();
-            BehandlingsresultatDto behandlingsresultatDto = new BehandlingsresultatDto();
+            var behandlingsresultat = behandlingsVedtak.get().getBehandlingsresultat();
+            var behandlingsresultatDto = new BehandlingsresultatDto();
             behandlingsresultatDto.setType(behandlingsresultat.getBehandlingResultatType());
             behandlingsresultatDto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
             dto.setBehandlingsresultat(behandlingsresultatDto);
@@ -107,8 +106,7 @@ public class BehandlingDtoForBackendTjeneste {
                 .flatMap(s -> søknadRepository.hentSøknadHvisEksisterer(s.getId()))
                 .map(SøknadEntitet::getSpråkkode)
                 .orElseGet(()-> behandling.getFagsak().getNavBruker().getSpråkkode());
-        } else {
-            return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         }
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).map(SøknadEntitet::getSpråkkode).orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 }

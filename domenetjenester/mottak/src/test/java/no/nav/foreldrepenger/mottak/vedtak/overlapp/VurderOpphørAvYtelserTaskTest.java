@@ -36,9 +36,9 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
 
     @Test
     public void vurderOpphørForFørstegangsbehandling() {
-        Behandling behandling = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
+        var behandling = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
@@ -51,9 +51,9 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
 
     @Test
     public void ikkeVurderOpphørForRevurderingsbehandling() {
-        Behandling behandling = lagBehandlingFP(BehandlingType.REVURDERING);
+        var behandling = lagBehandlingFP(BehandlingType.REVURDERING);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
@@ -72,7 +72,7 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
             Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         scenarioFP.medVilkårResultatType(VilkårResultatType.INNVILGET);
 
-        Behandling behandling = scenarioFP.lagre(repositoryProvider);
+        var behandling = scenarioFP.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         return behandling;
     }

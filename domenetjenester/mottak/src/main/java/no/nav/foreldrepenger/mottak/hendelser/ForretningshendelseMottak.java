@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -88,11 +86,11 @@ public class ForretningshendelseMottak {
     * 1. steg av håndtering av mottatt forretningshendelse. Identifiserer fagsaker som er kandidat for revurdering.
     */
     public void mottaForretningshendelse(ForretningshendelseType hendelseType, HendelseDto dto) {
-        Forretningshendelse forretningshendelse = OVERSETTER.get(hendelseType).apply(dto);
-        ForretningshendelseSaksvelger<Forretningshendelse> saksvelger = saksvelgerProvider.finnSaksvelger(hendelseType);
+        var forretningshendelse = OVERSETTER.get(hendelseType).apply(dto);
+        var saksvelger = saksvelgerProvider.finnSaksvelger(hendelseType);
 
-        Map<BehandlingÅrsakType, List<Fagsak>> fagsaker = saksvelger.finnRelaterteFagsaker(forretningshendelse);
-        for (Map.Entry<BehandlingÅrsakType, List<Fagsak>> entry : fagsaker.entrySet()) {
+        var fagsaker = saksvelger.finnRelaterteFagsaker(forretningshendelse);
+        for (var entry : fagsaker.entrySet()) {
             entry.getValue().forEach(fagsak -> opprettProsesstaskForFagsak(fagsak, hendelseType.getKode(), entry.getKey()));
         }
     }
@@ -106,14 +104,14 @@ public class ForretningshendelseMottak {
         Objects.requireNonNull(fagsakId);
         Objects.requireNonNull(årsakTypeKode);
 
-        ForretningshendelseType hendelseType = ForretningshendelseType.fraKode(hendelseTypeKode);
-        BehandlingÅrsakType behandlingÅrsakType = BehandlingÅrsakType.fraKode(årsakTypeKode);
+        var hendelseType = ForretningshendelseType.fraKode(hendelseTypeKode);
+        var behandlingÅrsakType = BehandlingÅrsakType.fraKode(årsakTypeKode);
 
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        ForretningshendelseHåndterer håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());
 
         // Hent siste ytelsebehandling
-        Behandling sisteYtelsebehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId())
+        var sisteYtelsebehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId())
             .orElse(null);
 
         // Case 1: Ingen ytelsesbehandling er opprettet på fagsak - hendelse skal ikke opprette noen behandling
@@ -133,21 +131,21 @@ public class ForretningshendelseMottak {
             return;
         }
 
-        Optional<Behandling> sisteInnvilgedeYtelsesbehandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
+        var sisteInnvilgedeYtelsesbehandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
             LOG.info("FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.", hendelseType.getKode(), fagsakId);
             return;
         }
-        Behandling innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();
+        var innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();
 
         // Case 5: Avsluttet eller iverksatt ytelsesbehandling
         håndterer.håndterAvsluttetBehandling(innvilgetBehandling, hendelseType, behandlingÅrsakType);
     }
 
     private void opprettProsesstaskForFagsak(Fagsak fagsak, String hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        ProsessTaskData taskData = new ProsessTaskData(MottaHendelseFagsakTask.TASKTYPE);
+        var taskData = new ProsessTaskData(MottaHendelseFagsakTask.TASKTYPE);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());

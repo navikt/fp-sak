@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveSendTilInfotrygdTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class HenleggBehandlingTjeneste {
@@ -62,8 +60,8 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void doHenleggBehandling(Long behandlingId, BehandlingResultatType årsakKode, String begrunnelse, boolean avbrytVentendeAutopunkt) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (avbrytVentendeAutopunkt && behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtførtForHenleggelse(behandling, kontekst);
         } else {
@@ -95,14 +93,14 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void opprettOppgaveTilInfotrygd(Behandling behandling) {
-        ProsessTaskData data = new ProsessTaskData(OpprettOppgaveSendTilInfotrygdTask.TASKTYPE);
+        var data = new ProsessTaskData(OpprettOppgaveSendTilInfotrygdTask.TASKTYPE);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(data);
     }
 
     private void håndterHenleggelseUtenOppgitteSøknadsopplysninger(Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandling.getId());
+        var søknad = søknadRepository.hentSøknad(behandling.getId());
         if (søknad == null) {
             // Må ta behandling av vent for å tillate henleggelse (krav i
             // Behandlingskontroll)
@@ -111,23 +109,23 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
-        ProsessTaskData taskData = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
+        var taskData = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(taskData);
     }
 
     private void sendHenleggelsesbrev(long behandlingId, HistorikkAktør aktør) {
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.INFO_OM_HENLEGGELSE);
+        var bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.INFO_OM_HENLEGGELSE);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
     }
 
     private void lagHistorikkinnslagForHenleggelse(Long behandlingsId, BehandlingResultatType aarsak, String begrunnelse, HistorikkAktør aktør) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
                 .medÅrsak(aarsak)
                 .medBegrunnelse(begrunnelse);
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
         historikkinnslag.setBehandlingId(behandlingsId);
         builder.build(historikkinnslag);

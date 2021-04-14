@@ -8,7 +8,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.FagsystemId;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragKjedeFortsettelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.MottakerOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.util.SetUtil;
@@ -28,10 +27,10 @@ public class OppdragForMottakerTjeneste {
     }
 
     public Oppdrag lagOppdrag(MottakerOppdragKjedeOversikt eksisterendeOppdrag, Map<KjedeNøkkel, Ytelse> nyTilkjentYtelse) {
-        OppdragKjedeFactory factory = lagOppdragskjedeFactory(eksisterendeOppdrag);
-        Oppdrag.Builder builder = Oppdrag.builder(økonomiFagområde, fagsystemId, betalingsmottaker);
-        for (KjedeNøkkel nøkkel : SetUtil.sortertUnionOfKeys(eksisterendeOppdrag.getKjeder(), nyTilkjentYtelse)) {
-            OppdragKjedeFortsettelse kjede = fellesEndringstidspunkt == null
+        var factory = lagOppdragskjedeFactory(eksisterendeOppdrag);
+        var builder = Oppdrag.builder(økonomiFagområde, fagsystemId, betalingsmottaker);
+        for (var nøkkel : SetUtil.sortertUnionOfKeys(eksisterendeOppdrag.getKjeder(), nyTilkjentYtelse)) {
+            var kjede = fellesEndringstidspunkt == null
                 ? factory.lagOppdragskjede(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling())
                 : factory.lagOppdragskjedeFraFellesEndringsdato(eksisterendeOppdrag.getKjede(nøkkel), nyTilkjentYtelse.getOrDefault(nøkkel, Ytelse.EMPTY), nøkkel.gjelderEngangsutbetaling(), fellesEndringstidspunkt);
             if (kjede != null) {

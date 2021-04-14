@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeS
 import static no.nav.foreldrepenger.behandling.BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,24 +38,26 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        List<Fagsak> matchendeFagsaker = sakerGittYtelseType.stream()
+        var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
-        } else if (matchendeFagsaker.size() > 1) {
+        }
+        if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        List<Fagsak> passendeFagsaker = sakerGittYtelseType.stream()
+        var passendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, false))
             .collect(Collectors.toList());
 
         if (passendeFagsaker.size() == 1) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0).getSaksnummer());
-        } else if (passendeFagsaker.size() > 1) {
+        }
+        if (passendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {} for {}", passendeFagsaker.size(), vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
@@ -72,13 +73,13 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
 
     @Override
     public BehandlendeFagsystem vurderFagsystemUstrukturert(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
-        List<Fagsak> kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
+        var kompatibleFagsaker = fellesUtils.filtrerSakerForBehandlingTema(sakerGittYtelseType, vurderFagsystem.getBehandlingTema());
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && vurderFagsystem.getDokumentTypeId().erSøknadType() && kompatibleFagsaker.isEmpty()) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
 
-        Optional<BehandlendeFagsystem> standardVurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker);
+        var standardVurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker);
         if (standardVurdering.isPresent() || !VurderFagsystemFellesUtils.erSøknad(vurderFagsystem)) {
             return standardVurdering.orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }

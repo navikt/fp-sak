@@ -46,8 +46,8 @@ public class MedlemskapRegistrertEntitet extends BaseEntitet {
     }
 
     MedlemskapRegistrertEntitet(Collection<MedlemskapPerioderEntitet> registrertMedlemskapPerioder) {
-        for (MedlemskapPerioderEntitet rmp : registrertMedlemskapPerioder) {
-            MedlemskapPerioderEntitet periode = new MedlemskapPerioderEntitet(rmp);
+        for (var rmp : registrertMedlemskapPerioder) {
+            var periode = new MedlemskapPerioderEntitet(rmp);
             this.medlemskapPerioder.add(periode);
         }
     }

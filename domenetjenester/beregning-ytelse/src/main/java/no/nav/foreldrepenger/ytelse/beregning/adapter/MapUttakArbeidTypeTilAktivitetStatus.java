@@ -11,9 +11,11 @@ public class MapUttakArbeidTypeTilAktivitetStatus {
     public static AktivitetStatus map(UttakArbeidType uttakArbeidType) {
         if (uttakArbeidType.erArbeidstakerEllerFrilans()) {
             return AktivitetStatus.ATFL;
-        } else if (uttakArbeidType.equals(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)) {
+        }
+        if (uttakArbeidType.equals(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)) {
             return AktivitetStatus.SN;
-        } else if (uttakArbeidType.equals(UttakArbeidType.ANNET)) {
+        }
+        if (uttakArbeidType.equals(UttakArbeidType.ANNET)) {
             return AktivitetStatus.ANNET;
         }
         throw new IllegalArgumentException("UttakArbeidType er ukjent!" + uttakArbeidType);

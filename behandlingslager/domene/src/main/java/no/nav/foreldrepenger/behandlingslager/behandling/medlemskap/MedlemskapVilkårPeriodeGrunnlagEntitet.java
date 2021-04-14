@@ -63,11 +63,11 @@ public class MedlemskapVilkårPeriodeGrunnlagEntitet extends BaseEntitet {
 
     private static MedlemskapVilkårPeriodeGrunnlagEntitet kopierTidligerGrunnlag(
                                                                                  Optional<MedlemskapVilkårPeriodeGrunnlagEntitet> tidligereGrunnlagOpt, Behandling nyBehandling) {
-        VilkårResultat vilkårResultat = nyBehandling.getBehandlingsresultat().getVilkårResultat();
-        MedlemskapVilkårPeriodeGrunnlagEntitet nyttGrunnlag = new MedlemskapVilkårPeriodeGrunnlagEntitet(vilkårResultat);
+        var vilkårResultat = nyBehandling.getBehandlingsresultat().getVilkårResultat();
+        var nyttGrunnlag = new MedlemskapVilkårPeriodeGrunnlagEntitet(vilkårResultat);
 
         if (tidligereGrunnlagOpt.isPresent()) {
-            MedlemskapVilkårPeriodeGrunnlagEntitet tidligereGrunnlag = tidligereGrunnlagOpt.get();
+            var tidligereGrunnlag = tidligereGrunnlagOpt.get();
             nyttGrunnlag.setMedlemskapsvilkårPeriode(tidligereGrunnlag.getMedlemskapsvilkårPeriode());
         }
         return nyttGrunnlag;
@@ -103,7 +103,7 @@ public class MedlemskapVilkårPeriodeGrunnlagEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MedlemskapVilkårPeriodeGrunnlagEntitet that = (MedlemskapVilkårPeriodeGrunnlagEntitet) o;
+        var that = (MedlemskapVilkårPeriodeGrunnlagEntitet) o;
         return aktiv == that.aktiv &&
                 Objects.equals(medlemskapsvilkårPeriode, that.medlemskapsvilkårPeriode);
     }

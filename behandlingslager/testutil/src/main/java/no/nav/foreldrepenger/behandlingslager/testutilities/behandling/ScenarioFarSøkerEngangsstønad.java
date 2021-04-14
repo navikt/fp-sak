@@ -28,13 +28,13 @@ public class ScenarioFarSøkerEngangsstønad extends AbstractTestScenario<Scenar
     }
 
     public static ScenarioFarSøkerEngangsstønad forFødselUtenSøknad() {
-        ScenarioFarSøkerEngangsstønad scenario = new ScenarioFarSøkerEngangsstønad();
+        var scenario = new ScenarioFarSøkerEngangsstønad();
         scenario.utenSøknad();
         return scenario;
     }
 
     public static ScenarioFarSøkerEngangsstønad forAdopsjonUtenSøknad() {
-        ScenarioFarSøkerEngangsstønad scenario = new ScenarioFarSøkerEngangsstønad();
+        var scenario = new ScenarioFarSøkerEngangsstønad();
         scenario.utenSøknad();
         return scenario;
     }

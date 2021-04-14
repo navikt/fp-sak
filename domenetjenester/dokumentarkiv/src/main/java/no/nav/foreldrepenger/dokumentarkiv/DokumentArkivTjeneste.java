@@ -142,13 +142,12 @@ public class DokumentArkivTjeneste {
                 .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
                 .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
                 .collect(Collectors.toSet());
-        } else {
-            return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
-                .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
-                .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
-                .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
-                .collect(Collectors.toSet());
         }
+        return hentAlleJournalposterForSakSjekkCache(saksnummer).stream()
+            .filter(ajp -> Kommunikasjonsretning.INN.equals(ajp.getKommunikasjonsretning()))
+            .filter(jpost -> jpost.getTidspunkt() != null && jpost.getTidspunkt().isAfter(mottattEtterDato.atStartOfDay()))
+            .flatMap(jp -> ekstraherJournalpostDTID(jp).stream())
+            .collect(Collectors.toSet());
     }
 
     private Set<DokumentTypeId> ekstraherJournalpostDTID(ArkivJournalPost jpost) {
@@ -186,7 +185,7 @@ public class DokumentArkivTjeneste {
         var hoveddokumentType = utledHovedDokumentType(dokumenter.stream().map(ArkivDokument::getDokumentType).collect(Collectors.toSet()));
         var hoveddokument = dokumenter.stream().filter(d -> hoveddokumentType.equals(d.getDokumentType())).findFirst();
 
-        ArkivJournalPost.Builder builder = ArkivJournalPost.Builder.ny()
+        var builder = ArkivJournalPost.Builder.ny()
             .medJournalpostId(new JournalpostId(journalpost.getJournalpostId()))
             .medBeskrivelse(journalpost.getTittel())
             .medTidspunkt(journalpost.getDatoOpprettet() == null ? null : LocalDateTime.ofInstant(journalpost.getDatoOpprettet().toInstant(), ZoneId.systemDefault()))

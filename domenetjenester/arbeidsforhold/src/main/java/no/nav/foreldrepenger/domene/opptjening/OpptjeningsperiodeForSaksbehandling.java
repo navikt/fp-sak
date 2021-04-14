@@ -85,7 +85,7 @@ public class OpptjeningsperiodeForSaksbehandling {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        OpptjeningsperiodeForSaksbehandling other = (OpptjeningsperiodeForSaksbehandling) o;
+        var other = (OpptjeningsperiodeForSaksbehandling) o;
         return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
                 Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
                 Objects.equals(erPeriodeEndret, other.erPeriodeEndret) &&

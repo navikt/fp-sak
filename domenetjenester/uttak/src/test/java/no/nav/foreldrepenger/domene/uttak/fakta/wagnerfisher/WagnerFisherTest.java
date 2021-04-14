@@ -56,14 +56,7 @@ public class WagnerFisherTest {
     @Test
     public void skal_populere_kostmatrise() {
         var kostnadsmatrise = WagnerFisher.calculateEditDistanceCost(tilSekvens("abcdef"), tilSekvens("acf"));
-        int[][] forventet = {
-            {0, 3, 6, 9},
-            {2, 0, 3, 6},
-            {4, 2, 2, 5},
-            {6, 4, 2, 4},
-            {8, 6, 4, 4},
-            {10, 8, 6, 6},
-            {12, 10, 8, 6}};
+        var forventet = new int[][]{{0, 3, 6, 9}, {2, 0, 3, 6}, {4, 2, 2, 5}, {6, 4, 2, 4}, {8, 6, 4, 4}, {10, 8, 6, 6}, {12, 10, 8, 6}};
         assertThat(kostnadsmatrise).isEqualTo(forventet);
     }
 

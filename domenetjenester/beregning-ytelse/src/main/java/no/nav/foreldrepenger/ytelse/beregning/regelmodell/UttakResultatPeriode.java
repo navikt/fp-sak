@@ -51,7 +51,7 @@ public class UttakResultatPeriode {
         if (obj == null || !(obj instanceof UttakResultatPeriode)) {
             return false;
         }
-        UttakResultatPeriode that = (UttakResultatPeriode) obj;
+        var that = (UttakResultatPeriode) obj;
 
         return Objects.equals(this.periode, that.periode);
     }

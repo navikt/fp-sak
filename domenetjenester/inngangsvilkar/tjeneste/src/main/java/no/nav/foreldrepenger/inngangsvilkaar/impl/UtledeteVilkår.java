@@ -21,7 +21,7 @@ public class UtledeteVilkår {
      private List<VilkårType> tilhørendeVilkår;
 
      static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår forAvklartRelasjonsvilkårTilBarn(VilkårType betingetVilkårType, List<VilkårType> tilhørendeVilkårTyper) {
-         no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = singletonList(betingetVilkårType);
          utledeteVilkår.avklartBetingetVilkårType = betingetVilkårType;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;
@@ -31,7 +31,7 @@ public class UtledeteVilkår {
 
      static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår forPotensielleRelasjonsvilkårTilBarn(List<VilkårType> potensielleVilkårtyper,
                                                                                                            List<VilkårType> tilhørendeVilkårTyper) {
-         no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = potensielleVilkårtyper;
          utledeteVilkår.avklartBetingetVilkårType = null;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;
@@ -40,7 +40,7 @@ public class UtledeteVilkår {
      }
 
      static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår bareTilhærendeVilkår(List<VilkårType> tilhørendeVilkårTyper) {
-         no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = List.of();
          utledeteVilkår.avklartBetingetVilkårType = null;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;

@@ -66,14 +66,14 @@ public class InnhentDokumentTjeneste {
     }
 
     public void utfør(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
-        DokumentTypeId dokumentTypeId = mottattDokument.getDokumentType();
+        var fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
+        var dokumentTypeId = mottattDokument.getDokumentType();
 
-        DokumentGruppe dokumentGruppe = brukDokumentKategori(dokumentTypeId, mottattDokument.getDokumentKategori()) ?
+        var dokumentGruppe = brukDokumentKategori(dokumentTypeId, mottattDokument.getDokumentKategori()) ?
             DOKUMENTKATEGORI_TIL_GRUPPE.getOrDefault(mottattDokument.getDokumentKategori(), DokumentGruppe.VEDLEGG) :
             DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
 
-        Dokumentmottaker dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
+        var dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
         if (skalMottasSomKøet(fagsak)) {
             dokumentmottaker.mottaDokumentForKøetBehandling(mottattDokument, fagsak, behandlingÅrsakType);
             return;
@@ -83,7 +83,7 @@ public class InnhentDokumentTjeneste {
 
     public void opprettFraTidligereBehandling(Long behandlingId, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#SXX og #IXX
         Objects.requireNonNull(behandlingId, "behandlingId"); //$NON-NLS-1$
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
+        var fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
         Dokumentmottaker dokumentmottaker;
         if (mottattDokument.erSøknadsDokument()) {
             dokumentmottaker = finnMottaker(DokumentGruppe.SØKNAD, fagsak.getYtelseType());
@@ -105,9 +105,9 @@ public class InnhentDokumentTjeneste {
     }
 
     private Dokumentmottaker finnMottaker(DokumentGruppe dokumentGruppe, FagsakYtelseType fagsakYtelseType) {
-        String dokumentgruppeKode = dokumentGruppe.getKode();
-        String fagsakYtelseTypeKode = fagsakYtelseType.getKode();
-        Instance<Dokumentmottaker> selected = mottakere.select(new DokumentGruppeRef.DokumentGruppeRefLiteral(dokumentgruppeKode));
+        var dokumentgruppeKode = dokumentGruppe.getKode();
+        var fagsakYtelseTypeKode = fagsakYtelseType.getKode();
+        var selected = mottakere.select(new DokumentGruppeRef.DokumentGruppeRefLiteral(dokumentgruppeKode));
 
         if (selected.isAmbiguous()) {
             selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseTypeKode));
@@ -115,10 +115,11 @@ public class InnhentDokumentTjeneste {
 
         if (selected.isAmbiguous()) {
             throw new IllegalArgumentException("Mer enn en implementasjon funnet for DokumentGruppe=" + dokumentgruppeKode + ", FagsakYtelseType=" + fagsakYtelseTypeKode);
-        } else if (selected.isUnsatisfied()) {
+        }
+        if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("Ingen implementasjoner funnet for DokumentGruppe=" + dokumentgruppeKode + ", FagsakYtelseType=" + fagsakYtelseTypeKode);
         }
-        Dokumentmottaker minInstans = selected.get();
+        var minInstans = selected.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException("Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
         }

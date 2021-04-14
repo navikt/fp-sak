@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -36,15 +35,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
@@ -125,21 +121,21 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = kontekst.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.harSattStartpunkt()) {
             // Startpunkt kan bare initieres én gang, og det gjøres i dette steget.
             // Suksessive eksekveringer av stegets aksjonspunktsutledere skjer utenfor
             // steget
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         if (!behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
         }
 
-        StartpunktType startpunkt = utledStartpunkt(ref, behandling);
+        var startpunkt = utledStartpunkt(ref, behandling);
         behandling.setStartpunkt(startpunkt);
 
         // Kopier aksjonspunkter
@@ -147,30 +143,29 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             tjeneste.utledAksjonspunkterTilHøyreForStartpunkt(ref, startpunkt) : List.of();
         kopierResultaterAvhengigAvStartpunkt(behandling, ref, kontekst);
 
-        TransisjonIdentifikator transisjon = TransisjonIdentifikator
+        var transisjon = TransisjonIdentifikator
                 .forId(FellesTransisjoner.SPOLFREM_PREFIX + startpunkt.getBehandlingSteg().getKode());
         return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, aksjonspunktResultater);
     }
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref, Behandling revurdering) {
-        StartpunktType startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
+        var startpunkt = DEFAULT_STARTPUNKT; // Gjennomgå hele prosessen - for manuelle, etterkontroller og tidl.avslag
         if (!revurdering.erManueltOpprettet() && !erEtterkontrollRevurdering(revurdering)) {
             // Automatisk revurdering skal hoppe til utledet startpunkt. Unntaket er
             // revurdering av avslåtte behandlinger
             if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
                 startpunkt = revurdering.harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER) ? StartpunktType.TILKJENT_YTELSE : StartpunktType.UTTAKSVILKÅR;
                 return startpunkt;
-            } else {
-                var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
-                if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
-                    // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate
-                    // re-evalueres
-                    startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
-                    if (startpunkt.equals(StartpunktType.UDEFINERT)) {
-                        startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
-                                ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
-                                : StartpunktType.UTTAKSVILKÅR;
-                    }
+            }
+            var orgBehandlingsresultat = getBehandlingsresultat(ref.getOriginalBehandlingId().get());
+            if ((orgBehandlingsresultat != null) && !orgBehandlingsresultat.isVilkårAvslått()) {
+                // Revurdering av innvilget behandling. Hvis vilkår er avslått må man tillate
+                // re-evalueres
+                startpunkt = startpunktTjeneste.utledStartpunktMotOriginalBehandling(ref);
+                if (startpunkt.equals(StartpunktType.UDEFINERT)) {
+                    startpunkt = inneholderEndringssøknadPerioderFørSkjæringstidspunkt(revurdering, ref)
+                            ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP
+                            : StartpunktType.UTTAKSVILKÅR;
                 }
             }
         }
@@ -178,7 +173,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING
         // eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            StartpunktType greguleringStartpunkt = utledBehovForGRegulering(ref, revurdering);
+            var greguleringStartpunkt = utledBehovForGRegulering(ref, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
 
@@ -193,7 +188,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private boolean inneholderEndringssøknadPerioderFørSkjæringstidspunkt(Behandling revurdering, BehandlingReferanse behandlingReferanse) {
         if (revurdering.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
+            var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
             var oppgittPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(revurdering.getId())
                     .map(YtelseFordelingAggregat::getOppgittFordeling)
                     .map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList());
@@ -205,14 +200,14 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private boolean erEtterkontrollRevurdering(Behandling revurdering) {
-        Set<BehandlingÅrsakType> etterkontrollTyper = BehandlingÅrsakType.årsakerForEtterkontroll();
+        var etterkontrollTyper = BehandlingÅrsakType.årsakerForEtterkontroll();
         return revurdering.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(etterkontrollTyper::contains);
     }
 
     private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Behandling revurdering) {
-        Long opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
+        var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
-        Optional<BeregningsgrunnlagEntitet> forrigeBeregning = hentBeregningsgrunnlagTjeneste
+        var forrigeBeregning = hentBeregningsgrunnlagTjeneste
                 .hentBeregningsgrunnlagEntitetForBehandling(opprinneligBehandlingId);
 
         if (forrigeBeregning.isEmpty()) {
@@ -223,33 +218,32 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return finnStartpunktForGRegulering(revurdering);
         }
 
-        BeregningSats grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
+        var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
                 .orElse(0L);
 
         if ((grunnbeløp.getVerdi() - satsIBeregning) > 1) {
-            BigDecimal bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList())
+            var bruttoPrÅr = forrigeBeregning.map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder).orElse(Collections.emptyList())
                     .stream()
                     .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
                     .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
-            long multiplikator = repositoryProvider.getBeregningsresultatRepository()
+            var multiplikator = repositoryProvider.getBeregningsresultatRepository()
                     .avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
-            BigDecimal grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
-            boolean over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
-            boolean erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
+            var grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
+            var over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
+            var erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())
                     .flatMap(p -> p.getBeregningsgrunnlagPrStatusOgAndelList().stream())
                     .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)
                             && (a.getBeregningsgrunnlagPeriode().getBruttoPrÅr()
                                     .compareTo(BigDecimal.valueOf(3).multiply(BigDecimal.valueOf(grunnbeløp.getVerdi()))) < 0));
-            boolean erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
+            var erNæringsdrivende = forrigeBeregning.stream().flatMap(bg -> bg.getAktivitetStatuser().stream())
                     .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
                     .anyMatch(SN_REGULERING::contains);
             if (over6G || erMilitærUnder3G || erNæringsdrivende) {
                 LOG.info("KOFAKREV Revurdering {} skal G-reguleres", revurdering.getId());
                 return finnStartpunktForGRegulering(revurdering);
-            } else {
-                LOG.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
             }
+            LOG.info("KOFAKREV Revurdering {} blir ikke G-regulert: brutto {} grense {}", revurdering.getId(), bruttoPrÅr, grenseverdi);
         }
         return StartpunktType.UDEFINERT;
     }
@@ -257,7 +251,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        RyddRegisterData rydder = new RyddRegisterData(repositoryProvider, kontekst);
+        var rydder = new RyddRegisterData(repositoryProvider, kontekst);
         rydder.ryddRegisterdata();
     }
 
@@ -273,7 +267,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
      * @return Startpunkt for g-regulering
      */
     private StartpunktType finnStartpunktForGRegulering(Behandling revurdering) {
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste
+        var beregningsgrunnlagEntitet = hentBeregningsgrunnlagTjeneste
                 .hentBeregningsgrunnlagEntitetForBehandling(revurdering.getId());
         if (mottarYtelseForAktivitet(beregningsgrunnlagEntitet) || harBesteberegning(beregningsgrunnlagEntitet)) {
             return StartpunktType.BEREGNING;
@@ -294,7 +288,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private void kopierResultaterAvhengigAvStartpunkt(Behandling revurdering, BehandlingReferanse ref, BehandlingskontrollKontekst kontekst) {
-        Behandling origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
+        var origBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
                 .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
         revurdering = kopierVilkår(origBehandling, revurdering, kontekst);
@@ -375,11 +369,11 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     private Behandling kopierUttaksperiodegrense(Behandling revurdering, Behandling origBehandling) {
         // Kopier Uttaksperiodegrense - må alltid ha en søknadsfrist angitt
-        Optional<Uttaksperiodegrense> funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
+        var funnetUttaksperiodegrense = uttaksperiodegrenseRepository.hentHvisEksisterer(origBehandling.getId());
         if (funnetUttaksperiodegrense.isPresent()) {
-            Uttaksperiodegrense origGrense = funnetUttaksperiodegrense.get();
+            var origGrense = funnetUttaksperiodegrense.get();
             var behandlingsresultat = behandlingsresultatRepository.hent(revurdering.getId());
-            Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
+            var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandlingsresultat)
                     .medFørsteLovligeUttaksdag(origGrense.getFørsteLovligeUttaksdag())
                     .medMottattDato(origGrense.getMottattDato())
                     .build();
@@ -390,24 +384,24 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private Behandling kopierVilkår(Behandling origBehandling, Behandling revurdering, BehandlingskontrollKontekst kontekst) {
-        VilkårResultat vilkårResultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId()))
+        var vilkårResultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId()))
                 .map(Behandlingsresultat::getVilkårResultat)
                 .orElseThrow(() -> new IllegalStateException("VilkårResultat skal alltid være opprettet ved revurdering"));
-        VilkårResultat.Builder vilkårBuilder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var vilkårBuilder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
-        StartpunktType startpunkt = revurdering.getStartpunkt();
-        Set<VilkårType> vilkårtyperFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(startpunkt);
+        var startpunkt = revurdering.getStartpunkt();
+        var vilkårtyperFørStartpunkt = StartpunktType.finnVilkårHåndtertInnenStartpunkt(startpunkt);
         Objects.requireNonNull(vilkårtyperFørStartpunkt, "Startpunkt " + startpunkt.getKode() +
                 " støttes ikke for kopiering av vilkår ved revurdering");
 
-        Behandlingsresultat originaltBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(origBehandling.getId())).orElseThrow();
-        Set<Vilkår> vilkårFørStartpunkt = originaltBehandlingsresultat.getVilkårResultat().getVilkårene().stream()
+        var originaltBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(origBehandling.getId())).orElseThrow();
+        var vilkårFørStartpunkt = originaltBehandlingsresultat.getVilkårResultat().getVilkårene().stream()
                 .filter(vilkår -> vilkårtyperFørStartpunkt.contains(vilkår.getVilkårType()))
                 .collect(Collectors.toSet());
         kopierVilkår(vilkårBuilder, vilkårFørStartpunkt);
         vilkårBuilder.buildFor(revurdering);
 
-        Behandlingsresultat revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();
+        var revurderingBehandlingsresultat = Optional.ofNullable(getBehandlingsresultat(revurdering.getId())).orElseThrow();
         behandlingRepository.lagre(revurderingBehandlingsresultat.getVilkårResultat(), kontekst.getSkriveLås());
         behandlingRepository.lagre(revurdering, kontekst.getSkriveLås());
         return behandlingRepository.hentBehandling(revurdering.getId());

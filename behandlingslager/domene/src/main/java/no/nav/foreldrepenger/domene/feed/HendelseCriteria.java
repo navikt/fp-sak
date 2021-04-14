@@ -23,11 +23,11 @@ public class HendelseCriteria {
     public Long getMaxAntall() {
         return maxAntall;
     }
-    
+
     public Long getSisteSekvensId() {
         return sisteLestSekvensId + maxAntall;
     }
-    
+
     public static Builder builder() {
         return new Builder();
     }
@@ -59,7 +59,7 @@ public class HendelseCriteria {
         }
 
         public HendelseCriteria build() {
-            HendelseCriteria hc = new HendelseCriteria();
+            var hc = new HendelseCriteria();
             Objects.requireNonNull(maxAntall);
             Objects.requireNonNull(sisteLestSekvensId);
             hc.sisteLestSekvensId = sisteLestSekvensId;

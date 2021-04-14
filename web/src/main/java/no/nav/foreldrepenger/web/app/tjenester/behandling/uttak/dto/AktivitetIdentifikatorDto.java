@@ -32,7 +32,7 @@ public class AktivitetIdentifikatorDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AktivitetIdentifikatorDto that = (AktivitetIdentifikatorDto) o;
+        var that = (AktivitetIdentifikatorDto) o;
         return Objects.equals(uttakArbeidType, that.uttakArbeidType) &&
             Objects.equals(arbeidsgiverReferanse, that.arbeidsgiverReferanse) &&
             Objects.equals(arbeidsforholdId, that.arbeidsforholdId);

@@ -19,8 +19,8 @@ public final class BeregningsgrunnlagUttakArbeidsforholdMatcher {
             // begge må være null for at de skal være like
             return Objects.equals(arbeidsforholdBeregning, arbeidsforholdUttak);
         }
-        InternArbeidsforholdRef bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.getArbeidsforholdId());
-        InternArbeidsforholdRef uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.getArbeidsforholdId());
+        var bgRef = InternArbeidsforholdRef.ref(arbeidsforholdBeregning.getArbeidsforholdId());
+        var uttakRef = InternArbeidsforholdRef.ref(arbeidsforholdUttak.getArbeidsforholdId());
         return Objects.equals(arbeidsforholdBeregning.erFrilanser(), arbeidsforholdUttak.erFrilanser())
             && Objects.equals(arbeidsforholdBeregning.getIdentifikator(), arbeidsforholdUttak.getIdentifikator())
             && bgRef.gjelderFor(uttakRef);

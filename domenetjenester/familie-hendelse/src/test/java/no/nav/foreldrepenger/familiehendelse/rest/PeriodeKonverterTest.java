@@ -14,9 +14,9 @@ public class PeriodeKonverterTest {
 
     @Test
     public void testPeriodeKonverter() {
-        LocalDate iDag = LocalDate.now();
+        var iDag = LocalDate.now();
         List<PeriodeDto> ikkeOmsorgPerioder = new ArrayList<>();
-        PeriodeDto periodeDto = new PeriodeDto();
+        var periodeDto = new PeriodeDto();
         periodeDto.setPeriodeFom(iDag.minusMonths(3));
         periodeDto.setPeriodeTom(iDag.minusMonths(2));
         ikkeOmsorgPerioder.add(periodeDto);
@@ -25,7 +25,7 @@ public class PeriodeKonverterTest {
         periodeDto.setPeriodeTom(iDag.minusMonths(1));
         ikkeOmsorgPerioder.add(periodeDto);
 
-        String testString = DATE_FORMATTER.format(ikkeOmsorgPerioder.get(0).getPeriodeFom())+ "-"+DATE_FORMATTER.format(ikkeOmsorgPerioder.get(0).getPeriodeTom())+" og "+
+        var testString = DATE_FORMATTER.format(ikkeOmsorgPerioder.get(0).getPeriodeFom())+ "-"+DATE_FORMATTER.format(ikkeOmsorgPerioder.get(0).getPeriodeTom())+" og "+
             DATE_FORMATTER.format(ikkeOmsorgPerioder.get(1).getPeriodeFom())+ "-"+DATE_FORMATTER.format(ikkeOmsorgPerioder.get(1).getPeriodeTom());
 
         assertThat(PeriodeKonverter.konvertPerioderTilString(ikkeOmsorgPerioder)).isEqualTo(testString);

@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,21 +48,21 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     public void observerBehandlingSteg(@Observes BehandlingStegTilbakeføringEvent event) {
-        Long behandlingId = event.getBehandlingId();
-        Behandling behandling = serviceProvider.hentBehandling(behandlingId);
-        BehandlingModell modell = getModell(behandling);
+        var behandlingId = event.getBehandlingId();
+        var behandling = serviceProvider.hentBehandling(behandlingId);
+        var modell = getModell(behandling);
         guardIngenÅpneAutopunkter(behandling);
 
-        BehandlingStegType førsteSteg = event.getFørsteSteg();
-        BehandlingStegType sisteSteg = event.getSisteSteg();
+        var førsteSteg = event.getFørsteSteg();
+        var sisteSteg = event.getSisteSteg();
 
-        Optional<BehandlingStegStatus> førsteStegStatus = event.getFørsteStegStatus();
+        var førsteStegStatus = event.getFørsteStegStatus();
 
         boolean medInngangFørsteSteg = førsteStegStatus.map(BehandlingStegStatus::erVedInngang).orElse(Boolean.TRUE);
 
-        Set<String> aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
+        var aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
 
-        List<Aksjonspunkt> endredeAksjonspunkter = håndterAksjonspunkter(behandling, aksjonspunktDefinisjonerEtterFra, event, førsteSteg, modell,
+        var endredeAksjonspunkter = håndterAksjonspunkter(behandling, aksjonspunktDefinisjonerEtterFra, event, førsteSteg, modell,
                 medInngangFørsteSteg);
 
         modell.hvertStegFraOgMedTil(førsteSteg, sisteSteg, true)
@@ -86,7 +85,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     private List<Aksjonspunkt> håndterAksjonspunkter(Behandling behandling, Set<String> mellomliggendeAksjonspunkt,
             BehandlingStegTilbakeføringEvent event, BehandlingStegType førsteSteg, BehandlingModell modell,
             boolean tilInngangFørsteSteg) {
-        List<Aksjonspunkt> endredeAksjonspunkter = behandling.getAksjonspunkter().stream()
+        var endredeAksjonspunkter = behandling.getAksjonspunkter().stream()
                 .filter(a -> !a.erAutopunkt()) // Autopunkt skal ikke håndteres; skal alltid være lukket ved tilbakehopp
                 .filter(a -> mellomliggendeAksjonspunkt.contains(a.getAksjonspunktDefinisjon().getKode()))
                 .collect(Collectors.toList());
@@ -99,7 +98,7 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
     }
 
     private void guardIngenÅpneAutopunkter(Behandling behandling) {
-        Optional<Aksjonspunkt> autopunkt = behandling.getAksjonspunkter().stream()
+        var autopunkt = behandling.getAksjonspunkter().stream()
                 .filter(Aksjonspunkt::erAutopunkt)
                 .filter(Aksjonspunkt::erÅpentAksjonspunkt)
                 .findFirst();
@@ -134,9 +133,9 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
      * OVERSTYRING
      */
     private boolean skalReåpne(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell) {
-        BehandlingStegType måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon())
+        var måTidligstLøsesISteg = modell.finnTidligsteStegFor(a.getAksjonspunktDefinisjon())
                 .getBehandlingStegType();
-        boolean måLøsesIEllerEtterFørsteSteg = !modell.erStegAFørStegB(måTidligstLøsesISteg, førsteSteg);
+        var måLøsesIEllerEtterFørsteSteg = !modell.erStegAFørStegB(måTidligstLøsesISteg, førsteSteg);
         return a.erManueltOpprettet() && måLøsesIEllerEtterFørsteSteg;
     }
 
@@ -146,11 +145,11 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
      * bilr stående og må evt reutledes - obs en del avklarte AP reutledes ikke.
      */
     private boolean skalAvbryte(Aksjonspunkt a, BehandlingStegType førsteSteg, BehandlingModell modell, boolean tilInngangFørsteSteg) {
-        boolean erFunnetIFørsteStegEllerSenere = !modell.erStegAFørStegB(a.getBehandlingStegFunnet(), førsteSteg);
-        boolean erManueltOpprettet = a.erManueltOpprettet();
-        boolean erOpprettetIFørsteSteg = erOpprettetIFørsteSteg(a, førsteSteg);
-        boolean hensyntaÅpneOpprettetIFørste = erOpprettetIFørsteSteg && tilInngangFørsteSteg && a.erÅpentAksjonspunkt();
-        boolean avbryt = !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && (hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg);
+        var erFunnetIFørsteStegEllerSenere = !modell.erStegAFørStegB(a.getBehandlingStegFunnet(), førsteSteg);
+        var erManueltOpprettet = a.erManueltOpprettet();
+        var erOpprettetIFørsteSteg = erOpprettetIFørsteSteg(a, førsteSteg);
+        var hensyntaÅpneOpprettetIFørste = erOpprettetIFørsteSteg && tilInngangFørsteSteg && a.erÅpentAksjonspunkt();
+        var avbryt = !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && (hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg);
         return avbryt;
     }
 

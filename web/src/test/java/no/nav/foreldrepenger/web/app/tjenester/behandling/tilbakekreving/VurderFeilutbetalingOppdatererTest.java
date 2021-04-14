@@ -42,14 +42,14 @@ public class VurderFeilutbetalingOppdatererTest {
 
     @Test
     public void skal_lagre_at_videre_behandling_behandle_i_Infotrygd_når_det_er_valgt() {
-        String varseltekst = "varsel";
-        VurderFeilutbetalingDto dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, varseltekst);
+        var varseltekst = "varsel";
+        var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD, varseltekst);
 
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
         verify(repository).lagre(eq(behandling), captor.capture());
 
-        TilbakekrevingValg tilbakekrevingValg = captor.getValue();
+        var tilbakekrevingValg = captor.getValue();
         assertThat(tilbakekrevingValg.getErTilbakekrevingVilkårOppfylt()).isNull();
         assertThat(tilbakekrevingValg.getGrunnerTilReduksjon()).isNull();
         assertThat(tilbakekrevingValg.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.TILBAKEKREV_I_INFOTRYGD);
@@ -58,7 +58,7 @@ public class VurderFeilutbetalingOppdatererTest {
 
     @Test
     public void skal_feile_når_Inntrekk_er_forsøkt_valgt() {
-        VurderFeilutbetalingDto dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
+        var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.INNTREKK, null);
 
         assertThrows(IllegalArgumentException.class,
                 () -> oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto)));

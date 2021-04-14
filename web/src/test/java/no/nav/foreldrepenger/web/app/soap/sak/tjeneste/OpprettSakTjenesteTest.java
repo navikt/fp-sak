@@ -39,7 +39,7 @@ public class OpprettSakTjenesteTest {
     public void setUp(EntityManager entityManager) {
 
         // Mock BersonTjeneste
-        NavBruker navBruker = NavBruker.opprettNy(aktørId, Språkkode.NB);
+        var navBruker = NavBruker.opprettNy(aktørId, Språkkode.NB);
         when(brukerTjeneste.hentEllerOpprettFraAktørId(any(AktørId.class))).thenReturn(navBruker);
 
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(entityManager),

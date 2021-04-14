@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårFellesTjeneste;
 import no.nav.foreldrepenger.behandling.steg.inngangsvilkår.InngangsvilkårStegImpl;
@@ -16,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
@@ -44,9 +42,9 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
         var opptjeningRepository = repositoryProvider.getOpptjeningRepository();
         if (vilkårErVurdert(regelResultat)) {
-            OpptjeningsvilkårResultat opres = getVilkårresultat(behandling, regelResultat);
-            MapTilOpptjeningAktiviteter mapper = new MapTilOpptjeningAktiviteter();
-            List<OpptjeningAktivitet> aktiviteter = mapTilOpptjeningsaktiviteter(mapper, opres);
+            var opres = getVilkårresultat(behandling, regelResultat);
+            var mapper = new MapTilOpptjeningAktiviteter();
+            var aktiviteter = mapTilOpptjeningsaktiviteter(mapper, opres);
             opptjeningRepository.lagreOpptjeningResultat(behandling, opres.getResultatOpptjent(), aktiviteter);
         } else {
             // rydd bort tidligere aktiviteter
@@ -58,7 +56,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
             OpptjeningsvilkårResultat oppResultat);
 
     private OpptjeningsvilkårResultat getVilkårresultat(Behandling behandling, RegelResultat regelResultat) {
-        OpptjeningsvilkårResultat op = (OpptjeningsvilkårResultat) regelResultat.getEkstraResultater()
+        var op = (OpptjeningsvilkårResultat) regelResultat.getEkstraResultater()
                 .get(OPPTJENINGSVILKÅRET);
         if (op == null) {
             throw new IllegalArgumentException(
@@ -68,7 +66,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     }
 
     private boolean vilkårErVurdert(RegelResultat regelResultat) {
-        Optional<Vilkår> opptjeningsvilkår = regelResultat.getVilkårResultat().getVilkårene().stream()
+        var opptjeningsvilkår = regelResultat.getVilkårResultat().getVilkårene().stream()
                 .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
                 .findFirst();
         return opptjeningsvilkår.map(v -> !v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_VURDERT))

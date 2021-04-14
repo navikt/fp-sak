@@ -9,7 +9,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
@@ -39,7 +38,7 @@ public class BehandlingVedtakRepository {
 
     public Optional<BehandlingVedtak> hentForBehandlingHvisEksisterer(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        TypedQuery<BehandlingVedtak> query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId", BehandlingVedtak.class);
+        var query = getEntityManager().createQuery("from BehandlingVedtak where behandlingsresultat.behandling.id=:behandlingId", BehandlingVedtak.class);
         query.setParameter("behandlingId", behandlingId); // $NON-NLS-1$
         return optionalFirstVedtak(query.getResultList());
     }
@@ -53,7 +52,7 @@ public class BehandlingVedtakRepository {
         if (!behandling.erRevurdering()) {
             throw new IllegalStateException("Utviklerfeil: Metoden skal bare kalles for revurderinger");
         }
-        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+        var originalBehandlingId = behandling.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling mangler på revurdering - skal ikke skje"));
         return hentForBehandlingHvisEksisterer(originalBehandlingId)
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Original behandling har ikke behandlingsvedtak - skal ikke skje"));
@@ -73,25 +72,25 @@ public class BehandlingVedtakRepository {
     }
 
     public Optional<BehandlingVedtak> hentGjeldendeVedtak(Fagsak fagsak) {
-        List<Behandling> avsluttedeIkkeHenlagteBehandlinger = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsak.getId());
+        var avsluttedeIkkeHenlagteBehandlinger = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsak.getId());
         if (avsluttedeIkkeHenlagteBehandlinger.isEmpty()) {
             return Optional.empty();
         }
 
-        List<Behandling> behandlingerMedSisteVedtakstidspunkt = behandlingMedSisteVedtakstidspunkt(avsluttedeIkkeHenlagteBehandlinger);
+        var behandlingerMedSisteVedtakstidspunkt = behandlingMedSisteVedtakstidspunkt(avsluttedeIkkeHenlagteBehandlinger);
         //Før PFP-8620 hadde vedtak bare dato og ikke klokkeslett
         if (behandlingerMedSisteVedtakstidspunkt.size() > 1) {
-            Long behandlingMedGjeldendeVedtak = sisteEndretVedtak(behandlingerMedSisteVedtakstidspunkt);
+            var behandlingMedGjeldendeVedtak = sisteEndretVedtak(behandlingerMedSisteVedtakstidspunkt);
             return hentForBehandlingHvisEksisterer(behandlingMedGjeldendeVedtak);
         }
         return hentForBehandlingHvisEksisterer(behandlingerMedSisteVedtakstidspunkt.get(0).getId());
     }
 
     private List<Behandling> behandlingMedSisteVedtakstidspunkt(List<Behandling> behandlinger) {
-        LocalDateTime senestVedtak = LocalDateTime.MIN;
+        var senestVedtak = LocalDateTime.MIN;
         List<Behandling> resultat = new ArrayList<>();
-        for (Behandling behandling : behandlinger) {
-            LocalDateTime vedtakstidspunkt = vedtakstidspunktForBehandling(behandling);
+        for (var behandling : behandlinger) {
+            var vedtakstidspunkt = vedtakstidspunktForBehandling(behandling);
             if (vedtakstidspunkt.isEqual(senestVedtak)) {
                 resultat.add(behandling);
             } else if (vedtakstidspunkt.isAfter(senestVedtak)) {
@@ -112,7 +111,7 @@ public class BehandlingVedtakRepository {
             throw new IllegalArgumentException("Behandlinger må ha minst ett element");
         }
         BehandlingVedtak sistEndretVedtak = null;
-        for (Behandling behandling : behandlinger) {
+        for (var behandling : behandlinger) {
             var vedtak = hentForBehandling(behandling.getId());
             if (sistEndretVedtak == null || vedtak.getOpprettetTidspunkt().isAfter(sistEndretVedtak.getOpprettetTidspunkt())) {
                 sistEndretVedtak = vedtak;
@@ -123,7 +122,7 @@ public class BehandlingVedtakRepository {
 
     // sjekk lås og oppgrader til skriv
     private void verifiserBehandlingLås(BehandlingLås lås) {
-        BehandlingLåsRepository låsHåndterer = new BehandlingLåsRepository(getEntityManager());
+        var låsHåndterer = new BehandlingLåsRepository(getEntityManager());
         låsHåndterer.oppdaterLåsVersjon(lås);
     }
 

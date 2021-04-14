@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitet;
@@ -19,7 +18,7 @@ class MergeOverlappendePeriodeHjelp {
     }
 
     static List<FastsattOpptjeningAktivitetDto> mergeOverlappenePerioder(List<OpptjeningAktivitet> opptjeningAktivitet) {
-        LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidslinje = new LocalDateTimeline<>(Collections.emptyList());
+        var tidslinje = new LocalDateTimeline<OpptjeningAktivitetKlassifisering>(Collections.emptyList());
         tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT, MergeOverlappendePeriodeHjelp::mergeGodkjente);
         tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE, MergeOverlappendePeriodeHjelp::mergeMellomliggende);
         tidslinje = slåSammenTidslinje(tidslinje, opptjeningAktivitet, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST, MergeOverlappendePeriodeHjelp::mergeBekreftAvvist);
@@ -32,10 +31,10 @@ class MergeOverlappendePeriodeHjelp {
             return Collections.emptyList();
         }
         List<FastsattOpptjeningAktivitetDto> resultat = new ArrayList<>();
-        NavigableSet<LocalDateInterval> datoIntervaller = resultatInn.getLocalDateIntervals();
-        for (LocalDateInterval intervall : datoIntervaller) {
-            LocalDateSegment<OpptjeningAktivitetKlassifisering> segment = resultatInn.getSegment(intervall);
-            OpptjeningAktivitetKlassifisering klassifisering = segment.getValue();
+        var datoIntervaller = resultatInn.getLocalDateIntervals();
+        for (var intervall : datoIntervaller) {
+            var segment = resultatInn.getSegment(intervall);
+            var klassifisering = segment.getValue();
             resultat.add(new FastsattOpptjeningAktivitetDto(intervall.getFomDato(), intervall.getTomDato(),
                     klassifisering));
         }
@@ -47,8 +46,8 @@ class MergeOverlappendePeriodeHjelp {
         LocalDateTimeline<OpptjeningAktivitetKlassifisering> tidsserie, List<OpptjeningAktivitet> opptjeningAktivitet, OpptjeningAktivitetKlassifisering filter,
         LocalDateSegmentCombinator<OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering, OpptjeningAktivitetKlassifisering> combinator) {
 
-        for (OpptjeningAktivitet aktivitet : opptjeningAktivitet.stream().filter(oa -> filter.equals(oa.getKlassifisering())).collect(Collectors.toList())) {
-            LocalDateTimeline<OpptjeningAktivitetKlassifisering> timeline = new LocalDateTimeline<>(aktivitet.getFom(), aktivitet.getTom(), filter);
+        for (var aktivitet : opptjeningAktivitet.stream().filter(oa -> filter.equals(oa.getKlassifisering())).collect(Collectors.toList())) {
+            var timeline = new LocalDateTimeline<OpptjeningAktivitetKlassifisering>(aktivitet.getFom(), aktivitet.getTom(), filter);
             tidsserie = tidsserie.combine(timeline, combinator, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         }
         return tidsserie.compress();
@@ -62,11 +61,11 @@ class MergeOverlappendePeriodeHjelp {
         if ((lhs == null) || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE)) {
             return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.MELLOMLIGGENDE_PERIODE);
             // legger inn periode for bekreftet godkjent
-        } else if (rhs == null) {
-            return new LocalDateSegment<>(di, lhs.getValue());
-        } else {
-            return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
         }
+        if (rhs == null) {
+            return new LocalDateSegment<>(di, lhs.getValue());
+        }
+        return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
     }
 
     private static LocalDateSegment<OpptjeningAktivitetKlassifisering> mergeBekreftAvvist(LocalDateInterval di,
@@ -76,11 +75,11 @@ class MergeOverlappendePeriodeHjelp {
         // legger inn perioden for bekreftet avvist
         if ((lhs == null) || lhs.getValue().equals(OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST)) {
             return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.BEKREFTET_AVVIST);
-        } else if (rhs == null) {
-            return new LocalDateSegment<>(di, lhs.getValue());
-        } else {
+        }
+        if (rhs == null) {
             return new LocalDateSegment<>(di, lhs.getValue());
         }
+        return new LocalDateSegment<>(di, lhs.getValue());
     }
 
     private static LocalDateSegment<OpptjeningAktivitetKlassifisering> mergeGodkjente(LocalDateInterval di,
@@ -88,9 +87,8 @@ class MergeOverlappendePeriodeHjelp {
             LocalDateSegment<OpptjeningAktivitetKlassifisering> rhs) {
         if (lhs != null) {
             return new LocalDateSegment<>(di, OpptjeningAktivitetKlassifisering.BEKREFTET_GODKJENT);
-        } else {
-            OpptjeningAktivitetKlassifisering value = rhs.getValue();
-            return new LocalDateSegment<>(di, value);
         }
+        var value = rhs.getValue();
+        return new LocalDateSegment<>(di, value);
     }
 }

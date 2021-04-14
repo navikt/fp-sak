@@ -61,7 +61,7 @@ public class Sats {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Sats sats1 = (Sats) o;
+        var sats1 = (Sats) o;
         return Objects.equals(sats, sats1.sats);
     }
 

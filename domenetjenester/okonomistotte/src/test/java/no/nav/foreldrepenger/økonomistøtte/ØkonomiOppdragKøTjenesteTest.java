@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +35,7 @@ public class ØkonomiOppdragKøTjenesteTest {
 
     @Test
     public void skal_sende_økonomi_oppdrag() {
-        Oppdragskontroll oppdrag = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll();
         ØkonomiOppdragUtils.setupOppdrag110(oppdrag, true);
         when(økonomiRepository.finnOppdragForBehandling(behandlingId)).thenReturn(Optional.of(oppdrag));
 

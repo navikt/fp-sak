@@ -122,7 +122,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     public void loggOverlappForVedtakK9SAK(YtelseV1 ytelse, List<Fagsak> sakerForBruker) {
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
-        LocalDateTimeline<BigDecimal> ytelseTidslinje = lagTidslinjeforYtelseV1(ytelse);
+        var ytelseTidslinje = lagTidslinjeforYtelseV1(ytelse);
 
         sakerForBruker.stream()
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
@@ -138,7 +138,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private List<OverlappVedtak.Builder> loggOverlappendeYtelser(Long behandlingId, Saksnummer saksnummer, AktørId aktørId) {
         var ytelseType = behandlingRepository.hentBehandling(behandlingId).getFagsakYtelseType();
-        LocalDateTimeline<BigDecimal> perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
+        var perioderFpGradert = getTidslinjeForBehandling(behandlingId, ytelseType);
         if (perioderFpGradert.getLocalDateIntervals().isEmpty())
             return Collections.emptyList();
         var tidligsteUttakFP = perioderFpGradert.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
@@ -175,11 +175,11 @@ public class LoggOverlappEksterneYtelserTjeneste {
         if (beregningsgrunnlag == null) {
             return new LocalDateTimeline<>(Collections.emptyList());
         }
-        List<LocalDateSegment<BigDecimal>> grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        var grunnlagUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
             .collect(Collectors.toList());
-        List<LocalDateSegment<BigDecimal>> resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
+        var resultatsegments = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId)
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
             .filter(beregningsresultatPeriode -> beregningsresultatPeriode.getDagsats() > 0)
             .map(p -> finnUtbetalingsgradFor(p, grunnlagUtbetGrad))
@@ -204,7 +204,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     }
 
     private LocalDateTimeline<BigDecimal> lagTidslinjeforYtelseV1(YtelseV1 ytelse) {
-        List<LocalDateSegment<BigDecimal>> graderteSegments = ytelse.getAnvist().stream()
+        var graderteSegments = ytelse.getAnvist().stream()
             .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), utbetalingsgradHundreHvisNull(p.getUtbetalingsgrad())))
             .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
             .collect(Collectors.toList());
@@ -213,11 +213,11 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     public void vurderOmOverlappInfotrygd(PersonIdent ident, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
         //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        List<Grunnlag> infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
         overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), "BS", null,
             finnTidslinjeFraGrunnlagene(infotrygdPSGrunnlag)));
 
-        List<Grunnlag> infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
+        var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
         overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD.getKode(), YtelseType.SYKEPENGER.getKode(), null,
             finnTidslinjeFraGrunnlagene(infotrygdSPGrunnlag)));
     }
@@ -228,7 +228,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                 .map(y -> (YtelseV1)y)
                 .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
                 .forEach(y -> {
-                    LocalDateTimeline<BigDecimal> ytelseTidslinje = lagTidslinjeforYtelseV1(y);
+                    var ytelseTidslinje = lagTidslinjeforYtelseV1(y);
                     overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.K9SAK.getKode(), y.getType().getKode(), y.getSaksnummer(), ytelseTidslinje));
                 });
         } catch (Exception e) {
@@ -243,7 +243,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         if (isProd) {
             spokelseKlient.hentGrunnlag(ident.getIdent())
                 .forEach(y -> {
-                    List<LocalDateSegment<BigDecimal>> graderteSegments = y.getUtbetalinger().stream()
+                    var graderteSegments = y.getUtbetalinger().stream()
                         .map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), utbetalingsgradHundreHvisNull(p.getGrad())))
                         .filter(s -> s.getValue().compareTo(BigDecimal.ZERO) > 0)
                         .collect(Collectors.toList());

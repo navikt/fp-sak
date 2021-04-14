@@ -33,7 +33,7 @@ public class PersonstatusPeriode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PersonstatusPeriode that = (PersonstatusPeriode) o;
+        var that = (PersonstatusPeriode) o;
         return Objects.equals(gyldighetsperiode, that.gyldighetsperiode) &&
             Objects.equals(personstatus, that.personstatus);
     }

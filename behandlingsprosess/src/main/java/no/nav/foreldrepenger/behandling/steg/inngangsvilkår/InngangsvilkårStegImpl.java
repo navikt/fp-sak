@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTrans
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultat;
@@ -51,9 +49,9 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         // Hent behandlingsgrunnlag og vilkårtyper
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        List<VilkårType> vilkårHåndtertAvSteg = vilkårHåndtertAvSteg();
-        Set<VilkårType> vilkårTyper = getBehandlingsresultat(behandling).getVilkårResultat().getVilkårene().stream()
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var vilkårHåndtertAvSteg = vilkårHåndtertAvSteg();
+        var vilkårTyper = getBehandlingsresultat(behandling).getVilkårResultat().getVilkårene().stream()
                 .map(Vilkår::getVilkårType)
                 .filter(vilkårHåndtertAvSteg::contains)
                 .collect(Collectors.toSet());
@@ -66,7 +64,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         if (skipSteget(kontekst)) {
             // Vil ikke re-evaluere hvis allerede overstyrt til avslag/oppfylt. Vil man
             // endre overstyring gjøres det ved FORVED
-            VilkårUtfallType overstyrtUtfall = overstyrtVilkårUtfall(kontekst.getBehandlingId()).orElse(VilkårUtfallType.UDEFINERT);
+            var overstyrtUtfall = overstyrtVilkårUtfall(kontekst.getBehandlingId()).orElse(VilkårUtfallType.UDEFINERT);
             if (VilkårUtfallType.IKKE_OPPFYLT.equals(overstyrtUtfall)) {
                 return getBehandleStegResultatVedAvslag(behandling, Collections.emptyList());
             }
@@ -77,8 +75,8 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         // steget skriver ned vilkåresultat)
 
         // Kall regelmotor
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, inngangsvilkårFellesTjeneste.getSkjæringstidspunkter(behandling.getId()));
-        RegelResultat regelResultat = inngangsvilkårFellesTjeneste.vurderInngangsvilkår(vilkårTyper, behandling, ref);
+        var ref = BehandlingReferanse.fra(behandling, inngangsvilkårFellesTjeneste.getSkjæringstidspunkter(behandling.getId()));
+        var regelResultat = inngangsvilkårFellesTjeneste.vurderInngangsvilkår(vilkårTyper, behandling, ref);
 
         // Oppdater behandling
         behandlingRepository.lagre(regelResultat.getVilkårResultat(), kontekst.getSkriveLås());
@@ -88,9 +86,8 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         // Returner behandlingsresultat
         if (erNoenVilkårIkkeOppfylt(regelResultat) && !harÅpentOverstyringspunktForInneværendeSteg(behandling)) {
             return stegResultatVilkårIkkeOppfylt(regelResultat, behandling);
-        } else {
-            return stegResultat(regelResultat);
         }
+        return stegResultat(regelResultat);
     }
 
     protected boolean skipSteget(BehandlingskontrollKontekst kontekst) {
@@ -103,16 +100,15 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private boolean harAvslåttForrigeBehandling(Behandling revurdering) {
-        Optional<Behandling> originalBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
+        var originalBehandling = revurdering.getOriginalBehandlingId().map(behandlingRepository::hentBehandling);
         if (originalBehandling.isPresent()) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(originalBehandling.get());
+            var behandlingsresultat = getBehandlingsresultat(originalBehandling.get());
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det
             // faktiske resultatet for å kunne vurdere om forrige behandling var avslått
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultat.getBehandlingResultatType())) {
                 return harAvslåttForrigeBehandling(originalBehandling.get());
-            } else {
-                return behandlingsresultat.isBehandlingsresultatAvslått();
             }
+            return behandlingsresultat.isBehandlingsresultatAvslått();
         }
         return false;
     }
@@ -158,8 +154,8 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType hoppesTilSteg,
             BehandlingStegType hoppesFraSteg) {
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
-            Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-            RyddVilkårTyper ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            var ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
             ryddVilkårTyper.ryddVedTilbakeføring(vilkårHåndtertAvSteg());
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
@@ -170,15 +166,15 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
             BehandlingStegType hoppesTilSteg) {
         // TODO skal man rydde opp ved framoverhopp?
         if (!erVilkårOverstyrt(kontekst.getBehandlingId())) {
-            Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-            RyddVilkårTyper ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            var ryddVilkårTyper = new RyddVilkårTyper(repositoryProvider, behandling, kontekst);
             ryddVilkårTyper.ryddVedOverhoppFramover(vilkårHåndtertAvSteg());
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         }
     }
 
     protected boolean erVilkårOverstyrt(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList())
                 .stream()
                 .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
@@ -186,7 +182,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     private Optional<VilkårUtfallType> overstyrtVilkårUtfall(Long behandlingId) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         return behandlingsresultat.map(Behandlingsresultat::getVilkårResultat).map(VilkårResultat::getVilkårene).orElse(Collections.emptyList())
                 .stream()
                 .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))

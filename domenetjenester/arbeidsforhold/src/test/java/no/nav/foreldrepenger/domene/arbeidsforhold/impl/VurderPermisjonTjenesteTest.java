@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYS
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -58,29 +57,29 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_arbeidsforhold_når_ingen_bekreftet_permisjon_eksisterer() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
-        Permisjon permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
-        Permisjon permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
+        var permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
+        var permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref);
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -98,30 +97,30 @@ public class VurderPermisjonTjenesteTest {
     public void skal_ikke_legge_til_arbeidsforhold_når_det_ikke_finnes_yrkesaktivteter_før_stp() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.plusDays(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusYears(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.plusDays(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusYears(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        Permisjon permisjon = byggPermisjon(yaBuilder, fom, tom);
-        YrkesaktivitetBuilder ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var permisjon = byggPermisjon(yaBuilder, fom, tom);
+        var ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(ya));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -136,29 +135,29 @@ public class VurderPermisjonTjenesteTest {
     public void skal_ikke_legge_til_arbeidsforhold_når_det_ikke_finnes_yrkesaktivteter_med_permisjon() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusDays(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusYears(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.minusDays(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusYears(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        YrkesaktivitetBuilder ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var ya = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of());
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(ya));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -173,31 +172,31 @@ public class VurderPermisjonTjenesteTest {
     public void skal_ikke_legge_til_arbeidsforhold_når_bekreftet_permisjon_inneholder_UGYLDIGE_PERIODER_og_man_utledere_flere_overlappende_permisjoner() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
-        Permisjon permisjon_2 = byggPermisjon(yaBuilder, fom.minusDays(1), tom.plusDays(1));
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
+        var permisjon_2 = byggPermisjon(yaBuilder, fom.minusDays(1), tom.plusDays(1));
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1, permisjon_2));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -212,30 +211,30 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_arbeidsforhold_når_bekreftet_permisjon_inneholder_UGYLDIGE_PERIODER_og_man_utledere_kun_en_permisjon() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
-        Permisjon permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
-        Permisjon permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, SKJÆRINGSTIDSPUNKT.minusYears(1), TIDENES_ENDE);
+        var permisjon_1 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.minusDays(1));
+        var permisjon_2 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.minusDays(1), SKJÆRINGSTIDSPUNKT);
+        var permisjon_3 = byggPermisjon(yaBuilder, SKJÆRINGSTIDSPUNKT.plusDays(1), TIDENES_ENDE);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1, permisjon_2, permisjon_3));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -253,30 +252,30 @@ public class VurderPermisjonTjenesteTest {
     public void skal_ikke_legge_til_arbeidsforhold_når_bekreftet_permisjon_inneholder_samme_fom_og_tom_som_utledet_permisjon() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -291,30 +290,30 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_arbeidsforhold_når_bekreftet_permisjon_ikke_inneholder_samme_fom_som_utledet_permisjon() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom.minusDays(1), tom, BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -332,30 +331,30 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_arbeidsforhold_når_bekreftet_permisjon_ikke_inneholder_samme_tom_som_utledet_permisjon() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref = InternArbeidsforholdRef.nyRef();
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("1");
+        var ref = InternArbeidsforholdRef.nyRef();
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        YrkesaktivitetBuilder yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
+        var yaBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa = lagAktivitetsAvtaleBuilder(yaBuilder, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder, fom, tom);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder, aa,
                 arbeidsgiver, ref, List.of(permisjon_1));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ref)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -373,38 +372,38 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_to_arbeidsforhold_når_begge_har_relevant_permisjon_og_hvor_den_ene_har_bekreftet_permisjon_med_ulik_tom() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        Arbeidsgiver arbeidsgiver_1 = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref_1 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder yaBuilder_1 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
+        var arbeidsgiver_1 = Arbeidsgiver.virksomhet("1");
+        var ref_1 = InternArbeidsforholdRef.nyRef();
+        var yaBuilder_1 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
                 arbeidsgiver_1, ref_1, List.of(permisjon_1));
 
-        Arbeidsgiver arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
-        InternArbeidsforholdRef ref_2 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder yaBuilder_2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa_2 = lagAktivitetsAvtaleBuilder(yaBuilder_2, fom, tom);
-        Permisjon permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
+        var arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
+        var ref_2 = InternArbeidsforholdRef.nyRef();
+        var yaBuilder_2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa_2 = lagAktivitetsAvtaleBuilder(yaBuilder_2, fom, tom);
+        var permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
+        var yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
                 arbeidsgiver_2, ref_2, List.of(permisjon_2));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1, yrkesaktivitet_2));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
                 .medBekreftetPermisjon(new BekreftetPermisjon(fom, tom.plusDays(1), BekreftetPermisjonStatus.BRUK_PERMISJON));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -425,39 +424,39 @@ public class VurderPermisjonTjenesteTest {
     public void skal_legge_til_en_av_to_arbeidsforhold_hvor_det_ene_fortsatt_har_ugyldige_perioder() {
 
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingReferanse behandlingReferanse = lagReferanse(behandling);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingReferanse = lagReferanse(behandling);
 
-        LocalDate fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
-        LocalDate tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
+        var fom = SKJÆRINGSTIDSPUNKT.minusWeeks(1);
+        var tom = SKJÆRINGSTIDSPUNKT.plusWeeks(1);
 
-        Arbeidsgiver arbeidsgiver_1 = Arbeidsgiver.virksomhet("1");
-        InternArbeidsforholdRef ref_1 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder yaBuilder_1 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
-        Permisjon permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
-        YrkesaktivitetBuilder yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
+        var arbeidsgiver_1 = Arbeidsgiver.virksomhet("1");
+        var ref_1 = InternArbeidsforholdRef.nyRef();
+        var yaBuilder_1 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa_1 = lagAktivitetsAvtaleBuilder(yaBuilder_1, fom, tom);
+        var permisjon_1 = byggPermisjon(yaBuilder_1, fom, tom);
+        var yrkesaktivitet_1 = lagYrkesaktivitetBuilder(yaBuilder_1, aa_1,
                 arbeidsgiver_1, ref_1, List.of(permisjon_1));
 
-        Arbeidsgiver arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
-        InternArbeidsforholdRef ref_2 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder yaBuilder_2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        AktivitetsAvtaleBuilder aa_2 = lagAktivitetsAvtaleBuilder(yaBuilder_2, fom, tom);
-        Permisjon permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
-        Permisjon permisjon_3 = byggPermisjon(yaBuilder_2, fom.minusDays(1), tom.plusDays(1));
-        YrkesaktivitetBuilder yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
+        var arbeidsgiver_2 = Arbeidsgiver.virksomhet("2");
+        var ref_2 = InternArbeidsforholdRef.nyRef();
+        var yaBuilder_2 = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var aa_2 = lagAktivitetsAvtaleBuilder(yaBuilder_2, fom, tom);
+        var permisjon_2 = byggPermisjon(yaBuilder_2, fom, tom);
+        var permisjon_3 = byggPermisjon(yaBuilder_2, fom.minusDays(1), tom.plusDays(1));
+        var yrkesaktivitet_2 = lagYrkesaktivitetBuilder(yaBuilder_2, aa_2,
                 arbeidsgiver_2, ref_2, List.of(permisjon_2, permisjon_3));
 
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
+        var aktørArbeidBuilder = lagAktørArbeidBuilder(behandling,
                 List.of(yrkesaktivitet_1, yrkesaktivitet_2));
 
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
+        var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver_2, ref_2)
                 .medBekreftetPermisjon(new BekreftetPermisjon(BekreftetPermisjonStatus.UGYLDIGE_PERIODER));
         informasjonBuilder.leggTil(overstyringBuilder);
 
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
+        var grunnlag = lagGrunnlag(aktørArbeidBuilder, Optional.of(informasjonBuilder.build()));
 
         // Act
         Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result = new HashMap<>();
@@ -473,7 +472,7 @@ public class VurderPermisjonTjenesteTest {
 
     private InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder lagAktørArbeidBuilder(Behandling behandling,
             List<YrkesaktivitetBuilder> yrkesaktiviteter) {
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
+        var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
                 .oppdatere(Optional.empty()).medAktørId(behandling.getAktørId());
         yrkesaktiviteter.forEach(aktørArbeidBuilder::leggTilYrkesaktivitet);
         return aktørArbeidBuilder;
@@ -481,10 +480,10 @@ public class VurderPermisjonTjenesteTest {
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder,
             Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjonOpt) {
-        InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
+        var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder
                 .oppdatere(Optional.empty(), VersjonType.REGISTER)
                 .leggTilAktørArbeid(aktørArbeidBuilder);
-        InntektArbeidYtelseGrunnlagBuilder inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
+        var inntektArbeidYtelseGrunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.nytt()
                 .medData(inntektArbeidYtelseAggregatBuilder);
         arbeidsforholdInformasjonOpt.ifPresent(inntektArbeidYtelseGrunnlagBuilder::medInformasjon);
         return inntektArbeidYtelseGrunnlagBuilder.build();

@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Ompostering116;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -91,7 +89,7 @@ public class Oppdrag110Dto extends SporingDto {
     }
 
     public static Oppdrag110Dto fraDomene(Oppdrag110 oppdrag110) {
-        Oppdrag110Dto oppdrag110Dto = new Oppdrag110Dto(oppdrag110);
+        var oppdrag110Dto = new Oppdrag110Dto(oppdrag110);
         oppdrag110Dto.fagsystemId = oppdrag110.getFagsystemId();
         oppdrag110Dto.oppdragGjelderId = oppdrag110.getOppdragGjelderId();
         oppdrag110Dto.saksbehId = oppdrag110.getSaksbehId();
@@ -103,7 +101,7 @@ public class Oppdrag110Dto extends SporingDto {
         oppdrag110Dto.oppdragKvittering = oppdrag110.erKvitteringMottatt() ?
             List.of(OppdragKvitteringDto.fraDomene(oppdrag110.getOppdragKvittering())) :
             List.of();
-        Optional<Ompostering116> optOmposter = oppdrag110.getOmpostering116();
+        var optOmposter = oppdrag110.getOmpostering116();
         oppdrag110Dto.oppdragslinje150 = oppdrag110.getOppdragslinje150Liste().stream()
             .map(Oppdragslinje150Dto::fraDomene)
             .collect(Collectors.toList());

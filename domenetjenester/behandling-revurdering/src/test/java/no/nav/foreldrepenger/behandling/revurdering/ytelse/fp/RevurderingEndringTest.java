@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -59,7 +58,7 @@ public class RevurderingEndringTest {
                 .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_MANGLER_FØDSEL)
                         .medOriginalBehandlingId(originalBehandling.getId()))
                 .build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
         return revurdering;
     }
@@ -76,7 +75,7 @@ public class RevurderingEndringTest {
                 .buildFor(revurdering);
 
         // Act
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         // Assert
@@ -98,7 +97,7 @@ public class RevurderingEndringTest {
                 .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_UTTAK)
                 .buildFor(revurdering);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering)).isFalse();
@@ -113,7 +112,7 @@ public class RevurderingEndringTest {
                 .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER)
                 .buildFor(revurdering);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(revurdering);
+        var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(revurdering, lås);
 
         assertThat(revurderingEndring.erRevurderingMedUendretUtfall(revurdering)).isFalse();
@@ -126,11 +125,11 @@ public class RevurderingEndringTest {
     }
 
     private Behandling opprettOriginalBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger
+        var scenario = ScenarioMorSøkerForeldrepenger
                 .forFødsel()
                 .medDefaultBekreftetTerminbekreftelse();
-        Behandling originalBehandling = scenario.lagre(repositoryProvider);
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
+        var originalBehandling = scenario.lagre(repositoryProvider);
+        var behandlingLås = behandlingRepository.taSkriveLås(originalBehandling);
         behandlingRepository.lagre(originalBehandling, behandlingLås);
         return originalBehandling;
     }

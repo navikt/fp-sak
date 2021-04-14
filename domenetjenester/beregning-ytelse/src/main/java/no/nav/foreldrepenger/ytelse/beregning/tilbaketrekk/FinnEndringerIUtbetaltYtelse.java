@@ -17,12 +17,12 @@ class FinnEndringerIUtbetaltYtelse {
 
     static List<EndringIBeregningsresultat> finnEndringer(List<BeregningsresultatAndel> originaleAndeler, List<BeregningsresultatAndel> revurderingAndeler) {
 
-        List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(originaleAndeler);
-        List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
+        var originaleAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(originaleAndeler);
+        var revurderingAndelerSortertPåNøkkel = MapAndelerSortertPåNøkkel.map(revurderingAndeler);
 
         List<EndringIBeregningsresultat> list = new ArrayList<>();
 
-        for (BRNøkkelMedAndeler revurderingNøkkelMedAndeler : revurderingAndelerSortertPåNøkkel) {
+        for (var revurderingNøkkelMedAndeler : revurderingAndelerSortertPåNøkkel) {
             if (revurderingNøkkelMedAndeler.erArbeidstaker()) {
                 list.addAll(finnEndringerForAndelerSomErAT(originaleAndelerSortertPåNøkkel, revurderingNøkkelMedAndeler));
             }
@@ -31,13 +31,13 @@ class FinnEndringerIUtbetaltYtelse {
     }
 
     private static List<EndringIBeregningsresultat> finnEndringerForAndelerSomErAT(List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, BRNøkkelMedAndeler revurderingNøkkelMedAndeler) {
-        Optional<BRNøkkelMedAndeler> originaleAndelerMedSammeNøkkel = finnSammenligningsandelMedSammeNøkkel(revurderingNøkkelMedAndeler.getNøkkel(), originaleAndelerSortertPåNøkkel);
+        var originaleAndelerMedSammeNøkkel = finnSammenligningsandelMedSammeNøkkel(revurderingNøkkelMedAndeler.getNøkkel(), originaleAndelerSortertPåNøkkel);
         // Nøkkelen er ny, og vi har ingen andeler å overføre fra
         return originaleAndelerMedSammeNøkkel.map(andelerMedSammeNøkkel -> Omfordelingstjeneste.omfordel(andelerMedSammeNøkkel, revurderingNøkkelMedAndeler)).orElse(Collections.emptyList());
     }
 
     private static Optional<BRNøkkelMedAndeler> finnSammenligningsandelMedSammeNøkkel(AktivitetOgArbeidsgiverNøkkel nøkkel, List<BRNøkkelMedAndeler> liste) {
-        List<BRNøkkelMedAndeler> matchendeNøkler = liste.stream()
+        var matchendeNøkler = liste.stream()
             .filter(a -> Objects.equals(a.getNøkkel(), nøkkel))
             .collect(Collectors.toList());
         if (matchendeNøkler.size() > 1) {

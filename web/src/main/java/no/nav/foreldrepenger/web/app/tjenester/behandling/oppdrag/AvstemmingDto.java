@@ -26,7 +26,7 @@ public class AvstemmingDto {
     }
 
     public static AvstemmingDto fraDomene(Avstemming avstemming) {
-        AvstemmingDto avstemmingDto = new AvstemmingDto();
+        var avstemmingDto = new AvstemmingDto();
         avstemmingDto.nokkelAvstemming = avstemming.getNøkkel();
         avstemmingDto.tidspnktMelding = avstemming.getTidspunkt();
         return avstemmingDto;

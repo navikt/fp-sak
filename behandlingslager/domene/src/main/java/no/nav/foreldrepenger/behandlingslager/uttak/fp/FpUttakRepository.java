@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -11,7 +10,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
@@ -49,13 +47,13 @@ public class FpUttakRepository {
 
     private void lagreUttaksresultat(Long behandlingId,
                                      Function<UttakResultatEntitet.Builder, UttakResultatEntitet.Builder> resultatTransformator) {
-        final BehandlingLås lås = behandlingLåsRepository.taLås(behandlingId);
+        final var lås = behandlingLåsRepository.taLås(behandlingId);
 
-        Optional<UttakResultatEntitet> eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
+        var eksistrendeResultat = hentUttakResultatHvisEksisterer(behandlingId);
 
-        UttakResultatEntitet.Builder builder = new UttakResultatEntitet.Builder(hentBehandlingsresultat(behandlingId));
+        var builder = new UttakResultatEntitet.Builder(hentBehandlingsresultat(behandlingId));
         if (eksistrendeResultat.isPresent()) {
-            UttakResultatEntitet eksisterende = eksistrendeResultat.get();
+            var eksisterende = eksistrendeResultat.get();
             if (eksisterende.getOpprinneligPerioder() != null) {
                 builder.medOpprinneligPerioder(eksisterende.getOpprinneligPerioder());
             }
@@ -66,7 +64,7 @@ public class FpUttakRepository {
         }
         builder = resultatTransformator.apply(builder);
 
-        UttakResultatEntitet nyttResultat = builder.build();
+        var nyttResultat = builder.build();
 
         persistResultat(nyttResultat);
         verifiserBehandlingLås(lås);
@@ -80,11 +78,11 @@ public class FpUttakRepository {
     }
 
     private void persistResultat(UttakResultatEntitet resultat) {
-        UttakResultatPerioderEntitet overstyrtPerioder = resultat.getOverstyrtPerioder();
+        var overstyrtPerioder = resultat.getOverstyrtPerioder();
         if (overstyrtPerioder != null) {
             persistPerioder(overstyrtPerioder);
         }
-        UttakResultatPerioderEntitet opprinneligPerioder = resultat.getOpprinneligPerioder();
+        var opprinneligPerioder = resultat.getOpprinneligPerioder();
         if (opprinneligPerioder != null) {
             persistPerioder(opprinneligPerioder);
         }
@@ -93,7 +91,7 @@ public class FpUttakRepository {
 
     private void persistPerioder(UttakResultatPerioderEntitet perioder) {
         entityManager.persist(perioder);
-        for (UttakResultatPeriodeEntitet periode : perioder.getPerioder()) {
+        for (var periode : perioder.getPerioder()) {
             persisterPeriode(periode);
         }
     }
@@ -106,7 +104,7 @@ public class FpUttakRepository {
         if (periode.getDokRegel() != null) {
             entityManager.persist(periode.getDokRegel());
         }
-        for (UttakResultatPeriodeAktivitetEntitet periodeAktivitet : periode.getAktiviteter()) {
+        for (var periodeAktivitet : periode.getAktiviteter()) {
             persistAktivitet(periodeAktivitet);
         }
     }
@@ -133,7 +131,7 @@ public class FpUttakRepository {
     }
 
     public Optional<UttakResultatEntitet> hentUttakResultatHvisEksisterer(Long behandlingId) {
-        TypedQuery<UttakResultatEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "select uttakResultat from UttakResultatEntitet uttakResultat "
                 + "join uttakResultat.behandlingsresultat resultat"
                 + " where resultat.behandling.id=:behandlingId and uttakResultat.aktiv='J'",
@@ -143,21 +141,21 @@ public class FpUttakRepository {
     }
 
     public UttakResultatEntitet hentUttakResultat(Long behandlingId) {
-        Optional<UttakResultatEntitet> resultat = hentUttakResultatHvisEksisterer(behandlingId);
+        var resultat = hentUttakResultatHvisEksisterer(behandlingId);
         return resultat.orElseThrow(() -> new NoResultException(
             "Fant ikke uttak resultat på behandlingen " + behandlingId + ", selv om det var forventet."));
     }
 
     public Optional<UttakResultatEntitet> hentUttakResultatPåId(Long id) {
         Objects.requireNonNull(id, "aggregatId"); // NOSONAR $NON-NLS-1$
-        final TypedQuery<UttakResultatEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             "FROM UttakResultatEntitet ur " + "WHERE ur.id = :id ", UttakResultatEntitet.class);
         query.setParameter("id", id);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     public void deaktivterAktivtResultat(Long behandlingId) {
-        Optional<UttakResultatEntitet> uttakResultat = hentUttakResultatHvisEksisterer(behandlingId);
+        var uttakResultat = hentUttakResultatHvisEksisterer(behandlingId);
         uttakResultat.ifPresent(this::deaktiverResultat);
     }
 

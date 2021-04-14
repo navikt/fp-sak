@@ -77,7 +77,7 @@ public class BeregningSats extends BaseEntitet {
         if (!(o instanceof BeregningSats)) {
             return false;
         }
-        BeregningSats annen = (BeregningSats) o;
+        var annen = (BeregningSats) o;
 
         return Objects.equals(this.getSatsType(), annen.getSatsType())
             && Objects.equals(this.periode, annen.periode)

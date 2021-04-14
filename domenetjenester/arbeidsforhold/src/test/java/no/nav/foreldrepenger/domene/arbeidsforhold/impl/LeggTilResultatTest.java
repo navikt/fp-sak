@@ -32,8 +32,8 @@ public class LeggTilResultatTest {
     @Test
     public void skal_legge_til_årsak_på_allerede_eksisterende_arbeidsgiver_med_matchende_arbeidsforholdref() {
         // Arrange
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
-        Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var refs = Set.of(ref1, ref2);
         result.put(virksomhet, Set.of(a1, a2));
         // Act
         LeggTilResultat.leggTil(result, AksjonspunktÅrsak.PERMISJON, virksomhet, refs);
@@ -54,8 +54,8 @@ public class LeggTilResultatTest {
     @Test
     public void skal_legge_til_årsak_på_arbeidsgiver_som_ikke_eksisterer_i_result_i_utgangspunktet() {
         // Arrange
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
-        Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var refs = Set.of(ref1, ref2);
         // Act
         LeggTilResultat.leggTil(result, AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, virksomhet, refs);
         // Assert
@@ -75,7 +75,7 @@ public class LeggTilResultatTest {
     @Test
     public void skal_legge_til_arbeidsgiver_selv_når_ingen_arbeidsforholdref() {
         // Arrange
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
+        var virksomhet = Arbeidsgiver.virksomhet("1");
         Set<InternArbeidsforholdRef> refs = Set.of();
         // Act
         LeggTilResultat.leggTil(result, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, virksomhet, refs);
@@ -88,8 +88,8 @@ public class LeggTilResultatTest {
     @Test
     public void skal_legge_til_to_årsaker_for_arbeidsgiver_med_to_arbeidsforholdref() {
         // Arrange
-        Arbeidsgiver virksomhet = Arbeidsgiver.virksomhet("1");
-        Set<InternArbeidsforholdRef> refs = Set.of(ref1, ref2);
+        var virksomhet = Arbeidsgiver.virksomhet("1");
+        var refs = Set.of(ref1, ref2);
         // Act
         LeggTilResultat.leggTil(result, AksjonspunktÅrsak.ENDRING_I_ARBEIDSFORHOLDS_ID, virksomhet, refs);
         LeggTilResultat.leggTil(result, AksjonspunktÅrsak.PERMISJON, virksomhet, refs);

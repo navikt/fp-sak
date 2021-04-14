@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.domene.abakus;
 
 import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
-import java.lang.StackWalker.StackFrame;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,7 +81,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private static String getCallerMethod() {
-        List<StackFrame> frames = StackWalker.getInstance().walk(s -> s.limit(2).collect(Collectors.toList()));
+        var frames = StackWalker.getInstance().walk(s -> s.limit(2).collect(Collectors.toList()));
         return frames.get(1).getMethodName();
     }
 
@@ -105,9 +103,9 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void kopierGrunnlagFraEksisterendeBehandling(Long fraBehandlingId, Long tilBehandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> origAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(fraBehandlingId);
+        var origAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(fraBehandlingId);
         origAggregat.ifPresent(orig -> {
-            InntektArbeidYtelseGrunnlag entitet = new InntektArbeidYtelseGrunnlag(orig);
+            var entitet = new InntektArbeidYtelseGrunnlag(orig);
             lagreOgFlush(tilBehandlingId, entitet);
         });
     }
@@ -123,18 +121,17 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
                 .filter(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall() || !im.getEndringerRefusjon().isEmpty())
                 .collect(Collectors.groupingBy(Inntektsmelding::getArbeidsgiver)).entrySet().stream()
                 .map(entry -> {
-                    LocalDate førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt)
+                    var førsteInnsendingAvRefusjon = entry.getValue().stream().map(Inntektsmelding::getInnsendingstidspunkt)
                             .min(Comparator.naturalOrder()).map(LocalDateTime::toLocalDate).orElse(TIDENES_ENDE);
-                    LocalDate førsteDatoForRefusjon = entry.getValue().stream()
+                    var førsteDatoForRefusjon = entry.getValue().stream()
                             .map(im -> {
                                 if (!im.getRefusjonBeløpPerMnd().erNullEllerNulltall()) {
                                     return im.getStartDatoPermisjon().orElse(TIDENES_ENDE);
-                                } else {
-                                    return im.getEndringerRefusjon().stream()
-                                            .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
-                                            .min(Comparator.comparing(Refusjon::getFom))
-                                            .map(Refusjon::getFom).orElse(TIDENES_ENDE);
                                 }
+                                return im.getEndringerRefusjon().stream()
+                                        .filter(er -> !er.getRefusjonsbeløp().erNullEllerNulltall())
+                                        .min(Comparator.comparing(Refusjon::getFom))
+                                        .map(Refusjon::getFom).orElse(TIDENES_ENDE);
                             }).min(Comparator.naturalOrder()).orElse(TIDENES_ENDE);
                     return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon,
                             entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
@@ -145,8 +142,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     public void dropInntektsmeldinger(Long behandlingId, Set<JournalpostId> fjernInntektsmeldinger) {
         Objects.requireNonNull(fjernInntektsmeldinger, "fjernInntektsmeldinger");
 
-        InMemoryInntektArbeidYtelseGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
-        InntektsmeldingAggregat inntektsmeldinger = builder.getInntektsmeldinger();
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
+        var inntektsmeldinger = builder.getInntektsmeldinger();
 
         Collection<Inntektsmelding> beholdInntektsmelding = inntektsmeldinger.getAlleInntektsmeldinger().stream()
                 .filter(im -> !fjernInntektsmeldinger.contains(im.getJournalpostId()))
@@ -161,7 +158,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     public void lagreIayAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder builder) {
         var grunnlagBuilder = getGrunnlagBuilder(behandlingId, builder);
 
-        final ArbeidsforholdInformasjon informasjon = grunnlagBuilder.getInformasjon();
+        final var informasjon = grunnlagBuilder.getInformasjon();
 
         // lagre reserverte interne referanser opprettet tidligere
         builder.getNyeInternArbeidsforholdReferanser()
@@ -205,10 +202,10 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
         var grunnlagBuilder = InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
-        Optional<InntektArbeidYtelseGrunnlag> aggregat = Optional.ofNullable(grunnlagBuilder.getKladd()); // NOSONAR $NON-NLS-1$
+        var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd()); // NOSONAR $NON-NLS-1$
         Objects.requireNonNull(aggregat, "aggregat"); // NOSONAR $NON-NLS-1$
         if (aggregat.isPresent()) {
-            final InntektArbeidYtelseGrunnlag aggregat1 = aggregat.get();
+            final var aggregat1 = aggregat.get();
             return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
                     versjonType);
         }
@@ -218,7 +215,8 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     private Optional<InntektArbeidYtelseAggregat> hentRiktigVersjon(VersjonType versjonType, InntektArbeidYtelseGrunnlag aggregat) {
         if (versjonType == VersjonType.REGISTER) {
             return aggregat.getRegisterVersjon();
-        } else if (versjonType == VersjonType.SAKSBEHANDLET) {
+        }
+        if (versjonType == VersjonType.SAKSBEHANDLET) {
             return aggregat.getSaksbehandletVersjon();
         }
         throw new IllegalStateException("Kunne ikke finne riktig versjon av InntektArbeidYtelseGrunnlag");
@@ -226,9 +224,9 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public void fjernSaksbehandletVersjon(Long behandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> entitetOpt = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
+        var entitetOpt = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
         if (entitetOpt.isPresent()) {
-            InntektArbeidYtelseGrunnlag entitet = entitetOpt.get();
+            var entitet = entitetOpt.get();
             var builder = new InMemoryInntektArbeidYtelseGrunnlagBuilder(entitet);
             builder.fjernSaksbehandlet();
             lagreOgFlush(behandlingId, entitet);
@@ -252,7 +250,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         if (oppgittOpptjening == null) {
             return;
         }
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
+        var inntektArbeidAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
 
         var iayGrunnlag = InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidAggregat);
         iayGrunnlag.medOppgittOpptjening(oppgittOpptjening);
@@ -262,12 +260,12 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
     @Override
     public SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {
-        List<InntektArbeidYtelseGrunnlag> alleGrunnlag = grunnlag;
+        var alleGrunnlag = grunnlag;
         var resultat = new SakInntektsmeldinger(saksnummer);
         for (var iayg : alleGrunnlag) {
             var ims = iayg.getInntektsmeldinger();
             if (ims.isPresent()) {
-                for (Long behId : alleBehandlingMedGrunnlag(iayg.getEksternReferanse())) {
+                for (var behId : alleBehandlingMedGrunnlag(iayg.getEksternReferanse())) {
                     for (var im : ims.get().getAlleInntektsmeldinger()) {
                         resultat.leggTil(behId, iayg.getEksternReferanse(), iayg.getOpprettetTidspunkt(), im);
                     }
@@ -285,15 +283,15 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     @Override
     public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId, Collection<InntektsmeldingBuilder> builders) {
         Objects.requireNonNull(builders, "builders"); // NOSONAR
-        InMemoryInntektArbeidYtelseGrunnlagBuilder builder = opprettGrunnlagBuilderFor(behandlingId);
-        final InntektsmeldingAggregat inntektsmeldinger = builder.getInntektsmeldinger();
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
+        final var inntektsmeldinger = builder.getInntektsmeldinger();
 
         for (var inntektsmeldingBuilder : builders) {
-            final ArbeidsforholdInformasjon informasjon = builder.getInformasjon();
+            final var informasjon = builder.getInformasjon();
             konverterEksternArbeidsforholdRefTilInterne(inntektsmeldingBuilder, informasjon);
 
             var inntektsmelding = inntektsmeldingBuilder.build();
-            final ArbeidsforholdInformasjonBuilder informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(informasjon);
+            final var informasjonBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(informasjon);
 
             // Kommet inn inntektsmelding på arbeidsforhold som vi har gått videre med uten
             // inntektsmelding?
@@ -304,7 +302,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
             // kommer det inn en inntektsmelding med spesifik id
             // nullstiller da valg gjort i 5080 slik at saksbehandler må ta stilling til
             // aksjonspunktet på nytt.
-            Optional<Arbeidsgiver> arbeidsgiverSomMåTilbakestilles = utledeArbeidsgiverSomMåTilbakestilles(inntektsmelding, informasjon);
+            var arbeidsgiverSomMåTilbakestilles = utledeArbeidsgiverSomMåTilbakestilles(inntektsmelding, informasjon);
             arbeidsgiverSomMåTilbakestilles.ifPresent(informasjonBuilder::fjernOverstyringerSomGjelder);
 
             builder.medInformasjon(informasjonBuilder.build());
@@ -413,9 +411,9 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
         if (nyttGrunnlag == null) {
             return;
         }
-        Optional<InntektArbeidYtelseGrunnlag> tidligereAggregat = getAktivtInntektArbeidGrunnlag(behandlingId);
+        var tidligereAggregat = getAktivtInntektArbeidGrunnlag(behandlingId);
         if (tidligereAggregat.isPresent()) {
-            InntektArbeidYtelseGrunnlag entitet = tidligereAggregat.get();
+            var entitet = tidligereAggregat.get();
             if (new IAYDiffsjekker(false).getDiffEntity().diff(entitet, nyttGrunnlag).isEmpty()) {
                 return;
             }
@@ -427,7 +425,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     private InMemoryInntektArbeidYtelseGrunnlagBuilder opprettGrunnlagBuilderFor(Long behandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
+        var inntektArbeidAggregat = hentInntektArbeidYtelseGrunnlagForBehandling(behandlingId);
         return InMemoryInntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidAggregat);
     }
 

@@ -20,11 +20,11 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     public void skal_returnere_ingen_avtaler_ved_ingen_avtaler() {
         // Arrange
         Collection<AktivitetsAvtale> avtaler = List.of();
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(0);
@@ -33,15 +33,15 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_ingen_avtaler_ved_ingen_overlapp() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato.plusDays(1), termindato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
                 .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(0);
@@ -50,15 +50,15 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_en_avtale_ved_overlapp_siste_dag() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(termindato, termindato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
                 .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(1);
@@ -67,15 +67,15 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_en_avtale_ved_overlapp_første_dag() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
                 .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(1);
@@ -84,8 +84,8 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_en_avtale_ved_2_avtaler_overlapp_jordmorsdato_og_termindato() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, jordmorsdato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
@@ -96,7 +96,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
                         .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(1);
@@ -106,8 +106,8 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_2_avtaler_ved_2_avtaler_som_ligger_like_langt_fra_jordmorsdato() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
@@ -118,7 +118,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
                         .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(2);
@@ -127,8 +127,8 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
     @Test
     public void skal_returnere_velge_avtaler_etter_jordmorsdato_foran_avtaler_før() {
         // Arrange
-        LocalDate jordmorsdato = LocalDate.now();
-        LocalDate termindato = jordmorsdato.plusDays(15);
+        var jordmorsdato = LocalDate.now();
+        var termindato = jordmorsdato.plusDays(15);
         Collection<AktivitetsAvtale> avtaler = List.of(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato.plusDays(2), jordmorsdato.plusDays(10)))
                 .medProsentsats(BigDecimal.valueOf(100))
@@ -147,7 +147,7 @@ public class FinnAktivitetsavtalerForUtbetalingsgradTest {
                         .build());
 
         // Act
-        List<AktivitetsAvtale> aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
+        var aktivitetsAvtales = finnAktivitetsavtalerSomSkalBrukes(avtaler, jordmorsdato, termindato);
 
         // Assert
         assertThat(aktivitetsAvtales).hasSize(2);

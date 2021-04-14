@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
@@ -77,11 +76,11 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/openAutopunkt")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response openAutopunkt(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
-        AksjonspunktDefinisjon apDef = AksjonspunktDefinisjon.fraKode(dto.getAksjonspunktKode());
+        var apDef = AksjonspunktDefinisjon.fraKode(dto.getAksjonspunktKode());
         if (apDef == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        Query query = entityManager.createNativeQuery("select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid " +
+        var query = entityManager.createNativeQuery("select saksnummer, ytelse_type, ap.opprettet_tid, ap.frist_tid " +
                 " from fpsak.fagsak fs join fpsak.behandling bh on bh.fagsak_id=fs.id " +
                 " join FPSAK.AKSJONSPUNKT ap on ap.behandling_id=bh.id " +
                 " where aksjonspunkt_def=:apdef and aksjonspunkt_status=:status "); //$NON-NLS-1$
@@ -89,14 +88,14 @@ public class ForvaltningUttrekkRestTjeneste {
         query.setParameter("status", AksjonspunktStatus.OPPRETTET.getKode());
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        List<OpenAutopunkt> åpneAksjonspunkt = resultatList.stream()
+        var åpneAksjonspunkt = resultatList.stream()
                 .map(this::mapFraAksjonspunktTilDto)
                 .collect(Collectors.toList());
         return Response.ok(åpneAksjonspunkt).build();
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
-        OpenAutopunkt autopunkt = new OpenAutopunkt();
+        var autopunkt = new OpenAutopunkt();
         autopunkt.aksjonspunktOpprettetDato = ((Timestamp) row[2]).toLocalDateTime().toLocalDate(); // NOSONAR
         autopunkt.aksjonspunktFristDato = row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null; // NOSONAR
         autopunkt.saksnummer = (String) row[0]; // NOSONAR
@@ -129,7 +128,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, dto.getFom().toString());
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, dto.getTom().toString());
@@ -161,7 +160,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemSakForOverlapp(@Parameter(description = "Saksnummer") @BeanParam @Valid AvstemmingSaksnummerDto s) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_BOTH_KEY);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, s.getSaksnummer());
         prosessTaskData.setCallIdFraEksisterende();

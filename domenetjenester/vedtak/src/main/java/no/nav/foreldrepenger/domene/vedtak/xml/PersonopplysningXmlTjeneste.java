@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.xml;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -26,13 +23,13 @@ public abstract class PersonopplysningXmlTjeneste {
 
     public void setPersonopplysninger(Vedtak vedtak, Long behandlingId, AktørId aktørId, Skjæringstidspunkt skjæringstidspunkter) {
         Object personopplysninger = null;
-        LocalDate stp = skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(null);
-        Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste
+        var stp = skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(null);
+        var personopplysningerAggregat = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, aktørId, stp);
         if (personopplysningerAggregat.isPresent()) {
             personopplysninger = lagPersonopplysning(personopplysningerAggregat.get(), behandlingId, aktørId, skjæringstidspunkter);//Implementeres i hver subklasse
         }
-        no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger personopplysninger1 = new no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger();
+        var personopplysninger1 = new no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger();
         personopplysninger1.getAny().add(personopplysninger);
         vedtak.setPersonOpplysninger(personopplysninger1);
     }

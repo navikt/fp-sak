@@ -34,13 +34,13 @@ public class OppdragFactory {
     }
 
     public List<Oppdrag> lagOppdrag(OverordnetOppdragKjedeOversikt tidligereOppdrag, GruppertYtelse målbilde) {
-        FagsystemIdUtleder fagsystemIdUtleder = new FagsystemIdUtleder(saksnummer, tidligereOppdrag);
+        var fagsystemIdUtleder = new FagsystemIdUtleder(saksnummer, tidligereOppdrag);
         List<Oppdrag> resultat = new ArrayList<>();
-        for (Betalingsmottaker betalingsmottaker : SetUtil.sortertUnion(Betalingsmottaker.COMPARATOR, tidligereOppdrag.getBetalingsmottakere(), målbilde.getBetalingsmottakere())) {
+        for (var betalingsmottaker : SetUtil.sortertUnion(Betalingsmottaker.COMPARATOR, tidligereOppdrag.getBetalingsmottakere(), målbilde.getBetalingsmottakere())) {
             var tidligereOppdragForMottaker = tidligereOppdrag.filter(betalingsmottaker);
             var målbildeForMottaker = målbilde.finnYtelse(betalingsmottaker);
-            KodeFagområde økonomiFagområde = utledØkonomiFagområde(betalingsmottaker);
-            OppdragForMottakerTjeneste oppdragForMottakerTjeneste = new OppdragForMottakerTjeneste(økonomiFagområde, fagsystemIdUtleder.getFagsystemId(betalingsmottaker), betalingsmottaker, fellesEndringstidspunkt);
+            var økonomiFagområde = utledØkonomiFagområde(betalingsmottaker);
+            var oppdragForMottakerTjeneste = new OppdragForMottakerTjeneste(økonomiFagområde, fagsystemIdUtleder.getFagsystemId(betalingsmottaker), betalingsmottaker, fellesEndringstidspunkt);
             resultat.add(oppdragForMottakerTjeneste.lagOppdrag(tidligereOppdragForMottaker, målbildeForMottaker));
         }
         return resultat.stream()
@@ -49,7 +49,7 @@ public class OppdragFactory {
     }
 
     private KodeFagområde utledØkonomiFagområde(Betalingsmottaker betalingsmottaker) {
-        boolean erRefusjon = !Betalingsmottaker.BRUKER.equals(betalingsmottaker);
+        var erRefusjon = !Betalingsmottaker.BRUKER.equals(betalingsmottaker);
         return fagområdeMapper.apply(ytelseType, erRefusjon);
     }
 
@@ -64,12 +64,12 @@ public class OppdragFactory {
         }
 
         private FagsystemId finnNesteFagsystemId(Saksnummer saksnummer, OverordnetOppdragKjedeOversikt tidligereOppdrag) {
-            FagsystemId høyesteFagsystemId = tidligereOppdrag.høyesteFagsystemId();
+            var høyesteFagsystemId = tidligereOppdrag.høyesteFagsystemId();
             return høyesteFagsystemId != null ? høyesteFagsystemId.neste() : FagsystemId.førsteForFagsak(saksnummer.getVerdi());
         }
 
         public FagsystemId getFagsystemId(Betalingsmottaker betalingsmottaker) {
-            FagsystemId fagsystemId = tidligereOppdrag.getFagsystemIdPrMottaker().get(betalingsmottaker);
+            var fagsystemId = tidligereOppdrag.getFagsystemIdPrMottaker().get(betalingsmottaker);
             if (fagsystemId != null) {
                 return fagsystemId;
             }

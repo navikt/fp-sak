@@ -57,8 +57,8 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     @Test
     public void skal_oppdatere_behandlingsresultet_med_uttaksperiodegrense(EntityManager em) {
         // Arrange
-        LocalDate nyMottattDato = LocalDate.of(2018, 1, 15);
-        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017, 10, 1);
+        var nyMottattDato = LocalDate.of(2018, 1, 15);
+        var førsteLovligeUttaksdag = LocalDate.of(2017, 10, 1);
         var dto = new VurderSøknadsfristDto("Begrunnelse", true);
         dto.setAnsesMottattDato(nyMottattDato);
         var behandling = byggBehandlingMedYf(em);
@@ -81,8 +81,8 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
     @Test
     public void skal_oppdatere_behandlingsresultat_med_eksisterende_uttaksperiodegrense(EntityManager em) {
         // Arrange
-        LocalDate gammelMottatDato = LocalDate.of(2018, 3, 15);
-        LocalDate gammelFørsteLovligeUttaksdag = LocalDate.of(2017, 3, 15);
+        var gammelMottatDato = LocalDate.of(2018, 3, 15);
+        var gammelFørsteLovligeUttaksdag = LocalDate.of(2017, 3, 15);
 
         var behandling = byggBehandlingMedYf(em);
         var br = behandlingsresultatRepository.hent(behandling.getId());
@@ -92,8 +92,8 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
                 .build();
         uttaksperiodegrenseRepository.lagre(behandling.getId(), gammelUttaksperiodegrense);
 
-        LocalDate nyMottattDato = LocalDate.of(2018, 2, 28);
-        LocalDate førsteLovligeUttaksdag = LocalDate.of(2017, 11, 1);
+        var nyMottattDato = LocalDate.of(2018, 2, 28);
+        var førsteLovligeUttaksdag = LocalDate.of(2017, 11, 1);
         var dto = new VurderSøknadsfristDto("Begrunnelse", true);
         dto.setAnsesMottattDato(nyMottattDato);
 
@@ -101,7 +101,7 @@ public class VurderSøknadsfristOppdatererTjenesteFPTest {
         tjeneste.oppdater(dto, aksjonspunktParam(behandling, dto));
 
         // Assert
-        Uttaksperiodegrense uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
+        var uttaksperiodegrense = uttaksperiodegrenseRepository.hent(behandling.getId());
         assertThat(uttaksperiodegrense.getErAktivt()).isTrue();
         assertThat(uttaksperiodegrense.getMottattDato()).isEqualTo(nyMottattDato);
         assertThat(uttaksperiodegrense.getFørsteLovligeUttaksdag()).isEqualTo(førsteLovligeUttaksdag);

@@ -59,7 +59,7 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
         var inntektsmeldingTjeneste = mock(InntektsmeldingTjeneste.class);
         dialogHendelseProducer = mock(DialogHendelseProducer.class);
         var entityManager = getEntityManager();
-        BehandlingRepositoryProvider repositoryProvider = new BehandlingRepositoryProvider(entityManager);
+        var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         FAGSAK_ID = repositoryProvider.getFagsakRepository()
             .opprettNy(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()),
                 RelasjonsRolleType.MORA, SAKSNUMMER));
@@ -87,7 +87,7 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
             .build();
         when(inntektsmeldingTjeneste.hentInntektsMeldingFor(BEHANDLING_ID, JOURNALPOST_ID)).thenReturn(
             Optional.of(inntektsmelding));
-        FagsakRepository fagsakRepository = new FagsakRepository(entityManager);
+        var fagsakRepository = new FagsakRepository(entityManager);
         publiserPersistertDokumentHendelseTask = new PubliserPersistertDokumentHendelseTask(fagsakRepository,
             mottatteDokumentTjeneste, inntektsmeldingTjeneste, dialogHendelseProducer);
     }
@@ -95,11 +95,11 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
     @Test
     public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() {
         // Arrange
-        ProsessTaskData prosessTask = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
+        var prosessTask = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
         prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());
         prosessTask.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY,
             MOTTATT_DOKUMENT_ID.toString());
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        var captor = ArgumentCaptor.forClass(String.class);
 
         // Act
         publiserPersistertDokumentHendelseTask.doTask(prosessTask);

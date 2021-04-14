@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -62,7 +61,7 @@ public class EnhetsTjeneste {
 
     OrganisasjonsEnhet hentEnhetSjekkKunAktør(AktørId aktørId, BehandlingTema behandlingTema) {
         oppdaterEnhetCache();
-        GeografiskTilknytning geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
+        var geografiskTilknytning = personinfoAdapter.hentGeografiskTilknytning(aktørId);
 
         if (geografiskTilknytning.getTilknytning() == null &&
             (geografiskTilknytning.getDiskresjonskode() == null || Diskresjonskode.UDEFINERT.equals(geografiskTilknytning.getDiskresjonskode())))

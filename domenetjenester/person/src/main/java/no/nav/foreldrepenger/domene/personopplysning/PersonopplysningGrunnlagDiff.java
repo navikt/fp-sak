@@ -45,7 +45,7 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     public boolean erRelasjonerEndret() {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()),
             registerVersjon(grunnlag2).map(PersonInformasjonEntitet::getRelasjoner).orElse(Collections.emptyList()));
     }
@@ -67,7 +67,7 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     private boolean erRelasjonerEndretForAktører(Set<AktørId> fra, Set<AktørId> ikkeTil) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentRelasjonerFraMenIkkeTil(grunnlag1, fra, ikkeTil),
             hentRelasjonerFraMenIkkeTil(grunnlag2, fra, ikkeTil));
     }
@@ -79,32 +79,32 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     public boolean erPersonstatusEndretForSøkerFør(LocalDate stp) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentPersonstatusFør(grunnlag1, søkerAktørId, stp),
             hentPersonstatusFør(grunnlag2, søkerAktørId, stp));
     }
 
     public boolean erStatsborgerskapEndretForSøkerFør(LocalDate stp) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentStatsborgerskapFør(grunnlag1, søkerAktørId, stp),
             hentStatsborgerskapFør(grunnlag2, søkerAktørId, stp));
     }
 
     public boolean erSøkersAdresseEndretFør(LocalDate stp) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentAdresserFør(grunnlag1, Set.of(søkerAktørId), stp),
             hentAdresserFør(grunnlag2, Set.of(søkerAktørId), stp));
     }
 
     public boolean erSøkersAdresseLandEndretFør(LocalDate stp) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(
             hentAdresserFør(grunnlag1, Set.of(søkerAktørId), stp).stream().map(PersonAdresseEntitet::getLand).collect(Collectors.toSet()),
             hentAdresserFør(grunnlag2, Set.of(søkerAktørId), stp).stream().map(PersonAdresseEntitet::getLand).collect(Collectors.toSet()));
     }
 
     public boolean erAdresserEndretFør(LocalDate stp) {
-        RegisterdataDiffsjekker differ = new RegisterdataDiffsjekker(true);
+        var differ = new RegisterdataDiffsjekker(true);
         return differ.erForskjellPå(hentAdresserFør(grunnlag1, personerSnitt, stp),
             hentAdresserFør(grunnlag2, personerSnitt, stp));
     }
@@ -180,13 +180,13 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     private Set<AktørId> finnFellesBarn() {
-        Set<AktørId> barn1 = finnBarnaFor(grunnlag1, søkerAktørId);
-        Set<AktørId> barn2 = finnBarnaFor(grunnlag2, søkerAktørId);
+        var barn1 = finnBarnaFor(grunnlag1, søkerAktørId);
+        var barn2 = finnBarnaFor(grunnlag2, søkerAktørId);
         return barn2.stream().filter(barn1::contains).collect(Collectors.toSet());
     }
 
     private Set<AktørId> fellesAktører() {
-        Set<AktørId> første = registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream().map(PersonopplysningEntitet::getAktørId).collect(Collectors.toSet());
+        var første = registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream().map(PersonopplysningEntitet::getAktørId).collect(Collectors.toSet());
         return registerVersjon(grunnlag2).map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream()
             .map(PersonopplysningEntitet::getAktørId)
             .filter(første::contains)
@@ -194,8 +194,8 @@ public class PersonopplysningGrunnlagDiff {
     }
 
     private Optional<AktørId> finnAnnenPart() {
-        Optional<AktørId> første = oppgittAnnenPart(grunnlag1).map(OppgittAnnenPartEntitet::getAktørId);
-        Optional<AktørId> andre = oppgittAnnenPart(grunnlag2).map(OppgittAnnenPartEntitet::getAktørId);
+        var første = oppgittAnnenPart(grunnlag1).map(OppgittAnnenPartEntitet::getAktørId);
+        var andre = oppgittAnnenPart(grunnlag2).map(OppgittAnnenPartEntitet::getAktørId);
         return første.map(f -> andre.map(f::equals).orElse(Boolean.FALSE) ? f : null);
     }
 

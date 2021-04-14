@@ -10,10 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -49,20 +47,20 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
     @Test
     public void skal_utføre_tasken_avslutt_oppgave() {
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel();
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
-        Fagsak fagsak = scenario.getFagsak();
+        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var fagsak = scenario.getFagsak();
 
-        String oppgaveId = "99";
-        OppgaveBehandlingKobling oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId,
+        var oppgaveId = "99";
+        var oppgave = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId,
                 fagsak.getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
-        ProsessTaskData taskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
+        var taskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setOppgaveId(oppgaveId);
-        AvsluttOppgaveTask task = new AvsluttOppgaveTask(oppgaveTjeneste);
+        var task = new AvsluttOppgaveTask(oppgaveTjeneste);
 
         Mockito.doNothing().when(oppgaveRestKlient).ferdigstillOppgave(eq(oppgaveId));
 

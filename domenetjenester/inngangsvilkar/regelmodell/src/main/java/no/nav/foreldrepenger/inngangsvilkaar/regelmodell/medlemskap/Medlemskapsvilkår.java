@@ -42,7 +42,7 @@ public class Medlemskapsvilkår implements RuleService<MedlemskapsvilkårGrunnla
     @SuppressWarnings("unchecked")
     @Override
     public Specification<MedlemskapsvilkårGrunnlag> getSpecification() {
-        Ruleset<MedlemskapsvilkårGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<MedlemskapsvilkårGrunnlag>();
 
         Specification<MedlemskapsvilkårGrunnlag> brukerAvklartOppholdsrettNode =
             rs.hvisRegel(SjekkBrukerErAvklartMedOppholdsrett.ID, "Hvis bruker er avklart med oppholdsrett ...")

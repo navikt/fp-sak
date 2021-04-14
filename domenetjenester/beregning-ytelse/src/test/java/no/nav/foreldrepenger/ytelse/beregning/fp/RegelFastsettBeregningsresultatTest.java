@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
@@ -61,24 +60,24 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalLageAndelForBrukerOgArbeidsgiverForEnPeriode() {
         // Arrange
-        BeregningsresultatRegelmodell modell = opprettRegelmodellEnPeriode();
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodellEnPeriode();
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(1);
-        BeregningsresultatPeriode periode = perioder.get(0);
+        var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode.getTom()).isEqualTo(TI_UKER_ETTER_FØDSEL_DT);
-        List<BeregningsresultatAndel> andelList = periode.getBeregningsresultatAndelList();
+        var andelList = periode.getBeregningsresultatAndelList();
         assertThat(andelList).hasSize(2);
 
-        List<BeregningsresultatAndel> brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
+        var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
                 .collect(Collectors.toList());
-        List<BeregningsresultatAndel> arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
         assertThat(brukerAndeler).hasSize(1);
         assertThat(brukerAndeler.get(0).getArbeidsforhold().getIdentifikator()).isEqualTo("111");
         assertThat(brukerAndeler.get(0).getDagsats()).isEqualTo(1000);
@@ -91,23 +90,23 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalPeriodisereFlereUttaksPerioder() {
         // Arrange
-        List<LocalDateInterval> intervalList = List.of(
+        var intervalList = List.of(
                 FELLESPERIODE_FØR_FØDSEL,
                 MØDREKVOTE_PERIODE);
-        BeregningsresultatRegelmodell modell = opprettRegelmodell(intervalList, AktivitetStatus.ATFL);
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodell(intervalList, AktivitetStatus.ATFL);
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(2);
-        BeregningsresultatPeriode periode0 = perioder.get(0);
+        var periode0 = perioder.get(0);
         assertThat(periode0.getFom()).isEqualTo(TRE_UKER_FØR_FØDSEL_DT);
         assertThat(periode0.getTom()).isEqualTo(FØDSELSDATO);
 
-        BeregningsresultatPeriode periode1 = perioder.get(1);
+        var periode1 = perioder.get(1);
         assertThat(periode1.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode1.getTom()).isEqualTo(TI_UKER_ETTER_FØDSEL_DT);
     }
@@ -115,29 +114,29 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalLageAndelerForFlereArbeidsforhold() {
         // Arrange
-        BeregningsgrunnlagPrArbeidsforhold arb1 = lagPrArbeidsforhold(2000.0, 0.0, ARBEIDSFORHOLD_1);
-        BeregningsgrunnlagPrArbeidsforhold arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
-        BeregningsgrunnlagPrArbeidsforhold arb3 = lagPrArbeidsforhold(1000.0, 500.0, ARBEIDSFORHOLD_3);
+        var arb1 = lagPrArbeidsforhold(2000.0, 0.0, ARBEIDSFORHOLD_1);
+        var arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
+        var arb3 = lagPrArbeidsforhold(1000.0, 500.0, ARBEIDSFORHOLD_3);
 
-        BeregningsresultatRegelmodell modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(1);
-        BeregningsresultatPeriode periode = perioder.get(0);
+        var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode.getTom()).isEqualTo(TI_UKER_ETTER_FØDSEL_DT);
 
-        List<BeregningsresultatAndel> andelList = periode.getBeregningsresultatAndelList();
+        var andelList = periode.getBeregningsresultatAndelList();
         assertThat(andelList).hasSize(5);
 
-        List<BeregningsresultatAndel> brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
+        var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
                 .collect(Collectors.toList());
-        List<BeregningsresultatAndel> arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
         assertThat(brukerAndeler).hasSize(3);
 
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().getIdentifikator().equals("111")).collect(Collectors.toList()).get(0)
@@ -157,28 +156,28 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalLageAndelerForAnonymtArbeidsforhold() {
         // Arrange
-        BeregningsgrunnlagPrArbeidsforhold arb1 = lagPrArbeidsforhold(2000.0, 0.0, ANONYMT_ARBEIDSFORHOLD);
-        BeregningsgrunnlagPrArbeidsforhold arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
+        var arb1 = lagPrArbeidsforhold(2000.0, 0.0, ANONYMT_ARBEIDSFORHOLD);
+        var arb2 = lagPrArbeidsforhold(0.0, 1500.0, ARBEIDSFORHOLD_2);
 
-        BeregningsresultatRegelmodell modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2);
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2);
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(1);
-        BeregningsresultatPeriode periode = perioder.get(0);
+        var periode = perioder.get(0);
         assertThat(periode.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode.getTom()).isEqualTo(TI_UKER_ETTER_FØDSEL_DT);
 
-        List<BeregningsresultatAndel> andelList = periode.getBeregningsresultatAndelList();
+        var andelList = periode.getBeregningsresultatAndelList();
         assertThat(andelList).hasSize(3);
 
-        List<BeregningsresultatAndel> brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
+        var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
                 .collect(Collectors.toList());
-        List<BeregningsresultatAndel> arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
         assertThat(brukerAndeler).hasSize(2);
 
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold() == null).collect(Collectors.toList()).get(0).getDagsats())
@@ -194,17 +193,17 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalPeriodisereFlereUttaksPerioderOgBeregningsgrunnlagPerioder() {
         // Arrange
-        BeregningsresultatRegelmodell modell = opprettRegelmodellMedFlereBGOgUttakPerioder();
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodellMedFlereBGOgUttakPerioder();
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatPeriode> perioder = output.getBeregningsresultatPerioder();
+        var perioder = output.getBeregningsresultatPerioder();
         assertThat(perioder).hasSize(4);
 
-        BeregningsresultatPeriode periode1 = perioder.get(0);
+        var periode1 = perioder.get(0);
         assertThat(periode1.getFom()).isEqualTo(TRE_UKER_FØR_FØDSEL_DT);
         assertThat(periode1.getTom()).isEqualTo(FØDSELSDATO);
         assertThat(periode1.getBeregningsresultatAndelList()).hasSize(2);
@@ -213,7 +212,7 @@ public class RegelFastsettBeregningsresultatTest {
         assertThat(periode1.getBeregningsresultatAndelList().stream().filter(a -> !a.erBrukerMottaker())
                 .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(800);
 
-        BeregningsresultatPeriode periode2 = perioder.get(1);
+        var periode2 = perioder.get(1);
         assertThat(periode2.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL);
         assertThat(periode2.getTom()).isEqualTo(FØDSELSDATO.plusWeeks(4));
         assertThat(periode2.getBeregningsresultatAndelList()).hasSize(2);
@@ -222,14 +221,14 @@ public class RegelFastsettBeregningsresultatTest {
         assertThat(periode2.getBeregningsresultatAndelList().stream().filter(a -> !a.erBrukerMottaker())
                 .collect(Collectors.toList()).get(0).getDagsats()).isEqualTo(800);
 
-        BeregningsresultatPeriode periode3 = perioder.get(2);
+        var periode3 = perioder.get(2);
         assertThat(periode3.getFom()).isEqualTo(DAGEN_ETTER_FØDSEL.plusWeeks(4));
         assertThat(periode3.getTom()).isEqualTo(MØDREKVOTE_PERIODE.getTomDato());
         assertThat(periode3.getBeregningsresultatAndelList()).hasSize(1);
         assertThat(periode3.getBeregningsresultatAndelList().get(0).getDagsats()).isEqualTo(2000);
         assertThat(periode3.getBeregningsresultatAndelList().get(0).erBrukerMottaker()).isTrue();
 
-        BeregningsresultatPeriode periode4 = perioder.get(3);
+        var periode4 = perioder.get(3);
         assertThat(periode4.getFom()).isEqualTo(FELLESPERIODE.getFomDato());
         assertThat(periode4.getTom()).isEqualTo(FELLESPERIODE.getTomDato());
         assertThat(periode4.getBeregningsresultatAndelList()).hasSize(1);
@@ -240,23 +239,23 @@ public class RegelFastsettBeregningsresultatTest {
     @Test
     public void skalRundeAvAndelerRiktig() {
         // Arrange
-        BeregningsgrunnlagPrArbeidsforhold arb1 = lagPrArbeidsforhold(2165.49, 0.00, ARBEIDSFORHOLD_1);
-        BeregningsgrunnlagPrArbeidsforhold arb2 = lagPrArbeidsforhold(0.455, 1550.50, ARBEIDSFORHOLD_2);
-        BeregningsgrunnlagPrArbeidsforhold arb3 = lagPrArbeidsforhold(1001.50, 500.49, ARBEIDSFORHOLD_3);
+        var arb1 = lagPrArbeidsforhold(2165.49, 0.00, ARBEIDSFORHOLD_1);
+        var arb2 = lagPrArbeidsforhold(0.455, 1550.50, ARBEIDSFORHOLD_2);
+        var arb3 = lagPrArbeidsforhold(1001.50, 500.49, ARBEIDSFORHOLD_3);
 
-        BeregningsresultatRegelmodell modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
-        Beregningsresultat output = new Beregningsresultat();
+        var modell = opprettRegelmodellMedArbeidsforhold(arb1, arb2, arb3);
+        var output = new Beregningsresultat();
 
         // Act
         regel.evaluer(modell, output);
 
         // Assert
-        List<BeregningsresultatAndel> andelList = output.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList();
+        var andelList = output.getBeregningsresultatPerioder().get(0).getBeregningsresultatAndelList();
         assertThat(andelList).hasSize(5);
 
-        List<BeregningsresultatAndel> brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
+        var brukerAndeler = andelList.stream().filter(BeregningsresultatAndel::erBrukerMottaker)
                 .collect(Collectors.toList());
-        List<BeregningsresultatAndel> arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
+        var arbAndeler = andelList.stream().filter(a -> !a.erBrukerMottaker()).collect(Collectors.toList());
         assertThat(brukerAndeler).hasSize(3);
 
         assertThat(brukerAndeler.stream().filter(af -> af.getArbeidsforhold().getIdentifikator().equals("111")).collect(Collectors.toList()).get(0)
@@ -274,32 +273,32 @@ public class RegelFastsettBeregningsresultatTest {
     }
 
     private BeregningsresultatRegelmodell opprettRegelmodellEnPeriode() {
-        List<LocalDateInterval> perioder = Collections.singletonList(MØDREKVOTE_PERIODE);
+        var perioder = Collections.singletonList(MØDREKVOTE_PERIODE);
         return opprettRegelmodell(perioder, AktivitetStatus.ATFL);
     }
 
     private BeregningsresultatRegelmodell opprettRegelmodell(List<LocalDateInterval> perioder, AktivitetStatus aktivitetsStatus) {
-        Beregningsgrunnlag beregningsgrunnlag = opprettBeregningsgrunnlag();
-        UttakResultat uttakResultat = opprettUttak(perioder, aktivitetsStatus, Collections.emptyList());
+        var beregningsgrunnlag = opprettBeregningsgrunnlag();
+        var uttakResultat = opprettUttak(perioder, aktivitetsStatus, Collections.emptyList());
         return new BeregningsresultatRegelmodell(beregningsgrunnlag, uttakResultat);
     }
 
     private BeregningsresultatRegelmodell opprettRegelmodellMedFlereBGOgUttakPerioder() {
-        Beregningsgrunnlag beregningsgrunnlag = opprettBeregningsgrunnlagForFlerePerioder();
-        List<LocalDateInterval> uttakPerioder = List.of(
+        var beregningsgrunnlag = opprettBeregningsgrunnlagForFlerePerioder();
+        var uttakPerioder = List.of(
                 FELLESPERIODE_FØR_FØDSEL,
                 MØDREKVOTE_PERIODE,
                 FELLESPERIODE);
-        List<Arbeidsforhold> arbeidsforholdList = List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2);
-        UttakResultat uttakResultat = opprettUttak(uttakPerioder, AktivitetStatus.ATFL, arbeidsforholdList);
+        var arbeidsforholdList = List.of(ARBEIDSFORHOLD_1, ARBEIDSFORHOLD_2);
+        var uttakResultat = opprettUttak(uttakPerioder, AktivitetStatus.ATFL, arbeidsforholdList);
         return new BeregningsresultatRegelmodell(beregningsgrunnlag, uttakResultat);
     }
 
     private BeregningsresultatRegelmodell opprettRegelmodellMedArbeidsforhold(BeregningsgrunnlagPrArbeidsforhold... arbeidsforhold) {
-        Beregningsgrunnlag beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
-        List<Arbeidsforhold> arbeidsforholdList = Arrays.stream(arbeidsforhold).map(BeregningsgrunnlagPrArbeidsforhold::getArbeidsforhold)
+        var beregningsgrunnlag = opprettBeregningsgrunnlag(arbeidsforhold);
+        var arbeidsforholdList = Arrays.stream(arbeidsforhold).map(BeregningsgrunnlagPrArbeidsforhold::getArbeidsforhold)
                 .collect(Collectors.toList());
-        UttakResultat uttakResultat = opprettUttak(Collections.singletonList(MØDREKVOTE_PERIODE), AktivitetStatus.ATFL, arbeidsforholdList);
+        var uttakResultat = opprettUttak(Collections.singletonList(MØDREKVOTE_PERIODE), AktivitetStatus.ATFL, arbeidsforholdList);
         return new BeregningsresultatRegelmodell(beregningsgrunnlag, uttakResultat);
     }
 
@@ -312,17 +311,17 @@ public class RegelFastsettBeregningsresultatTest {
     }
 
     private Beregningsgrunnlag opprettBeregningsgrunnlag(BeregningsgrunnlagPrArbeidsforhold... ekstraArbeidsforhold) {
-        BeregningsgrunnlagPrStatus.Builder prStatusBuilder = BeregningsgrunnlagPrStatus.builder()
+        var prStatusBuilder = BeregningsgrunnlagPrStatus.builder()
                 .medAktivitetStatus(AktivitetStatus.ATFL);
         if (ekstraArbeidsforhold.length == 0) {
             prStatusBuilder.medArbeidsforhold(lagPrArbeidsforhold(1000.0, 1000.0, ARBEIDSFORHOLD_1));
         }
-        for (BeregningsgrunnlagPrArbeidsforhold arbeidsforhold : ekstraArbeidsforhold) {
+        for (var arbeidsforhold : ekstraArbeidsforhold) {
             prStatusBuilder.medArbeidsforhold(arbeidsforhold);
         }
 
-        BeregningsgrunnlagPrStatus prStatus = prStatusBuilder.build();
-        BeregningsgrunnlagPeriode periode = BeregningsgrunnlagPeriode.builder()
+        var prStatus = prStatusBuilder.build();
+        var periode = BeregningsgrunnlagPeriode.builder()
                 .medPeriode(Periode.of(TRE_UKER_FØR_FØDSEL_DT, LocalDate.MAX))
                 .medBeregningsgrunnlagPrStatus(prStatus)
                 .build();
@@ -335,17 +334,17 @@ public class RegelFastsettBeregningsresultatTest {
 
     private Beregningsgrunnlag opprettBeregningsgrunnlagForFlerePerioder() {
 
-        BeregningsgrunnlagPrStatus prStatus1 = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL)
+        var prStatus1 = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL)
                 .medArbeidsforhold(lagPrArbeidsforhold(1000.0, 800.0, ARBEIDSFORHOLD_1)).build();
-        BeregningsgrunnlagPrStatus prStatus2 = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL)
+        var prStatus2 = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL)
                 .medArbeidsforhold(lagPrArbeidsforhold(2000.0, 0.0, ARBEIDSFORHOLD_2)).build();
 
-        BeregningsgrunnlagPeriode periode1 = BeregningsgrunnlagPeriode.builder()
+        var periode1 = BeregningsgrunnlagPeriode.builder()
                 .medPeriode(Periode.of(BG_PERIODE_1.getFomDato(), BG_PERIODE_1.getTomDato()))
                 .medBeregningsgrunnlagPrStatus(prStatus1)
                 .build();
 
-        BeregningsgrunnlagPeriode periode2 = BeregningsgrunnlagPeriode.builder()
+        var periode2 = BeregningsgrunnlagPeriode.builder()
                 .medPeriode(Periode.of(BG_PERIODE_2.getFomDato(), BG_PERIODE_2.getTomDato()))
                 .medBeregningsgrunnlagPrStatus(prStatus2)
                 .build();
@@ -360,8 +359,8 @@ public class RegelFastsettBeregningsresultatTest {
 
     private UttakResultat opprettUttak(List<LocalDateInterval> perioder, AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforhold) {
         List<UttakResultatPeriode> periodeListe = new ArrayList<>();
-        for (LocalDateInterval periode : perioder) {
-            List<UttakAktivitet> uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(0), BigDecimal.valueOf(100),
+        for (var periode : perioder) {
+            var uttakAktiviteter = lagUttakAktiviteter(BigDecimal.valueOf(100), BigDecimal.valueOf(0), BigDecimal.valueOf(100),
                     aktivitetsStatus, arbeidsforhold);
             periodeListe.add(new UttakResultatPeriode(periode.getFomDato(), periode.getTomDato(), uttakAktiviteter, false));
         }
@@ -370,14 +369,14 @@ public class RegelFastsettBeregningsresultatTest {
 
     private List<UttakAktivitet> lagUttakAktiviteter(BigDecimal stillingsgrad, BigDecimal arbeidstidsgrad, BigDecimal utbetalingsgrad,
             AktivitetStatus aktivitetsStatus, List<Arbeidsforhold> arbeidsforholdList) {
-        boolean erGradering = false;
+        var erGradering = false;
         if (arbeidsforholdList.isEmpty()) {
             return Collections.singletonList(new UttakAktivitet(stillingsgrad, null, utbetalingsgrad,
                     aktivitetsStatus.equals(AktivitetStatus.ATFL) ? ARBEIDSFORHOLD_1 : null, aktivitetsStatus, erGradering, stillingsgrad));
         }
         return arbeidsforholdList.stream()
                 .map(arb -> {
-                    Arbeidsforhold arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
+                    var arbeidsforhold = aktivitetsStatus.equals(AktivitetStatus.ATFL) ? arb : null;
                     return new UttakAktivitet(stillingsgrad, null, utbetalingsgrad, arbeidsforhold, aktivitetsStatus, erGradering, stillingsgrad);
                 }).collect(Collectors.toList());
     }

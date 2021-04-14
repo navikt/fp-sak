@@ -25,16 +25,16 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
     }
 
     static BeregningsresultatPeriode omfordelPeriodeVedBehov(BeregningsresultatEntitet utbetaltTY, LocalDateSegment<BRAndelSammenligning> segment, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
-        int bgDagsats = segment.getValue().getBgAndeler().stream()
+        var bgDagsats = segment.getValue().getBgAndeler().stream()
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
 
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(segment.getFom(), segment.getTom())
             .build(utbetaltTY);
-        BRAndelSammenligning wrapper = segment.getValue();
-        List<BeregningsresultatAndel> forrigeAndeler = wrapper.getForrigeAndeler();
-        List<BeregningsresultatAndel> bgAndeler = wrapper.getBgAndeler();
+        var wrapper = segment.getValue();
+        var forrigeAndeler = wrapper.getForrigeAndeler();
+        var bgAndeler = wrapper.getBgAndeler();
         if (forrigeAndeler.isEmpty() || kunUtbetalingTilArbeidsgiver(forrigeAndeler)) {
             // ikke utbetalt tidligere: kopier bg-andeler
             bgAndeler.forEach(andel ->
@@ -67,7 +67,7 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
     }
 
     private static BeregningsresultatAndel.Builder lagResultatBuilder(List<EndringIBeregningsresultat> alleEndringer, BeregningsresultatAndel resultatAndel) {
-        Optional<EndringIBeregningsresultat> endring = finnEndringForResultatAndel(alleEndringer, resultatAndel);
+        var endring = finnEndringForResultatAndel(alleEndringer, resultatAndel);
         return endring.map(e -> lagBuilderForEndring(resultatAndel, e))
             .orElse(new BeregningsresultatAndel.Builder(resultatAndel));
     }
@@ -81,7 +81,7 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
     }
 
     private static boolean utbetaltDagsatsAvvikerFraBeregningsgrunnlag(int bgDagsats, BeregningsresultatPeriode beregningsresultatPeriode) {
-        int utbetDagsats = beregningsresultatPeriode.getBeregningsresultatAndelList().stream()
+        var utbetDagsats = beregningsresultatPeriode.getBeregningsresultatAndelList().stream()
             .mapToInt(BeregningsresultatAndel::getDagsats)
             .sum();
 

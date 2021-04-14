@@ -16,16 +16,13 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingInntrekkEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
@@ -64,9 +61,9 @@ public class SimulerOppdragStegTest {
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
         simuleringIntegrasjonTjeneste = new SimuleringIntegrasjonTjeneste(fpOppdragRestKlientMock);
         tilbakekrevingRepository = new TilbakekrevingRepository(entityManager);
         this.entityManager = entityManager;
@@ -86,7 +83,7 @@ public class SimulerOppdragStegTest {
         steg = opprettSteg();
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
 
         // Assert
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.VURDER_FEILUTBETALING);
@@ -94,7 +91,7 @@ public class SimulerOppdragStegTest {
         verify(simulerOppdragTjenesteMock).simulerOppdrag(anyLong());
         verify(fpOppdragRestKlientMock).startSimulering(any(SimulerOppdragDto.class));
 
-        Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
+        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
                 behandling.getId());
         assertThat(tilbakekrevingInntrekk).isPresent();
         assertThat(tilbakekrevingInntrekk.get().isAvslåttInntrekk()).isTrue();
@@ -118,7 +115,7 @@ public class SimulerOppdragStegTest {
         entityManager.clear();
 
         // Assert
-        Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
+        var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isNotPresent();
     }
 
@@ -131,7 +128,7 @@ public class SimulerOppdragStegTest {
         steg = opprettSteg();
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
         entityManager.flush();
         entityManager.clear();
 
@@ -139,11 +136,11 @@ public class SimulerOppdragStegTest {
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
 
-        Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
+        var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isPresent();
         assertThat(tilbakekrevingValg.get().getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.INNTREKK);
 
-        Optional<TilbakekrevingInntrekkEntitet> tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
+        var tilbakekrevingInntrekk = tilbakekrevingRepository.hentTilbakekrevingInntrekk(
                 behandling.getId());
         assertThat(tilbakekrevingInntrekk).isPresent();
         assertThat(tilbakekrevingInntrekk.get().isAvslåttInntrekk()).isFalse();
@@ -190,14 +187,14 @@ public class SimulerOppdragStegTest {
         steg = opprettSteg();
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
         entityManager.flush();
         entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
 
-        Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
+        var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isPresent();
         assertThat(tilbakekrevingValg.get().getVidereBehandling()).isEqualTo(
                 TilbakekrevingVidereBehandling.TILBAKEKR_OPPDATER);
@@ -213,14 +210,14 @@ public class SimulerOppdragStegTest {
         steg = opprettSteg();
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
         entityManager.flush();
         entityManager.clear();
 
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
 
-        Optional<TilbakekrevingValg> tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
+        var tilbakekrevingValg = tilbakekrevingRepository.hent(behandling.getId());
         assertThat(tilbakekrevingValg).isEmpty();
     }
 
@@ -231,7 +228,7 @@ public class SimulerOppdragStegTest {
         steg = opprettSteg();
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
         entityManager.flush();
         entityManager.clear();
 

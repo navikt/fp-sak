@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.ytelse.beregning.MapAkivitetStatusFraBehandl
 import static no.nav.foreldrepenger.ytelse.beregning.MapInntektskategoriFraBehandlingslagerTilBeregningsgrunnlag.mapInntektskategori;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -36,15 +35,15 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
                                                                   Dekningsgrad dekningsgrad,
                                                                   int antallDagerFeriepenger) {
 
-        List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder().stream()
+        var annenPartsBeregningsresultatPerioder = annenPartsBeregningsresultatFP.map(a -> a.getBeregningsresultatPerioder().stream()
             .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder)
             .collect(Collectors.toList()))
             .orElse(Collections.emptyList());
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder().stream()
+        var beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder().stream()
             .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapBeregningsresultatPerioder).collect(Collectors.toList());
-        Set<Inntektskategori> inntektskategorier = mapInntektskategorier(beregningsresultat);
-        Set<Inntektskategori> annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
-        boolean erForelder1 = RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType());
+        var inntektskategorier = mapInntektskategorier(beregningsresultat);
+        var annenPartsInntektskategorier = annenPartsBeregningsresultatFP.map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategorier).orElse(Collections.emptySet());
+        var erForelder1 = RelasjonsRolleType.erMor(behandling.getFagsak().getRelasjonsRolleType());
 
         return BeregningsresultatFeriepengerRegelModell.builder()
             .medBeregningsresultatPerioder(beregningsresultatPerioder)
@@ -79,7 +78,7 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
     }
 
     private static BeregningsresultatPeriode mapBeregningsresultatPerioder(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode beregningsresultatPerioder) {
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var periode = BeregningsresultatPeriode.builder()
             .medPeriode(new LocalDateInterval(beregningsresultatPerioder.getBeregningsresultatPeriodeFom(), beregningsresultatPerioder.getBeregningsresultatPeriodeTom()))
             .build();
         beregningsresultatPerioder.getBeregningsresultatAndelList().forEach(andel -> mapBeregningsresultatAndel(andel, periode));
@@ -100,11 +99,11 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
     private static Arbeidsforhold mapArbeidsforhold(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel andel) {
         if (andel.getAktivitetStatus().erFrilanser()) {
             return Arbeidsforhold.frilansArbeidsforhold();
-        } else if (!andel.getArbeidsgiver().isPresent()) {
-            return null;
-        } else {
-            return lagArbeidsforholdHosArbeidsgiver(andel.getArbeidsgiver().get(), andel.getArbeidsforholdRef());
         }
+        if (!andel.getArbeidsgiver().isPresent()) {
+            return null;
+        }
+        return lagArbeidsforholdHosArbeidsgiver(andel.getArbeidsgiver().get(), andel.getArbeidsforholdRef());
     }
 
     private static Arbeidsforhold lagArbeidsforholdHosArbeidsgiver(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
@@ -112,7 +111,8 @@ public class MapBeregningsresultatFeriepengerFraVLTilRegel {
             return arbeidsforholdRef == null
                 ? Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbeidsgiver.getIdentifikator())
                 : Arbeidsforhold.nyttArbeidsforholdHosPrivatperson(arbeidsgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());
-        } else if (arbeidsgiver.getErVirksomhet()) {
+        }
+        if (arbeidsgiver.getErVirksomhet()) {
             return arbeidsforholdRef == null
                 ? Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbeidsgiver.getIdentifikator())
                 : Arbeidsforhold.nyttArbeidsforholdHosVirksomhet(arbeidsgiver.getIdentifikator(), arbeidsforholdRef.getReferanse());

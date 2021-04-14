@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
@@ -60,8 +59,8 @@ public class BehandlingRestTjenestePathHack2 {
 
     public List<BehandlingDto> hentAlleBehandlinger(
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
-        Saksnummer saksnummer = new Saksnummer(s.getVerdi());
-        List<Behandling> behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
+        var saksnummer = new Saksnummer(s.getVerdi());
+        var behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
         return behandlingDtoTjeneste.lagBehandlingDtoer(behandlinger);
     }
 }

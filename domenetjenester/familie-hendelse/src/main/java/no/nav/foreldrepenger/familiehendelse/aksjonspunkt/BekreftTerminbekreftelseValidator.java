@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
 
@@ -38,8 +37,8 @@ public class BekreftTerminbekreftelseValidator {
     }
 
     boolean validerUtstedtdato(BekreftTerminbekreftelseAksjonspunktDto dto) {
-        LocalDate utstedtdato = dto.getUtstedtdato();
-        LocalDate termindato = dto.getTermindato();
+        var utstedtdato = dto.getUtstedtdato();
+        var termindato = dto.getTermindato();
         return Objects.nonNull(termindato) && Objects.nonNull(utstedtdato) &&
             utstedtdato.isBefore(termindato.minus(tidlistUtstedelseAvTerminBekreftelse));
     }

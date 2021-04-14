@@ -22,13 +22,13 @@ public class VurderProsessTaskStatusForPollingApi {
     }
 
     public Optional<AsyncPollingStatus> sjekkStatusNesteProsessTask(String gruppe, Map<String, ProsessTaskData> nesteTask) {
-        LocalDateTime maksTidFørNesteKjøring = LocalDateTime.now().plusMinutes(2);
+        var maksTidFørNesteKjøring = LocalDateTime.now().plusMinutes(2);
         nesteTask = nesteTask.entrySet().stream()
             .filter(e -> !e.getValue().getStatus().erKjørt()) // trenger ikke FERDIG
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (!nesteTask.isEmpty()) {
-            Optional<ProsessTaskData> optTask = Optional.ofNullable(nesteTask.get(gruppe));
+            var optTask = Optional.ofNullable(nesteTask.get(gruppe));
             if (!optTask.isPresent()) {
                 // plukker neste til å polle på
                 optTask = nesteTask.entrySet().stream()
@@ -44,25 +44,25 @@ public class VurderProsessTaskStatusForPollingApi {
     }
 
     private Optional<AsyncPollingStatus> sjekkStatus(LocalDateTime maksTidFørNesteKjøring, Optional<ProsessTaskData> optTask) {
-        ProsessTaskData task = optTask.get();
-        String gruppe = task.getGruppe();
-        String callId = task.getPropertyValue("callId");
-        ProsessTaskStatus taskStatus = task.getStatus();
+        var task = optTask.get();
+        var gruppe = task.getGruppe();
+        var callId = task.getPropertyValue("callId");
+        var taskStatus = task.getStatus();
         if (ProsessTaskStatus.KLAR.equals(taskStatus)) {
             return ventPåKlar(gruppe, maksTidFørNesteKjøring, task, callId);
-        } else if (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus)) {
-            return ventPåSvar(gruppe, task, callId);
-        } else {
-            // dekker SUSPENDERT, FEILET, VETO
-            return håndterFeil(gruppe, task, callId);
         }
+        if (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus)) {
+            return ventPåSvar(gruppe, task, callId);
+        }
+        // dekker SUSPENDERT, FEILET, VETO
+        return håndterFeil(gruppe, task, callId);
     }
 
     private Optional<AsyncPollingStatus> håndterFeil(String gruppe, ProsessTaskData task, String callId) {
         LOG.info("FP-193308 [{}]. Forespørsel på fagsak [{}] som ikke kan fortsette, Problemer med task gruppe [{}]. Siste prosesstask[{}] status={}",
             callId, entityId, gruppe, task.getId(), task.getStatus());
 
-        AsyncPollingStatus status = new AsyncPollingStatus(AsyncPollingStatus.Status.HALTED,
+        var status = new AsyncPollingStatus(AsyncPollingStatus.Status.HALTED,
             null, task.getSisteFeil());
         return Optional.of(status);// fortsett å polle på gruppe, er ikke ferdig.
     }
@@ -72,7 +72,7 @@ public class VurderProsessTaskStatusForPollingApi {
             callId, entityId, gruppe, task.getId(), task.getStatus());
         LOG.info(feilmelding);
 
-        AsyncPollingStatus status = new AsyncPollingStatus(
+        var status = new AsyncPollingStatus(
             AsyncPollingStatus.Status.DELAYED,
             task.getNesteKjøringEtter(),
             feilmelding);
@@ -83,25 +83,24 @@ public class VurderProsessTaskStatusForPollingApi {
     private Optional<AsyncPollingStatus> ventPåKlar(String gruppe, LocalDateTime maksTidFørNesteKjøring, ProsessTaskData task, String callId) {
         if (task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring)) {
 
-            AsyncPollingStatus status = new AsyncPollingStatus(
+            var status = new AsyncPollingStatus(
                 AsyncPollingStatus.Status.PENDING,
                 task.getNesteKjøringEtter(),
                 "Venter på prosesstask [" + task.getTaskType() + "][id: " + task.getId() + "]",
                 null, 500L);
 
             return Optional.of(status);// fortsett å polle på gruppe, er ikke ferdig.
-        } else {
-            var feilmelding = String.format("FP-193309 [%1$s]. Forespørsel på fagsak [id=%2$s] som er utsatt i påvente av task [id=%4$s], Gruppe [%3$s] kjøres ikke før senere. Task status=%5$s, planlagt neste kjøring=%6$s",
-               callId, entityId, gruppe, task.getId(), task.getStatus(), task.getNesteKjøringEtter());
-            LOG.info(feilmelding);
-
-            AsyncPollingStatus status = new AsyncPollingStatus(
-                AsyncPollingStatus.Status.DELAYED,
-                task.getNesteKjøringEtter(),
-                feilmelding);
-
-            return Optional.of(status);// er ikke ferdig, men ok å videresende til visning av behandling med feilmelding der.
         }
+        var feilmelding = String.format("FP-193309 [%1$s]. Forespørsel på fagsak [id=%2$s] som er utsatt i påvente av task [id=%4$s], Gruppe [%3$s] kjøres ikke før senere. Task status=%5$s, planlagt neste kjøring=%6$s",
+           callId, entityId, gruppe, task.getId(), task.getStatus(), task.getNesteKjøringEtter());
+        LOG.info(feilmelding);
+
+        var status = new AsyncPollingStatus(
+            AsyncPollingStatus.Status.DELAYED,
+            task.getNesteKjøringEtter(),
+            feilmelding);
+
+        return Optional.of(status);// er ikke ferdig, men ok å videresende til visning av behandling med feilmelding der.
     }
 
 }

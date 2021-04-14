@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -88,10 +87,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlagBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelseBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektPeriodeType;
@@ -178,15 +173,15 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     @BeforeEach
     public void oppsett(EntityManager em) {
         entityManager = em;
-        HentOppdragMedPositivKvittering hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
+        var hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
 
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
-        Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(skjæringstidspunkt);
         virksomhetTjeneste = mock(VirksomhetTjeneste.class);
         var poXmlFelles = new PersonopplysningXmlFelles(tpsTjeneste);
 
-        DvhPersonopplysningXmlTjenesteImpl dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
+        var dvhPersonopplysningXmlTjenesteImpl = new DvhPersonopplysningXmlTjenesteImpl(poXmlFelles,
                 familieHendelseRepository,
                 vergeRepository,
                 medlemskapRepository,
@@ -195,8 +190,8 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
                 iayTjeneste,
                 ytelseFordelingTjeneste);
 
-        VedtakXmlTjeneste vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
-        OppdragXmlTjenesteImpl oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
+        var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider);
+        var oppdragXmlTjenesteImpl = new OppdragXmlTjenesteImpl(hentOppdragMedPositivKvittering);
 
         dvhVedtakXmlTjenesteFP = new DvhVedtakXmlTjeneste(repositoryProvider,
                 vedtakXmlTjeneste,
@@ -213,18 +208,18 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     @Test
     public void skal_opprette_vedtaks_xml_med_oppdrag() {
-        Behandling behandling = byggBehandlingMedVedtak();
+        var behandling = byggBehandlingMedVedtak();
 
         Long delytelseId = 65L;
-        String delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
-        String fagsystemIdXmlElement = String.format("fagsystemId>%s</", OPPDRAG_FAGSYSTEM_ID);
-        String aktørIdElement = String.format("aktoerId>%s", ANNEN_PART_AKTØR_ID.getId());
+        var delytelseXmlElement = String.format("delytelseId>%s</", delytelseId);
+        var fagsystemIdXmlElement = String.format("fagsystemId>%s</", OPPDRAG_FAGSYSTEM_ID);
+        var aktørIdElement = String.format("aktoerId>%s", ANNEN_PART_AKTØR_ID.getId());
         buildOppdragskontroll(behandling.getId(), delytelseId);
 
-        String avkortetXmlElement = "avkortet>";
+        var avkortetXmlElement = "avkortet>";
 
         // Act
-        String xml = dvhVedtakXmlTjenesteFP.opprettDvhVedtakXml(behandling.getId());
+        var xml = dvhVedtakXmlTjenesteFP.opprettDvhVedtakXml(behandling.getId());
 
         // Assert
         assertThat(xml).isNotNull();
@@ -235,13 +230,13 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private Behandling byggBehandlingMedVedtak() {
-        String selvstendigNæringsdrivendeOrgnr = KUNSTIG_ORG;
+        var selvstendigNæringsdrivendeOrgnr = KUNSTIG_ORG;
 
-        YtelseHjelperTester ytelseHjelper = new YtelseHjelperTester();
+        var ytelseHjelper = new YtelseHjelperTester();
         ytelseHjelper.medArbeidsForhold("55L")
                 .medUttakFom(LocalDate.now().minusDays(6).minusYears(2)).medUttakTom(LocalDate.now().plusDays(1).minusMonths(10));
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBruker(BRUKER_AKTØR_ID, NavBrukerKjønn.KVINNE)
                 .medSaksnummer(SAKSNUMMER);
         scenario.medDefaultOppgittDekningsgrad();
@@ -253,21 +248,21 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         scenario.medFordeling(opprettOppgittFordeling());
         opprettPeriodeAleneomsorg(scenario);
 
-        Behandling behandling = lagre(scenario);
-        Behandlingsresultat behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
+        var behandling = lagre(scenario);
+        var behandlingsresultat = opprettBehandlingsresultatMedVilkårResultatForBehandling(behandling);
 
         byggYtelse(behandling, RelatertYtelseType.SYKEPENGER, new BigDecimal(90), Arbeidskategori.ARBEIDSTAKER, selvstendigNæringsdrivendeOrgnr);
 
-        Uttaksperiodegrense uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
+        var uttaksperiodegrense = new Uttaksperiodegrense.Builder(behandling.getBehandlingsresultat())
                 .medFørsteLovligeUttaksdag(LocalDate.now())
                 .medMottattDato(LocalDate.now())
                 .build();
         repositoryProvider.getUttaksperiodegrenseRepository().lagre(behandling.getId(), uttaksperiodegrense);
 
-        UttakResultatPeriodeEntitet periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusDays(11))
+        var periode = new UttakResultatPeriodeEntitet.Builder(LocalDate.now(), LocalDate.now().plusDays(11))
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
                 .build();
-        UttakResultatPerioderEntitet uttakResultatPerioder1 = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioder1 = new UttakResultatPerioderEntitet();
         uttakResultatPerioder1.leggTilPeriode(periode);
 
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder1);
@@ -275,17 +270,17 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         opprettStønadskontoer(behandling);
         lagBeregningsgrunnlag(behandling);
 
-        BeregningsresultatEntitet beregningsresultat = lagBeregningsresultatFP();
+        var beregningsresultat = lagBeregningsresultatFP();
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
-        Arbeidsgiver arbeidsgiverVirksomhet = opprettOgLagreVirksomhet(ytelseHjelper);
-        UttakResultatEntitet uttakResultatEntitet = opprettUttak(true, behandling, ytelseHjelper.uttakFom, ytelseHjelper.uttakTom,
+        var arbeidsgiverVirksomhet = opprettOgLagreVirksomhet(ytelseHjelper);
+        var uttakResultatEntitet = opprettUttak(true, behandling, ytelseHjelper.uttakFom, ytelseHjelper.uttakTom,
                 arbeidsgiverVirksomhet);
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(),
                 uttakResultatEntitet.getGjeldendePerioder());
 
-        BehandlingVedtakRepository behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        var vedtak = BehandlingVedtak.builder()
                 .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
                 .medIverksettingStatus(IVERKSETTING_STATUS)
                 .medVedtakstidspunkt(VEDTAK_DATO)
@@ -301,17 +296,17 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private UttakResultatEntitet opprettUttak(boolean innvilget, Behandling behandling, LocalDate fom, LocalDate tom, Arbeidsgiver arbeidsgiver) {
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
+        var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(behandling.getBehandlingsresultat());
 
-        UttakResultatPeriodeEntitet uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+        var uttakResultatPeriode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medResultatType(innvilget ? PeriodeResultatType.INNVILGET : PeriodeResultatType.AVSLÅTT, PeriodeResultatÅrsak.UKJENT)
                 .build();
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
                 .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
                 .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
                 .build();
 
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
+        var periodeAktivitet = UttakResultatPeriodeAktivitetEntitet.builder(uttakResultatPeriode,
                 uttakAktivitet)
                 .medTrekkonto(StønadskontoType.FORELDREPENGER)
                 .medTrekkdager(new Trekkdager(10))
@@ -322,7 +317,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
         uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
 
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
         uttakResultatPerioder.leggTilPeriode(uttakResultatPeriode);
 
         return uttakResultatPlanBuilder.medOpprinneligPerioder(uttakResultatPerioder)
@@ -331,13 +326,13 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private void opprettPeriodeAleneomsorg(ScenarioMorSøkerForeldrepenger scenario) {
         scenario.medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
-        PerioderAleneOmsorgEntitet perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
+        var perioderAleneOmsorg = new PerioderAleneOmsorgEntitet(true);
         scenario.medPeriodeMedAleneomsorg(perioderAleneOmsorg);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP() {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
-        BeregningsresultatPeriode beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(FØRSTE_UTTAKSDATO_OPPGITT, FØRSTE_UTTAKSDATO_OPPGITT.plusWeeks(2))
                 .build(beregningsresultat);
         BeregningsresultatAndel.builder()
@@ -354,10 +349,10 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private Behandlingsresultat opprettBehandlingsresultatMedVilkårResultatForBehandling(Behandling behandling) {
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
+        var behandlingsresultat = Behandlingsresultat.builderEndreEksisterende(behandling.getBehandlingsresultat())
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
-        VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
+        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .buildFor(behandlingsresultat);
         entityManager.persist(vilkårResultat);
@@ -368,19 +363,19 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private void opprettStønadskontoer(Behandling behandling) {
-        Stønadskonto foreldrepengerFørFødsel = Stønadskonto.builder()
+        var foreldrepengerFørFødsel = Stønadskonto.builder()
                 .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
                 .medMaxDager(15)
                 .build();
-        Stønadskonto mødrekvote = Stønadskonto.builder()
+        var mødrekvote = Stønadskonto.builder()
                 .medStønadskontoType(StønadskontoType.MØDREKVOTE)
                 .medMaxDager(50)
                 .build();
-        Stønadskonto fellesperiode = Stønadskonto.builder()
+        var fellesperiode = Stønadskonto.builder()
                 .medStønadskontoType(StønadskontoType.FELLESPERIODE)
                 .medMaxDager(50)
                 .build();
-        Stønadskontoberegning stønadskontoberegning = Stønadskontoberegning.builder()
+        var stønadskontoberegning = Stønadskontoberegning.builder()
                 .medRegelEvaluering("evaluering")
                 .medRegelInput("grunnlag")
                 .medStønadskonto(mødrekvote).medStønadskonto(fellesperiode).medStønadskonto(foreldrepengerFørFødsel).build();
@@ -390,7 +385,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private OppgittFordelingEntitet opprettOppgittFordeling() {
-        OppgittPeriodeBuilder periode = OppgittPeriodeBuilder.ny()
+        var periode = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
                 .medPeriode(FØRSTE_UTTAKSDATO_OPPGITT, FØRSTE_UTTAKSDATO_OPPGITT.plusWeeks(2))
                 .medArbeidsgiver(opprettOgLagreArbeidsgiver());
@@ -403,14 +398,14 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private void buildOppdragskontroll(Long behandlingId, Long delytelseId) {
-        Oppdragskontroll oppdrag = Oppdragskontroll.builder()
+        var oppdrag = Oppdragskontroll.builder()
                 .medBehandlingId(behandlingId)
                 .medSaksnummer(SAKSNUMMER)
                 .medVenterKvittering(false)
                 .medProsessTaskId(56L)
                 .build();
 
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag);
+        var oppdrag110 = buildOppdrag110(oppdrag);
         buildOppdragslinje150(oppdrag110, delytelseId);
         buildOppdragKvittering(oppdrag110);
 
@@ -419,7 +414,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private Oppdragslinje150 buildOppdragslinje150(Oppdrag110 oppdrag110, Long delytelseId) {
 
-        Oppdragslinje150 oppdragslinje150 = Oppdragslinje150.builder()
+        var oppdragslinje150 = Oppdragslinje150.builder()
                 .medKodeEndringLinje(KodeEndringLinje.ENDRING)
                 .medKodeStatusLinje(KodeStatusLinje.OPPHØR)
                 .medDatoStatusFom(LocalDate.now())
@@ -462,22 +457,22 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
 
     private void byggYtelse(Behandling behandling, RelatertYtelseType relatertYtelseType, BigDecimal prosent, Arbeidskategori arbeidskategori,
             String virksomhetOrgnr) {
-        InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+        var inntektArbeidYtelseAggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
                 VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder ytelserBuilder = inntektArbeidYtelseAggregatBuilder
+        var ytelserBuilder = inntektArbeidYtelseAggregatBuilder
                 .getAktørYtelseBuilder(BRUKER_AKTØR_ID);
 
-        YtelseBuilder ytelseBuilder = ytelserBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, relatertYtelseType, SAKSNUMMER)
+        var ytelseBuilder = ytelserBuilder.getYtelselseBuilderForType(Fagsystem.FPSAK, relatertYtelseType, SAKSNUMMER)
                 .medStatus(RelatertYtelseTilstand.AVSLUTTET)
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusDays(6), SKJÆRINGSTIDSPUNKT.plusDays(8)))
                 .medKilde(Fagsystem.INFOTRYGD);
 
-        YtelseStørrelse ytelseStørrelse = YtelseStørrelseBuilder.ny()
+        var ytelseStørrelse = YtelseStørrelseBuilder.ny()
                 .medBeløp(MÅNEDSBELØP_TILSTØTENDE_YTELSE)
                 .medHyppighet(InntektPeriodeType.MÅNEDLIG)
                 .medVirksomhet(virksomhetOrgnr)
                 .build();
-        YtelseGrunnlagBuilder ytelseGrunnlagBuilder = ytelseBuilder.getGrunnlagBuilder()
+        var ytelseGrunnlagBuilder = ytelseBuilder.getGrunnlagBuilder()
                 .medArbeidskategori(arbeidskategori)
                 .medYtelseStørrelse(ytelseStørrelse);
 
@@ -487,7 +482,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
         if (RelatertYtelseType.SYKEPENGER.equals(relatertYtelseType)) {
             ytelseGrunnlagBuilder.medInntektsgrunnlagProsent(prosent);
         }
-        YtelseGrunnlag ytelseGrunnlag = ytelseGrunnlagBuilder
+        var ytelseGrunnlag = ytelseGrunnlagBuilder
                 .build();
         ytelseBuilder.medYtelseGrunnlag(ytelseGrunnlag);
 
@@ -520,10 +515,10 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
     }
 
     private void lagBeregningsgrunnlag(Behandling behandling) {
-        BeregningsgrunnlagEntitet bg = BeregningsgrunnlagEntitet.ny()
+        var bg = BeregningsgrunnlagEntitet.ny()
                 .medSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)
                 .build();
-        BeregningsgrunnlagPeriode bgPeriode = BeregningsgrunnlagPeriode.ny()
+        var bgPeriode = BeregningsgrunnlagPeriode.ny()
                 .medBeregningsgrunnlagPeriode(SKJÆRINGSTIDSPUNKT, null)
                 .build(bg);
         BeregningsgrunnlagPrStatusOgAndel.builder()

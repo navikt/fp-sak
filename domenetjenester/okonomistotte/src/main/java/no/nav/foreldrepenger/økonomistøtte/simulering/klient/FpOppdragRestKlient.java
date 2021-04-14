@@ -28,7 +28,7 @@ public class FpOppdragRestKlient {
     @Inject
     public FpOppdragRestKlient(OidcRestClient restClient) {
         this.restClient = restClient;
-        String fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
+        var fpoppdragBaseUrl = FpoppdragFelles.getFpoppdragBaseUrl();
         uriStartSimulering = URI.create(fpoppdragBaseUrl + FPOPPDRAG_START_SIMULERING);
         uriHentResultat = URI.create(fpoppdragBaseUrl + FPOPPDRAG_HENT_RESULTAT);
     }

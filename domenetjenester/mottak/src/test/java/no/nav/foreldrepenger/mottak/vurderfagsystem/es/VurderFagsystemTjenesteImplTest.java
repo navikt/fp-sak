@@ -36,10 +36,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -94,24 +92,24 @@ public class VurderFagsystemTjenesteImplTest {
 
     @Test
     public void nesteStegSkalVæreManuellVurderingHvisBrukerIkkeHarSakIVlForUstrukturertDokument() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL);
 
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
     public void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
-        Optional<Behandling> b2 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_2), 12);
-        Optional<Behandling> b3 = byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 2);
+        var b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
+        var b2 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_2), 12);
+        var b3 = byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_NY_FAGSAK_ID_1), 2);
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(ÅPEN_FAGSAK_ID_2)).thenReturn(b2);
@@ -121,7 +119,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(AVSLT_NY_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(buildFagsak(ÅPEN_FAGSAK_ID_1, false, FagsakYtelseType.ENGANGSTØNAD));
@@ -131,7 +129,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(ÅPEN_SAKSNUMMER_1));
 
@@ -139,15 +137,15 @@ public class VurderFagsystemTjenesteImplTest {
 
     @Test
     public void ustrukturertDokumentSkalKnyttesTilBrukersNyesteÅpneSakHvisSlikFinnesOgJournalføres() {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
+        var b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
         when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(buildFagsak(ÅPEN_FAGSAK_ID_1, false, FagsakYtelseType.ENGANGSTØNAD));
@@ -155,22 +153,22 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(ÅPEN_SAKSNUMMER_1));
     }
 
     @Test
     public void ustrukturertDokumentSkalTilManuellJournalføringHvisIngenÅpenSak() {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
+        var b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(ÅPEN_FAGSAK_ID_1)).thenReturn(b1);
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(Collections.emptyList()); // NOSONAR
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(buildFagsak(ÅPEN_FAGSAK_ID_1, false, FagsakYtelseType.ENGANGSTØNAD));
@@ -178,16 +176,16 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
     public void ustrukturertForsendelseSkalKnyttesTilBrukersNyesteÅpneSakHvisUspesifikk() {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
-        Optional<Behandling> b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
+        var b1 = byggBehandlingMedEndretDato(fagsakFødselMedId(ÅPEN_FAGSAK_ID_1), 10);
         when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(ÅPEN_FAGSAK_ID_1)).thenReturn(List.of(b1.get())); // NOSONAR
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(buildFagsak(ÅPEN_FAGSAK_ID_1, false, FagsakYtelseType.ENGANGSTØNAD));
@@ -195,14 +193,14 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(ÅPEN_SAKSNUMMER_1));
     }
 
     @Test
     public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisNyesteAvsluttedeSakErNyereEnn3mndOgÅpenSakIkkeFinnes() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1))
@@ -214,7 +212,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
                 .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 200));
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksliste = new ArrayList<>();
 
@@ -225,14 +223,14 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
 
     }
 
     @Test
     public void ustrukturertVedleggSkalSendesTilManuellBehandlingHvisIngenSaker() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
@@ -243,13 +241,13 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
     public void ustrukturertSøknadSkalSendesTilManuellBehandlingHvisIngenSaker() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
@@ -260,14 +258,14 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void ustrukturertForsendelseSkalSendesTilManuellBehandlingHvisÅpenSakIkkeFinnesOgAvsluttedeSakerErEldreEnn3mndOgNyereEnn10Mnd()
             throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.BEKREFTELSE_VENTET_FØDSELSDATO);
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_NY_FAGSAK_ID_1))
@@ -276,7 +274,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
                 .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 452));
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksliste = new ArrayList<>();
 
@@ -286,19 +284,19 @@ public class VurderFagsystemTjenesteImplTest {
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
     public void nyVLSakSkalOpprettesForUstrukturertSøknadDersomBrukerIkkerHarÅpenSakNyesteAvsluttedeSakErEldreEnn10mnd() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
                 .thenReturn(byggBehandlingMedEndretDato(fagsakFødselMedId(AVSLT_GAMMEL_FAGSAK_ID_1), 340));
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
+        var familieHendelseGrunnlag = byggFødselGrunnlag(BARN_TERMINDATO.minusDays(340), BARN_FØDSELSDATO.minusDays(340));
         when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.of(familieHendelseGrunnlag));
         List<Fagsak> saksListe = new ArrayList<>();
 
@@ -307,13 +305,13 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksListe);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void nesteStegSkalVæreInfotrygdDersomEksisterendeSakerGjelderAnnetBehandlingTema() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_ADOPSJON, false);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_ADOPSJON, false);
         vfData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON);
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(AVSLT_GAMMEL_FAGSAK_ID_1))
@@ -327,7 +325,7 @@ public class VurderFagsystemTjenesteImplTest {
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksListe);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
@@ -338,18 +336,18 @@ public class VurderFagsystemTjenesteImplTest {
 
     @Test
     public void nesteStegSkalVæreHentOgVurderInfotrygdHvisPassendeSakIkkeFinnesForStukturertDokument() throws Exception {
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void nesteStegSkalVæreOpprettGSakOppgaveHvisMerEnnEnSakPasserForStukturertDokument() throws Exception {
-        LocalDate terminDatdato = LocalDate.of(2017, 7, 1);
+        var terminDatdato = LocalDate.of(2017, 7, 1);
 
-        VurderFagsystem vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(fagsakFødselES);
@@ -357,29 +355,29 @@ public class VurderFagsystemTjenesteImplTest {
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         lenient().when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
     }
 
     @Test
     public void nesteStegSkalVæreTilJournalføringeHvisAkkurattEnÅpenSakPasserForStukturertDokument() throws Exception {
-        LocalDate terminDatdato = LocalDate.of(2017, 7, 1);
+        var terminDatdato = LocalDate.of(2017, 7, 1);
 
-        VurderFagsystem vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(fagsakFødselES);
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of(behandling.get()));
 
@@ -387,15 +385,15 @@ public class VurderFagsystemTjenesteImplTest {
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void nesteStegSkalVæreVLMedSnrHvisAkkurattEnÅpenSakUtenBehandlingPasserForStukturertDokument() throws Exception {
-        LocalDate terminDatdato = LocalDate.of(2017, 7, 1);
+        var terminDatdato = LocalDate.of(2017, 7, 1);
 
-        VurderFagsystem vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(fagsakFødselES);
@@ -404,31 +402,31 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(fagsakFødselES.getSaksnummer()));
     }
 
     @Test
     public void nesteStegSkalVLMedSNRHvisEnSakMedLukketBehandlingSakPasserForStukturertDokument() throws Exception {
-        LocalDate terminDatdato = LocalDate.of(2017, 7, 1);
+        var terminDatdato = LocalDate.of(2017, 7, 1);
 
-        VurderFagsystem vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystemMedTermin(terminDatdato, BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> saksliste = new ArrayList<>();
         saksliste.add(fagsakFødselES);
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
         behandling.get().avsluttBehandling();
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatdato, null);
+        final var grunnlag = byggFødselGrunnlag(terminDatdato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         lenient().when(behandlingRepositoryMock.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(Collections.emptyList());
         lenient().when(grunnlagRepository.hentAggregat(behandling.get().getId())).thenReturn(grunnlag);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).hasValueSatisfying(it -> assertThat(it).isEqualTo(fagsakFødselES.getSaksnummer()));
     }
@@ -436,43 +434,43 @@ public class VurderFagsystemTjenesteImplTest {
     @Test
     public void nesteStegSkalVæreHentÅVurderInfotrygdSakHvisIngenSakPasserForStukturertDokument() throws Exception {
 
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> saksliste = new ArrayList<>();
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void nesteStegSkalVæreHentOgVurderInfotrygdSakHvisBrukerHarSakIVLMenDenIkkePasserForStukturertDokument() throws Exception {
 
-        VurderFagsystem vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, true);
 
         List<Fagsak> fagsakListe = new ArrayList<>();
         fagsakListe.add(fagsakFødselES);
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(fagsakListe);
 
-        LocalDate terminDatDato = LocalDate.of(2018, 7, 1);
+        var terminDatDato = LocalDate.of(2018, 7, 1);
 
-        Optional<Behandling> behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(terminDatDato, null);
+        var behandling = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        final var grunnlag = byggFødselGrunnlag(terminDatDato, null);
         when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
         when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(vfData);
+        var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test
     public void skalReturnereTrueNårFagÅrsakTypeErUdefinertOgBehandlingTemaErForeldrePenger() {
-        Optional<Behandling> behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
+        var behandling = Optional.of(byggBehandlingUdefinert(fpFagsakUdefinert));
 
         lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(behandling);
-        final FamilieHendelseGrunnlagEntitet grunnlag = byggFødselGrunnlag(null, null);
+        final var grunnlag = byggFødselGrunnlag(null, null);
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(behandling.get().getId())).thenReturn(Optional.of(grunnlag));
 
         assertThat(FagsakYtelseType.FORELDREPENGER.equals(fpFagsakUdefinert.getYtelseType()) && fpFagsakUdefinert.erÅpen()).isTrue();
@@ -480,13 +478,13 @@ public class VurderFagsystemTjenesteImplTest {
 
     @Test
     public void skalReturnereInfotrygdBehandlingNårIngenÅpneSakerFinnesPåBrukerForEngangsstønad() {
-        VurderFagsystem fagsystem = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD, true);
+        var fagsystem = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD, true);
         fagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
         vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
 
-        BehandlendeFagsystem result = toVurderFagsystem(fagsystem);
+        var result = toVurderFagsystem(fagsystem);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 }

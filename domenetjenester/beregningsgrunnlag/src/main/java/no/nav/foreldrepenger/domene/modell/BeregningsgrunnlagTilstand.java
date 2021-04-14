@@ -95,8 +95,8 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     }
 
     public boolean erFør(BeregningsgrunnlagTilstand that) {
-        int thisIndex = tilstandRekkefølge.indexOf(this);
-        int thatIndex = tilstandRekkefølge.indexOf(that);
+        var thisIndex = tilstandRekkefølge.indexOf(this);
+        var thatIndex = tilstandRekkefølge.indexOf(that);
         return thisIndex < thatIndex;
     }
 

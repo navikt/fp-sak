@@ -64,13 +64,14 @@ public class Opptjeningsnøkkel {
     public String getVerdi() {
         if (harArbeidsforholdId()) {
             return this.arbeidsforholdId.getReferanse();
-        } else if (this.orgNummer != null) {
-            return this.orgNummer;
-        } else if (this.aktørId != null) {
-            return this.aktørId;
-        } else {
-            throw new IllegalStateException("Har ikke nøkkel");
         }
+        if (this.orgNummer != null) {
+            return this.orgNummer;
+        }
+        if (this.aktørId != null) {
+            return this.aktørId;
+        }
+        throw new IllegalStateException("Har ikke nøkkel");
     }
 
     private boolean harArbeidsforholdId() {
@@ -84,9 +85,11 @@ public class Opptjeningsnøkkel {
     public String getForType(Type type) {
         if (type.equals(Type.ARBEIDSFORHOLD_ID)) {
             return arbeidsforholdId != null ? arbeidsforholdId.getReferanse() : null;
-        } else if (type.equals(Type.ORG_NUMMER)) {
+        }
+        if (type.equals(Type.ORG_NUMMER)) {
             return orgNummer;
-        } else if (type.equals(Type.AKTØR_ID)) {
+        }
+        if (type.equals(Type.AKTØR_ID)) {
             return aktørId;
         }
         throw new IllegalArgumentException("Utvikler-feil: Støtter ikke typen");
@@ -95,23 +98,24 @@ public class Opptjeningsnøkkel {
     public Type getType() {
         if (harArbeidsforholdId()) {
             return Type.ARBEIDSFORHOLD_ID;
-        } else if (this.orgNummer != null) {
-            return Type.ORG_NUMMER;
-        } else if (this.aktørId != null) {
-            return Type.AKTØR_ID;
-        } else {
-            return null;
         }
+        if (this.orgNummer != null) {
+            return Type.ORG_NUMMER;
+        }
+        if (this.aktørId != null) {
+            return Type.AKTØR_ID;
+        }
+        return null;
     }
 
     public Type getArbeidsgiverType() {
         if (this.orgNummer != null) {
             return Type.ORG_NUMMER;
-        } else if (this.aktørId != null) {
-            return Type.AKTØR_ID;
-        } else {
-            return null;
         }
+        if (this.aktørId != null) {
+            return Type.AKTØR_ID;
+        }
+        return null;
     }
 
     public boolean matcher(Opptjeningsnøkkel other) {
@@ -120,11 +124,11 @@ public class Opptjeningsnøkkel {
         }
         if (((this.getType() != Type.ARBEIDSFORHOLD_ID) && (other.getType() == this.getType()))) {
             return other.getVerdi().equals(this.getVerdi());
-        } else if (((this.getType() == Type.ARBEIDSFORHOLD_ID) && (other.getType() == this.getType()))) {
-            return matchArbeidsforholdId(other);
-        } else {
-            return matchOrgEllerAktørId(other);
         }
+        if (((this.getType() == Type.ARBEIDSFORHOLD_ID) && (other.getType() == this.getType()))) {
+            return matchArbeidsforholdId(other);
+        }
+        return matchOrgEllerAktørId(other);
     }
 
     private boolean matchOrgEllerAktørId(Opptjeningsnøkkel other) {
@@ -136,7 +140,7 @@ public class Opptjeningsnøkkel {
     }
 
     private boolean matchArbeidsforholdId(Opptjeningsnøkkel other) {
-        boolean likArbeidsforholdsId = other.getVerdi().equals(this.getVerdi());
+        var likArbeidsforholdsId = other.getVerdi().equals(this.getVerdi());
         boolean likArbeidsgiver;
         if ((other.orgNummer != null) || (this.orgNummer != null)) {
             likArbeidsgiver = (other.orgNummer != null) && other.orgNummer.equals(this.orgNummer);
@@ -150,10 +154,11 @@ public class Opptjeningsnøkkel {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
+        }
+        if ((obj == null) || !(obj.getClass().equals(this.getClass()))) {
             return false;
         }
-        Opptjeningsnøkkel other = (Opptjeningsnøkkel) obj;
+        var other = (Opptjeningsnøkkel) obj;
         return Objects.equals(aktørId, other.aktørId)
                 && Objects.equals(orgNummer, other.orgNummer)
                 && Objects.equals(arbeidsforholdId, other.arbeidsforholdId);

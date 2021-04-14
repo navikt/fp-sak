@@ -213,7 +213,7 @@ public class Behandlingsresultat extends BaseEntitet {
         if (!(o instanceof Behandlingsresultat)) {
             return false;
         }
-        Behandlingsresultat that = (Behandlingsresultat) o;
+        var that = (Behandlingsresultat) o;
         // Behandlingsresultat skal p.t. kun eksisterere dersom parent Behandling allerede er persistert.
         // Det syntaktisk korrekte vil derfor være at subaggregat Behandlingsresultat med 1:1-forhold til parent
         // Behandling har også sin id knyttet opp mot Behandling alene.
@@ -277,7 +277,7 @@ public class Behandlingsresultat extends BaseEntitet {
 
         public Builder leggTilKonsekvensForYtelsen(KonsekvensForYtelsen konsekvensForYtelsen) {
             validerKanModifisere();
-            BehandlingsresultatKonsekvensForYtelsen behandlingsresultatKonsekvensForYtelsen = BehandlingsresultatKonsekvensForYtelsen.builder()
+            var behandlingsresultatKonsekvensForYtelsen = BehandlingsresultatKonsekvensForYtelsen.builder()
                 .medKonsekvensForYtelsen(konsekvensForYtelsen).build(behandlingsresultat);
             this.behandlingsresultat.konsekvenserForYtelsen.add(behandlingsresultatKonsekvensForYtelsen);
             return this;
@@ -315,7 +315,7 @@ public class Behandlingsresultat extends BaseEntitet {
 
         public Behandlingsresultat build() {
             if (vilkårResultatBuilder != null) {
-                VilkårResultat vilkårResultat = vilkårResultatBuilder.buildFor(behandlingsresultat);
+                var vilkårResultat = vilkårResultatBuilder.buildFor(behandlingsresultat);
                 behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
             }
             if (beregningResultatBuilder != null) {
@@ -332,11 +332,11 @@ public class Behandlingsresultat extends BaseEntitet {
         public Behandlingsresultat buildFor(Behandling behandling) {
             behandling.setBehandlingresultat(behandlingsresultat);
             if (vilkårResultatBuilder != null) {
-                VilkårResultat vilkårResultat = vilkårResultatBuilder.buildFor(behandlingsresultat);
+                var vilkårResultat = vilkårResultatBuilder.buildFor(behandlingsresultat);
                 behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
             }
             if (beregningResultatBuilder != null) {
-                LegacyESBeregningsresultat beregningResultat = beregningResultatBuilder.buildFor(behandling, behandlingsresultat);
+                var beregningResultat = beregningResultatBuilder.buildFor(behandling, behandlingsresultat);
                 behandlingsresultat.medOppdatertBeregningResultat(beregningResultat);
             }
             built = true;

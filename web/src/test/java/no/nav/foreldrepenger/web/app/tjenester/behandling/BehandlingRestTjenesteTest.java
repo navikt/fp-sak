@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import javax.persistence.EntityManager;
-import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +17,6 @@ import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -93,23 +91,23 @@ public class BehandlingRestTjenesteTest {
     @Test
     public void henteAnnenPartsGjeldeneBehandling() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling morsBehandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var morsBehandling = scenario.lagre(repositoryProvider);
 
-        Behandlingsresultat behandlingsresultat = morsBehandling.getBehandlingsresultat();
+        var behandlingsresultat = morsBehandling.getBehandlingsresultat();
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET);
         entityManager.persist(behandlingsresultat);
         morsBehandling.avsluttBehandling();
         entityManager.persist(morsBehandling);
 
-        Behandling farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        var farsBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         repositoryProvider.getFagsakRelasjonRepository().opprettRelasjon(morsBehandling.getFagsak(), Dekningsgrad._100);
         repositoryProvider.getFagsakRelasjonRepository()
             .kobleFagsaker(morsBehandling.getFagsak(), farsBehandling.getFagsak(), morsBehandling);
 
         // Act
-        Response response = behandlingRestTjeneste.hentAnnenPartsGjeldendeBehandling(
+        var response = behandlingRestTjeneste.hentAnnenPartsGjeldendeBehandling(
             new SaksnummerDto(farsBehandling.getFagsak().getSaksnummer()));
 
         // Assert

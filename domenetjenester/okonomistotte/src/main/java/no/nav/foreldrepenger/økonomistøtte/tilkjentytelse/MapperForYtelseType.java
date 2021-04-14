@@ -18,7 +18,7 @@ class MapperForYtelseType {
     }
 
     static TilkjentYtelseV1.YtelseType mapYtelseType(FagsakYtelseType fagsakYtelseType) {
-        TilkjentYtelseV1.YtelseType resultat = YTELSE_TYPE_MAP.get(fagsakYtelseType);
+        var resultat = YTELSE_TYPE_MAP.get(fagsakYtelseType);
         if (resultat != null) {
             return resultat;
         }

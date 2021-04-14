@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.historikk;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,7 +128,7 @@ public class HistorikkInnslagTekstBuilder {
         if (!HistorikkinnslagType.FAKTA_ENDRET.equals(historikkinnslagType)
                 && !HistorikkinnslagType.OVERSTYRT.equals(historikkinnslagType)
                 && !HistorikkinnslagType.OPPTJENING.equals(historikkinnslagType)) { // PKMANTIS-753 FPFEIL-805
-            String verdiStr = formatString(verdi);
+            var verdiStr = formatString(verdi);
             HistorikkinnslagFelt.builder()
                     .medFeltType(HistorikkinnslagFeltType.HENDELSE)
                     .medNavn(validerKodeverdi(historikkinnslagType))
@@ -255,7 +254,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public HistorikkInnslagTekstBuilder medBegrunnelse(String begrunnelse) {
-        String begrunnelseStr = formatString(begrunnelse);
+        var begrunnelseStr = formatString(begrunnelse);
         return medBegrunnelse(begrunnelseStr, true);
     }
 
@@ -292,8 +291,8 @@ public class HistorikkInnslagTekstBuilder {
 
     public HistorikkInnslagTekstBuilder medEndretFelt(HistorikkEndretFeltType historikkEndretFeltType, String navnVerdi, String fraVerdi,
             String tilVerdi) {
-        String fraVerdiStr = formatString(fraVerdi);
-        String tilVerdiStr = formatString(tilVerdi);
+        var fraVerdiStr = formatString(fraVerdi);
+        var tilVerdiStr = formatString(tilVerdi);
 
         HistorikkinnslagFelt.builder()
                 .medFeltType(HistorikkinnslagFeltType.ENDRET_FELT)
@@ -372,7 +371,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     public <T> HistorikkInnslagTekstBuilder medOpplysning(HistorikkOpplysningType opplysningType, T verdi) {
-        String tilVerdi = formatString(verdi);
+        var tilVerdi = formatString(verdi);
         HistorikkinnslagFelt.builder()
                 .medFeltType(HistorikkinnslagFeltType.OPPLYSNINGER)
                 .medNavn(validerKodeverdi(opplysningType))
@@ -388,8 +387,8 @@ public class HistorikkInnslagTekstBuilder {
 
     public HistorikkInnslagTekstBuilder medTotrinnsvurdering(Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering,
             List<HistorikkinnslagTotrinnsvurdering> vurderingUtenVilkar) {
-        boolean første = true;
-        for (HistorikkinnslagTotrinnsvurdering totrinnsVurdering : vurderingUtenVilkar) {
+        var første = true;
+        for (var totrinnsVurdering : vurderingUtenVilkar) {
             if (første) {
                 første = false;
             } else {
@@ -398,17 +397,17 @@ public class HistorikkInnslagTekstBuilder {
             leggTilTotrinnsvurdering(totrinnsVurdering);
         }
 
-        List<Map.Entry<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>>> sortedList = vurdering.entrySet().stream()
+        var sortedList = vurdering.entrySet().stream()
                 .sorted(getHistorikkDelComparator()).collect(Collectors.toList());
 
-        for (Map.Entry<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> lenkeVurdering : sortedList) {
+        for (var lenkeVurdering : sortedList) {
             if (første) {
                 første = false;
             } else {
                 ferdigstillHistorikkinnslagDel();
             }
-            SkjermlenkeType skjermlenkeType = lenkeVurdering.getKey();
-            List<HistorikkinnslagTotrinnsvurdering> totrinnsVurderinger = lenkeVurdering.getValue();
+            var skjermlenkeType = lenkeVurdering.getKey();
+            var totrinnsVurderinger = lenkeVurdering.getValue();
             totrinnsVurderinger.sort(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getAksjonspunktSistEndret));
             medSkjermlenke(skjermlenkeType);
             totrinnsVurderinger.forEach(this::leggTilTotrinnsvurdering);
@@ -455,25 +454,25 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     private int getNesteEndredeFeltSekvensNr() {
-        int neste = antallEndredeFelter;
+        var neste = antallEndredeFelter;
         antallEndredeFelter++;
         return neste;
     }
 
     private int hentNesteOpplysningSekvensNr() {
-        int sekvensNr = antallOpplysninger;
+        var sekvensNr = antallOpplysninger;
         antallOpplysninger++;
         return sekvensNr;
     }
 
     private Comparator<Map.Entry<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>>> getHistorikkDelComparator() {
         return (o1, o2) -> {
-            List<HistorikkinnslagTotrinnsvurdering> totrinnsvurderinger1 = o1.getValue();
-            List<HistorikkinnslagTotrinnsvurdering> totrinnsvurderinger2 = o2.getValue();
+            var totrinnsvurderinger1 = o1.getValue();
+            var totrinnsvurderinger2 = o2.getValue();
             totrinnsvurderinger1.sort(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getAksjonspunktSistEndret));
             totrinnsvurderinger2.sort(Comparator.comparing(HistorikkinnslagTotrinnsvurdering::getAksjonspunktSistEndret));
-            LocalDateTime date1 = totrinnsvurderinger1.get(0).getAksjonspunktSistEndret();
-            LocalDateTime date2 = totrinnsvurderinger2.get(0).getAksjonspunktSistEndret();
+            var date1 = totrinnsvurderinger1.get(0).getAksjonspunktSistEndret();
+            var date2 = totrinnsvurderinger2.get(0).getAksjonspunktSistEndret();
             if ((date1 == null) || (date2 == null)) {
                 return -1;
             }
@@ -482,7 +481,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     private HistorikkInnslagTekstBuilder leggTilTotrinnsvurdering(HistorikkinnslagTotrinnsvurdering totrinnsvurdering) {
-        int sekvensNr = getNesteAksjonspunktSekvensNr();
+        var sekvensNr = getNesteAksjonspunktSekvensNr();
         leggTilFelt(HistorikkinnslagFeltType.AKSJONSPUNKT_BEGRUNNELSE, totrinnsvurdering.getBegrunnelse(), sekvensNr);
         leggTilFelt(HistorikkinnslagFeltType.AKSJONSPUNKT_GODKJENT, totrinnsvurdering.erGodkjent(), sekvensNr);
         leggTilFelt(HistorikkinnslagFeltType.AKSJONSPUNKT_KODE, totrinnsvurdering.getAksjonspunktDefinisjon().getKode(), sekvensNr);
@@ -498,7 +497,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     private int getNesteAksjonspunktSekvensNr() {
-        int sekvensNr = antallAksjonspunkter;
+        var sekvensNr = antallAksjonspunkter;
         antallAksjonspunkter++;
         return sekvensNr;
     }
@@ -521,7 +520,7 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     private Optional<TekniskException> verify(HistorikkinnslagType historikkinnslagType, HistorikkinnslagDel historikkinnslagDel) {
-        String type = historikkinnslagType.getMal();
+        var type = historikkinnslagType.getMal();
 
         if (HistorikkinnslagMal.MAL_TYPE_1.equals(type)) {
             return checkFieldsPresent(type, historikkinnslagDel, HistorikkinnslagFeltType.HENDELSE);
@@ -570,15 +569,14 @@ public class HistorikkInnslagTekstBuilder {
     }
 
     private Optional<TekniskException> checkAtLeastOnePresent(String type, HistorikkinnslagDel del, HistorikkinnslagFeltType... fields) {
-        List<HistorikkinnslagFeltType> fieldList = Arrays.asList(fields);
-        Optional<HistorikkinnslagFeltType> opt = findFields(del, fieldList).findAny();
+        var fieldList = Arrays.asList(fields);
+        var opt = findFields(del, fieldList).findAny();
 
         if (opt.isPresent()) {
             return Optional.empty();
-        } else {
-            List<String> feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
-            return Optional.of(HistorikkInnsalgFeil.manglerMinstEtFeltForHistorikkinnslag(type, feltKoder));
         }
+        var feltKoder = fieldList.stream().map(HistorikkinnslagFeltType::getKode).collect(Collectors.toList());
+        return Optional.of(HistorikkInnsalgFeil.manglerMinstEtFeltForHistorikkinnslag(type, feltKoder));
     }
 
     private Stream<HistorikkinnslagFeltType> findFields(HistorikkinnslagDel del, List<HistorikkinnslagFeltType> fieldList) {

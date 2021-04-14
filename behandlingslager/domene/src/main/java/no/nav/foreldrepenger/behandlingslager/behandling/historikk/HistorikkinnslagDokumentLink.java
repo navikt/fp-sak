@@ -44,7 +44,7 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
     public String getIndexKey() {
         return IndexKey.createKey(journalpostId, dokumentId, linkTekst);
     }
-    
+
     public String getLinkTekst() {
         return linkTekst;
     }
@@ -113,8 +113,8 @@ public class HistorikkinnslagDokumentLink extends BaseEntitet implements IndexKe
         if (!(o instanceof HistorikkinnslagDokumentLink)) {
             return false;
         }
-        HistorikkinnslagDokumentLink that = (HistorikkinnslagDokumentLink) o;
-        return 
+        var that = (HistorikkinnslagDokumentLink) o;
+        return
             Objects.equals(getLinkTekst(), that.getLinkTekst()) &&
             Objects.equals(historikkinnslag, that.historikkinnslag) &&
             Objects.equals(getJournalpostId(), that.getJournalpostId()) &&

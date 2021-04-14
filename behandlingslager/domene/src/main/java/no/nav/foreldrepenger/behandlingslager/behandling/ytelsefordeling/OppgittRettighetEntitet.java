@@ -67,7 +67,7 @@ public class OppgittRettighetEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OppgittRettighetEntitet that = (OppgittRettighetEntitet) o;
+        var that = (OppgittRettighetEntitet) o;
         return Objects.equals(harAnnenForeldreRett, that.harAnnenForeldreRett) &&
             Objects.equals(harOmsorgForBarnetIHelePerioden, that.harOmsorgForBarnetIHelePerioden) &&
             Objects.equals(harAleneomsorgForBarnet, that.harAleneomsorgForBarnet);

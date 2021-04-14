@@ -6,13 +6,11 @@ import static no.nav.foreldrepenger.domene.medlem.impl.MedlemResultat.AVKLAR_GYL
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -30,29 +28,27 @@ public class AvklarGyldigPeriode {
     }
 
     public Optional<MedlemResultat> utled(Long behandlingId, LocalDate vurderingsdato) {
-        Optional<Set<MedlemskapPerioderEntitet>> optPerioder = medlemskapRepository.hentMedlemskap(behandlingId)
+        var optPerioder = medlemskapRepository.hentMedlemskap(behandlingId)
             .map(MedlemskapAggregat::getRegistrertMedlemskapPerioder);
 
-        Set<MedlemskapPerioderEntitet> medlemskapPerioder = optPerioder.orElse(Collections.emptySet());
+        var medlemskapPerioder = optPerioder.orElse(Collections.emptySet());
 
         // Har bruker treff i gyldig periode hjemlet i §2-9 bokstav a eller c?
         if (harGyldigMedlemsperiodeMedMedlemskap(vurderingsdato, medlemskapPerioder) == JA) {
             return Optional.empty();
-        } else {
-            if (harBrukerTreffIMedl(medlemskapPerioder) == NEI) {
-                return Optional.empty();
-            } else {
-                // Har bruker treff i perioder som er under avklaring eller ikke har start eller sluttdato?
-                if (harPeriodeUnderAvklaring(vurderingsdato, medlemskapPerioder) == NEI) {
-                    return Optional.empty();
-                }
-                return Optional.of(AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
-            }
         }
+        if (harBrukerTreffIMedl(medlemskapPerioder) == NEI) {
+            return Optional.empty();
+        }
+        // Har bruker treff i perioder som er under avklaring eller ikke har start eller sluttdato?
+        if (harPeriodeUnderAvklaring(vurderingsdato, medlemskapPerioder) == NEI) {
+            return Optional.empty();
+        }
+        return Optional.of(AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
     }
 
     private Utfall harGyldigMedlemsperiodeMedMedlemskap(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
+        var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomFrivilligMedlem(medlemskapDekningTyper) ? JA : NEI;
     }
 

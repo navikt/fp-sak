@@ -14,20 +14,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BekreftetOppgittPeriodeDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FaktaUttakDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.OverstyringFaktaUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.FørsteUttaksdatoTjenesteImpl;
 
@@ -47,19 +41,19 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
     public void skal_lagre_overstyrt_perioder_bekreft_aksjonspunkt() {
 
         //Scenario med avklar fakta uttak
-        ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
+        var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(repositoryProvider);
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
-        FaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
+        var dto = AvklarFaktaTestUtil.opprettDtoAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
 
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
 
         assertThat(ytelseFordelingAggregat).isNotNull();
-        List<OppgittPeriodeEntitet> gjeldendeFordeling = ytelseFordelingAggregat
+        var gjeldendeFordeling = ytelseFordelingAggregat
             .getGjeldendeSøknadsperioder()
             .getOppgittePerioder();
 
@@ -71,19 +65,19 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
     public void skal_lagre_overstyrt_perioder_overstyrings_aksjonspunkt() {
 
         //Scenario med avklar fakta uttak
-        ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
+        var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_SAKSBEHANDLER_OVERSTYRING,
             BehandlingStegType.VURDER_UTTAK);
         var behandling = scenario.lagre(repositoryProvider);
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
-        OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();
+        var dto = AvklarFaktaTestUtil.opprettDtoManuellAvklarFaktaUttakDto();
         tjeneste().bekreftOppgittePerioder(dto.getBekreftedePerioder(), behandling);
 
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
 
         assertThat(ytelseFordelingAggregat).isNotNull();
-        List<OppgittPeriodeEntitet> gjeldendeFordeling = ytelseFordelingAggregat
+        var gjeldendeFordeling = ytelseFordelingAggregat
             .getGjeldendeSøknadsperioder()
             .getOppgittePerioder();
 
@@ -93,26 +87,26 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
 
     @Test
     public void skal_lagre_ny_endringsdato_hvis_første_dato_bekreftet_perioder_er_før_første_uttaksdato_opprinnelige_perioder() {
-        ScenarioMorSøkerForeldrepenger scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
+        var scenario = AvklarFaktaTestUtil.opprettScenarioMorSøkerForeldrepenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER,
             BehandlingStegType.VURDER_UTTAK);
-        LocalDate opprinneligDato = LocalDate.of(2019, 3, 25);
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var opprinneligDato = LocalDate.of(2019, 3, 25);
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medOpprinneligEndringsdato(opprinneligDato)
             .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
-        OppgittPeriodeEntitet opprinneligPeriode = OppgittPeriodeBuilder.ny()
+        var opprinneligPeriode = OppgittPeriodeBuilder.ny()
             .medPeriode(opprinneligDato, opprinneligDato.plusDays(1))
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
-        List<OppgittPeriodeEntitet> gjeldendePerioder = List.of(opprinneligPeriode);
+        var gjeldendePerioder = List.of(opprinneligPeriode);
         scenario.medFordeling(new OppgittFordelingEntitet(gjeldendePerioder, false));
         var behandling = scenario.lagre(repositoryProvider);
 
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
 
-        LocalDate nyDato = LocalDate.of(2019, 2, 10);
-        BekreftetOppgittPeriodeDto bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(nyDato, nyDato.plusDays(1),
+        var nyDato = LocalDate.of(2019, 2, 10);
+        var bekreftetOppgittPeriodeDto = getBekreftetUttakPeriodeDto(nyDato, nyDato.plusDays(1),
             true);
         bekreftetOppgittPeriodeDto.setOrginalFom(opprinneligPeriode.getFom());
         bekreftetOppgittPeriodeDto.setOrginalTom(opprinneligPeriode.getTom());
@@ -120,7 +114,7 @@ public class KontrollerOppgittFordelingTjenesteTest extends EntityManagerAwareTe
         FørsteUttaksdatoTjeneste førsteUttaksdatoTjeneste = behandling1 -> Optional.of(LocalDate.of(2019, 1, 1));
         tjeneste(førsteUttaksdatoTjeneste).bekreftOppgittePerioder(List.of(bekreftetOppgittPeriodeDto), behandling);
 
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
 
         assertThat(ytelseFordelingAggregat.getAvklarteDatoer().get().getGjeldendeEndringsdato()).isEqualTo(nyDato);
         assertThat(ytelseFordelingAggregat.getAvklarteDatoer().get().getJustertEndringsdato()).isEqualTo(nyDato);

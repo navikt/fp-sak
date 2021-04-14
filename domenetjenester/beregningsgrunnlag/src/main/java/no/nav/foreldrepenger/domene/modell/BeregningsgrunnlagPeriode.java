@@ -199,7 +199,8 @@ public class BeregningsgrunnlagPeriode extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagPeriode)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagPeriode)) {
             return false;
         }
         var other = (BeregningsgrunnlagPeriode) obj;

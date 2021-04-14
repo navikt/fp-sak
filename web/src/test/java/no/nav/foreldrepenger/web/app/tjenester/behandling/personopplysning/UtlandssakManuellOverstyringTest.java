@@ -13,7 +13,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -36,7 +35,7 @@ public class UtlandssakManuellOverstyringTest {
     @Test
     public void spesial_tilfelle_utland_markering() throws Exception {
         // Arrange trinn 1: Behandle søknad om fødsel hvor barn ikke er registrert i TPS
-        LocalDate fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
+        var fødselsdato = LocalDate.now().minusDays(15); // > 14 dager for å unngå ApDef.VENT_PÅ_FØDSEL
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AUTOMATISK_MARKERING_AV_UTENLANDSSAK, BehandlingStegType.INNHENT_SØKNADOPP);
@@ -44,7 +43,7 @@ public class UtlandssakManuellOverstyringTest {
         scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingStegStart(BehandlingStegType.BEREGN_YTELSE);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
 
         behandling.getAksjonspunktMedDefinisjonOptional(AUTOMATISK_MARKERING_AV_UTENLANDSSAK)
                 .ifPresent(a -> AksjonspunktTestSupport.setTilUtført(a, "test"));
@@ -54,7 +53,7 @@ public class UtlandssakManuellOverstyringTest {
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         var behandlingId = behandling.getId();
 
-        OverstyringUtenlandssakMarkeringDto fødselDto = new OverstyringUtenlandssakMarkeringDto("NORSK", "NORSK");
+        var fødselDto = new OverstyringUtenlandssakMarkeringDto("NORSK", "NORSK");
 
         // Act
         applikasjonstjeneste.overstyrAksjonspunkter(singletonList(fødselDto), behandlingId);

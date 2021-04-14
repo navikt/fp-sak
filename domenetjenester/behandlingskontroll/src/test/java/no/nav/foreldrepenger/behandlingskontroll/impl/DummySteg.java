@@ -39,13 +39,13 @@ class DummySteg implements BehandlingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         if (tilbakefør) {
-            BehandleStegResultat tilbakeført = BehandleStegResultat
+            var tilbakeført = BehandleStegResultat
                     .tilbakeførtMedAksjonspunkter(aksjonspunkter.stream()
                             .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList()));
             sisteUtførStegResultat.set(tilbakeført);
             return tilbakeført;
         }
-        BehandleStegResultat utførtMedAksjonspunkter = BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
+        var utførtMedAksjonspunkter = BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
         sisteUtførStegResultat.set(utførtMedAksjonspunkter);
         return utførtMedAksjonspunkter;
     }
@@ -54,7 +54,7 @@ class DummySteg implements BehandlingSteg {
 
         Map<List<?>, BehandlingSteg> resolver = new HashMap<>();
 
-        for (TestStegKonfig konfig : input) {
+        for (var konfig : input) {
             List<?> key = Arrays.asList(konfig.getBehandlingStegType(), konfig.getBehandlingType(), konfig.getFagsakYtelseType());
             resolver.put(key, konfig.getSteg());
         }

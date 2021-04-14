@@ -51,7 +51,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak, Dekningsgrad dekningsgrad) {
-        FagsakRelasjon fagsakRelasjon = mock(FagsakRelasjon.class);
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
         when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsak);
         when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(dekningsgrad);
         map.put(fagsak.getSaksnummer(), fagsakRelasjon);

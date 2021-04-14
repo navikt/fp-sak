@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYRepositoryProvider;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.behandling.IAYScenarioBuilder;
@@ -27,15 +26,15 @@ public class VirksomhetTjenesteTest {
     @Test
     public void skal_kalle_consumer_og_oversette_response(EntityManager entityManager) {
         // Arrange
-        IAYScenarioBuilder scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.ENGANGSTØNAD);
         scenario.lagre(new IAYRepositoryProvider(entityManager));
 
         var organisasjonConsumer = mock(OrganisasjonRestKlient.class);
 
-        VirksomhetTjeneste organisasjonTjeneste = new VirksomhetTjeneste(organisasjonConsumer);
+        var organisasjonTjeneste = new VirksomhetTjeneste(organisasjonConsumer);
 
         // Act
-        Virksomhet organisasjon = organisasjonTjeneste.hentOrganisasjon(ORGNR);
+        var organisasjon = organisasjonTjeneste.hentOrganisasjon(ORGNR);
 
         // Assert
         assertThat(organisasjon.getOrgnr()).isEqualTo(ORGNR);

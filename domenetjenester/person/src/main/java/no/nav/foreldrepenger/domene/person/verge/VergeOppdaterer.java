@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.person.verge;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -17,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -58,12 +55,12 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     @Override
     public OppdateringResultat oppdater(AvklarVergeDto dto, AksjonspunktOppdaterParameter param) {
 
-        Long behandlingId = param.getBehandlingId();
-        VergeBuilder vergeBuilder = new VergeBuilder()
+        var behandlingId = param.getBehandlingId();
+        var vergeBuilder = new VergeBuilder()
             .gyldigPeriode(dto.getGyldigFom(), dto.getGyldigTom())
             .medVergeType(dto.getVergeType());
         // Verge må enten være oppgitt med fnr (hent ut fra TPS), eller orgnr
-        PersonIdent fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
+        var fnr = VergeType.ADVOKAT.equals(dto.getVergeType()) || dto.getFnr() == null ? null : new PersonIdent(dto.getFnr());
         if (fnr != null) {
             var vergeAktørId = personinfoAdapter.hentAktørForFnr(fnr).orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
             vergeBuilder.medBruker(hentEllerOpprettBruker(vergeAktørId));
@@ -92,10 +89,10 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private void byggHistorikkinnslag(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter) {
-        Long behandlingId = parameter.getBehandlingId();
-        Optional<VergeAggregat> vergeAggregatOpt = vergeRepository.hentAggregat(behandlingId);
+        var behandlingId = parameter.getBehandlingId();
+        var vergeAggregatOpt = vergeRepository.hentAggregat(behandlingId);
         if (!vergeAggregatOpt.isPresent() || !vergeAggregatOpt.get().getVerge().isPresent()) {
-            HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder()
+            var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medSkjermlenke(SkjermlenkeType.FAKTA_OM_VERGE);
             lagHistorikkinnslag(behandlingId, tekstBuilder, HistorikkinnslagType.REGISTRER_OM_VERGE);
         } else {
@@ -104,14 +101,14 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private void opprettHistorikkinnslagForEndring(AvklarVergeDto dto, AksjonspunktOppdaterParameter parameter, VergeAggregat vergeAggregat) {
-        HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder();
-        Optional<AktørId> aktørId = vergeAggregat.getAktørId();
+        var tekstBuilder = new HistorikkInnslagTekstBuilder();
+        var aktørId = vergeAggregat.getAktørId();
         aktørId.flatMap(id -> personinfoAdapter.hentBrukerArbeidsgiverForAktør(id)).ifPresent(pib -> {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.NAVN, pib.getNavn(), dto.getNavn());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FNR, pib.getPersonIdent().getIdent(), dto.getFnr());
         });
         if (vergeAggregat.getVerge().isPresent()) {
-            VergeEntitet vergeEntitet = vergeAggregat.getVerge().get();
+            var vergeEntitet = vergeAggregat.getVerge().get();
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_FOM, vergeEntitet.getGyldigFom(), dto.getGyldigFom());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.PERIODE_TOM, vergeEntitet.getGyldigTom(), dto.getGyldigTom());
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.TYPE_VERGE, vergeEntitet.getVergeType(), dto.getVergeType());
@@ -128,7 +125,7 @@ public class VergeOppdaterer implements AksjonspunktOppdaterer<AvklarVergeDto> {
     }
 
     private void lagHistorikkinnslag(Long behandlingId, HistorikkInnslagTekstBuilder tekstBuilder, HistorikkinnslagType innslagType) {
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
 
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandlingId);

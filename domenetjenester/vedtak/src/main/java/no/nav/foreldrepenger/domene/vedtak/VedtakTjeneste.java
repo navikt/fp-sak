@@ -88,7 +88,7 @@ public class VedtakTjeneste {
 
     public void lagHistorikkinnslagFattVedtak(Behandling behandling) {
         if (behandling.isToTrinnsBehandling()) {
-            Collection<Totrinnsvurdering> totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+            var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
             if (sendesTilbakeTilSaksbehandler(totrinnsvurderings)) {
                 lagHistorikkInnslagVurderPåNytt(behandling, totrinnsvurderings);
                 return;
@@ -111,15 +111,15 @@ public class VedtakTjeneste {
     }
 
     private void lagHistorikkInnslagVedtakFattet(Behandling behandling) {
-        boolean erUendretUtfall = getRevurderingTjeneste(behandling).erRevurderingMedUendretUtfall(behandling);
-        HistorikkinnslagType historikkinnslagType = erUendretUtfall ? HistorikkinnslagType.UENDRET_UTFALL : HistorikkinnslagType.VEDTAK_FATTET;
-        HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder()
+        var erUendretUtfall = getRevurderingTjeneste(behandling).erRevurderingMedUendretUtfall(behandling);
+        var historikkinnslagType = erUendretUtfall ? HistorikkinnslagType.UENDRET_UTFALL : HistorikkinnslagType.VEDTAK_FATTET;
+        var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(historikkinnslagType)
                 .medSkjermlenke(SkjermlenkeType.VEDTAK);
         if (!erUendretUtfall) {
             tekstBuilder.medResultat(utledVedtakResultatType(behandling));
         }
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setAktør(behandling.isToTrinnsBehandling() ? HistorikkAktør.BESLUTTER : HistorikkAktør.VEDTAKSLØSNINGEN);
         innslag.setType(historikkinnslagType);
         innslag.setBehandling(behandling);
@@ -145,14 +145,14 @@ public class VedtakTjeneste {
         Map<SkjermlenkeType, List<HistorikkinnslagTotrinnsvurdering>> vurdering = new HashMap<>();
         List<HistorikkinnslagTotrinnsvurdering> vurderingUtenLenke = new ArrayList<>();
 
-        HistorikkInnslagTekstBuilder delBuilder = new HistorikkInnslagTekstBuilder()
+        var delBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(hendelse);
 
-        for (Totrinnsvurdering ttv : medTotrinnskontroll) {
-            HistorikkinnslagTotrinnsvurdering totrinnsVurdering = lagHistorikkinnslagTotrinnsvurdering(ttv);
-            LocalDateTime sistEndret = ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt();
+        for (var ttv : medTotrinnskontroll) {
+            var totrinnsVurdering = lagHistorikkinnslagTotrinnsvurdering(ttv);
+            var sistEndret = ttv.getEndretTidspunkt() != null ? ttv.getEndretTidspunkt() : ttv.getOpprettetTidspunkt();
             totrinnsVurdering.setAksjonspunktSistEndret(sistEndret);
-            SkjermlenkeType skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(ttv.getAksjonspunktDefinisjon(), behandling);
+            var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(ttv.getAksjonspunktDefinisjon(), behandling);
             if (skjermlenkeType != null && !SkjermlenkeType.UDEFINERT.equals(skjermlenkeType)) {
                 vurdering.computeIfAbsent(skjermlenkeType, k -> new ArrayList<>()).add(totrinnsVurdering);
             } else {
@@ -167,7 +167,7 @@ public class VedtakTjeneste {
 
     private Historikkinnslag lagHistorikkinnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType,
             HistorikkInnslagTekstBuilder builder) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setAktør(HistorikkAktør.BESLUTTER);
         historikkinnslag.setType(historikkinnslagType);
@@ -177,7 +177,7 @@ public class VedtakTjeneste {
     }
 
     private HistorikkinnslagTotrinnsvurdering lagHistorikkinnslagTotrinnsvurdering(Totrinnsvurdering ttv) {
-        HistorikkinnslagTotrinnsvurdering totrinnsVurdering = new HistorikkinnslagTotrinnsvurdering();
+        var totrinnsVurdering = new HistorikkinnslagTotrinnsvurdering();
         totrinnsVurdering.setAksjonspunktDefinisjon(ttv.getAksjonspunktDefinisjon());
         totrinnsVurdering.setBegrunnelse(ttv.getBegrunnelse());
         totrinnsVurdering.setGodkjent(Boolean.TRUE.equals(ttv.isGodkjent()));
@@ -188,14 +188,13 @@ public class VedtakTjeneste {
         var behandlingResultatType = getBehandlingsresultat(behandling.getId()).getBehandlingResultatType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
-        } else {
-            if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
-                var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
-                        .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
-                return utledVedtakResultatType(original);
-            }
-            return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
+        if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
+            var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
+                    .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
+            return utledVedtakResultatType(original);
+        }
+        return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
     }
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {

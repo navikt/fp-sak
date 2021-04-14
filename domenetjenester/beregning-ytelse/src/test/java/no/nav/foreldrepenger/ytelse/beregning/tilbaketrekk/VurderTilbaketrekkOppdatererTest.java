@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -49,12 +48,12 @@ public class VurderTilbaketrekkOppdatererTest {
     @Test
     public void skal_teste_at_oppdatering_gjøres_riktig_dersom_tilbaketrekk_skal_utføres() {
         // Arrange
-        Behandling behandling = opprettBehandling();
-        VurderTilbaketrekkDto dto = new VurderTilbaketrekkDto("Begrunnelse", false);
+        var behandling = opprettBehandling();
+        var dto = new VurderTilbaketrekkDto("Begrunnelse", false);
 
         // Act
         vurderTilbaketrekkOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<BehandlingBeregningsresultatEntitet> test = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
+        var test = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
 
         // Assert
         assertThat(test).isPresent();
@@ -71,12 +70,12 @@ public class VurderTilbaketrekkOppdatererTest {
     @Test
     public void skal_teste_at_oppdatering_gjøres_riktig_dersom_tilbaketrekk_ikke_skal_utføres() {
         // Arrange
-        Behandling behandling = opprettBehandling();
-        VurderTilbaketrekkDto dto = new VurderTilbaketrekkDto("Begrunnelse", true);
+        var behandling = opprettBehandling();
+        var dto = new VurderTilbaketrekkDto("Begrunnelse", true);
 
         // Act
         vurderTilbaketrekkOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<BehandlingBeregningsresultatEntitet> test = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
+        var test = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
 
         // Assert
         assertThat(test).isPresent();
@@ -104,11 +103,11 @@ public class VurderTilbaketrekkOppdatererTest {
     }
 
     private void opprettBehandlingsresultat(Behandling behandling) {
-        BeregningsresultatEntitet.Builder builder = BeregningsresultatEntitet.builder()
+        var builder = BeregningsresultatEntitet.builder()
                 .medRegelInput("clob1")
                 .medRegelSporing("clob2");
-        BeregningsresultatEntitet beregningsresultat = builder.build();
-        BeregningsresultatPeriode brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
+        var beregningsresultat = builder.build();
+        var brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
         buildBeregningsresultatAndel(brPeriode);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
     }

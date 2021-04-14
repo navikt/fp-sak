@@ -27,7 +27,7 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
     }
 
     protected boolean isExpectedField(Field fld) {
-        int mods = fld.getModifiers();
+        var mods = fld.getModifiers();
         if (Modifier.isFinal(mods) || Modifier.isStatic(mods) || Modifier.isTransient(mods) || Modifier.isVolatile(mods)) {
             // her kan final felter skippes, da disse må være i løvnøder
             return false;
@@ -55,7 +55,7 @@ public class TraverseJpaEntityGraphConfig extends TraverseGraphConfig {
     public void valider(Node currentPath, Class<?> targetClass) {
         super.valider(currentPath, targetClass);
 
-        boolean ok = targetClass.isAnnotationPresent(Entity.class)
+        var ok = targetClass.isAnnotationPresent(Entity.class)
             || targetClass.isAnnotationPresent(Embeddable.class);
         if (!ok) {
             throw new IllegalArgumentException(

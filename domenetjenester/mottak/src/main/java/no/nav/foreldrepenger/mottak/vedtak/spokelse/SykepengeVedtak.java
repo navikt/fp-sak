@@ -49,7 +49,7 @@ public class SykepengeVedtak {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SykepengeVedtak that = (SykepengeVedtak) o;
+        var that = (SykepengeVedtak) o;
         return Objects.equals(vedtaksreferanse, that.vedtaksreferanse) &&
             Objects.equals(utbetalinger, that.utbetalinger) &&
             Objects.equals(vedtattTidspunkt, that.vedtattTidspunkt);

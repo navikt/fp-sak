@@ -13,7 +13,6 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,11 +32,7 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
-import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.v1.InntektsmeldingOversetter;
@@ -70,14 +65,14 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
     @Test
     public void mappe_inntektsmelding_til_domene() throws IOException, URISyntaxException {
-        final Behandling behandling = opprettScenarioOgLagreInntektsmelding("inntektsmelding.xml");
+        final var behandling = opprettScenarioOgLagreInntektsmelding("inntektsmelding.xml");
 
-        final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
         assertThat(grunnlag).isNotNull();
 
         //Hent ut alle endringsrefusjoner fra alle inntektsmeldingene.
-        List<Refusjon> endringerIRefusjon = grunnlag.getInntektsmeldinger()
+        var endringerIRefusjon = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .map(i -> i.stream().flatMap(im -> im.getEndringerRefusjon().stream()).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
@@ -88,13 +83,13 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
 
     @Test
     public void skalVedMappingLeseBeløpPerMndForNaturalytelseForGjenopptakelseFraOpphørListe() throws IOException, URISyntaxException {
-        final Behandling behandling = opprettScenarioOgLagreInntektsmelding(
+        final var behandling = opprettScenarioOgLagreInntektsmelding(
             "inntektsmelding_naturalytelse_gjenopptak_ignorer_belop.xml");
 
-        final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
         // Hent opp alle naturalytelser
-        List<NaturalYtelse> naturalYtelser = grunnlag.getInntektsmeldinger()
+        var naturalYtelser = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .map(e -> e.stream().flatMap(im -> im.getNaturalYtelser().stream()).collect(Collectors.toList()))
             .orElse(Collections.emptyList());
@@ -110,19 +105,19 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     @Test
     public void skalMappeOgPersistereKorrektInnsendingsdato() throws IOException, URISyntaxException {
         // Arrange
-        final Behandling behandling = opprettBehandling();
-        MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
+        final var behandling = opprettBehandling();
+        var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
 
-        final InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
+        final var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
         // Act
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
 
         // Assert
-        final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
-        Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
+        var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
@@ -138,15 +133,15 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     @Test
     public void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdIkkeOverskriveHvisPersistertErNyereEnnMottatt() throws IOException, URISyntaxException {
         // Arrange
-        final Behandling behandling = opprettBehandling();
-        MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
+        final var behandling = opprettBehandling();
+        var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
+        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
-        InntektsmeldingWrapper wrapperSpied = Mockito.spy(wrapper);
+        var wrapperSpied = Mockito.spy(wrapper);
 
-        LocalDateTime nyereDato = LocalDateTime.now();
-        LocalDateTime eldreDato = nyereDato.minusMinutes(1);
+        var nyereDato = LocalDateTime.now();
+        var eldreDato = nyereDato.minusMinutes(1);
 
         // Act
         // Motta nyere inntektsmelding først
@@ -158,9 +153,9 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         oversetter.trekkUtDataOgPersister(wrapperSpied, mottattDokument, behandling, Optional.empty());
 
         // Assert
-        final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
-        Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
+        var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
@@ -179,15 +174,15 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     @Test
     public void skalVedMottakAvNyInntektsmeldingPåSammeArbeidsforholdOverskriveHvisPersistertErEldreEnnMottatt() throws IOException, URISyntaxException {
         // Arrange
-        final Behandling behandling = opprettBehandling();
-        MottattDokument mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
-        InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
+        final var behandling = opprettBehandling();
+        var mottattDokument = opprettDokument(behandling, "inntektsmelding.xml");
+        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
-        InntektsmeldingWrapper wrapperSpied = Mockito.spy(wrapper);
+        var wrapperSpied = Mockito.spy(wrapper);
 
-        LocalDateTime nyereDato = LocalDateTime.now();
-        LocalDateTime eldreDato = nyereDato.minusMinutes(1);
+        var nyereDato = LocalDateTime.now();
+        var eldreDato = nyereDato.minusMinutes(1);
 
         // Act
         // Motta eldre inntektsmelding først
@@ -199,9 +194,9 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         oversetter.trekkUtDataOgPersister(wrapperSpied, mottattDokument, behandling, Optional.empty());
 
         // Assert
-        final InntektArbeidYtelseGrunnlag grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
+        final var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
-        Optional<LocalDateTime> innsendingstidspunkt = grunnlag.getInntektsmeldinger()
+        var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
             .map(InntektsmeldingAggregat::getInntektsmeldingerSomSkalBrukes)
             .stream()
             .flatMap(e -> e.stream().map(it -> it.getInnsendingstidspunkt()))
@@ -217,10 +212,10 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettScenarioOgLagreInntektsmelding(String inntektsmeldingFilnavn) throws URISyntaxException, IOException {
-        final Behandling behandling = opprettBehandling();
-        MottattDokument mottattDokument = opprettDokument(behandling, inntektsmeldingFilnavn);
+        final var behandling = opprettBehandling();
+        var mottattDokument = opprettDokument(behandling, inntektsmeldingFilnavn);
 
-        final InntektsmeldingWrapper wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
+        final var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser
             .unmarshallXml(mottattDokument.getPayloadXml());
 
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
@@ -228,19 +223,19 @@ public class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandling() {
-        final ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        final var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         return scenario.lagre(repositoryProvider);
     }
 
     private MottattDokument opprettDokument(Behandling behandling,
                                             String inntektsmeldingFilnavn) throws IOException, URISyntaxException {
-        final InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(
+        final var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(
             behandling.getId());
         iayTjeneste.lagreIayAggregat(behandling.getId(), inntektArbeidYtelseAggregatBuilder);
-        final String xml = fileToStringUtil.readFile(inntektsmeldingFilnavn);
-        final MottattDokument.Builder builder = new MottattDokument.Builder();
+        final var xml = fileToStringUtil.readFile(inntektsmeldingFilnavn);
+        final var builder = new MottattDokument.Builder();
 
-        MottattDokument mottattDokument = builder.medDokumentType(DokumentTypeId.INNTEKTSMELDING)
+        var mottattDokument = builder.medDokumentType(DokumentTypeId.INNTEKTSMELDING)
             .medFagsakId(behandling.getFagsakId())
             .medMottattDato(LocalDate.now())
             .medBehandlingId(behandling.getId())

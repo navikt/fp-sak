@@ -49,7 +49,7 @@ public class OppdragDto extends SporingDto {
     }
 
     public static OppdragDto fraDomene(Oppdragskontroll oppdragskontroll) {
-        OppdragDto oppdragDto = new OppdragDto(oppdragskontroll);
+        var oppdragDto = new OppdragDto(oppdragskontroll);
         oppdragDto.saksnummer = oppdragskontroll.getSaksnummer().getVerdi();
         oppdragDto.behandlingId = oppdragskontroll.getBehandlingId();
         oppdragDto.oppdrag110 = oppdragskontroll.getOppdrag110Liste().stream().map(Oppdrag110Dto::fraDomene).collect(Collectors.toList());

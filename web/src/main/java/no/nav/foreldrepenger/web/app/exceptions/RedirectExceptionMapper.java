@@ -34,12 +34,12 @@ public class RedirectExceptionMapper implements ExceptionMapper<ApplicationExcep
 
     @Override
     public Response toResponse(ApplicationException exception) {
-        Response response = generalRestExceptionMapper.toResponse(exception);
-        String feilmelding = ((FeilDto) response.getEntity()).getFeilmelding();
-        String enkodetFeilmelding = Encode.forUriComponent(feilmelding);
+        var response = generalRestExceptionMapper.toResponse(exception);
+        var feilmelding = ((FeilDto) response.getEntity()).getFeilmelding();
+        var enkodetFeilmelding = Encode.forUriComponent(feilmelding);
 
-        String formattertFeilmelding = String.format("%s/#?errorcode=%s", getBaseUrl(), enkodetFeilmelding);//$NON-NLS-1$
-        Response.ResponseBuilder responser = Response.temporaryRedirect(URI.create(formattertFeilmelding));
+        var formattertFeilmelding = String.format("%s/#?errorcode=%s", getBaseUrl(), enkodetFeilmelding);//$NON-NLS-1$
+        var responser = Response.temporaryRedirect(URI.create(formattertFeilmelding));
         responser.encoding("UTF-8");
         return responser.build();
     }

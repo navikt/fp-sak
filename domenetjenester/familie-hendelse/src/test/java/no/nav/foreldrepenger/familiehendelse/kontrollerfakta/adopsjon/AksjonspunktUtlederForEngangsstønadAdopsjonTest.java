@@ -23,7 +23,7 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
 
     @Test
     public void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_far() {
-        List<AksjonspunktResultat> aksjonspunktForFaktaForFar = aksjonspunktForFaktaForFar();
+        var aksjonspunktForFaktaForFar = aksjonspunktForFaktaForFar();
 
         assertThat(aksjonspunktForFaktaForFar).hasSize(3);
         assertThat(aksjonspunktForFaktaForFar.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
@@ -33,7 +33,7 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
 
     @Test
     public void skal_utledede_aksjonspunkt_basert_på_fakta_om_engangsstønad_til_mor() {
-        List<AksjonspunktResultat> aksjonspunktForFaktaForMor = aksjonspunktForFaktaForMor();
+        var aksjonspunktForFaktaForMor = aksjonspunktForFaktaForMor();
 
         assertThat(aksjonspunktForFaktaForMor).hasSize(2);
         assertThat(aksjonspunktForFaktaForMor.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_ADOPSJONSDOKUMENTAJON);
@@ -41,8 +41,8 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
     }
 
     private List<AksjonspunktResultat> aksjonspunktForFaktaForFar() {
-        ScenarioFarSøkerEngangsstønad farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
-        Behandling behandling = farSøkerAdopsjonScenario.lagMocked();
+        var farSøkerAdopsjonScenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var behandling = farSøkerAdopsjonScenario.lagMocked();
         return utleder.utledAksjonspunkterFor(lagInput(behandling));
     }
 
@@ -51,8 +51,8 @@ public class AksjonspunktUtlederForEngangsstønadAdopsjonTest {
     }
 
     private List<AksjonspunktResultat> aksjonspunktForFaktaForMor() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = scenario.lagMocked();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var behandling = scenario.lagMocked();
         return utleder.utledAksjonspunkterFor(lagInput(behandling));
     }
 

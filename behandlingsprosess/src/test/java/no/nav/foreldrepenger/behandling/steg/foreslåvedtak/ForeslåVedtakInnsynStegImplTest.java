@@ -4,15 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 public class ForeslåVedtakInnsynStegImplTest {
 
     @Test
     public void skal_gi_aksjonspunkt_for_å_manuelt_foreslå_vedtak_innsyn() {
-        ForeslåVedtakInnsynStegImpl steg = new ForeslåVedtakInnsynStegImpl();
-        BehandleStegResultat resultat = steg.utførSteg(null);
+        var steg = new ForeslåVedtakInnsynStegImpl();
+        var resultat = steg.utførSteg(null);
 
         assertThat(resultat.getAksjonspunktListe()).containsOnly(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
     }

@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.domene.vedtak.observer;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -55,21 +50,20 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
         this.vedtakTjeneste = vedtakTjeneste;
         this.producer = new HendelseProducer(topicName, bootstrapServers, schemaRegistryUrl, username, password);
 
-        @SuppressWarnings("resource")
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
         // hibernate validator implementations er thread-safe, trenger ikke close
         validator = factory.getValidator();
     }
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        final String behandingIdString = prosessTaskData.getPropertyValue(KEY);
+        final var behandingIdString = prosessTaskData.getPropertyValue(KEY);
         if (behandingIdString != null && !behandingIdString.isEmpty()) {
-            final long behandlingId = Long.parseLong(behandingIdString);
+            final var behandlingId = Long.parseLong(behandingIdString);
 
-            final Optional<Behandling> behandlingOptional = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);
+            final var behandlingOptional = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);
             if (behandlingOptional.isPresent()) {
-                final String payload = generatePayload(behandlingOptional.get());
+                final var payload = generatePayload(behandlingOptional.get());
 
                 producer.sendJson(payload);
             }
@@ -77,12 +71,12 @@ public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
     }
 
     private String generatePayload(Behandling behandling) {
-        Ytelse ytelse = vedtakTjeneste.genererYtelse(behandling);
+        var ytelse = vedtakTjeneste.genererYtelse(behandling);
 
-        Set<ConstraintViolation<Ytelse>> violations = validator.validate(ytelse);
+        var violations = validator.validate(ytelse);
         if (!violations.isEmpty()) {
             // Har feilet validering
-            List<String> allErrors = violations
+            var allErrors = violations
                 .stream()
                 .map(it -> it.getPropertyPath().toString() + " :: " + it.getMessage())
                 .collect(Collectors.toList());

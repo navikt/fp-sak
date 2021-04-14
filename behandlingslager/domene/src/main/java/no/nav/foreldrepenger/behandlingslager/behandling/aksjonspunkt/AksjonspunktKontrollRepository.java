@@ -35,7 +35,7 @@ public class AksjonspunktKontrollRepository {
         LOG.info("Setter behandling på vent for steg={}, aksjonspunkt={}, fristTid={}, venteÅrsak={}", stegType, aksjonspunktDefinisjon, fristTid, venteårsak);
 
         Aksjonspunkt aksjonspunkt;
-        Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon);
+        var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(aksjonspunktDefinisjon);
         if (eksisterendeAksjonspunkt.isPresent()) {
             // håndter har allerede angit aksjonpunkt, oppdaterer
             aksjonspunkt = eksisterendeAksjonspunkt.get();
@@ -64,7 +64,7 @@ public class AksjonspunktKontrollRepository {
         Objects.requireNonNull(toTrinnskontroll, "toTrinnskontroll");
 
         // slå opp for å få riktig konfigurasjon.
-        Aksjonspunkt.Builder adBuilder = behandlingStegType.map(stegType -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon, stegType)).orElseGet(() -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon));
+        var adBuilder = behandlingStegType.map(stegType -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon, stegType)).orElseGet(() -> new Aksjonspunkt.Builder(aksjonspunktDefinisjon));
 
         if (frist.isPresent()) {
             adBuilder.medFristTid(frist.get());
@@ -78,7 +78,7 @@ public class AksjonspunktKontrollRepository {
             adBuilder.medVenteårsak(Venteårsak.UDEFINERT);
         }
 
-        Aksjonspunkt aksjonspunkt = adBuilder.buildFor(behandling);
+        var aksjonspunkt = adBuilder.buildFor(behandling);
         LOG.info("Legger til aksjonspunkt: {}", aksjonspunktDefinisjon);
         return aksjonspunkt;
     }

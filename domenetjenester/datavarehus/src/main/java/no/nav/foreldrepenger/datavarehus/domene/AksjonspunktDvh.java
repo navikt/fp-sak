@@ -127,7 +127,7 @@ public class AksjonspunktDvh extends DvhBaseEntitet {
         if (!super.equals(obj)) {
             return false;
         }
-        AksjonspunktDvh other = (AksjonspunktDvh) obj;
+        var other = (AksjonspunktDvh) obj;
         return Objects.equals(behandlingStegId, other.behandlingStegId)
                 && Objects.equals(aksjonspunktId, other.aksjonspunktId)
                 && Objects.equals(behandlingId, other.behandlingId)

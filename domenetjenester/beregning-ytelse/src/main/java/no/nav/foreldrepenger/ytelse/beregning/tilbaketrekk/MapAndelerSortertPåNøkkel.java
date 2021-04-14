@@ -10,14 +10,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 
 public class MapAndelerSortertPåNøkkel {
     public static List<BRNøkkelMedAndeler> map(List<BeregningsresultatAndel> resultatandeler) {
-        Map<AktivitetOgArbeidsgiverNøkkel, List<BeregningsresultatAndel>> nøkkelMap = lagMapSorertPåNøkkel(resultatandeler);
+        var nøkkelMap = lagMapSorertPåNøkkel(resultatandeler);
         return lagListeMedSammenligningsandeler(nøkkelMap);
     }
 
     private static List<BRNøkkelMedAndeler> lagListeMedSammenligningsandeler(Map<AktivitetOgArbeidsgiverNøkkel, List<BeregningsresultatAndel>> nøkkelMap) {
         List<BRNøkkelMedAndeler> listeSortertPåNøkkel = new ArrayList<>();
         nøkkelMap.forEach((key, value) -> {
-            BRNøkkelMedAndeler sammenligningAndel = new BRNøkkelMedAndeler(key);
+            var sammenligningAndel = new BRNøkkelMedAndeler(key);
             value.forEach(sammenligningAndel::leggTilAndel);
             listeSortertPåNøkkel.add(sammenligningAndel);
         });
@@ -27,8 +27,8 @@ public class MapAndelerSortertPåNøkkel {
     private static Map<AktivitetOgArbeidsgiverNøkkel, List<BeregningsresultatAndel>> lagMapSorertPåNøkkel(List<BeregningsresultatAndel> resultatandeler) {
         Map<AktivitetOgArbeidsgiverNøkkel, List<BeregningsresultatAndel>> nøkkelMap = new HashMap<>();
         resultatandeler.forEach(andel -> {
-            AktivitetOgArbeidsgiverNøkkel nøkkel = andel.getAktivitetOgArbeidsgiverNøkkel();
-            List<BeregningsresultatAndel> andelsliste = nøkkelMap.getOrDefault(nøkkel, new ArrayList<>());
+            var nøkkel = andel.getAktivitetOgArbeidsgiverNøkkel();
+            var andelsliste = nøkkelMap.getOrDefault(nøkkel, new ArrayList<>());
             andelsliste.add(andel);
             nøkkelMap.put(nøkkel, andelsliste);
         });

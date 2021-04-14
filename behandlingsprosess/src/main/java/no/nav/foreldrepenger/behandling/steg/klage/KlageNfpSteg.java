@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 
 import static java.util.Collections.singletonList;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,8 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -49,7 +45,7 @@ public class KlageNfpSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP);
+        var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP);
 
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
     }
@@ -63,12 +59,12 @@ public class KlageNfpSteg implements BehandlingSteg {
 
     private void endreAnsvarligEnhetTilNFPVedTilbakeføringOgLagreHistorikkinnslag(BehandlingskontrollKontekst kontekst) {
 
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if ((behandling.getBehandlendeEnhet() != null)
                 && !behandlendeEnhetTjeneste.getKlageInstans().getEnhetId().equals(behandling.getBehandlendeEnhet())) {
             return;
         }
-        OrganisasjonsEnhet tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
+        var tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, tilEnhet, HistorikkAktør.VEDTAKSLØSNINGEN, "");
     }
 }

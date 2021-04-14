@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
-import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Aksjonsdata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AvstemmingType;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Avstemmingsdata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.KildeType;
@@ -55,19 +54,19 @@ public class GrensesnittavstemmingMapperTest {
         oppdrLinje150Builder = Oppdragslinje150.builder();
         oppdragKvitteringBuilder = OppdragKvittering.builder();
         kodeFagområde = KodeFagområde.FORELDREPENGER_ARBEIDSGIVER;
-        Oppdragskontroll oppdragskontroll = opprettOppdrag(null, kodeFagområde);
+        var oppdragskontroll = opprettOppdrag(null, kodeFagområde);
 
         oppdragsliste = Collections.singletonList(oppdragskontroll.getOppdrag110Liste().get(0));
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
     private Oppdragskontroll opprettOppdrag(String status, KodeFagområde fagområde) {
-        Oppdragskontroll oppdragskontroll = buildOppdragskontroll(status == null);
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdragskontroll, fagområde, LocalDateTime.now());
+        var oppdragskontroll = buildOppdragskontroll(status == null);
+        var oppdrag110 = buildOppdrag110(oppdragskontroll, fagområde, LocalDateTime.now());
         buildOppdragslinje150(oppdrag110);
 
         if (status != null) {
-            OppdragKvittering oppdragKvittering = buildOppdragKvittering(oppdrag110);
+            var oppdragKvittering = buildOppdragKvittering(oppdrag110);
             oppdragKvittering.setAlvorlighetsgrad(status);
             if (!"00".equals(status)) {
                 oppdragKvittering.setBeskrMelding(BESKRIVENDE_MELDING);
@@ -81,7 +80,7 @@ public class GrensesnittavstemmingMapperTest {
     public void testStartmeldingXML() {
         // Arrange
         // Act
-        String melding = grensesnittavstemmingMapper.lagStartmelding();
+        var melding = grensesnittavstemmingMapper.lagStartmelding();
         // Assert
         assertThat(melding).isNotNull();
         assertThat(melding).startsWith("<?xml");
@@ -92,10 +91,10 @@ public class GrensesnittavstemmingMapperTest {
     public void testDatameldingXML() {
         // Arrange
         // Act
-        List<String> meldinger = grensesnittavstemmingMapper.lagDatameldinger();
+        var meldinger = grensesnittavstemmingMapper.lagDatameldinger();
         // Assert
         assertThat(meldinger).hasSize(1);
-        for (String melding : meldinger) {
+        for (var melding : meldinger) {
             assertThat(melding).isNotNull();
             assertThat(melding).startsWith("<?xml");
             assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
@@ -104,8 +103,8 @@ public class GrensesnittavstemmingMapperTest {
 
     private void setupForStoreDatamengder(KodeFagområde kodeFagområde) {
         oppdragsliste = new ArrayList<>();
-        for (int gruppe = 0; gruppe < 60; gruppe++) {
-            Oppdragskontroll oppdrag = opprettOppdrag("00", kodeFagområde);
+        for (var gruppe = 0; gruppe < 60; gruppe++) {
+            var oppdrag = opprettOppdrag("00", kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
             oppdrag = opprettOppdrag(null, kodeFagområde);
@@ -123,8 +122,8 @@ public class GrensesnittavstemmingMapperTest {
     private void setupForStørreDatamengder(KodeFagområde kodeFagområde) {
 
         oppdragsliste = new ArrayList<>();
-        for (int gruppe = 0; gruppe < 560; gruppe++) {
-            Oppdragskontroll oppdrag = opprettOppdrag("00", kodeFagområde);
+        for (var gruppe = 0; gruppe < 560; gruppe++) {
+            var oppdrag = opprettOppdrag("00", kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
             oppdrag = opprettOppdrag(null, kodeFagområde);
@@ -142,9 +141,9 @@ public class GrensesnittavstemmingMapperTest {
     private void opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder() {
         oppdragsliste = new ArrayList<>();
 
-        Oppdragskontroll oppdrag = opprettOppdrag("00", KodeFagområde.FORELDREPENGER_BRUKER);
-        Oppdragskontroll oppdrag2 = opprettOppdrag("00", kodeFagområde);
-        Oppdragskontroll oppdrag3 = opprettOppdrag("00", KodeFagområde.ENGANGSSTØNAD);
+        var oppdrag = opprettOppdrag("00", KodeFagområde.FORELDREPENGER_BRUKER);
+        var oppdrag2 = opprettOppdrag("00", kodeFagområde);
+        var oppdrag3 = opprettOppdrag("00", KodeFagområde.ENGANGSSTØNAD);
         oppdrag.getOppdrag110Liste().add(oppdrag2.getOppdrag110Liste().get(0));
         oppdrag.getOppdrag110Liste().add(oppdrag3.getOppdrag110Liste().get(0));
 
@@ -158,10 +157,10 @@ public class GrensesnittavstemmingMapperTest {
         // Arrange
         setupForStoreDatamengder(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
         // Act
-        List<String> meldinger = grensesnittavstemmingMapper.lagDatameldinger();
+        var meldinger = grensesnittavstemmingMapper.lagDatameldinger();
         // Assert
         assertThat(meldinger).hasSize(3);
-        for (String melding : meldinger) {
+        for (var melding : meldinger) {
             assertThat(melding).isNotNull();
             assertThat(melding).startsWith("<?xml");
             assertThat(melding.length()).isLessThan(MAKS_AVSTEMMING_MELDING_BYTES);
@@ -172,7 +171,7 @@ public class GrensesnittavstemmingMapperTest {
     public void testSluttmeldingXML() {
         // Arrange
         // Act
-        String melding = grensesnittavstemmingMapper.lagSluttmelding();
+        var melding = grensesnittavstemmingMapper.lagSluttmelding();
         // Assert
         assertThat(melding).isNotNull();
         assertThat(melding).startsWith("<?xml");
@@ -183,7 +182,7 @@ public class GrensesnittavstemmingMapperTest {
     public void testStartmeldingInnhold() {
         // Arrange
         // Act
-        Avstemmingsdata avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.START);
+        var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.START);
         // Assert
         sjekkAksjonsInnhold(avstemmingsdata, AksjonType.START, false, kodeFagområde);
     }
@@ -192,7 +191,7 @@ public class GrensesnittavstemmingMapperTest {
     public void testDatameldingInnhold() {
         // Arrange
         // Act
-        List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
+        var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe).hasSize(1);
         sjekkAksjonsInnhold(avstemmingsdataListe.get(0), AksjonType.DATA, true, kodeFagområde);
@@ -202,7 +201,7 @@ public class GrensesnittavstemmingMapperTest {
     public void testSluttmeldingInnhold() {
         // Arrange
         // Act
-        Avstemmingsdata avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.AVSL);
+        var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataFelles(AksjonType.AVSL);
         // Assert
         sjekkAksjonsInnhold(avstemmingsdata, AksjonType.AVSL, false, kodeFagområde);
     }
@@ -210,10 +209,10 @@ public class GrensesnittavstemmingMapperTest {
     @Test
     public void testDatameldingVedStoreDatamengder() {
         // Arrange
-        KodeFagområde kodeFagområde = KodeFagområde.ENGANGSSTØNAD;
+        var kodeFagområde = KodeFagområde.ENGANGSSTØNAD;
         setupForStoreDatamengder(kodeFagområde);
         // Act
-        List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
+        var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe).hasSize(3);
         sjekkAksjonsInnhold(avstemmingsdataListe.get(0), AksjonType.DATA, true, kodeFagområde);
@@ -226,7 +225,7 @@ public class GrensesnittavstemmingMapperTest {
         // Arrange
         setupForStørreDatamengder(KodeFagområde.FORELDREPENGER_BRUKER);
         // Act
-        List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
+        var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getDetalj()).isNotEmpty();
     }
@@ -236,7 +235,7 @@ public class GrensesnittavstemmingMapperTest {
         // Arrange
         opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder();
         // Act
-        List<Avstemmingsdata> avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
+        var avstemmingsdataListe = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
         // Assert
         assertThat(avstemmingsdataListe).hasSize(1);
         assertThat(avstemmingsdataListe.get(avstemmingsdataListe.size() - 1).getAksjon().getUnderkomponentKode()).isEqualTo(kodeFagområde.getKode());
@@ -246,22 +245,22 @@ public class GrensesnittavstemmingMapperTest {
     public void testForFlereOppdrag110ForSammeOppdragskontroll() {
         //Arrange
         oppdragsliste = new ArrayList<>();
-        LocalDateTime lavAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 0, 0, 1);
-        LocalDateTime mellomAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 12, 10, 1);
-        LocalDateTime høyestAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 23, 3, 1);
+        var lavAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 0, 0, 1);
+        var mellomAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 12, 10, 1);
+        var høyestAvstemmingsDato = LocalDateTime.of(2018, 10, 25, 23, 3, 1);
 
-        Oppdragskontroll oppdrag = buildOppdragskontroll(false);
+        var oppdrag = buildOppdragskontroll(false);
 
         opprettOppdrag110MedAvsetmmingsDato(oppdrag, mellomAvstemmingsDato, kodeFagområde);
-        Avstemming forventetTom = opprettOppdrag110MedAvsetmmingsDato(oppdrag, høyestAvstemmingsDato, kodeFagområde).getAvstemming();
-        Avstemming forventetFom = opprettOppdrag110MedAvsetmmingsDato(oppdrag, lavAvstemmingsDato, kodeFagområde).getAvstemming();
+        var forventetTom = opprettOppdrag110MedAvsetmmingsDato(oppdrag, høyestAvstemmingsDato, kodeFagområde).getAvstemming();
+        var forventetFom = opprettOppdrag110MedAvsetmmingsDato(oppdrag, lavAvstemmingsDato, kodeFagområde).getAvstemming();
 
         oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
         //Act
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
 
-        List<Avstemmingsdata> avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
+        var avstemmingsdata = grensesnittavstemmingMapper.lagAvstemmingsdataListe();
 
         //Assert
         assertThat(avstemmingsdata).isNotNull();
@@ -270,7 +269,7 @@ public class GrensesnittavstemmingMapperTest {
     }
 
     private Oppdrag110 opprettOppdrag110MedAvsetmmingsDato(Oppdragskontroll oppdrag, LocalDateTime lavAvstemmingsDato, KodeFagområde kodeFagområde) {
-        Oppdrag110 oppdrag110 = buildOppdrag110(oppdrag, kodeFagområde, lavAvstemmingsDato);
+        var oppdrag110 = buildOppdrag110(oppdrag, kodeFagområde, lavAvstemmingsDato);
         buildOppdragslinje150(oppdrag110);
         return oppdrag110;
     }
@@ -278,7 +277,7 @@ public class GrensesnittavstemmingMapperTest {
     private void sjekkAksjonsInnhold(Avstemming forvendetFom, Avstemming forvendetTom, Avstemmingsdata avstemmingsdata, AksjonType aksjonType, boolean første, KodeFagområde kodeFagområde) {
         sjekkAksjonsInnhold(avstemmingsdata, aksjonType, første, kodeFagområde);
 
-        Aksjonsdata aksjon = avstemmingsdata.getAksjon();
+        var aksjon = avstemmingsdata.getAksjon();
         assertThat(aksjon.getNokkelFom()).isEqualTo(forvendetFom.getNøkkel());
         assertThat(aksjon.getNokkelTom()).isEqualTo(forvendetTom.getNøkkel());
     }
@@ -302,7 +301,7 @@ public class GrensesnittavstemmingMapperTest {
             assertThat(avstemmingsdata.getPeriode()).isNull();
             assertThat(avstemmingsdata.getTotal()).isNull();
         }
-        Aksjonsdata aksjon = avstemmingsdata.getAksjon();
+        var aksjon = avstemmingsdata.getAksjon();
         assertThat(aksjon).isNotNull();
         assertThat(aksjon.getAksjonType()).isEqualTo(aksjonType);
         assertThat(aksjon.getAvleverendeAvstemmingId()).isNotNull();

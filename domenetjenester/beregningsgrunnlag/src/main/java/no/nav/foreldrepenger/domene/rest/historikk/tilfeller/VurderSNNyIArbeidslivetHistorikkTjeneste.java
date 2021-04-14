@@ -21,8 +21,8 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
 
     @Override
     public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto nyIArbeidslivetDto = dto.getVurderNyIArbeidslivet();
-        Boolean opprinneligNyIArbeidslivetVerdi = getOpprinneligNyIArbeidslivetVerdi(forrigeGrunnlag);
+        var nyIArbeidslivetDto = dto.getVurderNyIArbeidslivet();
+        var opprinneligNyIArbeidslivetVerdi = getOpprinneligNyIArbeidslivetVerdi(forrigeGrunnlag);
         lagHistorikkInnslag(nyIArbeidslivetDto, opprinneligNyIArbeidslivetVerdi, tekstBuilder);
     }
 
@@ -52,8 +52,8 @@ public class VurderSNNyIArbeidslivetHistorikkTjeneste extends FaktaOmBeregningHi
 
     private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto dto,
                                         Boolean opprinneligNyIArbeidslivetVerdi, HistorikkInnslagTekstBuilder tekstBuilder) {
-        HistorikkEndretFeltVerdiType opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyIArbeidslivetVerdi);
-        HistorikkEndretFeltVerdiType nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erNyIArbeidslivet());
+        var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(opprinneligNyIArbeidslivetVerdi);
+        var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(dto.erNyIArbeidslivet());
         if(opprinneligVerdi != nyVerdi) {
             tekstBuilder.medEndretFelt(historikkEndretFeltType, opprinneligVerdi, nyVerdi);
         }

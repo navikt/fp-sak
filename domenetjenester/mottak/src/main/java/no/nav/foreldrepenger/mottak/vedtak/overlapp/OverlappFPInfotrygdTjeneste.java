@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,13 +43,13 @@ public class OverlappFPInfotrygdTjeneste {
 
     public boolean harForeldrepengerInfotrygdSomOverlapper(AktørId aktørId, LocalDate vedtakDato) {
         var ident = getFnrFraAktørId(aktørId);
-        List<Grunnlag> rest = tjeneste.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
+        var rest = tjeneste.hentGrunnlag(ident.getIdent(), vedtakDato.minusWeeks(1), vedtakDato.plusYears(3));
 
         return rest.stream().anyMatch(g -> overlapper(g, vedtakDato));
     }
 
     private boolean overlapper(Grunnlag grunnlag, LocalDate vedtakDato) {
-        LocalDate maxDato = VirkedagUtil.tomVirkedag(finnMaxDatoUtbetaling(grunnlag).orElse(finnMaxDato(grunnlag)));
+        var maxDato = VirkedagUtil.tomVirkedag(finnMaxDatoUtbetaling(grunnlag).orElse(finnMaxDato(grunnlag)));
         if (!maxDato.isBefore(vedtakDato)) {
             LOG.info("Overlapp INFOTRYGD: fødselsdato barn: {} opphørsdato fra INFOTRYGD: {} Startdato ny sak: {}", grunnlag.getFødselsdatoBarn(), maxDato, vedtakDato);
         } else {

@@ -51,9 +51,9 @@ public abstract class AbstractOverstyringshåndterer<T extends OverstyringAksjon
     protected abstract void lagHistorikkInnslag(Behandling behandling, T dto);
 
     protected void lagHistorikkInnslagForOverstyrtVilkår(String begrunnelse, boolean vilkårOppfylt, SkjermlenkeType skjermlenkeType) {
-        HistorikkEndretFeltVerdiType tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT
+        var tilVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT
                 : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT;
-        HistorikkEndretFeltVerdiType fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT
+        var fraVerdi = vilkårOppfylt ? HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT
                 : HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT;
 
         getHistorikkAdapter().tekstBuilder()

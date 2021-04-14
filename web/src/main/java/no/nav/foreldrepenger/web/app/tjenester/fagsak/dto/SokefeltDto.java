@@ -21,7 +21,7 @@ public class SokefeltDto implements AbacDto {
     public SokefeltDto(String searchString) {
         this.searchString = searchString;
     }
-    
+
     public SokefeltDto(Saksnummer saksnummer) {
         this.searchString = saksnummer.getVerdi();
     }
@@ -32,7 +32,7 @@ public class SokefeltDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter attributter = AbacDataAttributter.opprett();
+        var attributter = AbacDataAttributter.opprett();
         if (searchString.length() == 11 /* guess - fødselsnummer */) {
             attributter
                     .leggTil(AppAbacAttributtType.FNR, searchString)

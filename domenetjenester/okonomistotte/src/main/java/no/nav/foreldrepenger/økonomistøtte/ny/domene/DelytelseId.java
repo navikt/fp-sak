@@ -9,7 +9,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
     private boolean gammeltFormat;
 
     public static DelytelseId opprett(FagsystemId fagsystemId, int teller) {
-        DelytelseId id = new DelytelseId();
+        var id = new DelytelseId();
         id.fagsystemId = fagsystemId;
         id.løpenummer = teller;
         id.gammeltFormat = false;
@@ -17,7 +17,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
     }
 
     public static DelytelseId førsteForFagsystemId(FagsystemId fagsystemId) {
-        DelytelseId id = new DelytelseId();
+        var id = new DelytelseId();
         id.fagsystemId = fagsystemId;
         id.løpenummer = 100; //TODO start på 1
         id.gammeltFormat = false;
@@ -31,8 +31,8 @@ public class DelytelseId implements Comparable<DelytelseId> {
     }
 
     private static DelytelseId parseNyttFormat(String kode) {
-        int index = kode.lastIndexOf('-');
-        DelytelseId id = new DelytelseId();
+        var index = kode.lastIndexOf('-');
+        var id = new DelytelseId();
         id.fagsystemId = FagsystemId.parse(kode.substring(0, index));
         id.løpenummer = Integer.parseInt(kode.substring(index + 1));
         id.gammeltFormat = false;
@@ -40,7 +40,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
     }
 
     private static DelytelseId parseGammeltFormat(String kode) {
-        DelytelseId id = new DelytelseId();
+        var id = new DelytelseId();
         id.fagsystemId = FagsystemId.parse(kode.substring(0, kode.length() - 3));
         id.løpenummer = Integer.parseInt(kode.substring(kode.length() - 3));
         id.gammeltFormat = true;
@@ -75,7 +75,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
     }
 
     public DelytelseId increment(int add) {
-        DelytelseId id = new DelytelseId();
+        var id = new DelytelseId();
         id.fagsystemId = this.fagsystemId;
         id.løpenummer = this.løpenummer + add;
         id.gammeltFormat = this.gammeltFormat; //TODO alltid sette til true ?
@@ -90,7 +90,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
         if (annen == null || getClass() != annen.getClass()) {
             return false;
         }
-        DelytelseId that = (DelytelseId) annen;
+        var that = (DelytelseId) annen;
         return løpenummer == that.løpenummer &&
             fagsystemId.equals(that.fagsystemId);
     }
@@ -110,7 +110,7 @@ public class DelytelseId implements Comparable<DelytelseId> {
 
     @Override
     public int compareTo(DelytelseId o) {
-        int resultat = fagsystemId.compareTo(o.fagsystemId);
+        var resultat = fagsystemId.compareTo(o.fagsystemId);
         if (resultat != 0) {
             return resultat;
         }

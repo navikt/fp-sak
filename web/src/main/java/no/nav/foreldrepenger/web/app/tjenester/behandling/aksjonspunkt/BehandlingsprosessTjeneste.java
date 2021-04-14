@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,7 +23,6 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
-import no.nav.vedtak.felles.integrasjon.ldap.LdapBruker;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -96,7 +93,7 @@ public class BehandlingsprosessTjeneste {
 
     /** Hvorvidt betingelser for å hente inn registeropplysninger på nytt er oppfylt. */
     private boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
-        BehandlingStatus behandlingStatus = behandling.getStatus();
+        var behandlingStatus = behandling.getStatus();
         return BehandlingStatus.UTREDES.equals(behandlingStatus)
             && !behandling.isBehandlingPåVent()
             && harRolleSaksbehandler()
@@ -123,8 +120,8 @@ public class BehandlingsprosessTjeneste {
      * @return Prosess Task gruppenavn som kan brukes til å sjekke fremdrift
      */
     private String asynkInnhentingAvRegisteropplysningerOgKjørProsess(Behandling behandling) {
-        ProsessTaskGruppe gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
-        String gruppeNavn = prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
+        var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
+        var gruppeNavn = prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
             gruppe);
         return gruppeNavn;
     }
@@ -142,17 +139,17 @@ public class BehandlingsprosessTjeneste {
     /** Sjekker om det pågår åpne prosess tasks (for angitt gruppe). Returnerer eventuelt task gruppe for eventuell åpen prosess task gruppe. */
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågårForBehandling(Behandling behandling, String gruppe) {
 
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
 
-        Map<String, ProsessTaskData> nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
+        var nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
         return new VurderProsessTaskStatusForPollingApi(behandlingId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
 
     }
 
     private boolean harRolleSaksbehandler() {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        LdapBruker ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
-        Collection<String> grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
+        var ident = SubjectHandler.getSubjectHandler().getUid();
+        var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
+        var grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
         return grupper.contains(gruppenavnSaksbehandler);
     }
 
@@ -171,13 +168,13 @@ public class BehandlingsprosessTjeneste {
      * @return ProsessTask gruppe
      */
     public String asynkTilbakestillOgÅpneBehandlingForEndringer(Long behandlingsId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingsId);
-        ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
+        var behandling = behandlingRepository.hentBehandling(behandlingsId);
+        var gruppe = new ProsessTaskGruppe();
 
-        ProsessTaskData åpneBehandlingForEndringerTask = new ProsessTaskData(ÅpneBehandlingForEndringerTask.TASKTYPE);
+        var åpneBehandlingForEndringerTask = new ProsessTaskData(ÅpneBehandlingForEndringerTask.TASKTYPE);
         åpneBehandlingForEndringerTask.setBehandling(behandling.getFagsakId(), behandlingsId, behandling.getAktørId().getId());
         gruppe.addNesteSekvensiell(åpneBehandlingForEndringerTask);
-        ProsessTaskData fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
@@ -195,10 +192,10 @@ public class BehandlingsprosessTjeneste {
      */
     private void opprettHistorikkinnslagForManueltGjenopptakelse(Behandling behandling,
                                                                  HistorikkinnslagType historikkinnslagType) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var builder = new HistorikkInnslagTekstBuilder();
         builder.medHendelse(historikkinnslagType);
 
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandling.getId());
@@ -208,10 +205,10 @@ public class BehandlingsprosessTjeneste {
     }
 
     private void opprettHistorikkinnslagForBehandlingStartetPåNytt(Behandling behandling) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT);
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
+        var historikkInnslagTekstBuilder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BEH_STARTET_PÅ_NYTT)
             .medBegrunnelse(HistorikkBegrunnelseType.BEH_STARTET_PA_NYTT);
         historikkInnslagTekstBuilder.build(historikkinnslag);

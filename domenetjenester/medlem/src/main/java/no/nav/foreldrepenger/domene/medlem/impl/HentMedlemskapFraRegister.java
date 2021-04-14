@@ -72,7 +72,7 @@ public class HentMedlemskapFraRegister {
     }
 
     private MedlemskapDekningType mapTilDekning(String trygdeDekning) {
-        MedlemskapDekningType dekningType = MedlemskapDekningType.UDEFINERT;
+        var dekningType = MedlemskapDekningType.UDEFINERT;
         if (trygdeDekning != null) {
             dekningType = MedlemskapsperiodeKoder.getDekningMap().get(trygdeDekning);
             if (dekningType == null) {
@@ -83,7 +83,7 @@ public class HentMedlemskapFraRegister {
     }
 
     private MedlemskapType mapTilLovvalg(String lovvalg) {
-        MedlemskapType medlemskapType = MedlemskapType.UDEFINERT;
+        var medlemskapType = MedlemskapType.UDEFINERT;
         if (lovvalg != null) {
             if (MedlemskapsperiodeKoder.Lovvalg.ENDL.name().compareTo(lovvalg) == 0) {
                 medlemskapType = MedlemskapType.ENDELIG;
@@ -99,7 +99,7 @@ public class HentMedlemskapFraRegister {
     }
 
     private MedlemskapKildeType mapTilKilde(String kilde) {
-        MedlemskapKildeType kildeType = MedlemskapKildeType.UDEFINERT;
+        var kildeType = MedlemskapKildeType.UDEFINERT;
         if (kilde != null) {
             kildeType = MedlemskapKildeType.fraKode(kilde);
             if (kildeType == null) {

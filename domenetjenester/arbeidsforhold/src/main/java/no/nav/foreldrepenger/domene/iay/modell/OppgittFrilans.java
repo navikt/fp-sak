@@ -43,7 +43,7 @@ public class OppgittFrilans extends BaseEntitet {
         if ((o == null) || !(o instanceof OppgittFrilans)) {
             return false;
         }
-        OppgittFrilans that = (OppgittFrilans) o;
+        var that = (OppgittFrilans) o;
         return (harInntektFraFosterhjem == that.harInntektFraFosterhjem) &&
                 (erNyoppstartet == that.erNyoppstartet) &&
                 (harNærRelasjon == that.harNærRelasjon) &&

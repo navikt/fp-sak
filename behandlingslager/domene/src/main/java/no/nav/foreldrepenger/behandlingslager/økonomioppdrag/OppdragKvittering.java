@@ -11,12 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Immutable
 @Entity(name = "OppdragKvittering")
@@ -90,7 +88,7 @@ public class OppdragKvittering extends BaseCreateableEntitet {
         if (!(object instanceof OppdragKvittering)) {
             return false;
         }
-        OppdragKvittering oppdragKvittering = (OppdragKvittering) object;
+        var oppdragKvittering = (OppdragKvittering) object;
         return Objects.equals(alvorlighetsgrad, oppdragKvittering.getAlvorlighetsgrad())
             && Objects.equals(beskrMelding, oppdragKvittering.getBeskrMelding())
             && Objects.equals(meldingKode, oppdragKvittering.getMeldingKode());
@@ -133,7 +131,7 @@ public class OppdragKvittering extends BaseCreateableEntitet {
 
         public OppdragKvittering build() {
             verifyStateForBuild();
-            OppdragKvittering oppdragKvittering = new OppdragKvittering();
+            var oppdragKvittering = new OppdragKvittering();
             oppdragKvittering.alvorlighetsgrad = alvorlighetsgrad;
             oppdragKvittering.beskrMelding = beskrMelding;
             oppdragKvittering.meldingKode = meldingKode;

@@ -55,8 +55,8 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
     }
 
     private boolean erRelevantForEngangsstønadSak(Behandling behandling) {
-        LocalDate stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
-        LocalDate idag = LocalDate.now().minusDays(1);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
+        var idag = LocalDate.now().minusDays(1);
         // Gjelder terminsøknader pluss intervall. Øvrige tilfelle fanges opp i etterkontroll.
         return idag.isBefore(stp.plus(tpsRegistreringsTidsrom)) && legacyESBeregningRepository.skalReberegne(behandling.getId(), idag);
     }

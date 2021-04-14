@@ -32,9 +32,8 @@ class KopierBeregningsgrunnlag {
             forrigeBekreftetGrunnlag);
         if (kanKopiereFraBekreftet) {
             return forrigeBekreftetGrunnlag.isPresent();
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -52,9 +51,8 @@ class KopierBeregningsgrunnlag {
         var kanKopiereFraBekreftet = kanKopiereBeregningsgrunnlag(aksjonspunkter, nyttBg, forrigeBeregningsgrunnlag);
         if (kanKopiereFraBekreftet) {
             return forrigeBekreftetBeregningsgrunnlag.isPresent();
-        } else {
-            return false;
         }
+        return false;
     }
 
     private static boolean kanKopiereAktiviteter(List<BeregningAksjonspunktResultat> aksjonspunkter,

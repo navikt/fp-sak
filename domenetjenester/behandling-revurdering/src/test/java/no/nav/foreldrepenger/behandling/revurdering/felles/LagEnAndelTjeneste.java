@@ -18,8 +18,8 @@ public class LagEnAndelTjeneste implements LagAndelTjeneste {
     public void lagAndeler(BeregningsgrunnlagPeriode periode,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
-        Dagsatser ds = new Dagsatser(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+        var ds = new Dagsatser(medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker);
+        var bga = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))

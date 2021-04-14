@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.web.app.soap.sak.tjeneste;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -41,20 +38,20 @@ public class OpprettSakTjeneste {
     }
 
     public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
+        var navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
         return fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
     }
 
     public Fagsak opprettSakVL(AktørId bruker, FagsakYtelseType ytelseType, JournalpostId journalpostId) {
-        NavBruker navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
-        Fagsak fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
+        var navBruker = brukerTjeneste.hentEllerOpprettFraAktørId(bruker);
+        var fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
         knyttFagsakOgJournalpost(fagsak.getId(), journalpostId);
         return fagsak;
     }
 
     public FagsakYtelseType utledYtelseType(BehandlingTema behandlingTema) {
 
-        FagsakYtelseType fagsakYtelseType = behandlingTema.getFagsakYtelseType();
+        var fagsakYtelseType = behandlingTema.getFagsakYtelseType();
         if (FagsakYtelseType.UDEFINERT.equals(fagsakYtelseType)) {
             throw new TekniskException("FP-106651", "Ukjent behandlingstemakode " + behandlingTema.getOffisiellKode());
         }
@@ -64,21 +61,20 @@ public class OpprettSakTjeneste {
     public void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalPostId) {
 
         //Sjekk om det allerede finnes knytning.
-        Optional<Journalpost> journalpost = fagsakTjeneste.hentJournalpost(journalPostId);
+        var journalpost = fagsakTjeneste.hentJournalpost(journalPostId);
         if (journalpost.isPresent()) {
-            Saksnummer knyttetTilSaksnummer = journalpost.get().getFagsak().getSaksnummer();
+            var knyttetTilSaksnummer = journalpost.get().getFagsak().getSaksnummer();
             if (knyttetTilSaksnummer.equals(saksnummer)) {
                 //Vi har knytning mot samme sak. Vi er HAPPY og returnerer herfra.
                 return;
-            } else {
-                //Knyttet til en annen fagsak
-                throw journalpostAlleredeKnyttetTilAnnenFagsak(journalPostId, knyttetTilSaksnummer,
-                    saksnummer.getVerdi());
             }
+            //Knyttet til en annen fagsak
+            throw journalpostAlleredeKnyttetTilAnnenFagsak(journalPostId, knyttetTilSaksnummer,
+                saksnummer.getVerdi());
         }
 
         //HER: Finnes ikke knytnign mellom journalpost og sak. La oss oprpette en:
-        Optional<Fagsak> fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
+        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
         if (fagsak.isPresent()) {
             fagsakTjeneste.lagreJournalPost(new Journalpost(journalPostId, fagsak.get()));
         } else {
@@ -87,8 +83,8 @@ public class OpprettSakTjeneste {
     }
 
     public void flyttJournalpostTilSak(JournalpostId journalPostId, Saksnummer saksnummer) {
-        Journalpost journalpost = fagsakTjeneste.hentJournalpost(journalPostId).orElse(null);
-        Optional<Fagsak> fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
+        var journalpost = fagsakTjeneste.hentJournalpost(journalPostId).orElse(null);
+        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
         if (journalpost != null && fagsak.isPresent()) {
             journalpost.knyttJournalpostTilFagsak(fagsak.get());
             fagsakTjeneste.lagreJournalPost(journalpost);
@@ -96,20 +92,19 @@ public class OpprettSakTjeneste {
     }
 
     private void knyttFagsakOgJournalpost(Long fagsakId, JournalpostId journalpostId) {
-        Optional<Journalpost> journalpost = fagsakTjeneste.hentJournalpost(journalpostId);
+        var journalpost = fagsakTjeneste.hentJournalpost(journalpostId);
         if (journalpost.isPresent()) {
             if (journalpost.get().getFagsak().getId().equals(fagsakId)) {
                 //Vi har knytning mot samme sak. Vi er HAPPY og returnerer herfra.
                 return;
-            } else {
-                //Knyttet til en annen fagsak
-                throw journalpostAlleredeKnyttetTilAnnenFagsak(journalpostId,
-                    journalpost.get().getFagsak().getSaksnummer(), fagsakId.toString());
             }
+            //Knyttet til en annen fagsak
+            throw journalpostAlleredeKnyttetTilAnnenFagsak(journalpostId,
+                journalpost.get().getFagsak().getSaksnummer(), fagsakId.toString());
         }
 
         //HER: Finnes ikke knytning mellom journalpost og sak. La oss opprette en:
-        Fagsak fagsak = fagsakTjeneste.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakTjeneste.finnEksaktFagsak(fagsakId);
         fagsakTjeneste.lagreJournalPost(new Journalpost(journalpostId, fagsak));
     }
 

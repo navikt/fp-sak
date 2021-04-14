@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.feil;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +37,7 @@ class IndexFeil {
     }
 
     private IndexView getJandexIndex() {
-        List<ClassLoader> classLoaders = Arrays.asList(getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
+        var classLoaders = Arrays.asList(getClass().getClassLoader(), Thread.currentThread().getContextClassLoader());
 
         List<IndexView> ivs = new ArrayList<>();
         classLoaders
@@ -51,8 +50,8 @@ class IndexFeil {
                 }
             })
             .forEach(url -> {
-                try (InputStream is = url.openStream()) {
-                    IndexReader ir = new IndexReader(is);
+                try (var is = url.openStream()) {
+                    var ir = new IndexReader(is);
                     ivs.add(ir.read());
                 } catch (IOException e) {
                     throw new IllegalStateException("Kunne ikke lese:" + url.toExternalForm(), e);
@@ -66,12 +65,12 @@ class IndexFeil {
         Set<AnnotationInstance> annotations = new LinkedHashSet<>(1000);
 
         Arrays.asList(feilAnnotation).stream().forEach(ft -> {
-            DotName search = DotName.createSimple(ft.getName());
+            var search = DotName.createSimple(ft.getName());
             annotations.addAll(getIndex().getAnnotations(search));
         });
 
         List<AnnotationInstance> types = new ArrayList<>();
-        for (AnnotationInstance ann : annotations) {
+        for (var ann : annotations) {
             if (ann.target().kind() == Kind.METHOD) {
                 types.add(ann);
             }

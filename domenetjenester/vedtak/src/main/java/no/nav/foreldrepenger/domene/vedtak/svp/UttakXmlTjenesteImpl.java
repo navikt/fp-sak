@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.svp;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,13 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Tilrett
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
-import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
-import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.Tilrettelegging;
 import no.nav.vedtak.felles.xml.vedtak.uttak.svp.v2.UttakSvangerskapspenger;
@@ -55,9 +50,9 @@ public class UttakXmlTjenesteImpl {
     public void setUttak(Beregningsresultat beregningsresultat, Behandling behandling) {
         //TODO PFP-7642 Implementere basert på UttakXmlTjenesteForeldrepenger
 
-        UttakSvangerskapspenger uttakSvangerskapspenger = uttakObjectFactory.createUttakSvangerskapspenger();
+        var uttakSvangerskapspenger = uttakObjectFactory.createUttakSvangerskapspenger();
 
-        Optional<SvangerskapspengerUttakResultatEntitet> svangerskapspengerUttakOptional = uttakRepository.hentHvisEksisterer(behandling.getId());
+        var svangerskapspengerUttakOptional = uttakRepository.hentHvisEksisterer(behandling.getId());
 
         svangerskapspengerUttakOptional.ifPresent(uttaksperiodegrense ->
             uttaksperiodegrense.finnFørsteUttaksdato().ifPresent(førsteUttaksdato ->
@@ -74,14 +69,14 @@ public class UttakXmlTjenesteImpl {
         svpGrunnlagEntitetOpt.ifPresent(svpGrunnlag -> setTilrettelegginger(uttakSvangerskapspenger,
             new TilretteleggingFilter(svpGrunnlagEntitetOpt.get()).getAktuelleTilretteleggingerFiltrert()));
 
-        Uttak uttak = new Uttak();
+        var uttak = new Uttak();
         uttak.getAny().add(uttakObjectFactory.createUttak(uttakSvangerskapspenger));
         beregningsresultat.setUttak(uttak);
     }
 
 
     private void setTilrettelegginger(UttakSvangerskapspenger uttakSvangerskapspenger, List<SvpTilretteleggingEntitet> svpTilrettelegginger) {
-        List<Tilrettelegging> kontrakt = svpTilrettelegginger
+        var kontrakt = svpTilrettelegginger
             .stream()
             .map(svpTilrettelegging -> konverterFraDomene(svpTilrettelegging)).collect(Collectors.toList());
         uttakSvangerskapspenger.getTilrettelegging().addAll(kontrakt);
@@ -89,28 +84,28 @@ public class UttakXmlTjenesteImpl {
 
     private Tilrettelegging konverterFraDomene(SvpTilretteleggingEntitet svpTilrettelegging) {
         //TODO PFP-8651: tilpass til å støtte mer enn en dato av hver type
-        Tilrettelegging kontrakt = new Tilrettelegging();
+        var kontrakt = new Tilrettelegging();
 
-        Optional<DateOpplysning> behovForTilretteleggingFomOptional = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getBehovForTilretteleggingFom());
+        var behovForTilretteleggingFomOptional = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getBehovForTilretteleggingFom());
         behovForTilretteleggingFomOptional.ifPresent(kontrakt::setBehovForTilretteleggingFom);
 
-        Optional<LocalDate> helTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
+        var helTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
         if (helTilretteleggingFomOptional.isPresent()) {
-            Optional<DateOpplysning> helTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(helTilretteleggingFomOptional.get());
+            var helTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(helTilretteleggingFomOptional.get());
             helTilretteleggingFom.ifPresent(kontrakt::setHelTilretteleggingFom);
         }
 
-        Optional<TilretteleggingFOM> delvisTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING)).max(Comparator.comparing(TilretteleggingFOM::getFomDato));
+        var delvisTilretteleggingFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING)).max(Comparator.comparing(TilretteleggingFOM::getFomDato));
         if (delvisTilretteleggingFomOptional.isPresent()) {
-            Optional<DateOpplysning> delvisTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(delvisTilretteleggingFomOptional.get().getFomDato());
+            var delvisTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(delvisTilretteleggingFomOptional.get().getFomDato());
             delvisTilretteleggingFom.ifPresent(kontrakt::setDelvisTilretteleggingFom);
 
             kontrakt.setStillingsprosent(VedtakXmlUtil.lagDecimalOpplysning(delvisTilretteleggingFomOptional.get().getStillingsprosent()));
         }
 
-        Optional<LocalDate> slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
+        var slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
         if (slutteArbeidFomOptional.isPresent()) {
-            Optional<DateOpplysning> slutteArbeidFom = VedtakXmlUtil.lagDateOpplysning(slutteArbeidFomOptional.get());
+            var slutteArbeidFom = VedtakXmlUtil.lagDateOpplysning(slutteArbeidFomOptional.get());
             slutteArbeidFom.ifPresent(kontrakt::setSlutteArbeidFom);
         }
 
@@ -130,10 +125,10 @@ public class UttakXmlTjenesteImpl {
 
         kontrakt.setKopiertFraTidligereBehandling(VedtakXmlUtil.lagBooleanOpplysning(svpTilrettelegging.getKopiertFraTidligereBehandling()));
 
-        Optional<DateOpplysning> mottattTidspunkt = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getMottattTidspunkt().toLocalDate());
+        var mottattTidspunkt = VedtakXmlUtil.lagDateOpplysning(svpTilrettelegging.getMottattTidspunkt().toLocalDate());
         mottattTidspunkt.ifPresent(kontrakt::setMottattTidspunkt);
 
-        Optional<Arbeidsgiver> arbeidsgiverOptional = svpTilrettelegging.getArbeidsgiver();
+        var arbeidsgiverOptional = svpTilrettelegging.getArbeidsgiver();
 
         if (arbeidsgiverOptional.isPresent()) {
             kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(arbeidsgiverOptional.get().getOrgnr()));
@@ -148,14 +143,14 @@ public class UttakXmlTjenesteImpl {
 
 
     private void setUttakUttaksResultatArbeidsforhold(UttakSvangerskapspenger uttakSvangerskapspenger, List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> arbeidsforholdDomene) {
-        List<UttaksResultatArbeidsforhold> kontrakt = arbeidsforholdDomene
+        var kontrakt = arbeidsforholdDomene
             .stream()
             .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
         uttakSvangerskapspenger.getUttaksResultatArbeidsforhold().addAll(kontrakt);
     }
 
     private UttaksResultatArbeidsforhold konverterFraDomene(SvangerskapspengerUttakResultatArbeidsforholdEntitet arbeidsforhold) {
-        UttaksResultatArbeidsforhold kontrakt = new UttaksResultatArbeidsforhold();
+        var kontrakt = new UttaksResultatArbeidsforhold();
         kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(arbeidsforhold.getArbeidsgiver()==null ? null:arbeidsforhold.getArbeidsgiver().getOrgnr()));
         kontrakt.setArbeidsforholdid(VedtakXmlUtil.lagStringOpplysning(arbeidsforhold.getId().toString()));
         setPerioder(kontrakt, arbeidsforhold.getPerioder());
@@ -164,20 +159,20 @@ public class UttakXmlTjenesteImpl {
 
 
     private void setPerioder(UttaksResultatArbeidsforhold kontraktArbeidsforhold, List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder) {
-        List<UttaksresultatPeriode> kontrakt = perioder
+        var kontrakt = perioder
             .stream()
             .map(periode -> konverterFraDomene(periode)).collect(Collectors.toList());
         kontraktArbeidsforhold.getUttaksresultatPerioder().addAll(kontrakt);
     }
 
     private UttaksresultatPeriode konverterFraDomene(SvangerskapspengerUttakResultatPeriodeEntitet periode) {
-        UttaksresultatPeriode kontrakt = new UttaksresultatPeriode();
+        var kontrakt = new UttaksresultatPeriode();
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periode.getFom(), periode.getTom()));
 
-        KodeverksOpplysning periodeResultatType = VedtakXmlUtil.lagKodeverksOpplysning(periode.getPeriodeResultatType());
+        var periodeResultatType = VedtakXmlUtil.lagKodeverksOpplysning(periode.getPeriodeResultatType());
         kontrakt.setPeriodeResultatType(periodeResultatType);
 
-        KodeverksOpplysning periodeIkkeOppfyltÅrsak = VedtakXmlUtil.lagKodeverksOpplysning(periode.getPeriodeIkkeOppfyltÅrsak());
+        var periodeIkkeOppfyltÅrsak = VedtakXmlUtil.lagKodeverksOpplysning(periode.getPeriodeIkkeOppfyltÅrsak());
         kontrakt.setPerioderesultataarsak(periodeIkkeOppfyltÅrsak);
 
         return kontrakt;

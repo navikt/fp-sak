@@ -159,9 +159,8 @@ public abstract class RevurderingBehandlingsresultatutlederFelles {
                         "Utviklerfeil: Kan ikke ha BehandlingResultatType.INGEN_ENDRING uten original behandling. BehandlingId="
                             + originalBehandlingId));
                 return finnBehandlingsresultatPåOriginalBehandling(forrigeBehandlingId);
-            } else {
-                return behandlingsresultatOriginal;
             }
+            return behandlingsresultatOriginal;
         }
         return Optional.empty();
     }

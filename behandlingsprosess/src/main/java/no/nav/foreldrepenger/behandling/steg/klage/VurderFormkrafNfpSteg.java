@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.klage;
 
 import static java.util.Collections.singletonList;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -26,7 +24,7 @@ public class VurderFormkrafNfpSteg implements BehandlingSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        List<AksjonspunktDefinisjon> aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP);
+        var aksjonspunktDefinisjons = singletonList(AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP);
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjons);
     }
 }

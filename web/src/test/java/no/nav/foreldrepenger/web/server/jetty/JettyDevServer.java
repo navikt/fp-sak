@@ -89,16 +89,16 @@ public class JettyDevServer extends AbstractJettyServer {
     }
 
     private static void initCryptoStoreConfig() {
-        String defaultLocation = ENV.getProperty("user.home", ".") + "/.modig/truststore.jks";
+        var defaultLocation = ENV.getProperty("user.home", ".") + "/.modig/truststore.jks";
 
-        String storePath = ENV.getProperty(JettyDevServer.TRUSTSTORE_PATH_PROP, defaultLocation);
-        File storeFile = new File(storePath);
+        var storePath = ENV.getProperty(JettyDevServer.TRUSTSTORE_PATH_PROP, defaultLocation);
+        var storeFile = new File(storePath);
         if (!storeFile.exists()) {
             throw new IllegalStateException("Finner ikke " + "truststore" + " i " + storePath
                     + "\n\tKonfigurer enten som System property '" + JettyDevServer.TRUSTSTORE_PATH_PROP + "' eller environment variabel '"
                     + JettyDevServer.TRUSTSTORE_PATH_PROP.toUpperCase().replace('.', '_') + "'");
         }
-        String password = ENV.getProperty(JettyDevServer.TRUSTSTORE_PASSW_PROP, "changeit");
+        var password = ENV.getProperty(JettyDevServer.TRUSTSTORE_PASSW_PROP, "changeit");
         if (password == null) {
             throw new IllegalStateException("Passord for å aksessere store " + "truststore" + " i " + storePath + " er null");
         }

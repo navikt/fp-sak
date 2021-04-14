@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
@@ -63,7 +59,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
 
     @Override
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
-        Behandling behandling = fellesUtil.hentBehandling(ref.getBehandlingId());
+        var behandling = fellesUtil.hentBehandling(ref.getBehandlingId());
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return KompletthetResultat.oppfylt();
         }
@@ -96,8 +92,8 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     }
 
     private boolean endringssøknadErMottatt(Behandling behandling) {
-        LocalDate vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
-        Optional<SøknadEntitet> søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
+        var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
+        var søknadOptional = søknadRepository.hentSøknadHvisEksisterer(behandling.getId());
         return søknadOptional.isPresent() && søknadOptional.get().erEndringssøknad() && !søknadOptional.get().getMottattDato().isBefore(vedtaksdato);
     }
 
@@ -106,7 +102,7 @@ public class KompletthetsjekkerRevurderingImpl implements Kompletthetsjekker {
     }
 
     private KompletthetResultat opprettKompletthetResultatMedVentefrist(Long behandlingId) {
-        Optional<LocalDateTime> ventefristTidligMottattSøknad = fellesUtil.finnVentefristTilForTidligMottattSøknad(behandlingId);
+        var ventefristTidligMottattSøknad = fellesUtil.finnVentefristTilForTidligMottattSøknad(behandlingId);
         return ventefristTidligMottattSøknad
             .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK))
             .orElse(KompletthetResultat.fristUtløpt());

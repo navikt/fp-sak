@@ -199,11 +199,12 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof MedlemskapPerioderEntitet)) {
+        }
+        if (!(obj instanceof MedlemskapPerioderEntitet)) {
             return false;
         }
         // minste sett med felter som angir ett medlemskap periode(uten 'muterbare' felter)
-        MedlemskapPerioderEntitet other = (MedlemskapPerioderEntitet) obj;
+        var other = (MedlemskapPerioderEntitet) obj;
         return Objects.equals(this.getFom(), other.getFom())
                 && Objects.equals(this.getTom(), other.getTom())
                 && Objects.equals(this.getDekningType(), other.getDekningType())

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -80,13 +78,13 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
      */
     @Override
     public List<ManglendeVedlegg> utledManglendeVedleggForSøknad(BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
+        var behandlingId = ref.getBehandlingId();
 
-        final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
+        final var søknad = søknadRepository.hentSøknadHvisEksisterer(behandlingId);
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        LocalDate vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
-        LocalDate sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).map(vedtaksdato::isAfter).orElse(Boolean.FALSE) ? søknad.get().getSøknadsdato()
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var vedtaksdato = behandlingVedtakRepository.hentBehandlingVedtakFraRevurderingensOriginaleBehandling(behandling).getVedtaksdato();
+        var sammenligningsdato = søknad.map(SøknadEntitet::getSøknadsdato).map(vedtaksdato::isAfter).orElse(Boolean.FALSE) ? søknad.get().getSøknadsdato()
             : vedtaksdato;
 
         Set<DokumentTypeId> arkivDokumentTypeIds = new HashSet<>(dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), sammenligningsdato));
@@ -95,10 +93,10 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
             .map(MottattDokument::getDokumentType)
             .forEach(arkivDokumentTypeIds::add);
 
-        final List<ManglendeVedlegg> manglendeVedlegg = identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds);
-        Optional<OppgittFordelingEntitet> oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
+        final var manglendeVedlegg = identifiserManglendeVedlegg(søknad, arkivDokumentTypeIds);
+        var oppgittFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(YtelseFordelingAggregat::getOppgittFordeling);
-        final List<ManglendeVedlegg> manglendeVedleggUtsettelse = identifiserManglendeVedleggSomFølgerAvUtsettelse(oppgittFordeling, arkivDokumentTypeIds);
+        final var manglendeVedleggUtsettelse = identifiserManglendeVedleggSomFølgerAvUtsettelse(oppgittFordeling, arkivDokumentTypeIds);
         manglendeVedlegg.addAll(manglendeVedleggUtsettelse);
 
         if (!manglendeVedlegg.isEmpty()) {
@@ -115,7 +113,7 @@ public class KompletthetssjekkerSøknadRevurderingImpl extends Kompletthetssjekk
         }
 
         List<ManglendeVedlegg> manglendeVedlegg = new ArrayList<>();
-        List<OppgittPeriodeEntitet> oppgittePerioder = oppgittFordeling.get().getOppgittePerioder();
+        var oppgittePerioder = oppgittFordeling.get().getOppgittePerioder();
 
         oppgittePerioder.stream().map(OppgittPeriodeEntitet::getÅrsak).forEach(årsak -> {
             if (UtsettelseÅrsak.SYKDOM.equals(årsak) && !dokumentTypeIdSet.contains(DokumentTypeId.LEGEERKLÆRING)) {

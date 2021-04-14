@@ -11,12 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.datavarehus.domene.VedtakUtbetalingDvh;
 
 public class VedtakUtbetalingDvhMapperTest {
 
@@ -27,8 +25,8 @@ public class VedtakUtbetalingDvhMapperTest {
 
     @Test
     public void skal_mappe_til_VedtakUtbetalingDvh(){
-        Behandling behandling = byggBehandling();
-        BehandlingVedtak vedtak = BehandlingVedtak.builder()
+        var behandling = byggBehandling();
+        var vedtak = BehandlingVedtak.builder()
             .medAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER)
             .medIverksettingStatus(IVERKSETTING_STATUS)
             .medVedtakstidspunkt(VEDTAK_DATO)
@@ -36,8 +34,8 @@ public class VedtakUtbetalingDvhMapperTest {
             .build();
 
 
-        final FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
-        VedtakUtbetalingDvh mapped = VedtakUtbetalingDvhMapper.map(XML, behandling, vedtak, familieHendelseGrunnlag.getGjeldendeVersjon().getType());
+        final var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var mapped = VedtakUtbetalingDvhMapper.map(XML, behandling, vedtak, familieHendelseGrunnlag.getGjeldendeVersjon().getType());
         assertThat(mapped.getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(mapped.getXmlClob()).isEqualTo(XML);
         assertThat(mapped.getVedtakDato()).isEqualTo(VEDTAK_DATO.toLocalDate());
@@ -48,8 +46,8 @@ public class VedtakUtbetalingDvhMapperTest {
 
 
     private Behandling byggBehandling() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = scenario.lagMocked();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var behandling = scenario.lagMocked();
         familieHendelseRepository = scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository();
         behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
         behandling.setBehandlendeEnhet(new OrganisasjonsEnhet(BEHANDLENDE_ENHET, null));

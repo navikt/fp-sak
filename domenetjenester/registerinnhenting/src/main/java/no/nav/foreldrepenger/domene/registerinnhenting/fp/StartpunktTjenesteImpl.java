@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -48,11 +47,11 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Override
     public StartpunktType utledStartpunktMotOriginalBehandling(BehandlingReferanse revurdering) {
-        Long origBehandlingId = revurdering.getOriginalBehandlingId()
+        var origBehandlingId = revurdering.getOriginalBehandlingId()
             .orElseThrow(() -> new IllegalStateException("Original behandling mangler på revurdering - skal ikke skje"));
 
-        EndringsresultatSnapshot snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
-        EndringsresultatDiff diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
+        var snapshotOriginalBehandling = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(origBehandlingId);
+        var diff = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(revurdering.getId(), snapshotOriginalBehandling);
         LOG.info("Endringsresultat ved revurdering={} er: {}", revurdering.getId(), diff);// NOSONAR //$NON-NLS-1$
         return getStartpunktType(revurdering, diff, false);
     }
@@ -65,7 +64,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     private StartpunktType getStartpunktType(BehandlingReferanse revurdering, EndringsresultatDiff differanse, boolean normalDiff) {
         List<StartpunktType> startpunkter = new ArrayList<>();
         // Denne skal oppstå selv om grunnlaget er uendret. Eneste kjente tidsfristavhengige
-        FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 

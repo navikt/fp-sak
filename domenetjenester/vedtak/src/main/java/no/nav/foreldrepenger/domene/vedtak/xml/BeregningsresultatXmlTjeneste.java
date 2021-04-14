@@ -22,7 +22,7 @@ public abstract class BeregningsresultatXmlTjeneste {
     }
 
     public void setBeregningsresultat(Behandlingsresultat behandlingsresultat, Behandling behandling) {
-        Beregningsresultat beregningsresultat = v2ObjectFactory.createBeregningsresultat();
+        var beregningsresultat = v2ObjectFactory.createBeregningsresultat();
         beregningsgrunnlagXmlTjeneste.setBeregningsgrunnlag(beregningsresultat, behandling);
         ytelseXmlTjeneste.setYtelse(beregningsresultat, behandling);
 

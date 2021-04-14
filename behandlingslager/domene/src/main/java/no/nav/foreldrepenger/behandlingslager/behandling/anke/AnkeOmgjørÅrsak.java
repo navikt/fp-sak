@@ -60,7 +60,7 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(AnkeOmgjørÅrsak.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(AnkeOmgjørÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent AnkeOmgjørÅrsak: " + kode);

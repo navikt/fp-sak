@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -30,7 +29,7 @@ public class HistorikkRepository {
     public void lagre(Historikkinnslag historikkinnslag) {
 
         if (HistorikkAktør.SØKER.equals(historikkinnslag.getAktør()) && NavBrukerKjønn.UDEFINERT.equals(historikkinnslag.getKjoenn())) {
-            RelasjonsRolleType kjoenn = entityManager
+            var kjoenn = entityManager
                     .createQuery("select f.brukerRolle from Fagsak f where f.id = :fagsakId", RelasjonsRolleType.class) //$NON-NLS-1$
                     .setParameter("fagsakId", historikkinnslag.getFagsakId()) // NOSONAR //$NON-NLS-1$
                     .getSingleResult();
@@ -50,9 +49,9 @@ public class HistorikkRepository {
         }
 
         entityManager.persist(historikkinnslag);
-        for (HistorikkinnslagDel historikkinnslagDel : historikkinnslag.getHistorikkinnslagDeler()) {
+        for (var historikkinnslagDel : historikkinnslag.getHistorikkinnslagDeler()) {
             entityManager.persist(historikkinnslagDel);
-            for (HistorikkinnslagFelt historikkinnslagFelt : historikkinnslagDel.getHistorikkinnslagFelt()) {
+            for (var historikkinnslagFelt : historikkinnslagDel.getHistorikkinnslagFelt()) {
                 entityManager.persist(historikkinnslagFelt);
             }
         }
@@ -60,14 +59,14 @@ public class HistorikkRepository {
     }
 
     public boolean finnesUuidAllerede(UUID historikkUuid) {
-        TypedQuery<Historikkinnslag> query = entityManager.createQuery("from Historikkinnslag where uuid=:historikkUuid", Historikkinnslag.class);
+        var query = entityManager.createQuery("from Historikkinnslag where uuid=:historikkUuid", Historikkinnslag.class);
         query.setParameter("historikkUuid", historikkUuid);
         return !query.getResultList().isEmpty();
     }
 
     public List<Historikkinnslag> hentHistorikk(Long behandlingId) {
 
-        Long fagsakId = getFagsakId(behandlingId);
+        var fagsakId = getFagsakId(behandlingId);
 
         return entityManager.createQuery(
             "select h from Historikkinnslag h where (h.behandlingId = :behandlingId OR h.behandlingId = NULL) AND h.fagsakId = :fagsakId ", //$NON-NLS-1$

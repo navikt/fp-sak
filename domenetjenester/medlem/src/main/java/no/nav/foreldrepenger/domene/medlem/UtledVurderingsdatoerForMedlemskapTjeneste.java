@@ -6,10 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemEndringssjekker;
@@ -92,7 +88,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         if (!BehandlingType.REVURDERING.equals(ref.getBehandlingType())) {
             return datoer;
         }
-        LocalDate utledetSkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
+        var utledetSkjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
         datoer.putAll(utledVurderingsdatoerForTPS(ref));
         datoer.putAll(utledVurderingsdatoerForMedlemskap(ref.getBehandlingId(), endringssjekker));
 
@@ -104,12 +100,12 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
     private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForTPS(BehandlingReferanse ref) {
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
-        DatoIntervallEntitet relevantPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
+        var relevantPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
 
-        Optional<PersonopplysningerAggregat> personopplysningerOpt = personopplysningTjeneste
+        var personopplysningerOpt = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref.getBehandlingId(), ref.getAktørId(), relevantPeriode);
         if (personopplysningerOpt.isPresent()) {
-            PersonopplysningerAggregat personopplysningerAggregat = personopplysningerOpt.get();
+            var personopplysningerAggregat = personopplysningerOpt.get();
 
             utledetResultat.putAll(hentEndringForStatsborgerskap(personopplysningerAggregat, ref));
             mergeResultat(utledetResultat, hentEndringForPersonstatus(personopplysningerAggregat, ref));
@@ -120,7 +116,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     private void mergeResultat(Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat, Map<LocalDate, Set<VurderingsÅrsak>> nyeEndringer) {
-        for (Map.Entry<LocalDate, Set<VurderingsÅrsak>> localDateSetEntry : nyeEndringer.entrySet()) {
+        for (var localDateSetEntry : nyeEndringer.entrySet()) {
             utledetResultat.merge(localDateSetEntry.getKey(), localDateSetEntry.getValue(), this::slåSammenSet);
         }
     }
@@ -132,28 +128,28 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
     }
 
     private Map<LocalDate, Set<VurderingsÅrsak>> utledVurderingsdatoerForMedlemskap(Long revurderingId, MedlemEndringssjekker endringssjekker) {
-        Optional<MedlemskapAggregat> førsteVersjon = medlemskapRepository.hentFørsteVersjonAvMedlemskap(revurderingId);
-        Optional<MedlemskapAggregat> sisteVersjon = medlemskapRepository.hentMedlemskap(revurderingId);
+        var førsteVersjon = medlemskapRepository.hentFørsteVersjonAvMedlemskap(revurderingId);
+        var sisteVersjon = medlemskapRepository.hentMedlemskap(revurderingId);
 
-        Set<MedlemskapPerioderEntitet> første = førsteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
-        Set<MedlemskapPerioderEntitet> siste = sisteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
+        var første = førsteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
+        var siste = sisteVersjon.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet());
 
-        List<LocalDateSegment<MedlemskapPerioderEntitet>> førsteListe = første.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
-        List<LocalDateSegment<MedlemskapPerioderEntitet>> sisteListe = siste.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
+        var førsteListe = første.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
+        var sisteListe = siste.stream().map(r -> new LocalDateSegment<>(r.getFom(), r.getTom(), r)).collect(Collectors.toList());
 
-        LocalDateTimeline<MedlemskapPerioderEntitet> førsteTidsserie = new LocalDateTimeline<>(førsteListe, this::slåSammenMedlemskapPerioder);
-        LocalDateTimeline<MedlemskapPerioderEntitet> andreTidsserie = new LocalDateTimeline<>(sisteListe, this::slåSammenMedlemskapPerioder);
+        var førsteTidsserie = new LocalDateTimeline<MedlemskapPerioderEntitet>(førsteListe, this::slåSammenMedlemskapPerioder);
+        var andreTidsserie = new LocalDateTimeline<MedlemskapPerioderEntitet>(sisteListe, this::slåSammenMedlemskapPerioder);
 
-        LocalDateTimeline<MedlemskapPerioderEntitet> resultat = førsteTidsserie.combine(andreTidsserie, (di, førsteVersjon1, sisteVersjon1) -> sjekkForEndringIMedl(di, førsteVersjon1, sisteVersjon1, endringssjekker), LocalDateTimeline.JoinStyle.CROSS_JOIN);
+        var resultat = førsteTidsserie.combine(andreTidsserie, (di, førsteVersjon1, sisteVersjon1) -> sjekkForEndringIMedl(di, førsteVersjon1, sisteVersjon1, endringssjekker), LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
         return utledResultat(resultat);
     }
 
     private Map<LocalDate, Set<VurderingsÅrsak>> utledResultat(LocalDateTimeline<MedlemskapPerioderEntitet> resultat) {
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
-        NavigableSet<LocalDateInterval> datoIntervaller = resultat.getLocalDateIntervals();
-        for (LocalDateInterval localDateInterval : datoIntervaller) {
-            LocalDateSegment<MedlemskapPerioderEntitet> perioden = resultat.getSegment(localDateInterval);
+        var datoIntervaller = resultat.getLocalDateIntervals();
+        for (var localDateInterval : datoIntervaller) {
+            var perioden = resultat.getSegment(localDateInterval);
 
             utledetResultat.put(perioden.getFom(), Set.of(VurderingsÅrsak.MEDL_PERIODE));
         }
@@ -181,16 +177,16 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
     // PDL gir strengt periodisert informasjon om personstatus
     private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForPersonstatus(PersonopplysningerAggregat personopplysningerAggregat, BehandlingReferanse ref) {
-        List<PersonstatusEntitet> personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.getAktørId())
+        var personstatus = personopplysningerAggregat.getPersonstatuserFor(ref.getAktørId())
             .stream().sorted(Comparator.comparing(s -> s.getPeriode().getFomDato()))
             .collect(Collectors.toList());
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         IntStream.range(0, personstatus.size() - 1).forEach(i -> {
             if (i != personstatus.size() - 1) { // sjekker om det er siste element
-                PersonstatusEntitet førsteElement = personstatus.get(i);
-                PersonstatusEntitet nesteElement = personstatus.get(i + 1);
+                var førsteElement = personstatus.get(i);
+                var nesteElement = personstatus.get(i + 1);
                 //skal ikke trigge på personstaus død
-                boolean personStausInneholderDød = PersonstatusType.erDød(førsteElement.getPersonstatus()) || PersonstatusType.erDød(nesteElement.getPersonstatus());
+                var personStausInneholderDød = PersonstatusType.erDød(førsteElement.getPersonstatus()) || PersonstatusType.erDød(nesteElement.getPersonstatus());
                 if (!personStausInneholderDød && !førsteElement.getPersonstatus().equals(nesteElement.getPersonstatus())) {
                     utledetResultat.put(nesteElement.getPeriode().getFomDato(), Set.of(VurderingsÅrsak.PERSONSTATUS));
                 }
@@ -201,11 +197,11 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
     // PDL har flere samtidige statsborgerskap - dermed må man sjekke region ved hvert brudd
     private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref) {
-        Set<LocalDate> statsborgerskapDatoer = aggregat.getStatsborgerskapFor(ref.getAktørId())
+        var statsborgerskapDatoer = aggregat.getStatsborgerskapFor(ref.getAktørId())
             .stream()
             .map(StatsborgerskapEntitet::getPeriode).map(DatoIntervallEntitet::getFomDato)
             .collect(Collectors.toSet());
-        List<LocalDate> statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+        var statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         IntStream.range(0, statsborgerskap.size() - 1).forEach(i -> {
             if (i != statsborgerskap.size() - 1) { // sjekker om det er siste element
@@ -251,9 +247,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
             // sjekker om gammel periode har endret verdier
             if (endringssjekker.erEndring(førsteVersjon.getValue(), sisteVersjon.getValue())) {
                 return sisteVersjon;
-            } else {
-                return null;
             }
+            return null;
         }
         // gammel periode fjernet
         return førsteVersjon;
@@ -265,12 +260,13 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
                                                                                        LocalDateSegment<MedlemskapPerioderEntitet> sisteVersjon) {
         if (førsteVersjon == null) {
             return sisteVersjon;
-        } else if (sisteVersjon == null) {
+        }
+        if (sisteVersjon == null) {
             return førsteVersjon;
         }
 
-        MedlemskapPerioderEntitet senesteBesluttetPeriode = finnMedlemskapPeriodeMedSenestBeslutningsdato(førsteVersjon, sisteVersjon);
-        MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder(senesteBesluttetPeriode);
+        var senesteBesluttetPeriode = finnMedlemskapPeriodeMedSenestBeslutningsdato(førsteVersjon, sisteVersjon);
+        var builder = new MedlemskapPerioderBuilder(senesteBesluttetPeriode);
         builder.medPeriode(di.getFomDato(), di.getTomDato());
         builder.medKildeType(senesteBesluttetPeriode.getKildeType());
 
@@ -279,8 +275,8 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
     private MedlemskapPerioderEntitet finnMedlemskapPeriodeMedSenestBeslutningsdato(LocalDateSegment<MedlemskapPerioderEntitet> førsteVersjon, LocalDateSegment<MedlemskapPerioderEntitet> sisteVersjon) {
         MedlemskapPerioderEntitet riktigEntitetVerdi;
-        LocalDate førsteBeslutningsdato = førsteVersjon.getValue().getBeslutningsdato();
-        LocalDate sisteBeslutningsdato = sisteVersjon.getValue().getBeslutningsdato();
+        var førsteBeslutningsdato = førsteVersjon.getValue().getBeslutningsdato();
+        var sisteBeslutningsdato = sisteVersjon.getValue().getBeslutningsdato();
         if (førsteBeslutningsdato != null && (sisteBeslutningsdato == null || førsteBeslutningsdato.isAfter(sisteBeslutningsdato))) {
             riktigEntitetVerdi = førsteVersjon.getValue();
         } else {

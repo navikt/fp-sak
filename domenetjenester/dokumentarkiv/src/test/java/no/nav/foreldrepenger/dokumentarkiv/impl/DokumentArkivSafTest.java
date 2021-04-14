@@ -13,15 +13,11 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
 import no.nav.foreldrepenger.dokumentarkiv.NAVSkjema;
@@ -63,11 +59,11 @@ public class DokumentArkivSafTest {
         response.getJournalposter().add(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.U));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
-        List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
+        var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
         assertThat(arkivDokuments).isNotEmpty();
-        ArkivJournalPost arkivJournalPost = arkivDokuments.get(0);
-        ArkivDokument arkivDokument = arkivJournalPost.getHovedDokument();
+        var arkivJournalPost = arkivDokuments.get(0);
+        var arkivDokument = arkivJournalPost.getHovedDokument();
         assertThat(arkivJournalPost.getJournalpostId()).isEqualTo(JOURNAL_ID);
         assertThat(arkivDokument.getTittel()).isEqualTo(SØK_ENG_FØDSEL.getNavn());
         assertThat(arkivJournalPost.getTidspunkt()).isEqualTo(YESTERDAY);
@@ -80,7 +76,7 @@ public class DokumentArkivSafTest {
         response.getJournalposter().add(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.I));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
-        List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
+        var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
         assertThat(arkivDokuments.get(0).getTidspunkt()).isEqualTo(YESTERDAY);
         assertThat(arkivDokuments.get(0).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.INN);
@@ -91,7 +87,7 @@ public class DokumentArkivSafTest {
 
         when(saf.hentJournalpostInfo(any(), any())).thenReturn(createJournalpost(Variantformat.ARKIV, YESTERDAY, Journalposttype.I));
 
-        Optional<ArkivJournalPost> arkivDokument = dokumentApplikasjonTjeneste.hentJournalpostForSak(JOURNAL_ID);
+        var arkivDokument = dokumentApplikasjonTjeneste.hentJournalpostForSak(JOURNAL_ID);
 
         assertThat(arkivDokument).isPresent();
         assertThat(arkivDokument.get().getAndreDokument()).isEmpty();
@@ -107,7 +103,7 @@ public class DokumentArkivSafTest {
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
 
-        List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
+        var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
         assertThat(arkivDokuments).hasSize(2);
     }
@@ -120,7 +116,7 @@ public class DokumentArkivSafTest {
             createJournalpost(Variantformat.ARKIV, YESTERDAY.minusHours(1), Journalposttype.I)));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
-        List<ArkivJournalPost> arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
+        var arkivDokuments = dokumentApplikasjonTjeneste.hentAlleDokumenterForVisning(SAF_SAK);
 
         assertThat(arkivDokuments.get(0).getTidspunkt()).isEqualTo(NOW);
         assertThat(arkivDokuments.get(0).getKommunikasjonsretning()).isEqualTo(Kommunikasjonsretning.UT);
@@ -130,8 +126,8 @@ public class DokumentArkivSafTest {
 
     @Test
     public void skalRetunereAlleDokumentTyper() {
-        DokumentTypeId lege = DokumentTypeId.LEGEERKLÆRING;
-        DokumentTypeId innlegg = DokumentTypeId.DOK_INNLEGGELSE;
+        var lege = DokumentTypeId.LEGEERKLÆRING;
+        var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(
             createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.U),
@@ -141,7 +137,7 @@ public class DokumentArkivSafTest {
             createDokumentinfo(Variantformat.ARKIV, null, innlegg.getNavn())));
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
-        Set<DokumentTypeId> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, LocalDate.MIN);
+        var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, LocalDate.MIN);
 
         assertThat(arkivDokumentTypeIds).hasSize(3);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
@@ -150,8 +146,8 @@ public class DokumentArkivSafTest {
 
     @Test
     public void skalRetunereDokumentTyperSiden() {
-        DokumentTypeId lege = DokumentTypeId.LEGEERKLÆRING;
-        DokumentTypeId innlegg = DokumentTypeId.DOK_INNLEGGELSE;
+        var lege = DokumentTypeId.LEGEERKLÆRING;
+        var innlegg = DokumentTypeId.DOK_INNLEGGELSE;
         var response = lagResponse();
         response.getJournalposter().addAll(List.of(
             createJournalpost(Variantformat.ARKIV, NOW, Journalposttype.I),
@@ -163,7 +159,7 @@ public class DokumentArkivSafTest {
         when(saf.dokumentoversiktFagsak(any(), any())).thenReturn(response);
 
 
-        Set<DokumentTypeId> arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, NOW.toLocalDate());
+        var arkivDokumentTypeIds = dokumentApplikasjonTjeneste.hentDokumentTypeIdForSak(SAF_SAK, NOW.toLocalDate());
 
         assertThat(arkivDokumentTypeIds).hasSize(2);
         assertThat(arkivDokumentTypeIds).contains(DokumentTypeId.LEGEERKLÆRING);
@@ -179,7 +175,7 @@ public class DokumentArkivSafTest {
 
         // Act
 
-        byte[] bytesActual = dokumentApplikasjonTjeneste.hentDokument(SAF_SAK, new JournalpostId("123"), "456");
+        var bytesActual = dokumentApplikasjonTjeneste.hentDokument(SAF_SAK, new JournalpostId("123"), "456");
 
         // Assert
         assertThat(bytesActual).isEqualTo(bytesExpected);
@@ -195,8 +191,8 @@ public class DokumentArkivSafTest {
 
     private Journalpost createJournalpost(Variantformat variantFormatKonst, LocalDateTime sendt,
                                           Journalposttype kommunikasjonsretning) {
-        ZoneId zone = ZoneId.systemDefault();
-        Journalpost journalpost = new Journalpost();
+        var zone = ZoneId.systemDefault();
+        var journalpost = new Journalpost();
         journalpost.setJournalpostId(JOURNAL_ID.getVerdi());
         journalpost.setTema(Tema.FOR);
         journalpost.setJournalstatus(Journalstatus.JOURNALFOERT);
@@ -210,7 +206,7 @@ public class DokumentArkivSafTest {
     }
 
     private DokumentInfo createDokumentinfo(Variantformat variantformat, String brevkode, String tittel) {
-        DokumentInfo dokumentinfo = new DokumentInfo();
+        var dokumentinfo = new DokumentInfo();
         dokumentinfo.setDokumentInfoId(String.valueOf(DOKUMENT_ID++));
         dokumentinfo.setBrevkode(brevkode);
         dokumentinfo.setTittel(tittel);

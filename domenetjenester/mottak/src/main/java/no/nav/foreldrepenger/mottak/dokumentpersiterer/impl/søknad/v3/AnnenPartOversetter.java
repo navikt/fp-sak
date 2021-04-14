@@ -41,12 +41,12 @@ public class AnnenPartOversetter {
                 var annenForelderMedNorskIdent = (AnnenForelderMedNorskIdent) annenForelder;
                 return map(annenForelderMedNorskIdent);
 
-            } else if (annenForelder instanceof AnnenForelderUtenNorskIdent) {
+            }
+            if (annenForelder instanceof AnnenForelderUtenNorskIdent) {
                 var annenForelderUtenNorskIdent = (AnnenForelderUtenNorskIdent) annenForelder;
                 return map(annenForelderUtenNorskIdent, aktørIdSøker);
-            } else {
-                throw new IllegalStateException("Ukjent type AnnenForelder " + annenForelder.getClass());
             }
+            throw new IllegalStateException("Ukjent type AnnenForelder " + annenForelder.getClass());
         });
     }
 

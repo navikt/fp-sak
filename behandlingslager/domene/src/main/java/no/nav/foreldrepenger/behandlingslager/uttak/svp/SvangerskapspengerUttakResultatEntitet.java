@@ -68,7 +68,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
 
     public Optional<LocalDate> finnSisteUttaksdato() {
         Optional<LocalDate> sisteUttaksdato = Optional.empty();
-        for (SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold : uttaksResultatArbeidsforhold) {
+        for (var perArbeidsforhold : uttaksResultatArbeidsforhold) {
             var maxDatoForArbeidsforhold = perArbeidsforhold.getPerioder()
                 .stream()
                 .map(p -> p.getTidsperiode().getTomDato())
@@ -83,7 +83,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
 
     public Optional<LocalDate> finnSisteInnvilgedeUttaksdatoMedUtbetalingsgrad() {
         Optional<LocalDate> sisteUttaksdato = Optional.empty();
-        for (SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold : uttaksResultatArbeidsforhold) {
+        for (var perArbeidsforhold : uttaksResultatArbeidsforhold) {
             var maxDatoForArbeidsforhold = perArbeidsforhold.getPerioder()
                 .stream()
                 .filter(SvangerskapspengerUttakResultatPeriodeEntitet::isInnvilget)
@@ -100,7 +100,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
 
     public Optional<LocalDate> finnFørsteUttaksdato() {
         Optional<LocalDate> førsteUttaksdato = Optional.empty();
-        for (SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold : uttaksResultatArbeidsforhold) {
+        for (var perArbeidsforhold : uttaksResultatArbeidsforhold) {
             var minDatoForArbeidsforhold = perArbeidsforhold.getPerioder()
                 .stream()
                 .map(p -> p.getTidsperiode().getFomDato())

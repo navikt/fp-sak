@@ -34,7 +34,7 @@ public class ValiderOgRegenererVedtaksXmlTask extends GenerellProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        Behandling behandling = finnBehandling(behandlingId);
+        var behandling = finnBehandling(behandlingId);
         regenererVedtaksXmlTjeneste.validerOgRegenerer(behandling);
 
     }

@@ -19,7 +19,7 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
     @Override
     public List<AksjonspunktUtleder> utledUtledereFor(BehandlingReferanse ref) {
-        final AksjonspunktUtlederHolder utlederHolder = new AksjonspunktUtlederHolder();
+        final var utlederHolder = new AksjonspunktUtlederHolder();
 
         // Legger til utledere som alltid skal kjøres
         leggTilStandardUtledere(utlederHolder);

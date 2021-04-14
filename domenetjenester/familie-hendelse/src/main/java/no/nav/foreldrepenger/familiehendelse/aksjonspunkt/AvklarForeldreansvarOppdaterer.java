@@ -39,17 +39,16 @@ public class AvklarForeldreansvarOppdaterer implements AksjonspunktOppdaterer<Av
 
     @Override
     public OppdateringResultat oppdater(AvklarFaktaForForeldreansvarAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
-        Behandling behandling = param.getBehandling();
-        final LocalDate forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        var behandlingId = param.getBehandlingId();
+        var behandling = param.getBehandling();
+        final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
         oppdaterAksjonspunktGrunnlag(dto, behandling);
-        boolean skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
+        var skalReinnhenteRegisteropplysninger = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
         if (skalReinnhenteRegisteropplysninger) {
             return OppdateringResultat.utenTransisjon().medOppdaterGrunnlag().build();
-        } else {
-            return OppdateringResultat.utenTransisjon().build();
         }
+        return OppdateringResultat.utenTransisjon().build();
     }
 
     private void oppdaterAksjonspunktGrunnlag(AvklarFaktaForForeldreansvarAksjonspunktDto dto, Behandling behandling) {

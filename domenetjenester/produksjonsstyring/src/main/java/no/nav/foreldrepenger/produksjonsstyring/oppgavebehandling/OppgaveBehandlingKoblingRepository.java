@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -44,14 +43,14 @@ public class OppgaveBehandlingKoblingRepository {
 
 
     public Optional<OppgaveBehandlingKobling> hentOppgaveBehandlingKobling(String oppgaveId) {
-        TypedQuery<OppgaveBehandlingKobling> query = entityManager.createQuery("from OppgaveBehandlingKobling where oppgave_id=:oppgaveId", //$NON-NLS-1$
+        var query = entityManager.createQuery("from OppgaveBehandlingKobling where oppgave_id=:oppgaveId", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("oppgaveId", oppgaveId); //$NON-NLS-1$
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     public Optional<OppgaveBehandlingKobling> hentOppgaveBehandlingKobling(Long behandlingId, String oppgaveId) {
-        TypedQuery<OppgaveBehandlingKobling> query = entityManager
+        var query = entityManager
             .createQuery("from OppgaveBehandlingKobling where behandling_id=:behandlingId and oppgave_id=:oppgaveId", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("oppgaveId", oppgaveId); //$NON-NLS-1$
@@ -60,7 +59,7 @@ public class OppgaveBehandlingKoblingRepository {
     }
 
     public Optional<OppgaveBehandlingKobling> hentOppgaveBehandlingKobling(String oppgaveId, Saksnummer saksnummer) {
-        TypedQuery<OppgaveBehandlingKobling> query = entityManager
+        var query = entityManager
             .createQuery("from OppgaveBehandlingKobling where oppgave_id=:oppgaveId and saksnummer=:saksnummer", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("oppgaveId", oppgaveId); //$NON-NLS-1$
@@ -69,7 +68,7 @@ public class OppgaveBehandlingKoblingRepository {
     }
 
     public List<OppgaveBehandlingKobling> hentOppgaverRelatertTilBehandling(Long behandlingId) {
-        TypedQuery<OppgaveBehandlingKobling> query = entityManager.createQuery("from OppgaveBehandlingKobling where behandling_id=:behandlingId", //$NON-NLS-1$
+        var query = entityManager.createQuery("from OppgaveBehandlingKobling where behandling_id=:behandlingId", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
         return query.getResultList();
@@ -77,7 +76,7 @@ public class OppgaveBehandlingKoblingRepository {
 
 
     public List<OppgaveBehandlingKobling> hentUferdigeOppgaverOpprettetTidsrom(LocalDate fom, LocalDate tom, Set<OppgaveÅrsak> oppgaveTyper) {
-        TypedQuery<OppgaveBehandlingKobling> query = entityManager.
+        var query = entityManager.
             createQuery("from OppgaveBehandlingKobling where ferdigstilt=:ferdig and opprettet_tid >= :fom and opprettet_tid <= :tom and oppgaveÅrsak in :aarsaker", //$NON-NLS-1$
             OppgaveBehandlingKobling.class);
         query.setParameter("fom", fom.atStartOfDay()); //$NON-NLS-1$

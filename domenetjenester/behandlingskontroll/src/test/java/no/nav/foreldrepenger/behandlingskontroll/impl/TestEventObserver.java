@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEv
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
 
@@ -67,11 +66,11 @@ public class TestEventObserver {
     public static void containsExactly(AksjonspunktDefinisjon[]... ads) {
         List<AksjonspunktStatusEvent> aksjonspunkterEvents = getEvents(AksjonspunktStatusEvent.class);
         assertThat(aksjonspunkterEvents).hasSize(ads.length);
-        for (int i = 0; i < ads.length; i++) {
-            List<Aksjonspunkt> aps = aksjonspunkterEvents.get(i).getAksjonspunkter();
+        for (var i = 0; i < ads.length; i++) {
+            var aps = aksjonspunkterEvents.get(i).getAksjonspunkter();
             assertThat(aps).hasSize(ads[i].length);
 
-            for (int j = 0; j < ads[i].length; j++) {
+            for (var j = 0; j < ads[i].length; j++) {
                 assertThat(aps.get(j).getAksjonspunktDefinisjon()).as("(%s, %s)", i, j).isEqualTo(ads[i][j]);
             }
         }
@@ -86,8 +85,8 @@ public class TestEventObserver {
     public static void containsExactly(BehandlingskontrollEvent... bke) {
         List<BehandlingskontrollEvent> behandlingskontrollEvents = getEvents(BehandlingskontrollEvent.class);
         assertThat(behandlingskontrollEvents).hasSize(bke.length);
-        for (int i = 0; i < bke.length; i++) {
-            BehandlingskontrollEvent minEvent = bke[i];
+        for (var i = 0; i < bke.length; i++) {
+            var minEvent = bke[i];
             assertThat(behandlingskontrollEvents.get(i).getStegType()).as("%s", i).isEqualTo(minEvent.getStegType());
             assertThat(behandlingskontrollEvents.get(i).getStegStatus()).as("%s", i).isEqualTo(minEvent.getStegStatus());
         }
@@ -96,8 +95,8 @@ public class TestEventObserver {
     public static void containsExactly(BehandlingStegOvergangEvent... bsoe) {
         List<BehandlingStegOvergangEvent> overgangEvents = getEvents(BehandlingStegOvergangEvent.class);
         assertThat(overgangEvents).hasSize(bsoe.length);
-        for (int i = 0; i < bsoe.length; i++) {
-            BehandlingStegOvergangEvent minEvent = bsoe[i];
+        for (var i = 0; i < bsoe.length; i++) {
+            var minEvent = bsoe[i];
             assertThat(overgangEvents.get(i).getFraStegType()).as("%s", i).isEqualTo(minEvent.getFraStegType());
             assertThat(hentKode(overgangEvents.get(i).getFraTilstand())).as("%s", i)
                     .isEqualTo(hentKode(minEvent.getFraTilstand()));
@@ -110,8 +109,8 @@ public class TestEventObserver {
     public static void containsExactly(BehandlingStegStatusEvent... bsoe) {
         List<BehandlingStegStatusEvent> behandlingStegStatusEvents = getEvents(BehandlingStegStatusEvent.class);
         assertThat(behandlingStegStatusEvents).hasSize(bsoe.length);
-        for (int i = 0; i < bsoe.length; i++) {
-            BehandlingStegStatusEvent minEvent = bsoe[i];
+        for (var i = 0; i < bsoe.length; i++) {
+            var minEvent = bsoe[i];
             assertThat(behandlingStegStatusEvents.get(i).getForrigeStatus()).as("%s:%s", i, minEvent.getStegType())
                     .isEqualTo(minEvent.getForrigeStatus());
             assertThat(behandlingStegStatusEvents.get(i).getNyStatus()).as("%s:%s", i, minEvent.getStegType()).isEqualTo(minEvent.getNyStatus());

@@ -69,7 +69,7 @@ public class AvsluttBehandlingTest {
         behandling = lagBehandling(LocalDateTime.now().minusHours(1), LocalDateTime.now());
         fagsak = behandling.getFagsak();
 
-        VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(
+        var vurderBehandlingerUnderIverksettelse = new VurderBehandlingerUnderIverksettelse(
                 repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste,
@@ -77,14 +77,14 @@ public class AvsluttBehandlingTest {
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
             Long behId = invocation.getArgument(0);
-            BehandlingLås lås = new BehandlingLås(behId) {
+            var lås = new BehandlingLås(behId) {
             };
             return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
         });
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class))).thenAnswer(
                 invocation -> {
                     Behandling beh = invocation.getArgument(0);
-                    BehandlingLås lås = new BehandlingLås(beh.getId()) {
+                    var lås = new BehandlingLås(beh.getId()) {
                     };
                     return new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
                 });
@@ -105,7 +105,7 @@ public class AvsluttBehandlingTest {
     }
 
     private void verifiserIverksatt(Behandling behandling) {
-        BehandlingVedtak vedtak = repositoryProvider.getBehandlingVedtakRepository()
+        var vedtak = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandling(behandling.getId());
         verify(vedtak).setIverksettingStatus(IverksettingStatus.IVERKSATT);
         verify(repositoryProvider.getBehandlingVedtakRepository()).lagre(Mockito.eq(vedtak), any(BehandlingLås.class));
@@ -114,7 +114,7 @@ public class AvsluttBehandlingTest {
     @Test
     public void testAvsluttBehandlingMedAnnenBehandlingSomIkkeVenter() {
         // Arrange
-        Behandling behandling2 = ScenarioMorSøkerEngangsstønad.forAdopsjon().lagMocked();
+        var behandling2 = ScenarioMorSøkerEngangsstønad.forAdopsjon().lagMocked();
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
                 List.of(behandling, behandling2));
 
@@ -129,8 +129,8 @@ public class AvsluttBehandlingTest {
     @Test
     public void testAvsluttBehandlingMedAnnenBehandlingSomVenter() {
         // Arrange
-        Behandling annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
-        BehandlingStegTilstand tilstand = new BehandlingStegTilstand(annenBehandling,
+        var annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+        var tilstand = new BehandlingStegTilstand(annenBehandling,
                 BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.STARTET);
         annenBehandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
         annenBehandling.setBehandlingStegTilstander(List.of(tilstand));
@@ -149,8 +149,8 @@ public class AvsluttBehandlingTest {
     @Test
     public void testAvsluttBehandlingMedAnnenBehandlingSomErUnderIverksetting() {
         // Arrange
-        Behandling annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
-        BehandlingStegTilstand tilstand = new BehandlingStegTilstand(annenBehandling,
+        var annenBehandling = lagBehandling(LocalDateTime.now().minusDays(1), LocalDateTime.now());
+        var tilstand = new BehandlingStegTilstand(annenBehandling,
                 BehandlingStegType.IVERKSETT_VEDTAK, BehandlingStegStatus.VENTER);
         annenBehandling.setStatus(BehandlingStatus.IVERKSETTER_VEDTAK);
         annenBehandling.setBehandlingStegTilstander(List.of(tilstand));
@@ -168,9 +168,9 @@ public class AvsluttBehandlingTest {
     @Test
     public void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteFørst() {
         // Arrange
-        LocalDateTime now = LocalDateTime.now();
-        Behandling annenBehandling = lagBehandling(now.minusDays(2), now);
-        Behandling tredjeBehandling = lagBehandling(now, now);
+        var now = LocalDateTime.now();
+        var annenBehandling = lagBehandling(now.minusDays(2), now);
+        var tredjeBehandling = lagBehandling(now, now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
                 List.of(behandling, annenBehandling, tredjeBehandling));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -186,23 +186,23 @@ public class AvsluttBehandlingTest {
     }
 
     private void verifiserKallTilProsesserBehandling(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         verify(behandlingskontrollTjeneste).prosesserBehandlingGjenopptaHvisStegVenter(kontekst,
                 BehandlingStegType.IVERKSETT_VEDTAK);
     }
 
     private void verifiserKallTilFortsettBehandling(Behandling behandling) {
-        ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository).lagre(prosessTaskCaptor.capture());
-        List<ProsessTaskData> arguments = prosessTaskCaptor.getAllValues();
+        var arguments = prosessTaskCaptor.getAllValues();
 
         assertThat(inneholderFortsettBehandlingTaskForBehandling(arguments, behandling)).isTrue();
     }
 
     private void verifiserIkkeKallTilFortsettBehandling(Behandling behandling) {
-        ArgumentCaptor<ProsessTaskData> prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(prosessTaskRepository).lagre(prosessTaskCaptor.capture());
-        List<ProsessTaskData> arguments = prosessTaskCaptor.getAllValues();
+        var arguments = prosessTaskCaptor.getAllValues();
 
         assertThat(inneholderFortsettBehandlingTaskForBehandling(arguments, behandling)).isFalse();
     }
@@ -219,9 +219,9 @@ public class AvsluttBehandlingTest {
     @Test
     public void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteSist() {
         // Arrange
-        LocalDateTime now = LocalDateTime.now();
-        Behandling annenBehandling = lagBehandling(now, now);
-        Behandling tredjeBehandling = lagBehandling(now.minusDays(1), now);
+        var now = LocalDateTime.now();
+        var annenBehandling = lagBehandling(now, now);
+        var tredjeBehandling = lagBehandling(now.minusDays(1), now);
         when(behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsak.getId())).thenReturn(
                 List.of(behandling, annenBehandling, tredjeBehandling));
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
@@ -237,7 +237,7 @@ public class AvsluttBehandlingTest {
     }
 
     private Behandling lagBehandling(LocalDateTime opprettet, LocalDateTime vedtaksdato) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
         if (fagsak != null) {
             scenario.medFagsakId(fagsak.getId());
@@ -247,11 +247,11 @@ public class AvsluttBehandlingTest {
             repositoryProvider = scenario.mockBehandlingRepositoryProvider();
             behandlingRepository = repositoryProvider.getBehandlingRepository();
         }
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
 
         if (vedtaksdato != null) {
-            BehandlingVedtak vedtak = lagMockedBehandlingVedtak(opprettet, vedtaksdato, behandling);
+            var vedtak = lagMockedBehandlingVedtak(opprettet, vedtaksdato, behandling);
             lenient().when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(behandling.getId()))
                     .thenReturn(Optional.of(vedtak));
             lenient().when(repositoryProvider.getBehandlingVedtakRepository().hentForBehandling(behandling.getId())).thenReturn(
@@ -267,7 +267,7 @@ public class AvsluttBehandlingTest {
     private BehandlingVedtak lagMockedBehandlingVedtak(LocalDateTime opprettet,
             LocalDateTime vedtaksdato,
             Behandling behandling) {
-        BehandlingVedtak vedtak = Mockito.spy(BehandlingVedtak.builder()
+        var vedtak = Mockito.spy(BehandlingVedtak.builder()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
                 .medBehandlingsresultat(behandling.getBehandlingsresultat())
                 .medAnsvarligSaksbehandler("Severin Saksbehandler")

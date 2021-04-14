@@ -44,9 +44,9 @@ public class KodeverkTjeneste {
     }
 
     public Optional<KodeverkInfo> hentGjeldendeKodeverk(String kodeverk) {
-        FinnKodeverkListeRequest request = new FinnKodeverkListeRequest();
+        var request = new FinnKodeverkListeRequest();
 
-        FinnKodeverkListeResponse response = kodeverkConsumer.finnKodeverkListe(request);
+        var response = kodeverkConsumer.finnKodeverkListe(request);
         if (response != null) {
             return Optional.ofNullable(oversettFraKodeverkListe(response, kodeverk));
         }
@@ -65,13 +65,13 @@ public class KodeverkTjeneste {
     }
 
     public Map<String, KodeverkKode> hentKodeverk(String kodeverkNavn, String kodeverkVersjon) {
-        HentKodeverkRequest request = new HentKodeverkRequest();
+        var request = new HentKodeverkRequest();
         request.setNavn(kodeverkNavn);
         request.setVersjonsnummer(kodeverkVersjon);
 
         Map<String, KodeverkKode> kodeverkKodeMap = Collections.emptyMap();
         try {
-            HentKodeverkResponse response = kodeverkConsumer.hentKodeverk(request);
+            var response = kodeverkConsumer.hentKodeverk(request);
             if (response != null) {
                 kodeverkKodeMap = oversettFraHentKodeverkResponse(response);
             }
@@ -92,8 +92,8 @@ public class KodeverkTjeneste {
     }
 
     private static KodeverkKode oversettFraKode(Kode kode) {
-        Optional<Tuple<LocalDate, LocalDate>> gyldighetsperiode = finnGyldighetsperiode(kode.getGyldighetsperiode());
-        Optional<String> term = finnTerm(kode.getTerm());
+        var gyldighetsperiode = finnGyldighetsperiode(kode.getGyldighetsperiode());
+        var term = finnTerm(kode.getTerm());
         return new KodeverkKode.Builder()
                 .medKode(kode.getNavn())
                 .medNavn(term.orElse(null))
@@ -109,7 +109,7 @@ public class KodeverkTjeneste {
     private static Optional<String> finnTerm(List<Term> termList) {
         Comparator<Kodeverkselement> vedGyldigFom = (e1, e2) -> e1.getGyldighetsperiode().get(0).getFom()
                 .compare(e2.getGyldighetsperiode().get(0).getFom());
-        String språk = NORSK_BOKMÅL;
+        var språk = NORSK_BOKMÅL;
         return termList.stream()
                 .filter(term -> term.getSpraak().compareToIgnoreCase(språk) == 0)
                 .max(vedGyldigFom)
@@ -121,7 +121,7 @@ public class KodeverkTjeneste {
      */
     private static Optional<Tuple<LocalDate, LocalDate>> finnGyldighetsperiode(List<Periode> periodeList) {
         Comparator<Periode> vedGyldigFom = (p1, p2) -> p1.getFom().compare(p2.getFom());
-        Optional<Periode> periodeOptional = periodeList.stream().max(vedGyldigFom);
+        var periodeOptional = periodeList.stream().max(vedGyldigFom);
         return periodeOptional.map(periode -> new Tuple<>(convertToLocalDate(periode.getFom()),
                 convertToLocalDate(periode.getTom())));
     }

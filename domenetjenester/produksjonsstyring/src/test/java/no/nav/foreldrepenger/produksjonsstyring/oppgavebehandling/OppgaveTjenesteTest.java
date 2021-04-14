@@ -84,7 +84,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_oppgave_når_det_ikke_finnes_fra_før() {
         var behandling = lagBehandling();
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
         var oppgaveBehandlingKoblinger = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandlingId);
@@ -99,7 +99,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_en_ny_oppgave_av_samme_type_når_det_finnes_fra_før_og_den_ikke_er_ferdigstilt() {
         var behandling = lagBehandling();
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
@@ -115,7 +115,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_en_ny_oppgave_når_det_finnes_fra_før_og_den_er_ferdigstilt() {
         var behandling = lagBehandling();
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
@@ -133,7 +133,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_kunne_opprette_en_ny_oppgave_med_en_annen_årsak_selv_om_det_finnes_en_aktiv_oppgave() {
         var behandling = lagBehandling();
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
@@ -150,7 +150,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
     @Test
     public void skal_avslutte_oppgave() {
         var behandling = lagBehandling();
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         tjeneste.opprettBasertPåBehandlingId(behandlingId, OppgaveÅrsak.BEHANDLE_SAK);
@@ -166,7 +166,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
         var behandling = lagBehandling();
-        String oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.VURDER_DOKUMENT, "2010",
+        var oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.VURDER_DOKUMENT, "2010",
                 "bla bla", false);
 
         var request = captor.getValue().build();
@@ -177,7 +177,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_avslutte_oppgave_og_starte_task() {
-        String oppgaveId = "1";
+        var oppgaveId = "1";
         var behandling = lagBehandling();
         var kobling = new OppgaveBehandlingKobling(OppgaveÅrsak.BEHANDLE_SAK, oppgaveId, behandling.getFagsak().getSaksnummer(),
                 behandling.getId());
@@ -220,7 +220,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
-        String oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.VURDER_KONS_FOR_YTELSE,
+        var oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.VURDER_KONS_FOR_YTELSE,
                 "2010", "bla bla", false);
 
         var request = captor.getValue().build();
@@ -235,7 +235,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
-        String oppgaveId = tjeneste.opprettOppgaveSakSkalTilInfotrygd(behandling.getId());
+        var oppgaveId = tjeneste.opprettOppgaveSakSkalTilInfotrygd(behandling.getId());
 
         var request = captor.getValue().build();
         assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -251,7 +251,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.Builder.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
-        String oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.GODKJENNE_VEDTAK,
+        var oppgaveId = tjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), OppgaveÅrsak.GODKJENNE_VEDTAK,
                 "4321", "noe tekst", true);
 
         var request = captor.getValue().build();
@@ -272,7 +272,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         var førsteAugust = LocalDate.of(2019, 8, 1);
-        String oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandling.getId(), førsteAugust);
+        var oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandling.getId(), førsteAugust);
 
         var request = captor.getValue().build();
         assertThat(request.getSaksreferanse()).isEqualTo(behandling.getFagsak().getSaksnummer().getVerdi());
@@ -296,14 +296,14 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         var førsteUttaksdato = LocalDate.of(2019, 2, 1);
         var vedtaksdato = LocalDate.of(2019, 1, 15);
         var personIdent = new PersonIdent(FNR);
-        String beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
+        var beskrivelse = String.format("Refusjon til privat arbeidsgiver," +
                 "Saksnummer: %s," +
                 "Vedtaksdato: %s," +
                 "Dato for første utbetaling: %s," +
                 "Fødselsnummer arbeidsgiver: %s", behandling.getFagsak().getSaksnummer().getVerdi(),
                 vedtaksdato, førsteUttaksdato, personIdent.getIdent());
 
-        String oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
+        var oppgaveId = tjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
                 førsteUttaksdato, vedtaksdato, behandling.getAktørId());
 
         var request = captor.getValue().build();

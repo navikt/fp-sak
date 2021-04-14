@@ -33,9 +33,9 @@ public class SaksbehandlingDokumentmottakTjeneste {
 
     public void dokumentAnkommet(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
 
-        Long mottattDokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
+        var mottattDokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTaskData.setFagsakId(mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokumentId.toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
@@ -45,7 +45,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
 
     public void opprettFraTidligereBehandling(MottattDokument mottattDokument, Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         LOG.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(), behandling.getFagsakId(), mottattDokument.getId());
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
@@ -54,7 +54,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     }
 
     public void mottaUbehandletSøknad(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
 
         prosessTaskData.setFagsakId(mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());

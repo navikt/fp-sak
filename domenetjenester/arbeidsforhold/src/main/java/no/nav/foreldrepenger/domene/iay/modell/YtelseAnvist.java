@@ -85,7 +85,7 @@ public class YtelseAnvist extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof YtelseAnvist)) {
             return false;
         }
-        YtelseAnvist that = (YtelseAnvist) o;
+        var that = (YtelseAnvist) o;
         return Objects.equals(anvistPeriode, that.anvistPeriode) &&
                 Objects.equals(beløp, that.beløp) &&
                 Objects.equals(dagsats, that.dagsats) &&

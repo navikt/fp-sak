@@ -3,13 +3,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -35,7 +32,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
         var behandling = opprettBehandling(opprettFagsak());
         opprettDokument(behandling);
         //Act
-        List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
 
         //Assert
         assertThat(mottatteDokumenter).hasSize(1);
@@ -50,7 +47,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
         opprettDokument(behandling1);
         opprettDokument(behandling2);
         //Act
-        List<MottattDokument> mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling1.getFagsakId());
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling1.getFagsakId());
 
         //Assert
         assertThat(mottatteDokumenter).hasSize(2);
@@ -67,8 +64,8 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
         var dokument2 = opprettDokument(behandling2);
 
         //Act
-        Optional<MottattDokument> mottattDokument1 = mottatteDokumentRepository.hentMottattDokument(dokument1.getId());
-        Optional<MottattDokument> mottattDokument2 = mottatteDokumentRepository.hentMottattDokument(dokument2.getId());
+        var mottattDokument1 = mottatteDokumentRepository.hentMottattDokument(dokument1.getId());
+        var mottattDokument2 = mottatteDokumentRepository.hentMottattDokument(dokument2.getId());
 
         //Assert
         assertThat(dokument1).isEqualTo(mottattDokument1.get());
@@ -82,7 +79,7 @@ public class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 

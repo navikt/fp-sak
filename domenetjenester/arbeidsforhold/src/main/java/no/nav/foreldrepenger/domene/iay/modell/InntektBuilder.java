@@ -32,7 +32,7 @@ public class InntektBuilder {
     }
 
     public InntektBuilder leggTilInntektspost(InntektspostBuilder builder) {
-        Inntektspost inntektspost = builder.build();
+        var inntektspost = builder.build();
         inntekt.leggTilInntektspost(inntektspost);
         return this;
     }

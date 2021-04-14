@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.domene.medlem.impl;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertLøpendeMedlemskapBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskapPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.medlem.api.AvklarFortsattMedlemskapAksjonspunktDto;
@@ -33,15 +28,15 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
     }
 
     public void oppdater(Long behandlingId, AvklarFortsattMedlemskapAksjonspunktDto adapter) {
-        List<BekreftedePerioderAdapter> perioder = adapter.getPerioder();
-        VurdertMedlemskapPeriodeEntitet.Builder vurdertMedlemskapPeriode = medlemskapRepository.hentBuilderFor(behandlingId);
-        LocalDate skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
+        var perioder = adapter.getPerioder();
+        var vurdertMedlemskapPeriode = medlemskapRepository.hentBuilderFor(behandlingId);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
 
         perioder.forEach(vurderingsperiode -> {
             // TODO(OJR) ønsker ikke og se på denne perioden hvis den blir sendt ned fra GUI
             if (!skjæringstidspunkt.equals(vurderingsperiode.getVurderingsdato())) {
-                VurdertLøpendeMedlemskapBuilder løpendeBuilder = vurdertMedlemskapPeriode.getBuilderFor(vurderingsperiode.getVurderingsdato());
-                List<String> aksjonspunkter = vurderingsperiode.getAksjonspunkter();
+                var løpendeBuilder = vurdertMedlemskapPeriode.getBuilderFor(vurderingsperiode.getVurderingsdato());
+                var aksjonspunkter = vurderingsperiode.getAksjonspunkter();
                 if (aksjonspunkter.contains(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD.getKode())) {
                     håndterAksjonspunkt5019(løpendeBuilder, vurderingsperiode, behandlingId);
                 }
@@ -63,8 +58,8 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
 
     // AVKLAR_LOVLIG_OPPHOLD
     private void håndterAksjonspunkt5019(VurdertLøpendeMedlemskapBuilder builder, BekreftedePerioderAdapter data, Long behandlingId) {
-        Boolean nyVerdi = data.getLovligOppholdVurdering();
-        Boolean tidligereVerdi = builder.build().getLovligOppholdVurdering();
+        var nyVerdi = data.getLovligOppholdVurdering();
+        var tidligereVerdi = builder.build().getLovligOppholdVurdering();
 
         builder.medOppholdsrettVurdering(data.getOppholdsrettVurdering())
             .medLovligOppholdVurdering(nyVerdi)
@@ -79,8 +74,8 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
 
     // AVKLAR_OPPHOLDSRETT
     private void håndterAksjonspunkt5023(VurdertLøpendeMedlemskapBuilder builder, BekreftedePerioderAdapter data, Long behandlingId) {
-        Boolean nyVerdi = data.getOppholdsrettVurdering();
-        Boolean tidligereVerdi = builder.build().getOppholdsrettVurdering();
+        var nyVerdi = data.getOppholdsrettVurdering();
+        var tidligereVerdi = builder.build().getOppholdsrettVurdering();
 
         builder.medOppholdsrettVurdering(nyVerdi)
             .medLovligOppholdVurdering(data.getLovligOppholdVurdering())
@@ -93,8 +88,8 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
 
     // AVKLAR_OM_ER_BOSATT
     private void håndterAksjonspunkt5020(VurdertLøpendeMedlemskapBuilder builder, BekreftedePerioderAdapter data, Long behandlingId) {
-        Boolean tidligereVerdi = builder.build().getBosattVurdering();
-        Boolean nyVerdi = data.getBosattVurdering();
+        var tidligereVerdi = builder.build().getBosattVurdering();
+        var nyVerdi = data.getBosattVurdering();
 
         builder.medBosattVurdering(nyVerdi);
         lagHistorikkFor(data.getBegrunnelse()).medEndretFelt(HistorikkEndretFeltType.ER_SOKER_BOSATT_I_NORGE, tidligereVerdi, nyVerdi);
@@ -103,9 +98,9 @@ public class AvklarFortsattMedlemskapAksjonspunkt {
 
     // AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE
     private void håndterAksjonspunkt5021(VurdertLøpendeMedlemskapBuilder builder, BekreftedePerioderAdapter data, Long behandlingId) {
-        MedlemskapManuellVurderingType manuellVurdering = builder.build().getMedlemsperiodeManuellVurdering();
-        String tidligereVerdi = manuellVurdering != null ? manuellVurdering.getNavn() : null;
-        String nyVerdi = data.getMedlemskapManuellVurderingType().getNavn();
+        var manuellVurdering = builder.build().getMedlemsperiodeManuellVurdering();
+        var tidligereVerdi = manuellVurdering != null ? manuellVurdering.getNavn() : null;
+        var nyVerdi = data.getMedlemskapManuellVurderingType().getNavn();
 
         builder.medMedlemsperiodeManuellVurdering(data.getMedlemskapManuellVurderingType());
         lagHistorikkFor(data.getBegrunnelse()).medEndretFelt(HistorikkEndretFeltType.GYLDIG_MEDLEM_FOLKETRYGDEN, tidligereVerdi, nyVerdi);

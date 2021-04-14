@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.VurderArbeidsforholdTjeneste;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
 public class PåkrevdeInntektsmeldingerTjeneste {
@@ -37,11 +36,11 @@ public class PåkrevdeInntektsmeldingerTjeneste {
 
     public void leggTilArbeidsforholdHvorPåkrevdeInntektsmeldingMangler(BehandlingReferanse behandlingReferanse,
             Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> result) {
-        Boolean erEndringssøknad = erEndringssøknad(behandlingReferanse);
-        final Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger = inntektsmeldingArkivTjeneste
+        var erEndringssøknad = erEndringssøknad(behandlingReferanse);
+        final var manglendeInntektsmeldinger = inntektsmeldingArkivTjeneste
                 .utledManglendeInntektsmeldingerFraGrunnlagForVurdering(behandlingReferanse, erEndringssøknad);
         if (!erEndringssøknad) {
-            for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> entry : manglendeInntektsmeldinger.entrySet()) {
+            for (var entry : manglendeInntektsmeldinger.entrySet()) {
                 LeggTilResultat.leggTil(result, AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING, entry.getKey(), entry.getValue());
                 LOG.info("Mangler inntektsmelding: arbeidsgiver={}, arbeidsforholdRef={}", entry.getKey(), entry.getValue());
             }

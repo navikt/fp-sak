@@ -22,13 +22,11 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.rest.BeregningDtoTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -74,20 +72,19 @@ public class BeregningsgrunnlagRestTjeneste {
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     public BeregningsgrunnlagDto hentBeregningsgrunnlag(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         final var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return null;
         }
 
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
+        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
         return iayGrunnlagOpt.flatMap(iayGrunnlag -> {
             var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling, iayGrunnlag);
             if (input.isPresent()) {
                 return beregningDtoTjeneste.lagBeregningsgrunnlagDto(input.get());
-            } else {
-                return Optional.empty();
             }
+            return Optional.empty();
         }).orElse(null);
     }
 

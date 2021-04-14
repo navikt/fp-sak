@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -14,7 +13,6 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
@@ -43,21 +41,21 @@ public class AvklarGyldigPeriodeTest {
     @Test
     public void skal_ikke_opprette_Aksjonspunkt_ved_gyldig_periode() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        MedlemskapPerioderEntitet gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
+        var fødselsdato = LocalDate.now();
+        var gyldigPeriodeUnderFødsel = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.ENDELIG) // gyldig
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(gyldigPeriodeUnderFødsel);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         medlemskapPerioder.forEach(scenario::leggTilMedlemskapPeriode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -66,13 +64,13 @@ public class AvklarGyldigPeriodeTest {
     @Test
     public void skalIkkeOppretteAksjonspunktVedIngenTreffMedl() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var fødselsdato = LocalDate.now();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -81,21 +79,21 @@ public class AvklarGyldigPeriodeTest {
     @Test
     public void skalIkkeOppretteAksjonspunktVedIngenUavklartPeriode() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        MedlemskapPerioderEntitet lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder()
+        var fødselsdato = LocalDate.now();
+        var lukketPeriodeFørFødselsdato = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FTL_2_7_b) // ikke hjemlet i bokstav a eller c
                 .medMedlemskapType(MedlemskapType.ENDELIG)
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(lukketPeriodeFørFødselsdato);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         medlemskapPerioder.forEach(scenario::leggTilMedlemskapPeriode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
 
         // Assert
         assertThat(medlemResultat).isEmpty();
@@ -104,21 +102,21 @@ public class AvklarGyldigPeriodeTest {
     @Test
     public void skalOppretteAksjonspunktVedUavklartPeriode() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        MedlemskapPerioderEntitet medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder()
+        var fødselsdato = LocalDate.now();
+        var medlemskapPeriodeUnderAvklaring = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.UNDER_AVKLARING)
                 .medPeriode(fødselsdato, fødselsdato)
                 .build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(medlemskapPeriodeUnderAvklaring);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         medlemskapPerioder.forEach(scenario::leggTilMedlemskapPeriode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
 
         // Assert
         assertThat(medlemResultat).contains(AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
@@ -127,21 +125,21 @@ public class AvklarGyldigPeriodeTest {
     @Test
     public void skalOppretteAksjonspunktVedÅpenPeriode() {
         // Arrange
-        LocalDate fødselsdato = LocalDate.now();
-        MedlemskapPerioderEntitet åpenPeriode = new MedlemskapPerioderBuilder()
+        var fødselsdato = LocalDate.now();
+        var åpenPeriode = new MedlemskapPerioderBuilder()
                 .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
                 .medMedlemskapType(MedlemskapType.FORELOPIG)
                 .medPeriode(fødselsdato, null) // åpen periode
                 .build();
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>();
         medlemskapPerioder.add(åpenPeriode);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato);
         medlemskapPerioder.forEach(scenario::leggTilMedlemskapPeriode);
-        Behandling behandling = scenario.lagre(provider);
+        var behandling = scenario.lagre(provider);
 
         // Act
-        Optional<MedlemResultat> medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
+        var medlemResultat = avklarGyldigPeriode.utled(behandling.getId(), fødselsdato);
 
         // Assert
         assertThat(medlemResultat).contains(AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);

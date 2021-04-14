@@ -70,9 +70,9 @@ public class HarEtablertYtelseFP {
 
     private boolean erDagensDatoEtterSistePeriodeIUttak(UttakResultatHolder uttakResultatHolder,
             UttakResultatHolder uttakResultatHolderAnnenPart) {
-        LocalDate dagensDato = LocalDate.now();
-        LocalDate sisteDagISøkersUttak = uttakResultatHolder.getSisteDagAvSistePeriode();
-        LocalDate sisteDagIAnnenPartsUttak = uttakResultatHolderAnnenPart.getSisteDagAvSistePeriode();
+        var dagensDato = LocalDate.now();
+        var sisteDagISøkersUttak = uttakResultatHolder.getSisteDagAvSistePeriode();
+        var sisteDagIAnnenPartsUttak = uttakResultatHolderAnnenPart.getSisteDagAvSistePeriode();
 
         if (sisteDagIAnnenPartsUttak.isAfter(sisteDagISøkersUttak)) {
             return dagensDato.isAfter(sisteDagIAnnenPartsUttak);

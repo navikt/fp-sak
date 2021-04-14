@@ -10,7 +10,7 @@ public enum Kjoenn {
     }
 
     public static Kjoenn hentKjoenn(String kode) {
-        for (Kjoenn kjoenn : values()) {
+        for (var kjoenn : values()) {
             if (kjoenn.kode.equals(kode)) {
                 return kjoenn;
             }

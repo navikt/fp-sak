@@ -9,9 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
@@ -39,11 +36,11 @@ public class VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerOppdatere
 
     @Override
     public OppdateringResultat oppdater(VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
 
         lagreHistorikkinnslag(dto, param);
 
-        final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse.medErMorForSykVedFødsel(dto.getErMorForSykVedFodsel());
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
 
@@ -51,8 +48,8 @@ public class VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerOppdatere
     }
 
     private void lagreHistorikkinnslag(VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto dto, AksjonspunktOppdaterParameter param) {
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
-        Boolean original = familieHendelseGrunnlag.getGjeldendeVersjon().erMorForSykVedFødsel();
+        var familieHendelseGrunnlag = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
+        var original = familieHendelseGrunnlag.getGjeldendeVersjon().erMorForSykVedFødsel();
         boolean bekreftet = dto.getErMorForSykVedFodsel();
 
         if (!Objects.equals(bekreftet, original)) {
@@ -62,9 +59,9 @@ public class VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerOppdatere
     }
 
     private void lagHistorikkinnslag(VurderingAvVilkårForMorsSyksomVedFødselForForeldrepengerDto dto, AksjonspunktOppdaterParameter param, Boolean original, boolean bekreftet) {
-        HistorikkEndretFeltVerdiType tilVerdi = bekreftet ? HistorikkEndretFeltVerdiType.DOKUMENTERT : HistorikkEndretFeltVerdiType.IKKE_DOKUMENTERT;
-        HistorikkEndretFeltVerdiType fraVerdi = fraVerdi(original);
-        boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+        var tilVerdi = bekreftet ? HistorikkEndretFeltVerdiType.DOKUMENTERT : HistorikkEndretFeltVerdiType.IKKE_DOKUMENTERT;
+        var fraVerdi = fraVerdi(original);
+        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         historikkAdapter.tekstBuilder()
             .medEndretFelt(HistorikkEndretFeltType.SYKDOM, fraVerdi, tilVerdi)
             .medBegrunnelse(dto.getBegrunnelse(), erBegrunnelseEndret)

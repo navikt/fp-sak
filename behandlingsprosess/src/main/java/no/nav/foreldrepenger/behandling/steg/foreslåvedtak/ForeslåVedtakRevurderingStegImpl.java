@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,12 +51,12 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling revurdering = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        Behandling orginalBehandling = getOriginalBehandling(revurdering);
+        var revurdering = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var orginalBehandling = getOriginalBehandling(revurdering);
 
-        BehandleStegResultat behandleStegResultat = foreslåVedtakTjeneste.foreslåVedtak(revurdering);
+        var behandleStegResultat = foreslåVedtakTjeneste.foreslåVedtak(revurdering);
 
-        Optional<BeregningsgrunnlagEntitet> revurderingBG = hentBeregningsgrunnlag(revurdering.getId());
+        var revurderingBG = hentBeregningsgrunnlag(revurdering.getId());
         if (revurderingBG.isEmpty() || isBehandlingsresultatAvslåttEllerOpphørt(orginalBehandling)) {
             return behandleStegResultat;
         }
@@ -65,7 +64,7 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
         // Oppretter aksjonspunkt dersom revurdering har mindre beregningsgrunnlag enn
         // orginal
         if (ErEndringIBeregning.vurderUgunst(revurderingBG, hentBeregningsgrunnlag(orginalBehandling.getId()))) {
-            List<AksjonspunktDefinisjon> aksjonspunkter = behandleStegResultat.getAksjonspunktResultater().stream()
+            var aksjonspunkter = behandleStegResultat.getAksjonspunktResultater().stream()
                     .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
             return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
@@ -74,14 +73,14 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     }
 
     private boolean isBehandlingsresultatAvslåttEllerOpphørt(Behandling orginalBehandling) {
-        Behandlingsresultat sistBehandlingsresultatUtenIngenEndring = getSistBehandlingsresultatUtenIngenEndring(orginalBehandling);
+        var sistBehandlingsresultatUtenIngenEndring = getSistBehandlingsresultatUtenIngenEndring(orginalBehandling);
         return sistBehandlingsresultatUtenIngenEndring.isBehandlingsresultatAvslått()
                 || sistBehandlingsresultatUtenIngenEndring.isBehandlingsresultatOpphørt();
     }
 
     private Behandlingsresultat getSistBehandlingsresultatUtenIngenEndring(Behandling orginalBehandling) {
-        Behandling sisteBehandling = orginalBehandling;
-        Behandlingsresultat sisteBehandlingResultat = getBehandlingsresultat(orginalBehandling);
+        var sisteBehandling = orginalBehandling;
+        var sisteBehandlingResultat = getBehandlingsresultat(orginalBehandling);
 
         while (sisteBehandlingResultat.isBehandlingsresultatIkkeEndret()) {
             sisteBehandling = getOriginalBehandling(sisteBehandling);
@@ -107,8 +106,8 @@ public class ForeslåVedtakRevurderingStegImpl implements ForeslåVedtakSteg {
     @Override
     public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
             BehandlingStegType fraSteg) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                 .fjernKonsekvenserForYtelsen()
                 .buildFor(behandling);

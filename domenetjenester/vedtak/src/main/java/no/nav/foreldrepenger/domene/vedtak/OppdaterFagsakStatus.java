@@ -18,8 +18,8 @@ public abstract class OppdaterFagsakStatus {
     public abstract void avsluttFagsakUtenAktiveBehandlinger(Fagsak fagsak);
 
     public void oppdaterFagsakStatus(Fagsak fagsak, Behandling behandling, FagsakStatus nyStatus) {
-        FagsakStatus gammelStatus = fagsak.getStatus();
-        Long fagsakId = fagsak.getId();
+        var gammelStatus = fagsak.getStatus();
+        var fagsakId = fagsak.getId();
         fagsakRepository.oppdaterFagsakStatus(fagsakId, nyStatus);
 
         if (fagsakStatusEventPubliserer != null) {

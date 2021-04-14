@@ -50,12 +50,12 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        AutomatiskArenaReguleringBatchArguments batchArguments = (AutomatiskArenaReguleringBatchArguments) arguments;
-        String executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
+        var batchArguments = (AutomatiskArenaReguleringBatchArguments) arguments;
+        var executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
 
-        List<Tuple<Long, AktørId>> tilVurdering = hentKandidater(batchArguments);
+        var tilVurdering = hentKandidater(batchArguments);
 
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
+        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
         if (batchArguments.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
         } else {
@@ -79,7 +79,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     }
 
     private void opprettReguleringTask(Long fagsakId, AktørId aktørId, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskRepository.lagre(prosessTaskData);

@@ -36,11 +36,11 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void ett_arbeidsforhold_har_ref_A_får_inntektsmelding_med_samme_ref() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -52,12 +52,12 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void ett_arbeidsforhold_har_ref_A_får_inntektsmelding_med_ref_B() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER,
                 new HashSet<>(Set.of(refA, refB)));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -70,12 +70,12 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void ett_arbeidsforhold_har_ref_A_får_inntektsmelding_uten_ref() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER,
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmeldingMap = Map.of(ARBEIDSGIVER,
                 Set.of(InternArbeidsforholdRef.nullRef()));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -87,11 +87,11 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void ett_arbeidsforhold_har_inntektsmelding_uten_ref_får_inntektsmelding_med_ref_A() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
+        var nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -103,13 +103,13 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void to_arbeidsforhold_AB_får_inntektsmelding_med_ref_B() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
                 Set.of(refA, refB));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER,
                 new HashSet<>(Set.of(refA, refB)));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -121,12 +121,12 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void to_arbeidsforhold_har_ref_A_får_inntektsmelding_uten_ref() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
                 Set.of(refA, refB));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -138,12 +138,12 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void to_arbeidsforhold_har_inntektsmelding_uten_ref_får_inntektsmelding_med_ref_A() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
                 Set.of(refA, refB));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER, Set.of(InternArbeidsforholdRef.nullRef()));
+        var nyInntektsmeldingMap = Map.of(ARBEIDSGIVER, Set.of(refA));
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -156,14 +156,14 @@ public class EndringIArbeidsforholdIdTest {
     @Test
     public void to_arbeidsforhold_har_inntektsmeldinger_med_ref_får_inntektsmelding_med_ref_C() {
         // Arrange
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
+        var yrkesaktiviteterPerArbeidsgiver = Map.of(ARBEIDSGIVER,
                 Set.of(refA, refB));
-        InntektArbeidYtelseGrunnlag grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> eksisterendeIM = Map.of(ARBEIDSGIVER,
+        var grunnlag = lagGrunnlag(yrkesaktiviteterPerArbeidsgiver);
+        var eksisterendeIM = Map.of(ARBEIDSGIVER,
                 Set.of(refA, refB));
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmeldingMap = Map.of(ARBEIDSGIVER,
                 new HashSet<>(Set.of(refA, refB, refC)));
-        Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
+        var nyInntektsmelding = nyInntektsmeldingMap.entrySet().iterator().next();
 
         // Act
         EndringIArbeidsforholdId.vurderMedÅrsak(result, nyInntektsmelding, eksisterendeIM, grunnlag, yrkesaktiviteterPerArbeidsgiver);
@@ -174,13 +174,13 @@ public class EndringIArbeidsforholdIdTest {
     }
 
     private InntektArbeidYtelseGrunnlag lagGrunnlag(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> yrkesaktiviteterPerArbeidsgiver) {
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
+        var aktørArbeidBuilder = InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder
                 .oppdatere(Optional.empty());
 
-        for (Map.Entry<Arbeidsgiver, Set<InternArbeidsforholdRef>> entry : yrkesaktiviteterPerArbeidsgiver.entrySet()) {
-            Arbeidsgiver arbeidsgiver = entry.getKey();
-            Set<InternArbeidsforholdRef> refs = entry.getValue().isEmpty() ? Set.of(InternArbeidsforholdRef.nullRef()) : entry.getValue();
-            for (InternArbeidsforholdRef ref : refs) {
+        for (var entry : yrkesaktiviteterPerArbeidsgiver.entrySet()) {
+            var arbeidsgiver = entry.getKey();
+            var refs = entry.getValue().isEmpty() ? Set.of(InternArbeidsforholdRef.nullRef()) : entry.getValue();
+            for (var ref : refs) {
                 aktørArbeidBuilder.leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(Optional.empty())
                         .medArbeidsgiver(arbeidsgiver)
                         .medArbeidsforholdId(ref));

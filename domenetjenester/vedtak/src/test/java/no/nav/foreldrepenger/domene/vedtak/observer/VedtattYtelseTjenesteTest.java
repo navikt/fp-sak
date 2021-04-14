@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -52,7 +51,7 @@ public class VedtattYtelseTjenesteTest {
     @Test
     public void skal_teste_arena_ytelser_finnes_ikke() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
+        var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         var bg = lagBG();
         var br = lagBR();
         when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandling.getId())).thenReturn(Optional.of(bg));
@@ -61,7 +60,7 @@ public class VedtattYtelseTjenesteTest {
         when(vedtak.getVedtakstidspunkt()).thenReturn(stp.atStartOfDay());
         var tjeneste = new VedtattYtelseTjeneste(behandlingVedtakRepository, beregningsgrunnlagRepository, beregningsresultatRepository);
 
-        YtelseV1 ytelse= (YtelseV1)tjeneste.genererYtelse(behandling);
+        var ytelse= (YtelseV1)tjeneste.genererYtelse(behandling);
         // Assert
         assertThat(ytelse.getAnvist()).hasSize(3);
         assertThat(ytelse.getAnvist().get(0).getUtbetalingsgrad().getVerdi().longValue()).isEqualTo(20);
@@ -69,7 +68,7 @@ public class VedtattYtelseTjenesteTest {
     }
 
     private BeregningsgrunnlagEntitet lagBG() {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+        var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .medGrunnbeløp(new BigDecimal(100000))
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.ny()
@@ -111,7 +110,7 @@ public class VedtattYtelseTjenesteTest {
 
 
     private BeregningsresultatEntitet lagBR() {
-        BeregningsresultatEntitet beregningsresultat = BeregningsresultatEntitet.builder()
+        var beregningsresultat = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2")
             .build();

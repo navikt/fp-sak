@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -110,21 +109,21 @@ public class BehandlingÅrsak extends BaseEntitet {
         public List<BehandlingÅrsak> buildFor(Behandling behandling) {
             Objects.requireNonNull(behandling, "behandling");
             List<BehandlingÅrsak> nyeÅrsaker = new ArrayList<>();
-            for (BehandlingÅrsakType årsakType : this.behandlingÅrsakTyper) {
+            for (var årsakType : this.behandlingÅrsakTyper) {
                 // Tillater å oppdatere enkelte attributter. Kan derfor ikke bruke Hibernate + equals/hashcode til å håndtere insert vs update
-                Optional<BehandlingÅrsak> eksisterende = behandling.getBehandlingÅrsaker().stream()
+                var eksisterende = behandling.getBehandlingÅrsaker().stream()
                     .filter(it -> it.getBehandlingÅrsakType().equals(årsakType))
                     .findFirst();
                 if (eksisterende.isPresent()) {
                     // Oppdater eksisterende (UPDATE)
-                    BehandlingÅrsak årsak = eksisterende.get();
+                    var årsak = eksisterende.get();
                     if (this.originalBehandlingId != null) {
                         årsak.originalBehandlingId = this.originalBehandlingId;
                     }
                     årsak.manueltOpprettet = this.manueltOpprettet;
                 } else {
                     // Opprett ny (INSERT)
-                    BehandlingÅrsak behandlingÅrsak = new BehandlingÅrsak();
+                    var behandlingÅrsak = new BehandlingÅrsak();
                     behandlingÅrsak.behandling = behandling;
                     behandlingÅrsak.behandlingÅrsakType = årsakType;
                     behandlingÅrsak.originalBehandlingId = this.originalBehandlingId;
@@ -141,7 +140,7 @@ public class BehandlingÅrsak extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BehandlingÅrsak that = (BehandlingÅrsak) o;
+        var that = (BehandlingÅrsak) o;
 
         return Objects.equals(behandlingÅrsakType, that.behandlingÅrsakType);
     }

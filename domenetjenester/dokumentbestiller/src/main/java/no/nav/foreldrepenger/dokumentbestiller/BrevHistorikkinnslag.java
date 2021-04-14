@@ -26,7 +26,7 @@ public class BrevHistorikkinnslag {
     public void opprettHistorikkinnslagForBestiltBrevFraKafka(HistorikkAktør historikkAktør,
                                                               Behandling behandling,
                                                               DokumentMalType dokumentMalType) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandling(behandling);
         historikkinnslag.setAktør(historikkAktør);
         historikkinnslag.setType(HistorikkinnslagType.BREV_BESTILT);
@@ -40,7 +40,7 @@ public class BrevHistorikkinnslag {
     void opprettHistorikkinnslagForManueltBestiltBrev(HistorikkAktør historikkAktør,
                                                       Behandling behandling,
                                                       String dokumentMal) {
-        DokumentMalType dokumentMalType = DokumentMalType.fraKode(dokumentMal);
+        var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
         opprettHistorikkinnslagForBestiltBrevFraKafka(historikkAktør, behandling, dokumentMalType);
     }
 }

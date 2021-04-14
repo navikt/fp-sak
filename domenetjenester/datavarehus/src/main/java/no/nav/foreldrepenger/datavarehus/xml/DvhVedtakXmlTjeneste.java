@@ -8,14 +8,10 @@ import javax.xml.bind.JAXBException;
 
 import org.xml.sax.SAXException;
 
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.vedtak.xml.BehandlingsresultatXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.DvhPersonopplysningXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.OppdragXmlTjeneste;
@@ -62,13 +58,13 @@ public class DvhVedtakXmlTjeneste {
     }
 
     public String opprettDvhVedtakXml(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
-        Vedtak vedtak = factory.createVedtak();
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
+        var vedtak = factory.createVedtak();
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
         vedtakXmlTjeneste.setVedtaksopplysninger(vedtak, fagsak, behandling);
-        FagsakYtelseType ytelseType = fagsak.getYtelseType();
-        String ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
+        var ytelseType = fagsak.getYtelseType();
+        var ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
 
         FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
             .setPersonopplysninger(vedtak, behandlingId, behandling.getAktørId(), skjæringstidspunkter);

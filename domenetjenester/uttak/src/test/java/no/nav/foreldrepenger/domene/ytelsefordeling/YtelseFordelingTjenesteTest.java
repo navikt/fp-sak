@@ -6,14 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAnnenforelderHarRettEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -56,31 +52,31 @@ public class YtelseFordelingTjenesteTest {
 
     @Test
     public void test_bekreft_aksjonspunkt_annenforelder_har_ikke_rett() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
 
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false);
 
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett = tjeneste.hentAggregat(
+        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
             behandling.getId()).getPerioderAnnenforelderHarRett();
 
         assertThat(perioderAnnenforelderHarRett).isPresent();
-        List<PeriodeAnnenforelderHarRettEntitet> perioder = perioderAnnenforelderHarRett.get().getPerioder();
+        var perioder = perioderAnnenforelderHarRett.get().getPerioder();
         assertThat(perioder).isEmpty();
     }
 
     @Test
     public void test_bekreft_aksjonspunkt_annenforelder_har_rett() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(repositoryProvider);
 
         tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true);
 
-        Optional<PerioderAnnenforelderHarRettEntitet> perioderAnnenforelderHarRett = tjeneste.hentAggregat(
+        var perioderAnnenforelderHarRett = tjeneste.hentAggregat(
             behandling.getId()).getPerioderAnnenforelderHarRett();
 
         assertThat(perioderAnnenforelderHarRett).isPresent();
-        List<PeriodeAnnenforelderHarRettEntitet> perioder = perioderAnnenforelderHarRett.get().getPerioder();
+        var perioder = perioderAnnenforelderHarRett.get().getPerioder();
         assertThat(perioder).isNotEmpty();
         assertThat(perioder).hasSize(1);
     }

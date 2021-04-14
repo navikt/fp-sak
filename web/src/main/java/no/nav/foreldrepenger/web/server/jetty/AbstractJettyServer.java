@@ -106,7 +106,7 @@ abstract class AbstractJettyServer {
     protected abstract void migrerDatabaser();
 
     protected void start(JettyWebKonfigurasjon jettyWebKonfigurasjon) throws Exception {
-        Server server = new Server(jettyWebKonfigurasjon.getServerPort());
+        var server = new Server(jettyWebKonfigurasjon.getServerPort());
         server.setConnectors(createConnectors(jettyWebKonfigurasjon, server).toArray(new Connector[] {}));
         var handlers = new HandlerList(new ResetLogContextHandler(), createContext(jettyWebKonfigurasjon));
         server.setHandler(handlers);
@@ -166,7 +166,7 @@ abstract class AbstractJettyServer {
 
     protected HttpConfiguration createHttpConfiguration() {
         // Create HTTP Config
-        HttpConfiguration httpConfig = new HttpConfiguration();
+        var httpConfig = new HttpConfiguration();
 
         // Add support for X-Forwarded headers
         httpConfig.addCustomizer(new org.eclipse.jetty.server.ForwardedRequestCustomizer());
@@ -175,10 +175,10 @@ abstract class AbstractJettyServer {
     }
 
     private static SecurityHandler createSecurityHandler() {
-        ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
+        var securityHandler = new ConstraintSecurityHandler();
         securityHandler.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
 
-        JAASLoginService loginService = new JAASLoginService();
+        var loginService = new JAASLoginService();
         loginService.setName("jetty-login");
         loginService.setLoginModuleName("jetty-login");
         loginService.setIdentityService(new DefaultIdentityService());

@@ -29,7 +29,7 @@ final class UtledOmHistorikkinnslagForInntektsmeldingErNødvendig {
 
     private static boolean arbeidsforholdetStarterPåEllerEtterStp(ArbeidsforholdDto arbeidsforholdDto, Optional<LocalDate> stpOpt) {
         if (stpOpt.isPresent()) {
-            final LocalDate stp = stpOpt.get();
+            final var stp = stpOpt.get();
             return arbeidsforholdDto.getFomDato().isEqual(stp) || arbeidsforholdDto.getFomDato().isAfter(stp);
         }
         return false;

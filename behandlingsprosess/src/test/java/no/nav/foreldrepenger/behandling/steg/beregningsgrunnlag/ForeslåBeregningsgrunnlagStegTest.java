@@ -24,7 +24,6 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAksjonspunkt;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp.BeregningsgrunnlagInputTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -72,7 +71,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
                 .medFørsteUttaksdato(LocalDate.now())
                 .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
-        ForeldrepengerGrunnlag foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
+        var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
         var input = new BeregningsgrunnlagInput(MapBehandlingRef.mapRef(ref), null, null, List.of(),
                 foreldrepengerGrunnlag);
         var inputTjeneste = mock(BeregningsgrunnlagInputTjeneste.class);
@@ -81,10 +80,10 @@ public class ForeslåBeregningsgrunnlagStegTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(any())).thenReturn(beregningsgrunnlagRegelResultat);
 
-        FamilieHendelseEntitet mockFamilieHendelseEntitet = mock(FamilieHendelseEntitet.class);
+        var mockFamilieHendelseEntitet = mock(FamilieHendelseEntitet.class);
         when(mockFamilieHendelseEntitet.getBarna()).thenReturn(List.of());
 
-        FamilieHendelseGrunnlagEntitet mockFamilieHendelseGrunnlagEntitet = mock(FamilieHendelseGrunnlagEntitet.class);
+        var mockFamilieHendelseGrunnlagEntitet = mock(FamilieHendelseGrunnlagEntitet.class);
         when(mockFamilieHendelseGrunnlagEntitet.getGjeldendeVersjon()).thenReturn(mockFamilieHendelseEntitet);
 
         when(familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())).thenReturn(Optional.of(mockFamilieHendelseGrunnlagEntitet));
@@ -102,7 +101,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
 
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -113,12 +112,12 @@ public class ForeslåBeregningsgrunnlagStegTest {
     public void stegUtførtNårRegelResultatInneholderAutopunkt() {
         // Arrange
         opprettVilkårResultatForBehandling(VilkårResultatType.INNVILGET);
-        BeregningAksjonspunktResultat aksjonspunktResultat = BeregningAksjonspunktResultat
+        var aksjonspunktResultat = BeregningAksjonspunktResultat
             .opprettFor(BeregningAksjonspunkt.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
         when(beregningsgrunnlagRegelResultat.getAksjonspunkter()).thenReturn(Collections.singletonList(aksjonspunktResultat));
 
         // Act
-        BehandleStegResultat resultat = steg.utførSteg(kontekst);
+        var resultat = steg.utførSteg(kontekst);
 
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -127,9 +126,9 @@ public class ForeslåBeregningsgrunnlagStegTest {
     }
 
     private void opprettVilkårResultatForBehandling(VilkårResultatType resultatType) {
-        VilkårResultat vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType)
+        var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(resultatType)
                 .buildFor(behandling);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
+        var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);
     }
 }

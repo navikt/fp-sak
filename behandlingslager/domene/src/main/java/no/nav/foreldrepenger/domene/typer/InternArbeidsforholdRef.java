@@ -92,7 +92,7 @@ public class InternArbeidsforholdRef implements IndexKey, TraverseValue, Seriali
         }
         if (o == null || getClass() != o.getClass())
             return false;
-        InternArbeidsforholdRef that = (InternArbeidsforholdRef) o;
+        var that = (InternArbeidsforholdRef) o;
         return Objects.equals(referanse, that.referanse);
     }
 

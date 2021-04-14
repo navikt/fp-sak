@@ -31,7 +31,8 @@ class ArbeidsgiverHistorikkinnslag {
             List<ArbeidsforholdOverstyring> overstyringer) {
         if ((arbeidsgiver != null) && (arbeidsforholdRef != null) && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
             return lagTekstMedArbeidsgiverOgArbeidforholdRef(arbeidsgiver, arbeidsforholdRef, overstyringer);
-        } else if (arbeidsgiver != null) {
+        }
+        if (arbeidsgiver != null) {
             return lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer);
         }
         throw new IllegalStateException("Klarte ikke lage historikkinnslagstekst for arbeidsgiver");
@@ -48,16 +49,16 @@ class ArbeidsgiverHistorikkinnslag {
 
     private String lagTekstMedArbeidsgiverOgArbeidforholdRef(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
             List<ArbeidsforholdOverstyring> overstyringer) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append(lagTekstMedArbeidsgiver(arbeidsgiver, overstyringer));
         sb.append(lagTekstMedArbeidsforholdref(arbeidsforholdRef));
         return sb.toString();
     }
 
     private String lagTekstMedArbeidsforholdref(InternArbeidsforholdRef arbeidsforholdRef) {
-        String referanse = arbeidsforholdRef.getReferanse();
-        String sisteFireTegnIRef = referanse.substring(referanse.length() - 4);
-        StringBuilder sb = new StringBuilder();
+        var referanse = arbeidsforholdRef.getReferanse();
+        var sisteFireTegnIRef = referanse.substring(referanse.length() - 4);
+        var sb = new StringBuilder();
         sb.append(" ...")
                 .append(sisteFireTegnIRef);
         return sb.toString();
@@ -65,9 +66,9 @@ class ArbeidsgiverHistorikkinnslag {
     }
 
     private String lagTekstForArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
-        ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
-        StringBuilder sb = new StringBuilder();
-        String arbeidsgiverNavn = opplysninger.getNavn();
+        var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+        var sb = new StringBuilder();
+        var arbeidsgiverNavn = opplysninger.getNavn();
         if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
             arbeidsgiverNavn = hentNavnTilManueltArbeidsforhold(overstyringer);
         }

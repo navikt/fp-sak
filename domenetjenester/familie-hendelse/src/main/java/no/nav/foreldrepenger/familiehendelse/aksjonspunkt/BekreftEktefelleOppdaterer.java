@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,9 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -45,14 +42,14 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
 
     @Override
     public OppdateringResultat oppdater(BekreftEktefelleAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        Long behandlingId = param.getBehandlingId();
-        Optional<Boolean> erEktefellesBarn = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId)
+        var behandling = param.getBehandling();
+        var behandlingId = param.getBehandlingId();
+        var erEktefellesBarn = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandlingId)
             .getGjeldendeBekreftetVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getErEktefellesBarn);
 
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.EKTEFELLES_BARN, konvertBooleanTilFaktaEndretVerdiType(erEktefellesBarn.orElse(null)),
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.EKTEFELLES_BARN, konvertBooleanTilFaktaEndretVerdiType(erEktefellesBarn.orElse(null)),
             konvertBooleanTilFaktaEndretVerdiType(dto.getEktefellesBarn()));
 
         historikkAdapter.tekstBuilder()
@@ -60,7 +57,7 @@ public class BekreftEktefelleOppdaterer implements AksjonspunktOppdaterer<Bekref
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_ADOPSJON);
 
 
-        final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medErEktefellesBarn(dto.getEktefellesBarn()));

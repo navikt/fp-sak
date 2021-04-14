@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -22,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEnti
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -140,7 +138,7 @@ public class KlageVurderingTjeneste {
     }
 
     private void tilbakeførBehandling(Behandling behandling, BehandlingStegType vurderingSteg) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, vurderingSteg);
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
@@ -149,14 +147,14 @@ public class KlageVurderingTjeneste {
         if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
                 && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
-            BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
+            var bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }
-        KlageResultatEntitet klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        boolean erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty()
+        var klageResultatEntitet = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        var erPåklagdEksternBehandling = klageResultatEntitet.getPåKlagdBehandlingId().isEmpty()
                 && klageResultatEntitet.getPåKlagdEksternBehandlingUuid().isPresent();
-        BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
+        var behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(klageVurdering, erPåklagdEksternBehandling);
 
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         if (behandlingsresultat.isPresent()) {
@@ -170,7 +168,7 @@ public class KlageVurderingTjeneste {
     }
 
     private void oppdaterBehandlingMedNyFrist(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandling.setBehandlingstidFrist(LocalDate.now().plusWeeks(14));
         behandlingRepository.lagre(behandling, lås);
     }

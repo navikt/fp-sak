@@ -46,15 +46,15 @@ public class BehandlingVedtakTjeneste {
     }
 
     public void opprettBehandlingVedtak(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        RevurderingTjeneste revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsak().getYtelseType())
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, behandling.getFagsak().getYtelseType())
                 .orElseThrow();
-        VedtakResultatType vedtakResultatType = utledVedtakResultatType(behandling);
-        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
-        LocalDateTime vedtakstidspunkt = LocalDateTime.now();
+        var vedtakResultatType = utledVedtakResultatType(behandling);
+        var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
+        var vedtakstidspunkt = LocalDateTime.now();
 
-        boolean erRevurderingMedUendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(behandling);
+        var erRevurderingMedUendretUtfall = revurderingTjeneste.erRevurderingMedUendretUtfall(behandling);
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
-        BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder()
+        var behandlingVedtak = BehandlingVedtak.builder()
                 .medVedtakResultatType(vedtakResultatType)
                 .medAnsvarligSaksbehandler(ansvarligSaksbehandler)
                 .medVedtakstidspunkt(vedtakstidspunkt)
@@ -74,13 +74,12 @@ public class BehandlingVedtakTjeneste {
         var behandlingResultatType = getBehandlingsresultat(behandling.getId()).getBehandlingResultatType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             return UtledVedtakResultatTypeES.utled(behandling.getType(), behandlingResultatType);
-        } else {
-            if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
-                var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
-                        .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
-                return utledVedtakResultatType(original);
-            }
-            return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
         }
+        if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingResultatType)) {
+            var original = behandling.getOriginalBehandlingId().map(behandlingRepository::hentBehandling)
+                    .orElseThrow(() -> new IllegalStateException("INGEN ENDRING uten original behandling"));
+            return utledVedtakResultatType(original);
+        }
+        return UtledVedtakResultatType.utled(behandling.getType(), behandlingResultatType);
     }
 }

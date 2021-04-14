@@ -26,9 +26,9 @@ public class IntegrasjonstatusTjeneste {
     public List<SystemNedeDto> finnSystemerSomErNede() {
         List<SystemNedeDto> systemerSomErNede = new ArrayList<>();
 
-        SelftestResultat selftestResultat = selftests.run();
-        List<SelftestResultat.InternalResult> alleResultater = selftestResultat.getAlleResultater();
-        for (SelftestResultat.InternalResult resultat : alleResultater) {
+        var selftestResultat = selftests.run();
+        var alleResultater = selftestResultat.getAlleResultater();
+        for (var resultat : alleResultater) {
             if (!resultat.isReady()) {
                 systemerSomErNede.add(lagDto(selftestResultat.getApplication(), resultat));
             }
@@ -38,8 +38,8 @@ public class IntegrasjonstatusTjeneste {
     }
 
     private SystemNedeDto lagDto(String system, SelftestResultat.InternalResult  resultat) {
-        String systemNavn = system;
-        String endepunkt = resultat.getEndpoint();
+        var systemNavn = system;
+        var endepunkt = resultat.getEndpoint();
         return new SystemNedeDto(systemNavn, endepunkt, null, resultat.getDescription(), null);
     }
 }

@@ -170,7 +170,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
         if (!(object instanceof Oppdrag110)) {
             return false;
         }
-        Oppdrag110 oppdr110 = (Oppdrag110) object;
+        var oppdr110 = (Oppdrag110) object;
         return Objects.equals(kodeEndring, oppdr110.getKodeEndring())
             && Objects.equals(kodeFagomrade, oppdr110.getKodeFagomrade())
             && Objects.equals(fagsystemId, oppdr110.getFagsystemId())
@@ -251,7 +251,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
 
         public Oppdrag110 build() {
             verifyStateForBuild();
-            Oppdrag110 oppdrag110 = new Oppdrag110();
+            var oppdrag110 = new Oppdrag110();
             oppdrag110.kodeEndring = kodeEndring;
             oppdrag110.kodeFagomrade = kodeFagomrade;
             oppdrag110.fagsystemId = fagsystemId;

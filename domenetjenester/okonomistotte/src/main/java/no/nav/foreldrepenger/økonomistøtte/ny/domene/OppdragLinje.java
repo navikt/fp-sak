@@ -67,7 +67,7 @@ public class OppdragLinje {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OppdragLinje that = (OppdragLinje) o;
+        var that = (OppdragLinje) o;
         return periode.equals(that.periode) &&
             sats.equals(that.sats) &&
             Objects.equals(utbetalingsgrad, that.utbetalingsgrad) &&

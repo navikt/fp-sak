@@ -47,7 +47,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
         // Hvis det er barnet som har dødd må begge foreldrenes saker revurderes.
         // Revurderer forelderen med nærmest uttak først. Velges v.h.a ToForeldreBarnDødTjeneste
         if (BehandlingÅrsakType.RE_HENDELSE_DØD_BARN.equals(behandlingÅrsakType)) {
-            Optional<Fagsak> fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
+            var fagsakPåMedforelder = behandlingRevurderingRepository.finnFagsakPåMedforelder(avsluttetBehandling.getFagsak());
             Optional<Behandling> behandlingPåMedforelder = fagsakPåMedforelder.isPresent()?
                 behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsakPåMedforelder.get().getId())
                 : Optional.empty();
@@ -65,7 +65,7 @@ public class DødForretningshendelseHåndterer implements ForretningshendelseHå
 
     @Override
     public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
+        var køetBehandlingOpt = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
         forretningshendelseHåndtererFelles.fellesHåndterKøetBehandling(fagsak, behandlingÅrsakType, køetBehandlingOpt);
     }
 

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,14 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -59,7 +56,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         personinfoAdapter = mock(PersoninfoAdapter.class);
-        FagsakRelasjonTjeneste fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
+        var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider.getFagsakRelasjonRepository(), null,
             repositoryProvider.getFagsakRepository());
         var famHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         kobleSakTjeneste = new KobleSakerTjeneste(repositoryProvider, personinfoAdapter, famHendelseTjeneste, fagsakRelasjonTjeneste);
@@ -70,10 +67,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -84,10 +81,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now().plusWeeks(1), LocalDate.now(), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now().plusWeeks(1), LocalDate.now(), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -98,10 +95,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true, false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(19), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -112,10 +109,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(15), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(15), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
     }
@@ -125,10 +122,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(16), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().minusWeeks(30), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(16), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().minusWeeks(30), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isNotPresent();
     }
@@ -139,10 +136,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true, false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusWeeks(4), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -153,11 +150,11 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true);
 
-        Behandling behandlingMor1 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusYears(1), FAR_AKTØR_ID);
-        Behandling behandlingMor2 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().plusWeeks(1), MOR_AKTØR_ID);
+        var behandlingMor1 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusYears(1), FAR_AKTØR_ID);
+        var behandlingMor2 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().plusWeeks(1), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor2.getFagsak()));
@@ -168,10 +165,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
-        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
+        var behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -182,11 +179,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        @SuppressWarnings("unused")
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
-        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), null);
+        @SuppressWarnings("unused") var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
+        var behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), null);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isNotPresent();
     }
@@ -196,10 +192,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsSurrogatiStrukturer();
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now(), null);
-        Behandling behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now(), null);
+        var behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -210,10 +206,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsSurrogatiStrukturer();
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now().minusWeeks(8), null);
-        Behandling behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now().plusWeeks(8), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now().minusWeeks(8), null);
+        var behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now().plusWeeks(8), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isNotPresent();
     }
@@ -223,10 +219,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), BARN_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), BARN_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -237,10 +233,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         assertThat(morsSak).isPresent();
         assertThat(morsSak).hasValueSatisfying(it -> assertThat(it).isEqualTo(behandlingMor.getFagsak()));
@@ -251,13 +247,13 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
         fagsakRelasjonRepository.kobleFagsaker(behandlingMor.getFagsak(), behandlingFar.getFagsak(), behandlingMor);
 
-        Behandling nybehandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
+        var nybehandlingFar = opprettBehandlingFarSøkerFødselRegistrertITps(BARN_FØDT, 1, MOR_AKTØR_ID);
 
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(nybehandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(nybehandlingFar);
 
         assertThat(morsSak).isNotPresent();
     }
@@ -267,10 +263,10 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(false);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
         opprettBehandlingFarSøkerFødselRegistrertITps(ELDRE_BARN_FØDT, 1, MOR_AKTØR_ID);
 
-        Optional<Fagsak> farsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingMor);
+        var farsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingMor);
 
         assertThat(farsSak).isNotPresent();
     }
@@ -280,9 +276,9 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppTpsStrukturer(true);
 
-        Behandling behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
+        var behandlingMor = opprettBehandlingMorSøkerFødselRegistrertTPS(BARN_FØDT, 1, FAR_AKTØR_ID);
 
-        Optional<Fagsak> relatertSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingMor);
+        var relatertSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingMor);
 
         assertThat(relatertSak).isNotPresent();
     }
@@ -294,17 +290,17 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
 
         opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now(), LocalDate.now(), FAR_AKTØR_ID);
         opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate.now(), LocalDate.now(), FAR_AKTØR_ID);
-        Behandling behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
+        var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         // Act
-        Optional<Fagsak> morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
+        var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
 
         // Assert
         assertThat(morsSak).isEmpty();
     }
 
     private Behandling opprettBehandlingMorSøkerFødselTermin(LocalDate termindato, AktørId annenPart) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
@@ -317,7 +313,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMorSøkerFødselTerminFødsel(LocalDate termindato, LocalDate fødselsdato, AktørId annenPart) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
@@ -337,7 +333,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate termindato, AktørId annenPart) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
@@ -351,7 +347,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void leggTilMorSøker(ScenarioMorSøkerForeldrepenger scenario) {
-        PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
+        var søker = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
             .kvinne(MOR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
             .statsborgerskap(Landkoder.NOR)
@@ -360,7 +356,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void leggTilFarSøker(ScenarioFarSøkerForeldrepenger scenario) {
-        PersonInformasjon søker = scenario.opprettBuilderForRegisteropplysninger()
+        var søker = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
             .mann(FAR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
             .statsborgerskap(Landkoder.NOR)
@@ -369,13 +365,13 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMorSøkerFødselRegistrertTPS(LocalDate fødselsdato, int antallBarn, AktørId annenPart) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(MOR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Ola Dunk");
         scenario.medSøknadHendelse()
             .medFødselsDato(fødselsdato)
             .medAntallBarn(antallBarn);
         leggTilMorSøker(scenario);
-        AvklarteUttakDatoerEntitet avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
+        var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medFørsteUttaksdato(fødselsdato.minusWeeks(3))
             .build();
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
@@ -384,7 +380,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, AktørId annenPart) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato)
@@ -394,7 +390,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate termindato, AktørId annenPart) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }
@@ -407,7 +403,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate fødselsdato, AktørId annenPart) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }
@@ -417,7 +413,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate fødseldato, AktørId annenPart) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
         if (annenPart != null) {
             scenario.medSøknadAnnenPart().medAktørId(annenPart).medNavn("Kari Dunk");
         }

@@ -10,10 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -79,23 +77,24 @@ public class VedtaksbrevUtleder {
     }
 
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
+        var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
                 return DokumentMalType.AVSLAG_ENGANGSSTØNAD;
-        }else if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
+        }
+        if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;
-            } else {
-                return DokumentMalType.AVSLAG_FORELDREPENGER_DOK;
             }
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
+            return DokumentMalType.AVSLAG_FORELDREPENGER_DOK;
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return null; //TODO Implementer
         }
         return null;
     }
 
     public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
-        FagsakYtelseType ytelse = behandling.getFagsakYtelseType();
+        var ytelse = behandling.getFagsakYtelseType();
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
@@ -104,11 +103,11 @@ public class VedtaksbrevUtleder {
     }
 
     public static DokumentMalType velgKlagemal(Behandling behandling, KlageRepository klageRepository) {
-        KlageVurderingResultat klagevurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
+        var klagevurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
         if (klagevurderingResultat == null) {
             return null;
         }
-        KlageVurdering klagevurdering = klagevurderingResultat.getKlageVurdering();
+        var klagevurdering = klagevurderingResultat.getKlageVurdering();
 
         if (KlageVurdering.AVVIS_KLAGE.equals(klagevurdering)) {
             return DokumentMalType.KLAGE_AVVIST;
@@ -127,12 +126,12 @@ public class VedtaksbrevUtleder {
     }
 
     public static DokumentMalType velgAnkemal(Behandling behandling, AnkeRepository ankeRepository) {
-        AnkeVurderingResultatEntitet ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
+        var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
         if (ankeVurderingResultat == null) {
             return null;
         }
 
-        AnkeVurdering ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
+        var ankeVurdering = ankeVurderingResultat.getAnkeVurdering();
 
         if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering) || AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
             return DokumentMalType.ANKEBREV_BESLUTNING_OM_OPPHEVING;

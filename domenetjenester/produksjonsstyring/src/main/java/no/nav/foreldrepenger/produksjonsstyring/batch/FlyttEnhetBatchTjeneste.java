@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.batch;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,7 +9,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -45,10 +43,10 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        FlyttEnhetBatchArguments flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;  // NOSONAR
-        List<Behandling> kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(flyttEnhetBatchArguments.getEnhetId());
+        var flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;  // NOSONAR
+        var kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(flyttEnhetBatchArguments.getEnhetId());
         kandidater.forEach(beh -> {
-            ProsessTaskData taskData = new ProsessTaskData(OppdaterBehandlendeEnhetTask.TASKTYPE);
+            var taskData = new ProsessTaskData(OppdaterBehandlendeEnhetTask.TASKTYPE);
             taskData.setBehandling(beh.getFagsakId(), beh.getId(), beh.getAktørId().getId());
             taskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(taskData);

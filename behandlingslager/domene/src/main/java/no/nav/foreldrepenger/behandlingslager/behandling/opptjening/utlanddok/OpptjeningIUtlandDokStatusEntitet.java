@@ -62,7 +62,7 @@ public class OpptjeningIUtlandDokStatusEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OpptjeningIUtlandDokStatusEntitet that = (OpptjeningIUtlandDokStatusEntitet) o;
+        var that = (OpptjeningIUtlandDokStatusEntitet) o;
         return dokStatus == that.dokStatus;
     }
 

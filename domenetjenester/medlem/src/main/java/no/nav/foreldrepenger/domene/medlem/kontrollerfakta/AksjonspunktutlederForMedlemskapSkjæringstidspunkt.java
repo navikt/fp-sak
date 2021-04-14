@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.medlem.kontrollerfakta;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,14 +43,14 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        Set<MedlemResultat> resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
+        var resultat = tjeneste.vurderMedlemskap(param.getRef(), skjæringstidspunkt);
         return resultat.stream()
             .map(mr -> opprettForMedlemResultat(param.getRef(), mr))
            .collect(Collectors.toList());
     }
 
     private AksjonspunktResultat opprettForMedlemResultat(BehandlingReferanse ref, MedlemResultat mr) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = mapMedlemResulatTilAkDef.get(mr);
+        var aksjonspunktDefinisjon = mapMedlemResulatTilAkDef.get(mr);
         if (aksjonspunktDefinisjon == null) {
             throw new IllegalStateException("Utvikler-feil: Mangler mapping til aksjonspunktDefinisjon for  " + mr.name()); //$NON-NLS-1$
         }

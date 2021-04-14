@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -95,7 +94,7 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
     }
 
     public BeregningAktivitetNøkkel getNøkkel() {
-        BeregningAktivitetNøkkel.Builder builder = BeregningAktivitetNøkkel.builder()
+        var builder = BeregningAktivitetNøkkel.builder()
                 .medOpptjeningAktivitetType(opptjeningAktivitetType)
                 .medFom(periode.getFomDato())
                 .medArbeidsforholdRef(getArbeidsforholdRef().getReferanse());
@@ -111,7 +110,7 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
     }
 
     boolean skalBrukes(BeregningAktivitetOverstyringerEntitet overstyringer) {
-        List<BeregningAktivitetOverstyringEntitet> overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
+        var overstyringerForAktivitet = overstyringer.getOverstyringer().stream()
                 .filter(overstyring -> overstyring.getNøkkel().equals(this.getNøkkel())).collect(Collectors.toList());
         if (overstyringerForAktivitet.isEmpty()) {
             return true;
@@ -130,7 +129,7 @@ public class BeregningAktivitetEntitet extends BaseEntitet implements IndexKey {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BeregningAktivitetEntitet that = (BeregningAktivitetEntitet) o;
+        var that = (BeregningAktivitetEntitet) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(arbeidsgiver, that.arbeidsgiver) &&
                 Objects.equals(this.getArbeidsforholdRef(), that.getArbeidsforholdRef()) &&

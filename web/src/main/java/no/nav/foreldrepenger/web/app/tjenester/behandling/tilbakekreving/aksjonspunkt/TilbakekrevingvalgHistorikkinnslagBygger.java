@@ -30,12 +30,12 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
     }
 
     public void byggHistorikkinnslag(Long behandlingId, Optional<TilbakekrevingValg> forrigeValg, TilbakekrevingValg tilbakekrevingValg, String begrunnelse) {
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandlingId);
         innslag.setType(HistorikkinnslagType.TILBAKEKREVING_VIDEREBEHANDLING);
 
-        HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_SIMULERING);
+        var tekstBuilder = new HistorikkInnslagTekstBuilder().medSkjermlenke(SkjermlenkeType.FAKTA_OM_SIMULERING);
         tekstBuilder.medBegrunnelse(begrunnelse);
         tekstBuilder.medHendelse(innslag.getType());
 
@@ -43,7 +43,7 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
         Boolean forrigeGrunnerTilReduksjon = null;
         TilbakekrevingVidereBehandling forrigeTilbakekrevingVidereBehandling = null;
         if (forrigeValg.isPresent()) {
-            TilbakekrevingValg forrigeValgObj = forrigeValg.get();
+            var forrigeValgObj = forrigeValg.get();
             forrigeTilbakekrevingVilkårOppfylt = forrigeValgObj.getErTilbakekrevingVilkårOppfylt();
             forrigeGrunnerTilReduksjon = forrigeValgObj.getGrunnerTilReduksjon();
             forrigeTilbakekrevingVidereBehandling = forrigeValgObj.getVidereBehandling();

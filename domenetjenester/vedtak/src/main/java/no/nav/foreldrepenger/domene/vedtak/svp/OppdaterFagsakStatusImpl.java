@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.domene.vedtak.svp;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,15 +62,14 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
 
         if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus())) {
             return avsluttFagsakNårAlleBehandlingerErLukket(behandling.getFagsak(), behandling);
-        } else {
-            // hvis en Behandling har noe annen status, setter Fagsak til Under behandling
-            oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
-            return FagsakStatusOppdateringResultat.FAGSAK_UNDER_BEHANDLING;
         }
+        // hvis en Behandling har noe annen status, setter Fagsak til Under behandling
+        oppdaterFagsakStatus(behandling.getFagsak(), behandling, FagsakStatus.UNDER_BEHANDLING);
+        return FagsakStatusOppdateringResultat.FAGSAK_UNDER_BEHANDLING;
     }
 
     private FagsakStatusOppdateringResultat avsluttFagsakNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
-        List<Behandling> alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
+        var alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
 
         if (behandling != null) {
             alleÅpneBehandlinger.remove(behandling);
@@ -91,7 +88,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
     }
 
     boolean ingenLøpendeYtelsesvedtak(Behandling behandling) {
-        Optional<Behandling> sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
+        var sisteYtelsesvedtak = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
 
         if (sisteYtelsesvedtak.isPresent()) {
             if(erBehandlingResultatAvslåttEllerOpphørt(sisteYtelsesvedtak.get())) return true;

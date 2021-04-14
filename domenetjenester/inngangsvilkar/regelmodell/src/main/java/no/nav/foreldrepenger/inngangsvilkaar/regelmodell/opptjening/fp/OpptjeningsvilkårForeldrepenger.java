@@ -82,8 +82,8 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
 
     @Override
     public Evaluation evaluer(Opptjeningsgrunnlag grunnlag, Object output) {
-        OpptjeningsvilkårMellomregning grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag);
-        Evaluation evaluation = getSpecification().evaluate(grunnlagOgMellomregning);
+        var grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag);
+        var evaluation = getSpecification().evaluate(grunnlagOgMellomregning);
 
         // kopier ut resultater og sett resultater
         grunnlagOgMellomregning.oppdaterOutputResultat((OpptjeningsvilkårResultat) output);
@@ -94,7 +94,7 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
     @SuppressWarnings("unchecked")
     @Override
     public Specification<OpptjeningsvilkårMellomregning> getSpecification() {
-        Ruleset<OpptjeningsvilkårMellomregning> rs = new Ruleset<>();
+        var rs = new Ruleset<OpptjeningsvilkårMellomregning>();
 
         Specification<OpptjeningsvilkårMellomregning> sjekkOpptjeningsvilkåret = rs.hvisRegel("FP_VK 23.2", "Hvis tilstrekkelig opptjening")
                 .hvis(new SjekkTilstrekkeligOpptjening(), new Oppfylt())

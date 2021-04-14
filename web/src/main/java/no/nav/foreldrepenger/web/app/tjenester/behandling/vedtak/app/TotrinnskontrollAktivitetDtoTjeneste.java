@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
@@ -52,7 +51,7 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
         if (AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
             List<OpptjeningsperiodeForSaksbehandling> aktivitetPerioder;
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            BehandlingReferanse behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+            var behandlingReferanse = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
             if (iayGrunnlagUuid.isPresent()) {
                 aktivitetPerioder = forSaksbehandlingTjeneste.hentRelevanteOpptjeningAktiveterForSaksbehandling(behandlingReferanse, iayGrunnlagUuid.get());
             } else {
@@ -62,13 +61,12 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
                 .filter(periode -> periode.erManueltBehandlet() || periode.getBegrunnelse() != null)
                 .map(this::lagDtoAvPeriode)
                 .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
 
     private TotrinnskontrollAktivitetDto lagDtoAvPeriode(OpptjeningsperiodeForSaksbehandling periode) {
-        TotrinnskontrollAktivitetDto dto = new TotrinnskontrollAktivitetDto();
+        var dto = new TotrinnskontrollAktivitetDto();
         dto.setAktivitetType(periode.getOpptjeningAktivitetType().getNavn());
         dto.setErEndring(periode.getErPeriodeEndret());
         dto.setGodkjent(erPeriodeGodkjent(periode));
@@ -80,13 +78,13 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
     private void mapArbeidsgiverOpplysninger(TotrinnskontrollAktivitetDto dto, Arbeidsgiver arbeidsgiver) {
         dto.setArbeidsgiverReferanse(arbeidsgiver.getIdentifikator());
         if (arbeidsgiver.erAktørId()) {
-            ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+            var arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
             if (arbeidsgiverOpplysninger != null) {
                 dto.setPrivatpersonFødselsdato(arbeidsgiverOpplysninger.getFødselsdato());
                 dto.setArbeidsgiverNavn(arbeidsgiverOpplysninger.getNavn());
             }
         } else if (arbeidsgiver.getOrgnr() != null) {
-            String arbeidsgiverNavn = hentVirksomhetNavnPåOrgnr(arbeidsgiver.getOrgnr());
+            var arbeidsgiverNavn = hentVirksomhetNavnPåOrgnr(arbeidsgiver.getOrgnr());
             dto.setArbeidsgiverNavn(arbeidsgiverNavn);
             dto.setOrgnr(arbeidsgiver.getOrgnr());
         }

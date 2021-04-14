@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.FastsettEtterlønnSluttpakkeDto;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
@@ -32,14 +31,14 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
     }
 
     private void lagHistorikkForFastsetting(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        FastsettEtterlønnSluttpakkeDto fastettDto = dto.getFastsettEtterlønnSluttpakke();
-        Integer fastsattPrMnd = fastettDto.getFastsattPrMnd();
-        BigDecimal fastsattPrMndForrige = forrigeBg.map(this::hentOpprinneligVerdiFastsattEtterlønnSluttpakke).orElse(null);
+        var fastettDto = dto.getFastsettEtterlønnSluttpakke();
+        var fastsattPrMnd = fastettDto.getFastsattPrMnd();
+        var fastsattPrMndForrige = forrigeBg.map(this::hentOpprinneligVerdiFastsattEtterlønnSluttpakke).orElse(null);
         lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal.valueOf(fastsattPrMnd), fastsattPrMndForrige, tekstBuilder);
     }
 
     private BigDecimal hentOpprinneligVerdiFastsattEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler = finnEtterlønnSluttpakkeAndel(beregningsgrunnlag);
+        var etterlønnSluttpakkeAndeler = finnEtterlønnSluttpakkeAndel(beregningsgrunnlag);
         if (etterlønnSluttpakkeAndeler.get(0).getBeregnetPrÅr() == null) {
             return null;
         }
@@ -57,7 +56,7 @@ public class EtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregningHisto
 
     private void lagHistorikkInnslagFastsattEtterlønnSluttpakke(BigDecimal nyVerdiEtterlønnSLuttpakke, BigDecimal opprinneligEtterlønnSluttpakkeInntekt,
                                                                 HistorikkInnslagTekstBuilder tekstBuilder) {
-        Integer opprinneligInntektInt = opprinneligEtterlønnSluttpakkeInntekt == null ? null : opprinneligEtterlønnSluttpakkeInntekt.intValue();
+        var opprinneligInntektInt = opprinneligEtterlønnSluttpakkeInntekt == null ? null : opprinneligEtterlønnSluttpakkeInntekt.intValue();
         oppdaterVedEndretVerdi(nyVerdiEtterlønnSLuttpakke, opprinneligInntektInt, tekstBuilder);
     }
 

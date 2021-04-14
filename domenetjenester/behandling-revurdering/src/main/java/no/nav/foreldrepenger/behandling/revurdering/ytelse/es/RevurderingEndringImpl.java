@@ -63,10 +63,9 @@ public class RevurderingEndringImpl implements RevurderingEndring {
             var originalBeregning = beregningRepository.getSisteBeregning(originalBehandlingId);
             if (originalBeregning.isPresent() && nyBeregning.isPresent()) {
                 return harSammeBeregnetYtelse(nyBeregning.get(), originalBeregning.get());
-            } else {
-                var behandlingId = originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId;
-                throw new TekniskException("FP-818307", String.format("Behandling med id %s mangler beregning", behandlingId));
             }
+            var behandlingId = originalBeregning.isPresent() ? behandling.getId() : originalBehandlingId;
+            throw new TekniskException("FP-818307", String.format("Behandling med id %s mangler beregning", behandlingId));
         }
         // Begge har utfall AVSLÅTT
         return true;

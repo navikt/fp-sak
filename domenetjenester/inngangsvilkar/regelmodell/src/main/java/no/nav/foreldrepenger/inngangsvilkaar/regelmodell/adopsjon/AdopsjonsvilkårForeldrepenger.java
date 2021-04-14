@@ -33,7 +33,7 @@ public class AdopsjonsvilkårForeldrepenger implements RuleService<Adopsjonsvilk
     @SuppressWarnings("unchecked")
     @Override
     public Specification<AdopsjonsvilkårGrunnlag> getSpecification() {
-        Ruleset<AdopsjonsvilkårGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<AdopsjonsvilkårGrunnlag>();
 
         Specification<AdopsjonsvilkårGrunnlag> stønadsPeriodeBruktOppNode =
             rs.hvisRegel(SjekkOmStønadsperiodeForAnnenForelderErBruktOpp.ID, "Hvis stønadsperiode for andre forelder er brukt opp ...")

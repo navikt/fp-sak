@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetssjekkerInntektsmelding;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.KompletthetssjekkerTestUtil;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.impl.fp.KompletthetsjekkerFelles;
@@ -83,9 +82,9 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         KompletthetssjekkerSøknadImpl kompletthetssjekkerSøknadImpl = new KompletthetssjekkerSøknadFørstegangsbehandlingImpl(
             dokumentArkivTjeneste, repositoryProvider, Period.parse("P4W"));
-        KompletthetssjekkerInntektsmelding kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
+        var kompletthetssjekkerInntektsmelding = new KompletthetssjekkerInntektsmelding(
             inntektsmeldingArkivTjeneste);
-        KompletthetsjekkerFelles kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
+        var kompletthetsjekkerFelles = new KompletthetsjekkerFelles(repositoryProvider,
             dokumentBestillerTjenesteMock, dokumentBehandlingTjenesteMock, kompletthetssjekkerInntektsmelding, inntektsmeldingTjeneste);
         kompletthetsjekkerImpl = new KompletthetsjekkerImpl(kompletthetssjekkerSøknadImpl, kompletthetsjekkerFelles);
         testUtil = new KompletthetssjekkerTestUtil(repositoryProvider);
@@ -94,14 +93,14 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @Test
     public void skal_sende_brev_når_inntektsmelding_mangler() {
         // Arrange
-        Behandling behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
+        var behandling =  ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
             lagRef(behandling, STARTDATO_PERMISJON));
 
         // Assert
@@ -113,7 +112,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_sende_brev_når_inntektsmelding_mangler_men_sak_er_migrert_fra_infotrygd() {
         // Arrange
-        Behandling behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
+        var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
         behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
         mockManglendeInntektsmeldingGrunnlag();
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
@@ -121,7 +120,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        KompletthetResultat kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
+        var kompletthetResultat = kompletthetsjekkerImpl.vurderEtterlysningInntektsmelding(
             lagRef(behandling, STARTDATO_PERMISJON));
 
         // Assert
@@ -136,7 +135,7 @@ public class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmeldingGrunnlag() {
-        HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger = new HashMap<>();
+        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
         manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
         when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(any(), anyBoolean())).thenReturn(
             manglendeInntektsmeldinger);

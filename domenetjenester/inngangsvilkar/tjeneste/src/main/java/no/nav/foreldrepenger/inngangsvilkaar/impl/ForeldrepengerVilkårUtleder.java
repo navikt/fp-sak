@@ -48,8 +48,8 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
 
     static {
         Map<FamilieHendelseType, UtledeteVilkår> map = new HashMap<>();
-        UtledeteVilkår utledeteAdopsjonsvilkår = forAvklartRelasjonsvilkårTilBarn(ADOPSJONSVILKARET_FORELDREPENGER, STANDARDVILKÅR);
-        UtledeteVilkår utledeteOmsorgsvilkår = forAvklartRelasjonsvilkårTilBarn(FORELDREANSVARSVILKÅRET_2_LEDD, STANDARDVILKÅR);
+        var utledeteAdopsjonsvilkår = forAvklartRelasjonsvilkårTilBarn(ADOPSJONSVILKARET_FORELDREPENGER, STANDARDVILKÅR);
+        var utledeteOmsorgsvilkår = forAvklartRelasjonsvilkårTilBarn(FORELDREANSVARSVILKÅRET_2_LEDD, STANDARDVILKÅR);
 
         //Fødselsvilkår er avhengig av søker rolle så utledes i finnVilkår.
         map.put(ADOPSJON, utledeteAdopsjonsvilkår);
@@ -68,7 +68,7 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
             throw behandlingsmotivKanIkkeUtledes(behandling.getId());
         }
 
-        FamilieHendelseType type = hendelseType.get();
+        var type = hendelseType.get();
         UtledeteVilkår vilkår = null;
 
         if (ADOPSJON.equals(type) || OMSORG.equals(type)) {
@@ -86,8 +86,7 @@ public class ForeldrepengerVilkårUtleder implements VilkårUtleder {
     private static UtledeteVilkår finnFødselsvilkår(RelasjonsRolleType rolle) {
         if ((RelasjonsRolleType.FARA.equals(rolle)) || (RelasjonsRolleType.MEDMOR.equals(rolle))) {
             return forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_FAR_MEDMOR, STANDARDVILKÅR);
-        } else {
-            return forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_MOR, STANDARDVILKÅR);
         }
+        return forAvklartRelasjonsvilkårTilBarn(FØDSELSVILKÅRET_MOR, STANDARDVILKÅR);
     }
 }

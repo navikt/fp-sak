@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
@@ -74,7 +73,7 @@ public class HenleggBehandlingTjenesteTest {
 
     @BeforeEach
     public void setUp() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
         repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
@@ -90,7 +89,7 @@ public class HenleggBehandlingTjenesteTest {
                 behandlingModellRepository,
                 aksjonspunktKontrollRepository);
 
-        BehandlingskontrollTjenesteImpl behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
+        var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider,
@@ -100,7 +99,7 @@ public class HenleggBehandlingTjenesteTest {
     @Test
     public void skal_henlegge_behandling_med_brev() {
         // Arrange
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
@@ -114,7 +113,7 @@ public class HenleggBehandlingTjenesteTest {
     @Test
     public void skal_henlegge_behandling_uten_brev() {
         // Arrange
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
@@ -128,8 +127,8 @@ public class HenleggBehandlingTjenesteTest {
     @Test
     public void skal_henlegge_behandling_med_aksjonspunkt() {
         // Arrange
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling,
                 AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
         assertThat(aksjonspunkt.getStatus()).isEqualTo(AksjonspunktStatus.OPPRETTET);
 
@@ -146,7 +145,7 @@ public class HenleggBehandlingTjenesteTest {
     @Test
     public void skal_henlegge_behandling_ved_dødsfall() {
         // Arrange
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_BRUKER_DØD;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_BRUKER_DØD;
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
@@ -160,13 +159,13 @@ public class HenleggBehandlingTjenesteTest {
     @Test
     public void kan_henlegge_behandling_som_er_satt_på_vent() {
         // Arrange
-        AksjonspunktDefinisjon def = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, def);
+        var def = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, def);
         AksjonspunktTestSupport.setFrist(aksjonspunkt, LocalDateTime.now(), null);
 
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.INNHENT_SØKNADOPP);
 
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
@@ -176,7 +175,7 @@ public class HenleggBehandlingTjenesteTest {
     public void kan_henlegge_behandling_der_vedtak_er_foreslått() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
@@ -186,7 +185,7 @@ public class HenleggBehandlingTjenesteTest {
     public void kan_ikke_henlegge_behandling_der_vedtak_er_fattet() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         forceOppdaterBehandlingSteg(behandling, IVERKSETT_VEDTAK);
 
         // Act
@@ -198,7 +197,7 @@ public class HenleggBehandlingTjenesteTest {
     public void kan_ikke_henlegge_behandling_som_allerede_er_henlagt() {
         // Arrange
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET).buildFor(behandling);
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
 
         // Act
         assertThatThrownBy(() -> henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse"))

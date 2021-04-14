@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -32,9 +30,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
     }
 
     private static boolean dødeBarnetInnenDeFørsteSeksLeveuker(UidentifisertBarn barn) {
-        Optional<LocalDate> dødsdato = barn.getDødsdato();
+        var dødsdato = barn.getDødsdato();
         if (dødsdato.isPresent()) {
-            long antallDagerLevd = DatoIntervallEntitet.fraOgMedTilOgMed(barn.getFødselsdato(), dødsdato.get()).antallDager();
+            var antallDagerLevd = DatoIntervallEntitet.fraOgMedTilOgMed(barn.getFødselsdato(), dødsdato.get()).antallDager();
             return antallDagerLevd <= (ANTALL_DAGER_I_EN_UKE * ANTALL_LEVEUKER);
         }
         return false;

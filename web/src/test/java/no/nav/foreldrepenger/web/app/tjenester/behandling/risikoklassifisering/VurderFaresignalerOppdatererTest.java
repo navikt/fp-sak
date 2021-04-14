@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.risikoklassifisering;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
@@ -24,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Risikoklassif
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
@@ -54,14 +50,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_korrekt_ved_ingen_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", false, null);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(
+        var oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(
             behandling.getId());
 
         // Assert
@@ -73,14 +69,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_oppdatere_korrekt_ved_har_hatt_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", true, null);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
         // Act
         vurderFaresignalerOppdaterer.oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
-        Optional<RisikoklassifiseringEntitet> oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(
+        var oppdatertEntitet = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(
             behandling.getId());
 
         // Assert
@@ -92,7 +88,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_ikke_finnes_tidligere_vurdering() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", true, null);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.UDEFINERT), behandling.getId());
 
@@ -101,14 +97,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
             new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
         // Assert
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> deler = tekstBuilder.getHistorikkinnslagDeler();
-        List<HistorikkinnslagFelt> historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
+        var deler = tekstBuilder.getHistorikkinnslagDeler();
+        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
 
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+        var faresignaler = historikkinnslagFelt.stream()
             .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
             .findFirst();
 
@@ -120,7 +116,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_ingen_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", true, null);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INGEN_INNVIRKNING), behandling.getId());
 
@@ -129,14 +125,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
             new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
         // Assert
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> deler = tekstBuilder.getHistorikkinnslagDeler();
-        List<HistorikkinnslagFelt> historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
+        var deler = tekstBuilder.getHistorikkinnslagDeler();
+        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
 
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+        var faresignaler = historikkinnslagFelt.stream()
             .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
             .findFirst();
 
@@ -149,7 +145,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_lage_korrekt_historikkinnslag_når_det_finnes_tidligere_vurdering_innvirkning() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", false, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", false, null);
         risikoklassifiseringRepository.lagreRisikoklassifisering(
             lagRisikoklassifisering(Kontrollresultat.HØY, FaresignalVurdering.INNVIRKNING), behandling.getId());
 
@@ -158,14 +154,14 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
             new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto));
 
         // Assert
-        HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> deler = tekstBuilder.getHistorikkinnslagDeler();
-        List<HistorikkinnslagFelt> historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
+        var tekstBuilder = historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
+        var deler = tekstBuilder.getHistorikkinnslagDeler();
+        var historikkinnslagFelt = deler.get(0).getHistorikkinnslagFelt();
 
         assertThat(deler).hasSize(1);
         assertThat(historikkinnslagFelt).hasSize(3);
 
-        Optional<HistorikkinnslagFelt> faresignaler = historikkinnslagFelt.stream()
+        var faresignaler = historikkinnslagFelt.stream()
             .filter(he -> he.getNavn().equals(HistorikkEndretFeltType.FARESIGNALER.getKode()))
             .findFirst();
 
@@ -178,7 +174,7 @@ public class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_feile_om_det_ikke_finnes_en_risikoklassifisering_for_behandlingen() {
         // Arrange
-        VurderFaresignalerDto dto = new VurderFaresignalerDto("Dustemikkel", true, null);
+        var dto = new VurderFaresignalerDto("Dustemikkel", true, null);
 
         // Act
         assertThrows(IllegalStateException.class, () -> vurderFaresignalerOppdaterer.oppdater(dto,

@@ -160,7 +160,7 @@ public class KlageFormkravEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KlageFormkravEntitet that = (KlageFormkravEntitet) o;
+        var that = (KlageFormkravEntitet) o;
         return harLikVurdering(that) &&
             Objects.equals(klageResultat, that.klageResultat);
     }

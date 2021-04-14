@@ -4,7 +4,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,11 +27,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynDokumentEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.lagretvedtak.LagretVedtakMedBehandlingType;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.VedtaksdokumentasjonDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -72,10 +68,10 @@ public class InnsynRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getInnsynsbehandling(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        InnsynsbehandlingDto dto = mapFra(behandling);
-        CacheControl cc = new CacheControl();
+        var dto = mapFra(behandling);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -83,24 +79,24 @@ public class InnsynRestTjeneste {
     }
 
     private InnsynsbehandlingDto mapFra(Behandling behandling) {
-        InnsynsbehandlingDto dto = new InnsynsbehandlingDto();
-        List<LagretVedtakMedBehandlingType> lagreteVedtak = vedtakTjeneste.hentLagreteVedtakPåFagsak(behandling.getFagsakId());
+        var dto = new InnsynsbehandlingDto();
+        var lagreteVedtak = vedtakTjeneste.hentLagreteVedtakPåFagsak(behandling.getFagsakId());
 
-        Optional<InnsynEntitet> innsynOpt = innsynRepository.hentForBehandling(behandling.getId());
+        var innsynOpt = innsynRepository.hentForBehandling(behandling.getId());
         if (!innsynOpt.isPresent() && lagreteVedtak.isEmpty()) {
             return null; // quick return
         }
 
         if (innsynOpt.isPresent()) {
-            InnsynEntitet innsyn = innsynOpt.get();
+            var innsyn = innsynOpt.get();
 
             dto.setInnsynMottattDato(innsyn.getMottattDato());
             dto.setInnsynResultatType(innsyn.getInnsynResultatType());
 
             List<InnsynDokumentDto> doks = new ArrayList<>();
             if (innsyn.getInnsynDokumenterOld() != null) {
-                for (InnsynDokumentEntitet innsynDokument : innsyn.getInnsynDokumenterOld()) {
-                    InnsynDokumentDto dokumentDto = new InnsynDokumentDto();
+                for (var innsynDokument : innsyn.getInnsynDokumenterOld()) {
+                    var dokumentDto = new InnsynDokumentDto();
                     dokumentDto.setDokumentId(innsynDokument.getDokumentId());
                     dokumentDto.setJournalpostId(innsynDokument.getJournalpostId().getVerdi());
                     dokumentDto.setFikkInnsyn(innsynDokument.isFikkInnsyn());
@@ -113,7 +109,7 @@ public class InnsynRestTjeneste {
         }
 
         lagreteVedtak.forEach(lagretVedtakMedBehandlingType -> {
-            VedtaksdokumentasjonDto vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto();
+            var vedtaksdokumentasjonDto = new VedtaksdokumentasjonDto();
             vedtaksdokumentasjonDto.setDokumentId(lagretVedtakMedBehandlingType.getId().toString());
             vedtaksdokumentasjonDto.setOpprettetDato(lagretVedtakMedBehandlingType.getOpprettetDato());
             vedtaksdokumentasjonDto.setTittel(lagretVedtakMedBehandlingType.getBehandlingType());

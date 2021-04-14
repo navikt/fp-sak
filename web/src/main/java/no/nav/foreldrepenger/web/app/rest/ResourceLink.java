@@ -88,7 +88,7 @@ public class ResourceLink {
     }
 
     public static ResourceLink get(String href, String rel, Object queryParams) {
-        StringBuilder uri = new StringBuilder();
+        var uri = new StringBuilder();
         uri.append(href);
         if (queryParams != null) {
             uri.append("?");
@@ -105,10 +105,11 @@ public class ResourceLink {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !this.getClass().equals(obj.getClass())) {
+        }
+        if (obj == null || !this.getClass().equals(obj.getClass())) {
             return false;
         }
-        ResourceLink other = (ResourceLink) obj;
+        var other = (ResourceLink) obj;
         return Objects.equals(this.href, other.href)
             && Objects.equals(this.rel, other.rel)
             && Objects.equals(this.type, other.type);

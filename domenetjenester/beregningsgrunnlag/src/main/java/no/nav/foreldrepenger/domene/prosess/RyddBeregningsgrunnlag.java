@@ -25,7 +25,7 @@ public class RyddBeregningsgrunnlag {
     }
 
     public void gjenopprettFastsattBeregningAktivitetBeregningsgrunnlag() {
-        boolean bgReaktivert = beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(
+        var bgReaktivert = beregningsgrunnlagRepository.reaktiverBeregningsgrunnlagGrunnlagEntitet(
             kontekst.getBehandlingId(), BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER);
         if (!bgReaktivert) {
             gjenopprettFørsteBeregningsgrunnlag();

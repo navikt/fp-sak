@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -58,10 +54,10 @@ public class TilbakekrevingRestTjeneste {
     @Path(VALG_PART_PATH)
     public TilbakekrevingValgDto hentTilbakekrevingValg(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        UUID behandlingId = uuidDto.getBehandlingUuid();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingId = uuidDto.getBehandlingUuid();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        Optional<TilbakekrevingValg> resultat = tilbakekrevingRepository.hent(behandling.getId());
+        var resultat = tilbakekrevingRepository.hent(behandling.getId());
 
         return resultat
                 .map(TilbakekrevingRestTjeneste::map)
@@ -73,10 +69,10 @@ public class TilbakekrevingRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(VARSELTEKST_PART_PATH)
     public VarseltekstDto hentVarseltekst(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        Optional<TilbakekrevingValg> valgOpt = tilbakekrevingRepository.hent(behandling.getId());
-        String varseltekst = valgOpt.map(TilbakekrevingValg::getVarseltekst).orElse(null);
+        var valgOpt = tilbakekrevingRepository.hent(behandling.getId());
+        var varseltekst = valgOpt.map(TilbakekrevingValg::getVarseltekst).orElse(null);
 
         if (varseltekst == null || varseltekst.isEmpty()) {
             return null;

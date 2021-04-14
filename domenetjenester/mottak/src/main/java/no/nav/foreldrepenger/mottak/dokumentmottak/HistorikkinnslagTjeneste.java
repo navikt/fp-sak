@@ -8,7 +8,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -59,7 +58,7 @@ public class HistorikkinnslagTjeneste {
             return;
         }
 
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.SØKER);
         historikkinnslag.setKjoenn(setKjønn(behandling));
         historikkinnslag.setType(HistorikkinnslagType.BEH_STARTET);
@@ -68,7 +67,7 @@ public class HistorikkinnslagTjeneste {
 
         leggTilHistorikkinnslagDokumentlinker(behandling.getType(), journalpostId, historikkinnslag, elektronisk, erIM);
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(BehandlingType.KLAGE.equals(behandling.getType()) ? HistorikkinnslagType.KLAGEBEH_STARTET : HistorikkinnslagType.BEH_STARTET);
         builder.build(historikkinnslag);
 
@@ -77,7 +76,7 @@ public class HistorikkinnslagTjeneste {
 
     private NavBrukerKjønn setKjønn(Behandling behandling) {
         if (RelasjonsRolleType.UDEFINERT.equals(behandling.getFagsak().getRelasjonsRolleType())) {
-            PersoninfoKjønn personinfo = personinfoAdapter.hentBrukerKjønnForAktør(behandling.getAktørId()).orElse(null);
+            var personinfo = personinfoAdapter.hentBrukerKjønnForAktør(behandling.getAktørId()).orElse(null);
             if (personinfo != null) {
                 return personinfo.getKjønn();
             }
@@ -86,11 +85,11 @@ public class HistorikkinnslagTjeneste {
     }
 
     private boolean historikkinnslagForBehandlingStartetErLoggetTidligere(Long behandlingId, HistorikkinnslagType historikkinnslagType) {
-        List<Historikkinnslag> eksisterendeHistorikkListe = historikkRepository.hentHistorikk(behandlingId);
+        var eksisterendeHistorikkListe = historikkRepository.hentHistorikk(behandlingId);
 
 
         if (!eksisterendeHistorikkListe.isEmpty()) {
-            for (Historikkinnslag eksisterendeHistorikk : eksisterendeHistorikkListe) {
+            for (var eksisterendeHistorikk : eksisterendeHistorikkListe) {
                 if (historikkinnslagType.equals(eksisterendeHistorikk.getType())) {
                     return true;
                 }
@@ -115,17 +114,17 @@ public class HistorikkinnslagTjeneste {
     private void leggTilSøknadDokumentLenke(BehandlingType behandlingType, JournalpostId journalpostId, Historikkinnslag historikkinnslag,
                                             List<HistorikkinnslagDokumentLink> dokumentLinker, ArkivDokument arkivDokument, boolean elektronisk, boolean erIM) {
         if (elektronisk) {
-            String linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : (erIM ? INNTEKTSMELDING : SØKNAD); // NOSONAR
+            var linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : (erIM ? INNTEKTSMELDING : SØKNAD); // NOSONAR
             dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
         } else {
-            String linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : BehandlingType.UDEFINERT.equals(behandlingType) ? ETTERSENDELSE : PAPIRSØKNAD;
+            var linkTekst = BehandlingType.KLAGE.equals(behandlingType) ? KLAGE : BehandlingType.UDEFINERT.equals(behandlingType) ? ETTERSENDELSE : PAPIRSØKNAD;
             if (arkivDokument != null)
                 dokumentLinker.add(lagHistorikkInnslagDokumentLink(arkivDokument, journalpostId, historikkinnslag, linkTekst));
         }
     }
 
     private HistorikkinnslagDokumentLink lagHistorikkInnslagDokumentLink(ArkivDokument arkivDokument, JournalpostId journalpostId, Historikkinnslag historikkinnslag, String linkTekst) {
-        HistorikkinnslagDokumentLink historikkinnslagDokumentLink = new HistorikkinnslagDokumentLink();
+        var historikkinnslagDokumentLink = new HistorikkinnslagDokumentLink();
         historikkinnslagDokumentLink.setDokumentId(arkivDokument.getDokumentId());
         historikkinnslagDokumentLink.setJournalpostId(journalpostId);
         historikkinnslagDokumentLink.setLinkTekst(linkTekst);
@@ -134,10 +133,10 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(Behandling behandling){
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.AVBRUTT_BEH)
             .medÅrsak(BehandlingResultatType.MERGET_OG_HENLAGT);
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.AVBRUTT_BEH);
         historikkinnslag.setBehandlingId(behandling.getId());
         builder.build(historikkinnslag);
@@ -146,7 +145,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForVedlegg(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId, boolean elektronisk) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             historikkinnslag.setAktør(HistorikkAktør.ARBEIDSGIVER);
         } else {
@@ -158,7 +157,7 @@ public class HistorikkinnslagTjeneste {
         leggTilHistorikkinnslagDokumentlinker(BehandlingType.UDEFINERT, journalpostId, historikkinnslag,
             elektronisk, DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId));
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.VEDLEGG_MOTTATT);
         builder.build(historikkinnslag);
 
@@ -166,7 +165,7 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling, HistorikkinnslagType historikkinnslagType, LocalDateTime frist, Venteårsak venteårsak) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var builder = new HistorikkInnslagTekstBuilder();
         builder.medHendelse(historikkinnslagType);
         if (frist != null) {
             builder.medHendelse(historikkinnslagType, frist.toLocalDate());
@@ -174,7 +173,7 @@ public class HistorikkinnslagTjeneste {
         if (!Venteårsak.UDEFINERT.equals(venteårsak)) {
             builder.medÅrsak(venteårsak);
         }
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandling.getId());
@@ -184,13 +183,13 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
             .medBegrunnelse(behandlingÅrsakType);
         builder.build(historikkinnslag);
@@ -199,12 +198,12 @@ public class HistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForEndringshendelse(Fagsak fagsak, String begrunnelse) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
         historikkinnslag.setFagsakId(fagsak.getId());
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
             .medBegrunnelse(begrunnelse);
         builder.build(historikkinnslag);

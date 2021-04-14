@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -25,9 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakAktivitet;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
 
@@ -43,7 +38,7 @@ public class MapUttakResultatFraVLTilRegelTest {
 
     @BeforeEach
     public void setup() {
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingresultat = Behandlingsresultat.opprettFor(behandling);
         mapper = new MapUttakResultatFraVLTilRegel() {
@@ -69,15 +64,15 @@ public class MapUttakResultatFraVLTilRegelTest {
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
-        UttakResultat regelPlan = mapper.mapFra(uttakResultat, null);
+        var regelPlan = mapper.mapFra(uttakResultat, null);
 
         // Assert
         assertThat(regelPlan).isNotNull();
         assertThat(regelPlan.getUttakResultatPerioder()).hasSize(1);
-        UttakResultatPeriode periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
+        var periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
         assertThat(periode1.getFom()).isEqualTo(fom);
         assertThat(periode1.getTom()).isEqualTo(tom);
-        List<UttakAktivitet> uttakAktiviteter = periode1.getUttakAktiviteter();
+        var uttakAktiviteter = periode1.getUttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
         assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
@@ -95,15 +90,15 @@ public class MapUttakResultatFraVLTilRegelTest {
         var uttakArbeidsforhold = lagUttakResultatArbeidsforhold(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE, null, null, uttakPeriode);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
-        UttakResultat regelPlan = mapper.mapFra(uttakResultat, null);
+        var regelPlan = mapper.mapFra(uttakResultat, null);
 
         // Assert
         assertThat(regelPlan).isNotNull();
         assertThat(regelPlan.getUttakResultatPerioder()).hasSize(1);
-        UttakResultatPeriode periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
+        var periode1 = regelPlan.getUttakResultatPerioder().iterator().next();
         assertThat(periode1.getFom()).isEqualTo(fom);
         assertThat(periode1.getTom()).isEqualTo(tom);
-        List<UttakAktivitet> uttakAktiviteter = periode1.getUttakAktiviteter();
+        var uttakAktiviteter = periode1.getUttakAktiviteter();
         assertThat(uttakAktiviteter).hasSize(1);
         assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
         assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
@@ -122,18 +117,18 @@ public class MapUttakResultatFraVLTilRegelTest {
         var uttakArbeidsforhold = lagArbeidsforhold(ORGNR, ARB_ID, uttakPeriode, uttakPeriode2);
         var uttakResultat = lagUttak(uttakArbeidsforhold);
         // Act
-        UttakResultat regelPlan = mapper.mapFra(uttakResultat, null);
+        var regelPlan = mapper.mapFra(uttakResultat, null);
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        List<UttakResultatPeriode> perioder = regelPlan.getUttakResultatPerioder();
+        var perioder = regelPlan.getUttakResultatPerioder();
         assertThat(perioder).hasSize(2);
         assertThat(perioder.get(0).getFom()).isEqualTo(fom);
         assertThat(perioder.get(0).getTom()).isEqualTo(tom);
         assertThat(perioder.get(1).getFom()).isEqualTo(fom2);
         assertThat(perioder.get(1).getTom()).isEqualTo(tom2);
         perioder.forEach(periode -> {
-            List<UttakAktivitet> uttakAktiviteter = periode.getUttakAktiviteter();
+            var uttakAktiviteter = periode.getUttakAktiviteter();
             assertThat(uttakAktiviteter).hasSize(1);
             assertThat(uttakAktiviteter.get(0).getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
             assertThat(uttakAktiviteter.get(0).getStillingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(STILLING_70));
@@ -167,11 +162,11 @@ public class MapUttakResultatFraVLTilRegelTest {
         var uttakResultat = lagUttak(uttakArbeidsforhold, uttakArbeidsforhold2);
 
         // Act
-        UttakResultat regelPlan = mapper.mapFra(uttakResultat, null);
+        var regelPlan = mapper.mapFra(uttakResultat, null);
 
         // Assert
         assertThat(regelPlan).isNotNull();
-        List<UttakResultatPeriode> perioder = regelPlan.getUttakResultatPerioder();
+        var perioder = regelPlan.getUttakResultatPerioder();
         assertThat(perioder).hasSize(5);
         assertThat(perioder.get(0).getFom()).isEqualTo(fom);// 01.01
         assertThat(perioder.get(0).getTom()).isEqualTo(fom3.minusDays(1));// 31.01

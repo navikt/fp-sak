@@ -103,12 +103,12 @@ public class PersoninfoAdapter {
     }
 
     public Optional<PersoninfoBasis> hentBrukerBasisForAktør(AktørId aktørId) {
-        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        var funnetFnr = hentFnr(aktørId);
         return funnetFnr.map(fnr -> basisTjeneste.hentBasisPersoninfo(aktørId, fnr));
     }
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
-        Optional<PersonIdent> funnetFnr = hentFnr(aktørId);
+        var funnetFnr = hentFnr(aktørId);
         return funnetFnr.flatMap(fnr -> basisTjeneste.hentArbeidsgiverPersoninfo(aktørId, fnr));
     }
 

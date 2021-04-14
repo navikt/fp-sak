@@ -77,16 +77,16 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
                 List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -136,16 +136,16 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_ikke_gi_etablert_ytelse_hvis_finnesInnvilgetIkkeOpphørtVedtak_er_false() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(10))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
                 List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
-        boolean finnesInnvilgetIkkeOpphørtVedtak = false;
+        var finnesInnvilgetIkkeOpphørtVedtak = false;
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(),
+        var etablertYtelse = vurder(uttakResultatOriginal, finnesInnvilgetIkkeOpphørtVedtak, Optional.empty(),
                 false, behandling);
 
         // Assert
@@ -155,15 +155,15 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_gi_etablert_ytelse_med_tom_for_innvilget_periode_på_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato)),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
                 List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -172,16 +172,16 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_avslått_periode_etter_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.plusDays(5))),
                 List.of(false), List.of(PeriodeResultatType.AVSLÅTT), List.of(PeriodeResultatÅrsak.UKJENT),
                 List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
                 List.of(StønadskontoType.FORELDREPENGER));
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -190,16 +190,16 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_ikkje_gi_etablert_ytelse_med_tom_for_innvilget_periode_før_dagens_dato() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
                 List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
                 List.of(StønadskontoType.FORELDREPENGER));
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), true, behandling);
 
         // Assert
         assertThat(etablertYtelse).isFalse();
@@ -208,16 +208,16 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_gi_etablert_ytelse_selv_med_tom_for_innvilget_periode_før_dagens_dato_så_lenge_saldo_ikke_er_0() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT),
                 List.of(true), List.of(100), List.of(100), List.of(new Trekkdager(12)),
                 List.of(StønadskontoType.FORELDREPENGER));
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.empty(), false, behandling);
 
         // Assert
         assertThat(etablertYtelse).isTrue();
@@ -226,21 +226,21 @@ public class HarEtablertYtelseFPTest {
     @Test
     public void skal_gi_etablert_ytelse_selvom_tom_for_innvilget_periode_er_før_dagens_dato_hvis_annen_part_har_etter() {
         // Arrange
-        LocalDate dagensDato = LocalDate.now();
+        var dagensDato = LocalDate.now();
 
         var behandling = opprettBehandling();
-        UttakResultatEntitet uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatOriginal = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(10), dagensDato.minusDays(5))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
                 List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
-        UttakResultatEntitet uttakResultatAnnenPart = lagUttakResultatPlanForBehandling(behandling,
+        var uttakResultatAnnenPart = lagUttakResultatPlanForBehandling(behandling,
                 List.of(new LocalDateInterval(dagensDato.minusDays(4), dagensDato.plusDays(10))),
                 List.of(false), List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true),
                 List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(StønadskontoType.FORELDREPENGER));
 
         // Act
-        boolean etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true,
+        var etablertYtelse = vurder(uttakResultatOriginal, true, Optional.of(uttakResultatAnnenPart), true,
                 behandling);
 
         // Assert
@@ -257,7 +257,7 @@ public class HarEtablertYtelseFPTest {
             List<Integer> utbetalingsgrad,
             List<Trekkdager> trekkdager,
             List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatEntitet uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling,
+        var uttakresultat = LagUttakResultatPlanTjeneste.lagUttakResultatPlanTjeneste(behandling,
                 perioder, samtidigUttak, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid,
                 utbetalingsgrad, trekkdager, stønadskontoTyper);
         repositoryProvider.getFpUttakRepository()

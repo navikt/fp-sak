@@ -35,14 +35,14 @@ public class UttakPerioderMapperTest {
 
     @Test
     public void skalBrukeProsentArbeidFraTidligere() {
-        LocalDate fom = LocalDate.now();
-        LocalDate tom = LocalDate.now().plusWeeks(1);
-        UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
+        var fom = LocalDate.now();
+        var tom = LocalDate.now().plusWeeks(1);
+        var periode = new UttakResultatPeriodeLagreDto.Builder()
                 .medTidsperiode(fom, tom)
                 .medAktiviteter(Collections.singletonList(minimal().build()))
                 .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .build();
-        OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
+        var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
                 .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(ORGNR), ARBEIDSFORHOLD_REF))
@@ -53,7 +53,7 @@ public class UttakPerioderMapperTest {
                 .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medAktiviteter(List.of(periodeAktivitet))
                 .build();
-        List<ForeldrepengerUttakPeriode> gjeldendePerioder = List.of(opprinneligPeriode);
+        var gjeldendePerioder = List.of(opprinneligPeriode);
         var mapped = UttakPerioderMapper.map(dto.getPerioder(), gjeldendePerioder);
 
         assertThat(mapped.get(0).getAktiviteter().get(0).getArbeidsprosent()).isEqualTo(periodeAktivitet.getArbeidsprosent());
@@ -61,26 +61,26 @@ public class UttakPerioderMapperTest {
 
     @Test
     public void skalSkilleMellomFrilansOgAnnet() {
-        LocalDate fom = LocalDate.now();
-        LocalDate tom = LocalDate.now().plusWeeks(1);
-        UttakResultatPeriodeAktivitetLagreDto frilans = new UttakResultatPeriodeAktivitetLagreDto.Builder()
+        var fom = LocalDate.now();
+        var tom = LocalDate.now().plusWeeks(1);
+        var frilans = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
                 .medStønadskontoType(StønadskontoType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
-        UttakResultatPeriodeAktivitetLagreDto annet = new UttakResultatPeriodeAktivitetLagreDto.Builder()
+        var annet = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.ANNET)
                 .medStønadskontoType(StønadskontoType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
-        UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
+        var periode = new UttakResultatPeriodeLagreDto.Builder()
                 .medTidsperiode(fom, tom)
                 .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medAktiviteter(List.of(frilans, annet))
                 .build();
-        OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
+        var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet1 = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
                 .medTrekkonto(StønadskontoType.FELLESPERIODE)
@@ -105,21 +105,21 @@ public class UttakPerioderMapperTest {
 
     @Test
     public void skalSetteGraderingAvslagÅrsakTilUkjentHvisGraderingInnvilget() {
-        LocalDate fom = LocalDate.now();
-        LocalDate tom = LocalDate.now().plusWeeks(1);
-        UttakResultatPeriodeAktivitetLagreDto aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
+        var fom = LocalDate.now();
+        var tom = LocalDate.now().plusWeeks(1);
+        var aktivitetDto = new UttakResultatPeriodeAktivitetLagreDto.Builder()
                 .medUttakArbeidType(UttakArbeidType.FRILANS)
                 .medStønadskontoType(StønadskontoType.FELLESPERIODE)
                 .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
                 .medTrekkdager(BigDecimal.ZERO)
                 .build();
-        UttakResultatPeriodeLagreDto periode = new UttakResultatPeriodeLagreDto.Builder()
+        var periode = new UttakResultatPeriodeLagreDto.Builder()
                 .medTidsperiode(fom, tom)
                 .medGraderingAvslåttÅrsak(GraderingAvslagÅrsak.GRADERING_FØR_UKE_7)
                 .medGraderingInnvilget(true)
                 .medAktiviteter(Collections.singletonList(aktivitetDto))
                 .build();
-        OverstyringUttakDto dto = new OverstyringUttakDto(Collections.singletonList(periode));
+        var dto = new OverstyringUttakDto(Collections.singletonList(periode));
         var periodeAktivitet = new ForeldrepengerUttakPeriodeAktivitet.Builder()
                 .medArbeidsprosent(BigDecimal.valueOf(77))
                 .medTrekkonto(StønadskontoType.FELLESPERIODE)

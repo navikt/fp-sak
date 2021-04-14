@@ -28,19 +28,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -76,9 +72,9 @@ public class KontrollerFaktaStegImplTest {
 
     @BeforeEach
     public void oppsett() {
-        ScenarioMorSøkerSvangerskapspenger scenario = byggBehandlingMedMorSøkerSVP();
+        var scenario = byggBehandlingMedMorSøkerSVP();
         scenario.medBruker(aktørId, NavBrukerKjønn.KVINNE);
-        MedlemskapPerioderBuilder builder = new MedlemskapPerioderBuilder();
+        var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().plusDays(2))
                 .medDekningType(MedlemskapDekningType.UNNTATT)
                 .medKildeType(MedlemskapKildeType.TPS);
@@ -95,16 +91,16 @@ public class KontrollerFaktaStegImplTest {
 
     @Test
     public void skal_utlede_inngangsvilkår_for_svp() {
-        Fagsak fagsak = behandling.getFagsak();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling.getId());
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
+        var fagsak = behandling.getFagsak();
+        var lås = behandlingRepository.taSkriveLås(behandling.getId());
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), lås);
 
         // Act
         steg.utførSteg(kontekst);
         behandlingRepository.lagre(behandling, lås);
 
         // Assert
-        List<VilkårType> resulat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat().getVilkårene()
+        var resulat = repositoryProvider.getBehandlingsresultatRepository().hent(behandling.getId()).getVilkårResultat().getVilkårene()
                 .stream()
                 .map(Vilkår::getVilkårType)
                 .collect(Collectors.toList());
@@ -115,7 +111,7 @@ public class KontrollerFaktaStegImplTest {
     }
 
     private ScenarioMorSøkerSvangerskapspenger byggBehandlingMedMorSøkerSVP() {
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         scenario.medDefaultOppgittTilknytning();
         leggTilSøker(scenario);
@@ -123,9 +119,9 @@ public class KontrollerFaktaStegImplTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario) {
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
                 .medPersonas()
                 .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, NavBrukerKjønn.KVINNE, Region.UDEFINERT)
                 .build();
@@ -133,7 +129,7 @@ public class KontrollerFaktaStegImplTest {
     }
 
     private void lagreSvp(Behandling behandling, LocalDate jordmorsdato) {
-        SvpTilretteleggingEntitet tilrettelegging = new SvpTilretteleggingEntitet.Builder()
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(jordmorsdato)
                 .medIngenTilrettelegging(jordmorsdato)
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
@@ -141,7 +137,7 @@ public class KontrollerFaktaStegImplTest {
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false)
                 .build();
-        SvpGrunnlagEntitet svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
                 .medBehandlingId(behandling.getId())
                 .medOpprinneligeTilrettelegginger(List.of(tilrettelegging))
                 .build();

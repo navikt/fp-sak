@@ -76,8 +76,8 @@ public class KompletthetskontrollerTest {
         // Simuler at provider alltid gir kompletthetssjekker
         lenient().when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
 
-        KompletthetModell modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekkerProvider);
-        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
+        var modell = new KompletthetModell(behandlingskontrollTjeneste, kompletthetsjekkerProvider);
+        var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
 
         kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles,
                 mottatteDokumentTjeneste,
@@ -92,10 +92,10 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_sette_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, BehandlingStegType.VURDER_KOMPLETTHET);
-        Behandling behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
-        LocalDateTime ventefrist = LocalDateTime.now().plusDays(1);
+        var behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
+        var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
         when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.AVV_FODSEL));
@@ -108,10 +108,10 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_beholde_behandling_på_vent_dersom_kompletthet_ikke_er_oppfylt_deretter_slippe_videre() {
         // Arrange
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_VENT_ETTERLYST_INNTEKTSMELDING, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD);
-        Behandling behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
-        LocalDateTime ventefrist = LocalDateTime.now().plusDays(1);
+        var behandling = scenario.lagre(repositoryProvider); // Skulle gjerne mocket, men da funker ikke AP_DEF
+        var ventefrist = LocalDateTime.now().plusDays(1);
 
         when(kompletthetsjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetsjekker);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any()))
@@ -160,7 +160,7 @@ public class KompletthetskontrollerTest {
     public void skal_gjenoppta_behandling_ved_mottak_av_ny_forretningshendelse() {
         // Arrange
         when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.oppfylt());
-        EndringsresultatSnapshot endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
+        var endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
         when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling);
@@ -175,10 +175,10 @@ public class KompletthetskontrollerTest {
         when(behandlingskontrollTjeneste.erStegPassert(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
         when(behandlingskontrollTjeneste.erIStegEllerSenereSteg(behandling.getId(), BehandlingStegType.VURDER_KOMPLETTHET)).thenReturn(true);
 
-        EndringsresultatSnapshot endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
+        var endringsresultatSnapshot = EndringsresultatSnapshot.opprett();
         when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);
 
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
+        var endringsresultat = EndringsresultatDiff.opprett();
         endringsresultat.leggTilIdDiff(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, endringsresultatSnapshot.getGrunnlagId(), 1L));
         when(behandlingProsesseringTjeneste.finnGrunnlagsEndring(behandling, endringsresultatSnapshot)).thenReturn(endringsresultat);
 
@@ -193,7 +193,7 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_opprette_historikkinnslag_for_tidlig_mottatt_søknad() {
         // Arrange
-        LocalDateTime frist = LocalDateTime.now().minusSeconds(30);
+        var frist = LocalDateTime.now().minusSeconds(30);
         when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.FOR_TIDLIG_SOKNAD));
 
         // Act
@@ -208,7 +208,7 @@ public class KompletthetskontrollerTest {
     @Test
     public void skal_opprette_historikkinnslag_ikke_komplett() {
         // Arrange
-        LocalDateTime frist = LocalDateTime.now();
+        var frist = LocalDateTime.now();
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
         when(kompletthetsjekker.vurderSøknadMottattForTidlig(any())).thenReturn(KompletthetResultat.oppfylt());
         when(kompletthetsjekker.vurderForsendelseKomplett(any())).thenReturn(KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_DOK));

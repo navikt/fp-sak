@@ -22,18 +22,18 @@ public class ManuellRegistreringValidatorUtil {
             return false;
         }
         p2.begynnerFør(p1);
-        boolean p1BegynnerFørst = p1.begynnerFør(p2);
-        Periode begynnerFørst = p1BegynnerFørst ? p1 : p2;
-        Periode begynnerSist = p1BegynnerFørst ? p2 : p1;
+        var p1BegynnerFørst = p1.begynnerFør(p2);
+        var begynnerFørst = p1BegynnerFørst ? p1 : p2;
+        var begynnerSist = p1BegynnerFørst ? p2 : p1;
         return begynnerFørst.getSlutt().isAfter(begynnerSist.getStart());
     }
 
     public static List<String> overlappendePerioder(List<Periode> perioder) {
         List<String> feil = new ArrayList<>();
-        for (int i = 0; i < perioder.size(); i++) {
-            Periode periode = perioder.get(i);
+        for (var i = 0; i < perioder.size(); i++) {
+            var periode = perioder.get(i);
 
-            for (int y = i + 1; y < perioder.size(); y++) {
+            for (var y = i + 1; y < perioder.size(); y++) {
                 if (perioderOverlapper(periode, perioder.get(y))) {
                     feil.add(OVERLAPPENDE_PERIODER);
                 }
@@ -48,7 +48,7 @@ public class ManuellRegistreringValidatorUtil {
 
     public static List<String> datoIkkeNull(List<Periode> perioder) {
         List<String> feil = new ArrayList<>();
-        for (Periode periode: perioder) {
+        for (var periode: perioder) {
             if (periode.getStart() == null || periode.getSlutt() == null) {
                 feil.add(PAAKREVD_FELT);
             }
@@ -93,7 +93,7 @@ public class ManuellRegistreringValidatorUtil {
         }
 
         boolean erFørDagensDato() {
-            LocalDate now = LocalDate.now();
+            var now = LocalDate.now();
             return !(start.isAfter(now) || start.isEqual(now) || slutt.isAfter(now));
         }
     }

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BasicBehandlingBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -30,11 +29,11 @@ public class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagre() {
         // Arrange
-        Behandling behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
-        ÅpenDatoIntervallEntitet periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1),
+        var behandling = behandlingBuilder.opprettOgLagreFørstegangssøknad(FagsakYtelseType.FORELDREPENGER);
+        var periodeVL = ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2019, 1, 1),
             LocalDate.of(2019, 5, 1));
-        String ytelseInfotrygd = "BS";
-        OverlappVedtak.Builder builder = OverlappVedtak.builder()
+        var ytelseInfotrygd = "BS";
+        var builder = OverlappVedtak.builder()
             .medSaksnummer(behandling.getFagsak().getSaksnummer())
             .medBehandlingId(behandling.getId())
             .medPeriode(periodeVL)
@@ -47,7 +46,7 @@ public class OverlappVedtakRepositoryTest extends EntityManagerAwareTest {
         overlappVedtakRepository.lagre(builder);
 
         // Assert
-        OverlappVedtak hentet = overlappVedtakRepository.hentForSaksnummer(behandling.getFagsak().getSaksnummer()).get(0);
+        var hentet = overlappVedtakRepository.hentForSaksnummer(behandling.getFagsak().getSaksnummer()).get(0);
         assertThat(hentet.getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(hentet.getSaksnummer()).isEqualTo(behandling.getFagsak().getSaksnummer());
         assertThat(hentet.getPeriode()).isEqualTo(periodeVL);

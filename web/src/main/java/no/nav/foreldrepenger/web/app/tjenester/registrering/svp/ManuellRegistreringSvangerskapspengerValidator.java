@@ -31,7 +31,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
     }
 
     public static List<FeltFeilDto> validerOpplysninger(ManuellRegistreringSvangerskapspengerDto registreringDto) {
-        List<FeltFeilDto> funnetFeil =
+        var funnetFeil =
             Stream.concat(
                 Stream.of(
                     validerEgenVirksomhet(registreringDto.getEgenVirksomhet()))
@@ -66,7 +66,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
             feltFeil.add(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
         if (Boolean.TRUE.equals(egenVirksomhet.getHarArbeidetIEgenVirksomhet())) {
-            for (VirksomhetDto virksomhet : egenVirksomhet.getVirksomheter()) {
+            for (var virksomhet : egenVirksomhet.getVirksomheter()) {
                 leggTilFeilForVirksomhet(feltFeil, virksomhet);
             }
         }

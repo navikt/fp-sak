@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.vedtak.es;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -57,7 +56,7 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
     }
 
     private FagsakStatusOppdateringResultat avsluttFagsakNårAlleBehandlingerErLukket(Fagsak fagsak, Behandling behandling) {
-        List<Behandling> alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
+        var alleÅpneBehandlinger = behandlingRepository.hentBehandlingerSomIkkeErAvsluttetForFagsakId(fagsak.getId());
         if (behandling != null) {
             alleÅpneBehandlinger.remove(behandling);
         }

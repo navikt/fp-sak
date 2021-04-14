@@ -40,7 +40,7 @@ class ØkonomiOppdragUtils {
     }
 
     static void leggTilRefusjons156(List<Oppdragslinje150> o150Liste) {
-        for (Oppdragslinje150 o150 : o150Liste) {
+        for (var o150 : o150Liste) {
             Refusjonsinfo156.builder()
                 .medMaksDato(LocalDate.now())
                 .medRefunderesId(BehandleØkonomioppdragKvitteringTest.REFUNDERES_ID)
@@ -51,7 +51,7 @@ class ØkonomiOppdragUtils {
     }
 
     static void setupOppdrag110(Oppdragskontroll oppdrag, Boolean gjelderFP) {
-        Oppdrag110 o110_1 = new Oppdrag110.Builder()
+        var o110_1 = new Oppdrag110.Builder()
             .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
             .medKodeFagomrade(hentKodeFagomrade(gjelderFP, true))
             .medFagSystemId(BehandleØkonomioppdragKvitteringTest.FAGSYSTEMID_BRUKER)
@@ -76,7 +76,7 @@ class ØkonomiOppdragUtils {
         builder.build();
 
         if (gjelderFP) {
-            Oppdrag110 o110_2 = new Oppdrag110.Builder()
+            var o110_2 = new Oppdrag110.Builder()
                 .medAvstemming(Avstemming.ny())
                 .medKodeEndring(BehandleØkonomioppdragKvitteringTest.KODEENDRING)
                 .medKodeFagomrade(hentKodeFagomrade(gjelderFP, false))
@@ -85,7 +85,7 @@ class ØkonomiOppdragUtils {
                 .medSaksbehId(BehandleØkonomioppdragKvitteringTest.SAKSBEHID)
                 .medOppdragskontroll(oppdrag)
                 .build();
-            Oppdragslinje150 o150_2 = new Oppdragslinje150.Builder()
+            var o150_2 = new Oppdragslinje150.Builder()
                 .medVedtakId(BehandleØkonomioppdragKvitteringTest.VEDTAKID)
                 .medDelytelseId(101002101100L)
                 .medKodeEndringLinje(KodeEndringLinje.NY)

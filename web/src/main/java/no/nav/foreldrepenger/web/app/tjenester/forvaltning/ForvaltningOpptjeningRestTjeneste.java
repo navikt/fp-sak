@@ -81,13 +81,13 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Legg til innslag for oppgitt frilansaktivitet", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
         if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        boolean nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
+        var nyoppstartet = dto.getStpOpptjening().minusMonths(3).isBefore(dto.getFrilansFom());
         var periode = dto.getFrilansTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFrilansFom(), dto.getFrilansTom())
                 : DatoIntervallEntitet.fraOgMed(dto.getFrilansFom());
         var ooBuilder = OppgittOpptjeningBuilder.ny(iayGrunnlag.getEksternReferanse(), iayGrunnlag.getOpprettetTidspunkt())
@@ -104,7 +104,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
         if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()
@@ -146,12 +146,12 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Tvinger full registeroppdatering av IAY på åpen behandling", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response reInnhentAlleIAYRegisterData(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         if (behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        ProsessTaskData prosessTaskData = new ProsessTaskData(InnhentIAYIAbakusTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(InnhentIAYIAbakusTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandlingId, behandling.getAktørId().getId());
         prosessTaskData.setProperty(InnhentIAYIAbakusTask.OVERSTYR_KEY, InnhentIAYIAbakusTask.OVERSTYR_VALUE);
         prosessTaskData.setCallIdFraEksisterende();
@@ -166,7 +166,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Hent oppgitt opptjening for behandling", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public OppgittOpptjeningDto hentOppgittOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
         return new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),

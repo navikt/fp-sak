@@ -23,75 +23,75 @@ public class BarnetsDødsdatoEndringIdentifisererTest {
     @Test
     public void testBarnLever() {
         final LocalDate dødsdato = null;
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlagOrginal = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlagOrginal);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var personopplysningGrunnlagOrginal = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlagOrginal);
 
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var erEndret = differ.erBarnDødsdatoEndret();
         assertThat(erEndret).as("Forventer at informsjon om barnets død er uendret").isFalse();
     }
 
     @Test
     public void test_nytt_barn_i_tps_som_ikke_var_registrert_i_TPS_orginalt() {
         final LocalDate dødsdato = null;
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlagOrginal = opprettPersonopplysningGrunnlag(dødsdato, false);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlagNy = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlagNy, personopplysningGrunnlagOrginal);
+        var personopplysningGrunnlagOrginal = opprettPersonopplysningGrunnlag(dødsdato, false);
+        var personopplysningGrunnlagNy = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlagNy, personopplysningGrunnlagOrginal);
 
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var erEndret = differ.erBarnDødsdatoEndret();
         assertThat(erEndret).as("Forventer at informsjon om barnets død er uendret").isFalse();
     }
 
     @Test
     public void testDødsdatoUendret() {
-        final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        final var dødsdato = LocalDate.now().minusDays(10);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var erEndret = differ.erBarnDødsdatoEndret();
         assertThat(erEndret).as("Forventer at informsjon om barnets død er uendret").isFalse();
     }
 
     @Test
     public void testBarnDør() {
-        final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null, true);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        final var dødsdato = LocalDate.now().minusDays(10);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(null, true);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var erEndret = differ.erBarnDødsdatoEndret();
         assertThat(erEndret).as("Forventer at endring om barnets død blir detektert.").isTrue();
     }
 
     @Test
     public void testDødsdatoEndret() {
-        final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato.minusDays(1), true);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        final var dødsdato = LocalDate.now().minusDays(10);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(dødsdato.minusDays(1), true);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var erEndret = differ.erBarnDødsdatoEndret();
         assertThat(erEndret).as("Forventer at endring om barnets død blir detektert.").isTrue();
     }
 
     @Test
     public void skal_detektere_dødsdato_selv_om_registeropplysninger_ikke_finnes_på_originalt_grunnlag() {
         // Arrange
-        final LocalDate dødsdato = LocalDate.now().minusDays(10);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettTomtPersonopplysningGrunnlag();
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
+        final var dødsdato = LocalDate.now().minusDays(10);
+        var personopplysningGrunnlag1 = opprettTomtPersonopplysningGrunnlag();
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(dødsdato, true);
 
         // Act
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
-        boolean erEndret = differ.erBarnDødsdatoEndret();
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID_SØKER, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var erEndret = differ.erBarnDødsdatoEndret();
 
         // Assert
         assertThat(erEndret).as("Forventer at barnets død blir detektert selv om det ikke finnes registeropplysninger på originalt grunnlag.").isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(LocalDate dødsdatoBarn, boolean registrerMedBarn) {
-        final PersonInformasjonBuilder builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)).medDødsdato(dødsdatoBarn));

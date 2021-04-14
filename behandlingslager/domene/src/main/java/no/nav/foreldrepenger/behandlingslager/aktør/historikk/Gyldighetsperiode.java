@@ -44,7 +44,7 @@ public class Gyldighetsperiode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Gyldighetsperiode that = (Gyldighetsperiode) o;
+        var that = (Gyldighetsperiode) o;
         return Objects.equals(fom, that.fom) &&
             Objects.equals(tom, that.tom);
     }
@@ -56,7 +56,7 @@ public class Gyldighetsperiode {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Gyldig{");
+        final var sb = new StringBuilder("Gyldig{");
         sb.append("fom=").append(fom);
         sb.append(", tom=").append(tom);
         sb.append('}');

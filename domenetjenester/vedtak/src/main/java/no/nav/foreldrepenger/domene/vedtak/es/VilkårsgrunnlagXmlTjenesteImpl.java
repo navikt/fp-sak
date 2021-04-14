@@ -21,14 +21,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatus
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SoeknadsfristvilkarGrunnlag;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.felles.xml.felles.v2.DateOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
-import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.VilkaarsgrunnlagAdopsjon;
-import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.VilkaarsgrunnlagFoedsel;
-import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.VilkaarsgrunnlagMedlemskap;
-import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.VilkaarsgrunnlagSoekersopplysningsplikt;
-import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.VilkaarsgrunnlagSoeknadsfrist;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
 
 @FagsakYtelseTypeRef("ES")
@@ -69,18 +63,18 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForAdopsjonsvilkåret(Vilkår vilkårFraBehandling) {
-        VilkaarsgrunnlagAdopsjon vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagAdopsjon();
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagAdopsjon();
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        AdopsjonsvilkårGrunnlag grunnlagForVilkår = getObjectMapper().readValue(
+        var grunnlagForVilkår = getObjectMapper().readValue(
             vilkårFraBehandling.getRegelInput(),
             AdopsjonsvilkårGrunnlag.class
         );
         vilkårgrunnlag.setSoekersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.getSoekersKjonn().name()));
-        Adopsjon adopsjon = new Adopsjon();
+        var adopsjon = new Adopsjon();
 
-        Optional<DateOpplysning> omsorgOvertakelseDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getOmsorgsovertakelsesdato());
+        var omsorgOvertakelseDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getOmsorgsovertakelsesdato());
         omsorgOvertakelseDato.ifPresent(adopsjon::setOmsorgsovertakelsesdato);
 
         adopsjon.setErMannAdoptererAlene(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.isMannAdoptererAlene()));
@@ -91,59 +85,59 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
     }
 
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøknadsfristvilkåret(Vilkår vilkårFraBehandling) {
-        VilkaarsgrunnlagSoeknadsfrist vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        SoeknadsfristvilkarGrunnlag grunnlagForVilkår = getObjectMapper().readValue(
+        var grunnlagForVilkår = getObjectMapper().readValue(
             vilkårFraBehandling.getRegelInput(),
             SoeknadsfristvilkarGrunnlag.class
         );
-        VilkaarsgrunnlagSoeknadsfrist vilkargrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
+        var vilkargrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoeknadsfrist();
         vilkargrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.isElektroniskSoeknad()));
 
-        Optional<DateOpplysning> skjæringstidspunkt = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getSkjaeringstidspunkt());
+        var skjæringstidspunkt = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getSkjaeringstidspunkt());
         skjæringstidspunkt.ifPresent(vilkargrunnlag::setSkjaeringstidspunkt);
 
-        Optional<DateOpplysning> søknadMotattDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getSoeknadMottatDato());
+        var søknadMotattDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getSoeknadMottatDato());
         søknadMotattDato.ifPresent(vilkargrunnlag::setSoeknadMottattDato);
 
         return vilkargrunnlag;
     }
 
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForFødselsvilkåret(Vilkår vilkårFraBehandling) {
-        VilkaarsgrunnlagFoedsel vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagFoedsel();
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagFoedsel();
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        FødselsvilkårGrunnlag grunnlagForVilkår = getObjectMapper().readValue(
+        var grunnlagForVilkår = getObjectMapper().readValue(
             vilkårFraBehandling.getRegelInput(),
             FødselsvilkårGrunnlag.class
         );
         vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.getAntallBarn()));
-        Optional<DateOpplysning> bekreftetFødselsdato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getBekreftetFoedselsdato());
+        var bekreftetFødselsdato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getBekreftetFoedselsdato());
         bekreftetFødselsdato.ifPresent(vilkårgrunnlag::setFoedselsdatoBarn);
 
         if (grunnlagForVilkår.getSoekerRolle() != null) {
             vilkårgrunnlag.setSoekersRolle(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.getSoekerRolle().getKode()));
         }
-        Optional<DateOpplysning> søknadDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getDagensdato());
+        var søknadDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getDagensdato());
         søknadDato.ifPresent(vilkårgrunnlag::setSoeknadsdato);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.getSoekersKjonn().name()));
 
-        Optional<DateOpplysning> bekreftetTerminDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getBekreftetTermindato());
+        var bekreftetTerminDato = VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.getBekreftetTermindato());
         bekreftetTerminDato.ifPresent(vilkårgrunnlag::setTermindato);
 
         return vilkårgrunnlag;
     }
 
     private Vilkaarsgrunnlag lagVilkaarsgrunnlagForMedlemskapsvilkåret(Vilkår vilkårFraBehandling) {
-        VilkaarsgrunnlagMedlemskap vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagMedlemskap();
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagMedlemskap();
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        MedlemskapsvilkårGrunnlag grunnlagForVilkår = getObjectMapper().readValue(
+        var grunnlagForVilkår = getObjectMapper().readValue(
             vilkårFraBehandling.getRegelInput(),
             MedlemskapsvilkårGrunnlag.class
         );
@@ -170,12 +164,12 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             erBarnetFødt = false;
         } else {
             var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
-            SøknadEntitet søknad = optionalSøknad.get();
+            var søknad = optionalSøknad.get();
             komplettSøknad = erKomplettSøknad(ref);
             elektroniskSøknad = søknad.getElektroniskRegistrert();
             erBarnetFødt = erBarnetFødt(behandling);
         }
-        VilkaarsgrunnlagSoekersopplysningsplikt vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoekersopplysningsplikt();
+        var vilkårgrunnlag = vilkårObjectFactory.createVilkaarsgrunnlagSoekersopplysningsplikt();
         vilkårgrunnlag.setErSoeknadenKomplett(VedtakXmlUtil.lagBooleanOpplysning(komplettSøknad)); //Denne er unødvendig fo dvh.
         vilkårgrunnlag.setElektroniskSoeknad(VedtakXmlUtil.lagBooleanOpplysning(elektroniskSøknad));
         vilkårgrunnlag.setErBarnetFoedt(VedtakXmlUtil.lagBooleanOpplysning(erBarnetFødt));

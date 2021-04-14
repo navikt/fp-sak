@@ -23,8 +23,8 @@ public class BekreftTerminbekreftelseAksjonspunktDtoTest {
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        var module = new SimpleModule();
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         module.addSerializer(LocalDate.class, new com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer(formatter));
         module.addDeserializer(LocalDate.class, new com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer(formatter));
         objectMapper.registerModule(module);
@@ -32,15 +32,15 @@ public class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
     @Test
     public void test_av_json_mapping() throws IOException {
-        BekreftTerminbekreftelseAksjonspunktDto terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
+        var terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
         Writer jsonWriter = new StringWriter();
 
         objectMapper.writeValue(jsonWriter, terminbekreftelseAksjonspunktDto);
 
         jsonWriter.flush();
-        String json = jsonWriter.toString();
+        var json = jsonWriter.toString();
 
-        BekreftTerminbekreftelseAksjonspunktDto objektFraJson = objectMapper.readValue(json, BekreftTerminbekreftelseAksjonspunktDto.class);
+        var objektFraJson = objectMapper.readValue(json, BekreftTerminbekreftelseAksjonspunktDto.class);
 
         assertThat(objektFraJson.getAntallBarn()).isEqualTo(terminbekreftelseAksjonspunktDto.getAntallBarn());
         assertThat(objektFraJson.getTermindato()).isEqualTo(terminbekreftelseAksjonspunktDto.getTermindato());

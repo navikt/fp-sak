@@ -73,8 +73,8 @@ public class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
 
-        BehandlingStegType steg = steg2;
-        String inngangAksjonspunkt = steg2InngangAksjonspunkt;
+        var steg = steg2;
+        var inngangAksjonspunkt = steg2InngangAksjonspunkt;
 
         kontrollTjeneste.behandlingTilbakeføringTilTidligsteAksjonspunkt(kontekst, List.of(inngangAksjonspunkt));
 
@@ -219,8 +219,8 @@ public class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         var modell = serviceProvider.getBehandlingModellRepository().getModell(behandling.getType(), behandling.getFagsakYtelseType());
         // Arrange
-        BehandlingStegType iverksettSteg = BehandlingStegType.IVERKSETT_VEDTAK;
-        BehandlingStegType forrigeSteg = modell.finnForrigeSteg(iverksettSteg).getBehandlingStegType();
+        var iverksettSteg = BehandlingStegType.IVERKSETT_VEDTAK;
+        var forrigeSteg = modell.finnForrigeSteg(iverksettSteg).getBehandlingStegType();
         forceOppdaterBehandlingSteg(behandling, iverksettSteg);
 
         // Act

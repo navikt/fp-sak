@@ -91,8 +91,8 @@ public class SøknadEntitet extends BaseEntitet {
             this.språkkode = søknadMal.getSpråkkode();
         }
         if (kopierVedlegg) {
-            for (SøknadVedleggEntitet aSøknadVedlegg : søknadMal.getSøknadVedlegg()) {
-                SøknadVedleggEntitet kopi = new SøknadVedleggEntitet(aSøknadVedlegg);
+            for (var aSøknadVedlegg : søknadMal.getSøknadVedlegg()) {
+                var kopi = new SøknadVedleggEntitet(aSøknadVedlegg);
                 kopi.setSøknad(this);
                 this.søknadVedlegg.add(kopi);
             }
@@ -194,10 +194,11 @@ public class SøknadEntitet extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof SøknadEntitet)) {
+        }
+        if (!(obj instanceof SøknadEntitet)) {
             return false;
         }
-        SøknadEntitet other = (SøknadEntitet) obj;
+        var other = (SøknadEntitet) obj;
         return Objects.equals(this.mottattDato, other.mottattDato)
                 && Objects.equals(this.søknadsdato, other.søknadsdato)
                 && Objects.equals(this.tilleggsopplysninger, other.tilleggsopplysninger)
@@ -280,7 +281,7 @@ public class SøknadEntitet extends BaseEntitet {
         }
 
         public Builder leggTilVedlegg(SøknadVedleggEntitet søknadVedlegg) {
-            SøknadVedleggEntitet sve = new SøknadVedleggEntitet(søknadVedlegg);
+            var sve = new SøknadVedleggEntitet(søknadVedlegg);
             søknadMal.søknadVedlegg.add(sve);
             sve.setSøknad(søknadMal);
             return this;

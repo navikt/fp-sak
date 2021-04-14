@@ -37,7 +37,7 @@ public class SimuleringIntegrasjonTjeneste {
         Objects.requireNonNull(behandlingId);
         Objects.requireNonNull(oppdragListe);
         if (!oppdragListe.isEmpty()) {
-            SimulerOppdragDto dto = map(behandlingId, oppdragListe);
+            var dto = map(behandlingId, oppdragListe);
             try {
                 restKlient.startSimulering(dto);
             } catch (IntegrasjonException e) {

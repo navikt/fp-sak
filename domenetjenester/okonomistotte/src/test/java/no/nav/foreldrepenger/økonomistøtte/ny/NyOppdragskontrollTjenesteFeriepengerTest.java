@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerT
 import static no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil.verifiserOppdr150NårEttFeriepengeårSkalOpphøre;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,14 +19,11 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.FamilieYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifik;
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollFeriepengerTestUtil;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.mapper.TilkjentYtelseMapper;
 
 public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrollTjenesteTestBase {
@@ -46,14 +42,14 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalIkkeSendeOppdragForFeriepengerNårDetIkkeErEndringIÅrsbeløp() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
         //Revurdering
 
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 15000L, 10000L);
 
         //Act
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -66,7 +62,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     private BeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr,
                                                                               Long årsbeløp1,
                                                                               Long årsbeløp2) {
-        LocalDate endringsdato = DAGENS_DATO.plusDays(1);
+        var endringsdato = DAGENS_DATO.plusDays(1);
         var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
             Optional.of(endringsdato), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
         return beregningsresultatRevurderingFP;
@@ -81,26 +77,26 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForAndreFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 15000L, 10000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 15000L, 11000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
         int andreFeriepengeår = FERIEPENGEÅR_LISTE.get(1);
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(4);
         //Bruker
-        List<Oppdragslinje150> forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
+        var forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
         assertThat(forrigeopp150FeriepengerBrukerList).hasSize(2);
         assertThat(forrigeopp150FeriepengerBrukerList).anySatisfy(opp150 -> {
             assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
@@ -111,7 +107,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
             assertThat(opp150.getSats()).isEqualTo(Sats.på(10000L));
         });
         //Arbeidsgiver
-        List<Oppdragslinje150> forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
+        var forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
         assertThat(forrigeopp150FeriepengerArbgvrList).hasSize(2);
         assertThat(forrigeopp150FeriepengerArbgvrList).anySatisfy(opp150 -> {
             assertThat(opp150.getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
@@ -123,14 +119,14 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         });
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(11000L));
         //Bruker revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(11000L));
         verifiserOpp150NårEndringGjelderEttFeriepengeår(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, false);
@@ -145,33 +141,33 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForFørsteFeriepengeårSomHaddeEndringAvÅrsbeløpIRevurdering() {
         // Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 9000L, 11000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 9000L, 11000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 7000L, 11000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(4);
 
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7000L));
         //Bruker revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7000L));
         verifiserOpp150NårEndringGjelderEttFeriepengeår(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, true);
@@ -186,41 +182,41 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragForAlleFeriepengeårNårDetBlirEndringAvÅrsbeløpForAlleFeriepengeårIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 8000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 6000L, 8000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 9000L, 7000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(4);
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(4);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(9000L)));
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(7000L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(9000L)));
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(7000L)));
-        for (Oppdragslinje150 forrigeOpp150 : forrigeOpp150FeriepengerListe) {
+        for (var forrigeOpp150 : forrigeOpp150FeriepengerListe) {
             assertThat(opp150RevurderingFeriepengerListe).anySatisfy(oppdragslinje150 ->
                 assertThat(oppdragslinje150.getRefDelytelseId()).isEqualTo(forrigeOpp150.getDelytelseId()));
         }
@@ -237,35 +233,35 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragForAlleFeriepengeårNårDetEksistererIngenFeriepengerIForrigeBehandling() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 11000L, 13000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(forrigeOpp150FeriepengerListe).isEmpty();
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(4);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(11000L)));
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(13000L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(11000L)));
@@ -284,33 +280,33 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIAndreÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 0L, 13000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(opp150FeriepengerListe).isEmpty();
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(13000L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(13000L)));
@@ -326,33 +322,33 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerOgRevurderingHarDetIFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 8000L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(opp150FeriepengerListe).isEmpty();
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(8000L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(8000L)));
@@ -368,45 +364,45 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForAndreÅrOgRevurderingHarDetForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 8000L, 7000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
         //Original  behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(2);
         //Arbeidsgiver forrige behandling
-        List<Oppdragslinje150> forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
+        var forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
         assertThat(forrigeopp150FeriepengerArbgvrList).hasSize(1);
         assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
         assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(6500L));
         //Bruker forrige behandling
-        List<Oppdragslinje150> forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
+        var forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
         assertThat(forrigeopp150FeriepengerBrukerList).hasSize(1);
         assertThat(forrigeopp150FeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
         assertThat(forrigeopp150FeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(6500L));
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(8000L)));
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(7000L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(8000L)));
@@ -429,20 +425,20 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForAndreFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForFørsteÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 6500L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 6500L, 7000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         int andreFeriepengeår = FERIEPENGEÅR_LISTE.get(1);
         //Original  behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
@@ -452,12 +448,12 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7000L));
         //Bruker revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7000L));
@@ -472,46 +468,46 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragForAlleFeriepengeårNårForrigeBehandlingIkkeHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7500L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7500L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 9500L, 7499L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         int andreFeriepengeår = FERIEPENGEÅR_LISTE.get(1);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         //Original  behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(2);
         //Arbeidsgiver forrige behandling
-        List<Oppdragslinje150> forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
+        var forrigeopp150FeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, false);
         assertThat(forrigeopp150FeriepengerArbgvrList).hasSize(1);
         assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
         assertThat(forrigeopp150FeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(7500L));
         //Bruker forrige behandling
-        List<Oppdragslinje150> forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
+        var forrigeopp150FeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(forrigeOpp150FeriepengerListe, true);
         assertThat(forrigeopp150FeriepengerBrukerList).hasSize(1);
         assertThat(forrigeopp150FeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(andreFeriepengeår);
         assertThat(forrigeopp150FeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(7500L));
-        List<Oppdragslinje150> opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         //Bruker
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(9500L)));
         assertThat(opp150RevurderingFeriepengerBrukerList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(7499L)));
         //Arbeidsgiver
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(2);
         assertThat(opp150RevurderingFeriepengerArbgvrList).anySatisfy(opp150 ->
             assertThat(opp150.getSats()).isEqualTo(Sats.på(9500L)));
@@ -534,21 +530,21 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOppdragKunForFørsteFeriepengeårNårForrigeBehandlingHarFeriepengerForFørsteÅrOgRevurderingHarDetForBeggeToÅrUtenEndringForAndreÅr() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 7000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 6500L, 7000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         //Original  behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(2);
@@ -557,12 +553,12 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
         assertThat(opp150RevurderingFeriepengerArbgvrList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
         assertThat(opp150RevurderingFeriepengerArbgvrList.get(0).getSats()).isEqualTo(Sats.på(6500L));
         //Bruker revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
         assertThat(opp150RevurderingFeriepengerBrukerList).hasSize(1);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getDatoVedtakFom().getYear()).isEqualTo(førsteFeriepengeår);
         assertThat(opp150RevurderingFeriepengerBrukerList.get(0).getSats()).isEqualTo(Sats.på(6500L));
@@ -577,20 +573,20 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeEnOppdragForOpphørOgEnForEndringNårFørsteFeriepengeårEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 13000L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         int andreFeriepengeår = FERIEPENGEÅR_LISTE.get(1);
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
@@ -599,20 +595,20 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         //Revurdering
         assertThat(opp150RevurderingFeriepengerListe).hasSize(4);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
-        List<Oppdragslinje150> opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
             .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
         assertThat(opp150RevurdArbgvrUtenOpph).hasSize(1);
         assertThat(opp150RevurdArbgvrUtenOpph.get(0).getSats()).isEqualTo(Sats.på(13000L));
         //Bruker revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
-        List<Oppdragslinje150> opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
             .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
         assertThat(opp150RevurdBrukerUtenOpph).hasSize(1);
         assertThat(opp150RevurdBrukerUtenOpph.get(0).getSats()).isEqualTo(Sats.på(13000L));
         //Opphør
-        List<Oppdragslinje150> opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
+        var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
         assertThat(opp150ForOpphListe).hasSize(2);
         assertThat(opp150ForOpphListe).allSatisfy(opp150 ->
@@ -630,20 +626,20 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeKunEnOppdragForOpphørNårFørsteFeriepengeårIkkeEndrerSegOgAndreFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 11000L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         assertThat(forrigeOpp150FeriepengerListe).hasSize(4);
@@ -652,7 +648,7 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Opphør
-        List<Oppdragslinje150> opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
+        var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
         assertThat(opp150ForOpphListe).hasSize(2);
         verifiserOpp150NårEttFPÅretOpphørerOgAndreIkkeEndrerSeg(opp150RevurderingFeriepengerListe, opp150RevurderingFeriepengerListe, false);
@@ -667,39 +663,39 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeEnOppdragForOpphørOgEnForEndringNårAndreFeriepengeårEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 12000L, 10000L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 0L, 11000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         int førsteFeriepengeår = FERIEPENGEÅR_LISTE.get(0);
 
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         //Arbeidsgiver revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
-        List<Oppdragslinje150> opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
+        var opp150RevurderingFeriepengerArbgvrList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, false);
+        var opp150RevurdArbgvrUtenOpph = opp150RevurderingFeriepengerArbgvrList.stream()
             .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
         assertThat(opp150RevurdArbgvrUtenOpph).hasSize(1);
         assertThat(opp150RevurdArbgvrUtenOpph.get(0).getSats()).isEqualTo(Sats.på(11000L));
         //Bruker revurdering
-        List<Oppdragslinje150> opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
-        List<Oppdragslinje150> opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
+        var opp150RevurderingFeriepengerBrukerList = getOppdr150ForFeriepengerForEnMottaker(opp150RevurderingFeriepengerListe, true);
+        var opp150RevurdBrukerUtenOpph = opp150RevurderingFeriepengerBrukerList.stream()
             .filter(opp150 -> !opp150.gjelderOpphør()).collect(Collectors.toList());
         assertThat(opp150RevurdBrukerUtenOpph).hasSize(1);
         assertThat(opp150RevurdBrukerUtenOpph.get(0).getSats()).isEqualTo(Sats.på(11000L));
         //Opphør
-        List<Oppdragslinje150> opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
+        var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
         assertThat(opp150ForOpphListe).hasSize(2);
         assertThat(opp150ForOpphListe).allSatisfy(opp150 ->
@@ -717,29 +713,29 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeKunEnOppdragForOpphørNårAndreFeriepengeårIkkeEndrerSegOgFørsteFeriepengeårOpphørerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
 
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(true, 0L, 10000L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
-        List<Oppdragslinje150> opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var forrigeOpp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150RevurderingFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
 
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
         assertThat(opp150RevurderingFeriepengerListe).hasSize(2);
         //Opphør
-        List<Oppdragslinje150> opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
+        var opp150ForOpphListe = opp150RevurderingFeriepengerListe.stream()
             .filter(Oppdragslinje150::gjelderOpphør).collect(Collectors.toList());
         assertThat(opp150ForOpphListe).hasSize(2);
         verifiserOpp150NårEttFPÅretOpphørerOgAndreIkkeEndrerSeg(forrigeOpp150FeriepengerListe, opp150RevurderingFeriepengerListe, true);
@@ -754,33 +750,33 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOpphørPåoriginaltOppdragForFeriepengerNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, 11000L, 10000L);
 
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 0L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
+        var opp150FeriepengerListe = getOppdragslinje150Feriepenger(originaltOppdrag);
         assertThat(opp150FeriepengerListe).allSatisfy(oppdragslinje150 -> {
             assertThat(oppdragslinje150.getRefDelytelseId()).isNull();
             assertThat(oppdragslinje150.getRefFagsystemId()).isNull();
         });
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurdFeriepengerListe).hasSize(4);
         assertThat(opp150RevurdFeriepengerListe).allSatisfy(oppdragslinje150 ->
             assertThat(oppdragslinje150.gjelderOpphør()).isTrue());
-        for (Oppdragslinje150 opp150Revurd : opp150RevurdFeriepengerListe) {
+        for (var opp150Revurd : opp150RevurdFeriepengerListe) {
             assertThat(opp150FeriepengerListe).anySatisfy(oppdragslinje150 ->
                 assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(opp150Revurd.getDelytelseId()));
         }
@@ -796,23 +792,23 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOpphørPåFørsteFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 11000L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 11000L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 0L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurdFeriepengerListe).hasSize(2);
         verifiserOppdr150NårDetIkkeErFeriepengerIRevurdering(originaltOppdrag, oppdragRevurdering, true);
     }
@@ -826,23 +822,23 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalSendeOpphørPåAndreFeriepengeårNårDetIkkeErFeriepengerIRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 9500L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 9500L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 0L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
-        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         //Assert
         //Original behandling
         assertThat(originaltOppdrag.getOppdrag110Liste()).hasSize(2);
         //Revurdering
         assertThat(oppdragRevurdering.getOppdrag110Liste()).hasSize(2);
-        List<Oppdragslinje150> opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
+        var opp150RevurdFeriepengerListe = getOppdragslinje150Feriepenger(oppdragRevurdering);
         assertThat(opp150RevurdFeriepengerListe).hasSize(2);
         verifiserOppdr150NårDetIkkeErFeriepengerIRevurdering(originaltOppdrag, oppdragRevurdering, false);
     }
@@ -856,12 +852,12 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
     public void skalIkkeLagesOppdragHvisDetFinnesIngenFeriepengerIFørstegangsbehandlingOgRevurdering() {
         //Arrange
         //Førstegangsbehandling
-        Oppdragskontroll originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
+        var originaltOppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(false, 0L, 0L);
         //Revurdering
         var beregningsresultatRevurderingFP = oppsettBeregningsresultatForFeriepenger(false, 0L, 0L);
 
-        TilkjentYtelseMapper mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
-        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var mapper = TilkjentYtelseMapper.lagFor(FamilieYtelseType.FØDSEL);
+        var gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
         var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
 
         // Act
@@ -876,26 +872,26 @@ public class NyOppdragskontrollTjenesteFeriepengerTest extends NyOppdragskontrol
         //Arrange
         //Act
         //Førstegangsbehandling
-        Oppdragskontroll oppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, false, 11000L, 6000L);
+        var oppdrag = opprettBeregningsresultatOgFørstegangsoppdragForFeriepenger(true, false, 11000L, 6000L);
 
         //Assert
         assertThat(oppdrag.getOppdrag110Liste()).hasSize(2);
         //Bruker
-        Oppdrag110 oppdrag110Bruker = oppdrag.getOppdrag110Liste()
+        var oppdrag110Bruker = oppdrag.getOppdrag110Liste()
             .stream()
             .filter(o110 -> !o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst()
             .get();
-        List<Oppdragslinje150> opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
+        var opp150FeriepengerBruker = getOppdragslinje150Feriepenger(oppdrag110Bruker);
         assertThat(opp150FeriepengerBruker).allSatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER));
         // Arbeidsgiver
-        Oppdrag110 oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
+        var oppdrag110Arbeidsgiver = oppdrag.getOppdrag110Liste()
             .stream()
             .filter(o110 -> o110.getKodeFagomrade().gjelderRefusjonTilArbeidsgiver())
             .findFirst()
             .get();
-        List<Oppdragslinje150> opp150FeriepengerArbeidsgiver = getOppdragslinje150Feriepenger(oppdrag110Arbeidsgiver);
+        var opp150FeriepengerArbeidsgiver = getOppdragslinje150Feriepenger(oppdrag110Arbeidsgiver);
         assertThat(opp150FeriepengerArbeidsgiver).allSatisfy(opp150 ->
             assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPA_FERIEPENGER_AG));
     }

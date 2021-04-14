@@ -31,7 +31,7 @@ public class BehandlingLåsRepository {
     public BehandlingLås taLås(final Long behandlingId) {
         if (behandlingId != null) {
             låsBehandling(behandlingId);
-            BehandlingLås lås = new BehandlingLås(behandlingId);
+            var lås = new BehandlingLås(behandlingId);
             return lås;
         }
         return new BehandlingLås(null);
@@ -40,8 +40,8 @@ public class BehandlingLåsRepository {
 
     public BehandlingLås taLås(final UUID eksternBehandlingRef) {
         if (eksternBehandlingRef != null) {
-            Long behandlingId = låsBehandling(eksternBehandlingRef);
-            BehandlingLås lås = new BehandlingLås(behandlingId);
+            var behandlingId = låsBehandling(eksternBehandlingRef);
+            var lås = new BehandlingLås(behandlingId);
             return lås;
         }
         return new BehandlingLås(null);
@@ -58,7 +58,7 @@ public class BehandlingLåsRepository {
 
     private Long låsBehandling(final UUID eksternBehandlingRef) {
         // bruk native query så vi ikke går i beina på hibernate session cache og transiente data
-        Object result = entityManager
+        var result = entityManager
             .createNativeQuery("select beh.id from BEHANDLING beh where beh.uuid=:uuid FOR UPDATE") //$NON-NLS-1$
             .setParameter("uuid", eksternBehandlingRef) //$NON-NLS-1$
             .getSingleResult();
@@ -77,7 +77,7 @@ public class BehandlingLåsRepository {
     }
 
     private Object verifisertLås(Long id) {
-        LockModeType lockMode = LockModeType.PESSIMISTIC_FORCE_INCREMENT;
+        var lockMode = LockModeType.PESSIMISTIC_FORCE_INCREMENT;
         Object entity = entityManager.find(Behandling.class, id);
         if (entity == null) {
             var msg = String.format("Fant ikke entitet for låsing [%s], id=%s.",

@@ -33,19 +33,19 @@ public class BarnBorteEndringIdentifiserer {
     }
 
     public boolean erEndret(BehandlingReferanse nyBehandling) {
-        Long origBehandling = nyBehandling.getOriginalBehandlingId().orElse(null);
+        var origBehandling = nyBehandling.getOriginalBehandlingId().orElse(null);
         if (origBehandling == null) {
             // Støtter bare deteksjon av endring i antall barn dersom det skjer mellom to behandlinger
             // (krevende å sjekke hvilket PO-grunnlag som er nyest basert kun på grunnlag-id)
             return false;
         }
 
-        AktørId søker = nyBehandling.getAktørId();
+        var søker = nyBehandling.getAktørId();
 
-        List<PersonopplysningEntitet> origBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(origBehandling)
+        var origBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(origBehandling)
             .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
             .orElse(emptyList());
-        List<PersonopplysningEntitet> nyeBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(nyBehandling.getBehandlingId())
+        var nyeBarna = personopplysningRepository.hentPersonopplysningerHvisEksisterer(nyBehandling.getBehandlingId())
             .map(origGrunnlag ->  getBarn(søker, origGrunnlag))
             .orElse(emptyList());
 

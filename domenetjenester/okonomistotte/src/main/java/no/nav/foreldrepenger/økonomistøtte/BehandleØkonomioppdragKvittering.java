@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
 
@@ -51,7 +50,7 @@ public class BehandleØkonomioppdragKvittering {
     }
 
     public void behandleKvittering(ØkonomiKvittering kvittering, boolean oppdaterProsesstask) {
-        Long behandlingId = kvittering.getBehandlingId();
+        var behandlingId = kvittering.getBehandlingId();
 
         LOG.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
 
@@ -66,9 +65,9 @@ public class BehandleØkonomioppdragKvittering {
 
         økonomioppdragRepository.lagre(oppdragKvittering);
 
-        Oppdragskontroll oppdragskontroll = oppdragUtenKvittering.getOppdragskontroll();
+        var oppdragskontroll = oppdragUtenKvittering.getOppdragskontroll();
 
-        boolean erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(oppdragskontroll.getOppdrag110Liste());
+        var erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(oppdragskontroll.getOppdrag110Liste());
 
         if (erAlleKvitteringerMottatt) {
             LOG.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
@@ -76,7 +75,7 @@ public class BehandleØkonomioppdragKvittering {
 
             if (oppdaterProsesstask) {
                 //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
-                boolean alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(oppdragskontroll.getOppdrag110Liste());
+                var alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(oppdragskontroll.getOppdrag110Liste());
                 if (alleViserPositivtResultat) {
                     LOG.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
                     hendelsesmottak.mottaHendelse(oppdragskontroll.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);

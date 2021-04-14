@@ -35,20 +35,20 @@ public class AutomatiskFagsakAvslutningTjeneste {
     }
 
     String avsluttFagsaker(String batchname, LocalDate date) {
-        List<Fagsak> fagsaker = fagsakRelasjonRepository.finnFagsakerForAvsluttning(date);
+        var fagsaker = fagsakRelasjonRepository.finnFagsakerForAvsluttning(date);
 
-        String callId = MDCOperations.getCallId();
+        var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
 
-        for (Fagsak fagsak : fagsaker) {
+        for (var fagsak : fagsaker) {
             List<ProsessTaskData> tasks = new ArrayList<>();
 
-            String nyCallId = callId + fagsak.getId();
+            var nyCallId = callId + fagsak.getId();
             tasks.add(opprettFagsakAvslutningTask(fagsak, nyCallId));
 
             if (!tasks.isEmpty()) {
                 tasks.forEach(t -> t.setPrioritet(100));
-                ProsessTaskGruppe gruppe = new ProsessTaskGruppe();
+                var gruppe = new ProsessTaskGruppe();
                 tasks.forEach(gruppe::addNesteSekvensiell);
                 prosessTaskRepository.lagre(gruppe);
             }
@@ -57,7 +57,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
     }
 
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskFagsakAvslutningTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskFagsakAvslutningTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setPrioritet(100);
         // unik per task da det er ulike tasks for hver behandling

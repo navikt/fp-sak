@@ -223,7 +223,8 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     public Optional<Boolean> mottarYtelse() {
         if (beregningsgrunnlagFrilansAndel != null) {
             return Optional.ofNullable(beregningsgrunnlagFrilansAndel.getMottarYtelse());
-        } else if (beregningsgrunnlagArbeidstakerAndel != null) {
+        }
+        if (beregningsgrunnlagArbeidstakerAndel != null) {
             return Optional.ofNullable(beregningsgrunnlagArbeidstakerAndel.getMottarYtelse());
         }
         return Optional.empty();
@@ -249,7 +250,7 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     private boolean gjelderSammeArbeidsforhold(Optional<Arbeidsgiver> arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
-        Optional<BGAndelArbeidsforhold> bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
+        var bgAndelArbeidsforholdOpt = getBgAndelArbeidsforhold();
         if (!Objects.equals(getAktivitetStatus(), AktivitetStatus.ARBEIDSTAKER) || !bgAndelArbeidsforholdOpt.isPresent()) {
             return false;
         }
@@ -322,9 +323,9 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public BigDecimal getBruttoInkludertNaturalYtelser() {
-        BigDecimal naturalytelseBortfalt = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr).orElse(BigDecimal.ZERO);
-        BigDecimal naturalYtelseTilkommet = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseTilkommetPrÅr).orElse(BigDecimal.ZERO);
-        BigDecimal brutto = bruttoPrÅr != null ? bruttoPrÅr : BigDecimal.ZERO;
+        var naturalytelseBortfalt = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseBortfaltPrÅr).orElse(BigDecimal.ZERO);
+        var naturalYtelseTilkommet = getBgAndelArbeidsforhold().flatMap(BGAndelArbeidsforhold::getNaturalytelseTilkommetPrÅr).orElse(BigDecimal.ZERO);
+        var brutto = bruttoPrÅr != null ? bruttoPrÅr : BigDecimal.ZERO;
         return brutto.add(naturalytelseBortfalt).subtract(naturalYtelseTilkommet);
     }
 
@@ -392,12 +393,12 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     }
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
-        Optional<BGAndelArbeidsforhold> beregningArbeidsforhold = getBgAndelArbeidsforhold();
+        var beregningArbeidsforhold = getBgAndelArbeidsforhold();
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsgiver);
     }
 
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
-        Optional<BGAndelArbeidsforhold> beregningArbeidsforhold = getBgAndelArbeidsforhold();
+        var beregningArbeidsforhold = getBgAndelArbeidsforhold();
         return beregningArbeidsforhold.map(BGAndelArbeidsforhold::getArbeidsforholdRef);
     }
 
@@ -432,12 +433,13 @@ public class BeregningsgrunnlagPrStatusOgAndel extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagPrStatusOgAndel)) {
             return false;
         }
         // Endring av denne har store konsekvenser for matching av andeler
         // Resultat av endringer må testes manuelt
-        BeregningsgrunnlagPrStatusOgAndel other = (BeregningsgrunnlagPrStatusOgAndel) obj;
+        var other = (BeregningsgrunnlagPrStatusOgAndel) obj;
         return Objects.equals(this.getAktivitetStatus(), other.getAktivitetStatus())
                 && Objects.equals(this.getInntektskategori(), other.getInntektskategori())
                 && Objects.equals(this.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver),

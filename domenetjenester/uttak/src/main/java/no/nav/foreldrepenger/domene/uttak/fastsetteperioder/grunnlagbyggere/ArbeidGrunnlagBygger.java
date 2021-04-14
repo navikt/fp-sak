@@ -17,7 +17,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
@@ -47,7 +46,7 @@ public class ArbeidGrunnlagBygger {
     public Arbeid.Builder byggGrunnlag(UttakInput input) {
         var arbeid = new Arbeid.Builder();
         var arbeidsforhold = lagArbeidsforhold(input);
-        for (Arbeidsforhold a : arbeidsforhold) {
+        for (var a : arbeidsforhold) {
             arbeid.leggTilArbeidsforhold(a);
         }
         return arbeid;
@@ -64,7 +63,7 @@ public class ArbeidGrunnlagBygger {
             throw new IllegalStateException("Beregningsgrunnlag mangler status");
         }
 
-        for (BeregningsgrunnlagStatus beregningsgrunnlagStatus : beregningsgrunnlagStatuser) {
+        for (var beregningsgrunnlagStatus : beregningsgrunnlagStatuser) {
             var arbeidsforhold = lagArbeidsforhold(beregningsgrunnlagStatuser, beregningsgrunnlagStatus,
                 ytelseFordelingAggregat, uttakYrkesaktiviteter);
             resultat.add(arbeidsforhold);
@@ -88,7 +87,7 @@ public class ArbeidGrunnlagBygger {
                 uttakYrkesaktiviteter).stream()
                 .sorted(Comparator.comparing(EndringAvStilling::getDato))
                 .collect(Collectors.toList());
-            for (EndringAvStilling endringAvStilling : endringerIStilling) {
+            for (var endringAvStilling : endringerIStilling) {
                 arbeidsforhold.leggTilEndringIStilling(endringAvStilling);
             }
         }
@@ -104,8 +103,8 @@ public class ArbeidGrunnlagBygger {
     private Map<AktivitetIdentifikator, LocalDate> finnStartdatoer(Collection<BeregningsgrunnlagStatus> statuser,
                                                                    UttakYrkesaktiviteter uttakYrkesaktiviteter) {
         var resultat = new HashMap<AktivitetIdentifikator, LocalDate>();
-        for (BeregningsgrunnlagStatus statusPeriode : statuser) {
-            LocalDate startdato = finnStartdato(uttakYrkesaktiviteter, statusPeriode);
+        for (var statusPeriode : statuser) {
+            var startdato = finnStartdato(uttakYrkesaktiviteter, statusPeriode);
             resultat.put(statusPeriode.toUttakAktivitetIdentifikator(), startdato);
         }
         return resultat;
@@ -126,7 +125,7 @@ public class ArbeidGrunnlagBygger {
                                                           UttakYrkesaktiviteter uttakYrkesaktiviteter) {
         //Forenkling: Henter ikke faktisk endring. Bare sjekker stillingsprosent første dag i søknadsperioder
         var endringer = new HashSet<EndringAvStilling>();
-        for (OppgittPeriodeEntitet søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder()
+        for (var søknadsperiode : ytelseFordelingAggregat.getGjeldendeSøknadsperioder()
             .getOppgittePerioder()) {
             var stillingsprosent = finnStillingsprosent(aktivitetIdentifikator, uttakYrkesaktiviteter,
                 søknadsperiode.getFom());

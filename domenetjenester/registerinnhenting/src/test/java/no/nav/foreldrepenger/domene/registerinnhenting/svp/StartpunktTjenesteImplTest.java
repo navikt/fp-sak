@@ -23,10 +23,10 @@ public class StartpunktTjenesteImplTest {
     @Test
     public void skal_utlede_startpunkt_opplysningsplikt_når_det_er_endring() {
         // Arrange
-        EndringsresultatDiff endringsresultatDiff = opprettEndringsresultat(1L, 2L);// Forskjellig ID indikerer endring
+        var endringsresultatDiff = opprettEndringsresultat(1L, 2L);// Forskjellig ID indikerer endring
 
         // Act
-        StartpunktType startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
+        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
 
         // Assert
         assertThat(startpunktType).isEqualTo(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
@@ -35,18 +35,18 @@ public class StartpunktTjenesteImplTest {
     @Test
     public void skal_utlede_startpunkt_udefinert_når_det_ikke_er_endring() {
         // Arrange
-        EndringsresultatDiff endringsresultatDiff = opprettEndringsresultat(1L, 1L);// Lik ID indikerer ingen endring
+        var endringsresultatDiff = opprettEndringsresultat(1L, 1L);// Lik ID indikerer ingen endring
 
         // Act
-        StartpunktType startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
+        var startpunktType = startpunktTjenesteSvp.utledStartpunktForDiffBehandlingsgrunnlag(null, endringsresultatDiff);
 
         // Assert
         assertThat(startpunktType).isEqualTo(StartpunktType.UDEFINERT);
     }
 
     private EndringsresultatDiff opprettEndringsresultat(Long grunnlagId1, Long grunnlagId2) {
-        EndringsresultatDiff endringsresultat = EndringsresultatDiff.opprett();
-        DiffResult diffResult = mock(DiffResult.class);
+        var endringsresultat = EndringsresultatDiff.opprett();
+        var diffResult = mock(DiffResult.class);
         when(diffResult.isEmpty()).thenReturn(false); // Indikerer at det finnes diff
         endringsresultat.leggTilSporetEndring(EndringsresultatDiff.medDiff(Object.class, grunnlagId1, grunnlagId2), () -> diffResult);
         return endringsresultat;

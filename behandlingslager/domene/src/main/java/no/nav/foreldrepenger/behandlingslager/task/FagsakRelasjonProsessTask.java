@@ -32,12 +32,12 @@ public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Long fagsakId = prosessTaskData.getFagsakId();
-        Optional<FagsakRelasjon> fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
+        var fagsakId = prosessTaskData.getFagsakId();
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
         // Låser i samme rekkefølge som andre tasks som kan finne på å gjøre noe med Fagsakrelasjon
-        Optional<FagsakLås> fagsak1Lås = fagsakRelasjon.map(FagsakRelasjon::getFagsakNrEn).map(fagsakLåsRepository::taLås);
-        Optional<FagsakLås> fagsak2Lås = fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(fagsakLåsRepository::taLås);
-        FagsakRelasjonLås reLås = fagsakRelasjon.map(fr -> fagsakRelasjonLåsRepository.taLås(fagsakId)).orElse(null);
+        var fagsak1Lås = fagsakRelasjon.map(FagsakRelasjon::getFagsakNrEn).map(fagsakLåsRepository::taLås);
+        var fagsak2Lås = fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(fagsakLåsRepository::taLås);
+        var reLås = fagsakRelasjon.map(fr -> fagsakRelasjonLåsRepository.taLås(fagsakId)).orElse(null);
         fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
 
         prosesser(prosessTaskData, fagsakRelasjon, reLås, fagsak1Lås, fagsak2Lås);

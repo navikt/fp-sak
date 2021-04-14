@@ -16,22 +16,22 @@ public class SkjæringstidspunktTjenesteImplTest {
 
     @Test
     public void skal_utlede_skjæringstidspunktet() {
-        LocalDate forventetResultat = LocalDate.of(2019, 7, 10);
+        var forventetResultat = LocalDate.of(2019, 7, 10);
 
-        SkjæringstidspunktTjenesteImpl tjeneste = new SkjæringstidspunktTjenesteImpl();
-        SvpGrunnlagEntitet.Builder svpGrunnlagEntitet = new SvpGrunnlagEntitet.Builder();
-        SvpTilretteleggingEntitet.Builder svp = new SvpTilretteleggingEntitet.Builder();
+        var tjeneste = new SkjæringstidspunktTjenesteImpl();
+        var svpGrunnlagEntitet = new SvpGrunnlagEntitet.Builder();
+        var svp = new SvpTilretteleggingEntitet.Builder();
         svp.medBehovForTilretteleggingFom(forventetResultat);
         svp.medDelvisTilrettelegging(forventetResultat, BigDecimal.valueOf(50));
         svp.medDelvisTilrettelegging(LocalDate.of(2019, 9, 17), BigDecimal.valueOf(30));
         svp.medHelTilrettelegging(LocalDate.of(2019, 11, 1));
         svp.medIngenTilrettelegging(LocalDate.of(2019, 11, 25));
 
-        SvpTilretteleggingEntitet tilretteleggingEntitet = svp.build();
+        var tilretteleggingEntitet = svp.build();
         svpGrunnlagEntitet.medOpprinneligeTilrettelegginger(List.of(tilretteleggingEntitet));
         svpGrunnlagEntitet.medBehandlingId(1337L);
 
-        LocalDate dag = tjeneste.utledBasertPåGrunnlag(svpGrunnlagEntitet.build());
+        var dag = tjeneste.utledBasertPåGrunnlag(svpGrunnlagEntitet.build());
 
         assertThat(dag).isEqualTo(forventetResultat);
     }

@@ -42,27 +42,26 @@ public class MapTilLønnsendring {
             }
             return lagLønnsendringForNyAndelFraAndelsreferanse(andel, periode, periodeForrigeGrunnlag,
                 fastsatteVerdier);
-        } else {
-            var andelIAktivt = finnKorrektAndelIPeriode(periode, andel.getAndelsnr());
-            var andelFraForrige = periodeForrigeGrunnlag.flatMap(
-                p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
-            return new Lønnsendring.Builder().medGammelInntektskategori(
-                andelFraForrige.map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori).orElse(null))
-                .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
-                .medGammelArbeidsinntekt(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
-                .medGammelArbeidsinntektPrÅr(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
-                .medGammelRefusjonPrÅr(
-                    andelFraForrige.flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
-                        .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
-                        .map(BigDecimal::intValue)
-                        .orElse(0))
-                .medNyArbeidsinntekt(fastsatteVerdier.getFastsattBeløp())
-                .medNyArbeidsinntektPrÅr(fastsatteVerdier.finnEllerUtregnFastsattBeløpPrÅr().intValue())
-                .medAktivitetStatus(andelIAktivt.getAktivitetStatus())
-                .medArbeidsforholdRef(andelIAktivt.getArbeidsforholdRef().orElse(null))
-                .medAktivitetStatus(andelIAktivt.getAktivitetStatus())
-                .build();
         }
+        var andelIAktivt = finnKorrektAndelIPeriode(periode, andel.getAndelsnr());
+        var andelFraForrige = periodeForrigeGrunnlag.flatMap(
+            p -> finnKorrektAndelIPeriodeHvisFinnes(p, andel.getAndelsnr()));
+        return new Lønnsendring.Builder().medGammelInntektskategori(
+            andelFraForrige.map(BeregningsgrunnlagPrStatusOgAndel::getInntektskategori).orElse(null))
+            .medNyInntektskategori(fastsatteVerdier.getInntektskategori())
+            .medGammelArbeidsinntekt(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
+            .medGammelArbeidsinntektPrÅr(andelFraForrige.map(MapTilLønnsendring::finnBeregnetPrMnd).orElse(null))
+            .medGammelRefusjonPrÅr(
+                andelFraForrige.flatMap(BeregningsgrunnlagPrStatusOgAndel::getBgAndelArbeidsforhold)
+                    .map(BGAndelArbeidsforhold::getRefusjonskravPrÅr)
+                    .map(BigDecimal::intValue)
+                    .orElse(0))
+            .medNyArbeidsinntekt(fastsatteVerdier.getFastsattBeløp())
+            .medNyArbeidsinntektPrÅr(fastsatteVerdier.finnEllerUtregnFastsattBeløpPrÅr().intValue())
+            .medAktivitetStatus(andelIAktivt.getAktivitetStatus())
+            .medArbeidsforholdRef(andelIAktivt.getArbeidsforholdRef().orElse(null))
+            .medAktivitetStatus(andelIAktivt.getAktivitetStatus())
+            .build();
     }
 
     private static Lønnsendring lagLønnsendringForNyAndelFraAndelsreferanse(RedigerbarAndelDto andel,

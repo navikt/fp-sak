@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -75,16 +74,16 @@ public class AksjonspunktTjenesteTest {
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling.getId());
 
         // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(behandling.getId());
+        var oppdatertBehandling = behandlingRepository.hentBehandling(behandling.getId());
         Assertions.assertThat(oppdatertBehandling.getAksjonspunkter()).first().matches(a -> a.erUtført());
 
     }
 
     @Test
     public void skal_håndtere_aksjonspunkt_for_omsorgsvilkåret() {
-        AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        var behandling = scenario.lagre(repositoryProvider);
+        var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
@@ -102,12 +101,12 @@ public class AksjonspunktTjenesteTest {
     public void skal_sette_ansvarlig_saksbehandler() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
-        AksjonspunktTjeneste aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
-        AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandling behandlingSpy = spy(behandling);
+        var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingSpy = spy(behandling);
 
-        BekreftTerminbekreftelseAksjonspunktDto dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
+        var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
         aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
@@ -120,12 +119,12 @@ public class AksjonspunktTjenesteTest {
     public void skal_ikke_sette_ansvarlig_saksbehandler_hvis_bekreftet_aksjonspunkt_er_fatter_vedtak() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
-        AksjonspunktTjeneste aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
-        AbstractTestScenario<?> scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Behandling behandlingSpy = spy(behandling);
+        var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var behandling = scenario.lagre(repositoryProvider);
+        var behandlingSpy = spy(behandling);
 
-        FatterVedtakAksjonspunktDto dto = new FatterVedtakAksjonspunktDto(BEGRUNNELSE, Collections.emptyList());
+        var dto = new FatterVedtakAksjonspunktDto(BEGRUNNELSE, Collections.emptyList());
 
         // Act
         aksjonspunktTjenesteImpl.setAnsvarligSaksbehandler(singletonList(dto), behandlingSpy);
@@ -137,9 +136,9 @@ public class AksjonspunktTjenesteTest {
     @Test
     public void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
         // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
+        var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
                 AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
@@ -147,26 +146,26 @@ public class AksjonspunktTjenesteTest {
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
 
         // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
-        Aksjonspunkt aksjonspunkt = oppdatertBehandling.getAksjonspunkter().iterator().next();
+        var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
+        var aksjonspunkt = oppdatertBehandling.getAksjonspunkter().iterator().next();
         assertThat(aksjonspunkt.isToTrinnsBehandling()).isTrue();
     }
 
     @Test
     public void skal_hoppe_til_uttak_ved_avslag_vilkår() {
         // Arrange
-        Behandling førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
-        Behandling revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
+        var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
                 AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
-        OmsorgsvilkårAksjonspunktDto dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
+        var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
                 Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering.getId());
 
         // Assert
-        Behandling oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
+        var oppdatertBehandling = behandlingRepository.hentBehandling(revurdering.getId());
         assertThat(oppdatertBehandling.getBehandlingStegTilstand().get().getBehandlingSteg())
                 .isEqualTo(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();

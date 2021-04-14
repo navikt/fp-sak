@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
@@ -43,7 +42,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterTilHøyreForStartpunkt(BehandlingReferanse ref, StartpunktType startpunktType) {
-        List<AksjonspunktResultat> aksjonspunktResultat = utledAksjonspunkter(ref);
+        var aksjonspunktResultat = utledAksjonspunkter(ref);
         return filtrerAksjonspunkterTilVenstreForStartpunkt(ref, aksjonspunktResultat, startpunktType);
     }
 
@@ -71,7 +70,7 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     private boolean skalBeholdeAksjonspunkt(BehandlingReferanse ref, BehandlingStegType steg, AksjonspunktDefinisjon apDef) {
-        boolean skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
+        var skalBeholde = behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(
                 ref.getFagsakYtelseType(), ref.getBehandlingType(), steg, apDef);
         if (!skalBeholde) {
             LOG.debug("Fjerner aksjonspunkt {} da det skal løses før startsteg {}.",
@@ -81,9 +80,9 @@ public abstract class KontrollerFaktaTjenesteInngangsVilkår implements Kontroll
     }
 
     private List<AksjonspunktResultat> utled(BehandlingReferanse ref) {
-        final List<AksjonspunktUtleder> aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
+        final var aksjonspunktUtleders = utlederTjeneste.utledUtledereFor(ref);
         List<AksjonspunktResultat> aksjonspunktResultater = new ArrayList<>();
-        for (AksjonspunktUtleder aksjonspunktUtleder : aksjonspunktUtleders) {
+        for (var aksjonspunktUtleder : aksjonspunktUtleders) {
             aksjonspunktResultater.addAll(aksjonspunktUtleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref)));
         }
         return aksjonspunktResultater.stream()

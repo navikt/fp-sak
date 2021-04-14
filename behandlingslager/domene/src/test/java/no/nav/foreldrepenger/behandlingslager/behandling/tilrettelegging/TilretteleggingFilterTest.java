@@ -24,7 +24,7 @@ public class TilretteleggingFilterTest {
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(tilrettelegginger);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(null);
 
-        TilretteleggingFilter tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
+        var tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
 
         // Act
         var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
@@ -51,7 +51,7 @@ public class TilretteleggingFilterTest {
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);
 
-        TilretteleggingFilter tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
+        var tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
 
         // Act
         var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
@@ -86,7 +86,7 @@ public class TilretteleggingFilterTest {
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);
 
-        TilretteleggingFilter tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
+        var tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
 
         // Act
         var aktuelleTilretteleggingerFiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerFiltrert();
@@ -125,7 +125,7 @@ public class TilretteleggingFilterTest {
         when(grunnlag.getOpprinneligeTilrettelegginger()).thenReturn(opprinnelig);
         when(grunnlag.getOverstyrteTilrettelegginger()).thenReturn(overstyrt);
 
-        TilretteleggingFilter tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
+        var tilretteleggingFilter = new TilretteleggingFilter(grunnlag);
 
         // Act
         var datoOpt = tilretteleggingFilter.getFørsteTilretteleggingsbehovdatoFiltrert();

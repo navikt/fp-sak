@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -50,7 +49,7 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        Behandling behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return INGEN_AKSJONSPUNKTER;
         }
@@ -73,14 +72,14 @@ public class AksjonspunktUtlederForVurderArbeidsforhold implements AksjonspunktU
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentArbeidsforholdTilVurdering(AksjonspunktUtlederInput param,
             InntektArbeidYtelseGrunnlag iayGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> vurder;
-        boolean taStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(param.getRef());
+        var taStillingTilEndringerIArbeidsforhold = skalTaStillingTilEndringerIArbeidsforhold(param.getRef());
         var sakInntektsmeldinger = taStillingTilEndringerIArbeidsforhold ? iayTjeneste.hentInntektsmeldinger(param.getSaksnummer()) : null;
         vurder = vurderArbeidsforholdTjeneste.vurder(param.getRef(), iayGrunnlag, sakInntektsmeldinger, taStillingTilEndringerIArbeidsforhold);
         return vurder;
     }
 
     private boolean skalTaStillingTilEndringerIArbeidsforhold(BehandlingReferanse behandlingReferanse) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
         return !Objects.equals(behandlingReferanse.getBehandlingType(), BehandlingType.FØRSTEGANGSSØKNAD) || behandling.harSattStartpunkt();
     }
 }

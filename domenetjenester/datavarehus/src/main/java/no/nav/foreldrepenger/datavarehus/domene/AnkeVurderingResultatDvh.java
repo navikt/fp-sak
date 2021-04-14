@@ -158,7 +158,7 @@ public class AnkeVurderingResultatDvh extends DvhBaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        AnkeVurderingResultatDvh that = (AnkeVurderingResultatDvh) o;
+        var that = (AnkeVurderingResultatDvh) o;
         return gjelderVedtak == that.gjelderVedtak &&
             erMerknaderMottatt == that.erMerknaderMottatt &&
             erAnkerIkkePart == that.erAnkerIkkePart &&

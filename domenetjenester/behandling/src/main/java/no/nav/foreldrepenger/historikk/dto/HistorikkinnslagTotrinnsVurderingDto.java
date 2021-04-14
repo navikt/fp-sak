@@ -52,7 +52,7 @@ public class HistorikkinnslagTotrinnsVurderingDto {
     }
 
     private static HistorikkinnslagTotrinnsVurderingDto mapFra(HistorikkinnslagTotrinnsvurdering totrinnsvurdering) {
-        HistorikkinnslagTotrinnsVurderingDto dto = new HistorikkinnslagTotrinnsVurderingDto();
+        var dto = new HistorikkinnslagTotrinnsVurderingDto();
         dto.setAksjonspunktKode(totrinnsvurdering.getAksjonspunktDefinisjon().getKode());
         dto.setBegrunnelse(totrinnsvurdering.getBegrunnelse());
         dto.setGodkjent(totrinnsvurdering.erGodkjent());

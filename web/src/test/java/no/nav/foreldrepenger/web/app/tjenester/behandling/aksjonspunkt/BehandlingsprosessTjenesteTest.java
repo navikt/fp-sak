@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus.Status;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -37,8 +35,8 @@ public class BehandlingsprosessTjenesteTest {
     @Test
     public void skal_returnere_gruppe_når_ikke_er_kjørt() throws Exception {
 
-        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
-        Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
+        var sut = initSut(GRUPPE_1, taskData);
+        var status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
         assertThat(status.get().getStatus()).isEqualTo(Status.PENDING);
 
         status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
@@ -49,8 +47,8 @@ public class BehandlingsprosessTjenesteTest {
     public void skal_ikke_returnere_gruppe_når_er_kjørt() throws Exception {
         markerFerdig(taskData);
 
-        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
-        Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
+        var sut = initSut(GRUPPE_1, taskData);
+        var status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
         assertThat(status).isEmpty();
 
         status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
@@ -62,8 +60,8 @@ public class BehandlingsprosessTjenesteTest {
     public void skal_kaste_exception_når_task_har_feilet_null_gruppe() throws Exception {
         markerFeilet(taskData);
 
-        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
-        Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
+        var sut = initSut(GRUPPE_1, taskData);
+        var status = sut.sjekkProsessTaskPågårForBehandling(behandling, null);
 
         assertThat(status.get().getStatus()).isEqualTo(Status.HALTED);
     }
@@ -72,9 +70,9 @@ public class BehandlingsprosessTjenesteTest {
     public void skal_kaste_exception_når_task_har_feilet_angitt_gruppe() throws Exception {
         markerFeilet(taskData);
 
-        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
+        var sut = initSut(GRUPPE_1, taskData);
 
-        Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
+        var status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
 
         assertThat(status.get().getStatus()).isEqualTo(Status.HALTED);
     }
@@ -83,8 +81,8 @@ public class BehandlingsprosessTjenesteTest {
     public void skal_kaste_exception_når_task_neste_kjøring_er_utsatt() throws Exception {
         taskData.medNesteKjøringEtter(LocalDateTime.now().plusHours(1));
 
-        BehandlingsprosessTjeneste sut = initSut(GRUPPE_1, taskData);
-        Optional<AsyncPollingStatus> status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
+        var sut = initSut(GRUPPE_1, taskData);
+        var status = sut.sjekkProsessTaskPågårForBehandling(behandling, GRUPPE_1);
 
         assertThat(status.get().getStatus()).isEqualTo(Status.DELAYED);
 
@@ -104,13 +102,13 @@ public class BehandlingsprosessTjenesteTest {
     }
 
     private static BehandlingsprosessTjeneste initSut(String gruppe, ProsessTaskData taskData) {
-        ProsesseringAsynkTjeneste tjeneste = Mockito.mock(ProsesseringAsynkTjeneste.class);
+        var tjeneste = Mockito.mock(ProsesseringAsynkTjeneste.class);
 
         Map<String, ProsessTaskData> data = new HashMap<>();
         data.put(gruppe, taskData);
 
         when(tjeneste.sjekkProsessTaskPågårForBehandling(Mockito.any(), Mockito.any())).thenReturn(data);
-        BehandlingsprosessTjeneste sut = new BehandlingsprosessTjeneste(tjeneste);
+        var sut = new BehandlingsprosessTjeneste(tjeneste);
         return sut;
     }
 }

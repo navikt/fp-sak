@@ -74,8 +74,8 @@ public class KobleSakerTjeneste {
      * Problematikk 3: Søknadsfeil - hvem som er annenpart og oppgitt fødsels/termindato
      */
     public Optional<Fagsak> finnRelatertFagsakDersomRelevant(Behandling behandling) {
-        Fagsak fagsak = behandling.getFagsak();
-        FagsakRelasjon fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).orElse(null);
+        var fagsak = behandling.getFagsak();
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak).orElse(null);
         // Allerede koblet
         if (fagsakRelasjon != null && fagsakRelasjon.getFagsakNrTo().isPresent()) {
             LOG.warn("FP-330623 Fagsak allerede koblet, saksnummer: {}", fagsak.getSaksnummer());
@@ -83,18 +83,18 @@ public class KobleSakerTjeneste {
         }
 
         // Mangler familiehendelseinformasjon og mulighet for å finne samme barnekull.
-        FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
+        var grunnlag = familieHendelseTjeneste.finnAggregat(behandling.getId()).orElse(null);
         if (grunnlag == null || FamilieHendelseType.UDEFINERT.equals(grunnlag.getGjeldendeVersjon().getType())) {
             LOG.warn("FP-388501 OBS varsle produkteier: Familiehendelse uten dato, saksnummer: {}", fagsak.getSaksnummer());
             return Optional.empty();
         }
 
         // Finner saker å koble med ut fra oppgitt annen part og fra FREG-data om registrerte foreldre
-        AktørId annenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
+        var annenPart = personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandling.getId())
             .map(OppgittAnnenPartEntitet::getAktørId).orElse(null);
-        List<LocalDateInterval> fødselsIntervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        Set<AktørId> andreForeldreForBarn = finnAndreRegistrerteForeldreForBarnekull(fagsak.getAktørId(), fødselsIntervaller);
-        List<Fagsak> aktuelleFagsaker = finnMuligeFagsakerForKobling(behandling, grunnlag, annenPart, andreForeldreForBarn);
+        var fødselsIntervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
+        var andreForeldreForBarn = finnAndreRegistrerteForeldreForBarnekull(fagsak.getAktørId(), fødselsIntervaller);
+        var aktuelleFagsaker = finnMuligeFagsakerForKobling(behandling, grunnlag, annenPart, andreForeldreForBarn);
 
         // Håndter utfall
         if (aktuelleFagsaker.isEmpty()) {
@@ -103,8 +103,9 @@ public class KobleSakerTjeneste {
                     behandling.getFagsak().getRelasjonsRolleType().getKode());
             }
             return Optional.empty();
-        } else if (aktuelleFagsaker.size() > 1) {
-            String kandidater = aktuelleFagsaker.stream().map(f -> f.getSaksnummer().getVerdi()).collect(Collectors.joining(", "));
+        }
+        if (aktuelleFagsaker.size() > 1) {
+            var kandidater = aktuelleFagsaker.stream().map(f -> f.getSaksnummer().getVerdi()).collect(Collectors.joining(", "));
             LOG.warn("FP-059216 OBS varsle produkteier: Flere mulige fagsaker å koble til for saksnummer: {} kandidater: {}", fagsak.getSaksnummer(), kandidater);
             return Optional.empty();
         }
@@ -121,11 +122,11 @@ public class KobleSakerTjeneste {
     }
 
     public void kobleRelatertFagsakHvisDetFinnesEn(Behandling behandling) {
-        final Optional<FagsakRelasjon> eksisterendeRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
+        final var eksisterendeRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
         if (eksisterendeRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).isPresent()) {
             return;
         }
-        final Optional<Fagsak> potensiellFagsak = finnRelatertFagsakDersomRelevant(behandling);
+        final var potensiellFagsak = finnRelatertFagsakDersomRelevant(behandling);
         potensiellFagsak.ifPresent(fagsak -> fagsakRelasjonTjeneste.kobleFagsaker(fagsak, behandling.getFagsak(), behandling));
     }
 
@@ -146,14 +147,14 @@ public class KobleSakerTjeneste {
         if (annenPart != null && !andreForeldreForBarn.contains(annenPart)) {
             aktuelleFagsaker.addAll(fagsakRepository.hentForBruker(annenPart));
         }
-        Set<Long> fagsakerAndreForeldre = aktuelleFagsaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
+        var fagsakerAndreForeldre = aktuelleFagsaker.stream().map(Fagsak::getId).collect(Collectors.toSet());
         fagsakerSomRefererer.stream()
             .filter(fid -> !fagsakerAndreForeldre.contains(fid))
             .map(fagsakRepository::finnEksaktFagsak)
             .forEach(aktuelleFagsaker::add);
         // Finner ukoblete saker, siste behandling og filtrerer på innkommende sak sitt FH-grunnlag
         var ytelseType = behandling.getFagsakYtelseType();
-        List<Behandling> filtrertGrunnlag = aktuelleFagsaker.stream()
+        var filtrertGrunnlag = aktuelleFagsaker.stream()
             .filter(f -> ytelseType.equals(f.getYtelseType()))
             .filter(f -> !behandling.getAktørId().equals(f.getAktørId()))
             .filter(f -> fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(f).flatMap(FagsakRelasjon::getFagsakNrTo).isEmpty())

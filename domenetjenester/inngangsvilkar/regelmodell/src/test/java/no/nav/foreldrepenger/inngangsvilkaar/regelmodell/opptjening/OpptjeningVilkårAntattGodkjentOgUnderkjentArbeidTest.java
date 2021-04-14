@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,17 +21,17 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     @Test
     public void skal_beregne_underkjente_perioder_med_arbeid_ved_sammenligning_med_inntekt_grunnlag() throws Exception {
-        LocalDate dt1 = LocalDate.of(2017, 9, 02);
-        LocalDate dt2 = LocalDate.of(2017, 9, 07);
-        LocalDate dt3 = LocalDate.of(2017, 10, 10);
-        LocalDate dt4 = LocalDate.of(2017, 10, 15);
+        var dt1 = LocalDate.of(2017, 9, 02);
+        var dt2 = LocalDate.of(2017, 9, 07);
+        var dt3 = LocalDate.of(2017, 10, 10);
+        var dt4 = LocalDate.of(2017, 10, 15);
 
-        LocalDate o1 = LocalDate.of(2017, 9, 03);
-        LocalDate o2 = LocalDate.of(2017, 9, 11);
+        var o1 = LocalDate.of(2017, 9, 03);
+        var o2 = LocalDate.of(2017, 9, 11);
 
         // unngå antatt godkjent
-        LocalDate behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
 
         // arbeid aktivitet
         grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
@@ -43,7 +42,7 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L);
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L);
 
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        var output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
         assertThat(output.getAntattGodkjentePerioder()).isEmpty();
@@ -56,27 +55,27 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     @Test
     public void skal_beregne_antatt_godkjent_arbeid() throws Exception {
-        LocalDate dt1 = LocalDate.of(2017, 11, 02);
-        LocalDate dt2 = LocalDate.of(2017, 11, 07);
-        LocalDate dt3 = LocalDate.of(2017, 12, 10);
-        LocalDate dt4 = LocalDate.of(2017, 12, 15);
+        var dt1 = LocalDate.of(2017, 11, 02);
+        var dt2 = LocalDate.of(2017, 11, 07);
+        var dt3 = LocalDate.of(2017, 12, 10);
+        var dt4 = LocalDate.of(2017, 12, 15);
 
         // matcher antatt godkjent kun for dt3-dt4
-        LocalDate behandlingstidspunkt = LocalDate.of(2018, 01, 01);
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
+        var behandlingstidspunkt = LocalDate.of(2018, 01, 01);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
 
         // arbeid aktivitet
         grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), bigCorp);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
-        LocalDate førsteArbeidsdagSmallCorp = dt3.withDayOfMonth(1);
-        LocalDate sisteArbeidsdagSmallCorp = dt4;
+        var førsteArbeidsdagSmallCorp = dt3.withDayOfMonth(1);
+        var sisteArbeidsdagSmallCorp = dt4;
         grunnlag.leggTil(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp);
 
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L);
 
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        var output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
         assertThat(output.getUnderkjentePerioder()).isEmpty();
@@ -91,29 +90,29 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
     @Test
     public void skal_beregne_antatt_godkjent_over_underkjent_arbeid_der_de_overlapper() throws Exception {
-        LocalDate dt1 = LocalDate.of(2017, 10, 02);
-        LocalDate dt2 = LocalDate.of(2017, 10, 07);
-        LocalDate dt3 = LocalDate.of(2017, 12, 10);
-        LocalDate dt4 = LocalDate.of(2017, 12, 15);
+        var dt1 = LocalDate.of(2017, 10, 02);
+        var dt2 = LocalDate.of(2017, 10, 07);
+        var dt3 = LocalDate.of(2017, 12, 10);
+        var dt4 = LocalDate.of(2017, 12, 15);
 
         // matcher antatt godkjent kun for dt3-dt4
-        LocalDate behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
 
         // arbeid aktivitet
         grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
         grunnlag.leggTil(new LocalDateInterval(dt3, dt4), bigCorp);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
-        LocalDate førsteArbeidsdagSmallCorp = dt2;
-        LocalDate sisteArbeidsdagSmallCorp = dt4;
+        var førsteArbeidsdagSmallCorp = dt2;
+        var sisteArbeidsdagSmallCorp = dt4;
         grunnlag.leggTil(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp);
 
         // Act
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
+        var output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
-        LocalDate førsteAntattGodkjenteDag = behandlingstidspunkt.plusMonths(1).minus(Period.ofMonths(2)).withDayOfMonth(1);
+        var førsteAntattGodkjenteDag = behandlingstidspunkt.plusMonths(1).minus(Period.ofMonths(2)).withDayOfMonth(1);
 
         // Assert
 
@@ -130,8 +129,8 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
                         new LocalDateTimeline<>(førsteAntattGodkjenteDag, dt4, Boolean.TRUE));
 
         // sjekk at antatt og underkjent arbeid aldri overlapper
-        for (Entry<Aktivitet, LocalDateTimeline<Boolean>> entry : output.getUnderkjentePerioder().entrySet()) {
-            LocalDateTimeline<Boolean> other = output.getAntattGodkjentePerioder().get(entry.getKey());
+        for (var entry : output.getUnderkjentePerioder().entrySet()) {
+            var other = output.getAntattGodkjentePerioder().get(entry.getKey());
             assertThat(entry.getValue().intersects(other)).as("Skal ikke intersecte for " + entry.getKey()).isFalse();
         }
 

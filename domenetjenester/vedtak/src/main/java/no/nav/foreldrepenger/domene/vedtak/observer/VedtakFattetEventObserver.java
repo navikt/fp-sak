@@ -36,14 +36,14 @@ public class VedtakFattetEventObserver {
 
     private boolean erBehandlingAvRettType(Behandling behandling, BehandlingVedtak vedtak) {
         if (behandling != null && behandling.erYtelseBehandling()) {
-            final VedtakResultatType resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.AVSLAG;
+            final var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.AVSLAG;
             return Set.of(VedtakResultatType.INNVILGET, VedtakResultatType.DELVIS_INNVILGET, VedtakResultatType.OPPHØR).contains(resultatType);
         }
         return false;
     }
 
     private void opprettTaskForPubliseringAvVedtak(Long behandlingId) {
-        final ProsessTaskData taskData = new ProsessTaskData(PubliserVedtattYtelseHendelseTask.TASKTYPE);
+        final var taskData = new ProsessTaskData(PubliserVedtattYtelseHendelseTask.TASKTYPE);
         taskData.setProperty(PubliserVedtattYtelseHendelseTask.KEY, behandlingId.toString());
         taskRepository.lagre(taskData);
     }

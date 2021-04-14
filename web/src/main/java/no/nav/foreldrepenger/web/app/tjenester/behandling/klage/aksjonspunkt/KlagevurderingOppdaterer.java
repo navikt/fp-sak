@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -53,9 +52,9 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
     @Override
     public OppdateringResultat oppdater(KlageVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
-        boolean totrinn = håndterToTrinnsBehandling(behandling, aksjonspunktDefinisjon, dto.getKlageVurdering());
+        var behandling = param.getBehandling();
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var totrinn = håndterToTrinnsBehandling(behandling, aksjonspunktDefinisjon, dto.getKlageVurdering());
 
         håndterKlageVurdering(dto, behandling, aksjonspunktDefinisjon);
 
@@ -66,7 +65,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private void håndterKlageVurdering(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        KlageVurdertAv vurdertAv = erNfpAksjonspunkt(aksjonspunktDefinisjon) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
+        var vurdertAv = erNfpAksjonspunkt(aksjonspunktDefinisjon) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv)
             .medKlageVurdering(dto.getKlageVurdering())
             .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
@@ -89,17 +88,17 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
+        var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
         if (aksjonspunkt.isToTrinnsBehandling()) {
             aksjonspunktRepository.fjernToTrinnsBehandlingKreves(aksjonspunkt);
         }
     }
 
     private void opprettHistorikkinnslag(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurderingResultatAksjonspunktDto dto) {
-        KlageVurdering klageVurdering = dto.getKlageVurdering();
-        KlageVurderingOmgjør klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null ? dto.getKlageVurderingOmgjoer() : null;
-        boolean erNfpAksjonspunkt = erNfpAksjonspunkt(aksjonspunktDefinisjon);
-        HistorikkinnslagType historikkinnslagType = erNfpAksjonspunkt ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
+        var klageVurdering = dto.getKlageVurdering();
+        var klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null ? dto.getKlageVurderingOmgjoer() : null;
+        var erNfpAksjonspunkt = erNfpAksjonspunkt(aksjonspunktDefinisjon);
+        var historikkinnslagType = erNfpAksjonspunkt ? HistorikkinnslagType.KLAGE_BEH_NFP : HistorikkinnslagType.KLAGE_BEH_NK;
         BasisKodeverdi årsak = null;
         if (dto.getKlageMedholdArsak() != null) {
             årsak = dto.getKlageMedholdArsak();
@@ -107,8 +106,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
             årsak = dto.getKlageAvvistArsak();
         }
 
-        HistorikkResultatType resultat = konverterKlageVurderingTilResultatType(klageVurdering, erNfpAksjonspunkt, klageVurderingOmgjør);
-        HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder();
+        var resultat = konverterKlageVurderingTilResultatType(klageVurdering, erNfpAksjonspunkt, klageVurderingOmgjør);
+        var historiebygger = new HistorikkInnslagTekstBuilder();
         if (erNfpAksjonspunkt) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_RESULTAT_NFP, null, resultat.getNavn());
         } else {
@@ -121,7 +120,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         historiebygger.medBegrunnelse(dto.getBegrunnelse());
         historiebygger.medSkjermlenke(skjermlenkeType);
 
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setType(historikkinnslagType);
         innslag.setBehandlingId(behandling.getId());
@@ -163,7 +162,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        KlageVurdering klageVurdering = dto.getKlageVurdering();
+        var klageVurdering = dto.getKlageVurdering();
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
             behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),behandlendeEnhetTjeneste.getKlageInstans(),
                 "", //Det er ikke behov for en begrunnelse i dette tilfellet.

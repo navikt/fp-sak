@@ -69,10 +69,11 @@ public class Aktivitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !obj.getClass().equals(this.getClass())) {
+        }
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
             return false;
         }
-        Aktivitet other = (Aktivitet) obj;
+        var other = (Aktivitet) obj;
 
         return Objects.equals(aktivitetType, other.aktivitetType)
                 && Objects.equals(aktivitetReferanse, other.aktivitetReferanse)

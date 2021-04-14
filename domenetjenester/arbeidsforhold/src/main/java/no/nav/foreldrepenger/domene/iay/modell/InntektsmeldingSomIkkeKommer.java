@@ -35,7 +35,7 @@ public class InntektsmeldingSomIkkeKommer {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        InntektsmeldingSomIkkeKommer that = (InntektsmeldingSomIkkeKommer) o;
+        var that = (InntektsmeldingSomIkkeKommer) o;
         return Objects.equals(arbeidsgiver, that.arbeidsgiver)
                 && Objects.equals(internRef, that.internRef);
     }

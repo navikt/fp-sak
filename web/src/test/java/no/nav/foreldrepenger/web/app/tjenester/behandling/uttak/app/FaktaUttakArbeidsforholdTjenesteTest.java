@@ -35,18 +35,18 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
 
     @Test
     public void skalReturnereArbeidsforhold() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
-        String virksomhetOrgnr1 = "123";
-        String virksomhetOrgnr2 = "456";
-        Virksomhet virksomhet1 = lagVirksomhet(virksomhetOrgnr1, "navn");
-        Virksomhet virksomhet2 = lagVirksomhet(virksomhetOrgnr2, "navn2");
+        var virksomhetOrgnr1 = "123";
+        var virksomhetOrgnr2 = "456";
+        var virksomhet1 = lagVirksomhet(virksomhetOrgnr1, "navn");
+        var virksomhet2 = lagVirksomhet(virksomhetOrgnr2, "navn2");
 
-        AktørId aktørId = AktørId.dummy();
-        Arbeidsgiver virksomhet123 = Arbeidsgiver.virksomhet(virksomhetOrgnr1);
-        Arbeidsgiver virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
-        Arbeidsgiver person = Arbeidsgiver.person(aktørId);
+        var aktørId = AktørId.dummy();
+        var virksomhet123 = Arbeidsgiver.virksomhet(virksomhetOrgnr1);
+        var virksomhet456 = Arbeidsgiver.virksomhet(virksomhetOrgnr2);
+        var person = Arbeidsgiver.person(aktørId);
 
         var input = new UttakInput(lagReferanse(behandling), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(
@@ -58,7 +58,7 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
                     new BeregningsgrunnlagStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
                 ));
 
-        List<ArbeidsforholdDto> arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
+        var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).hasSize(5);
         var dtoForVirksomhet123 = finnDtoFor(arbeidsforhold, UttakArbeidType.ORDINÆRT_ARBEID, virksomhet123);
@@ -92,13 +92,13 @@ public class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest
 
     @Test
     public void skalHåndtereAnnenStatusEnnArbeidstakerFrilansOgSelvstendigNæringsdrivende() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagre(new BehandlingRepositoryProvider(getEntityManager()));
 
 
         var input = new UttakInput(lagReferanse(behandling), null, null)
                 .medBeregningsgrunnlagStatuser(Set.of(new BeregningsgrunnlagStatus(AktivitetStatus.DAGPENGER)));
-        List<ArbeidsforholdDto> arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
+        var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).isEmpty();
     }

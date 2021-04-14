@@ -34,7 +34,7 @@ public class FamilierelasjonVL {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FamilierelasjonVL that = (FamilierelasjonVL) o;
+        var that = (FamilierelasjonVL) o;
         return Objects.equals(personIdent, that.personIdent) && Objects.equals(relasjonsrolle, that.relasjonsrolle);
     }
 

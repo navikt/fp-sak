@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -65,24 +63,24 @@ public class DokumentmottakerFelles {
     }
 
     void leggTilBehandlingsårsak(Behandling behandling, BehandlingÅrsakType behandlingÅrsak) {
-        BehandlingÅrsak.Builder builder = BehandlingÅrsak.builder(behandlingÅrsak);
+        var builder = BehandlingÅrsak.builder(behandlingÅrsak);
         behandling.getOriginalBehandlingId().ifPresent(builder::medOriginalBehandlingId);
         builder.buildFor(behandling);
 
-        BehandlingLås behandlingLås = behandlingRepository.taSkriveLås(behandling);
+        var behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
     }
 
     void opprettTaskForÅStarteBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
     public void opprettTaskForÅVurdereDokument(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) {
-        String behandlendeEnhetsId = hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, behandling);
-        ProsessTaskData prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        var behandlendeEnhetsId = hentBehandlendeEnhetTilVurderDokumentOppgave(mottattDokument, fagsak, behandling);
+        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, mottattDokument.getDokumentType().getKode());
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
@@ -107,7 +105,7 @@ public class DokumentmottakerFelles {
     }
 
     void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
-        DokumentTypeId dokType = mottattDokument.getDokumentType();
+        var dokType = mottattDokument.getDokumentType();
         if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
             DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
             historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), false,
@@ -144,7 +142,7 @@ public class DokumentmottakerFelles {
     }
 
     final Behandling opprettRevurdering(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
+        var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
         opprettHistorikk(revurdering, mottattDokument);
         opprettTaskForÅStarteBehandling(revurdering);
@@ -152,7 +150,7 @@ public class DokumentmottakerFelles {
     }
 
     final Behandling opprettKøetRevurdering(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
+        var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         mottatteDokumentTjeneste.persisterDokumentinnhold(revurdering, mottattDokument, Optional.empty());
         opprettHistorikk(revurdering, mottattDokument);
         leggNyBehandlingPåKøOgOpprettHistorikkinnslag(revurdering);
@@ -160,7 +158,7 @@ public class DokumentmottakerFelles {
     }
 
     final Behandling opprettManuellRevurdering(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, boolean opprettSomKøet) {
-        Behandling revurdering = behandlingsoppretter.opprettManuellRevurdering(fagsak, behandlingÅrsakType);
+        var revurdering = behandlingsoppretter.opprettManuellRevurdering(fagsak, behandlingÅrsakType);
         if (opprettSomKøet) {
             leggNyBehandlingPåKøOgOpprettHistorikkinnslag(revurdering);
         } else {
@@ -170,17 +168,17 @@ public class DokumentmottakerFelles {
     }
 
     Behandling oppdatereViaHenleggelse(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
-        Behandling nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
+        var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
         opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, mottattDokument);
-        Optional<LocalDate> søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
+        var søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         return nyBehandling;
     }
 
     Behandling oppdatereViaHenleggelseEnkø(Behandling behandling, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsak) {
-        Behandling nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
+        var nyBehandling = behandlingsoppretter.oppdaterBehandlingViaHenleggelse(behandling, behandlingÅrsak);
         opprettHistorikkinnslagForAutomatiskHenlegelsePgaNySøknad(behandling, mottattDokument);
-        Optional<LocalDate> søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
+        var søknadsdato = revurderingRepository.finnSøknadsdatoFraHenlagtBehandling(nyBehandling);
         mottatteDokumentTjeneste.persisterDokumentinnhold(nyBehandling, mottattDokument, søknadsdato);
         behandlingsoppretter.settSomKøet(nyBehandling);
         return nyBehandling;
@@ -198,7 +196,7 @@ public class DokumentmottakerFelles {
     }
 
     public Behandling opprettNyFørstegangFraBehandlingMedSøknad(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Behandling avsluttetBehandling, MottattDokument mottattDokument) {
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
+        var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingFraTidligereSøknad(fagsak, behandlingÅrsakType, avsluttetBehandling);
         behandlingsoppretter.opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(nyBehandling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(nyBehandling, mottattDokument.getJournalpostId(), false,
             mottattDokument.getElektroniskRegistrert(), DokumentTypeId.INNTEKTSMELDING.equals(mottattDokument.getDokumentType()));
@@ -208,22 +206,22 @@ public class DokumentmottakerFelles {
 
     void opprettInitiellFørstegangsbehandling(Fagsak fagsak, MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType) { //#S1
         // Opprett ny førstegangsbehandling
-        Behandling behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
+        var behandling = behandlingsoppretter.opprettFørstegangsbehandling(fagsak, behandlingÅrsakType, Optional.empty());
         persisterDokumentinnhold(behandling, mottattDokument);
         opprettTaskForÅStarteBehandling(behandling);
         opprettHistorikk(behandling, mottattDokument);
     }
 
     public void opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
-        Behandling nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
+        var forrigeBehandling = finnEvtForrigeBehandling(mottattDokument, fagsak);
+        var nyBehandling = behandlingsoppretter.opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(fagsak, behandlingÅrsakType, forrigeBehandling, !mottattDokument.getDokumentType().erSøknadType());
         persisterDokumentinnhold(nyBehandling, mottattDokument);
         opprettTaskForÅStarteBehandling(nyBehandling);
         opprettHistorikk(nyBehandling, mottattDokument);
     }
 
     private Behandling finnEvtForrigeBehandling(MottattDokument mottattDokument, Fagsak fagsak) {
-        Behandling behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElse(null);
         if (behandling == null && !mottattDokument.getDokumentType().erSøknadType())
             throw new IllegalStateException("Fant ingen behandling som passet for saksnummer: " + fagsak.getSaksnummer());
         return behandling;

@@ -104,7 +104,8 @@ class JusterFordelingTjeneste {
     private LocalDate flyttFraHelgTilMandag(LocalDate dato) {
         if (erLørdag(dato)) {
             return dato.plusDays(2);
-        } else if (erSøndag(dato)) {
+        }
+        if (erSøndag(dato)) {
             return dato.plusDays(1);
         }
         return dato;
@@ -152,7 +153,8 @@ class JusterFordelingTjeneste {
     private LocalDate flyttFraHelgTilFredag(LocalDate dato) {
         if (erLørdag(dato)) {
             return dato.minusDays(1);
-        } else if (erSøndag(dato)) {
+        }
+        if (erSøndag(dato)) {
             return dato.minusDays(2);
         }
         return dato;
@@ -270,9 +272,8 @@ class JusterFordelingTjeneste {
             .map(p -> {
                 if (p.getFom().isBefore(nyFamiliehendelse) && overlapper(p, startdato)) {
                     return kopier(p, startdato, p.getTom());
-                } else {
-                    return p;
                 }
+                return p;
             }).collect(Collectors.toList());
     }
 

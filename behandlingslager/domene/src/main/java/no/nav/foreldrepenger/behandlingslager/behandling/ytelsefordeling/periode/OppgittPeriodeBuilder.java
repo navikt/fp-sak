@@ -21,7 +21,7 @@ public class OppgittPeriodeBuilder {
     }
 
     public static OppgittPeriodeBuilder fraEksisterende(OppgittPeriodeEntitet oppgittPeriode) {
-        OppgittPeriodeBuilder oppgittPeriodeBuilder = new OppgittPeriodeBuilder()
+        var oppgittPeriodeBuilder = new OppgittPeriodeBuilder()
                 .medÅrsak(oppgittPeriode.getÅrsak())
                 .medPeriode(oppgittPeriode.getFom(), oppgittPeriode.getTom())
                 .medPeriodeType(oppgittPeriode.getPeriodeType())

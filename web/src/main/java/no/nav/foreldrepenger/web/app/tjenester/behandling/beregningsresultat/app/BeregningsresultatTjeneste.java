@@ -6,9 +6,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
@@ -39,17 +37,17 @@ public class BeregningsresultatTjeneste {
 
     public Optional<BeregningsresultatMedUttaksplanDto> lagBeregningsresultatMedUttaksplan(Behandling behandling) {
         var uttakResultat = foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling.getId());
-        Optional<BehandlingBeregningsresultatEntitet> beregningsresultatFPAggregatEntitet = beregningsresultatRepository
+        var beregningsresultatFPAggregatEntitet = beregningsresultatRepository
             .hentBeregningsresultatAggregat(behandling.getId());
         return beregningsresultatFPAggregatEntitet
             .map(bresAggregat -> beregningsresultatMedUttaksplanMapper.lagBeregningsresultatMedUttaksplan(behandling, bresAggregat, uttakResultat));
     }
 
     public Optional<BeregningsresultatEngangsstønadDto> lagBeregningsresultatEnkel(Long behandlingId) {
-        Optional<LegacyESBeregning> sisteBeregningOpt = beregningRepository.getSisteBeregning(behandlingId);
+        var sisteBeregningOpt = beregningRepository.getSisteBeregning(behandlingId);
         if (sisteBeregningOpt.isPresent()) {
-            BeregningsresultatEngangsstønadDto dto = new BeregningsresultatEngangsstønadDto();
-            LegacyESBeregning beregning = sisteBeregningOpt.get();
+            var dto = new BeregningsresultatEngangsstønadDto();
+            var beregning = sisteBeregningOpt.get();
             dto.setBeregnetTilkjentYtelse(beregning.getBeregnetTilkjentYtelse());
             dto.setAntallBarn((int) beregning.getAntallBarn());
             dto.setSatsVerdi(beregning.getSatsVerdi());

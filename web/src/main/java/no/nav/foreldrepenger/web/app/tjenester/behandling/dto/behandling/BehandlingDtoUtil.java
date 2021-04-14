@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
 
@@ -29,7 +28,7 @@ public class BehandlingDtoUtil {
     }
 
     private static Optional<String> getFristDatoBehandlingPåVent(Behandling behandling) {
-        LocalDate frist = behandling.getFristDatoBehandlingPåVent();
+        var frist = behandling.getFristDatoBehandlingPåVent();
         if (frist != null) {
             return Optional.of(frist.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))); //$NON-NLS-1$
         }
@@ -37,7 +36,7 @@ public class BehandlingDtoUtil {
     }
 
     private static Optional<String> getVenteÅrsak(Behandling behandling) {
-        Venteårsak venteårsak = behandling.getVenteårsak();
+        var venteårsak = behandling.getVenteårsak();
         if (venteårsak != null) {
             return Optional.of(venteårsak.getKode());
         }
@@ -96,7 +95,7 @@ public class BehandlingDtoUtil {
     }
 
     static boolean erAktivPapirsøknad(Behandling behandling) {
-        List<AksjonspunktDefinisjon> kriterier = Arrays.asList(
+        var kriterier = Arrays.asList(
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
             AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
             AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
@@ -105,7 +104,7 @@ public class BehandlingDtoUtil {
     }
 
     private static BehandlingÅrsakDto map(BehandlingÅrsak årsak) {
-        BehandlingÅrsakDto dto = new BehandlingÅrsakDto();
+        var dto = new BehandlingÅrsakDto();
         dto.setBehandlingArsakType(årsak.getBehandlingÅrsakType());
         dto.setManueltOpprettet(årsak.erManueltOpprettet());
         return dto;

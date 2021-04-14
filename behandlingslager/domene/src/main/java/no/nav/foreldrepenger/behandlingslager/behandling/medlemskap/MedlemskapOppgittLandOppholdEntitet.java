@@ -119,10 +119,11 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof MedlemskapOppgittLandOppholdEntitet)) {
+        }
+        if (!(obj instanceof MedlemskapOppgittLandOppholdEntitet)) {
             return false;
         }
-        MedlemskapOppgittLandOppholdEntitet other = (MedlemskapOppgittLandOppholdEntitet) obj;
+        var other = (MedlemskapOppgittLandOppholdEntitet) obj;
         return Objects.equals(this.getLand(), other.getLand())
                 && Objects.equals(this.periode, other.periode)
                 && Objects.equals(this.tidligereOpphold, other.isTidligereOpphold());

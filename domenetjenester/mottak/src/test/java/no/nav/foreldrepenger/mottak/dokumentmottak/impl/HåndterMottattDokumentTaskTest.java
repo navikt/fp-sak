@@ -51,7 +51,7 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     @BeforeEach
     public void before() {
         var entityManager = getEntityManager();
-        MottatteDokumentRepository mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
+        var mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
         var fristInnsendingPeriode = Period.ofWeeks(6);
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
@@ -77,9 +77,9 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     @Test
     public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() throws Exception {
         // Arrange
-        final String xml = new FileToStringUtil().readFile(PAYLOAD_XML);
+        final var xml = new FileToStringUtil().readFile(PAYLOAD_XML);
         var fagsak = opprettFagsak();
-        MottattDokument mottattDokument = new MottattDokument.Builder()
+        var mottattDokument = new MottattDokument.Builder()
             .medFagsakId(fagsak.getId())
             .medJournalPostId(JOURNALPOST_ID)
             .medDokumentType(DOKUMENTTYPE)
@@ -88,13 +88,13 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
             .medElektroniskRegistrert(true)
             .build();
 
-        Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
+        var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
-        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTask.setFagsakId(fagsak.getId());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
-        ArgumentCaptor<MottattDokument> captor = ArgumentCaptor.forClass(MottattDokument.class);
+        var captor = ArgumentCaptor.forClass(MottattDokument.class);
 
         // Act
         håndterMottattDokumentTask.doTask(prosessTask);
@@ -108,7 +108,7 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         // Arrange
         var fagsak = opprettFagsak();
         var behandlingId = opprettBehandling(fagsak);
-        MottattDokument mottattDokument = new MottattDokument.Builder()
+        var mottattDokument = new MottattDokument.Builder()
             .medFagsakId(fagsak.getId())
             .medBehandlingId(behandlingId)
             .medJournalPostId(JOURNALPOST_ID)
@@ -118,15 +118,15 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
             .medElektroniskRegistrert(true)
             .build();
 
-        Long dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
+        var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
-        ProsessTaskData prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTask = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
         prosessTask.setBehandling(fagsak.getId(), behandlingId, AKTØR_ID.getId());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
-        ArgumentCaptor<Long> captorBehandling = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<MottattDokument> captorDokument = ArgumentCaptor.forClass(MottattDokument.class);
-        ArgumentCaptor<BehandlingÅrsakType> captorBA = ArgumentCaptor.forClass(BehandlingÅrsakType.class);
+        var captorBehandling = ArgumentCaptor.forClass(Long.class);
+        var captorDokument = ArgumentCaptor.forClass(MottattDokument.class);
+        var captorBA = ArgumentCaptor.forClass(BehandlingÅrsakType.class);
 
         // Act
         håndterMottattDokumentTask.doTask(prosessTask);
@@ -134,7 +134,7 @@ public class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         // Assert
         verify(innhentDokumentTjeneste).opprettFraTidligereBehandling(captorBehandling.capture(), captorDokument.capture(), captorBA.capture());
         assertThat(captorBehandling.getValue()).isEqualTo(behandlingId);
-        MottattDokument md = captorDokument.getValue();
+        var md = captorDokument.getValue();
         assertThat(md.getId()).isEqualTo(dokumentId);
         assertThat(md.getBehandlingId()).isEqualTo(behandlingId);
         assertThat(captorBA.getValue()).isEqualTo(BehandlingÅrsakType.ETTER_KLAGE);

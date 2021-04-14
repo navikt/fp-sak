@@ -1,16 +1,12 @@
 package no.nav.foreldrepenger.mottak.publiserer.task;
 
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
@@ -58,15 +54,15 @@ public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask 
 
     @Override
     public void prosesser(ProsessTaskData data, Long fagsakId, Long behandlingId) {
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
-        Optional<MottattDokument> dokumentOptional = mottatteDokumentTjeneste.hentMottattDokument(Long.valueOf(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)));
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var dokumentOptional = mottatteDokumentTjeneste.hentMottattDokument(Long.valueOf(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)));
         dokumentOptional.ifPresent(dokument -> inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, dokument.getJournalpostId()).ifPresent(inntektsmelding -> {
             LOG.info("[DIALOG-HENDELSE] Inntektsmelding persistert : {}", inntektsmelding.getKanalreferanse());
-            InntektsmeldingInnsendingsårsak årsak = inntektsmelding.getInntektsmeldingInnsendingsårsak();
+            var årsak = inntektsmelding.getInntektsmeldingInnsendingsårsak();
             if (årsak == null || InntektsmeldingInnsendingsårsak.UDEFINERT.equals(årsak)) {
                 årsak = InntektsmeldingInnsendingsårsak.NY;
             }
-            final InntektsmeldingV1 hendelse = new InntektsmeldingV1.Builder()
+            final var hendelse = new InntektsmeldingV1.Builder()
                 .medAktørId(data.getAktørId())
                 .medArbeidsgiverId(inntektsmelding.getArbeidsgiver().getIdentifikator())
                 .medInnsendingsÅrsak(årsak.getKode())

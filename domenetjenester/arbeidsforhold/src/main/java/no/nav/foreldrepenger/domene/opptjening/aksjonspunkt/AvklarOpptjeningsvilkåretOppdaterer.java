@@ -52,13 +52,12 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
             return new OppdateringResultat.Builder()
                 .leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .build();
-        } else {
-            return OppdateringResultat.utenTransisjon()
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
-                .leggTilAvslåttVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .build();
         }
+        return OppdateringResultat.utenTransisjon()
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+            .leggTilAvslåttVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+            .build();
 
     }
 

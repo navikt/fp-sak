@@ -32,12 +32,12 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForNyeRegisteropplysninger(Behandling behandling) {
-        Historikkinnslag nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.NYE_REGOPPLYSNINGER);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.NYE_REGOPPLYSNINGER)
             .medBegrunnelse(HistorikkBegrunnelseType.SAKSBEH_START_PA_NYTT);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
@@ -45,12 +45,12 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForTilbakespoling(Behandling behandling, BehandlingStegType førSteg, BehandlingStegType etterSteg) {
-        Historikkinnslag nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
             .medBegrunnelse("Behandlingen er flyttet fra " + førSteg.getNavn() + " tilbake til " + etterSteg.getNavn());
         historieBuilder.build(nyeRegisteropplysningerInnslag);
@@ -58,12 +58,12 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForBehandlingMedNyeOpplysninger(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Historikkinnslag nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BEH_OPPDATERT_NYE_OPPL)
             .medBegrunnelse(behandlingÅrsakType);
         historieBuilder.build(nyeRegisteropplysningerInnslag);
@@ -71,12 +71,12 @@ public class RegisterinnhentingHistorikkinnslagTjeneste {
     }
 
     public void opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(Behandling behandling, LocalDate endretFra, LocalDate endretTil) {
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP)
             .medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, endretFra, endretTil);

@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTy
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.FØRSTEGANGSSØKNAD;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -35,12 +33,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
@@ -87,9 +83,9 @@ public class ForvaltningStegRestTjeneste {
     @Path("/generell")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        String behandlingStegTypeStr = dto.getBehandlingStegType();
-        BehandlingStegType tilSteg = BehandlingStegType.fraKode(behandlingStegTypeStr);
+        var behandlingId = dto.getBehandlingId();
+        var behandlingStegTypeStr = dto.getBehandlingStegType();
+        var tilSteg = BehandlingStegType.fraKode(behandlingStegTypeStr);
 
         hoppTilbake(behandlingId, tilSteg);
 
@@ -102,7 +98,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/5080")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
 
         hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
 
@@ -115,7 +111,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjern-opptjening-extra-aktivitet")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
 
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
 
@@ -128,26 +124,26 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjern-opptjeningsvilkåret")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgFjernOverstyringAvOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
 
-        Optional<VilkårResultat> vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandlingId);
+        var vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandlingId);
 
         if (vilkårResultatOpt.isPresent()) {
-            VilkårResultat vilkårResultat = vilkårResultatOpt.get();
-            Optional<Vilkår> opptjeningsvilkåretOpt = vilkårResultat.getVilkårene()
+            var vilkårResultat = vilkårResultatOpt.get();
+            var opptjeningsvilkåretOpt = vilkårResultat.getVilkårene()
                     .stream()
                     .filter(v -> v.getVilkårType() == VilkårType.OPPTJENINGSVILKÅRET)
                     .filter(Vilkår::erOverstyrt)
                     .findFirst();
 
             if (opptjeningsvilkåretOpt.isPresent()) {
-                Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
                 builder.fjernVilkår(VilkårType.OPPTJENINGSVILKÅRET);
 
-                VilkårResultat nyttVilkårResulatat = builder.build();
+                var nyttVilkårResulatat = builder.build();
                 vilkårResultatRepository.lagre(behandlingId, nyttVilkårResulatat);
 
-                Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+                var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
                 if (behandling.erRevurdering()) {
                     hoppTilbake(behandlingId, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
                 } else if (behandling.getType() == FØRSTEGANGSSØKNAD) {
@@ -164,9 +160,9 @@ public class ForvaltningStegRestTjeneste {
     @Path("/inntektsmelding")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgSlettInntektsmelding(@BeanParam @Valid HoppTilbakeTil5080OgSlettInntektsmeldingDto dto) {
-        Long behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingId();
         var journalpostId = new JournalpostId(Long.parseLong(dto.getJournalpostId().trim()));
-        Optional<Inntektsmelding> inntektsmelding = inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, journalpostId);
+        var inntektsmelding = inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, journalpostId);
         if (inntektsmelding.isPresent()) {
             inntektsmeldingTjeneste.fjernInntektsmelding(behandlingId, Set.of(journalpostId));
             hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
@@ -181,11 +177,11 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjernFHValgHoppTilbake")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Long behandlingId = dto.getBehandlingId();
-        FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+        var behandlingId = dto.getBehandlingId();
+        var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
         if (grunnlag.getOverstyrtVersjon().isPresent()) {
-            Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+            var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
             familieHendelseRepository.slettAvklarteData(behandlingId, kontekst.getSkriveLås());
             doHoppTilSteg(behandling, kontekst, KONTROLLER_FAKTA);
             behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
@@ -195,8 +191,8 @@ public class ForvaltningStegRestTjeneste {
     }
 
     private void hoppTilbake(Long behandlingId, BehandlingStegType tilSteg) {
-        Behandling behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD.equals(tilSteg)) {
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());
         }
@@ -215,13 +211,13 @@ public class ForvaltningStegRestTjeneste {
     }
 
     private void lagHistorikkinnslag(Behandling behandling, String tilStegNavn) {
-        Historikkinnslag nyeRegisteropplysningerInnslag = new Historikkinnslag();
+        var nyeRegisteropplysningerInnslag = new Historikkinnslag();
         nyeRegisteropplysningerInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         nyeRegisteropplysningerInnslag.setType(HistorikkinnslagType.SPOLT_TILBAKE);
         nyeRegisteropplysningerInnslag.setBehandlingId(behandling.getId());
 
-        String fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var fraStegNavn = behandling.getAktivtBehandlingSteg() != null ? behandling.getAktivtBehandlingSteg().getNavn() : null;
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.SPOLT_TILBAKE)
                 .medBegrunnelse("Behandlingen er flyttet fra " + fraStegNavn + " tilbake til " + tilStegNavn);
         historieBuilder.build(nyeRegisteropplysningerInnslag);

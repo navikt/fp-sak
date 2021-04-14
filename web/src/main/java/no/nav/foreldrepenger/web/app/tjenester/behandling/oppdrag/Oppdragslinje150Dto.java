@@ -148,7 +148,7 @@ public class Oppdragslinje150Dto extends SporingDto {
     }
 
     public static Oppdragslinje150Dto fraDomene(Oppdragslinje150 oppdragslinje150) {
-        Oppdragslinje150Dto oppdragslinje150Dto = new Oppdragslinje150Dto(oppdragslinje150);
+        var oppdragslinje150Dto = new Oppdragslinje150Dto(oppdragslinje150);
         oppdragslinje150Dto.vedtakId = oppdragslinje150.getVedtakId();
         oppdragslinje150Dto.utbetalesTilId = oppdragslinje150.getUtbetalesTilId();
         oppdragslinje150Dto.delytelseId = oppdragslinje150.getDelytelseId();

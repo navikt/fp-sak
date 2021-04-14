@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -38,49 +36,49 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
     @Test
     public void skal_sette_totrinn_ved_avslag() {
-        BekreftSvangerskapspengervilkårOppdaterer oppdaterer = oppdaterer();
-        BekreftSvangerskapspengervilkårDto dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
+        var oppdaterer = oppdaterer();
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
             Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE.getKode());
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
+        var behandling = scenario.lagre(repositoryProvider);
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
 
     @Test
     public void skal_ha_totrinn_ved_innvilgelse() {
-        BekreftSvangerskapspengervilkårOppdaterer oppdaterer = oppdaterer();
-        BekreftSvangerskapspengervilkårDto dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
+        var oppdaterer = oppdaterer();
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
+        var behandling = scenario.lagre(repositoryProvider);
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
     }
 
     @Test
     public void skal_avslå_vilkår() {
-        BekreftSvangerskapspengervilkårOppdaterer oppdaterer = oppdaterer();
-        BekreftSvangerskapspengervilkårDto dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
+        var oppdaterer = oppdaterer();
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse",
             Avslagsårsak.SØKER_ER_IKKE_I_ARBEID.getKode());
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
+        var behandling = scenario.lagre(repositoryProvider);
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var resultat = oppdaterer.oppdater(dto, param);
 
-        VilkårResultat.Builder builder = VilkårResultat.builder();
+        var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
             .forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(),
                 v.getVilkårUtfallMerknad(), new Properties(), v.getAvslagsårsak(), true, false, null, null));
@@ -91,17 +89,17 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
     @Test
     public void skal_innvilge_vilkår() {
-        BekreftSvangerskapspengervilkårOppdaterer oppdaterer = oppdaterer();
-        BekreftSvangerskapspengervilkårDto dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
+        var oppdaterer = oppdaterer();
+        var dto = new BekreftSvangerskapspengervilkårDto("begrunnelse", null);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SVANGERSKAPSPENGERVILKÅRET,
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
-        OppdateringResultat resultat = oppdaterer.oppdater(dto, param);
+        var behandling = scenario.lagre(repositoryProvider);
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.empty(), dto);
+        var resultat = oppdaterer.oppdater(dto, param);
 
-        VilkårResultat.Builder builder = VilkårResultat.builder();
+        var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
             .forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(),
                 v.getVilkårUtfallMerknad(), new Properties(), v.getAvslagsårsak(), true, false, null, null));

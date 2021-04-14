@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollSerialiseringUtil;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -34,9 +33,9 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        String payload = prosessTaskData.getPayloadAsString();
+        var payload = prosessTaskData.getPayloadAsString();
         try {
-            KontrollResultatV1 kontraktResultat = KontrollSerialiseringUtil.deserialiser(payload, KontrollResultatV1.class);
+            var kontraktResultat = KontrollSerialiseringUtil.deserialiser(payload, KontrollResultatV1.class);
             evaluerKontrollresultat(kontraktResultat);
         } catch (Exception e) {
             LOG.warn("Klarte ikke behandle risikoklassifiseringresultat", e);
@@ -44,7 +43,7 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
     }
 
     private void evaluerKontrollresultat(KontrollResultatV1 kontraktResultat) {
-        KontrollresultatWrapper resultatWrapper = kontrollresultatMapper.fraKontrakt(kontraktResultat);
+        var resultatWrapper = kontrollresultatMapper.fraKontrakt(kontraktResultat);
         risikovurderingTjeneste.lagreKontrollresultat(resultatWrapper);
     }
 

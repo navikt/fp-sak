@@ -90,7 +90,7 @@ public class KontrollDvh implements Serializable {
         if (!super.equals(obj)) {
             return false;
         }
-        KontrollDvh other = (KontrollDvh) obj;
+        var other = (KontrollDvh) obj;
         return Objects.equals(fagsakTransIdMax, other.fagsakTransIdMax)
                 && Objects.equals(behandlingTransIdMax, other.behandlingTransIdMax)
                 && Objects.equals(behandllingStegTransIdMax, other.behandllingStegTransIdMax)

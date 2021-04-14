@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Optional;
-
 public final class InternalManipulerBehandling {
 
     private InternalManipulerBehandling() {
@@ -17,12 +15,12 @@ public final class InternalManipulerBehandling {
                                                    BehandlingStegStatus ikkeFerdigStegStatus) {
 
         // finn riktig mapping av kodeverk slik at vi får med dette når Behandling brukes videre.
-        Optional<BehandlingStegTilstand> eksisterendeTilstand = behandling.getSisteBehandlingStegTilstand();
+        var eksisterendeTilstand = behandling.getSisteBehandlingStegTilstand();
         if (eksisterendeTilstand.isEmpty() || erUlikeSteg(stegType, eksisterendeTilstand.orElseThrow())) {
             if (eksisterendeTilstand.isPresent() && !BehandlingStegStatus.erSluttStatus(eksisterendeTilstand.get().getBehandlingStegStatus())) {
                 eksisterendeTilstand.ifPresent(it -> it.setBehandlingStegStatus(ikkeFerdigStegStatus));
             }
-            BehandlingStegTilstand tilstand = new BehandlingStegTilstand(behandling, stegType);
+            var tilstand = new BehandlingStegTilstand(behandling, stegType);
             tilstand.setBehandlingStegStatus(nesteStegStatus);
             behandling.oppdaterBehandlingStegOgStatus(tilstand);
         } else {

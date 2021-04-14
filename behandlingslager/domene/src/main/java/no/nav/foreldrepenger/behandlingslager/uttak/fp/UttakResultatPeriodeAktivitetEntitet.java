@@ -145,7 +145,7 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UttakResultatPeriodeAktivitetEntitet that = (UttakResultatPeriodeAktivitetEntitet) o;
+        var that = (UttakResultatPeriodeAktivitetEntitet) o;
         return Objects.equals(periode, that.periode) &&
             Objects.equals(uttakAktivitet, that.uttakAktivitet);
     }

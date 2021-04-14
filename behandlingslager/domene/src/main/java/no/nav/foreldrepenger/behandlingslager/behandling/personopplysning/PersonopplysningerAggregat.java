@@ -47,7 +47,7 @@ public class PersonopplysningerAggregat {
                     .collect(Collectors.groupingBy(PersonAdresseEntitet::getAktørId));
             overstyrtPersonstatus = grunnlag.getOverstyrtVersjon().map(PersonInformasjonEntitet::getPersonstatus)
                     .orElse(Collections.emptyList());
-            final List<PersonstatusEntitet> registerPersonstatus = registerversjon.getPersonstatus()
+            final var registerPersonstatus = registerversjon.getPersonstatus()
                     .stream()
                     .filter(it -> finnesIkkeIOverstyrt(it, overstyrtPersonstatus))
                     .collect(Collectors.toList());
@@ -176,7 +176,7 @@ public class PersonopplysningerAggregat {
     }
 
     public List<PersonopplysningEntitet> getFellesBarn() {
-        Optional<PersonopplysningEntitet> annenPart = getAnnenPart();
+        var annenPart = getAnnenPart();
         List<PersonopplysningEntitet> fellesBarn = new ArrayList<>();
         if (annenPart.isPresent()) {
             fellesBarn.addAll(getBarna());
@@ -237,7 +237,7 @@ public class PersonopplysningerAggregat {
     }
 
     public boolean søkerHarSammeAdresseSom(AktørId aktørId, RelasjonsRolleType relasjonsRolle) {
-        Optional<PersonRelasjonEntitet> ektefelleRelasjon = getRelasjoner().stream()
+        var ektefelleRelasjon = getRelasjoner().stream()
                 .filter(familierelasjon -> familierelasjon.getAktørId().equals(søkerAktørId) &&
                     familierelasjon.getTilAktørId().equals(aktørId) &&
                     familierelasjon.getRelasjonsrolle().equals(relasjonsRolle))
@@ -253,8 +253,8 @@ public class PersonopplysningerAggregat {
             return false;
         }
 
-        for (PersonAdresseEntitet opplysningAdresseSøker : getAdresserFor(søkerAktørId)) {
-            for (PersonAdresseEntitet opplysningAdresseAnnenpart : getAdresserFor(aktørId)) {
+        for (var opplysningAdresseSøker : getAdresserFor(søkerAktørId)) {
+            for (var opplysningAdresseAnnenpart : getAdresserFor(aktørId)) {
                 var sammeperiode = opplysningAdresseSøker.getPeriode().overlapper(opplysningAdresseAnnenpart.getPeriode());
                 var sammeMatrikkel = likAdresseIgnoringCase(opplysningAdresseSøker.getMatrikkelId(), opplysningAdresseAnnenpart.getMatrikkelId());
                 if (sammeperiode && (sammeMatrikkel || (likAdresseIgnoringCase(opplysningAdresseSøker.getAdresselinje1(), opplysningAdresseAnnenpart.getAdresselinje1())
@@ -283,7 +283,7 @@ public class PersonopplysningerAggregat {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonopplysningerAggregat that = (PersonopplysningerAggregat) o;
+        var that = (PersonopplysningerAggregat) o;
         return Objects.equals(søkerAktørId, that.søkerAktørId) &&
                 Objects.equals(personopplysninger, that.personopplysninger) &&
                 Objects.equals(alleRelasjoner, that.alleRelasjoner) &&

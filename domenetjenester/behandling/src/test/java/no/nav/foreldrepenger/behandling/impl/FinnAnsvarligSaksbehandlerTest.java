@@ -17,7 +17,7 @@ public class FinnAnsvarligSaksbehandlerTest {
 
     @BeforeEach
     public void setup() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
     }
 
@@ -28,7 +28,7 @@ public class FinnAnsvarligSaksbehandlerTest {
         behandling.setAnsvarligBeslutter(BESLUTTER);
 
         // Act
-        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
+        var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
 
         // Assert
         assertThat(ansvarligSaksbehandler).isEqualTo(BESLUTTER);
@@ -40,7 +40,7 @@ public class FinnAnsvarligSaksbehandlerTest {
         behandling.setAnsvarligSaksbehandler(SAKSBEHANDLER);
 
         // Act
-        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
+        var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
 
         // Assert
         assertThat(ansvarligSaksbehandler).isEqualTo(SAKSBEHANDLER);
@@ -49,7 +49,7 @@ public class FinnAnsvarligSaksbehandlerTest {
     @Test
     public void ansvarligSaksbehandlerSettesTilVLNårBeslutterOgSaksbehandlerMangler() {
         // Act
-        String ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
+        var ansvarligSaksbehandler = FinnAnsvarligSaksbehandler.finn(behandling);
 
         // Assert
         assertThat(ansvarligSaksbehandler).isEqualTo("VL");

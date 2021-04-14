@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
 
 public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
@@ -130,7 +129,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling morBehandlingMedUttak(UttakResultatPerioderEntitet perioder, LocalDateTime vedtakstidspunkt) {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         return behandlingMedUttak(perioder, scenario, vedtakstidspunkt);
     }
 
@@ -146,7 +145,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private Behandling farBehandlingMedUttak(UttakResultatPerioderEntitet perioder, LocalDateTime vedtakstidspunkt) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         return behandlingMedUttak(perioder, scenario, vedtakstidspunkt);
     }
 
@@ -158,15 +157,15 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skalHenteUttaksPerioderMedFlereAktiviteter() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
-        LocalDate periode1Fom = LocalDate.now();
-        LocalDate periode1Tom = LocalDate.now().plusDays(10);
-        LocalDate periode2Fom = LocalDate.now().plusDays(12);
-        LocalDate periode2Tom = LocalDate.now().plusDays(15);
-        UttakResultatPeriodeEntitet periode1 = periodeBuilder(periode1Fom, periode1Tom).build();
-        UttakResultatPeriodeEntitet periode2 = periodeBuilder(periode2Fom, periode2Tom).build();
+        var perioder = new UttakResultatPerioderEntitet();
+        var periode1Fom = LocalDate.now();
+        var periode1Tom = LocalDate.now().plusDays(10);
+        var periode2Fom = LocalDate.now().plusDays(12);
+        var periode2Tom = LocalDate.now().plusDays(15);
+        var periode1 = periodeBuilder(periode1Fom, periode1Tom).build();
+        var periode2 = periodeBuilder(periode2Fom, periode2Tom).build();
 
-        String nyOrgnr = "123";
+        var nyOrgnr = "123";
 
         periode1.leggTilAktivitet(periodeAktivitet(periode1, orgnr));
         periode1.leggTilAktivitet(periodeAktivitet(periode1, nyOrgnr));
@@ -176,9 +175,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var behandling = morBehandlingMedUttak(perioder);
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
+        var result = tjeneste.mapFra(behandling);
 
         assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(2);
@@ -191,7 +190,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private UttakResultatPeriodeAktivitetEntitet periodeAktivitet(UttakResultatPeriodeEntitet periode, String orgnr, InternArbeidsforholdRef internArbeidsforholdRef) {
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), internArbeidsforholdRef)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();
@@ -203,22 +202,22 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skalHenteUttaksPerioderForSøkerOgAnnenpart() {
-        UttakResultatPerioderEntitet perioderSøker = new UttakResultatPerioderEntitet();
-        LocalDate periode1FomSøker = LocalDate.now();
-        LocalDate periode1TomSøker = LocalDate.now().plusDays(10);
-        LocalDate periode2FomSøker = LocalDate.now().plusDays(11);
-        LocalDate periode2TomSøker = LocalDate.now().plusDays(15);
-        UttakResultatPeriodeEntitet periode1Søker = periodeBuilder(periode1FomSøker, periode1TomSøker).build();
-        UttakResultatPeriodeEntitet periode2Søker = periodeBuilder(periode2FomSøker, periode2TomSøker).build();
+        var perioderSøker = new UttakResultatPerioderEntitet();
+        var periode1FomSøker = LocalDate.now();
+        var periode1TomSøker = LocalDate.now().plusDays(10);
+        var periode2FomSøker = LocalDate.now().plusDays(11);
+        var periode2TomSøker = LocalDate.now().plusDays(15);
+        var periode1Søker = periodeBuilder(periode1FomSøker, periode1TomSøker).build();
+        var periode2Søker = periodeBuilder(periode2FomSøker, periode2TomSøker).build();
         periode1Søker.leggTilAktivitet(periodeAktivitet(periode1Søker, orgnr));
         periode2Søker.leggTilAktivitet(periodeAktivitet(periode2Søker, orgnr));
         perioderSøker.leggTilPeriode(periode1Søker);
         perioderSøker.leggTilPeriode(periode2Søker);
 
-        UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
-        LocalDate periode1FomAnnenpart = periode2TomSøker.plusDays(1);
-        LocalDate periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
-        UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
+        var perioderAnnenpart = new UttakResultatPerioderEntitet();
+        var periode1FomAnnenpart = periode2TomSøker.plusDays(1);
+        var periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
+        var periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, orgnr));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
 
@@ -226,9 +225,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var behandlingAnnenpart = farBehandlingMedUttak(perioderAnnenpart, LocalDateTime.now().minusDays(1));
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandlingSøker);
+        var result = tjeneste.mapFra(behandlingSøker);
 
         assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(2);
@@ -243,24 +242,24 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     public void skalHenteUttaksPerioderForSøkerOgAnnenpartKunstigArbeidsforholdPåAnnenpart() {
         var internArbeidsforholdIdSøker = InternArbeidsforholdRef.nyRef();
         var internArbeidsforholdIdAnnenPart = InternArbeidsforholdRef.nyRef();
-        UttakResultatPerioderEntitet perioderSøker = new UttakResultatPerioderEntitet();
-        LocalDate periode1FomSøker = LocalDate.now();
-        LocalDate periode1TomSøker = LocalDate.now().plusDays(10);
-        UttakResultatPeriodeEntitet periode1Søker = periodeBuilder(periode1FomSøker, periode1TomSøker).build();
+        var perioderSøker = new UttakResultatPerioderEntitet();
+        var periode1FomSøker = LocalDate.now();
+        var periode1TomSøker = LocalDate.now().plusDays(10);
+        var periode1Søker = periodeBuilder(periode1FomSøker, periode1TomSøker).build();
         periode1Søker.leggTilAktivitet(periodeAktivitet(periode1Søker, orgnr, internArbeidsforholdIdSøker));
         perioderSøker.leggTilPeriode(periode1Søker);
 
-        UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
-        LocalDate periode1FomAnnenpart = periode1TomSøker.plusDays(1);
-        LocalDate periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
-        UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
+        var perioderAnnenpart = new UttakResultatPerioderEntitet();
+        var periode1FomAnnenpart = periode1TomSøker.plusDays(1);
+        var periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
+        var periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, KUNSTIG_ORG, internArbeidsforholdIdAnnenPart));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
 
         var behandlingSøker = morBehandlingMedUttak(perioderSøker, LocalDateTime.now());
         var behandlingAnnenpart = farBehandlingMedUttak(perioderAnnenpart, LocalDateTime.now().minusDays(1));
 
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
         var builder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         builder.leggTil(arbeidsgiver, internArbeidsforholdIdSøker, EksternArbeidsforholdRef.ref("ID1"));
         inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingSøker.getId(), behandlingSøker.getAktørId(), builder);
@@ -268,9 +267,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(behandlingSøker.getFagsak(), behandlingAnnenpart.getFagsak(), behandlingSøker);
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandlingSøker);
+        var result = tjeneste.mapFra(behandlingSøker);
 
         assertThat(result).isPresent();
         assertThat(result.get().getPerioderSøker()).hasSize(1);
@@ -281,7 +280,7 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     private ArbeidsforholdInformasjonBuilder lagFiktivtArbeidsforholdOverstyring(InternArbeidsforholdRef internArbeidsforholdRef) {
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet(KUNSTIG_ORG);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(KUNSTIG_ORG);
         var builder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         builder.leggTil(arbeidsgiver, internArbeidsforholdRef, EksternArbeidsforholdRef.ref("ID2"));
         builder.leggTil(ArbeidsforholdOverstyringBuilder.oppdatere(Optional.empty())
@@ -294,19 +293,19 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void dtoSkalInneholdeSamtidigUttak() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var perioder = new UttakResultatPerioderEntitet();
 
 
-        UttakResultatPeriodeEntitet periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2))
+        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusDays(2))
             .medSamtidigUttak(true)
             .medSamtidigUttaksprosent(SamtidigUttaksprosent.TEN)
             .build();
 
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder()
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
             .medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
             .build();
 
-        UttakResultatPeriodeAktivitetEntitet periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
+        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
             .medArbeidsprosent(BigDecimal.ZERO)
             .build();
 
@@ -316,9 +315,9 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
         var behandling = morBehandlingMedUttak(perioder);
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
+        var result = tjeneste.mapFra(behandling);
 
         assertThat(result.get().getPerioderSøker().get(0).isSamtidigUttak()).isEqualTo(periode.isSamtidigUttak());
         assertThat(result.get().getPerioderSøker().get(0).getSamtidigUttaksprosent()).isEqualTo(periode.getSamtidigUttaksprosent());
@@ -326,37 +325,37 @@ public class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_setteAleneomsorgOgAnnenForelderHarRettFalse_nårYtelsefordelingMangler() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
         var behandling = scenario.lagre(repositoryProvider);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
-        UttakPerioderDtoTjeneste tjeneste = tjeneste();
+        var tjeneste = tjeneste();
 
-        Optional<UttakResultatPerioderDto> result = tjeneste.mapFra(behandling);
+        var result = tjeneste.mapFra(behandling);
         assertThat(result.get().isAnnenForelderHarRett()).isFalse();
         assertThat(result.get().isAleneomsorg()).isFalse();
     }
 
     @Test
     public void skal_setteAleneomsorgOgAnnenForelderHarRettTrue_nårYtelsefordelingForeliggerOgDetStemmer() {
-        UttakResultatPerioderEntitet perioder = new UttakResultatPerioderEntitet();
+        var perioder = new UttakResultatPerioderEntitet();
 
-        UttakResultatPerioderEntitet perioderAnnenpart = new UttakResultatPerioderEntitet();
-        LocalDate periode1FomAnnenpart = LocalDate.now().plusDays(16);
-        LocalDate periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
-        UttakResultatPeriodeEntitet periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
+        var perioderAnnenpart = new UttakResultatPerioderEntitet();
+        var periode1FomAnnenpart = LocalDate.now().plusDays(16);
+        var periode1TomAnnenpart = periode1FomAnnenpart.plusDays(10);
+        var periode1Annenpart = periodeBuilder(periode1FomAnnenpart, periode1TomAnnenpart).build();
         periode1Annenpart.leggTilAktivitet(periodeAktivitet(periode1Annenpart, orgnr));
         perioderAnnenpart.leggTilPeriode(periode1Annenpart);
 
-        Behandling behandling = morBehandlingMedUttak(perioder);
+        var behandling = morBehandlingMedUttak(perioder);
 
         var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittRettighet(new OppgittRettighetEntitet(true, true, true));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
-        Optional<UttakResultatPerioderDto> result = tjeneste().mapFra(behandling);
+        var result = tjeneste().mapFra(behandling);
         assertThat(result.get().isAnnenForelderHarRett()).isTrue();
         assertThat(result.get().isAleneomsorg()).isTrue();
     }

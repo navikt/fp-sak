@@ -136,7 +136,8 @@ public class SøknadGrunnlagBygger {
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
         if (oppgittPeriode.isFrilanser()) {
             return aktivieterMedType(aktiviter, AktivitetType.FRILANS);
-        } else if (oppgittPeriode.isSelvstendig()) {
+        }
+        if (oppgittPeriode.isSelvstendig()) {
             return aktivieterMedType(aktiviter, AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE);
         }
         return aktivieterMedType(aktiviter, AktivitetType.ARBEID).stream()
@@ -197,7 +198,8 @@ public class SøknadGrunnlagBygger {
         var hendelser = fpGrunnlag.getFamilieHendelser();
         if (hendelser.gjelderTerminFødsel() && hendelser.erSøktTermin()) {
             return Søknadstype.TERMIN;
-        } else if (hendelser.gjelderTerminFødsel()) {
+        }
+        if (hendelser.gjelderTerminFødsel()) {
             return Søknadstype.FØDSEL;
         }
         return Søknadstype.ADOPSJON;

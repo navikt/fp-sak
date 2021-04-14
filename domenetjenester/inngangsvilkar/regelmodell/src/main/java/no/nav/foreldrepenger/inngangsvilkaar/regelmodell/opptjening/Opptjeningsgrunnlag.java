@@ -160,7 +160,7 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
     }
 
     public void leggTilRapportertInntekt(LocalDateInterval datoInterval, Aktivitet aktivitet, Long kronerInntekt) {
-        InntektPeriode periodeInntekt = new InntektPeriode(datoInterval, aktivitet, kronerInntekt);
+        var periodeInntekt = new InntektPeriode(datoInterval, aktivitet, kronerInntekt);
         inntektPerioder.add(periodeInntekt);
     }
 

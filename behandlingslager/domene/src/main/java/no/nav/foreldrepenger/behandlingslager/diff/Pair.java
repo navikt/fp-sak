@@ -26,7 +26,7 @@ public class Pair {
         if (!(o instanceof Pair))
             return false;
 
-        Pair tuple = (Pair) o;
+        var tuple = (Pair) o;
 
         return Objects.equals(elem1, tuple.elem1)
                 && Objects.equals(elem2, tuple.elem2);

@@ -55,7 +55,7 @@ public enum OppholdÅrsak implements Årsak {
         if (node == null) {
             return null;
         }
-        String kode = TempAvledeKode.getVerdi(OppholdÅrsak.class, node, "kode");
+        var kode = TempAvledeKode.getVerdi(OppholdÅrsak.class, node, "kode");
         var ad = KODER.get(kode);
         if (ad == null) {
             throw new IllegalArgumentException("Ukjent OppholdÅrsak: " + kode);

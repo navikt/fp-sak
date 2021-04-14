@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.behandling.steg.avklarfakta.es;
 
-import java.util.List;
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaSteg;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.RyddRegisterData;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -24,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -69,22 +63,22 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Long behandlingId = kontekst.getBehandlingId();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
-        List<AksjonspunktResultat> aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref);
+        var behandlingId = kontekst.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var aksjonspunktResultater = tjeneste.utledAksjonspunkter(ref);
         utledVilkår(kontekst);
         behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT); // Settes til første steg i Inngangsvilkår.
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunktResultater);
     }
 
     private void utledVilkår(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        final Optional<FamilieHendelseType> hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        final var hendelseType = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                 .map(FamilieHendelseEntitet::getType);
-        UtledeteVilkår utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, hendelseType);
+        var utledeteVilkår = new EngangsstønadVilkårUtleder().utledVilkår(behandling, hendelseType);
         opprettVilkår(utledeteVilkår, behandling, kontekst.getSkriveLås());
     }
 
@@ -93,7 +87,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
             BehandlingStegType fraSteg) {
         if (!BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg)
                 || (BehandlingStegType.KONTROLLER_FAKTA.equals(fraSteg) && BehandlingStegType.KONTROLLER_FAKTA.equals(tilSteg))) {
-            RyddRegisterData rydder = new RyddRegisterData(repositoryProvider, kontekst);
+            var rydder = new RyddRegisterData(repositoryProvider, kontekst);
             rydder.ryddRegisterdataLegacyEngangsstønad();
         }
     }
@@ -101,13 +95,13 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     private void opprettVilkår(UtledeteVilkår utledeteVilkår, Behandling behandling, BehandlingLås skriveLås) {
         // Opprett Vilkårsresultat med vilkårne som som skal vurderes, og sett dem som
         // ikke vurdert
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
-        VilkårResultat.Builder vilkårBuilder = behandlingsresultat != null
+        var behandlingsresultat = getBehandlingsresultat(behandling);
+        var vilkårBuilder = behandlingsresultat != null
                 ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
                 : VilkårResultat.builder();
         utledeteVilkår.getAlleAvklarte()
                 .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
-        VilkårResultat vilkårResultat = vilkårBuilder.buildFor(behandling);
+        var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }
 

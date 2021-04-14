@@ -6,10 +6,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalGruppeWrapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.FaresignalgruppeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
@@ -28,18 +26,18 @@ public class KontrollDtoTjeneste {
     }
 
     public Optional<KontrollresultatDto> lagKontrollresultatForBehandling(Behandling behandling) {
-        Optional<RisikoklassifiseringEntitet> risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId());
+        var risikoklassifiseringEntitet = risikovurderingTjeneste.hentRisikoklassifiseringForBehandling(behandling.getId());
 
         if (!risikoklassifiseringEntitet.isPresent()) {
             return Optional.of(KontrollresultatDto.ikkeKlassifisert());
         }
 
-        RisikoklassifiseringEntitet entitet = risikoklassifiseringEntitet.get();
-        KontrollresultatDto dto = new KontrollresultatDto();
+        var entitet = risikoklassifiseringEntitet.get();
+        var dto = new KontrollresultatDto();
         dto.setKontrollresultat(entitet.getKontrollresultat());
 
         if (entitet.erHøyrisiko()) {
-            Optional<FaresignalWrapper> faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
+            var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
             dto.setFaresignalVurdering(entitet.getFaresignalVurdering());
             faresignalWrapper.ifPresent(en -> {
                 dto.setIayFaresignaler(lagFaresignalDto(en.getIayFaresignaler()));
@@ -55,7 +53,7 @@ public class KontrollDtoTjeneste {
             return null;
         }
 
-        FaresignalgruppeDto dto = new FaresignalgruppeDto();
+        var dto = new FaresignalgruppeDto();
         dto.setKontrollresultat(faresignalgruppe.getKontrollresultat());
         dto.setFaresignaler(faresignalgruppe.getFaresignaler());
 

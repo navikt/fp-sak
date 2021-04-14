@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.app;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.util.RestUtils;
 import no.nav.foreldrepenger.web.app.util.StringUtils;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 public class FagsakTjeneste {
@@ -86,14 +84,13 @@ public class FagsakTjeneste {
 
     public Optional<AsyncPollingStatus> sjekkProsessTaskPågår(Saksnummer saksnummer, String gruppe) {
 
-        Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
         if (fagsak.isPresent()) {
-            Long fagsakId = fagsak.get().getId();
-            Map<String, ProsessTaskData> nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(fagsakId, null, gruppe);
+            var fagsakId = fagsak.get().getId();
+            var nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(fagsakId, null, gruppe);
             return new VurderProsessTaskStatusForPollingApi(fagsakId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     public Optional<Fagsak> hentFagsakForSaksnummer(Saksnummer saksnummer) {
@@ -147,7 +144,7 @@ public class FagsakTjeneste {
     public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
         var personinfo = personinfoAdapter.hentBrukerBasisForAktør(aktørId).orElse(null);
         if (personinfo == null) return Optional.empty();
-        PersonDto personDto = mapFraPersoninfoBasisTilPersonDto(personinfo);
+        var personDto = mapFraPersoninfoBasisTilPersonDto(personinfo);
         var fagsakDtoer= fagsakRepository.hentForBruker(aktørId).stream()
             .map(fagsak -> mapFraFagsakTilFagsakDto(fagsak))
             .collect(Collectors.toList());

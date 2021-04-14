@@ -38,7 +38,7 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringUtenlandssakMarkeringDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        var builder = OppdateringResultat.utenTransisjon();
         behandling.getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AUTOMATISK_MARKERING_AV_UTENLANDSSAK)
             .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         return builder.build();
@@ -46,15 +46,15 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
 
     @Override
     protected void lagHistorikkInnslag(Behandling behandling, OverstyringUtenlandssakMarkeringDto dto) {
-        HistorikkEndretFeltVerdiType fraVerdi = getHistorikkEndretFeltVerdiTypeFra(dto.getGammelVerdi());
-        HistorikkEndretFeltVerdiType tilVerdi = getHistorikkEndretFeltVerdiTypeFra(dto.getBegrunnelse());
+        var fraVerdi = getHistorikkEndretFeltVerdiTypeFra(dto.getGammelVerdi());
+        var tilVerdi = getHistorikkEndretFeltVerdiTypeFra(dto.getBegrunnelse());
 
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
 
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder()
+        var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.FAKTA_ENDRET)
             .medSkjermlenke(SkjermlenkeType.UTLAND)
             .medEndretFelt(HistorikkEndretFeltType.UTLAND, fraVerdi, tilVerdi);
@@ -64,9 +64,9 @@ public class MarkereUtenlandssakOverstyringshåndterer extends AbstractOverstyri
     }
 
     private HistorikkEndretFeltVerdiType getHistorikkEndretFeltVerdiTypeFra(String feltVerdi) {
-        HistorikkEndretFeltVerdiType nasjonal = HistorikkEndretFeltVerdiType.NASJONAL;
-        HistorikkEndretFeltVerdiType eøs = HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE;
-        HistorikkEndretFeltVerdiType bosattUtland = HistorikkEndretFeltVerdiType.BOSATT_UTLAND;
+        var nasjonal = HistorikkEndretFeltVerdiType.NASJONAL;
+        var eøs = HistorikkEndretFeltVerdiType.EØS_BOSATT_NORGE;
+        var bosattUtland = HistorikkEndretFeltVerdiType.BOSATT_UTLAND;
 
         return eøs.getKode().equals(feltVerdi) ? eøs
             : bosattUtland.getKode().equals(feltVerdi) ? bosattUtland

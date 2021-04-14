@@ -75,9 +75,11 @@ public class RegelmodellSøknaderMapper {
     private AktivitetType mapTilAktivitetType(ArbeidType arbeidType) {
         if (ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(arbeidType)) {
             return AktivitetType.ARBEID;
-        } else if (ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(arbeidType)) {
+        }
+        if (ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(arbeidType)) {
             return AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE;
-        } else if (ArbeidType.FRILANSER.equals(arbeidType)) {
+        }
+        if (ArbeidType.FRILANSER.equals(arbeidType)) {
             return AktivitetType.FRILANS;
         }
         return AktivitetType.ANNET;

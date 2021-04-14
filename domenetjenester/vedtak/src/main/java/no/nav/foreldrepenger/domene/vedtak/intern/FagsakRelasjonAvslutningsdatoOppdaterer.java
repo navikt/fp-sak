@@ -4,14 +4,12 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -62,13 +60,13 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
     }
 
     private Optional<LocalDate> sisteDødsdato(Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
-        Optional<List<UidentifisertBarn>> barna = familieHendelseGrunnlag
+        var barna = familieHendelseGrunnlag
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getBarna);
 
         if (barna.isEmpty() || barna.get().isEmpty() || barna.get().stream().anyMatch(b -> b.getDødsdato().isEmpty()))
             return Optional.empty();
-        else return barna.get().stream()
+        return barna.get().stream()
             .map(UidentifisertBarn::getDødsdato)
             .flatMap(Optional::stream)
             .filter(Objects::nonNull)
@@ -79,12 +77,12 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if(familieHendelseGrunnlag.isPresent()){
 
-            Optional<LocalDate> sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
+            var sisteDødsdato = sisteDødsdato(familieHendelseGrunnlag);
             if(sisteDødsdato.isPresent()) return sisteDødsdato.get().plusWeeks(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now())).plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
 
         }
 
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslåttOrOpphørt()
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
     }
@@ -94,7 +92,7 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
 
         if( !maksDatoUttak.isPresent() ) return avsluttningsdatoHvisDetIkkeErGjortUttak(behandling, avsluttningsdato);
-        LocalDate avslutningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
+        var avslutningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
 
         var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
 
@@ -112,18 +110,18 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
     }
 
     private LocalDate beskjærMotAbsoluttMaksDato(LocalDate fødselsdato, LocalDate beregnetMaksDato) {
-            LocalDate absoluttMaksDato = fødselsdato.plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
+        var absoluttMaksDato = fødselsdato.plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
             return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
-        Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-        Optional<LocalDate> fødselsdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+        var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        var fødselsdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getFødselsdato);
-        Optional<LocalDate> omsorgsovertalsesdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+        var omsorgsovertalsesdato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getOmsorgsovertakelseDato);
-        Optional<LocalDate> termindato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+        var termindato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getTerminbekreftelse)
             .map(TerminbekreftelseEntitet::getTermindato);
         return omsorgsovertalsesdato.map(localDate -> (erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, localDate.plusYears(3))

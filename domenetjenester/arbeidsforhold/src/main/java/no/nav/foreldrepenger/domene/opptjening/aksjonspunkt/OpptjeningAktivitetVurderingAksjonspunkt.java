@@ -45,10 +45,12 @@ public class OpptjeningAktivitetVurderingAksjonspunkt implements OpptjeningAktiv
         var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
         if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(type)) {
             return vurderAnnenOpptjening(overstyrtAktivitet, harVærtSaksbehandlet);
-        } else if (OpptjeningAktivitetType.NÆRING.equals(type)) {
-            Skjæringstidspunkt skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
+        }
+        if (OpptjeningAktivitetType.NÆRING.equals(type)) {
+            var skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
             return vurderNæring(behandlingReferanse, overstyrtAktivitet, iayGrunnlag, skjæringstidspunkt, harVærtSaksbehandlet);
-        } else if (OpptjeningAktivitetType.ARBEID.equals(type)) {
+        }
+        if (OpptjeningAktivitetType.ARBEID.equals(type)) {
             return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, harVærtSaksbehandlet, behandlingReferanse);
         }
         return VurderingsStatus.GODKJENT;

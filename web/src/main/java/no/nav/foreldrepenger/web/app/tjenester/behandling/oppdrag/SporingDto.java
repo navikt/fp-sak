@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 public class SporingDto {
 

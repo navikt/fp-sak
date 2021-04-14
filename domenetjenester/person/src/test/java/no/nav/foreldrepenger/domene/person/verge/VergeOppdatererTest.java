@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -52,10 +51,9 @@ public class VergeOppdatererTest {
 
     @BeforeEach
     public void oppsett() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        @SuppressWarnings("unused")
-        Behandling behandling = scenario.lagMocked();
+        @SuppressWarnings("unused") var behandling = scenario.lagMocked();
 
         vergeBruker = NavBruker.opprettNyNB(AktørId.dummy());
 
@@ -67,24 +65,24 @@ public class VergeOppdatererTest {
     public void skal_generere_historikkinnslag_ved_bekreftet() {
         // Behandling
         var behandling = opprettBehandling();
-        AvklarVergeDto dto = opprettDtoVerge();
+        var dto = opprettDtoVerge();
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
         new VergeOppdaterer(historikkTjeneste, personinfoAdapter, mock(VergeRepository.class), brukerTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt.orElse(null), dto));
 
         // Verifiserer HistorikkinnslagDto
-        ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkTjeneste).lagInnslag(historikkCapture.capture());
-        Historikkinnslag historikkinnslag = historikkCapture.getValue();
+        var historikkinnslag = historikkCapture.getValue();
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke").hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_VERGE.getKode()));
         assertThat(del.getHendelse()).as("hendelse").hasValueSatisfying(hendelse -> assertThat(hendelse.getNavn()).as("navn").isEqualTo(HistorikkinnslagType.REGISTRER_OM_VERGE.getKode()));
     }
 
     private AvklarVergeDto opprettDtoVerge() {
-        AvklarVergeDto dto = new AvklarVergeDto();
+        var dto = new AvklarVergeDto();
         dto.setNavn("Navn");
         dto.setFnr("12345678901");
         dto.setGyldigFom(LocalDate.now().minusDays(10));
@@ -94,7 +92,7 @@ public class VergeOppdatererTest {
     }
 
     private Behandling opprettBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.lagMocked();

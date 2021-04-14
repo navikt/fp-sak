@@ -48,11 +48,11 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
-        BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
+        var gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -60,11 +60,11 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_og_gammelPeriode_og_ingen_nyPeriode() {
         // Arrange
-        BeregningsresultatPeriode gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
+        var gammel = opprettPeriode(brFørstegangsbehandling, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(null, gammel);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -72,11 +72,11 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -84,11 +84,11 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_og_nyPeriode_og_ingen_gammelPeriode() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, null);
         // Assert
         assertThat(erEndring).isTrue();
     }
@@ -96,12 +96,12 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var gammel = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -109,12 +109,12 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_lik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now());
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var gammel = opprettPeriode(brRevurdering, LocalDate.now());
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(false);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -122,12 +122,12 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void ingen_endring_med_ingen_andel_eller_andel_uten_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(true);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
         assertThat(erEndring).isFalse();
     }
@@ -135,12 +135,12 @@ public class SjekkForEndringMellomPerioderTest {
     @Test
     public void endring_med_andel_eller_andel_med_dagsats_med_ny_og_gammel_periode_med_ulik_fom_og_andeler() {
         // Arrange
-        BeregningsresultatPeriode ny = opprettPeriode(brRevurdering, LocalDate.now());
-        BeregningsresultatPeriode gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
+        var ny = opprettPeriode(brRevurdering, LocalDate.now());
+        var gammel = opprettPeriode(brRevurdering, LocalDate.now().plusDays(1));
         when(sjekkForIngenAndelerOgAndelerUtenDagsats.sjekk(any(), any())).thenReturn(false);
         when(sjekkOmPerioderHarEndringIAndeler.sjekk(any(), any())).thenReturn(true);
         // Act
-        boolean erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
+        var erEndring = sjekkForEndringMellomPerioder.sjekk(ny, gammel);
         // Assert
         assertThat(erEndring).isTrue();
     }

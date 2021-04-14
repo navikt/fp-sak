@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.UttakResultatRepoMapper;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
-import no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultat;
 
 @ApplicationScoped
 public class MapBeregningsresultatFraVLTilRegel {
@@ -30,7 +29,7 @@ public class MapBeregningsresultatFraVLTilRegel {
                                                 UttakInput input) {
         var mapper = FagsakYtelseTypeRef.Lookup.find(this.uttakResultatRepoMapper, input.getFagsakYtelseType()).orElseThrow();
         var regelBeregningsgrunnlag = MapBeregningsgrunnlagFraVLTilRegel.map(beregningsgrunnlag);
-        UttakResultat regelUttakResultat = mapper.hentOgMapUttakResultat(input);
+        var regelUttakResultat = mapper.hentOgMapUttakResultat(input);
         return new BeregningsresultatRegelmodell(regelBeregningsgrunnlag, regelUttakResultat);
     }
 

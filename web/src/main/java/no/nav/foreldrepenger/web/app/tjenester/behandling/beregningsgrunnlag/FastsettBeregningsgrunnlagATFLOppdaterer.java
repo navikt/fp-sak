@@ -5,13 +5,10 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -24,7 +21,6 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettBGTidsbegrensetArbeidsforho
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
@@ -57,27 +53,26 @@ public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOpp
 
     @Override
     public OppdateringResultat oppdater(FastsettBeregningsgrunnlagATFLDto dto, AksjonspunktOppdaterParameter param) {
-        BeregningsgrunnlagEntitet aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(param.getBehandlingId());
-        BehandlingReferanse ref = param.getRef();
-        BeregningsgrunnlagInputFelles tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.getFagsakYtelseType());
-        BeregningsgrunnlagInput input = tjeneste.lagInput(ref);
-        Optional<BeregningsgrunnlagEntitet> forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
+        var aktivtGrunnlag = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagEntitetAggregatForBehandling(param.getBehandlingId());
+        var ref = param.getRef();
+        var tjeneste = beregningsgrunnlagInputTjeneste.getTjeneste(ref.getFagsakYtelseType());
+        var input = tjeneste.lagInput(ref);
+        var forrigeGrunnlag = beregningsgrunnlagTjeneste.hentSisteBeregningsgrunnlagGrunnlagEntitet(param.getBehandlingId(),
             BeregningsgrunnlagTilstand.FORESLÅTT_UT)
             .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         if (dto.tidsbegrensetInntektErFastsatt()) {
-            FastsettBGTidsbegrensetArbeidsforholdDto tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(), dto.getInntektFrilanser());
+            var tidsbegrensetDto = new FastsettBGTidsbegrensetArbeidsforholdDto(dto.getBegrunnelse(), dto.getFastsatteTidsbegrensedePerioder(), dto.getInntektFrilanser());
             beregningHåndterer.håndterFastsettBGTidsbegrensetArbeidsforhold(input, OppdatererDtoMapper.mapFastsettBGTidsbegrensetArbeidsforholdDto(tidsbegrensetDto));
             fastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste.lagHistorikk(param, aktivtGrunnlag, forrigeGrunnlag, tidsbegrensetDto);
-            OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
-            return builder.build();
-        } else {
-            beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
-            fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag);
-            OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
-            håndterEventueltOverflødigAksjonspunkt(param.getBehandling())
-                .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+            var builder = OppdateringResultat.utenTransisjon();
             return builder.build();
         }
+        beregningHåndterer.håndterFastsettBeregningsgrunnlagATFL(input, OppdatererDtoMapper.mapFastsettBeregningsgrunnlagATFLDto(dto));
+        fastsettBeregningsgrunnlagATFLHistorikkTjeneste.lagHistorikk(param, dto, aktivtGrunnlag);
+        var builder = OppdateringResultat.utenTransisjon();
+        håndterEventueltOverflødigAksjonspunkt(param.getBehandling())
+            .ifPresent(ap -> builder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        return builder.build();
     }
 
     /*

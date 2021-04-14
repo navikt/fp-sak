@@ -33,13 +33,13 @@ public class VedtakXmlUtil {
         if (localDate == null) {
             return Optional.empty();
         }
-        DateOpplysning dateOpplysning = fellesObjectFactory.createDateOpplysning();
+        var dateOpplysning = fellesObjectFactory.createDateOpplysning();
         dateOpplysning.setValue(localDate);
         return Optional.of(dateOpplysning);
     }
 
     public static StringOpplysning lagStringOpplysning(String str) {
-        StringOpplysning stringOpplysning = fellesObjectFactory.createStringOpplysning();
+        var stringOpplysning = fellesObjectFactory.createStringOpplysning();
         stringOpplysning.setValue(str);
         return stringOpplysning;
     }
@@ -48,7 +48,7 @@ public class VedtakXmlUtil {
      * Lager string representasjon av perioden.
      */
     public static StringOpplysning lagStringOpplysningForperiode(Period periode) {
-        StringOpplysning stringOpplysning = fellesObjectFactory.createStringOpplysning();
+        var stringOpplysning = fellesObjectFactory.createStringOpplysning();
         if (Objects.nonNull(periode)) {
             stringOpplysning.setValue(periode.toString());
         }
@@ -56,25 +56,25 @@ public class VedtakXmlUtil {
     }
 
     public static DoubleOpplysning lagDoubleOpplysning(double value) {
-        DoubleOpplysning doubleOpplysning = fellesObjectFactory.createDoubleOpplysning();
+        var doubleOpplysning = fellesObjectFactory.createDoubleOpplysning();
         doubleOpplysning.setValue(value);
         return doubleOpplysning;
     }
 
     public static FloatOpplysning lagFloatOpplysning(float value) {
-        FloatOpplysning floatOpplysning = fellesObjectFactory.createFloatOpplysning();
+        var floatOpplysning = fellesObjectFactory.createFloatOpplysning();
         floatOpplysning.setValue(value);
         return floatOpplysning;
     }
 
     public static LongOpplysning lagLongOpplysning(long value) {
-        LongOpplysning longOpplysning = fellesObjectFactory.createLongOpplysning();
+        var longOpplysning = fellesObjectFactory.createLongOpplysning();
         longOpplysning.setValue(value);
         return longOpplysning;
     }
 
     public static PeriodeOpplysning lagPeriodeOpplysning(LocalDate fom, LocalDate tom) {
-        PeriodeOpplysning periodeOpplysning = fellesObjectFactory.createPeriodeOpplysning();
+        var periodeOpplysning = fellesObjectFactory.createPeriodeOpplysning();
         periodeOpplysning.setFom(fom);
         periodeOpplysning.setTom(tom);
         return periodeOpplysning;
@@ -82,7 +82,7 @@ public class VedtakXmlUtil {
 
 
     public static KodeverksOpplysning lagKodeverksOpplysning(Kodeverdi kodeverdi) {
-        KodeverksOpplysning kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
+        var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
         kodeverksOpplysning.setKode(kodeverdi.getKode());
         kodeverksOpplysning.setValue(kodeverdi.getNavn());
         kodeverksOpplysning.setKodeverk(kodeverdi.getKodeverk());
@@ -93,19 +93,19 @@ public class VedtakXmlUtil {
         if (Objects.isNull(bool)) {
             return null;
         }
-        BooleanOpplysning booleanOpplysning = fellesObjectFactory.createBooleanOpplysning();
+        var booleanOpplysning = fellesObjectFactory.createBooleanOpplysning();
         booleanOpplysning.setValue(bool);
         return booleanOpplysning;
     }
 
     public static IntOpplysning lagIntOpplysning(int value) {
-        IntOpplysning intOpplysning = fellesObjectFactory.createIntOpplysning();
+        var intOpplysning = fellesObjectFactory.createIntOpplysning();
         intOpplysning.setValue(value);
         return intOpplysning;
     }
 
     public static DecimalOpplysning lagDecimalOpplysning(BigDecimal value) {
-        DecimalOpplysning decimalOpplysning = fellesObjectFactory.createDecimalOpplysning();
+        var decimalOpplysning = fellesObjectFactory.createDecimalOpplysning();
         decimalOpplysning.setValue(value);
         return decimalOpplysning;
     }
@@ -115,7 +115,7 @@ public class VedtakXmlUtil {
     }
 
     public static KodeverksOpplysning lagKodeverksOpplysningForAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        KodeverksOpplysning kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
+        var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
         kodeverksOpplysning.setValue(aksjonspunktDefinisjon.getNavn());
         kodeverksOpplysning.setKode(aksjonspunktDefinisjon.getKode());
         kodeverksOpplysning.setKodeverk("AKSJONSPUNKT_DEF");

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -89,7 +87,7 @@ public class AksjonspunktutlederTilbaketrekkTest {
 
         // Act
         var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
-        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
+        var aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -100,16 +98,16 @@ public class AksjonspunktutlederTilbaketrekkTest {
         // Arrange
         // Bygg IAY
         var behandling = opprettBehandling();
-        InntektArbeidYtelseAggregatBuilder registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        Arbeidsgiver arbeidsgiver = Arbeidsgiver.virksomhet("977011833");
-        InternArbeidsforholdRef arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1,
+        var registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("977011833");
+        var arbeidsforholdId1 = InternArbeidsforholdRef.nyRef();
+        var ya1 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId1,
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.minusMonths(3)));
-        Arbeidsgiver arbeidsgiver2 = Arbeidsgiver.virksomhet("924042648");
-        YrkesaktivitetBuilder ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(),
+        var arbeidsgiver2 = Arbeidsgiver.virksomhet("924042648");
+        var ya2 = lagYrkesaktivitet(arbeidsgiver2, InternArbeidsforholdRef.nullRef(),
                 DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1)));
-        InternArbeidsforholdRef arbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        YrkesaktivitetBuilder ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId,
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var ya3 = lagYrkesaktivitet(arbeidsgiver, arbeidsforholdId,
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).minusDays(1)));
         leggTilYrkesaktiviteter(behandling, registerBuilder, ya1, ya2, ya3);
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
@@ -121,15 +119,15 @@ public class AksjonspunktutlederTilbaketrekkTest {
 
         // Act
         var param = new AksjonspunktUtlederInput(mockReferanse(behandling));
-        List<AksjonspunktResultat> aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
+        var aksjonspunktResultater = aksjonspunktutlederTilbaketrekk.utledAksjonspunkterFor(param);
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
     }
 
     private void leggTilYrkesaktiviteter(Behandling behandling, InntektArbeidYtelseAggregatBuilder registerBuilder, YrkesaktivitetBuilder... yas) {
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
-        for (YrkesaktivitetBuilder ya : yas) {
+        var aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
+        for (var ya : yas) {
             aktørArbeidBuilder.leggTilYrkesaktivitet(ya);
         }
         registerBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -150,8 +148,8 @@ public class AksjonspunktutlederTilbaketrekkTest {
     }
 
     private void lagIayForAvsluttetOgTilkommetArbeid(Behandling behandling) {
-        InntektArbeidYtelseAggregatBuilder registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
+        var registerBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        var aktørArbeidBuilder = registerBuilder.getAktørArbeidBuilder(behandling.getAktørId());
         aktørArbeidBuilder.leggTilYrkesaktivitet(lagYrkesaktivitetForAvsluttetArbeid())
                 .leggTilYrkesaktivitet(lagYrkesaktivitetForTilkommetArbeid());
         registerBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
@@ -175,11 +173,11 @@ public class AksjonspunktutlederTilbaketrekkTest {
     }
 
     private void lagUtbetaltBeregningsresultatMedEnAndelTilBruker(Arbeidsgiver arbeidsgiver, LocalDate beregningsresultatPeriodeFom) {
-        BeregningsresultatEntitet build = BeregningsresultatEntitet.builder()
+        var build = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var periode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
                 .build(build);
         BeregningsresultatAndel.builder()
@@ -200,11 +198,11 @@ public class AksjonspunktutlederTilbaketrekkTest {
             Arbeidsgiver bortfaltArbeid,
             LocalDate beregningsresultatPeriodeFom,
             Long behandlingId) {
-        BeregningsresultatEntitet build = BeregningsresultatEntitet.builder()
+        var build = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
-        BeregningsresultatPeriode periode = BeregningsresultatPeriode.builder()
+        var periode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(beregningsresultatPeriodeFom, beregningsresultatPeriodeFom.plusMonths(2))
                 .build(build);
         BeregningsresultatAndel.builder()

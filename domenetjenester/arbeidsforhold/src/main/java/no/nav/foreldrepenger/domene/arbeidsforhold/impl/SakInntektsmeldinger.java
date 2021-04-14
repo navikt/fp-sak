@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,15 +36,15 @@ public class SakInntektsmeldinger {
     }
 
     public Optional<UUID> getSisteGrunnlagReferanseDerInntektsmeldingerForskjelligFraNyeste(Long behandlingId) {
-        List<Key> grunnlagDesc = data.keySet().stream()
+        var grunnlagDesc = data.keySet().stream()
                 .sorted(Comparator.comparing(Key::getOpprettetTidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .distinct()
                 .filter(k -> Objects.equals(k.behandlingId, behandlingId))
                 .collect(Collectors.toList());
 
         if (grunnlagDesc.size() >= 2) {
-            Key første = grunnlagDesc.get(0);
-            Set<Inntektsmelding> førsteInntektsmeldinger = data.get(første);
+            var første = grunnlagDesc.get(0);
+            var førsteInntektsmeldinger = data.get(første);
             for (var key : grunnlagDesc.subList(1, grunnlagDesc.size())) {
                 if (!Objects.equals(førsteInntektsmeldinger, data.get(key))) {
                     return Optional.of(key.grunnlagEksternReferanse);
@@ -58,7 +57,7 @@ public class SakInntektsmeldinger {
 
     public Optional<InntektArbeidYtelseGrunnlag> finnGrunnlag(Long behandlingId, UUID grunnlagRef) {
         Objects.requireNonNull(grunnlagRef, "grunnlagRef");
-        List<Key> grunnlagDesc = grunnlag.keySet().stream()
+        var grunnlagDesc = grunnlag.keySet().stream()
                 .distinct()
                 .filter(k -> Objects.equals(k.behandlingId, behandlingId))
                 .filter(k -> Objects.equals(k.grunnlagEksternReferanse, grunnlagRef))
@@ -66,7 +65,8 @@ public class SakInntektsmeldinger {
 
         if (grunnlagDesc.size() == 1) {
             return Optional.of(grunnlag.get(grunnlagDesc.get(0)));
-        } else if (grunnlagDesc.isEmpty()) {
+        }
+        if (grunnlagDesc.isEmpty()) {
             return Optional.empty();
         }
         throw new IllegalStateException("Flere grunnlag med samme referanse");
@@ -115,7 +115,7 @@ public class SakInntektsmeldinger {
             if ((o == null) || (getClass() != o.getClass())) {
                 return false;
             }
-            Key key = (Key) o;
+            var key = (Key) o;
             return Objects.equals(behandlingId, key.behandlingId) &&
                     Objects.equals(grunnlagEksternReferanse, key.grunnlagEksternReferanse) &&
                     Objects.equals(opprettetTidspunkt, key.opprettetTidspunkt);

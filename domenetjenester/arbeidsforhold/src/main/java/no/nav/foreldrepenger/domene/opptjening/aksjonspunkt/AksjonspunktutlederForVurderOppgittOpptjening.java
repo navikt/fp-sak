@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
@@ -25,18 +24,14 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittAnnenAktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
@@ -69,15 +64,15 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
 
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
 
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
-        Optional<Opptjening> fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
+        var inntektArbeidYtelseGrunnlagOptional = iayTjeneste.finnGrunnlag(behandlingId);
+        var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
         if (!inntektArbeidYtelseGrunnlagOptional.isPresent() || !fastsattOpptjeningOptional.isPresent()) {
             return INGEN_AKSJONSPUNKTER;
         }
-        OppgittOpptjening oppgittOpptjening = inntektArbeidYtelseGrunnlagOptional.get().getOppgittOpptjening().orElse(null);
-        DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
+        var oppgittOpptjening = inntektArbeidYtelseGrunnlagOptional.get().getOppgittOpptjening().orElse(null);
+        var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
                 fastsattOpptjeningOptional.get().getTom());
 
         if (harBrukerOppgittPerioderMed(oppgittOpptjening, opptjeningPeriode, finnRelevanteKoder()) == JA) {
@@ -96,7 +91,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         }
 
         if (harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA) {
-            AktørId aktørId = param.getAktørId();
+            var aktørId = param.getAktørId();
             if (manglerFerdiglignetNæringsinntekt(aktørId, oppgittOpptjening, inntektArbeidYtelseGrunnlagOptional.get(), opptjeningPeriode,
                     param.getSkjæringstidspunkt()) == JA) {
                 LOG.info("Utleder AP 5051 fra oppgitt næringsdrift");
@@ -119,7 +114,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             return NEI;
         }
 
-        for (OppgittArbeidsforhold oppgittArbeidsforhold : oppgittOpptjening.getOppgittArbeidsforhold()) {
+        for (var oppgittArbeidsforhold : oppgittOpptjening.getOppgittArbeidsforhold()) {
             if (oppgittArbeidsforhold.getArbeidType().equals(annenOpptjeningType)
                     && opptjeningPeriode.overlapper(oppgittArbeidsforhold.getPeriode())) {
                 return JA;
@@ -134,7 +129,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             return NEI;
         }
 
-        for (OppgittAnnenAktivitet annenAktivitet : oppgittOpptjening.getAnnenAktivitet()) {
+        for (var annenAktivitet : oppgittOpptjening.getAnnenAktivitet()) {
             if (annenOpptjeningType.contains(annenAktivitet.getArbeidType()) && opptjeningPeriode.overlapper(annenAktivitet.getPeriode())) {
                 return JA;
             }
@@ -147,7 +142,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             return NEI;
         }
 
-        for (OppgittEgenNæring egenNæring : oppgittOpptjening.getEgenNæring()) {
+        for (var egenNæring : oppgittOpptjening.getEgenNæring()) {
             if (opptjeningPeriode.overlapper(egenNæring.getPeriode())) {
                 return JA;
             }
@@ -160,7 +155,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             Skjæringstidspunkt skjæringstidspunkt) {
         // Det siste ferdiglignede år vil alltid være året før behandlingstidspunktet
         // Bruker LocalDate.now() her etter avklaring med funksjonell.
-        int sistFerdiglignetÅr = LocalDate.now().minusYears(1L).getYear();
+        var sistFerdiglignetÅr = LocalDate.now().minusYears(1L).getYear();
         if (inneholderSisteFerdiglignendeÅrNæringsinntekt(aktørId, inntektArbeidYtelseGrunnlag, sistFerdiglignetÅr, opptjeningPeriode,
                 skjæringstidspunkt) == NEI) {
             if (erDetRegistrertNæringEtterSisteFerdiglignendeÅr(oppgittOpptjening, sistFerdiglignetÅr) == NEI) {
@@ -175,7 +170,7 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
             int sistFerdiglignetÅr,
             DatoIntervallEntitet opptjeningPeriode,
             Skjæringstidspunkt skjæringstidspunkt) {
-        LocalDate stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+        var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
         var filter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
         if (filter.isEmpty()) {
             return NEI;
@@ -205,25 +200,24 @@ public class AksjonspunktutlederForVurderOppgittOpptjening implements Aksjonspun
         if (eg.getOrgnr() == null) {
             return false;
         }
-        Optional<Virksomhet> lagretVirksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr());
+        var lagretVirksomhet = virksomhetTjeneste.finnOrganisasjon(eg.getOrgnr());
         if (lagretVirksomhet.isPresent()) {
             return lagretVirksomhet.get().getRegistrert().getYear() > sistFerdiglignetÅr;
-        } else {
-            // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg. Innført
-            // etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
-            Virksomhet hentetVirksomhet = virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr());
-            return hentetVirksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
         }
+        // Virksomhetsinformasjonen er ikke hentet, henter vi den fra ereg. Innført
+        // etter feil som oppstod i https://jira.adeo.no/browse/TFP-1484
+        var hentetVirksomhet = virksomhetTjeneste.hentOrganisasjon(eg.getOrgnr());
+        return hentetVirksomhet.getRegistrert().getYear() > sistFerdiglignetÅr;
     }
 
     boolean girAksjonspunktForOppgittNæring(Long behandlingId, AktørId aktørId, InntektArbeidYtelseGrunnlag iayg,
             Skjæringstidspunkt skjæringstidspunkt) {
-        Optional<Opptjening> fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
+        var fastsattOpptjeningOptional = opptjeningRepository.finnOpptjening(behandlingId);
         if (!fastsattOpptjeningOptional.isPresent()) {
             return false;
         }
-        OppgittOpptjening oppgittOpptjening = iayg.getOppgittOpptjening().orElse(null);
-        DatoIntervallEntitet opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
+        var oppgittOpptjening = iayg.getOppgittOpptjening().orElse(null);
+        var opptjeningPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(fastsattOpptjeningOptional.get().getFom(),
                 fastsattOpptjeningOptional.get().getTom());
 
         return (harBrukerOppgittÅVæreSelvstendigNæringsdrivende(oppgittOpptjening, opptjeningPeriode) == JA) &&

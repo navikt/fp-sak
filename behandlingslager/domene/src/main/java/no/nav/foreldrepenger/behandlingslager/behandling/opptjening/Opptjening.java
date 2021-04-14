@@ -95,10 +95,11 @@ public class Opptjening extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof Opptjening)) {
+        }
+        if (!(obj instanceof Opptjening)) {
             return false;
         }
-        Opptjening other = (Opptjening) obj;
+        var other = (Opptjening) obj;
         return Objects.equals(this.getFom(), other.getFom())
                 && Objects.equals(this.getTom(), other.getTom());
     }
@@ -138,7 +139,7 @@ public class Opptjening extends BaseEntitet {
     }
 
     public boolean erOpptjeningPeriodeVilkårOppfylt() {
-        VilkårUtfallType opptjeningVilkårUtfall = getVilkårResultat().getVilkårene().stream()
+        var opptjeningVilkårUtfall = getVilkårResultat().getVilkårene().stream()
             .filter(v -> VilkårType.OPPTJENINGSPERIODEVILKÅR.equals(v.getVilkårType()))
             .map(Vilkår::getGjeldendeVilkårUtfall)
             .findFirst().orElse(VilkårUtfallType.IKKE_VURDERT);

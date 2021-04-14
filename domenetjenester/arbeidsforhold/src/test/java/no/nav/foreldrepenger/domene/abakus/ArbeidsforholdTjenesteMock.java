@@ -23,9 +23,9 @@ public class ArbeidsforholdTjenesteMock {
     private final no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste arbeidsforholdTjeneste;
 
     public ArbeidsforholdTjenesteMock(boolean medToArbeidsforhold) {
-        List<ArbeidsforholdDto> response = opprettResponse(medToArbeidsforhold);
+        var response = opprettResponse(medToArbeidsforhold);
 
-        AbakusTjeneste arbeidsforholdConsumer = mock(AbakusTjeneste.class);
+        var arbeidsforholdConsumer = mock(AbakusTjeneste.class);
         when(arbeidsforholdConsumer.hentArbeidsforholdIPerioden(any())).thenReturn(response);
         this.arbeidsforholdTjeneste = new no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste(arbeidsforholdConsumer);
     }

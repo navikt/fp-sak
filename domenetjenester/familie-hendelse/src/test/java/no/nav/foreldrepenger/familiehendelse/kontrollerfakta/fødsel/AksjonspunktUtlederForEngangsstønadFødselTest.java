@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,11 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
 public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManagerAwareTest {
@@ -55,9 +51,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void avklar_terminbekreftelse_dersom_termindato_nå() {
         //Arrange
-        Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_NÅ, FØRSTEGANGSSØKNAD);
+        var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_NÅ, FØRSTEGANGSSØKNAD);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
         verify(apUtleder).utledAksjonspunkterForTerminbekreftelse(any());
@@ -66,9 +62,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void sjekk_manglende_fødsel_dersom_termindato_mer_enn_25_dager_siden() {
         //Arrange
-        Behandling behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_27_SIDEN, FØRSTEGANGSSØKNAD);
+        var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_27_SIDEN, FØRSTEGANGSSØKNAD);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
@@ -81,9 +77,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void sjekk_manglende_fødsel_dersom_fødsel_og_mindre_enn_14_dager_siden_fødsel() {
         //Arrange
-        Behandling behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_NÅ);
+        var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_NÅ);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
         assertThat(utledeteAksjonspunkter.get(0).getFrist()).isNotNull();
@@ -94,9 +90,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void autopunkt_vent_på_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
         //Arrange
-        Behandling behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_16_SIDEN);
+        var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_16_SIDEN);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         //Usikker her
@@ -106,9 +102,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         //Arrange
-        Behandling behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ,1, 1);
+        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ,1, 1);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).isEmpty();
         verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
@@ -117,9 +113,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void ingen_akjsonspunkter_dersom_fødsel_overstyrt() {
         //Arrange
-        Behandling behandling = opprettBehandlingForFødselOverstyrt(FØDSELSDATO_NÅ,1, 1);
+        var behandling = opprettBehandlingForFødselOverstyrt(FØDSELSDATO_NÅ,1, 1);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).isEmpty();
         verify(apUtleder).finnesOverstyrtFødsel(any(FamilieHendelseGrunnlagEntitet.class));
@@ -128,16 +124,16 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     @Test
     public void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         //Arrange
-        Behandling behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ, 2, 1);
+        var behandling = opprettBehandlingForFødselRegistrertITps(FØDSELSDATO_NÅ, 2, 1);
         //Act
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
     }
 
     private Behandling opprettBehandlingMedOppgittTermin(LocalDate termindato, BehandlingType behandlingType) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
             .medBehandlingType(behandlingType);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
@@ -151,7 +147,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
 
 
     private Behandling opprettBehandlingMedOppgittFødsel(LocalDate fødseldato) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødseldato);
 
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
@@ -159,7 +155,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     private Behandling opprettBehandlingForFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse()
@@ -170,7 +166,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     private Behandling opprettBehandlingForFødselOverstyrt(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel();
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse()
@@ -181,9 +177,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
             .build();

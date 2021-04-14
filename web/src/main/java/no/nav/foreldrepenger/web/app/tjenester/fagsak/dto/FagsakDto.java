@@ -96,7 +96,7 @@ public class FagsakDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FagsakDto fagsakDto = (FagsakDto) o;
+        var fagsakDto = (FagsakDto) o;
         return Objects.equals(saksnummer, fagsakDto.saksnummer)
             && Objects.equals(saksnummerString, fagsakDto.saksnummerString)
             && sakstype == fagsakDto.sakstype && relasjonsRolleType == fagsakDto.relasjonsRolleType && status == fagsakDto.status

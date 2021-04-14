@@ -44,11 +44,13 @@ public class OpptjeningAktivitetVurderingVilkår implements OpptjeningAktivitetV
             boolean harVærtSaksbehandlet) {
         if (OpptjeningAktivitetType.ANNEN_OPPTJENING.contains(type)) {
             return vurderAnnenOpptjening(overstyrtAktivitet);
-        } else if (OpptjeningAktivitetType.NÆRING.equals(type)) {
-            Skjæringstidspunkt skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
+        }
+        if (OpptjeningAktivitetType.NÆRING.equals(type)) {
+            var skjæringstidspunkt = behandlingReferanse.getSkjæringstidspunkt();
             return vurderNæring(behandlingReferanse.getBehandlingId(), behandlingReferanse.getAktørId(), iayGrunnlag, overstyrtAktivitet,
                     skjæringstidspunkt);
-        } else if (OpptjeningAktivitetType.ARBEID.equals(type)) {
+        }
+        if (OpptjeningAktivitetType.ARBEID.equals(type)) {
             var filter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), (Yrkesaktivitet) null);
             return vurderArbeid(filter, registerAktivitet, overstyrtAktivitet, behandlingReferanse.getBehandlingId());
         }

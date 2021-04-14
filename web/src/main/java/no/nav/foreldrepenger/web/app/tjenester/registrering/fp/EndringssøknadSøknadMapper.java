@@ -20,14 +20,12 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
-import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
-import no.nav.vedtak.felles.xml.soeknad.v3.OmYtelse;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @FagsakYtelseTypeRef("FP")
@@ -40,19 +38,19 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
 
     @Override
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
-            Soeknad søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
+        var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
 
-        Endringssoeknad endringssøknad = new no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory().createEndringssoeknad();
+        var endringssøknad = new no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory().createEndringssoeknad();
         endringssøknad.setFordeling(mapFordelingEndringssøknad((ManuellRegistreringEndringsøknadDto)registreringDto));
-        OmYtelse omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
+        var omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
         omYtelse.getAny().add(new no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory().createEndringssoeknad(endringssøknad));
         søknad.setOmYtelse(omYtelse);
         return søknad;
     }
 
     private static Fordeling mapFordelingEndringssøknad(ManuellRegistreringEndringsøknadDto registreringDto) {
-        Fordeling fordeling = new Fordeling();
-        List<LukketPeriodeMedVedlegg> perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
+        var fordeling = new Fordeling();
+        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).collect(Collectors.toList()));
         return fordeling;
     }

@@ -43,15 +43,15 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public PersonopplysningerAggregat hentPersonopplysninger(BehandlingReferanse ref) {
-        final LocalDate localDate = ref.getUtledetSkjæringstidspunkt();
+        final var localDate = ref.getUtledetSkjæringstidspunkt();
         return hentGjeldendePersoninformasjonPåTidspunkt(ref.getBehandlingId(), ref.getAktørId(), localDate);
     }
 
     @Override
     public Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(BehandlingReferanse ref) {
-        final Optional<PersonopplysningGrunnlagEntitet> grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
         if (grunnlagOpt.isPresent()) {
-            final LocalDate localDate = ref.getUtledetSkjæringstidspunkt();
+            final var localDate = ref.getUtledetSkjæringstidspunkt();
             return Optional.of(mapTilAggregat(ref.getAktørId(), localDate, grunnlagOpt.get()));
         }
         return Optional.empty();
@@ -59,7 +59,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public PersonopplysningerAggregat hentGjeldendePersoninformasjonPåTidspunkt(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
-        final Optional<PersonopplysningGrunnlagEntitet> grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
             return new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(tidspunkt, tidspunkt.plusDays(1)));
@@ -69,7 +69,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
-        final Optional<PersonopplysningGrunnlagEntitet> grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
             return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(tidspunkt, tidspunkt.plusDays(1))));
@@ -79,7 +79,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(Long behandlingId, AktørId aktørId, DatoIntervallEntitet forPeriode) {
-        final Optional<PersonopplysningGrunnlagEntitet> grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
         if (grunnlagOpt.isPresent()) {
             return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, forPeriode));
         }
@@ -96,7 +96,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
     }
 
     public EndringsresultatSnapshot finnAktivGrunnlagId(Long behandlingId) {
-        Optional<Long> funnetId = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).map(PersonopplysningGrunnlagEntitet::getId);
+        var funnetId = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId).map(PersonopplysningGrunnlagEntitet::getId);
         return funnetId
             .map(id -> EndringsresultatSnapshot.medSnapshot(PersonInformasjonEntitet.class, id))
             .orElse(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));

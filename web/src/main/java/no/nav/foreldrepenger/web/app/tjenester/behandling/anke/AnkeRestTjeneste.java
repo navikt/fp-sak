@@ -74,13 +74,13 @@ public class AnkeRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAnkeVurdering(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        AnkebehandlingDto dto = mapFra(behandling);
-        CacheControl cc = new CacheControl();
+        var dto = mapFra(behandling);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -98,8 +98,8 @@ public class AnkeRestTjeneste {
     }
 
     private AnkebehandlingDto mapFra(Behandling behandling) {
-        AnkebehandlingDto dto = new AnkebehandlingDto();
-        Optional<AnkeVurderingResultatDto> ankeVurdering = mapAnkeVurderingResultatDto(behandling);
+        var dto = new AnkebehandlingDto();
+        var ankeVurdering = mapAnkeVurderingResultatDto(behandling);
         ankeVurdering.ifPresent(dto::setAnkeVurderingResultat);
 
         return dto;
@@ -113,7 +113,7 @@ public class AnkeRestTjeneste {
     public Response mellomlagreAnke(
             @Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
-        Behandling behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             var builder = mapMellomlagreVurdering(apDto, behandling);
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, apDto.hentPåAnketBehandlingId());
@@ -157,7 +157,7 @@ public class AnkeRestTjeneste {
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId,
             UUID paAnketBehandlingUuid) {
 
-        AnkeVurderingResultatDto dto = new AnkeVurderingResultatDto();
+        var dto = new AnkeVurderingResultatDto();
 
         dto.setAnkeVurdering(ankeVurderingResultat.getAnkeVurdering());
         dto.setAnkeVurderingOmgjoer(ankeVurderingResultat.getAnkeVurderingOmgjør());

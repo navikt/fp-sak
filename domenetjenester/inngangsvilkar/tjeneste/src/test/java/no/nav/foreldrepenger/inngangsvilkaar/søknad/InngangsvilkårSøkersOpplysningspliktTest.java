@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 
@@ -36,9 +35,9 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(true);
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
-        VilkårData vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
+        var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
 
         assertThat(vilkårData).isNotNull();
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
@@ -51,9 +50,9 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(false);
-        Behandling behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
 
-        VilkårData vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
+        var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
 
         assertThat(vilkårData).isNotNull();
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
@@ -67,11 +66,11 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         when(kompletthetssjekkerProvider.finnKompletthetsjekkerFor(any(), any())).thenReturn(kompletthetssjekker);
         when(kompletthetssjekker.erForsendelsesgrunnlagKomplett(any()))
             .thenReturn(false);
-        Behandling revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagMocked();
 
-        VilkårData vilkårData = testObjekt.vurderVilkår(lagRef(revurdering));
+        var vilkårData = testObjekt.vurderVilkår(lagRef(revurdering));
 
         assertThat(vilkårData).isNotNull();
         assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);

@@ -12,10 +12,10 @@ public class AktivitetsAvtaleTest {
 
     @Test
     public void testPeriodeNotEqual() {
-        AktivitetsAvtale avtale1 = AktivitetsAvtaleBuilder.ny()
+        var avtale1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 
-        AktivitetsAvtale avtale2 = AktivitetsAvtaleBuilder.ny()
+        var avtale2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 31))).build();
 
         assertThat(avtale1.equals(avtale2)).isFalse();
@@ -23,10 +23,10 @@ public class AktivitetsAvtaleTest {
 
     @Test
     public void testPeriodeEqual() {
-        AktivitetsAvtale avtale1 = AktivitetsAvtaleBuilder.ny()
+        var avtale1 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 
-        AktivitetsAvtale avtale2 = AktivitetsAvtaleBuilder.ny()
+        var avtale2 = AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.of(2018, 10, 1), LocalDate.of(2019, 8, 30))).build();
 
         assertThat(avtale1.equals(avtale2)).isTrue();

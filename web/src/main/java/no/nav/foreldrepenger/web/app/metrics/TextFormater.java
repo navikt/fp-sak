@@ -23,7 +23,7 @@ public final class TextFormater {
         /* See http://prometheus.io/docs/instrumenting/exposition_formats/
          * for the output format specification. */
         while(mfs.hasMoreElements()) {
-            Collector.MetricFamilySamples metricFamilySamples = mfs.nextElement();
+            var metricFamilySamples = mfs.nextElement();
             writer.write("# HELP ");
             writer.write(metricFamilySamples.name);
             writer.write(' ');
@@ -36,11 +36,11 @@ public final class TextFormater {
             writer.write(typeString(metricFamilySamples.type));
             writer.write('\n');
 
-            for (Collector.MetricFamilySamples.Sample sample: metricFamilySamples.samples) {
+            for (var sample: metricFamilySamples.samples) {
                 writer.write(sample.name);
                 if (sample.labelNames.size() > 0) {
                     writer.write('{');
-                    for (int i = 0; i < sample.labelNames.size(); ++i) {
+                    for (var i = 0; i < sample.labelNames.size(); ++i) {
                         writer.write(sample.labelNames.get(i));
                         writer.write("=\"");
                         writeEscapedLabelValue(writer, sample.labelValues.get(i));
@@ -70,8 +70,8 @@ public final class TextFormater {
     }
 
     private static void writeEscapedHelp(Writer writer, String s) throws IOException {
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
+        for (var i = 0; i < s.length(); i++) {
+            var c = s.charAt(i);
             switch (c) {
                 case '\\' -> writer.append("\\\\");
                 case '\n' -> writer.append("\\n");
@@ -81,8 +81,8 @@ public final class TextFormater {
     }
 
     private static void writeEscapedLabelValue(Writer writer, String s) throws IOException {
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
+        for (var i = 0; i < s.length(); i++) {
+            var c = s.charAt(i);
             switch (c) {
                 case '\\' -> writer.append("\\\\");
                 case '\"' -> writer.append("\\\"");

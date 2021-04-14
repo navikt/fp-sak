@@ -43,7 +43,7 @@ public class ArkivJournalPost {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArkivJournalPost that = (ArkivJournalPost) o;
+        var that = (ArkivJournalPost) o;
         return Objects.equals(journalpostId, that.journalpostId) &&
             Objects.equals(hovedDokument, that.hovedDokument) &&
             Objects.equals(andreDokument, that.andreDokument) &&

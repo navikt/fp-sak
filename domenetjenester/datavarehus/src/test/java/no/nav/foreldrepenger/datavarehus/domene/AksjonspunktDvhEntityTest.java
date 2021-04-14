@@ -8,7 +8,7 @@ public class AksjonspunktDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_aksjonspunktDvh() {
-        AksjonspunktDvh aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
+        var aksjonspunktDvh = DatavarehusTestUtils.byggAksjonspunktDvh();
 
         assertThat(aksjonspunktDvh.getAksjonspunktDef()).isEqualTo(DatavarehusTestUtils.AKSJONSPUNKT_DEF);
         assertThat(aksjonspunktDvh.getAksjonspunktId()).isEqualTo(DatavarehusTestUtils.AKSJONSPUNKT_ID);

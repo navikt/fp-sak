@@ -11,7 +11,7 @@ public class SettBehandlingPaVentDtoTest {
 
     @Test
     public void skal_ha_med_behandlingId_til_abac() throws Exception {
-        SettBehandlingPaVentDto dto = new SettBehandlingPaVentDto();
+        var dto = new SettBehandlingPaVentDto();
         dto.setBehandlingId(1234L);
 
         assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, 1234L));

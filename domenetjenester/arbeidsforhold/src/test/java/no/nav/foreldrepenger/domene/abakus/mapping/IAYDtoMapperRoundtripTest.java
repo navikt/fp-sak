@@ -59,7 +59,6 @@ import no.nav.abakus.iaygrunnlag.ytelse.v1.FordelingDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.ytelse.v1.YtelserDto;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -85,12 +84,12 @@ public class IAYDtoMapperRoundtripTest {
     @Test
     public void roundtrip_mapping_dto_til_grunnlag_til_dto() {
         // Arrange
-        InntektArbeidYtelseGrunnlagDto dto = lagIAYGrunnlag();
+        var dto = lagIAYGrunnlag();
 
         // Act
-        InntektArbeidYtelseGrunnlag fpsakGrunnlag = fraDtoMapper.mapTilGrunnlagInklusivRegisterdata(dto, true);
-        IAYTilDtoMapper dtoMapper = new IAYTilDtoMapper(aktørId, ytelseType, uuid, uuid);
-        InntektArbeidYtelseGrunnlagDto dtoIgjen = dtoMapper.mapTilDto(fpsakGrunnlag, true);
+        var fpsakGrunnlag = fraDtoMapper.mapTilGrunnlagInklusivRegisterdata(dto, true);
+        var dtoMapper = new IAYTilDtoMapper(aktørId, ytelseType, uuid, uuid);
+        var dtoIgjen = dtoMapper.mapTilDto(fpsakGrunnlag, true);
 
         // Assert
         assertThat(dtoIgjen.getGrunnlagTidspunkt()).isEqualTo(dto.getGrunnlagTidspunkt());
@@ -113,7 +112,7 @@ public class IAYDtoMapperRoundtripTest {
     }
 
     private InntektArbeidYtelseGrunnlagDto lagIAYGrunnlag() {
-        InntektArbeidYtelseGrunnlagDto grunnlag = new InntektArbeidYtelseGrunnlagDto(aktørIdent, offTidspunkt, uuid, uuid, YtelseType.FORELDREPENGER);
+        var grunnlag = new InntektArbeidYtelseGrunnlagDto(aktørIdent, offTidspunkt, uuid, uuid, YtelseType.FORELDREPENGER);
 
         grunnlag.medRegister(
                 new InntektArbeidYtelseAggregatRegisterDto(tidspunkt, uuid)

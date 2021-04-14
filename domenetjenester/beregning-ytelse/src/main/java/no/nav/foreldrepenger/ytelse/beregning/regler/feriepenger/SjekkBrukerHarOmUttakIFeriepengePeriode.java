@@ -20,7 +20,7 @@ class SjekkBrukerHarOmUttakIFeriepengePeriode extends LeafSpecification<Beregnin
 
     @Override
     public Evaluation evaluate(BeregningsresultatFeriepengerRegelModell regelModell) {
-        LocalDate førsteUttaksDato = finnFørsteUttaksdag(regelModell.getBeregningsresultatPerioder());
+        var førsteUttaksDato = finnFørsteUttaksdag(regelModell.getBeregningsresultatPerioder());
         return regelModell.getFeriepengerPeriode().encloses(førsteUttaksDato) ? ja() : nei();
     }
 

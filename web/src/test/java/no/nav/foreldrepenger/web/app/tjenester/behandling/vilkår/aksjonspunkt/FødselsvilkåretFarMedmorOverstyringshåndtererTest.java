@@ -10,15 +10,11 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -56,9 +52,9 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
         // Dto
-        OverstyringFødselvilkåretFarMedmorDto overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(
+        var overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(
                 false, "test overstyring av inngangsvilkår far/medmor", Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
@@ -66,16 +62,16 @@ public class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringDto), behandling.getId());
 
         // Assert
-        List<Historikkinnslag> historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
+        var historikkinnslagene = repositoryProvider.getHistorikkRepository().hentHistorikk(behandling.getId());
         assertThat(historikkinnslagene.get(0).getHistorikkinnslagDeler()).hasSize(1);
-        List<HistorikkinnslagFelt> feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
+        var feltList = historikkinnslagene.get(0).getHistorikkinnslagDeler().get(0).getEndredeFelt();
         assertThat(feltList).hasSize(1);
-        HistorikkinnslagFelt felt = feltList.get(0);
+        var felt = feltList.get(0);
         assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.OVERSTYRT_VURDERING.getKode());
         assertThat(felt.getFraVerdi()).as("fraVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT.getKode());
 
-        Set<Aksjonspunkt> aksjonspunktSet = behandling.getAksjonspunkter();
+        var aksjonspunktSet = behandling.getAksjonspunkter();
 
         assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR);
 

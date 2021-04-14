@@ -40,7 +40,7 @@ public class SakOgBehandlingHendelseProducer {
                                            @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                            @KonfigVerdi("systembruker.username") String username,
                                            @KonfigVerdi("systembruker.password") String password) {
-        Properties properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, getProducerClientId(topicName), username, password);
+        var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl, getProducerClientId(topicName), username, password);
         this.topic = topicName;
         this.producer = createProducer(properties);
     }

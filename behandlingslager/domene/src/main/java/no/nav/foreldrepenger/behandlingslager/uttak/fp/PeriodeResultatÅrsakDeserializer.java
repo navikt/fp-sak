@@ -27,13 +27,13 @@ public class PeriodeResultatÅrsakDeserializer extends StdDeserializer<PeriodeRe
         }
 
         String kode = null;
-        String kodeverk = PeriodeResultatÅrsak.UKJENT.getKodeverk();
+        var kodeverk = PeriodeResultatÅrsak.UKJENT.getKodeverk();
 
         if (Objects.equals(p.getCurrentToken(), JsonToken.START_OBJECT)) {
             while (!(JsonToken.END_OBJECT.equals(p.getCurrentToken()))) {
                 p.nextToken();
-                String name = p.getCurrentName();
-                String value = p.getValueAsString();
+                var name = p.getCurrentName();
+                var value = p.getValueAsString();
                 if (Objects.equals("kode", name) && !Objects.equals("kode", value)) { //$NON-NLS-1$ //$NON-NLS-2$
                     kode = value;
                 } else if (Objects.equals("kodeverk", name) && !Objects.equals("kodeverk", value)) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -45,11 +45,11 @@ public class PeriodeResultatÅrsakDeserializer extends StdDeserializer<PeriodeRe
 
         if (Objects.equals(InnvilgetÅrsak.KODEVERK, kodeverk)) {
             return InnvilgetÅrsak.fraKode(kode);
-        } else if (Objects.equals(IkkeOppfyltÅrsak.KODEVERK, kodeverk)) {
-            return IkkeOppfyltÅrsak.fraKode(kode);
-        } else {
-            return PeriodeResultatÅrsak.UKJENT;
         }
+        if (Objects.equals(IkkeOppfyltÅrsak.KODEVERK, kodeverk)) {
+            return IkkeOppfyltÅrsak.fraKode(kode);
+        }
+        return PeriodeResultatÅrsak.UKJENT;
     }
 
 }

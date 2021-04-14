@@ -14,7 +14,7 @@ public class TekniskRepository {
     }
 
     public <V> V doWorkInSavepoint(Work<V> work) {
-        RunWithSavepoint setJdbcSavepoint = new RunWithSavepoint(entityManager);
+        var setJdbcSavepoint = new RunWithSavepoint(entityManager);
         return setJdbcSavepoint.doWork(work);
     }
 }

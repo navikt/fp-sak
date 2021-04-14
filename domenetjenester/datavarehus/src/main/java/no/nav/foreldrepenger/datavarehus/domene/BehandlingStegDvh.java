@@ -66,7 +66,7 @@ public class BehandlingStegDvh extends DvhBaseEntitet {
         if (!super.equals(other)) {
             return false;
         }
-        BehandlingStegDvh castOther = (BehandlingStegDvh) other;
+        var castOther = (BehandlingStegDvh) other;
         return Objects.equals(behandlingStegId, castOther.behandlingStegId)
                 && Objects.equals(behandlingId, castOther.behandlingId)
                 && Objects.equals(behandlingStegType, castOther.behandlingStegType)
@@ -121,7 +121,7 @@ public class BehandlingStegDvh extends DvhBaseEntitet {
         }
 
         public BehandlingStegDvh build() {
-            BehandlingStegDvh behandlingStegDvh = new BehandlingStegDvh();
+            var behandlingStegDvh = new BehandlingStegDvh();
             behandlingStegDvh.behandlingStegId = behandlingStegId;
             behandlingStegDvh.behandlingId = behandlingId;
             behandlingStegDvh.behandlingStegType = behandlingStegType;

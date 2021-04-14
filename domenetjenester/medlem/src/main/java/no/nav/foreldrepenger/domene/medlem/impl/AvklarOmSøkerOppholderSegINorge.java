@@ -12,18 +12,14 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -46,8 +42,8 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingstidspunkt) {
-        Long behandlingId = ref.getBehandlingId();
-        final Region region = getRegion(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
+        var behandlingId = ref.getBehandlingId();
+        final var region = getRegion(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
             return Optional.empty();
         }
@@ -70,11 +66,11 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harFødselsdato(Long behandlingId) {
-        final FamilieHendelseGrunnlagEntitet grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         if (!grunnlag.getGjeldendeBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).map(List::isEmpty).orElse(true)) {
             return JA;
         }
-        final FamilieHendelseEntitet søknad = grunnlag.getSøknadVersjon();
+        final var søknad = grunnlag.getSøknadVersjon();
         if (!FamilieHendelseType.FØDSEL.equals(søknad.getType())) {
             return NEI;
         }
@@ -82,8 +78,8 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harDatoForOmsorgsovertakelse(Long behandlingId) {
-        final FamilieHendelseGrunnlagEntitet grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        final FamilieHendelseEntitet søknad = grunnlag.getSøknadVersjon();
+        final var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
+        final var søknad = grunnlag.getSøknadVersjon();
         return søknad.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).isPresent() ? JA : NEI;
     }
 
@@ -100,7 +96,7 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall erGiftMedBorgerMedANNETStatsborgerskap(BehandlingReferanse ref) {
-        Utfall utfall = erGiftMed(ref, Region.TREDJELANDS_BORGER);
+        var utfall = erGiftMed(ref, Region.TREDJELANDS_BORGER);
         if (utfall == NEI) {
             utfall = erGiftMed(ref, Region.UDEFINERT);
         }
@@ -108,7 +104,7 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall erGiftMed(BehandlingReferanse ref, Region region) {
-        Optional<PersonopplysningEntitet> ektefelle = personopplysningTjeneste.hentPersonopplysninger(ref).getEktefelle();
+        var ektefelle = personopplysningTjeneste.hentPersonopplysninger(ref).getEktefelle();
         if (ektefelle.isPresent()) {
             if (ektefelle.get().getRegion().equals(region)) {
                 return JA;
@@ -121,9 +117,9 @@ public class AvklarOmSøkerOppholderSegINorge {
         var intervall3mnd = utledInntektsintervall3Mnd(ref, vurderingstidspunkt);
 
         // OBS: ulike regler for vilkår og autopunkt. For EØS-par skal man vente hvis søker ikke har inntekt siste 3mnd.
-        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
+        var grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
 
-        boolean inntektSiste3M = false;
+        var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
             var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingstidspunkt);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()
@@ -151,14 +147,14 @@ public class AvklarOmSøkerOppholderSegINorge {
     }
 
     private Utfall harTermindatoPassertMed14Dager(Long behandlingId) {
-        LocalDate dagensDato = LocalDate.now();
-        final Optional<LocalDate> termindato = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeTerminbekreftelse()
+        var dagensDato = LocalDate.now();
+        final var termindato = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeTerminbekreftelse()
             .map(TerminbekreftelseEntitet::getTermindato);
         return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
     }
 
     private Region getRegion(Long behandlingId, AktørId aktørId, LocalDate vurderingstidspunkt) {
-        PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, aktørId,
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, aktørId,
             vurderingstidspunkt);
 
         return personopplysninger.getStatsborgerskapRegionVedTidspunkt(aktørId, vurderingstidspunkt);

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 
 public class KompletthetssjekkerManglendeVedleggTest {
 
@@ -40,8 +38,8 @@ public class KompletthetssjekkerManglendeVedleggTest {
     private DokumentTypeId dokumentTypeIdUdefinert = DokumentTypeId.UDEFINERT;
 
     private static KompletthetsjekkerImpl lagKompletthetssjekkerEngangsstønad(DokumentArkivTjeneste dokumentArkivTjeneste, SøknadRepository søknadRepository) {
-        BehandlingRepositoryProvider repositoryProvider = mock(BehandlingRepositoryProvider.class);
-        PersonopplysningTjeneste personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
+        var repositoryProvider = mock(BehandlingRepositoryProvider.class);
+        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
         when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         return new KompletthetsjekkerImpl(repositoryProvider, dokumentArkivTjeneste, personopplysningTjeneste);
     }
@@ -54,25 +52,25 @@ public class KompletthetssjekkerManglendeVedleggTest {
         dokumentTypeIds.add(dokumentTypeIdUdefinert);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(dokumentTypeIds);
 
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
-        SøknadVedleggEntitet påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
+        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        SøknadVedleggEntitet annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
+        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdUdefinert.getKode())
             .medErPåkrevdISøknadsdialog(false)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        SøknadEntitet søknad = new SøknadEntitet.Builder().leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
+        var søknad = new SøknadEntitet.Builder().leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
 
         // Act
-        final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
@@ -87,24 +85,24 @@ public class KompletthetssjekkerManglendeVedleggTest {
         // Arrange
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(Collections.singleton(dokumentTypeIdUdefinert));
 
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
-        SøknadVedleggEntitet påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
+        var påkrevdSøknadVedlegg = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.SEND_SENERE)
             .build();
-        SøknadVedleggEntitet annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
+        var annetSøknadVedlegg = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdUdefinert.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(false)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        SøknadEntitet søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
+        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
-        final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isNotEmpty();
@@ -118,24 +116,24 @@ public class KompletthetssjekkerManglendeVedleggTest {
         dokumentTypeIds.add(dokumentTypeIdUdefinert);
         when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(any(), any())).thenReturn(dokumentTypeIds);
 
-        Behandling behandling = lagBehandling();
+        var behandling = lagBehandling();
 
-        SøknadVedleggEntitet påkrevdSøknadVedlegg1 = new SøknadVedleggEntitet.Builder()
+        var påkrevdSøknadVedlegg1 = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdDokumentasjonAvTerminEllerFødsel.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.SEND_SENERE)
             .build();
-        SøknadVedleggEntitet påkrevdSøknadVedlegg2 = new SøknadVedleggEntitet.Builder()
+        var påkrevdSøknadVedlegg2 = new SøknadVedleggEntitet.Builder()
             .medSkjemanummer(dokumentTypeIdDokumentasjonAvOmsorgsovertakelse.getOffisiellKode())
             .medErPåkrevdISøknadsdialog(true)
             .medInnsendingsvalg(Innsendingsvalg.LASTET_OPP)
             .build();
-        SøknadEntitet søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg2).leggTilVedlegg(påkrevdSøknadVedlegg1).build();
+        var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg2).leggTilVedlegg(påkrevdSøknadVedlegg1).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
-        final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isNotEmpty();
@@ -144,20 +142,20 @@ public class KompletthetssjekkerManglendeVedleggTest {
     @Test
     public void skal_regne_søknaden_som_komplett_hvis_den_ikke_inneholder_vedlegg() {
         // Arrange
-        Behandling behandling = lagBehandling();
-        SøknadEntitet søknad = new SøknadEntitet.Builder().build();
+        var behandling = lagBehandling();
+        var søknad = new SøknadEntitet.Builder().build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
         when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(java.util.Optional.ofNullable(søknad));
         // Act
-        final List<ManglendeVedlegg> manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
+        final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
     }
 
     private Behandling lagBehandling() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
             .forFødsel()
             .medSaksnummer(SAKSNUMMER);
         return scenario.lagMocked();

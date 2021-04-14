@@ -8,7 +8,6 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,21 +47,21 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        String verdi = prosessTaskData.getPropertyValue("behandlingIdTak");
+        var verdi = prosessTaskData.getPropertyValue("behandlingIdTak");
         Long sisteBehandlingId = verdi == null ? Long.MAX_VALUE : Long.valueOf(verdi);
 
-        List<BehandlingIdFagsakIdAktorId> behandlinger = behandlingRepository.hentBehandlingerForMigrering(sisteBehandlingId, ANTALL_PR_RUNDE);
+        var behandlinger = behandlingRepository.hentBehandlingerForMigrering(sisteBehandlingId, ANTALL_PR_RUNDE);
         LOG.info("overfører {} behandlinger", behandlinger.size());
-        for (BehandlingIdFagsakIdAktorId behandling : behandlinger) {
+        for (var behandling : behandlinger) {
             LOG.info("Overfører behandlingId={} behandlingUuid={}", behandling.getBehandlingId(), behandling.getBehandlingUuid());
 
-            String fagsakYtelseType = behandling.getFagsakYtelseType();
-            AktørId aktørId = new AktørId(behandling.getAktorId());
+            var fagsakYtelseType = behandling.getFagsakYtelseType();
+            var aktørId = new AktørId(behandling.getAktorId());
             meldingProducer.sendTilkjentYtelse(fagsakYtelseType, behandling.getSaksnummer(), aktørId, behandling.getBehandlingId(), behandling.getBehandlingUuid());
         }
 
         if (behandlinger.size() == ANTALL_PR_RUNDE) {
-            ProsessTaskData data = new ProsessTaskData(TASKTYPE);
+            var data = new ProsessTaskData(TASKTYPE);
             data.setProperty("behandlingIdTak", Long.toString(behandlinger.get(ANTALL_PR_RUNDE - 1).getBehandlingId()));
             data.setNesteKjøringEtter(LocalDateTime.now().plus(DELAY_MELLOM_KJØRINGER));
             prosessTaskRepository.lagre(data);
@@ -90,7 +89,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
         public List<BehandlingIdFagsakIdAktorId> hentBehandlingerForMigrering(Long sisteBehandlingId, long antall) {
             Objects.requireNonNull(sisteBehandlingId, "behandlingId"); //NOSONAR
 
-            String sql = "select ytelseType, saksnummer, aktorId, behandlingId, behandlingUuid from " +
+            var sql = "select ytelseType, saksnummer, aktorId, behandlingId, behandlingUuid from " +
                 " (select f.ytelse_type ytelseType, f.saksnummer saksnummer, br.aktoer_id aktorId, b.id behandlingId, b.uuid behandlingUuid" +
                 "    from behandling b " +
                 "    join fagsak f on b.fagsak_id = f.id " +
@@ -102,7 +101,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
                 "    order by b.id desc) " +
                 " where rownum <= :antall ";
 
-            Query query = entityManager.createNativeQuery(sql, "BehandlingIdFagsakIdAktoerId");
+            var query = entityManager.createNativeQuery(sql, "BehandlingIdFagsakIdAktoerId");
             query.setParameter("sisteBehandlingId", sisteBehandlingId);
             query.setParameter("antall", antall);
 

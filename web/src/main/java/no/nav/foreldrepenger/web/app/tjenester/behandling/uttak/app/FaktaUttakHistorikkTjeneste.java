@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResu
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -79,9 +78,9 @@ public class FaktaUttakHistorikkTjeneste {
                                      boolean utførtAvOverstyrer) {
 
         HistorikkInnslagTekstBuilder tekstBuilder;
-        List<ArbeidsforholdOverstyring> overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId())
+        var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId())
             .getArbeidsforholdOverstyringer();
-        for (BekreftetOppgittPeriodeDto bkftUttakPeriodeDto : bekreftedePerioder) {
+        for (var bkftUttakPeriodeDto : bekreftedePerioder) {
             if (erNyPeriode(bkftUttakPeriodeDto)) {
                 tekstBuilder = new HistorikkInnslagTekstBuilder();
                 lagTekstBuilder(tekstBuilder, bkftUttakPeriodeDto.getBekreftetPeriode().getBegrunnelse(), utførtAvOverstyrer);
@@ -93,7 +92,7 @@ public class FaktaUttakHistorikkTjeneste {
             }
         }
         if (slettedePerioder != null) {
-            for (SlettetUttakPeriodeDto slettet : slettedePerioder) {
+            for (var slettet : slettedePerioder) {
                 tekstBuilder = new HistorikkInnslagTekstBuilder();
                 lagTekstBuilder(tekstBuilder, slettet.getBegrunnelse(), utførtAvOverstyrer);
                 byggHistorikkinnslagForSlettetperiode(behandling, slettet, tekstBuilder);
@@ -146,9 +145,9 @@ public class FaktaUttakHistorikkTjeneste {
             return;
         }
 
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriode = dto.getBekreftetPeriode();
-        Optional<UttakPeriodeType> uttakPeriodeTypeOpt = oppholdÅrsakMapper.map(bekreftetPeriode.getOppholdÅrsak());
-        UttakPeriodeType uttakPeriodeType = uttakPeriodeTypeOpt.orElse(UttakPeriodeType.UDEFINERT);
+        var bekreftetPeriode = dto.getBekreftetPeriode();
+        var uttakPeriodeTypeOpt = oppholdÅrsakMapper.map(bekreftetPeriode.getOppholdÅrsak());
+        var uttakPeriodeType = uttakPeriodeTypeOpt.orElse(UttakPeriodeType.UDEFINERT);
         leggTilUttaksperiodetype(HistorikkAvklartSoeknadsperiodeType.OPPHOLD, tekstBuilder, uttakPeriodeType, dto.getOrginalFom(), dto.getOrginalTom());
         if (erEndretResultat(dto)) {
             tekstBuilder.medEndretFelt(HistorikkEndretFeltType.FASTSETT_RESULTAT_PERIODEN, null,
@@ -162,7 +161,7 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private void byggHistorikkinnslagForOverføring(Behandling behandling, BekreftetOppgittPeriodeDto dto, HistorikkInnslagTekstBuilder tekstBuilder) {
-        HistorikkAvklartSoeknadsperiodeType historikkOverføringType = overføringÅrsakMapper.map(dto.getBekreftetPeriode().getOverføringÅrsak())
+        var historikkOverføringType = overføringÅrsakMapper.map(dto.getBekreftetPeriode().getOverføringÅrsak())
             .orElse(HistorikkAvklartSoeknadsperiodeType.UDEFINERT);
         byggHistorikkinnslagDokumentertPeriode(behandling, dto, historikkOverføringType, tekstBuilder);
     }
@@ -177,7 +176,7 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private void byggHistorikkinnslagForUtsettelse(Behandling behandling, BekreftetOppgittPeriodeDto dto, HistorikkInnslagTekstBuilder tekstBuilder, List<ArbeidsforholdOverstyring> overstyringer) {
-        Årsak utsettelseÅrsak = dto.getBekreftetPeriode().getUtsettelseÅrsak();
+        var utsettelseÅrsak = dto.getBekreftetPeriode().getUtsettelseÅrsak();
         if (UtsettelseÅrsak.FERIE.equals(utsettelseÅrsak)) {
             byggHistorikkinnslagForFerieEllerArbeid(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_FERIE, false, tekstBuilder, overstyringer);
         } else if (UtsettelseÅrsak.ARBEID.equals(utsettelseÅrsak)) {
@@ -204,8 +203,8 @@ public class FaktaUttakHistorikkTjeneste {
                                                         HistorikkAvklartSoeknadsperiodeType søknadsperiodeType,
                                                         HistorikkInnslagTekstBuilder tekstBuilder) {
         if (erEndretBegrunnelse(dto) || erEndretResultat(dto)) {
-            KontrollerFaktaPeriodeLagreDto bekreftetPeriode = dto.getBekreftetPeriode();
-            List<UttakDokumentasjonDto> dokumentertePerioder = bekreftetPeriode.getDokumentertePerioder();
+            var bekreftetPeriode = dto.getBekreftetPeriode();
+            var dokumentertePerioder = bekreftetPeriode.getDokumentertePerioder();
 
             List<LocalDateInterval> dokumenterteDatoer = dokumentertePerioder != null ? mapDokumentertPerioder(dokumentertePerioder) : Collections.emptyList();
 
@@ -231,9 +230,9 @@ public class FaktaUttakHistorikkTjeneste {
             return;
         }
 
-        LocalDateInterval orgPeriode = new LocalDateInterval(dto.getOrginalFom(), dto.getOrginalTom());
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriode = dto.getBekreftetPeriode();
-        LocalDateInterval bkftPeriode = new LocalDateInterval(bekreftetPeriode.getFom(), bekreftetPeriode.getTom());
+        var orgPeriode = new LocalDateInterval(dto.getOrginalFom(), dto.getOrginalTom());
+        var bekreftetPeriode = dto.getBekreftetPeriode();
+        var bkftPeriode = new LocalDateInterval(bekreftetPeriode.getFom(), bekreftetPeriode.getTom());
 
         tekstBuilder
             .medNavnVerdiOgAvklartSøknadperiode(soeknadsperiodeType, arbeidsgiverNavnOgIdentifikator(dto, overstyringer).orElse(""),
@@ -255,13 +254,12 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private Optional<String> arbeidsgiverNavnOgIdentifikator(BekreftetOppgittPeriodeDto dto, List<ArbeidsforholdOverstyring> overstyringer) {
-        ArbeidsgiverLagreDto arbeidsgiver = dto.getBekreftetPeriode().getArbeidsgiver();
+        var arbeidsgiver = dto.getBekreftetPeriode().getArbeidsgiver();
         if (arbeidsgiver != null) {
             if (arbeidsgiver.erVirksomhet()) {
                 return Optional.of(virksomhetArbeidsgiver(arbeidsgiver, overstyringer));
-            } else {
-                return Optional.of(personArbeidsgiver(arbeidsgiver, overstyringer));
             }
+            return Optional.of(personArbeidsgiver(arbeidsgiver, overstyringer));
         }
         return Optional.empty();
     }
@@ -271,13 +269,13 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private String virksomhetArbeidsgiver(ArbeidsgiverLagreDto arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
-        String arbeidsgiverIdentifikator = arbeidsgiver.getIdentifikator();
+        var arbeidsgiverIdentifikator = arbeidsgiver.getIdentifikator();
         return arbeidsgiverHistorikkinnslagTjeneste.lagArbeidsgiverHistorikkinnslagTekst(Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator), overstyringer);
     }
 
     private String uttakperiodeTypeOgTidsperiodeText(UttakPeriodeType uttakPeriodeType, LocalDate fom, LocalDate tom) {
         String text;
-        String periodeText = formaterPeriode(fom, tom);
+        var periodeText = formaterPeriode(fom, tom);
         if (Objects.equals(uttakPeriodeType, UttakPeriodeType.UDEFINERT)) {
             text = periodeText;
         } else {
@@ -292,8 +290,8 @@ public class FaktaUttakHistorikkTjeneste {
         if (!erEndretPeriodeEllerBegrunnelseEllerResultat(dto)) {
             return;
         }
-        KontrollerFaktaPeriodeLagreDto bekreftetPeriode = dto.getBekreftetPeriode();
-        LocalDateInterval bkftPeriode = new LocalDateInterval(bekreftetPeriode.getFom(), bekreftetPeriode.getTom());
+        var bekreftetPeriode = dto.getBekreftetPeriode();
+        var bkftPeriode = new LocalDateInterval(bekreftetPeriode.getFom(), bekreftetPeriode.getTom());
 
         leggTilUttaksperiodetype(soeknadsperiodeType, tekstBuilder, dto.getBekreftetPeriode().getUttakPeriodeType(), dto.getOrginalFom(), dto.getOrginalTom());
         if (erEndretResultat(dto)) {
@@ -324,7 +322,7 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private void opprettHistorikkInnslag(Behandling behandling, HistorikkInnslagTekstBuilder tekstBuilder) {
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setType(HistorikkinnslagType.UTTAK);
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);
         innslag.setBehandlingId(behandling.getId());
@@ -333,14 +331,14 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private boolean erEndretPeriodeEllerBegrunnelseEllerResultat(BekreftetOppgittPeriodeDto dto) {
-        boolean erEndret = erEndretPeriode(dto);
+        var erEndret = erEndretPeriode(dto);
         erEndret = erEndretBegrunnelse(dto) || erEndretResultat(dto) || erEndret;
         return erEndret;
     }
 
     private boolean erEndretPeriodeEllerArbeidsprosentEllerBegrunnelseEllerResultat(BekreftetOppgittPeriodeDto dto, boolean gradering) {
 
-        boolean erEndret = erEndretPeriode(dto);
+        var erEndret = erEndretPeriode(dto);
         if (gradering) {
             erEndret = erEndretArbeidstidsprosent(dto) || erEndret;
         }
@@ -449,9 +447,9 @@ public class FaktaUttakHistorikkTjeneste {
     }
 
     private String konvertPerioderTilString(List<LocalDateInterval> perioder) {
-        StringBuilder result = new StringBuilder();
-        List<String> perioderList = perioder.stream().map(periode -> formaterPeriode(periode.getFomDato(), periode.getTomDato())).collect(Collectors.toList());
-        int lastIndex = perioderList.size() - 1;
+        var result = new StringBuilder();
+        var perioderList = perioder.stream().map(periode -> formaterPeriode(periode.getFomDato(), periode.getTomDato())).collect(Collectors.toList());
+        var lastIndex = perioderList.size() - 1;
         result.append(lastIndex == 0 ? perioderList.get(lastIndex)
             : perioderList.subList(0, lastIndex).stream().collect(Collectors.joining(PERIODE_SEPARATOR)).concat(PERIODE_SEPARATOR_ENDE)
             .concat(perioderList.get(lastIndex)));
@@ -471,7 +469,7 @@ public class FaktaUttakHistorikkTjeneste {
      * Historikkinnslag for avklar annen forelder har ikke rett
      */
     public void byggHistorikkinnslagForAvklarAnnenforelderHarIkkeRett(AvklarAnnenforelderHarRettDto annenforelderHarIkkeRettDto, AksjonspunktOppdaterParameter param) {
-        YtelseFordelingAggregat ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(param.getBehandlingId());
         var rettAvklaring = ytelseFordelingAggregat.getAnnenForelderRettAvklaring();
         Boolean harAnnenForeldreRettBekreftetVersjon = null;
 

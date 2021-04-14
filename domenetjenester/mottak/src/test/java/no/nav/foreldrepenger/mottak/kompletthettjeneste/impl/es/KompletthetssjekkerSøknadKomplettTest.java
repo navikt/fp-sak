@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -36,8 +35,8 @@ public class KompletthetssjekkerSøknadKomplettTest {
 
     @Test
     public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_vedlegg() {
-        Behandling behandling = lagMocketBehandling(false, false, true, LocalDate.now(), false);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(false, false, true, LocalDate.now(), false);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
@@ -48,60 +47,60 @@ public class KompletthetssjekkerSøknadKomplettTest {
 
     @Test
     public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_adopsjon_og_mangler_ikke_vedlegg() {
-        Behandling behandling = lagMocketBehandling(false, false, false, LocalDate.now(), false);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(false, false, false, LocalDate.now(), false);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_vedlegg() {
-        Behandling behandling = lagMocketBehandling(false, true, true, LocalDate.now(), true);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(false, true, true, LocalDate.now(), true);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void ikke_elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_mangler_ikke_vedlegg() {
-        Behandling behandling = lagMocketBehandling(false, true, false, LocalDate.now(), true);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(false, true, false, LocalDate.now(), true);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void elektronisk_reg_søknad_skal_behandles_som_ikke_komplett_ved_adopsjon_og_manglende_vedlegg() {
-        Behandling behandling = lagMocketBehandling(true, false, true, LocalDate.now(), false);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(true, false, true, LocalDate.now(), false);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isFalse();
     }
 
     @Test
     public void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_manglende_vedlegg_hvis_bekrefet_i_TPS() {
-        Behandling behandling = lagMocketBehandling(true, true, true, LocalDate.now(), true);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(true, true, true, LocalDate.now(), true);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void elektronisk_reg_søknad_skal_behandles_som_komplett_ved_fødsel_og_barn_finnes_i_tps_og_mangler_ikke_vedlegg() {
-        Behandling behandling = lagMocketBehandling(true, true, false, LocalDate.now(), true);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), true);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     @Test
     public void elektronisk_reg_søknad_skal_behandles_som_være_komplett_ved_fødsel_og_barn_finnes_ikke_i_tps_og_mangler_ikke_vedlegg() {
-        Behandling behandling = lagMocketBehandling(true, true, false, LocalDate.now(), false);
-        boolean resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
+        var behandling = lagMocketBehandling(true, true, false, LocalDate.now(), false);
+        var resultat = testObjekt.erForsendelsesgrunnlagKomplett(lagRef(behandling));
         assertThat(resultat).isTrue();
     }
 
     private Behandling lagMocketBehandling(boolean elektroniskRegistrert, boolean gjelderFødsel, boolean manglerVedlegg,
                                            LocalDate fødselsdatoBarn, boolean bekreftetViaTps) {
 
-        AbstractTestScenario<?> scenario = lagScenario(gjelderFødsel, elektroniskRegistrert);
+        var scenario = lagScenario(gjelderFødsel, elektroniskRegistrert);
         leggVedRegisteropplysninger(fødselsdatoBarn, bekreftetViaTps, scenario);
 
-        Behandling behandling = lagBehandling(manglerVedlegg, scenario);
+        var behandling = lagBehandling(manglerVedlegg, scenario);
 
         return behandling;
     }
@@ -109,8 +108,8 @@ public class KompletthetssjekkerSøknadKomplettTest {
     private void leggVedRegisteropplysninger(LocalDate fødselsdatoBarn, boolean bekreftetViaTps, AbstractTestScenario<?> scenario) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
-        AktørId barnAktørId = AktørId.dummy();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var barnAktørId = AktørId.dummy();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
 
         var fødtBarn = builderForRegisteropplysninger
             .medPersonas()
@@ -132,9 +131,9 @@ public class KompletthetssjekkerSøknadKomplettTest {
     }
 
     private Behandling lagBehandling(boolean manglerVedlegg, AbstractTestScenario<?> scenario) {
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
 
-        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
 
@@ -151,7 +150,7 @@ public class KompletthetssjekkerSøknadKomplettTest {
     }
 
     private AbstractTestScenario<?> lagScenario(boolean gjelderFødsel, boolean elektroniskRegistrert) {
-        LocalDate fødselsdato = LocalDate.now();
+        var fødselsdato = LocalDate.now();
 
         AbstractTestScenario<?> scenario;
         if (!gjelderFødsel) {

@@ -11,8 +11,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårTypeRef;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsvilkår;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 
 @ApplicationScoped
 @VilkårTypeRef(VilkårTypeKoder.FP_VK_2)
@@ -31,9 +29,9 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        MedlemskapsvilkårGrunnlag grunnlag = inngangsvilkårOversetter.oversettTilRegelModellMedlemskap(ref);
+        var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellMedlemskap(ref);
 
-        Evaluation evaluation = new Medlemskapsvilkår().evaluer(grunnlag);
+        var evaluation = new Medlemskapsvilkår().evaluer(grunnlag);
 
         return inngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET, evaluation, grunnlag);
     }

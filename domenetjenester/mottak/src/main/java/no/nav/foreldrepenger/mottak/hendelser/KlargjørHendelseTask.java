@@ -32,8 +32,8 @@ public class KlargjørHendelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        ForretningshendelseType hendelseType = ForretningshendelseType.fraKode(prosessTaskData.getPropertyValue(PROPERTY_HENDELSE_TYPE));
-        HendelseDto hendelse = JsonMapper.fromJson(prosessTaskData.getPayloadAsString(), HendelseDto.class);
+        var hendelseType = ForretningshendelseType.fraKode(prosessTaskData.getPropertyValue(PROPERTY_HENDELSE_TYPE));
+        var hendelse = JsonMapper.fromJson(prosessTaskData.getPayloadAsString(), HendelseDto.class);
         forretningshendelseMottak.mottaForretningshendelse(hendelseType, hendelse);
     }
 }

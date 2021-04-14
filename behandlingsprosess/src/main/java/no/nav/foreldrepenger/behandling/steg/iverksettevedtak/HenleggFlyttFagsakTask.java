@@ -35,7 +35,7 @@ public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
-        BehandlingResultatType henleggelseType = BehandlingResultatType.MANGLER_BEREGNINGSREGLER;
+        var henleggelseType = BehandlingResultatType.MANGLER_BEREGNINGSREGLER;
 
         if (prosessTaskData.getPropertyValue(HENLEGGELSE_TYPE_KEY) != null) {
             henleggelseType = BehandlingResultatType.fraKode(prosessTaskData.getPropertyValue(HENLEGGELSE_TYPE_KEY));

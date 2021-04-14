@@ -8,7 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 @ApplicationScoped
 public class RisikoklassifiseringRepository {
@@ -53,7 +52,7 @@ public class RisikoklassifiseringRepository {
 
 
     public Optional<RisikoklassifiseringEntitet> hentRisikoklassifiseringForBehandling(long behandlingId) {
-        TypedQuery<RisikoklassifiseringEntitet> query = entityManager.createQuery("from RisikoklassifiseringEntitet where behandlingId = :behandlingId and erAktiv = :erAktiv", RisikoklassifiseringEntitet.class);
+        var query = entityManager.createQuery("from RisikoklassifiseringEntitet where behandlingId = :behandlingId and erAktiv = :erAktiv", RisikoklassifiseringEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         query.setParameter("erAktiv", true);
         return hentUniktResultat(query);

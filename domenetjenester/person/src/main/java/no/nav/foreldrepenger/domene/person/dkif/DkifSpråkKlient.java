@@ -48,7 +48,7 @@ public class DkifSpråkKlient {
             var request = new URIBuilder(endpoint)
                     .addParameter("inkluderSikkerDigitalPost", "false")
                     .build();
-            DigitalKontaktinfo match = this.oidcRestClient.get(request, this.lagHeader(fnr), DigitalKontaktinfo.class);
+            var match = this.oidcRestClient.get(request, this.lagHeader(fnr), DigitalKontaktinfo.class);
             return Optional.ofNullable(match).flatMap(m -> m.getSpraak(fnr)).map(String::toUpperCase).map(Språkkode::defaultNorsk).orElse(Språkkode.NB);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Utviklerfeil syntax-exception for finnSpråkkodeForBruker");

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 // Bruker en primitiv variant av Composite for å kunne vurderes enkeltvis (løvnode) og sammensatt (rotnode)
@@ -81,7 +80,7 @@ public class EndringsresultatSnapshot {
         if (this == o) return true;
         if (o==null || !(o instanceof EndringsresultatSnapshot)) return false;
 
-        EndringsresultatSnapshot that = (EndringsresultatSnapshot) o;
+        var that = (EndringsresultatSnapshot) o;
 
         return Objects.equals(grunnlagId, that.grunnlagId) &&
             Objects.equals(grunnlagKlasse, that.grunnlagKlasse);
@@ -93,8 +92,8 @@ public class EndringsresultatSnapshot {
     }
 
     public EndringsresultatDiff minus(EndringsresultatSnapshot etter) {
-        EndringsresultatSnapshot før = this;
-        EndringsresultatDiff idDiff = EndringsresultatDiff.opprett();
+        var før = this;
+        var idDiff = EndringsresultatDiff.opprett();
 
         Map<Class<?>, Object> førMap = new HashMap<>();
         før.children.stream().forEach(endring ->
@@ -104,7 +103,7 @@ public class EndringsresultatSnapshot {
         etter.children.stream().forEach(endring ->
             etterMap.put(endring.grunnlagKlasse, endring.grunnlagId));
 
-        Set<Class<?>> alleGrunnlagsklasser = Stream.concat(førMap.keySet().stream(), etterMap.keySet().stream())
+        var alleGrunnlagsklasser = Stream.concat(førMap.keySet().stream(), etterMap.keySet().stream())
             .collect(toSet());
 
         alleGrunnlagsklasser.forEach(grunnlag ->

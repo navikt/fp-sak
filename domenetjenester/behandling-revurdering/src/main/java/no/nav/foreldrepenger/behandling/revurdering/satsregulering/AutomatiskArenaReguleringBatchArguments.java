@@ -29,7 +29,8 @@ public class AutomatiskArenaReguleringBatchArguments extends BatchArguments {
         if (REVURDER_KEY.equals(key)) {
             this.revurder = Boolean.parseBoolean(value);
             return true;
-        } else if (SATS_DATO_KEY.equals(key)) {
+        }
+        if (SATS_DATO_KEY.equals(key)) {
             this.satsDato = value == null ? null : LocalDate.parse(value, ofPattern(DATE_PATTERN));
             return (satsDato != null) && validerDatoer(satsDato);
         }

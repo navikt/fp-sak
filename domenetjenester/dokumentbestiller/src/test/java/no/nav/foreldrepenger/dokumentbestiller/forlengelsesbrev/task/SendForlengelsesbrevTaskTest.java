@@ -64,7 +64,7 @@ public class SendForlengelsesbrevTaskTest {
     @Test
     public void testSkalSendeBrevOgOppdatereBehandling() {
         // Arrange
-        Behandling behandling = scenario.medBehandlingstidFrist(nå.minusDays(1))
+        var behandling = scenario.medBehandlingstidFrist(nå.minusDays(1))
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
                 .lagMocked();
         when(prosessTaskData.getBehandlingId()).thenReturn(behandling.getId().toString());
@@ -75,8 +75,8 @@ public class SendForlengelsesbrevTaskTest {
         sendForlengelsesbrevTask.doTask(prosessTaskData);
 
         // Assert
-        ArgumentCaptor<Behandling> behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
-        ArgumentCaptor<BehandlingLås> behandlingLåsCaptor = ArgumentCaptor.forClass(BehandlingLås.class);
+        var behandlingCaptor = ArgumentCaptor.forClass(Behandling.class);
+        var behandlingLåsCaptor = ArgumentCaptor.forClass(BehandlingLås.class);
 
         verify(behandlingRepository).lagre(behandlingCaptor.capture(), behandlingLåsCaptor.capture());
 
@@ -89,7 +89,7 @@ public class SendForlengelsesbrevTaskTest {
     @Test
     public void testSkalIkkeSendeBrevOgIkkeOppdatereBehandling() {
         // Arrange
-        Behandling behandling = scenario.medBehandlingstidFrist(nå.plusDays(1)).lagMocked();
+        var behandling = scenario.medBehandlingstidFrist(nå.plusDays(1)).lagMocked();
         when(prosessTaskData.getBehandlingId()).thenReturn(behandling.getId().toString());
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);
         assertThat(behandling.getBehandlingstidFrist()).isAfter(nå);

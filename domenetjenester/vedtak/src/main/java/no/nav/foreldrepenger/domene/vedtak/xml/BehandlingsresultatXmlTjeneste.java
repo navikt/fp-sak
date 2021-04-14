@@ -1,9 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.xml;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -28,12 +25,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.v2.AnkeAvvistAarsak;
@@ -47,13 +41,11 @@ import no.nav.vedtak.felles.xml.vedtak.v2.KlageMedholdAarsak;
 import no.nav.vedtak.felles.xml.vedtak.v2.KlageVurdertAv;
 import no.nav.vedtak.felles.xml.vedtak.v2.Klagevurdering;
 import no.nav.vedtak.felles.xml.vedtak.v2.Klagevurderingresultat;
-import no.nav.vedtak.felles.xml.vedtak.v2.ManuellVurderingsResultat;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaar;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaarsutfall;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vurderingsvariant;
-import no.nav.vedtak.felles.xml.vedtak.v2.VurderteVilkaar;
 
 @ApplicationScoped
 public class BehandlingsresultatXmlTjeneste {
@@ -108,10 +100,10 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void leggTilKlageVerdier(Klagevurderingresultat klagevurderingresultat, Behandling behandling) {
-        Optional<KlageVurderingResultat> optionalGjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
-        Optional<KlageFormkravEntitet> optionalKlageFormkrav = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
+        var optionalGjeldendeKlagevurderingresultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
+        var optionalKlageFormkrav = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         if (optionalGjeldendeKlagevurderingresultat.isPresent() && optionalKlageFormkrav.isPresent()) {
-            KlageVurderingResultat gjeldendeKlagevurderingresultat = optionalGjeldendeKlagevurderingresultat.get();
+            var gjeldendeKlagevurderingresultat = optionalGjeldendeKlagevurderingresultat.get();
             klagevurderingresultat.setKlageAvvistAarsak(hentKlageAvvistårsak(optionalKlageFormkrav.get()));
             klagevurderingresultat.setKlageMedholdAarsak(hentKlageMedholdårsak(gjeldendeKlagevurderingresultat));
             klagevurderingresultat.setKlageVurdering(hentKlagevurdering(gjeldendeKlagevurderingresultat));
@@ -120,23 +112,26 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private KlageVurdertAv hentKlageVurdertAv(KlageVurderingResultat vurderingsresultat) {
-        no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv klageVurdertAv = vurderingsresultat.getKlageVurdertAv();
+        var klageVurdertAv = vurderingsresultat.getKlageVurdertAv();
         if (no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv.NFP.equals(klageVurdertAv)) {
             return KlageVurdertAv.NFP;
-        } else if (no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv.NK.equals(klageVurdertAv)) {
+        }
+        if (no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv.NK.equals(klageVurdertAv)) {
             return KlageVurdertAv.NK;
         }
         return null;
     }
 
     private Klagevurdering hentKlagevurdering(KlageVurderingResultat vurderingsresultat) {
-        KlageVurdering klageVurdering = vurderingsresultat.getKlageVurdering();
-        KlageVurderingOmgjør klageVurderingOmgjør = vurderingsresultat.getKlageVurderingOmgjør();
+        var klageVurdering = vurderingsresultat.getKlageVurdering();
+        var klageVurderingOmgjør = vurderingsresultat.getKlageVurderingOmgjør();
         if (KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering)) {
             return Klagevurdering.STADFESTE_YTELSESVEDTAK;
-        } else if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(klageVurdering)) {
+        }
+        if (KlageVurdering.OPPHEVE_YTELSESVEDTAK.equals(klageVurdering)) {
             return Klagevurdering.OPPHEVE_YTELSESVEDTAK;
-        } else if (KlageVurdering.MEDHOLD_I_KLAGE.equals(klageVurdering)) {
+        }
+        if (KlageVurdering.MEDHOLD_I_KLAGE.equals(klageVurdering)) {
             if (KlageVurderingOmgjør.DELVIS_MEDHOLD_I_KLAGE.equals(klageVurderingOmgjør)) {
                 return Klagevurdering.DELVIS_MEDHOLD_I_KLAGE;
             }
@@ -144,33 +139,39 @@ public class BehandlingsresultatXmlTjeneste {
                 return Klagevurdering.UGUNST_MEDHOLD_I_KLAGE;
             }
             return Klagevurdering.MEDHOLD_I_KLAGE;
-        } else if (KlageVurdering.AVVIS_KLAGE.equals(klageVurdering)) {
+        }
+        if (KlageVurdering.AVVIS_KLAGE.equals(klageVurdering)) {
             return Klagevurdering.AVVIS_KLAGE;
-        } else if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(klageVurdering)) {
+        }
+        if (KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE.equals(klageVurdering)) {
             return Klagevurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
         }
         return null;
     }
 
     private KlageMedholdAarsak hentKlageMedholdårsak(KlageVurderingResultat vurderingsresultat) {
-        KlageMedholdÅrsak klageMedholdÅrsak = vurderingsresultat.getKlageMedholdÅrsak();
+        var klageMedholdÅrsak = vurderingsresultat.getKlageMedholdÅrsak();
         if (KlageMedholdÅrsak.NYE_OPPLYSNINGER.equals(klageMedholdÅrsak)) {
             return KlageMedholdAarsak.NYE_OPPLYSNINGER;
-        } else if (KlageMedholdÅrsak.ULIK_VURDERING.equals(klageMedholdÅrsak)) {
+        }
+        if (KlageMedholdÅrsak.ULIK_VURDERING.equals(klageMedholdÅrsak)) {
             return KlageMedholdAarsak.ULIK_VURDERING;
-        } else if (KlageMedholdÅrsak.ULIK_REGELVERKSTOLKNING.equals(klageMedholdÅrsak)) {
+        }
+        if (KlageMedholdÅrsak.ULIK_REGELVERKSTOLKNING.equals(klageMedholdÅrsak)) {
             return KlageMedholdAarsak.ULIK_REGELVERKSTOLKNING;
-        } else if (KlageMedholdÅrsak.PROSESSUELL_FEIL.equals(klageMedholdÅrsak)) {
+        }
+        if (KlageMedholdÅrsak.PROSESSUELL_FEIL.equals(klageMedholdÅrsak)) {
             return KlageMedholdAarsak.PROSESSUELL_FEIL;
         }
         return null;
     }
 
     private KlageAvvistAarsak hentKlageAvvistårsak(KlageFormkravEntitet klageFormkrav) {
-        List<KlageAvvistÅrsak> klageAvvistÅrsak = klageFormkrav.hentAvvistÅrsaker();
+        var klageAvvistÅrsak = klageFormkrav.hentAvvistÅrsaker();
         if (klageAvvistÅrsak.contains(KlageAvvistÅrsak.KLAGET_FOR_SENT)) {
             return KlageAvvistAarsak.KLAGET_FOR_SENT;
-        } else if (klageAvvistÅrsak.contains(KlageAvvistÅrsak.KLAGE_UGYLDIG)) {
+        }
+        if (klageAvvistÅrsak.contains(KlageAvvistÅrsak.KLAGE_UGYLDIG)) {
             return KlageAvvistAarsak.KLAGE_UGYLDIG;
         }
         return null;
@@ -187,10 +188,11 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private AnkeAvvistAarsak hentAnkeAvvistårsak(AnkeVurderingResultatEntitet ankeVurderingResultat) {
-        List<AnkeAvvistÅrsak> ankeAvvistÅrsak = ankeVurderingResultat.hentAvvistÅrsaker();
+        var ankeAvvistÅrsak = ankeVurderingResultat.hentAvvistÅrsaker();
         if (ankeAvvistÅrsak.contains(AnkeAvvistÅrsak.ANKE_FOR_SENT)) {
             return AnkeAvvistAarsak.ANKE_FOR_SENT;
-        } else if (ankeAvvistÅrsak.contains(AnkeAvvistÅrsak.ANKE_UGYLDIG)) {
+        }
+        if (ankeAvvistÅrsak.contains(AnkeAvvistÅrsak.ANKE_UGYLDIG)) {
             return AnkeAvvistAarsak.ANKE_UGYLDIG;
         }
         return null;
@@ -199,32 +201,36 @@ public class BehandlingsresultatXmlTjeneste {
     private AnkeOmgjoerAarsak hentAnkeOmgjørårsak(AnkeOmgjørÅrsak ankeOmgjørÅrsak) {
         if (AnkeOmgjørÅrsak.NYE_OPPLYSNINGER.equals(ankeOmgjørÅrsak)) {
             return AnkeOmgjoerAarsak.NYE_OPPLYSNINGER;
-        } else if (AnkeOmgjørÅrsak.ULIK_VURDERING.equals(ankeOmgjørÅrsak)) {
+        }
+        if (AnkeOmgjørÅrsak.ULIK_VURDERING.equals(ankeOmgjørÅrsak)) {
             return AnkeOmgjoerAarsak.ULIK_VURDERING;
-        } else if (AnkeOmgjørÅrsak.ULIK_REGELVERKSTOLKNING.equals(ankeOmgjørÅrsak)) {
+        }
+        if (AnkeOmgjørÅrsak.ULIK_REGELVERKSTOLKNING.equals(ankeOmgjørÅrsak)) {
             return AnkeOmgjoerAarsak.ULIK_REGELVERKSTOLKNING;
-        } else if (AnkeOmgjørÅrsak.PROSESSUELL_FEIL.equals(ankeOmgjørÅrsak)) {
+        }
+        if (AnkeOmgjørÅrsak.PROSESSUELL_FEIL.equals(ankeOmgjørÅrsak)) {
             return AnkeOmgjoerAarsak.PROSESSUELL_FEIL;
         }
         return null;
     }
 
     private Ankevurdering hentAnkevurdering(AnkeVurderingResultatEntitet vurderingsresultat) {
-        AnkeVurdering ankeVurdering = vurderingsresultat.getAnkeVurdering();
-        AnkeVurderingOmgjør ankeVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
+        var ankeVurdering = vurderingsresultat.getAnkeVurdering();
+        var ankeVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
         return getAnkevurdering(ankeVurdering, ankeVurderingOmgjør);
     }
 
     private Ankevurdering hentTrygderettvurdering(AnkeVurderingResultatEntitet vurderingsresultat) {
-        AnkeVurdering trettVurdering = vurderingsresultat.getAnkeVurdering();
-        AnkeVurderingOmgjør trettVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
+        var trettVurdering = vurderingsresultat.getAnkeVurdering();
+        var trettVurderingOmgjør = vurderingsresultat.getAnkeVurderingOmgjør();
         return getAnkevurdering(trettVurdering, trettVurderingOmgjør);
     }
 
     private Ankevurdering getAnkevurdering(AnkeVurdering ankeVurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
         if (AnkeVurdering.ANKE_STADFESTE_YTELSESVEDTAK.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_STADFESTE_YTELSESVEDTAK;
-        } else if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)) {
+        }
+        if (AnkeVurdering.ANKE_OMGJOER.equals(ankeVurdering)) {
             if (AnkeVurderingOmgjør.ANKE_DELVIS_OMGJOERING_TIL_GUNST.equals(ankeVurderingOmgjør)) {
                 return Ankevurdering.ANKE_DELVIS_OMGJOERING_TIL_GUNST;
             }
@@ -232,20 +238,23 @@ public class BehandlingsresultatXmlTjeneste {
                 return Ankevurdering.ANKE_TIL_UGUNST;
             }
             return Ankevurdering.ANKE_OMGJOER;
-        } else if (AnkeVurdering.ANKE_AVVIS.equals(ankeVurdering)) {
+        }
+        if (AnkeVurdering.ANKE_AVVIS.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_AVVIS;
-        } else if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering)) {
+        }
+        if (AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_OPPHEVE_OG_HJEMSENDE;
-        } else if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
+        }
+        if (AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV.equals(ankeVurdering)) {
             return Ankevurdering.ANKE_HJEMSENDE_UTEN_OPPHEV;
         }
         return null;
     }
 
     private void setBehandlingsresultatType(Behandlingsresultat behandlingsresultat, Behandling behandling) {
-        Optional<BehandlingVedtak> behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
+        var behandlingVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
         if (behandlingVedtak.isPresent()) {
-            BehandlingResultatType behandlingResultatType = behandlingVedtak.get().getBehandlingsresultat().getBehandlingResultatType();
+            var behandlingResultatType = behandlingVedtak.get().getBehandlingsresultat().getBehandlingResultatType();
             if (BehandlingResultatType.INNVILGET.equals(behandlingResultatType)) {
                 behandlingsresultat.setBehandlingsresultat(VedtakXmlUtil.lagKodeverksOpplysning(BehandlingResultatType.INNVILGET));
             } else if (erBehandlingResultatTypeKlageEllerAnke(behandlingResultatType)) {
@@ -261,10 +270,10 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void setManuelleVurderinger(Behandlingsresultat behandlingsresultat, Behandling behandling) {
-        Set<Aksjonspunkt> alleAksjonspunkter = behandling.getAksjonspunkter();
+        var alleAksjonspunkter = behandling.getAksjonspunkter();
         if (!alleAksjonspunkter.isEmpty()) {
 
-            Behandlingsresultat.ManuelleVurderinger manuelleVurderinger = v2ObjectFactory.createBehandlingsresultatManuelleVurderinger();
+            var manuelleVurderinger = v2ObjectFactory.createBehandlingsresultatManuelleVurderinger();
             alleAksjonspunkter
                 .forEach(aksjonspunkt -> leggTilManuellVurdering(manuelleVurderinger, aksjonspunkt));
             behandlingsresultat.setManuelleVurderinger(manuelleVurderinger);
@@ -272,7 +281,7 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void leggTilManuellVurdering(Behandlingsresultat.ManuelleVurderinger manuelleVurderinger, Aksjonspunkt aksjonspunkt) {
-        ManuellVurderingsResultat manuellVurderingsResultat = v2ObjectFactory.createManuellVurderingsResultat();
+        var manuellVurderingsResultat = v2ObjectFactory.createManuellVurderingsResultat();
         manuellVurderingsResultat.setAksjonspunkt(VedtakXmlUtil.lagKodeverksOpplysningForAksjonspunkt(aksjonspunkt.getAksjonspunktDefinisjon()));
         if (aksjonspunkt.getAksjonspunktDefinisjon().getVilkårType() != null) {
             manuellVurderingsResultat.setGjelderVilkaar(VedtakXmlUtil.lagKodeverksOpplysning(aksjonspunkt.getAksjonspunktDefinisjon().getVilkårType()));
@@ -284,19 +293,19 @@ public class BehandlingsresultatXmlTjeneste {
     }
 
     private void setVurderteVilkaar(Behandlingsresultat behandlingsresultat, Behandling behandling) {
-        Optional<VilkårResultat> vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandling.getId());
+        var vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandling.getId());
         if (vilkårResultatOpt.isPresent()) {
-            VilkårResultat vilkårResultat = vilkårResultatOpt.get();
-            VurderteVilkaar vurderteVilkaar = v2ObjectFactory.createVurderteVilkaar();
-            List<Vilkaar> vilkår = vurderteVilkaar.getVilkaar();
-            Comparator<Vilkår> vilkårComparator = Comparator.comparing(Vilkår::getId);
+            var vilkårResultat = vilkårResultatOpt.get();
+            var vurderteVilkaar = v2ObjectFactory.createVurderteVilkaar();
+            var vilkår = vurderteVilkaar.getVilkaar();
+            var vilkårComparator = Comparator.comparing(Vilkår::getId);
             vilkårResultat.getVilkårene().stream().sorted(vilkårComparator).forEach(vk -> vilkår.add(lagVilkår(vk, behandling)));
             behandlingsresultat.setVurderteVilkaar(vurderteVilkaar);
         }
     }
 
     private Vilkaar lagVilkår(Vilkår vilkårFraBehandling, Behandling behandling) {
-        Vilkaar vilkår = v2ObjectFactory.createVilkaar();
+        var vilkår = v2ObjectFactory.createVilkaar();
         vilkår.setType(VedtakXmlUtil.lagKodeverksOpplysning(vilkårFraBehandling.getVilkårType()));
 
         // Sett utfall
@@ -309,8 +318,8 @@ public class BehandlingsresultatXmlTjeneste {
         }
 
         if (vilkårFraBehandling.getVilkårUtfallMerknad() != null) {
-            KodeverksOpplysning kodeverksOpplysning = new KodeverksOpplysning();
-            VilkårUtfallMerknad vilkårUtfallMerknad = vilkårFraBehandling.getVilkårUtfallMerknad();
+            var kodeverksOpplysning = new KodeverksOpplysning();
+            var vilkårUtfallMerknad = vilkårFraBehandling.getVilkårUtfallMerknad();
             kodeverksOpplysning.setKode(vilkårUtfallMerknad.getKode());
             kodeverksOpplysning.setValue(vilkårUtfallMerknad.getNavn());
             kodeverksOpplysning.setKodeverk(vilkårUtfallMerknad.getKodeverk());

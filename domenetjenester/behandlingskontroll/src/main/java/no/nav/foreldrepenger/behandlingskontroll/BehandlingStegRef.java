@@ -111,23 +111,21 @@ public @interface BehandlingStegRef {
                 var inst = select(cls, instances, new FagsakYtelseTypeRefLiteral(fagsakLiteral));
                 if (inst.isUnsatisfied()) {
                     continue;
-                } else {
-                    for (var behandlingLiteral : coalesce(behandlingType, "*")) {
-                        var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
-                        if (binst.isUnsatisfied()) {
-                            continue;
+                }
+                for (var behandlingLiteral : coalesce(behandlingType, "*")) {
+                    var binst = select(cls, inst, new BehandlingTypeRefLiteral(behandlingLiteral));
+                    if (binst.isUnsatisfied()) {
+                        continue;
+                    }
+                    for (var stegRef : coalesce(behandlingStegRef, "*")) {
+                        var cinst = select(cls, binst, new BehandlingStegRefLiteral(stegRef));
+                        if (cinst.isResolvable()) {
+                            return Optional.of(getInstance(cinst));
                         }
-                        for (var stegRef : coalesce(behandlingStegRef, "*")) {
-                            var cinst = select(cls, binst, new BehandlingStegRefLiteral(stegRef));
-                            if (cinst.isResolvable()) {
-                                return Optional.of(getInstance(cinst));
-                            } else {
-                                if (cinst.isAmbiguous()) {
-                                    throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
-                                            + fagsakLiteral + ", behandlingType=" + behandlingLiteral + ", behandlingStegRef=" + stegRef);
-                                }
+                        if (cinst.isAmbiguous()) {
+                                throw new IllegalStateException("Har flere matchende instanser for klasse : " + cls.getName() + ", fagsakType="
+                                        + fagsakLiteral + ", behandlingType=" + behandlingLiteral + ", behandlingStegRef=" + stegRef);
                             }
-                        }
                     }
                 }
 

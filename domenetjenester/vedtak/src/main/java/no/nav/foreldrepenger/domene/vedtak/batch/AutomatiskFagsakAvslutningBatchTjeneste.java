@@ -35,14 +35,14 @@ public class AutomatiskFagsakAvslutningBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        final String avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, LocalDate.now());
+        final var avsluttFagsakGruppe = automatiskFagsakAvslutningTjeneste.avsluttFagsaker(BATCHNAME, LocalDate.now());
         return BATCHNAME + "-" + (avsluttFagsakGruppe != null ? avsluttFagsakGruppe : UUID.randomUUID().toString());
     }
 
     @Override
     public BatchStatus status(String batchInstanceNumber) {
-        final String gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
-        final List<TaskStatus> taskStatuses = automatiskFagsakAvslutningTjeneste.hentStatusForFagsakAvslutningGruppe(gruppe);
+        final var gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
+        final var taskStatuses = automatiskFagsakAvslutningTjeneste.hentStatusForFagsakAvslutningGruppe(gruppe);
 
         if (isCompleted(taskStatuses)) {
             if (isContainingFailures(taskStatuses)) {

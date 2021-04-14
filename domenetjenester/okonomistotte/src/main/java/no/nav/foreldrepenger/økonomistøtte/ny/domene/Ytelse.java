@@ -21,7 +21,7 @@ public class Ytelse {
 
     public List<YtelsePeriode> getPerioderFraOgMed(LocalDate fom) {
         List<YtelsePeriode> resultat = new ArrayList<>();
-        for (YtelsePeriode ytelsePeriode : perioder) {
+        for (var ytelsePeriode : perioder) {
             if (ytelsePeriode.getPeriode().getTom().isBefore(fom)) {
                 continue;
             }
@@ -36,7 +36,7 @@ public class Ytelse {
     }
 
     public YtelseVerdi finnVerdiFor(LocalDate dato) {
-        for (YtelsePeriode yp : perioder) {
+        for (var yp : perioder) {
             if (yp.getPeriode().overlapper(dato)) {
                 return yp.getVerdi();
             }
@@ -87,13 +87,13 @@ public class Ytelse {
         }
 
         public void fjernAltEtter(LocalDate opphørFomDato) {
-            ArrayList<YtelsePeriode> resultat = new ArrayList<>();
-            for (YtelsePeriode yp : perioder) {
-                Periode periode = yp.getPeriode();
+            var resultat = new ArrayList<YtelsePeriode>();
+            for (var yp : perioder) {
+                var periode = yp.getPeriode();
                 if (periode.getTom().isBefore(opphørFomDato)) {
                     resultat.add(yp);
                 } else if (periode.getFom().isBefore(opphørFomDato)) {
-                    Periode fortsattAktivPeriode = Periode.of(periode.getFom(), opphørFomDato.minusDays(1));
+                    var fortsattAktivPeriode = Periode.of(periode.getFom(), opphørFomDato.minusDays(1));
                     resultat.add(new YtelsePeriode(fortsattAktivPeriode, yp.getSats(), yp.getUtbetalingsgrad()));
                 }
             }

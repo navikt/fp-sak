@@ -114,7 +114,7 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PersonRelasjonEntitet{");
+        final var sb = new StringBuilder("PersonRelasjonEntitet{");
         sb.append("relasjonsrolle=").append(relasjonsrolle);
         sb.append('}');
         return sb.toString();
@@ -129,7 +129,7 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PersonRelasjonEntitet entitet = (PersonRelasjonEntitet) o;
+        var entitet = (PersonRelasjonEntitet) o;
         return Objects.equals(fraAktørId, entitet.fraAktørId) &&
                 Objects.equals(tilAktørId, entitet.tilAktørId) &&
                 Objects.equals(harSammeBosted, entitet.harSammeBosted) &&

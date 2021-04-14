@@ -6,11 +6,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -44,27 +42,27 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
 
         // dynamisk lookup, så slipper vi å validere bean ved oppstart i test av moduler
         // etc. før det faktisk brukes
-        CDI<Object> cdi = CDI.current();
-        BehandlingskontrollTjeneste behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
+        var cdi = CDI.current();
+        var behandlingskontrollTjeneste = cdi.select(BehandlingskontrollTjeneste.class).get();
 
         try {
-            Long behandlingId = getBehandlingId(data);
-            BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
-            Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-            Boolean manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE))
+            var behandlingId = getBehandlingId(data);
+            var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+            var behandling = behandlingRepository.hentBehandling(behandlingId);
+            var manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE))
                     .map(Boolean::valueOf)
                     .orElse(Boolean.FALSE);
-            String gjenoppta = data.getPropertyValue(FortsettBehandlingTaskProperties.GJENOPPTA_STEG);
+            var gjenoppta = data.getPropertyValue(FortsettBehandlingTaskProperties.GJENOPPTA_STEG);
 
-            BehandlingStegType stegtype = getBehandlingStegType(gjenoppta);
+            var stegtype = getBehandlingStegType(gjenoppta);
             if ((gjenoppta != null) || manuellFortsettelse) {
                 if (behandling.isBehandlingPåVent()) { // Autopunkt
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
                 }
             } else {
-                String utført = data.getPropertyValue(FortsettBehandlingTaskProperties.UTFORT_AUTOPUNKT);
+                var utført = data.getPropertyValue(FortsettBehandlingTaskProperties.UTFORT_AUTOPUNKT);
                 if (utført != null) {
-                    AksjonspunktDefinisjon aksjonspunkt = AksjonspunktDefinisjon.fraKode(utført);
+                    var aksjonspunkt = AksjonspunktDefinisjon.fraKode(utført);
                     behandlingskontrollTjeneste.settAutopunktTilUtført(behandling, aksjonspunkt, kontekst);
                 }
             }
@@ -73,7 +71,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
 
             // Sjekke om kan prosesserere, samt feilhåndtering vs savepoint: Ved retry av
             // feilet task som har passert gjenopptak må man fortsette.
-            Optional<BehandlingStegTilstand> tilstand = behandling.getBehandlingStegTilstand();
+            var tilstand = behandling.getBehandlingStegTilstand();
             if ((gjenoppta != null) && tilstand.isPresent() && tilstand.get().getBehandlingSteg().equals(stegtype)
                     && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
                 behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, stegtype);
@@ -90,7 +88,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
         if (gjenopptaSteg == null) {
             return null;
         }
-        BehandlingStegType stegtype = BehandlingStegType.fraKode(gjenopptaSteg);
+        var stegtype = BehandlingStegType.fraKode(gjenopptaSteg);
         if (stegtype == null) {
             throw new IllegalStateException("Utviklerfeil: ukjent steg " + gjenopptaSteg);
         }

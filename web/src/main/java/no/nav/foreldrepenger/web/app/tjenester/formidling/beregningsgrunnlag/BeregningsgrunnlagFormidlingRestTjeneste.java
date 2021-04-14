@@ -3,14 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,7 +22,6 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 /**
@@ -60,16 +57,16 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     public Response hentBeregningsgrunnlagFormidling(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Optional<UUID> uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
-        Optional<BeregningsgrunnlagDto> dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
+        var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
+        var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .flatMap(beh -> beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(beh.getId()))
             .flatMap(bggr -> new BeregningsgrunnlagFormidlingDtoTjeneste(bggr).map());
 
         if (dto.isEmpty()) {
-            Response.ResponseBuilder responseBuilder = Response.ok();
+            var responseBuilder = Response.ok();
             return responseBuilder.build();
         }
-        Response.ResponseBuilder responseBuilder = Response.ok(dto.get());
+        var responseBuilder = Response.ok(dto.get());
         return responseBuilder.build();
     }
 }

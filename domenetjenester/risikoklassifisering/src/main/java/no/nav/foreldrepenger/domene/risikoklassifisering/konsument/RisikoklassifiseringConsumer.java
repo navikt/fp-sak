@@ -37,20 +37,20 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaInt
                                         RisikoklassifiseringMeldingsHåndterer meldingsHåndterer) {
         this.topic = streamProperties.getTopic();
 
-        Properties props = setupProperties(streamProperties);
+        var props = setupProperties(streamProperties);
 
-        final StreamsBuilder builder = new StreamsBuilder();
+        final var builder = new StreamsBuilder();
 
         Consumed<String, String> stringStringConsumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
         builder.stream(this.topic, stringStringConsumed)
             .foreach((header, payload) -> meldingsHåndterer.lagreMelding(payload));
 
-        final Topology topology = builder.build();
+        final var topology = builder.build();
         stream = new KafkaStreams(topology, props);
     }
 
     private Properties setupProperties(RisikoklassifiseringStreamKafkaProperties streamProperties) {
-        Properties props = new Properties();
+        var props = new Properties();
 
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
         props.put(StreamsConfig.CLIENT_ID_CONFIG, streamProperties.getClientId());
@@ -61,7 +61,7 @@ public class RisikoklassifiseringConsumer implements AppServiceHandler, KafkaInt
             LOG.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
             props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
+            var jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format(jaasTemplate, streamProperties.getUsername(), streamProperties.getPassword()));
         }
 

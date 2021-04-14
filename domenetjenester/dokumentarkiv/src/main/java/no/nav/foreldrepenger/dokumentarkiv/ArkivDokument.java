@@ -50,7 +50,7 @@ public class ArkivDokument {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArkivDokument that = (ArkivDokument) o;
+        var that = (ArkivDokument) o;
         return Objects.equals(dokumentId, that.dokumentId) &&
             Objects.equals(tittel, that.tittel) &&
             Objects.equals(dokumentTypeId, that.dokumentTypeId);

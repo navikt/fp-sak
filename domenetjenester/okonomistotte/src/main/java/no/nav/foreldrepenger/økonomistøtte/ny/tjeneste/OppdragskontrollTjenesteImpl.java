@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollPostConditionCheck;
@@ -53,7 +52,7 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     }
 
     private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
-        Oppdragskontroll oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
+        var oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
         if (oppdragskontroll != null) {
             var oppdragKontroll = brukOppdragFraFørOmFinnes(input, oppdragskontroll);
             OppdragskontrollPostConditionCheck.valider(oppdragKontroll);

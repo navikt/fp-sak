@@ -151,10 +151,11 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof VurdertLøpendeMedlemskapEntitet)) {
+        }
+        if (!(obj instanceof VurdertLøpendeMedlemskapEntitet)) {
             return false;
         }
-        VurdertLøpendeMedlemskapEntitet other = (VurdertLøpendeMedlemskapEntitet) obj;
+        var other = (VurdertLøpendeMedlemskapEntitet) obj;
         return Objects.equals(this.vurderingsdato, other.vurderingsdato);
     }
 

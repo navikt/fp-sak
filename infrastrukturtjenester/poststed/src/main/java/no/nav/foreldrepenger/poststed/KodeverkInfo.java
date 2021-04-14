@@ -25,7 +25,7 @@ public class KodeverkInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        KodeverkInfo that = (KodeverkInfo) o;
+        var that = (KodeverkInfo) o;
         return Objects.equals(navn, that.navn) &&
                 Objects.equals(versjon, that.versjon) &&
                 Objects.equals(versjonDato, that.versjonDato);

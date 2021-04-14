@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,14 +15,10 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -55,22 +50,23 @@ public class AvklarOmErBosatt {
     }
 
     public Optional<MedlemResultat> utled(Behandling behandling, LocalDate vurderingsdato) {
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         if (harPersonstatusSomSkalAvklares(behandling, vurderingsdato)) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
-        } else if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(behandlingId, vurderingsdato)) {
-            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
-        } else if (harBrukerTilknytningHjemland(behandlingId) == NEI) {
-            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
-        } else if (harBrukerUtenlandskPostadresseITps(behandling, vurderingsdato) == NEI) {
-            return Optional.empty();
-        } else {
-            if (erFrivilligMedlemEllerIkkeMedlem(behandlingId, vurderingsdato) == NEI) {
-                return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
-            } else {
-                return Optional.empty();
-            }
         }
+        if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(behandlingId, vurderingsdato)) {
+            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
+        }
+        if (harBrukerTilknytningHjemland(behandlingId) == NEI) {
+            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
+        }
+        if (harBrukerUtenlandskPostadresseITps(behandling, vurderingsdato) == NEI) {
+            return Optional.empty();
+        }
+        if (erFrivilligMedlemEllerIkkeMedlem(behandlingId, vurderingsdato) == NEI) {
+            return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
+        }
+        return Optional.empty();
     }
 
     private boolean harPersonstatusSomSkalAvklares(Behandling behandling, LocalDate vurderingsdato) {
@@ -81,20 +77,20 @@ public class AvklarOmErBosatt {
     }
 
     private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(Long behandlingId, LocalDate vurderingsdato) {
-        FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+        var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
         if (grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isPresent()) {
-            final Optional<MedlemskapAggregat> medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
-            final MedlemskapOppgittTilknytningEntitet oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
+            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
+            final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
                 .orElseThrow(IllegalStateException::new);
 
-            List<LocalDateSegment<Boolean>> fremtidigeOpphold = oppgittTilknytning.getOpphold()
+            var fremtidigeOpphold = oppgittTilknytning.getOpphold()
                 .stream()
                 .filter(opphold -> !opphold.isTidligereOpphold()
                     && !opphold.getLand().equals(Landkoder.NOR))
                 .map(o -> finnSegment(vurderingsdato, o.getPeriodeFom(), o.getPeriodeTom()))
                 .collect(Collectors.toList());
 
-            LocalDateTimeline<Boolean> fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold,
+            var fremtidigePerioder = new LocalDateTimeline<>(fremtidigeOpphold,
                 StandardCombinators::alwaysTrueForMatch).compress();
 
            return fremtidigePerioder.getLocalDateIntervals()
@@ -111,13 +107,12 @@ public class AvklarOmErBosatt {
     private LocalDateSegment<Boolean> finnSegment(LocalDate skjæringsdato, LocalDate fom, LocalDate tom) {
         if (skjæringsdato.isAfter(fom) && skjæringsdato.isBefore(tom)) {
             return new LocalDateSegment<>(skjæringsdato, tom, true);
-        } else {
-            return new LocalDateSegment<>(fom, tom, true);
         }
+        return new LocalDateSegment<>(fom, tom, true);
     }
 
     private Utfall harBrukerUtenlandskPostadresseITps(Behandling behandling, LocalDate vurderingsdato) {
-        PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(), behandling.getAktørId(), vurderingsdato);
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(), behandling.getAktørId(), vurderingsdato);
 
         if (personopplysninger.getAdresserFor(behandling.getAktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
             !Landkoder.erNorge(adresse.getLand()))) {
@@ -128,11 +123,11 @@ public class AvklarOmErBosatt {
 
     //TODO(OJR) må denne endres?
     private Utfall harBrukerTilknytningHjemland(Long behandlingId) {
-        final Optional<MedlemskapAggregat> medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
-        final MedlemskapOppgittTilknytningEntitet oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
+        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
+        final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
             .orElseThrow(IllegalStateException::new);
 
-        int antallNei = 0;
+        var antallNei = 0;
         if (!oppgittTilknytning.isOppholdINorgeSistePeriode())
             antallNei++;
         if (!oppgittTilknytning.isOppholdNå())
@@ -149,15 +144,15 @@ public class AvklarOmErBosatt {
     private Utfall erFrivilligMedlemEllerIkkeMedlem(Long behandlingId, LocalDate vurderingsdato) {
 
 
-        Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
+        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
         Collection<MedlemskapPerioderEntitet> medlemskapsPerioder = medlemskap.isPresent()
             ? medlemskap.get().getRegistrertMedlemskapPerioder()
             : Collections.emptyList();
-        List<MedlemskapDekningType> medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapsPerioder, vurderingsdato);
+        var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapsPerioder, vurderingsdato);
 
-        boolean erRegistrertSomIkkeMedlem = medlemskapPerioderTjeneste.erRegistrertSomIkkeMedlem(medlemskapDekningTyper);
-        boolean erRegistrertSomFrivilligMedlem = medlemskapPerioderTjeneste.erRegistrertSomFrivilligMedlem(medlemskapDekningTyper);
+        var erRegistrertSomIkkeMedlem = medlemskapPerioderTjeneste.erRegistrertSomIkkeMedlem(medlemskapDekningTyper);
+        var erRegistrertSomFrivilligMedlem = medlemskapPerioderTjeneste.erRegistrertSomFrivilligMedlem(medlemskapDekningTyper);
         return erRegistrertSomIkkeMedlem || erRegistrertSomFrivilligMedlem ? JA : NEI;
     }
 }

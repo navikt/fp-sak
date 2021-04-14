@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftFaktaForOmsorgVurderingAksjonspunktDto;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.BekreftFaktaForOmsorgVurderingDto;
@@ -46,12 +45,12 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Bekr
 
     @Override
     public OppdateringResultat oppdater(BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
-        Long behandlingId = param.getBehandlingId();
+        var behandlingId = param.getBehandlingId();
 
-        YtelseFordelingAggregat ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
-        Optional<PerioderAleneOmsorgEntitet> perioderAleneOmsorg = ytelseFordelingAggregat.getPerioderAleneOmsorg();
+        var ytelseFordelingAggregat = behandlingRepository.getYtelsesFordelingRepository().hentAggregat(behandlingId);
+        var perioderAleneOmsorg = ytelseFordelingAggregat.getPerioderAleneOmsorg();
 
-        Boolean aleneomsorgForBarnetSokVersjon = ytelseFordelingAggregat
+        var aleneomsorgForBarnetSokVersjon = ytelseFordelingAggregat
             .getOppgittRettighet().getHarAleneomsorgForBarnet();
 
         Boolean aleneomsorgForBarnetBekreftetVersjon = null;
@@ -59,19 +58,19 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Bekr
             aleneomsorgForBarnetBekreftetVersjon = !perioderAleneOmsorg.get().getPerioder().isEmpty();
         }
 
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ALENEOMSORG,
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ALENEOMSORG,
             konvertBooleanTilVerdiForAleneomsorgForBarnet(aleneomsorgForBarnetBekreftetVersjon),
             konvertBooleanTilVerdiForAleneomsorgForBarnet(dto.getAleneomsorg()));
 
-        boolean avkreftet = avkrefterBrukersOpplysninger(aleneomsorgForBarnetSokVersjon, dto.getAleneomsorg());
+        var avkreftet = avkrefterBrukersOpplysninger(aleneomsorgForBarnetSokVersjon, dto.getAleneomsorg());
 
-        boolean totrinn = setToTrinns(perioderAleneOmsorg, erEndret, avkreftet);
+        var totrinn = setToTrinns(perioderAleneOmsorg, erEndret, avkreftet);
 
         historikkAdapter.tekstBuilder()
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())
             .medSkjermlenke(SkjermlenkeType.FAKTA_FOR_OMSORG);
 
-        final BekreftFaktaForOmsorgVurderingAksjonspunktDto adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(dto.getAleneomsorg(), null, null);
+        final var adapter = new BekreftFaktaForOmsorgVurderingAksjonspunktDto(dto.getAleneomsorg(), null, null);
         ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForOmsorg(behandlingId, adapter);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();

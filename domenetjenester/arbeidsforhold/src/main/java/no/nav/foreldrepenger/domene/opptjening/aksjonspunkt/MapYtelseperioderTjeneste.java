@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -21,12 +20,10 @@ import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseStørrelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktivitetVurdering;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningsperiodeForSaksbehandling;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -44,7 +41,7 @@ public class MapYtelseperioderTjeneste {
 
     public List<OpptjeningsperiodeForSaksbehandling> mapYtelsePerioder(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
             OpptjeningAktivitetVurdering vurderOpptjening, LocalDate skjæringstidspunkt) {
-        AktørId aktørId = behandlingReferanse.getAktørId();
+        var aktørId = behandlingReferanse.getAktørId();
         var filter = new YtelseFilter(grunnlag.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt);
         List<OpptjeningsperiodeForSaksbehandling> ytelsePerioder = new ArrayList<>();
         filter.getFiltrertYtelser().stream()
@@ -52,7 +49,7 @@ public class MapYtelseperioderTjeneste {
                 .filter(ytelse -> !(ytelse.getKilde().equals(Fagsystem.FPSAK) && ytelse.getSaksnummer().equals(behandlingReferanse.getSaksnummer())))
                 .filter(ytelse -> ytelse.getRelatertYtelseType().girOpptjeningsTid(behandlingReferanse.getFagsakYtelseType()))
                 .forEach(behandlingRelaterteYtelse -> {
-                    List<OpptjeningsperiodeForSaksbehandling> periode = mapYtelseAnvist(behandlingRelaterteYtelse, behandlingReferanse, grunnlag,
+                    var periode = mapYtelseAnvist(behandlingRelaterteYtelse, behandlingReferanse, grunnlag,
                             vurderOpptjening);
                     ytelsePerioder.addAll(periode);
                 });
@@ -62,10 +59,10 @@ public class MapYtelseperioderTjeneste {
     private List<OpptjeningsperiodeForSaksbehandling> mapYtelseAnvist(Ytelse ytelse, BehandlingReferanse behandlingReferanse,
             InntektArbeidYtelseGrunnlag iayGrunnlag,
             OpptjeningAktivitetVurdering vurderForSaksbehandling) {
-        OpptjeningAktivitetType type = mapYtelseType(ytelse);
+        var type = mapYtelseType(ytelse);
         List<OpptjeningsperiodeForSaksbehandling> ytelserAnvist = new ArrayList<>();
-        List<YtelseStørrelse> grunnlagList = ytelse.getYtelseGrunnlag().map(YtelseGrunnlag::getYtelseStørrelse).orElse(Collections.emptyList());
-        List<String> orgnumre = grunnlagList.stream()
+        var grunnlagList = ytelse.getYtelseGrunnlag().map(YtelseGrunnlag::getYtelseStørrelse).orElse(Collections.emptyList());
+        var orgnumre = grunnlagList.stream()
                 .map(ys -> ys.getOrgnr().orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -81,14 +78,14 @@ public class MapYtelseperioderTjeneste {
                                                                                                                                                       // 0
                 .forEach(ytelseAnvist -> {
                     if (orgnumre.isEmpty()) {
-                        OpptjeningsperiodeForSaksbehandling.Builder builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
+                        var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
                                 .medPeriode(hentUtDatoIntervall(ytelse, ytelseAnvist))
                                 .medOpptjeningAktivitetType(type)
                                 .medVurderingsStatus(vurderForSaksbehandling.vurderStatus(type, behandlingReferanse, null, iayGrunnlag, false));
                         ytelserAnvist.add(builder.build());
                     } else {
                         orgnumre.forEach(orgnr -> {
-                            OpptjeningsperiodeForSaksbehandling.Builder builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
+                            var builder = OpptjeningsperiodeForSaksbehandling.Builder.ny()
                                     .medPeriode(hentUtDatoIntervall(ytelse, ytelseAnvist))
                                     .medOpptjeningAktivitetType(type)
                                     .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
@@ -102,7 +99,7 @@ public class MapYtelseperioderTjeneste {
     }
 
     private static DatoIntervallEntitet hentUtDatoIntervall(Ytelse ytelse, YtelseAnvist ytelseAnvist) {
-        LocalDate fom = ytelseAnvist.getAnvistFOM();
+        var fom = ytelseAnvist.getAnvistFOM();
         if (Fagsystem.ARENA.equals(ytelse.getKilde()) && fom.isBefore(ytelse.getPeriode().getFomDato())) {
             // Kunne vært generell men er forsiktig pga at feil som gir fpsak-ytelser fom =
             // siste uttaksperiode (er rettet)
@@ -110,7 +107,7 @@ public class MapYtelseperioderTjeneste {
             // ....
             fom = ytelse.getPeriode().getFomDato();
         }
-        LocalDate tom = ytelseAnvist.getAnvistTOM();
+        var tom = ytelseAnvist.getAnvistTOM();
         if ((tom != null) && !Tid.TIDENES_ENDE.equals(tom)) {
             if (Fagsystem.INFOTRYGD.equals(ytelse.getKilde()) && (DayOfWeek.THURSDAY.getValue() < DayOfWeek.from(tom).getValue())) {
                 tom = tom.plusDays((long) DayOfWeek.SUNDAY.getValue() - DayOfWeek.from(tom).getValue());
@@ -131,7 +128,7 @@ public class MapYtelseperioderTjeneste {
 
     private List<OpptjeningsperiodeForSaksbehandling> slåSammenYtelseTimelines(List<OpptjeningsperiodeForSaksbehandling> ytelser) {
         List<OpptjeningsperiodeForSaksbehandling> resultat = new ArrayList<>();
-        Map<Tuple<OpptjeningAktivitetType, String>, List<OpptjeningsperiodeForSaksbehandling>> gruppering = ytelser.stream()
+        var gruppering = ytelser.stream()
                 .collect(Collectors.groupingBy(this::finnYtelseDiskriminator));
         gruppering.forEach((k, v) -> resultat.addAll(slåSammenYtelseListe(v)));
         return resultat;
@@ -159,7 +156,7 @@ public class MapYtelseperioderTjeneste {
     }
 
     private Tuple<OpptjeningAktivitetType, String> finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
-        String retOrgnr = ytelse.getOrgnr() != null ? ytelse.getOrgnr() : UTEN_ORGNR;
+        var retOrgnr = ytelse.getOrgnr() != null ? ytelse.getOrgnr() : UTEN_ORGNR;
         return new Tuple<>(ytelse.getOpptjeningAktivitetType(), retOrgnr);
     }
 }

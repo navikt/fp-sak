@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -30,9 +29,9 @@ public class SvangerskapspengerRepository {
     }
 
     public void lagreOgFlush(SvpGrunnlagEntitet svpGrunnlag) {
-        final Optional<SvpGrunnlagEntitet> eksisterendeGrunnlag = hentGrunnlag(svpGrunnlag.getBehandlingId());
+        final var eksisterendeGrunnlag = hentGrunnlag(svpGrunnlag.getBehandlingId());
         if (eksisterendeGrunnlag.isPresent()) {
-            SvpGrunnlagEntitet eksisterendeEntitet = eksisterendeGrunnlag.get();
+            var eksisterendeEntitet = eksisterendeGrunnlag.get();
             eksisterendeEntitet.deaktiver();
             entityManager.persist(eksisterendeEntitet);
         }
@@ -41,7 +40,7 @@ public class SvangerskapspengerRepository {
     }
 
     public Optional<SvpGrunnlagEntitet> hentGrunnlag(Long behandlingId) {
-        final TypedQuery<SvpGrunnlagEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             "FROM SvpGrunnlag s " +
                     "WHERE s.behandlingId = :behandlingId AND s.aktiv = true",
                     SvpGrunnlagEntitet.class);
@@ -52,7 +51,7 @@ public class SvangerskapspengerRepository {
     }
 
     public void lagreOverstyrtGrunnlag(Behandling behandling, List<SvpTilretteleggingEntitet> overstyrtTilrettelegging) {
-        Optional<SvpGrunnlagEntitet> grunnlagOpt = hentGrunnlag(behandling.getId());
+        var grunnlagOpt = hentGrunnlag(behandling.getId());
         SvpGrunnlagEntitet.Builder nyBuilder;
 
         if (grunnlagOpt.isPresent()) {
@@ -69,12 +68,12 @@ public class SvangerskapspengerRepository {
     }
 
     public void kopierSvpGrunnlagFraEksisterendeBehandling(Long orginalBehandlingId, Behandling nyBehandling) {
-        Optional<SvpGrunnlagEntitet> eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
+        var eksisterendeGrunnlag = hentGrunnlag(orginalBehandlingId);
         if (eksisterendeGrunnlag.isPresent()) {
-            SvpGrunnlagEntitet eksisterendeEntitet = eksisterendeGrunnlag.get();
-            List<SvpTilretteleggingEntitet> opprTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOpprinneligeTilrettelegginger());
-            List<SvpTilretteleggingEntitet> ovstTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOverstyrteTilrettelegginger());
-            SvpGrunnlagEntitet nyttGrunnlag = new SvpGrunnlagEntitet.Builder()
+            var eksisterendeEntitet = eksisterendeGrunnlag.get();
+            var opprTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOpprinneligeTilrettelegginger());
+            var ovstTilrettelegginger = opprettKopierAvTilrettelegginger(eksisterendeEntitet.getOverstyrteTilrettelegginger());
+            var nyttGrunnlag = new SvpGrunnlagEntitet.Builder()
                     .medBehandlingId(nyBehandling.getId())
                     .medOpprinneligeTilrettelegginger(opprTilrettelegginger)
                     .medOverstyrteTilrettelegginger(ovstTilrettelegginger)

@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,16 +64,16 @@ public class EtterkontrollEventObserver {
     }
 
     public void observerBehandlingVedtakEvent(@Observes BehandlingVedtakEvent event) {
-        Behandling behandling = event.getBehandling();
+        var behandling = event.getBehandling();
         if (!IverksettingStatus.IVERKSATT.equals(event.getVedtak().getIverksettingStatus()) || !behandling.erYtelseBehandling()) {
             return;
         }
 
         LOG.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(),
                 event.getVedtak().getId());// NOSONAR
-        final Optional<FamilieHendelseGrunnlagEntitet> grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
+        final var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {
-            final FamilieHendelseType hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
+            final var hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
                     .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
             if (Set.of(TERMIN, FØDSEL).contains(hendelseType)) {
                 markerForEtterkontroll(behandling, grunnlag.get());
@@ -88,9 +87,9 @@ public class EtterkontrollEventObserver {
     private void markerForEtterkontroll(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag) {
         skalEtterkontrolleresMedDato(behandling, grunnlag).ifPresent(ekDato -> {
             var ekTid = ekDato.plus(etterkontrollTidTilbake).atStartOfDay();
-            List<Etterkontroll> ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
+            var ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
             if (ekListe.isEmpty()) {
-                Etterkontroll etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())
+                var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())
                         .medKontrollType(KontrollType.MANGLENDE_FØDSEL)
                         .medErBehandlet(false)
                         .medKontrollTidspunkt(ekTid)

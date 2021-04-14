@@ -46,7 +46,7 @@ public class SvpVedtakUtgåendeHendelse extends UtgåendeHendelse {
         }
 
         public SvpVedtakUtgåendeHendelse build() {
-            SvpVedtakUtgåendeHendelse hendelse = new SvpVedtakUtgåendeHendelse();
+            var hendelse = new SvpVedtakUtgåendeHendelse();
             hendelse.setType(type);
             hendelse.setPayload(payload);
             hendelse.setAktørId(aktørId);

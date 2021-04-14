@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +23,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Persistence;
 import javax.persistence.Table;
 import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.ManagedType;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Disabled;
@@ -63,8 +60,8 @@ public class EntityTest {
 
     private static Collection<Class<?>> parameters() {
 
-        Set<Class<?>> baseEntitetSubklasser = getEntityClasses(BaseEntitet.class::isAssignableFrom);
-        Set<Class<?>> entityKlasser = getEntityClasses(c -> c.isAnnotationPresent(Entity.class));
+        var baseEntitetSubklasser = getEntityClasses(BaseEntitet.class::isAssignableFrom);
+        var entityKlasser = getEntityClasses(c -> c.isAnnotationPresent(Entity.class));
 
         Collection<Class<?>> params = new HashSet<>(baseEntitetSubklasser);
         assertThat(params).isNotEmpty();
@@ -76,7 +73,7 @@ public class EntityTest {
     }
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
-        Set<ManagedType<?>> managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
+        var managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
         return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
                 .filter(filter).collect(Collectors.toSet());
     }
@@ -109,24 +106,24 @@ public class EntityTest {
     @ParameterizedTest
     @MethodSource("parameters")
     public void sjekk_felt_mapping_primitive_felt_i_entiteter_må_ha_not_nullable_i_db(Class<?> entityClass) throws Exception {
-        ManagedType<?> managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
+        var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         for (Attribute<?, ?> att : managedType.getAttributes()) {
-            Class<?> javaType = att.getJavaType();
+            var javaType = att.getJavaType();
             if (javaType.isPrimitive()) {
 
-                Member member = att.getJavaMember();
-                Field field = member.getDeclaringClass().getDeclaredField(member.getName());
+                var member = att.getJavaMember();
+                var field = member.getDeclaringClass().getDeclaredField(member.getName());
                 if (Modifier.isTransient(field.getModifiers())) {
                     continue;
                 }
 
-                String tableName = getInheritedAnnotation(entityClass, Table.class).name();
-                String columnName = field.getDeclaredAnnotation(Column.class).name();
-                String singleResult = getNullability(tableName, columnName);
+                var tableName = getInheritedAnnotation(entityClass, Table.class).name();
+                var columnName = field.getDeclaredAnnotation(Column.class).name();
+                var singleResult = getNullability(tableName, columnName);
 
                 if (singleResult != null) {
-                    String warn = "Primitiv " + member + " kan ha null i db. Kan medføre en smell ved lasting";
+                    var warn = "Primitiv " + member + " kan ha null i db. Kan medføre en smell ved lasting";
                     assertThat(singleResult).as(warn).isEqualTo("N");
                 } else {
                     // forventer noe Dvh stuff som er Ok
@@ -140,35 +137,35 @@ public class EntityTest {
     @ParameterizedTest
     @MethodSource("parameters")
     public void sjekk_felt_ikke_primitive_wrappere_kan_ikke_være_not_nullable_i_db(Class<?> entityClass) throws Exception {
-        ManagedType<?> managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
+        var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         if (Modifier.isAbstract(entityClass.getModifiers())) {
             return;
         }
 
         for (Attribute<?, ?> att : managedType.getAttributes()) {
-            Member member = att.getJavaMember();
-            Field field = member.getDeclaringClass().getDeclaredField(member.getName());
+            var member = att.getJavaMember();
+            var field = member.getDeclaringClass().getDeclaredField(member.getName());
 
             if (Modifier.isTransient(field.getModifiers())) {
                 continue;
             }
-            Id id = field.getDeclaredAnnotation(Id.class);
+            var id = field.getDeclaredAnnotation(Id.class);
             if (id != null) {
                 continue;
             }
 
-            String tableName = getTableName(entityClass, field);
-            Column column = field.getDeclaredAnnotation(Column.class);
-            JoinColumn joinColumn = field.getDeclaredAnnotation(JoinColumn.class);
+            var tableName = getTableName(entityClass, field);
+            var column = field.getDeclaredAnnotation(Column.class);
+            var joinColumn = field.getDeclaredAnnotation(JoinColumn.class);
             if (column == null && joinColumn == null) {
                 continue;
             }
-            String columnName = column != null ? column.name() : joinColumn.name();
-            boolean nullable = column != null ? column.nullable() : joinColumn.nullable();
-            String singleResult = getNullability(tableName, columnName);
+            var columnName = column != null ? column.name() : joinColumn.name();
+            var nullable = column != null ? column.nullable() : joinColumn.nullable();
+            var singleResult = getNullability(tableName, columnName);
 
-            String warn = "Felt " + member
+            var warn = "Felt " + member
                     + " kan ikke ha null i db. Kan medføre en smell ved skriving. Bedre å bruke primitiv hvis kan (husk sjekk med innkommende kilde til data)";
             if (nullable) {
                 assertThat(singleResult).as(warn).isEqualTo("Y");
@@ -190,10 +187,10 @@ public class EntityTest {
     }
 
     private String getTableName(Class<?> entityClass, Field field) {
-        Class<?> clazz = entityClass;
+        var clazz = entityClass;
         if (field.getDeclaredAnnotation(OneToMany.class) != null) {
-            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-            Type type = parameterizedType.getActualTypeArguments()[0];
+            var parameterizedType = (ParameterizedType) field.getGenericType();
+            var type = parameterizedType.getActualTypeArguments()[0];
             clazz = (Class<?>) type;
         }
         return getInheritedAnnotation(clazz, Table.class).name();
@@ -202,21 +199,21 @@ public class EntityTest {
     @ParameterizedTest
     @MethodSource("parameters")
     public void sjekk_felt_ikke_er_Float_eller_Double(Class<?> entityClass) throws Exception {
-        ManagedType<?> managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
+        var managedType = entityManagerFactory.getMetamodel().managedType(entityClass);
 
         for (Attribute<?, ?> att : managedType.getAttributes()) {
 
-            Class<?> javaType = att.getJavaType();
+            var javaType = att.getJavaType();
 
             if (isDoubleOrFloat(javaType)) {
 
-                Member member = att.getJavaMember();
-                Field field = member.getDeclaringClass().getDeclaredField(member.getName());
+                var member = att.getJavaMember();
+                var field = member.getDeclaringClass().getDeclaredField(member.getName());
                 if (Modifier.isTransient(field.getModifiers())) {
                     continue;
                 }
 
-                String warn = "Primitiv wrapper (Float, Double) " + member
+                var warn = "Primitiv wrapper (Float, Double) " + member
                         + " bør ikke brukes for felt som mappes til db.  Vil gi IEEE754 avrundingsfeil";
 
                 assertThat(member).as(warn).isNull();

@@ -63,8 +63,8 @@ public class KodeverkRestTjeneste {
     @Operation(description = "Henter kodeliste", tags = "kodeverk")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON, sporingslogg = false)
     public Response hentGruppertKodeliste() throws IOException {
-        String kodelisteJson = getKodeverkRawJson();
-        CacheControl cc = new CacheControl();
+        var kodelisteJson = getKodeverkRawJson();
+        var cc = new CacheControl();
         cc.setMaxAge(60 * 60); // tillater klient caching i 1 time
         return Response.ok()
                 .entity(kodelisteJson)
@@ -85,7 +85,7 @@ public class KodeverkRestTjeneste {
         if (kodelisteCache.get("alle") == null) {
             kodelisteCache.put("alle", tilJson(this.hentGruppertKodelisteTilCache()));
         }
-        String kodelisteJson = kodelisteCache.get("alle");
+        var kodelisteJson = kodelisteCache.get("alle");
         return kodelisteJson;
     }
 

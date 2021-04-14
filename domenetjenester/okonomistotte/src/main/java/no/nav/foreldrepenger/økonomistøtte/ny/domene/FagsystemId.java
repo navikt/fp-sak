@@ -9,7 +9,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
     private boolean gammeltFormat;
 
     public static FagsystemId førsteForFagsak(String saksnummer) {
-        FagsystemId id = new FagsystemId();
+        var id = new FagsystemId();
         id.saksnummer = saksnummer;
         id.løpenummer = 100;
         id.gammeltFormat = false;
@@ -23,9 +23,9 @@ public class FagsystemId implements Comparable<FagsystemId> {
     }
 
     private static FagsystemId parseNyttFormat(String kode) {
-        int index = kode.lastIndexOf('-');
+        var index = kode.lastIndexOf('-');
 
-        FagsystemId id = new FagsystemId();
+        var id = new FagsystemId();
         id.saksnummer = kode.substring(0, index);
         id.løpenummer = Integer.parseInt(kode.substring(index + 1));
         id.gammeltFormat = false;
@@ -33,7 +33,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
     }
 
     private static FagsystemId parseGammeltFormat(String kode) {
-        FagsystemId id = new FagsystemId();
+        var id = new FagsystemId();
         id.saksnummer = kode.substring(0, kode.length() - 3);
         id.løpenummer = Integer.parseInt(kode.substring(kode.length() - 3));
         id.gammeltFormat = true;
@@ -56,7 +56,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
     }
 
     public FagsystemId neste() {
-        FagsystemId id = new FagsystemId();
+        var id = new FagsystemId();
         id.saksnummer = this.saksnummer;
         id.løpenummer = this.løpenummer + 1;
         id.gammeltFormat = this.gammeltFormat; //TODO alltid sette til true ?
@@ -71,7 +71,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
         if (annen == null || getClass() != annen.getClass()) {
             return false;
         }
-        FagsystemId that = (FagsystemId) annen;
+        var that = (FagsystemId) annen;
         return løpenummer == that.løpenummer &&
             saksnummer.equals(that.saksnummer);
     }
@@ -91,7 +91,7 @@ public class FagsystemId implements Comparable<FagsystemId> {
 
     @Override
     public int compareTo(FagsystemId o) {
-        int resultat = saksnummer.compareTo(o.saksnummer);
+        var resultat = saksnummer.compareTo(o.saksnummer);
         if (resultat != 0) {
             return resultat;
         }

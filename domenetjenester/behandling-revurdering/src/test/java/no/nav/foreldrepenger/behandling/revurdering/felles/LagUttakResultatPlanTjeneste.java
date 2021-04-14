@@ -38,8 +38,8 @@ public class LagUttakResultatPlanTjeneste {
         var uttakResultatArbeidsforholdBuilder = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.person(behandling.getAktørId()), null)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID);
-        for (int i = 0; i < perioder.size(); i++) {
-            LocalDateInterval p = perioder.get(i);
+        for (var i = 0; i < perioder.size(); i++) {
+            var p = perioder.get(i);
             uttakResultatArbeidsforholdBuilder.medPeriode(
                 new SvangerskapspengerUttakResultatPeriodeEntitet.Builder(p.getFomDato(), p.getTomDato()).medRegelInput(
                     "{}")
@@ -65,15 +65,15 @@ public class LagUttakResultatPlanTjeneste {
                                                                     List<Integer> utbetalingsgrad,
                                                                     List<Trekkdager> trekkdager,
                                                                     List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatEntitet.Builder uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
+        var uttakResultatPlanBuilder = new UttakResultatEntitet.Builder(
             behandling.getBehandlingsresultat());
-        UttakResultatPerioderEntitet uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
         assertThat(perioder).hasSize(samtidigUttak.size());
         assertThat(perioder).hasSize(periodeResultatTyper.size());
         assertThat(perioder).hasSize(periodeResultatÅrsak.size());
         assertThat(perioder).hasSize(graderingInnvilget.size());
-        int antallPerioder = perioder.size();
-        for (int i = 0; i < antallPerioder; i++) {
+        var antallPerioder = perioder.size();
+        for (var i = 0; i < antallPerioder; i++) {
             lagUttakPeriodeMedPeriodeAktivitet(uttakResultatPerioder, perioder.get(i), samtidigUttak.get(i),
                 periodeResultatTyper.get(i), periodeResultatÅrsak.get(i), graderingInnvilget.get(i), andelIArbeid,
                 utbetalingsgrad, trekkdager, stønadskontoTyper);
@@ -91,12 +91,12 @@ public class LagUttakResultatPlanTjeneste {
                                                            List<Integer> utbetalingsgrad,
                                                            List<Trekkdager> trekkdager,
                                                            List<StønadskontoType> stønadskontoTyper) {
-        UttakResultatPeriodeEntitet uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
+        var uttakResultatPeriode = byggPeriode(periode.getFomDato(), periode.getTomDato(),
             samtidigUttak, periodeResultatType, periodeResultatÅrsak, graderingInnvilget);
 
-        int antallAktiviteter = stønadskontoTyper.size();
-        for (int i = 0; i < antallAktiviteter; i++) {
-            UttakResultatPeriodeAktivitetEntitet periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
+        var antallAktiviteter = stønadskontoTyper.size();
+        for (var i = 0; i < antallAktiviteter; i++) {
+            var periodeAktivitet = lagPeriodeAktivitet(stønadskontoTyper.get(i),
                 uttakResultatPeriode, trekkdager.get(i), andelIArbeid.get(i), utbetalingsgrad.get(i));
             uttakResultatPeriode.leggTilAktivitet(periodeAktivitet);
         }
@@ -108,7 +108,7 @@ public class LagUttakResultatPlanTjeneste {
                                                                             Trekkdager trekkdager,
                                                                             int andelIArbeid,
                                                                             int utbetalingsgrad) {
-        UttakAktivitetEntitet uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
+        var uttakAktivitet = new UttakAktivitetEntitet.Builder().medArbeidsforhold(
             Arbeidsgiver.virksomhet(KUNSTIG_ORG), ARBEIDSFORHOLD_ID)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .build();

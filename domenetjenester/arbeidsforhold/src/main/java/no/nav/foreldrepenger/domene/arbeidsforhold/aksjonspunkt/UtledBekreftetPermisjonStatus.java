@@ -9,7 +9,7 @@ final class UtledBekreftetPermisjonStatus {
     }
 
     static BekreftetPermisjonStatus utled(ArbeidsforholdDto arbeidsforholdDto) {
-        BekreftetPermisjonStatus status = BekreftetPermisjonStatus.UDEFINERT;
+        var status = BekreftetPermisjonStatus.UDEFINERT;
         if (arbeidsforholdDto.getPermisjoner().size() > 1) {
             return BekreftetPermisjonStatus.UGYLDIGE_PERIODER;
         }

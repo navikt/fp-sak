@@ -23,8 +23,8 @@ public class HentBekreftetPermisjon {
 
     public static Optional<BekreftetPermisjon> hent(InntektArbeidYtelseGrunnlag grunnlag, Arbeidsgiver arbeidsgiver,
             InternArbeidsforholdRef arbeidsforholdRef) {
-        List<ArbeidsforholdOverstyring> overstyringer = hentAlleOverstyringer(grunnlag);
-        Optional<ArbeidsforholdOverstyring> overstyring = finnOverstyringSomMatcherArbeidsforhold(arbeidsgiver, arbeidsforholdRef, overstyringer);
+        var overstyringer = hentAlleOverstyringer(grunnlag);
+        var overstyring = finnOverstyringSomMatcherArbeidsforhold(arbeidsgiver, arbeidsforholdRef, overstyringer);
         return overstyring.flatMap(ArbeidsforholdOverstyring::getBekreftetPermisjon);
     }
 

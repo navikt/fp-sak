@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -21,9 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
@@ -56,8 +52,8 @@ public class OppdragRestTjeneste {
     @Path(OPPDRAGINFO_PART_PATH)
     @Deprecated
     public OppdragDto hentOppdrag(@Valid @NotNull BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
         return oppdragskontroll
                 .map(OppdragDto::fraDomene)
                 .orElse(null);
@@ -68,8 +64,8 @@ public class OppdragRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
     public OppdragDto hentOppdrag(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
         return oppdragskontroll
                 .map(OppdragDto::fraDomene)
                 .orElse(null);

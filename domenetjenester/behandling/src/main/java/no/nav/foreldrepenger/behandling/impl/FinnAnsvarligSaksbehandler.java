@@ -13,7 +13,8 @@ public class FinnAnsvarligSaksbehandler {
     public static String finn(Behandling behandling) {
         if (behandling.getAnsvarligBeslutter() != null && !behandling.getAnsvarligBeslutter().isBlank()) {
             return behandling.getAnsvarligBeslutter();
-        } else if (behandling.getAnsvarligSaksbehandler() != null && !behandling.getAnsvarligSaksbehandler().isBlank()) {
+        }
+        if (behandling.getAnsvarligSaksbehandler() != null && !behandling.getAnsvarligSaksbehandler().isBlank()) {
             return behandling.getAnsvarligSaksbehandler();
         }
         return DEFAULT_ANSVARLIG_SAKSBEHANDLER;

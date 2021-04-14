@@ -36,7 +36,7 @@ public class FødselsvilkårMor implements RuleService<FødselsvilkårGrunnlag> 
     @SuppressWarnings("unchecked")
     @Override
     public Specification<FødselsvilkårGrunnlag> getSpecification() {
-        Ruleset<FødselsvilkårGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<FødselsvilkårGrunnlag>();
 
 
         Specification<FødselsvilkårGrunnlag> bekreftelseIkkeUtstedtMerEnn10UkerOg3DagerFørTerminNode =

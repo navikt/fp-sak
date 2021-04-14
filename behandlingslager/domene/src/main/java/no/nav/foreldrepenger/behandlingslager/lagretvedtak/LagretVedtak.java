@@ -75,7 +75,7 @@ public class LagretVedtak extends BaseEntitet {
         if (!(object instanceof LagretVedtak)) {
             return false;
         }
-        LagretVedtak lagretVedtak = (LagretVedtak) object;
+        var lagretVedtak = (LagretVedtak) object;
         return Objects.equals(fagsakId, lagretVedtak.getFagsakId())
             && Objects.equals(behandlingId, lagretVedtak.getBehandlingId())
             && Objects.equals(xmlClob, lagretVedtak.getXmlClob());
@@ -112,7 +112,7 @@ public class LagretVedtak extends BaseEntitet {
 
         public LagretVedtak build() {
             verifyStateForBuild();
-            LagretVedtak lagretVedtak = new LagretVedtak();
+            var lagretVedtak = new LagretVedtak();
             lagretVedtak.fagsakId = fagsakId;
             lagretVedtak.behandlingId = behandlingId;
             lagretVedtak.xmlClob = xmlClob;

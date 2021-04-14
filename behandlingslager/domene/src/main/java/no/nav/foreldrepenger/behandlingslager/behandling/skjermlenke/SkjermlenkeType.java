@@ -145,7 +145,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     }
 
     private static SkjermlenkeType getSkjermlenkeTypeForOmsorgsovertakelse(Behandling behandling) {
-        FagsakYtelseType fagsakYtelseType = behandling.getFagsakYtelseType();
+        var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)){
             return  SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR;
         }
@@ -155,11 +155,14 @@ public enum SkjermlenkeType implements Kodeverdi {
     public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(VilkårType vilkårType) {
         if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårType) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårType)) {
             return SkjermlenkeType.PUNKT_FOR_FOEDSEL;
-        } else if (VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårType) || VilkårType.ADOPSJONSVILKARET_FORELDREPENGER.equals(vilkårType)) {
+        }
+        if (VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.equals(vilkårType) || VilkårType.ADOPSJONSVILKARET_FORELDREPENGER.equals(vilkårType)) {
             return SkjermlenkeType.PUNKT_FOR_ADOPSJON;
-        } else if (VilkårType.OMSORGSVILKÅRET.equals(vilkårType)) {
+        }
+        if (VilkårType.OMSORGSVILKÅRET.equals(vilkårType)) {
             return SkjermlenkeType.PUNKT_FOR_OMSORG;
-        } else if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType) || VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
+        }
+        if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType) || VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
             return SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
         }
         return SkjermlenkeType.UDEFINERT;

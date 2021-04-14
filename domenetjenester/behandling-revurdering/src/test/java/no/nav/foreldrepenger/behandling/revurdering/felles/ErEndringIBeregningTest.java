@@ -83,7 +83,7 @@ public class ErEndringIBeregningTest {
         revurderingTestUtil.avsluttBehandling(behandlingSomSkalRevurderes);
 
         var behandlingskontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-        RevurderingTjenesteFelles revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
+        var revurderingTjenesteFelles = new RevurderingTjenesteFelles(repositoryProvider);
         RevurderingTjeneste revurderingTjeneste = new RevurderingTjenesteImpl(repositoryProvider,
                 behandlingskontrollTjeneste,
                 iayTjeneste, revurderingEndring, revurderingTjenesteFelles, vergeRepository);
@@ -95,15 +95,15 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_i_beregningsgrunnlag_ved_lik_dagsats_på_periodenoivå() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+        var bgPeriode = Collections.singletonList(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
                 false, true, bgPeriode);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
                 bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        var endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
 
         // Assert
         assertThat(endring).isFalse();
@@ -112,13 +112,13 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_endring_når_vi_mangler_beregningsgrunnlag_på_en_av_behandlingene() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+        var bgPeriode = Collections.singletonList(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
                 bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.empty());
+        var endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.empty());
 
         // Assert
         assertThat(endring).isTrue();
@@ -127,7 +127,7 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_når_vi_mangler_begge_beregningsgrunnlag() {
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.empty(), Optional.empty());
+        var endring = ErEndringIBeregning.vurder(Optional.empty(), Optional.empty());
 
         // Assert
         assertThat(endring).isFalse();
@@ -136,21 +136,21 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_med_forskjellige_fom_og_tom() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPerioderNyttGrunnlag = List.of(
+        var bgPerioderNyttGrunnlag = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING,
                         SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(35)),
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(36), null));
-        List<ÅpenDatoIntervallEntitet> bgPerioderOriginaltGrunnlag = List.of(
+        var bgPerioderOriginaltGrunnlag = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING,
                         SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(40)),
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(41), null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
                 false, true, bgPerioderOriginaltGrunnlag);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
                 bgPerioderNyttGrunnlag);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        var endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
 
         // Assert
         assertThat(endring).isFalse();
@@ -159,21 +159,21 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_ingen_endring_når_vi_har_like_mange_perioder_med_forskjellig_startdato() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPerioderNyttGrunnlag = List.of(
+        var bgPerioderNyttGrunnlag = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING.minusDays(1),
                         SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(35)),
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(36), null));
-        List<ÅpenDatoIntervallEntitet> bgPerioderOriginaltGrunnlag = List.of(
+        var bgPerioderOriginaltGrunnlag = List.of(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING,
                         SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(40)),
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING.plusDays(41), null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
                 false, true, bgPerioderOriginaltGrunnlag);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, false, true,
                 bgPerioderNyttGrunnlag);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        var endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
 
         // Assert
         assertThat(endring).isFalse();
@@ -182,15 +182,15 @@ public class ErEndringIBeregningTest {
     @Test
     public void skal_gi_endring_i_beregningsgrunnlag_ved_ulik_dagsats_på_periodenoivå() {
         // Arrange
-        List<ÅpenDatoIntervallEntitet> bgPeriode = Collections.singletonList(
+        var bgPeriode = Collections.singletonList(
                 ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT_BEREGNING, null));
-        BeregningsgrunnlagEntitet originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
+        var originalGrunnlag = byggBeregningsgrunnlagForBehandling(behandlingSomSkalRevurderes,
                 false, true, bgPeriode);
-        BeregningsgrunnlagEntitet revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, true, true,
+        var revurderingGrunnlag = byggBeregningsgrunnlagForBehandling(revurdering, true, true,
                 bgPeriode);
 
         // Act
-        boolean endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
+        var endring = ErEndringIBeregning.vurder(Optional.of(revurderingGrunnlag), Optional.of(originalGrunnlag));
 
         // Assert
         assertThat(endring).isTrue();
@@ -209,7 +209,7 @@ public class ErEndringIBeregningTest {
             boolean skalDeleAndelMellomArbeidsgiverOgBruker,
             List<ÅpenDatoIntervallEntitet> perioder,
             LagAndelTjeneste lagAndelTjeneste) {
-        BeregningsgrunnlagEntitet beregningsgrunnlag = LagBeregningsgrunnlagTjeneste.lagBeregningsgrunnlag(
+        var beregningsgrunnlag = LagBeregningsgrunnlagTjeneste.lagBeregningsgrunnlag(
                 SKJÆRINGSTIDSPUNKT_BEREGNING, medOppjustertDagsat, skalDeleAndelMellomArbeidsgiverOgBruker, perioder,
                 lagAndelTjeneste);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);

@@ -157,7 +157,7 @@ public class OppdragInputTjeneste {
     }
 
     private Optional<Long> hentSatsFraBehandling(long behandlingId) {
-        Optional<LegacyESBeregning> beregning = beregningRepository.getSisteBeregning(behandlingId);
+        var beregning = beregningRepository.getSisteBeregning(behandlingId);
         return beregning.map(LegacyESBeregning::getBeregnetTilkjentYtelse);
     }
 
@@ -189,18 +189,18 @@ public class OppdragInputTjeneste {
     }
 
     private GruppertYtelse grupperYtelse(BeregningsresultatEntitet beregningsresultat, FamilieYtelseType familieYtelseType) {
-        TilkjentYtelseMapper tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType);
+        var tilkjentYtelseMapper = TilkjentYtelseMapper.lagFor(familieYtelseType);
         return tilkjentYtelseMapper.fordelPåNøkler(beregningsresultat);
     }
 
     private FamilieYtelseType finnFamilieYtelseType(long behandlingId, FagsakYtelseType fagsakYtelseType) {
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             return gjelderFødsel(behandlingId);
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
-            return FamilieYtelseType.SVANGERSKAPSPENGER;
-        } else {
-            return null;
         }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
+            return FamilieYtelseType.SVANGERSKAPSPENGER;
+        }
+        return null;
     }
 
     private FamilieYtelseType gjelderFødsel(Long behandlingId) {
@@ -213,7 +213,8 @@ public class OppdragInputTjeneste {
     private static String finnSaksbehandlerFra(Behandling behandling) {
         if (StringUtils.isNotBlank(behandling.getAnsvarligBeslutter())) {
             return behandling.getAnsvarligBeslutter();
-        } else if (StringUtils.isNotBlank(behandling.getAnsvarligSaksbehandler())) {
+        }
+        if (StringUtils.isNotBlank(behandling.getAnsvarligSaksbehandler())) {
             return behandling.getAnsvarligSaksbehandler();
         }
         return DEFAULT_ANSVARLIG_SAKSBEHANDLER;

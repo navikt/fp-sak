@@ -67,8 +67,8 @@ public class VergeRestTjeneste {
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response opprettVerge(@Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
-        Behandling behandling = getBehandling(dto);
-        Long behandlingVersjon = dto.getBehandlingVersjon();
+        var behandling = getBehandling(dto);
+        var behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
@@ -87,8 +87,8 @@ public class VergeRestTjeneste {
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response fjernVerge(@Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
-        Behandling behandling = getBehandling(dto);
-        Long behandlingVersjon = dto.getBehandlingVersjon();
+        var behandling = getBehandling(dto);
+        var behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
         behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
@@ -100,7 +100,7 @@ public class VergeRestTjeneste {
     }
 
     private Behandling getBehandling(@QueryParam("behandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
+        var behandlingId = behandlingIdDto.getBehandlingId();
         return behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
                 : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());

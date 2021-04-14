@@ -33,7 +33,7 @@ public class OpprettOppgaveSendTilInfotrygdTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        String oppgaveId = oppgaveTjeneste.opprettOppgaveSakSkalTilInfotrygd(behandlingId);
+        var oppgaveId = oppgaveTjeneste.opprettOppgaveSakSkalTilInfotrygd(behandlingId);
         LOG.info("Oppgave opprettet i GSAK slik at Infotrygd kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
     }
 }

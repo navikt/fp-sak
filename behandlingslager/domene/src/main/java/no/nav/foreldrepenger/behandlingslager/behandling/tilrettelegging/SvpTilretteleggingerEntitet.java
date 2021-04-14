@@ -37,9 +37,9 @@ public class SvpTilretteleggingerEntitet extends BaseEntitet {
         private List<SvpTilretteleggingEntitet> tilretteleggingListe = new ArrayList<>();
 
         public SvpTilretteleggingerEntitet build() {
-            SvpTilretteleggingerEntitet entitet = new SvpTilretteleggingerEntitet();
-            for (SvpTilretteleggingEntitet tilrettelegging : this.tilretteleggingListe) {
-                SvpTilretteleggingEntitet svpTilretteleggingEntitet = new SvpTilretteleggingEntitet(tilrettelegging, entitet);
+            var entitet = new SvpTilretteleggingerEntitet();
+            for (var tilrettelegging : this.tilretteleggingListe) {
+                var svpTilretteleggingEntitet = new SvpTilretteleggingEntitet(tilrettelegging, entitet);
                 entitet.tilretteleggingListe.add(svpTilretteleggingEntitet);
             }
             return entitet;

@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 
@@ -128,13 +127,13 @@ public class FremoverhoppTest {
     }
 
     private void assertAPUendretVedFremoverhopp(StegPort fra, BehandlingStegType til, Aksjonspunkt ap) {
-        AksjonspunktStatus orginalStatus = ap.getStatus();
+        var orginalStatus = ap.getStatus();
         assertAPStatusEtterHopp(fra, til, ap).isEqualTo(orginalStatus);
     }
 
     private List<StegTransisjon> transisjonerVedFremoverhopp(StegPort fra, BehandlingStegType til) {
         // skal ikke spille noen rolle for transisjoner hvilke aksjonspunkter som finnes
-        Aksjonspunkt ap = medAP(steg1, UT);
+        var ap = medAP(steg1, UT);
 
         transisjoner.clear();
         utførFremoverhoppReturnerAksjonspunkt(fra, til, ap);
@@ -142,14 +141,14 @@ public class FremoverhoppTest {
     }
 
     private AbstractComparableAssert<?, AksjonspunktStatus> assertAPStatusEtterHopp(StegPort fra, BehandlingStegType til, Aksjonspunkt ap) {
-        Aksjonspunkt aksjonspunkt = utførFremoverhoppReturnerAksjonspunkt(fra, til, ap);
+        var aksjonspunkt = utførFremoverhoppReturnerAksjonspunkt(fra, til, ap);
         return Assertions.assertThat(aksjonspunkt.getStatus());
     }
 
     private Aksjonspunkt utførFremoverhoppReturnerAksjonspunkt(StegPort fra, BehandlingStegType til, Aksjonspunkt ap) {
 
         BehandlingStegStatus fraStatus;
-        String fraPort = fra.getPort().getDbKode();
+        var fraPort = fra.getPort().getDbKode();
         if (fraPort.equals(VurderingspunktType.INN.getDbKode())) {
             fraStatus = BehandlingStegStatus.INNGANG;
         } else if (fraPort.equals(VurderingspunktType.UT.getDbKode())) {
@@ -158,17 +157,17 @@ public class FremoverhoppTest {
             throw new IllegalStateException("BehandlingStegStatus " + fraPort + " ikke støttet i testen");
         }
 
-        BehandlingStegTilstand fraTilstand = new BehandlingStegTilstand(behandling, fra.getSteg(), fraStatus);
+        var fraTilstand = new BehandlingStegTilstand(behandling, fra.getSteg(), fraStatus);
         // BehandlingStegTilstand tilTilstand = new BehandlingStegTilstand(behandling,
         // til, BehandlingStegStatus.VENTER);
-        Fagsak fagsak = behandling.getFagsak();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
+        var fagsak = behandling.getFagsak();
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
         /*
          * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent behandlingEvent = new
          * BehandlingStegOvergangEvent.BehandlingStegOverhoppEvent(kontekst,
          * Optional.of(fraTilstand), Optional.of(tilTilstand));
          */
-        BehandlingTransisjonEvent transisjonEvent = new BehandlingTransisjonEvent(kontekst, FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, fraTilstand,
+        var transisjonEvent = new BehandlingTransisjonEvent(kontekst, FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT, fraTilstand,
                 til, true);
 
         // act
@@ -183,13 +182,13 @@ public class FremoverhoppTest {
 
     private Aksjonspunkt medAP(BehandlingStegType identifisertI, AksjonspunktStatus status, AksjonspunktDefinisjon ad) {
 
-        BehandlingStegType idSteg = BehandlingStegType.fraKode(identifisertI.getKode());
+        var idSteg = BehandlingStegType.fraKode(identifisertI.getKode());
 
-        Behandling ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
+        var ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
         behandling = Behandling.nyBehandlingFor(ytelseBehandling.getFagsak(), BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
-        Aksjonspunkt ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, idSteg);
+        var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, idSteg);
 
         if (status.getKode().equals(UTFØRT.getKode())) {
             serviceProvider.getAksjonspunktKontrollRepository().setTilUtført(ap, "ferdig");

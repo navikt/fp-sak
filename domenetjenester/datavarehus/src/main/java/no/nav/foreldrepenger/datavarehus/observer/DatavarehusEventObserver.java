@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.observer;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -14,12 +12,10 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonEvent;
 import no.nav.foreldrepenger.behandling.FagsakStatusEvent;
 import no.nav.foreldrepenger.behandling.impl.BehandlingEnhetEvent;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
@@ -45,7 +41,7 @@ public class DatavarehusEventObserver {
     }
 
     public void observerAksjonspunktStatusEvent(@Observes AksjonspunktStatusEvent event) {
-        List<Aksjonspunkt> aksjonspunkter = event.getAksjonspunkter();
+        var aksjonspunkter = event.getAksjonspunkter();
         LOG.debug("Lagrer {} aksjonspunkter i DVH datavarehus, for behandling {} og steg {}", aksjonspunkter.size(), event.getBehandlingId(), event.getBehandlingStegType());//NOSONAR
         tjeneste.lagreNedAksjonspunkter(aksjonspunkter, event.getBehandlingId(), event.getBehandlingStegType());
         tjeneste.oppdaterHvisKlageEllerAnke(event.getBehandlingId(), aksjonspunkter);
@@ -57,16 +53,16 @@ public class DatavarehusEventObserver {
     }
 
     public void observerBehandlingStegTilstandEndringEvent(@Observes BehandlingStegTilstandEndringEvent event) {
-        Optional<BehandlingStegTilstandSnapshot> fraTilstand = event.getFraTilstand();
+        var fraTilstand = event.getFraTilstand();
         if (fraTilstand.isPresent()) {
-            BehandlingStegTilstandSnapshot tilstand = fraTilstand.get();
+            var tilstand = fraTilstand.get();
             LOG.debug("Lagrer behandligsteg endring fra tilstand {} i DVH datavarehus for behandling {}; behandlingStegTilstandId {}", //NOSONAR
                 tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
             tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);
         }
-        Optional<BehandlingStegTilstandSnapshot> tilTilstand = event.getTilTilstand();
+        var tilTilstand = event.getTilTilstand();
         if (tilTilstand.isPresent() && !Objects.equals(tilTilstand.orElse(null), fraTilstand.orElse(null))) {
-            BehandlingStegTilstandSnapshot tilstand = tilTilstand.get();
+            var tilstand = tilTilstand.get();
             LOG.debug("Lagrer behandligsteg endring til tilstand {} i DVH datavarehus for behandlingId {}; behandlingStegTilstandId {}", //NOSONAR
                 tilstand.getSteg().getKode(), event.getBehandlingId(), tilstand.getId());
             tjeneste.lagreNedBehandlingStegTilstand(event.getBehandlingId(), tilstand);

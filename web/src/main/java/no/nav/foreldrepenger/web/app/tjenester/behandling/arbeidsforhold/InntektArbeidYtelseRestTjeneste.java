@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +52,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektArbeidYtelseDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste.UtledArbeidsforholdParametere;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
@@ -62,7 +60,6 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
@@ -136,7 +133,7 @@ public class InntektArbeidYtelseRestTjeneste {
     }
 
     private InntektArbeidYtelseDto getInntektArbeidYtelserFraBehandling(Behandling behandling) {
-        Skjæringstidspunkt skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         if (erSkjæringstidspunktIkkeUtledet(skjæringstidspunkt)) {
             // Tilfelle papirsøknad før registrering
@@ -147,25 +144,25 @@ public class InntektArbeidYtelseRestTjeneste {
             // Fins ikke ennå, returnerer tom dto for legacy kompatibilitet med frontend
             return new InntektArbeidYtelseDto();
         }
-        InntektArbeidYtelseGrunnlag iayg = grunnlag.get();
+        var iayg = grunnlag.get();
 
         // finn annen part
-        Optional<AktørId> annenPartAktørId = getAnnenPart(behandling.getId(), behandling);
-        UtledArbeidsforholdParametere param = new UtledArbeidsforholdParametere(
+        var annenPartAktørId = getAnnenPart(behandling.getId(), behandling);
+        var param = new UtledArbeidsforholdParametere(
                 behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD));
 
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkt);
 
         var sakInntektsmeldinger = iayTjeneste.hentInntektsmeldinger(behandling.getFagsak().getSaksnummer());
         return dtoMapper.mapFra(ref, iayg, sakInntektsmeldinger, annenPartAktørId, param);
     }
 
     private Optional<AktørId> getAnnenPart(Long behandlingId, Behandling behandling) {
-        LocalDate personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra
+        var personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra
                                                                // InntektArbeidYtelseDtoMapper commit 81e8624)
-        Optional<PersonopplysningerAggregat> personopplysningerAggregat = personopplysningTjeneste
+        var personopplysningerAggregat = personopplysningTjeneste
                 .hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), personopplysningTidspunkt);
-        Optional<AktørId> annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart)
+        var annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart)
                 .map(OppgittAnnenPartEntitet::getAktørId);
         return annenPartAktørId;
     }
@@ -183,9 +180,9 @@ public class InntektArbeidYtelseRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public ArbeidsgiverOversiktDto getArbeidsgiverOpplysninger(
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        Skjæringstidspunkt skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
 
         if (erSkjæringstidspunktIkkeUtledet(skjæringstidspunkt)) {
             return new ArbeidsgiverOversiktDto();
@@ -240,12 +237,12 @@ public class InntektArbeidYtelseRestTjeneste {
         } else if (arbeidsgivere.stream().map(Arbeidsgiver::getIdentifikator).anyMatch(OrgNummer.KUNSTIG_ORG::equals)) {
             alleReferanser.add(new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
         }
-        Set<ArbeidsgiverOpplysningerDto> arbeidsgivereDtos = arbeidsgivere.stream()
+        var arbeidsgivereDtos = arbeidsgivere.stream()
             .filter(a -> !OrgNummer.KUNSTIG_ORG.equals(a.getIdentifikator()))
             .map(this::mapFra)
             .collect(Collectors.toSet());
         alleReferanser.addAll(arbeidsgivereDtos);
-        Map<String, ArbeidsgiverOpplysningerDto> oversikt = alleReferanser.stream()
+        var oversikt = alleReferanser.stream()
             .collect(Collectors.toMap(ArbeidsgiverOpplysningerDto::getReferanse, Function.identity()));
         // Sørg for at kunstig er tilstede i tilfelle det legges til
         oversikt.putIfAbsent(OrgNummer.KUNSTIG_ORG, new ArbeidsgiverOpplysningerDto(OrgNummer.KUNSTIG_ORG, "Lagt til av saksbehandler"));
@@ -256,12 +253,11 @@ public class InntektArbeidYtelseRestTjeneste {
 
     private ArbeidsgiverOpplysningerDto mapFra(Arbeidsgiver arbeidsgiver) {
         try {
-            ArbeidsgiverOpplysninger opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
+            var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
             if (arbeidsgiver.getErVirksomhet()) {
                 return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getNavn());
-            } else {
-                return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getIdentifikator(), opplysninger.getNavn(), opplysninger.getFødselsdato());
             }
+            return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), opplysninger.getIdentifikator(), opplysninger.getNavn(), opplysninger.getFødselsdato());
         } catch (Exception e) {
             return new ArbeidsgiverOpplysningerDto(arbeidsgiver.getIdentifikator(), "Feil ved oppslag");
         }

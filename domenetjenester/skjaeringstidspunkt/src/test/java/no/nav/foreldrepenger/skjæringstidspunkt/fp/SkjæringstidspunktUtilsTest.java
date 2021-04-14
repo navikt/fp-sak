@@ -17,20 +17,20 @@ public class SkjæringstidspunktUtilsTest {
 
     @Test
     public void skal_gi_false_hvis_like() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now();
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now();
         var builder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty())
             .medSøknadVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD).medFødselsDato(oppgitt))
             .medBekreftetVersjon(FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.BEKREFTET).medFødselsDato(bekreftet));
 
-        LocalDate resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
     @Test
     public void skal_gi_false_hvis_innenfor() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().plusMonths(1);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().plusMonths(1);
         var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
         fhOppgitt.medTerminbekreftelse(fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
         var fhBekreftet = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.OVERSTYRT);
@@ -39,14 +39,14 @@ public class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        LocalDate resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(oppgitt);
     }
 
     @Test
     public void skal_gi_true_hvis_før() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().minusYears(1);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().minusYears(1);
 
         var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
         fhOppgitt.medTerminbekreftelse(fhOppgitt.getTerminbekreftelseBuilder().medTermindato(oppgitt).medNavnPå("aaa").medUtstedtDato(oppgitt.minusWeeks(1)));
@@ -56,14 +56,14 @@ public class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medBekreftetVersjon(fhBekreftet);
 
-        LocalDate resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 
     @Test
     public void skal_gi_true_hvis_etter() {
-        LocalDate oppgitt = LocalDate.now();
-        LocalDate bekreftet = LocalDate.now().plusMonths(13);
+        var oppgitt = LocalDate.now();
+        var bekreftet = LocalDate.now().plusMonths(13);
 
         var fhOppgitt = FamilieHendelseBuilder.oppdatere(Optional.empty(),HendelseVersjonType.SØKNAD);
         fhOppgitt.medAdopsjon(fhOppgitt.getAdopsjonBuilder().medOmsorgsovertakelseDato(oppgitt));
@@ -73,7 +73,7 @@ public class SkjæringstidspunktUtilsTest {
             .medSøknadVersjon(fhOppgitt)
             .medOverstyrtVersjon(fhBekreftet);
 
-        LocalDate resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
+        var resultat = innhentingIntervall.utledSkjæringstidspunktRegisterinnhenting(builder.build());
         assertThat(resultat).isEqualTo(bekreftet);
     }
 }

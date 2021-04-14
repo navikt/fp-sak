@@ -18,11 +18,11 @@ public class StringUtils {
         if (tekst == null || (tekst = tekst.trim()).isEmpty()) { // NOSONAR
             return null;
         }
-        String skilletegnPattern = "(\\s|[()\\-_.,/])";
-        char[] tegn = tekst.toLowerCase(Locale.getDefault()).toCharArray();
-        boolean nesteSkalHaStorBokstav = true;
-        for (int i = 0; i < tegn.length; i++) {
-            boolean erSkilletegn = String.valueOf(tegn[i]).matches(skilletegnPattern);
+        var skilletegnPattern = "(\\s|[()\\-_.,/])";
+        var tegn = tekst.toLowerCase(Locale.getDefault()).toCharArray();
+        var nesteSkalHaStorBokstav = true;
+        for (var i = 0; i < tegn.length; i++) {
+            var erSkilletegn = String.valueOf(tegn[i]).matches(skilletegnPattern);
             if (!erSkilletegn && nesteSkalHaStorBokstav) {
                 tegn[i] = Character.toTitleCase(tegn[i]);
             }

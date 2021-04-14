@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -46,18 +45,18 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
 
     @Override
     public void setYtelse(Beregningsresultat beregningsresultat, Behandling behandling) {
-        YtelseForeldrepenger ytelseForeldrepenger = ytelseObjectFactory.createYtelseForeldrepenger();
-        Optional<BeregningsresultatEntitet> beregningsresultatOptional = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
+        var ytelseForeldrepenger = ytelseObjectFactory.createYtelseForeldrepenger();
+        var beregningsresultatOptional = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         if (beregningsresultatOptional.isPresent()) {
             setBeregningsresultat(ytelseForeldrepenger, beregningsresultatOptional.get().getBeregningsresultatPerioder());
         }
-        TilkjentYtelse tilkjentYtelse = new TilkjentYtelse();
+        var tilkjentYtelse = new TilkjentYtelse();
         tilkjentYtelse.getAny().add(ytelseObjectFactory.createYtelseForeldrepenger(ytelseForeldrepenger));
         beregningsresultat.setTilkjentYtelse(tilkjentYtelse);
     }
 
     private void setBeregningsresultat(YtelseForeldrepenger ytelseForeldrepenger, List<BeregningsresultatPeriode> beregningsresultatPerioder) {
-        List<no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat> resultat = beregningsresultatPerioder
+        var resultat = beregningsresultatPerioder
             .stream()
             .map(periode -> periode.getBeregningsresultatAndelList()).flatMap(andeler -> andeler.stream()).map(andel -> konverterFraDomene(andel)).collect(Collectors.toList());
 
@@ -65,7 +64,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     }
 
     private no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat konverterFraDomene(BeregningsresultatAndel andelDomene) {
-        no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat();
+        var kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Beregningsresultat();
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeFom(), andelDomene.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom()));
         kontrakt.setBrukerErMottaker(VedtakXmlUtil.lagBooleanOpplysning(andelDomene.erBrukerMottaker()));
         kontrakt.setVirksomhet(konverterVirksomhetFraDomene(andelDomene));
@@ -78,7 +77,7 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
     }
 
     private no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet konverterVirksomhetFraDomene(BeregningsresultatAndel andelDomene) {
-        no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet();
+        var kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet();
         andelDomene.getArbeidsgiver().map(Arbeidsgiver::getOrgnr).ifPresent(orgNr -> {
             kontrakt.setOrgnr(VedtakXmlUtil.lagStringOpplysning(orgNr));
             if (!OrgNummer.erKunstig(orgNr)) {

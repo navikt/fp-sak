@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +15,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -58,49 +54,49 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
     @Test
     public void bekreft_oppholdsrett_vurdering() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medSøknadsdato(now);
         scenario.medSøknadHendelse()
                 .medFødselsDato(now.minusDays(3))
                 .medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OPPHOLDSRETT, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BekreftedePerioderDto bekreftetPeriode = new BekreftedePerioderDto();
+        var behandling = scenario.lagre(repositoryProvider);
+        var bekreftetPeriode = new BekreftedePerioderDto();
         bekreftetPeriode.setOppholdsrettVurdering(true);
         bekreftetPeriode.setLovligOppholdVurdering(true);
         bekreftetPeriode.setErEosBorger(true);
 
-        BekreftOppholdsrettVurderingDto dto = new BekreftOppholdsrettVurderingDto("test", List.of(bekreftetPeriode));
+        var dto = new BekreftOppholdsrettVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final MedlemTjeneste medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
+        final var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
                 mock(HentMedlemskapFraRegister.class), repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste,
                 personopplysningTjeneste, mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
-        final MedlemskapAksjonspunktTjeneste medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
+        final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
-        Optional<Aksjonspunkt> aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
-        BekreftOppholdOppdaterer bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer(
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer(
                 lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste) {
         };
         bekreftOppholdOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
-        VurdertMedlemskap vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
+        var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
         assertThat(vurdertMedlemskap.getOppholdsrettVurdering()).isTrue();
     }
 
     private VurdertMedlemskap getVurdertMedlemskap(Long behandlingId, BehandlingRepositoryProvider repositoryProvier) {
-        MedlemskapRepository medlemskapRepository = repositoryProvier.getMedlemskapRepository();
-        Optional<VurdertMedlemskap> vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
+        var medlemskapRepository = repositoryProvier.getMedlemskapRepository();
+        var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
         return vurdertMedlemskap.orElse(null);
     }
 
     @Test
     public void bekreft_lovlig_opphold_vurdering() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medSøknadsdato(now);
         scenario.medSøknadHendelse()
@@ -108,19 +104,19 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
                 .medAntallBarn(1);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BekreftedePerioderDto bekreftetPeriode = new BekreftedePerioderDto();
+        var behandling = scenario.lagre(repositoryProvider);
+        var bekreftetPeriode = new BekreftedePerioderDto();
         bekreftetPeriode.setOppholdsrettVurdering(true);
         bekreftetPeriode.setLovligOppholdVurdering(true);
         bekreftetPeriode.setErEosBorger(true);
 
-        BekreftLovligOppholdVurderingDto dto = new BekreftLovligOppholdVurderingDto("test", List.of(bekreftetPeriode));
+        var dto = new BekreftLovligOppholdVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final MedlemTjeneste medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
+        final var medlemskapTjeneste = new MedlemTjeneste(repositoryProvider,
                 mock(HentMedlemskapFraRegister.class), repositoryProvider.getMedlemskapVilkårPeriodeRepository(), skjæringstidspunktTjeneste,
                 personopplysningTjeneste, mock(UtledVurderingsdatoerForMedlemskapTjeneste.class), mock(VurderMedlemskapTjeneste.class));
-        final MedlemskapAksjonspunktTjeneste medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
+        final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
@@ -128,13 +124,13 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
-        Long behandlingId = behandling.getId();
-        VurdertMedlemskap vurdertMedlemskap = getVurdertMedlemskap(behandlingId, repositoryProvider);
+        var behandlingId = behandling.getId();
+        var vurdertMedlemskap = getVurdertMedlemskap(behandlingId, repositoryProvider);
         assertThat(vurdertMedlemskap.getLovligOppholdVurdering()).isTrue();
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

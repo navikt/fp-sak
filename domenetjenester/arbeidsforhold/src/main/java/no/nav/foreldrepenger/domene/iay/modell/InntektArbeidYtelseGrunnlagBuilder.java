@@ -46,7 +46,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     }
 
     public InntektsmeldingAggregat getInntektsmeldinger() {
-        final Optional<InntektsmeldingAggregat> inntektsmeldinger = kladd.getInntektsmeldinger();
+        final var inntektsmeldinger = kladd.getInntektsmeldinger();
         return inntektsmeldinger.map(InntektsmeldingAggregat::new).orElseGet(InntektsmeldingAggregat::new);
     }
 
@@ -100,7 +100,7 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     }
 
     public InntektArbeidYtelseGrunnlagBuilder medData(InntektArbeidYtelseAggregatBuilder builder) {
-        VersjonType versjon = builder.getVersjon();
+        var versjon = builder.getVersjon();
 
         if (versjon == VersjonType.REGISTER) {
             medRegister(builder);
@@ -112,11 +112,11 @@ public class InntektArbeidYtelseGrunnlagBuilder {
 
     public void ryddOppErstattedeArbeidsforhold(AktørId søker,
             List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
-        final Optional<InntektArbeidYtelseAggregat> registerFørVersjon = kladd.getRegisterVersjon();
-        for (Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>> tuple : erstattArbeidsforhold) {
+        final var registerFørVersjon = kladd.getRegisterVersjon();
+        for (var tuple : erstattArbeidsforhold) {
             if (registerFørVersjon.isPresent()) {
                 // TODO: Vurder konsekvensen av dette.
-                final InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon,
+                final var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon,
                         VersjonType.REGISTER);
                 builder.oppdaterArbeidsforholdReferanseEtterErstatting(søker, tuple.getElement1(), tuple.getElement2().getElement1(),
                         tuple.getElement2().getElement2());

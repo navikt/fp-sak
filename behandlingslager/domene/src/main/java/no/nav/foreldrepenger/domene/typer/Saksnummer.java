@@ -55,10 +55,11 @@ public class Saksnummer implements SakId, IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !(obj instanceof Saksnummer)) {
+        }
+        if (obj == null || !(obj instanceof Saksnummer)) {
             return false;
         }
-        Saksnummer other = (Saksnummer) obj;
+        var other = (Saksnummer) obj;
         return Objects.equals(saksnummer, other.saksnummer);
     }
 
@@ -74,7 +75,7 @@ public class Saksnummer implements SakId, IndexKey {
 
     public static Saksnummer infotrygd(String sakId) {
         if (sakId != null) {
-            String vasketId = sakId.replaceAll(INVALID.pattern(), "").trim();
+            var vasketId = sakId.replaceAll(INVALID.pattern(), "").trim();
             return vasketId.length() == 0 ? null : new Saksnummer(vasketId, Fagsystem.INFOTRYGD);
         }
         return null;

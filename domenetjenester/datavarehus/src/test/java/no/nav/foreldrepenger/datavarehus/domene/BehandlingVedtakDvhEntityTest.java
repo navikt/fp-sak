@@ -8,7 +8,7 @@ public class BehandlingVedtakDvhEntityTest {
 
     @Test
     public void skal_bygge_instans_av_behandlingVedtakDvh() {
-        BehandlingVedtakDvh behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
+        var behandlingVedtakDvh = DatavarehusTestUtils.byggBehandlingVedtakDvh();
 
         assertThat(behandlingVedtakDvh.getAnsvarligBeslutter()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_BESLUTTER);
         assertThat(behandlingVedtakDvh.getAnsvarligSaksbehandler()).isEqualTo(DatavarehusTestUtils.ANSVARLIG_SAKSBEHANDLER);

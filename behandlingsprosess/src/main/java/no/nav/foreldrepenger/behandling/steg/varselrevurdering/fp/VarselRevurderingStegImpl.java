@@ -44,10 +44,10 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
 
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
-            TransisjonIdentifikator transisjon = TransisjonIdentifikator
+            var transisjon = TransisjonIdentifikator
                     .forId(FellesTransisjoner.SPOLFREM_PREFIX + BehandlingStegType.KONTROLLER_FAKTA.getKode());
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(transisjon, Collections.emptyList());
         }

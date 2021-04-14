@@ -30,8 +30,8 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        Long fagsakId = prosessTaskData.getFagsakId();
-        Long behandlingId = getBehandlingId(prosessTaskData);
+        var fagsakId = prosessTaskData.getFagsakId();
+        var behandlingId = getBehandlingId(prosessTaskData);
 
         identifiserBehandling(prosessTaskData)
             .stream()
@@ -54,7 +54,7 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
      * @return behandlingId
      */
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        Long behandlingId = getBehandlingId(prosessTaskData);
+        var behandlingId = getBehandlingId(prosessTaskData);
         if (behandlingId != null) {
             return List.of(behandlingId);
         }

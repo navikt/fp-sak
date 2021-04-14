@@ -34,7 +34,7 @@ public enum SatsType implements Kodeverdi {
         if (kode == null) {
             return null;
         }
-        for (SatsType value : values()) {
+        for (var value : values()) {
             if (value.getKode().equals(kode)) {
                 return value;
             }

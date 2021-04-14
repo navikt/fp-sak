@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -64,7 +64,7 @@ public class NøkkeltallBehandlingRepository {
         """;
 
     public List<NøkkeltallBehandlingVentestatus> hentNøkkeltallBehandlingVentestatus() {
-        Query query = entityManager.createNativeQuery(QUERY_NØKKELTALL)
+        var query = entityManager.createNativeQuery(QUERY_NØKKELTALL)
             .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
@@ -74,7 +74,7 @@ public class NøkkeltallBehandlingRepository {
     }
 
     private static NøkkeltallBehandlingVentestatus map(Object record) {
-        Object[] queryResultat = (Object[]) record;
+        var queryResultat = (Object[]) record;
         var behandlendeEnhet = (String) queryResultat[0];
         var behandlingType = BehandlingType.fraKode(queryResultat[1]);
         var status = BehandlingVenteStatus.valueOf((String) queryResultat[2]);

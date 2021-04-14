@@ -51,7 +51,7 @@ public class Personhistorikkinfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Personhistorikkinfo that = (Personhistorikkinfo) o;
+        var that = (Personhistorikkinfo) o;
         return Objects.equals(aktørId, that.aktørId) &&
             Objects.equals(personstatushistorikk, that.personstatushistorikk) &&
             Objects.equals(oppholdstillatelsehistorikk, that.oppholdstillatelsehistorikk) &&

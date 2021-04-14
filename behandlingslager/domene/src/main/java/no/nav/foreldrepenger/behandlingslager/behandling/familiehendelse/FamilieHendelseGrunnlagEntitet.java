@@ -137,7 +137,8 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
     public FamilieHendelseEntitet getGjeldendeVersjon() {
         if (getOverstyrtVersjon().isPresent()) {
             return overstyrtHendelse;
-        } else if (getBekreftetVersjon().isPresent()) {
+        }
+        if (getBekreftetVersjon().isPresent()) {
             return bekreftetHendelse;
         }
         return søknadHendelse;
@@ -154,11 +155,11 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      * @return adopsjon
      */
     public Optional<AdopsjonEntitet> getGjeldendeAdopsjon() {
-        final Optional<AdopsjonEntitet> overstyrt = getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
+        final var overstyrt = getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
         if (overstyrt.isPresent()) {
             return overstyrt;
         }
-        final Optional<AdopsjonEntitet> bekreftet = getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
+        final var bekreftet = getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon);
         if (bekreftet.isPresent()) {
             return bekreftet;
         }
@@ -176,11 +177,11 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      * @return Terminbekreftelse
      */
     public Optional<TerminbekreftelseEntitet> getGjeldendeTerminbekreftelse() {
-        final Optional<TerminbekreftelseEntitet> overstyrt = getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse);
+        final var overstyrt = getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse);
         if (overstyrt.isPresent()) {
             return overstyrt;
         }
-        final Optional<TerminbekreftelseEntitet> bekreftet = getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse);
+        final var bekreftet = getBekreftetVersjon().flatMap(FamilieHendelseEntitet::getTerminbekreftelse);
         if (bekreftet.isPresent()) {
             return bekreftet;
         }
@@ -196,11 +197,11 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      * @return Liste av UidentifisertBarn
      */
     public List<UidentifisertBarn> getGjeldendeBarna() {
-        final List<UidentifisertBarn> overstyrt = getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
+        final var overstyrt = getOverstyrtVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         if (!overstyrt.isEmpty()) {
             return overstyrt;
         }
-        final List<UidentifisertBarn> bekreftet = getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
+        final var bekreftet = getBekreftetVersjon().map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList());
         if (!bekreftet.isEmpty()) {
             return bekreftet;
         }
@@ -216,11 +217,11 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      * @return antall barn
      */
     public Integer getGjeldendeAntallBarn() {
-        final Optional<Integer> overstyrt = getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+        final var overstyrt = getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
         if (overstyrt.isPresent()) {
             return overstyrt.get();
         }
-        final Optional<Integer> bekreftet = getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+        final var bekreftet = getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
         return bekreftet.orElseGet(() -> getSøknadVersjon().getAntallBarn());
     }
 
@@ -249,7 +250,7 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
      * @return foreslått Fødselsdatoen
      */
     public LocalDate finnGjeldendeFødselsdato() {
-        final Optional<FamilieHendelseEntitet> bekreftetVersjon = getGjeldendeBekreftetVersjon();
+        final var bekreftetVersjon = getGjeldendeBekreftetVersjon();
         if (!bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(Collections.emptyList()).isEmpty()) {
             return bekreftetVersjon.get().getBarna().stream().map(UidentifisertBarn::getFødselsdato).findFirst().get();  // NOSONAR
         }
@@ -289,7 +290,7 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FamilieHendelseGrunnlagEntitet that = (FamilieHendelseGrunnlagEntitet) o;
+        var that = (FamilieHendelseGrunnlagEntitet) o;
         return aktiv == that.aktiv &&
                 Objects.equals(søknadHendelse, that.søknadHendelse) &&
                 Objects.equals(bekreftetHendelse, that.bekreftetHendelse) &&

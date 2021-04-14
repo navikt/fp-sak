@@ -188,7 +188,7 @@ public class BerørtBehandlingTjeneste {
                                                                      HistorikkinnslagType historikkinnslagType,
                                                                      LocalDateTime frist,
                                                                      Venteårsak venteårsak) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var builder = new HistorikkInnslagTekstBuilder();
         if (frist != null) {
             builder.medHendelse(historikkinnslagType, frist.toLocalDate());
         } else {
@@ -197,7 +197,7 @@ public class BerørtBehandlingTjeneste {
         if (!Venteårsak.UDEFINERT.equals(venteårsak)) {
             builder.medÅrsak(venteårsak);
         }
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandling.getId());

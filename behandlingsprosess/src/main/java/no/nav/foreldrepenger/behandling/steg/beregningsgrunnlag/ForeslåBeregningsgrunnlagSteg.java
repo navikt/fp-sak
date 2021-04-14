@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,23 +9,19 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp.VurderDekningsgradVedDødsfallAksjonspunktUtleder;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
-import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 @FagsakYtelseTypeRef("*")
 @BehandlingStegRef(kode = "FORS_BERGRUNN")
@@ -56,12 +51,12 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling);
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var ref = BehandlingReferanse.fra(behandling);
         var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
-        BeregningsgrunnlagVilkårOgAkjonspunktResultat resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(input);
+        var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(input);
 
-        List<AksjonspunktResultat> aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map)
+        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map)
                 .collect(Collectors.toList());
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
@@ -86,7 +81,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
 
     private List<UidentifisertBarn> getBarn(Long behandlingId) {
         Objects.requireNonNull(familieHendelseRepository, "familieHendelseRepository");
-        Optional<FamilieHendelseEntitet> familiehendelse = familieHendelseRepository
+        var familiehendelse = familieHendelseRepository
                 .hentAggregatHvisEksisterer(behandlingId)
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         return familiehendelse.orElseThrow().getBarna();

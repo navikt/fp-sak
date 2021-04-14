@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -26,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -65,11 +62,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_gyldig_medlems_periode() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
 
-        MedlemskapPerioderEntitet gyldigPeriode = new MedlemskapPerioderBuilder()
+        var gyldigPeriode = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.FTL_2_7_a) // hjemlet i bokstav a
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
@@ -78,11 +75,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.leggTilMedlemskapPeriode(gyldigPeriode);
 
         leggTilSøker(scenario);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -98,23 +95,23 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_dekningsgrad_lik_ikke_medlem() {
         // Arrange
-        MedlemskapPerioderEntitet gyldigPeriode = new MedlemskapPerioderBuilder()
+        var gyldigPeriode = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.FTL_2_9_1_b)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
             .build();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(gyldigPeriode);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -124,24 +121,24 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_få_aksjonspunkt_når_dekningsrad_er_av_type_uavklart() {
         // Arrange
-        MedlemskapPerioderEntitet gyldigPeriode = new MedlemskapPerioderBuilder()
+        var gyldigPeriode = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.OPPHOR)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
             .build();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(gyldigPeriode);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
 
         leggTilSøker(scenario);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -151,23 +148,23 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_ulik_usa() {
         // Arrange
-        MedlemskapPerioderEntitet medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
             .build();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -177,23 +174,23 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_utvandret() {
         // Arrange
-        MedlemskapPerioderEntitet medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT) // unntak FT §2-13
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
             .build();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.UTVA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -203,23 +200,23 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_dersom_dekningsgrad_unntatt_og_person_bosatt_og_statsborgerskap_lik_usa() {
         // Arrange
-        MedlemskapPerioderEntitet medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
+        var medlemskapPeriodeForUnntak = new MedlemskapPerioderBuilder()
             .medDekningType(MedlemskapDekningType.UNNTATT)
             .medMedlemskapType(MedlemskapType.ENDELIG)
             .medErMedlem(true)
             .medPeriode(SKJÆRINGSDATO_FØDSEL, SKJÆRINGSDATO_FØDSEL)
             .build();
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -229,15 +226,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_status_utvandret() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.NOR, Region.NORDEN, PersonstatusType.UTVA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -247,15 +244,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_nordisk() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.SWE, Region.UDEFINERT, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -265,11 +262,11 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_inntekt_siste_3mnd() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         var aktørId = leggTilSøker(scenario, Landkoder.BEL, Region.EOS, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Arrange - inntekt
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
@@ -286,7 +283,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -300,15 +297,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_ikke_inntekt_siste_3mnd() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -318,15 +315,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_eøs_og_vurdering_etter_stp() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL.plusMonths(1));
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL.plusMonths(1));
 
 
         // Assert
@@ -336,15 +333,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_ved_ikke_gyldig_periode_og_ikke_utvandret_og_region_annen() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.UDEFINERT, Region.UDEFINERT, PersonstatusType.BOSA);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -354,15 +351,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_region_eøs_med_opphold() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL.plusYears(1));
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -372,15 +369,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_opprette_aksjonspunkt_ved_region_3land_med_opphold() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.ARG, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1), Tid.TIDENES_ENDE);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -390,15 +387,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     @Test
     public void skal_opprette_aksjonspunkt_ved_region_3land_med_delvis_opphold() {
         // Arrange
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
         leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
         // Act
-        Optional<MedlemResultat> resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
+        var resultat = tjeneste.utled(ref, behandling, SKJÆRINGSDATO_FØDSEL);
 
 
         // Assert
@@ -410,9 +407,9 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, Region region, PersonstatusType personstatus) {
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
             .personstatus(personstatus)
@@ -424,9 +421,9 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
 
     private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, Region region, PersonstatusType personstatus,
                                  OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
-        PersonInformasjon.Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
             .personstatus(personstatus)

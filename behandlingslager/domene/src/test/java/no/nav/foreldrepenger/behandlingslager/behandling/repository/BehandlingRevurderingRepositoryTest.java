@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,9 +59,9 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
         var behandling = opprettRevurderingsKandidat();
 
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
         behandlingRepository.lagreOgClear(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
@@ -72,7 +71,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
         behandlingRepository.lagreOgClear(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         revurderingsBehandling = behandlingRepository.hentBehandling(revurderingsBehandling.getId());
 
-        Behandling nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).build();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
@@ -81,8 +80,8 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
         nyRevurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
-        Long revurderingsBehandlingId = revurderingsBehandling.getId();
-        List<Behandling> result = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
+        var revurderingsBehandlingId = revurderingsBehandling.getId();
+        var result = behandlingRevurderingRepository.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(fagsakId);
         assertThat(result).isNotEmpty();
         result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.HENLAGT_FEILOPPRETTET));
         assertThat(result).anyMatch(r -> r.getId().equals(revurderingsBehandlingId));
@@ -94,11 +93,11 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
         var behandling = opprettRevurderingsKandidat();
 
-        Long fagsakId = behandling.getFagsakId();
+        var fagsakId = behandling.getFagsakId();
 
         opprettOgLagreRevurderingMedBehandlingÅrsak(behandling);
 
-        Behandling nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var nyRevurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).build();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
@@ -107,7 +106,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
         nyRevurderingsBehandling.avsluttBehandling();
         behandlingRepository.lagreOgClear(nyRevurderingsBehandling, behandlingRepository.taSkriveLås(nyRevurderingsBehandling));
 
-        List<Behandling> result = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId);
+        var result = behandlingRepository.finnAlleAvsluttedeIkkeHenlagteBehandlinger(fagsakId);
         assertThat(result).isNotEmpty();
         result.forEach(r -> assertThat(getBehandlingsresultat(r).getBehandlingResultatType()).isEqualTo(BehandlingResultatType.INNVILGET));
         assertThat(result).anyMatch(r -> r.getId().equals(behandling.getId()));
@@ -115,7 +114,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
     }
 
     private Behandling opprettOgLagreRevurderingMedBehandlingÅrsak(Behandling behandling) {
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
         behandlingRepository.lagreOgClear(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
@@ -130,13 +129,13 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
     private Behandling opprettRevurderingsKandidat() {
 
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
+        var behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
+        final var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
             .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("asdf").build();
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -157,7 +156,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
         getEntityManager().persist(behandling);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(getBehandlingsresultat(behandling).getVilkårResultat(), lås);
     }
 

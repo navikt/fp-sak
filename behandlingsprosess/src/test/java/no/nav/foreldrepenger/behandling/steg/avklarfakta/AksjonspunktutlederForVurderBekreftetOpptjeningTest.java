@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -57,19 +55,19 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     @Test
     public void skal_ikke_opprette_aksjonspunktet_5051() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
     }
 
     private AksjonspunktUtlederInput lagInput(Behandling behandling) {
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling,
+        var ref = BehandlingReferanse.fra(behandling,
                 Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
         return new AksjonspunktUtlederInput(ref);
     }
@@ -77,12 +75,12 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     @Test
     public void skal_ikke_opprette_aksjonspunkt_når_ingen_arbeidsavtaler_har_0_stillingsprosent() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -91,19 +89,19 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     @Test
     public void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_for_forenklet_oppgjørsordning() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
-        InntektArbeidYtelseAggregatBuilder builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
-        InntektArbeidYtelseAggregatBuilder.AktørArbeidBuilder aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId1);
+        var behandling = lagre(scenario);
+        var tilOgMed = LocalDate.now().plusMonths(1);
+        var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
+        var aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId1);
         aktørArbeidBuilder.leggTilYrkesaktivitet(byggYrkesaktivitet(tilOgMed, ArbeidType.FORENKLET_OPPGJØRSORDNING, BigDecimal.ZERO));
         builder.leggTilAktørArbeid(aktørArbeidBuilder);
         iayTjeneste.lagreIayAggregat(behandling.getId(), builder);
         lagreOpptjeningsPeriode(behandling, tilOgMed);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -111,7 +109,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     }
 
     private YrkesaktivitetBuilder byggYrkesaktivitet(LocalDate tilOgMed, ArbeidType arbeidType, BigDecimal stillingsprosent) {
-        DatoIntervallEntitet periode = DatoIntervallEntitet.fraOgMed(tilOgMed.minusMonths(10));
+        var periode = DatoIntervallEntitet.fraOgMed(tilOgMed.minusMonths(10));
         return YrkesaktivitetBuilder.oppdatere(empty())
                 .medArbeidType(arbeidType)
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(NAV_ORGNR))
@@ -127,10 +125,10 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     @Test
     public void skal_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
+        var aktørId1 = AktørId.dummy();
+        var tilOgMed = LocalDate.now().plusMonths(1);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId1);
@@ -141,7 +139,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
         lagreOpptjeningsPeriode(behandling, tilOgMed);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -151,11 +149,11 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
     @Test
     public void skal_ikke_opprette_aksjonspunkt_når_en_arbeidsavtale_har_0_stillingsprosent_men_utfor_periode() {
         // Arrange
-        AktørId aktørId1 = AktørId.dummy();
+        var aktørId1 = AktørId.dummy();
 
-        LocalDate tilOgMed = LocalDate.now().plusMonths(1);
+        var tilOgMed = LocalDate.now().plusMonths(1);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medBruker(aktørId1);
-        Behandling behandling = lagre(scenario);
+        var behandling = lagre(scenario);
 
         var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(empty(), VersjonType.REGISTER);
         var aktørArbeidBuilder = builder.getAktørArbeidBuilder(aktørId1);
@@ -166,7 +164,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjeningTest extends EntityM
         lagreOpptjeningsPeriode(behandling, tilOgMed);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagInput(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();

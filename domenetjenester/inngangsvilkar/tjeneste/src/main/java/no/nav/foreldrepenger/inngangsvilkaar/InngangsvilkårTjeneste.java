@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -55,7 +54,7 @@ public class InngangsvilkårTjeneste {
      * Finn {@link Inngangsvilkår} for angitt {@link VilkårType}. Husk at denne må closes når du er ferdig med den.
      */
     public Inngangsvilkår finnVilkår(VilkårType vilkårType, FagsakYtelseType fagsakYtelseType) {
-        Instance<Inngangsvilkår> selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
+        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
         if (selected.isAmbiguous()) {
             selected = selected.select(new FagsakYtelseTypeRef.FagsakYtelseTypeRefLiteral(fagsakYtelseType.getKode()));
             if (selected.isAmbiguous()) {
@@ -64,7 +63,7 @@ public class InngangsvilkårTjeneste {
         } else if (selected.isUnsatisfied()) {
             throw new IllegalArgumentException("Ingen implementasjoner funnet for vilkårtype:" + vilkårType);
         }
-        Inngangsvilkår minInstans = selected.get();
+        var minInstans = selected.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
                 "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
@@ -79,7 +78,7 @@ public class InngangsvilkårTjeneste {
      * @return true hvis {@code vilkårType} er et {@link Inngangsvilkår}
      */
     public boolean erInngangsvilkår(VilkårType vilkårType) {
-        Instance<Inngangsvilkår> selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
+        var selected = alleInngangsvilkår.select(new VilkårTypeRefLiteral(vilkårType.getKode()));
         return !selected.isUnsatisfied();
     }
 
@@ -87,13 +86,13 @@ public class InngangsvilkårTjeneste {
      * Overstyr søkers opplysningsplikt.
      */
     public void overstyrAksjonspunktForSøkersopplysningsplikt(Long behandlingId, VilkårUtfallType utfall, BehandlingskontrollKontekst kontekst) {
-        Avslagsårsak avslagsårsak = Avslagsårsak.MANGLENDE_DOKUMENTASJON;
-        VilkårType vilkårType = VilkårType.SØKERSOPPLYSNINGSPLIKT;
+        var avslagsårsak = Avslagsårsak.MANGLENDE_DOKUMENTASJON;
+        var vilkårType = VilkårType.SØKERSOPPLYSNINGSPLIKT;
 
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        VilkårResultat vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
-        VilkårResultat.Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
+        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
         if (Objects.equals(VilkårUtfallType.OPPFYLT, utfall)) {
             builder.overstyrVilkår(vilkårType, utfall, null);
@@ -114,12 +113,12 @@ public class InngangsvilkårTjeneste {
      */
     public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, String avslagsårsakKode,
                                      BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        VilkårResultat vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
-        VilkårResultat.Builder builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
+        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
-        Avslagsårsak avslagsårsak = finnAvslagsårsak(avslagsårsakKode, utfall);
+        var avslagsårsak = finnAvslagsårsak(avslagsårsakKode, utfall);
         builder.overstyrVilkår(vilkårType, utfall, avslagsårsak);
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
             if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
@@ -130,7 +129,7 @@ public class InngangsvilkårTjeneste {
                 builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
             }
         }
-        VilkårResultat resultat = builder.buildFor(behandling);
+        var resultat = builder.buildFor(behandling);
         behandlingRepository.lagre(resultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
     }

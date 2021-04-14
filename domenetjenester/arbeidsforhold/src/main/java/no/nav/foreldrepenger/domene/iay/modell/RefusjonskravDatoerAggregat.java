@@ -18,7 +18,7 @@ public class RefusjonskravDatoerAggregat {
 
     public RefusjonskravDatoerAggregat(Collection<RefusjonskravDato> refusjonskravDatoer) {
         this.refusjonskravDatoer.addAll(refusjonskravDatoer.stream().map(rd -> {
-            final RefusjonskravDato refusjonskravDato = new RefusjonskravDato(rd);
+            final var refusjonskravDato = new RefusjonskravDato(rd);
             return refusjonskravDato;
         }).collect(Collectors.toList()));
     }

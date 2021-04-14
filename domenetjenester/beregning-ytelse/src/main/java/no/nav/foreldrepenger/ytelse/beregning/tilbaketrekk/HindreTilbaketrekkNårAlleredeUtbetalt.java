@@ -7,7 +7,6 @@ import no.nav.folketrygdloven.beregningsgrunnlag.regelmodell.resultat.Beregnings
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
-import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class HindreTilbaketrekkNårAlleredeUtbetalt {
@@ -25,12 +24,12 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
     public static BeregningsresultatEntitet reberegn(BeregningsresultatEntitet beregningsgrunnlagTY, LocalDateTimeline<BRAndelSammenligning> tidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
         // Map til regelmodell
 
-        BeregningsresultatEntitet utbetaltTY = BeregningsresultatEntitet.builder()
+        var utbetaltTY = BeregningsresultatEntitet.builder()
             .medRegelSporing(beregningsgrunnlagTY.getRegelSporing())
             .medRegelInput(beregningsgrunnlagTY.getRegelInput())
             .build();
 
-        for (LocalDateSegment<BRAndelSammenligning> segment : tidslinje.toSegments()) {
+        for (var segment : tidslinje.toSegments()) {
             HindreTilbaketrekkBeregningsresultatPeriode.omfordelPeriodeVedBehov(utbetaltTY, segment, yrkesaktiviteter, skjæringstidspunkt);
         }
         return utbetaltTY;

@@ -42,8 +42,8 @@ public class BrevRestTjenesteTest {
     @Test
     public void bestillerDokument() {
         // Arrange
-        long behandlingId = 2L;
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandlingId, INNHENT_DOK, "Dette er en fritekst");
+        var behandlingId = 2L;
+        var bestillBrevDto = new BestillBrevDto(behandlingId, INNHENT_DOK, "Dette er en fritekst");
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
@@ -59,7 +59,7 @@ public class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));
 
         // Act
-        Boolean harSendt = brevRestTjeneste.harSendtVarselOmRevurdering(new UuidDto(UUID.randomUUID()));
+        var harSendt = brevRestTjeneste.harSendtVarselOmRevurdering(new UuidDto(UUID.randomUUID()));
 
         // Assert
         verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());

@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.Revurdering
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
@@ -20,9 +19,9 @@ public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste 
     public void lagAndeler(BeregningsgrunnlagPeriode periode,
             boolean medOppjustertDagsat,
             boolean skalDeleAndelMellomArbeidsgiverOgBruker) {
-        List<Dagsatser> dagsatser = Arrays.asList(new Dagsatser(true, skalDeleAndelMellomArbeidsgiverOgBruker),
+        var dagsatser = Arrays.asList(new Dagsatser(true, skalDeleAndelMellomArbeidsgiverOgBruker),
                 new Dagsatser(false, skalDeleAndelMellomArbeidsgiverOgBruker));
-        BGAndelArbeidsforhold.Builder bga = BGAndelArbeidsforhold
+        var bga = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(1))
@@ -35,7 +34,7 @@ public class LagToAndelerMotsattRekkefølgeTjeneste implements LagAndelTjeneste 
                 .medRedusertBrukersAndelPrÅr(dagsatser.get(1).getDagsatsBruker())
                 .medRedusertRefusjonPrÅr(dagsatser.get(1).getDagsatsArbeidstaker())
                 .build(periode);
-        BGAndelArbeidsforhold.Builder bga2 = BGAndelArbeidsforhold
+        var bga2 = BGAndelArbeidsforhold
                 .builder()
                 .medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNR))
                 .medArbeidsforholdRef(ARBEIDSFORHOLDLISTE.get(0))

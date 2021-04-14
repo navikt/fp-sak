@@ -19,8 +19,7 @@ public class SjekkMorForSykTilÅTaVarePåBarn extends LeafSpecification<Fødsels
     public Evaluation evaluate(FødselsvilkårGrunnlag grunnlag) {
         if (grunnlag.isErMorForSykVedFødsel()) {
             return ja();
-        } else {
-            return nei();
         }
+        return nei();
     }
 }

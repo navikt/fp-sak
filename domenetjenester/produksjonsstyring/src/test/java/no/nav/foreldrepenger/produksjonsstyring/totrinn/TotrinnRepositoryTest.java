@@ -3,12 +3,9 @@ package no.nav.foreldrepenger.produksjonsstyring.totrinn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,32 +39,32 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_ett_inaktivt_totrinnsgrunnlag_og_ett_aktivt_totrinnsgrunnlag() {
 
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
-        Totrinnresultatgrunnlag gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null,
+        var gammeltTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null,
             null, null);
 
-        Totrinnresultatgrunnlag nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
+        var nyttTotrinnresultatgrunnlag = new Totrinnresultatgrunnlag(behandling, null, null, null,
             null);
 
         totrinnRepository.lagreOgFlush(behandling, gammeltTotrinnresultatgrunnlag);
         totrinnRepository.lagreOgFlush(behandling, nyttTotrinnresultatgrunnlag);
 
         // Hent ut aktiv totrinnsgrunnlag
-        Optional<Totrinnresultatgrunnlag> optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(
+        var optionalNyttTotrinnresultatgrunnlag = totrinnRepository.hentTotrinngrunnlag(
             behandling);
 
         // Hent ut inaktive totrinnsgrunnlag
-        TypedQuery<Totrinnresultatgrunnlag> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT trg FROM Totrinnresultatgrunnlag trg WHERE trg.behandling.id = :behandling_id AND trg.aktiv = 'N'",
             //$NON-NLS-1$
             Totrinnresultatgrunnlag.class);
         query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
-        List<Totrinnresultatgrunnlag> inaktive = query.getResultList();
+        var inaktive = query.getResultList();
 
         assertThat(inaktive).hasSize(1);
         assertThat(inaktive.get(0)).isEqualToComparingFieldByField(gammeltTotrinnresultatgrunnlag);
@@ -81,18 +78,18 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_flere_inaktive_totrinnsvurderinger_og_flere_aktive_totrinnsvurdering() {
 
-        Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
 
-        Behandling behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         // Opprett vurderinger som skal være inaktive
-        Totrinnsvurdering inaktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
+        var inaktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
-        Totrinnsvurdering inaktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
+        var inaktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
-        Totrinnsvurdering inaktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
+        var inaktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, true, "", VurderÅrsak.FEIL_FAKTA);
 
         List<Totrinnsvurdering> inaktivTotrinnsvurderingList = new ArrayList<>();
@@ -102,11 +99,11 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
         totrinnRepository.lagreOgFlush(behandling, inaktivTotrinnsvurderingList);
 
         // Opprett vurderinger som skal være aktive
-        Totrinnsvurdering aktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
+        var aktivTotrinnsvurdering1 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
-        Totrinnsvurdering aktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
+        var aktivTotrinnsvurdering2 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
-        Totrinnsvurdering aktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
+        var aktivTotrinnsvurdering3 = lagTotrinnsvurdering(behandling,
             AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, false, "", VurderÅrsak.FEIL_FAKTA);
 
         List<Totrinnsvurdering> aktivTotrinnsvurderingList = new ArrayList<>();
@@ -116,16 +113,16 @@ public class TotrinnRepositoryTest extends EntityManagerAwareTest {
         totrinnRepository.lagreOgFlush(behandling, aktivTotrinnsvurderingList);
 
         // Hent aktive vurderinger etter flush
-        Collection<Totrinnsvurdering> repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(
+        var repoAktiveTotrinnsvurderinger = totrinnRepository.hentTotrinnaksjonspunktvurderinger(
             behandling);
 
         // Hent inaktive vurderinger etter flush
-        TypedQuery<Totrinnsvurdering> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "SELECT tav FROM Totrinnsvurdering tav WHERE tav.behandling.id = :behandling_id AND tav.aktiv = 'N'",
             //$NON-NLS-1$
             Totrinnsvurdering.class);
         query.setParameter("behandling_id", behandling.getId()); //$NON-NLS-1$
-        List<Totrinnsvurdering> repoInaktiveTotrinnsvurderinger = query.getResultList();
+        var repoInaktiveTotrinnsvurderinger = query.getResultList();
 
         // Sjekk lagrede aktive vurderinger
         assertThat(repoAktiveTotrinnsvurderinger).hasSize(3);

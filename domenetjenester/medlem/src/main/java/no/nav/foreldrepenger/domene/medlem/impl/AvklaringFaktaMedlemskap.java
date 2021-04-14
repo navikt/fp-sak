@@ -5,24 +5,19 @@ import static no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall.NEI;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -48,55 +43,54 @@ public class AvklaringFaktaMedlemskap {
     }
 
     public Optional<MedlemResultat> utled(BehandlingReferanse ref, Behandling behandling, LocalDate vurderingsdato) { // NOSONAR
-        Long behandlingId = behandling.getId();
-        Optional<MedlemskapAggregat> medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
+        var behandlingId = behandling.getId();
+        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
         Set<MedlemskapPerioderEntitet> medlemskapPerioder = medlemskap.isPresent()
             ? medlemskap.get().getRegistrertMedlemskapPerioder()
             : Collections.emptySet();
 
-        PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
             behandling.getAktørId(), vurderingsdato);
 
         if (harDekningsgrad(vurderingsdato, medlemskapPerioder) == JA) {
             if (erFrivilligMedlem(vurderingsdato, medlemskapPerioder) == JA) {
                 return Optional.empty();
-            } else {
-                if (erUnntatt(vurderingsdato, medlemskapPerioder) == JA) {
-                    if (harStatsborgerskapUSAellerPNG(personopplysninger) == JA) {
-                        if (harStatusUtvandret(personopplysninger) == JA) {
-                            return Optional.empty();
-                        }
-                        return Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
+            }
+            if (erUnntatt(vurderingsdato, medlemskapPerioder) == JA) {
+                if (harStatsborgerskapUSAellerPNG(personopplysninger) == JA) {
+                    if (harStatusUtvandret(personopplysninger) == JA) {
+                        return Optional.empty();
                     }
-                    return Optional.empty();
-                } else if (erIkkeMedlem(vurderingsdato, medlemskapPerioder) == JA) {
-                    return Optional.empty();
+                    return Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
                 }
+                return Optional.empty();
+            }
+            if (erIkkeMedlem(vurderingsdato, medlemskapPerioder) == JA) {
+                return Optional.empty();
             }
         } else if (erUavklart(vurderingsdato, medlemskapPerioder) == JA) {
             return Optional.of(MedlemResultat.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
         } else {
             if (harStatusUtvandret(personopplysninger) == JA) {
                 return Optional.empty();
-            } else {
-                if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
-                    return Optional.empty();
-                }
-                var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
-                var region = statsborgerskap(personopplysninger, vurderingsdato);
-                return switch (region) {
-                    case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
-                    case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
-                    case NORDISK -> Optional.empty();
-                };
             }
+            if (harOppholdstilltatelseVed(ref, vurderingsdato) == JA) {
+                return Optional.empty();
+            }
+            var erEtterSkjæringstidspunkt = vurderingsdato.isAfter(ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt());
+            var region = statsborgerskap(personopplysninger, vurderingsdato);
+            return switch (region) {
+                case EØS -> harInntektSiste3mnd(ref, vurderingsdato) == JA || erEtterSkjæringstidspunkt ? Optional.empty() : Optional.of(MedlemResultat.AVKLAR_OPPHOLDSRETT);
+                case TREDJE_LANDS_BORGER -> Optional.of(MedlemResultat.AVKLAR_LOVLIG_OPPHOLD);
+                case NORDISK -> Optional.empty();
+            };
         }
         throw new IllegalStateException("Udefinert utledning av aksjonspunkt for medlemskapsfakta"); //$NON-NLS-1$
     }
 
     Statsborgerskapsregioner statsborgerskap(PersonopplysningerAggregat søker, LocalDate vurderingsdato) {
-        Region region = søker.getStatsborgerskapRegionVedTidspunkt(søker.getSøker().getAktørId(), vurderingsdato);
+        var region = søker.getStatsborgerskapRegionVedTidspunkt(søker.getSøker().getAktørId(), vurderingsdato);
         return switch (region) {
             case NORDEN -> Statsborgerskapsregioner.NORDISK;
             case EOS -> Statsborgerskapsregioner.EØS;
@@ -112,28 +106,28 @@ public class AvklaringFaktaMedlemskap {
     }
 
     private Utfall harDekningsgrad(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> medlemskapDekningTypes = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
+        var medlemskapDekningTypes = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
             vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomAvklartMedlemskap(medlemskapDekningTypes) ? JA : NEI;
     }
 
     private Utfall erFrivilligMedlem(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
+        var dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomFrivilligMedlem(dekningTyper) ? JA : NEI;
     }
 
     private Utfall erUnntatt(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
+        var dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomUnntatt(dekningTyper) ? JA : NEI;
     }
 
     private Utfall erIkkeMedlem(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
+        var dekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder, vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomIkkeMedlem(dekningTyper) ? JA : NEI;
     }
 
     private Utfall erUavklart(LocalDate vurderingsdato, Set<MedlemskapPerioderEntitet> medlemskapPerioder) {
-        List<MedlemskapDekningType> medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
+        var medlemskapDekningTyper = medlemskapPerioderTjeneste.finnGyldigeDekningstyper(medlemskapPerioder,
             vurderingsdato);
         return medlemskapPerioderTjeneste.erRegistrertSomUavklartMedlemskap(medlemskapDekningTyper) ? JA : NEI;
     }
@@ -151,10 +145,10 @@ public class AvklaringFaktaMedlemskap {
      * innenfor de 3 siste månedene fra mottattdato
      */
     private Utfall harInntektSiste3mnd(BehandlingReferanse ref, LocalDate vurderingsdato) {
-        DatoIntervallEntitet siste3Mnd = utledInntektsintervall3Mnd(ref, vurderingsdato);
-        Optional<InntektArbeidYtelseGrunnlag> grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
+        var siste3Mnd = utledInntektsintervall3Mnd(ref, vurderingsdato);
+        var grunnlag = iayTjeneste.finnGrunnlag(ref.getBehandlingId());
 
-        boolean inntektSiste3M = false;
+        var inntektSiste3M = false;
         if (grunnlag.isPresent()) {
             var filter = new InntektFilter(grunnlag.get().getAktørInntektFraRegister(ref.getAktørId())).før(vurderingsdato);
             inntektSiste3M = filter.getInntektsposterPensjonsgivende().stream()

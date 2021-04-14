@@ -18,8 +18,8 @@ public class ØkonomistøtteUtils {
         if (dt == null) {
             return null;
         }
-        String pattern = "yyyy-MM-dd-HH.mm.ss.SSS";
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(pattern);
+        var pattern = "yyyy-MM-dd-HH.mm.ss.SSS";
+        var dtf = DateTimeFormatter.ofPattern(pattern);
         return dt.format(dtf);
     }
 }

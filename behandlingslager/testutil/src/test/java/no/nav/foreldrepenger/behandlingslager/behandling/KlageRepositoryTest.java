@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,8 +37,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        KlageFormkravEntitet.Builder builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
+        var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        var builder1 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
             .medBegrunnelse("Begrunnelse1");
 
         // Act
@@ -49,12 +47,12 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkrav = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
+        var klageFormkrav = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
         assertThat(klageFormkrav).as("Formkrav NK opprettet").isPresent();
         assertThat(klageFormkrav.get().hentBegrunnelse()).isEqualTo("Begrunnelse1");
 
         // Arrange
-        KlageFormkravEntitet.Builder builder2 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
+        var builder2 = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
             .medBegrunnelse("Begrunnelse2");
 
         // Act 2
@@ -63,7 +61,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkrav2 = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
+        var klageFormkrav2 = klageRepository.hentKlageFormkrav(behandling.getId(), KlageVurdertAv.NK);
         assertThat(klageFormkrav2).as("Formkrav NK opprettet").isPresent();
         assertThat(klageFormkrav2.get().hentBegrunnelse()).isEqualTo("Begrunnelse2");
 
@@ -77,8 +75,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider, klageRepository);
         entityManager.flush();
 
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        KlageVurderingResultat.Builder builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
+        var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        var builder1 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 
         // Act
@@ -86,14 +84,14 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.flush();
         entityManager.clear();
 
-        Long klageBehandlingId = behandling.getId();
+        var klageBehandlingId = behandling.getId();
         // Assert
-        Optional<KlageVurderingResultat> klageVurderingResultat = klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
+        var klageVurderingResultat = klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
         assertThat(klageVurderingResultat).as("Formkrav NK opprettet").isPresent();
         assertThat(klageVurderingResultat.get().getBegrunnelse()).isEqualTo("Begrunnelse1");
 
         // Arrange
-        KlageVurderingResultat.Builder builder2 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
+        var builder2 = opprettVurderingResultat(klageResultat, KlageVurdertAv.NFP)
             .medKlageVurdering(KlageVurdering.AVVIS_KLAGE)
             .medBegrunnelse("Begrunnelse2");
 
@@ -103,7 +101,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Assert
-        Optional<KlageVurderingResultat> klageVurderingResultat2 = klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
+        var klageVurderingResultat2 = klageRepository.hentKlageVurderingResultat(klageBehandlingId, KlageVurdertAv.NFP);
         assertThat(klageVurderingResultat2).as("Formkrav NK opprettet").isPresent();
         assertThat(klageVurderingResultat2.get().getBegrunnelse()).isEqualTo("Begrunnelse2");
     }
@@ -117,8 +115,8 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.flush();
 
         // Arrange
-        KlageResultatEntitet klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
-        KlageFormkravEntitet.Builder builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP)
+        var klageResultat = klageRepository.hentEvtOpprettKlageResultat(behandling.getId());
+        var builderNfp = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NFP)
             .medBegrunnelse("Begrunnelse1");
 
         // Act
@@ -127,12 +125,12 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkravNfp = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
+        var klageFormkravNfp = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         assertThat(klageFormkravNfp).as("Formkrav Nfp opprettet").isPresent();
         assertThat(klageFormkravNfp.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NFP);
 
         // Arrange
-        KlageFormkravEntitet.Builder builderKa = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
+        var builderKa = opprettFormkravBuilder(klageResultat, KlageVurdertAv.NK)
             .medBegrunnelse("Begrunnelse2");
 
         // Act
@@ -141,7 +139,7 @@ public class KlageRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Assert
-        Optional<KlageFormkravEntitet> klageFormkravKa = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
+        var klageFormkravKa = klageRepository.hentGjeldendeKlageFormkrav(behandling.getId());
         assertThat(klageFormkravKa).as("Formkrav opprettet").isPresent();
         assertThat(klageFormkravKa.get().getKlageVurdertAv()).isEqualTo(KlageVurdertAv.NK);
     }

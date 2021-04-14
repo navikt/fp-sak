@@ -232,7 +232,7 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AnkeVurderingResultatEntitet that = (AnkeVurderingResultatEntitet) o;
+        var that = (AnkeVurderingResultatEntitet) o;
         return harLikVurdering(that) &&
             erMerknaderMottatt == that.erMerknaderMottatt &&
             gjelderVedtak == that.gjelderVedtak &&

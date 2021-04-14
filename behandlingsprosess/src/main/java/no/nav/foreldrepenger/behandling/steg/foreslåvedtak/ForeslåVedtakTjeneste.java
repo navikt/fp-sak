@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.foreslåvedtak;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,9 +13,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
@@ -45,7 +42,7 @@ class ForeslåVedtakTjeneste {
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling) {
         long fagsakId = behandling.getFagsakId();
-        Fagsak fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         if (fagsak.getSkalTilInfotrygd()) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
@@ -62,7 +59,7 @@ class ForeslåVedtakTjeneste {
             return BehandleStegResultat.utførtMedAksjonspunkter(List.of(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL));
         }
 
-        Optional<Aksjonspunkt> vedtakUtenTotrinnskontroll = behandling
+        var vedtakUtenTotrinnskontroll = behandling
                 .getÅpentAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL);
         if (vedtakUtenTotrinnskontroll.isPresent()) {
             behandling.nullstillToTrinnsBehandling();

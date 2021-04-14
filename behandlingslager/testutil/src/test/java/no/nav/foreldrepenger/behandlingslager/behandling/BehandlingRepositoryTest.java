@@ -5,15 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -23,11 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -96,19 +91,19 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_finne_behandling_gitt_id() {
 
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling().build();
+        var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
 
         // Act
-        Behandling resultat = behandlingRepository.hentBehandling(behandling.getId());
+        var resultat = behandlingRepository.hentBehandling(behandling.getId());
 
         // Assert
         assertThat(resultat).isNotNull();
     }
 
     private void lagreBehandling(Behandling... behandlinger) {
-        for (Behandling behandling : behandlinger) {
-            BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        for (var behandling : behandlinger) {
+            var lås = behandlingRepository.taSkriveLås(behandling);
             behandlingRepository.lagre(behandling, lås);
         }
     }
@@ -116,31 +111,31 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_alle_behandlinger_fra_fagsak() {
 
-        Behandling.Builder builder = opprettBuilderForBehandling();
+        var builder = opprettBuilderForBehandling();
         lagreBehandling(builder);
 
-        List<Behandling> behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
+        var behandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(saksnummer);
 
         assertThat(behandlinger).hasSize(1);
 
     }
 
     private void lagreBehandling(Behandling.Builder builder) {
-        Behandling behandling = builder.build();
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var behandling = builder.build();
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 
     @Test
     public void skal_finne_behandling_med_årsak() {
-        Behandling behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN)).build();
 
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
-        List<Behandling> result = behandlingRepository.hentBehandlingerMedÅrsakerForFagsakId(behandling.getFagsakId(),
+        var result = behandlingRepository.hentBehandlingerMedÅrsakerForFagsakId(behandling.getFagsakId(),
             BehandlingÅrsakType.årsakerForEtterkontroll());
         assertThat(result).isNotEmpty();
     }
@@ -148,11 +143,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_siste_behandling_basert_på_fagsakId() {
 
-        Behandling.Builder builder = opprettBuilderForBehandling();
+        var builder = opprettBuilderForBehandling();
 
         lagreBehandling(builder);
 
-        Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
 
         assertThat(sisteBehandling).isPresent();
         assertThat(sisteBehandling.get().getFagsakId()).isEqualTo(fagsak.getId());
@@ -161,21 +156,21 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_hente_siste_klage_basert_på_fagsakId() {
 
-        Behandling.Builder builder = opprettBuilderForBehandling();
+        var builder = opprettBuilderForBehandling();
 
         lagreBehandling(builder);
 
-        Optional<Behandling> sisteBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
+        var sisteBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
 
         assertThat(sisteBehandling).isEmpty();
 
         // Part 2
-        Behandling klage = Behandling.forKlage(fagsak).build();
+        var klage = Behandling.forKlage(fagsak).build();
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(klage);
+        var lås = behandlingRepository.taSkriveLås(klage);
         behandlingRepository.lagre(klage, lås);
 
-        Optional<Behandling> sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
+        var sisteKlage = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(), BehandlingType.KLAGE);
 
         assertThat(sisteKlage).isPresent();
         assertThat(sisteKlage.get().getFagsakId()).isEqualTo(fagsak.getId());
@@ -183,17 +178,17 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_hente_siste_innvilget_eller_endret_på_fagsakId() {
-        BehandlingVedtak.Builder forVedtak = opprettBuilderForVedtak();
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var forVedtak = opprettBuilderForVedtak();
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingsresultatRepository.lagre(behandling.getId(), behandlingsresultat);
         behandlingVedtakRepository.lagre(forVedtak.medBehandlingsresultat(getBehandlingsresultat(behandling)).medIverksettingStatus(IverksettingStatus.IVERKSATT).build(), lås);
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, lås);
 
-        Optional<Behandling> innvilgetBehandling = behandlingRepository.finnSisteInnvilgetBehandling(behandling.getFagsakId());
+        var innvilgetBehandling = behandlingRepository.finnSisteInnvilgetBehandling(behandling.getFagsakId());
 
         assertThat(innvilgetBehandling).isPresent();
         assertThat(innvilgetBehandling.get().getFagsakId()).isEqualTo(behandling.getFagsak().getId());
@@ -201,13 +196,13 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_hente_siste_behandling_ekskluder_basert_på_fagsakId() {
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioMorSøkerEngangsstønad.forAdopsjon());
-        Behandling klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
+        var scenario = ScenarioKlageEngangsstønad.forUtenVurderingResultat(ScenarioMorSøkerEngangsstønad.forAdopsjon());
+        var klageBehandling = scenario.lagre(repositoryProvider, klageRepository);
 
-        List<Behandling> alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(klageBehandling.getFagsak().getSaksnummer());
+        var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(klageBehandling.getFagsak().getSaksnummer());
         assertThat(alleBehandlinger).as("Forventer at alle behandlinger opprettet skal eksistere").hasSize(2);
 
-        Optional<Behandling> sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(klageBehandling.getFagsak().getId());
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(klageBehandling.getFagsak().getId());
 
         assertThat(sisteBehandling).isPresent();
         assertThat(sisteBehandling.get().getFagsakId()).isEqualTo(klageBehandling.getFagsak().getId());
@@ -216,17 +211,17 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_kunne_lagre_vedtak() {
-        BehandlingVedtak vedtak = opprettBuilderForVedtak().build();
+        var vedtak = opprettBuilderForVedtak().build();
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
 
         behandlingRepository.lagre(behandling, lås);
         behandlingVedtakRepository.lagre(vedtak, lås);
 
-        Long id = vedtak.getId();
+        var id = vedtak.getId();
         assertThat(id).isNotNull();
 
-        BehandlingVedtak vedtakLest = behandlingVedtakRepository.hentForBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
+        var vedtakLest = behandlingVedtakRepository.hentForBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
         assertThat(vedtakLest).isNotNull();
 
     }
@@ -234,11 +229,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_behandling_gitt_korrekt_uuid() {
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling().build();
+        var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
 
         // Act
-        Optional<Behandling> resultat = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());
+        var resultat = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());
 
         // Assert
         assertThat(resultat).isPresent();
@@ -248,11 +243,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_finne_behandling_gitt_feil_uuid() {
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling().build();
+        var behandling = opprettBuilderForBehandling().build();
         lagreBehandling(behandling);
 
         // Act
-        Optional<Behandling> resultat = behandlingRepository.hentBehandlingHvisFinnes(UUID.randomUUID());
+        var resultat = behandlingRepository.hentBehandlingHvisFinnes(UUID.randomUUID());
 
         // Assert
         assertThat(resultat).isNotPresent();
@@ -262,7 +257,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_kunne_lagre_konsekvens_for_ytelsen() {
         behandling = opprettBehandlingMedTermindato();
-        Behandlingsresultat behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
+        var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
         setKonsekvensForYtelsen(behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
         var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId()).getKonsekvenserForYtelsen();
@@ -272,7 +267,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void dersom_man_lagrer_konsekvens_for_ytelsen_flere_ganger_skal_kun_den_siste_lagringen_gjelde() {
         behandling = opprettBehandlingMedTermindato();
-        Behandlingsresultat behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
+        var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
         setKonsekvensForYtelsen(behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
         behandling = behandlingRepository.hentBehandling(behandling.getId());
@@ -286,17 +281,17 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     private void setKonsekvensForYtelsen(Behandlingsresultat behandlingsresultat, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
-        Behandlingsresultat.Builder builder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
+        var builder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         konsekvenserForYtelsen.forEach(builder::leggTilKonsekvensForYtelsen);
         builder.buildFor(behandling);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 
     @Test
     public void skal_hente_liste_over_revurderingsaarsaker() {
-        Map<String, VurderÅrsak> stringVurderÅrsakMap = VurderÅrsak.kodeMap();
+        var stringVurderÅrsakMap = VurderÅrsak.kodeMap();
         assertThat(stringVurderÅrsakMap).hasSize(5);
         assertThat(stringVurderÅrsakMap.containsValue(VurderÅrsak.FEIL_FAKTA)).isTrue();
     }
@@ -304,13 +299,13 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_slette_vilkår_som_blir_fjernet_til_tross_for_at_Hibernate_har_problemer_med_orphan_removal() {
         // Arrange
-        Fagsak fagsak = byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
+        var fagsak = byggFagsak(AktørId.dummy(), RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE);
         behandling = byggBehandlingForElektroniskSøknadOmFødsel(fagsak, LocalDate.now(), LocalDate.now());
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        VilkårResultat vilkårResultat = VilkårResultat.builder()
+        var vilkårResultat = VilkårResultat.builder()
             .leggTilVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
             .buildFor(behandling);
 
@@ -334,7 +329,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var vilkårId = behandlingRepository.lagre(vilkårResultat, lås);
 
         // Assert
-        Behandling opphentetBehandling = behandlingRepository.hentBehandling(behandling.getId());
+        var opphentetBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType())
             .isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
@@ -352,19 +347,19 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_finne_for_automatisk_gjenopptagelse_naar_alle_kriterier_oppfylt() {
 
         // Arrange
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, igår);
 
-        Behandling behandling2 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling2 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling2, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
 
-        Behandling behandling3 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling3 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling3, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         lagreBehandling(behandling1, behandling2, behandling3);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).hasSize(3);
@@ -377,12 +372,12 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_manuelt_aksjonspunkt() {
 
         // Arrange
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, igår);
         lagreBehandling(behandling1);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -390,13 +385,13 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
-        Aksjonspunkt aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         AksjonspunktTestSupport.setTilUtført(aksjonspunkt, "ferdig");
         lagreBehandling(behandling1);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -406,11 +401,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_frist_ikke_utgaatt() {
 
         // Arrange
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, imorgen);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -420,11 +415,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_aksjonspunkt_er_køet() {
 
         // Arrange
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, imorgen);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -433,13 +428,13 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_når_aksjonspunt_er_avbrutt() throws Exception {
         // Arrange
-        Behandling behandling = opprettBehandlingForAutomatiskGjenopptagelse();
-        Aksjonspunkt aksjonspunkt = opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
+        var behandling = opprettBehandlingForAutomatiskGjenopptagelse();
+        var aksjonspunkt = opprettAksjonspunkt(behandling, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         AksjonspunktTestSupport.setTilAvbrutt(aksjonspunkt);
         lagreBehandling(behandling);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -449,19 +444,19 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_finne_for_gjenopplivelse_naar_alle_kriterier_oppfylt() {
 
         // Arrange
-        Behandling behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD, igår);
 
-        Behandling behandling2 = opprettBehandlingForAutomatiskGjenopptagelse();
-        Aksjonspunkt ap2 = opprettAksjonspunkt(behandling2, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
+        var behandling2 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var ap2 = opprettAksjonspunkt(behandling2, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
 
-        Behandling behandling3 = opprettBehandlingForAutomatiskGjenopptagelse();
-        Aksjonspunkt ap3 = opprettAksjonspunkt(behandling3, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
+        var behandling3 = opprettBehandlingForAutomatiskGjenopptagelse();
+        var ap3 = opprettAksjonspunkt(behandling3, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
         lagreBehandling(behandling1, behandling2, behandling3);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
+        var liste = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
 
         // Assert
         assertThat(liste).doesNotContain(behandling1, behandling2, behandling3);
@@ -482,16 +477,16 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_førstegangsbehandling_naar_frist_er_utgatt() {
         // Arrange
-        LocalDate tidsfrist = LocalDate.now().minusDays(1);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
+        var tidsfrist = LocalDate.now().minusDays(1);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medBehandlingstidFrist(tidsfrist);
-        FamilieHendelseBuilder familieHendelseBuilder = scenario.medSøknadHendelse();
+        var familieHendelseBuilder = scenario.medSøknadHendelse();
         familieHendelseBuilder.medAntallBarn(1)
             .medFødselsDato(LocalDate.now());
         scenario.lagre(repositoryProvider);
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
+        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
 
         // Assert
         assertThat(liste).hasSize(1);
@@ -500,17 +495,17 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_ikke_finne_revurderingsbehandling() {
         // Arrange
-        Behandling behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
-        LocalDate tidsfrist = LocalDate.now().minusDays(1);
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var tidsfrist = LocalDate.now().minusDays(1);
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingstidFrist(tidsfrist).build();
         //Tidsfristen blir overstyrt
         revurderingsBehandling.setBehandlingstidFrist(tidsfrist);
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
 
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
+        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
 
         // Assert
         assertThat(liste).isEmpty();
@@ -519,10 +514,10 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_finne_revurderingsbehandling_med_endringssøknad() {
         // Arrange
-        Behandling behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
+        var behandling = opprettRevurderingsKandidat(REVURDERING_DAGER_TILBAKE + 2);
 
-        LocalDate tidsfrist = LocalDate.now().minusDays(1);
-        Behandling revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
+        var tidsfrist = LocalDate.now().minusDays(1);
+        var revurderingsBehandling = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING)
             .medBehandlingstidFrist(tidsfrist)
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .build();
@@ -530,7 +525,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         revurderingsBehandling.setBehandlingstidFrist(tidsfrist);
         behandlingRepository.lagre(revurderingsBehandling, behandlingRepository.taSkriveLås(revurderingsBehandling));
         // Act
-        List<Behandling> liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
+        var liste = behandlingKandidaterRepository.finnBehandlingerMedUtløptBehandlingsfrist();
         // Assert
         assertThat(liste).hasSize(1);
     }
@@ -548,14 +543,14 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_finne_årsaker_for_behandling() {
 
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling()
+        var behandling = opprettBuilderForBehandling()
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                 .medManueltOpprettet(false))
             .build();
         lagreBehandling(behandling);
 
         // Act
-        List<BehandlingÅrsak> liste = behandlingRepository.finnÅrsakerForBehandling(behandling);
+        var liste = behandlingRepository.finnÅrsakerForBehandling(behandling);
 
         // Assert
         assertThat(liste).hasSize(1);
@@ -566,14 +561,14 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_finne_årsakstyper_for_behandling() {
 
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling()
+        var behandling = opprettBuilderForBehandling()
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ANNET)
                 .medManueltOpprettet(false))
             .build();
         lagreBehandling(behandling);
 
         // Act
-        List<BehandlingÅrsakType> liste = behandlingRepository.finnÅrsakTyperForBehandling(behandling);
+        var liste = behandlingRepository.finnÅrsakTyperForBehandling(behandling);
 
         // Assert
         assertThat(liste).hasSize(1);
@@ -584,12 +579,12 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_ikke_finne_noen_årsakstyper_hvis_ingen() {
 
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling()
+        var behandling = opprettBuilderForBehandling()
             .build();
         lagreBehandling(behandling);
 
         // Act
-        List<BehandlingÅrsakType> liste = behandlingRepository.finnÅrsakTyperForBehandling(behandling);
+        var liste = behandlingRepository.finnÅrsakTyperForBehandling(behandling);
 
         // Assert
         assertThat(liste).isEmpty();
@@ -599,12 +594,12 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     public void skal_ikke_finne_noen_årsaker_hvis_ingen() {
 
         // Arrange
-        Behandling behandling = opprettBuilderForBehandling()
+        var behandling = opprettBuilderForBehandling()
             .build();
         lagreBehandling(behandling);
 
         // Act
-        List<BehandlingÅrsak> liste = behandlingRepository.finnÅrsakerForBehandling(behandling);
+        var liste = behandlingRepository.finnÅrsakerForBehandling(behandling);
 
         // Assert
         assertThat(liste).isEmpty();
@@ -613,8 +608,8 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void avsluttet_dato_skal_ha_dato_og_tid() {
         // Arrange
-        LocalDateTime avsluttetDato = LocalDateTime.now();
-        Behandling behandling = opprettBuilderForBehandling().medAvsluttetDato(avsluttetDato)
+        var avsluttetDato = LocalDateTime.now();
+        var behandling = opprettBuilderForBehandling().medAvsluttetDato(avsluttetDato)
             .build();
 
         lagreBehandling(behandling);
@@ -623,11 +618,11 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         entityManager.clear();
 
         // Act
-        Optional<Behandling> resultatBehandling = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());
+        var resultatBehandling = behandlingRepository.hentBehandlingHvisFinnes(behandling.getUuid());
 
         // Assert
         assertThat(resultatBehandling).isNotEmpty();
-        LocalDateTime avsluttetDatoResultat = resultatBehandling.get().getAvsluttetDato();
+        var avsluttetDatoResultat = resultatBehandling.get().getAvsluttetDato();
 
         assertThat(avsluttetDatoResultat).isEqualTo(avsluttetDato.withNano(0)); // Oracle is not returning milliseconds.
         assertThat(avsluttetDatoResultat).isNotEqualTo(avsluttetDato);
@@ -635,8 +630,8 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandlingForAutomatiskGjenopptagelse() {
 
-        LocalDate terminDato = LocalDate.now().plusDays(5);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var terminDato = LocalDate.now().plusDays(5);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(terminDato)
@@ -650,7 +645,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
                 .medUtstedtDato(terminDato.minusDays(40)))
             .medAntallBarn(1));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         return behandling;
     }
 
@@ -658,33 +653,33 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
                                              AksjonspunktDefinisjon aksjonspunktDefinisjon,
                                              LocalDateTime frist) {
 
-        Aksjonspunkt aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
+        var aksjonspunkt = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, aksjonspunktDefinisjon);
         AksjonspunktTestSupport.setFrist(aksjonspunkt, frist, Venteårsak.UDEFINERT);
         return aksjonspunkt;
     }
 
     private Fagsak byggFagsak(AktørId aktørId, RelasjonsRolleType rolle, NavBrukerKjønn kjønn) {
-        NavBruker navBruker = new NavBrukerBuilder()
+        var navBruker = new NavBrukerBuilder()
             .medAktørId(aktørId)
             .medKjønn(kjønn)
             .build();
-        Fagsak fagsak = FagsakBuilder.nyEngangstønad(rolle)
+        var fagsak = FagsakBuilder.nyEngangstønad(rolle)
             .medBruker(navBruker).build();
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
 
     private Behandling byggBehandlingForElektroniskSøknadOmFødsel(Fagsak fagsak, LocalDate fødselsdato, LocalDate mottattDato) {
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
-        Behandling behandling = behandlingBuilder.build();
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
+        var behandling = behandlingBuilder.build();
         behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
         lagreBehandling(behandling);
-        final FamilieHendelseBuilder søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
+        final var søknadHendelse = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
             .medAntallBarn(1)
             .medFødselsDato(fødselsdato);
         repositoryProvider.getFamilieHendelseRepository().lagre(behandling, søknadHendelse);
 
-        final SøknadEntitet søknad = new SøknadEntitet.Builder()
+        final var søknad = new SøknadEntitet.Builder()
             .medSøknadsdato(LocalDate.now())
             .medMottattDato(mottattDato)
             .medElektroniskRegistrert(true)
@@ -708,7 +703,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private Behandling opprettBehandlingMedTermindato() {
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
@@ -728,8 +723,8 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private Behandling opprettRevurderingsKandidat(int dagerTilbake) {
 
-        LocalDate terminDato = LocalDate.now().minusDays(dagerTilbake);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var terminDato = LocalDate.now().minusDays(dagerTilbake);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medNavnPå("ASDASD ASD ASD")
@@ -744,9 +739,9 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
             .medAntallBarn(1));
 
         behandling = scenario.lagre(repositoryProvider);
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.builder()
+        var behandlingsresultat = Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET).buildFor(behandling);
-        final BehandlingVedtak behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
+        final var behandlingVedtak = BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now()).medBehandlingsresultat(behandlingsresultat)
             .medVedtakResultatType(VedtakResultatType.INNVILGET).medAnsvarligSaksbehandler("asdf").build();
         behandling.avsluttBehandling();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -757,12 +752,12 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     private Behandlingsresultat oppdaterMedBehandlingsresultatOgLagre(Behandling behandling, boolean innvilget, boolean henlegg) {
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         if (henlegg) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.HENLAGT_FEILOPPRETTET);
         }
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         VilkårResultat.builder()

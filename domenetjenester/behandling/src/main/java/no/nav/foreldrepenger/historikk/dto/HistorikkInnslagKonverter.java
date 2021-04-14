@@ -15,11 +15,11 @@ public final class HistorikkInnslagKonverter {
     }
 
     public static HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag, List<JournalpostId> journalPosterForSak) {
-        HistorikkinnslagDto dto = new HistorikkinnslagDto();
+        var dto = new HistorikkinnslagDto();
         dto.setBehandlingId(historikkinnslag.getBehandlingId());
-        List<HistorikkinnslagDelDto> historikkinnslagDeler = HistorikkinnslagDelDto.mapFra(historikkinnslag.getHistorikkinnslagDeler());
+        var historikkinnslagDeler = HistorikkinnslagDelDto.mapFra(historikkinnslag.getHistorikkinnslagDeler());
         dto.setHistorikkinnslagDeler(historikkinnslagDeler);
-        List<HistorikkInnslagDokumentLinkDto> dokumentLinks = mapLenker(historikkinnslag.getDokumentLinker(), journalPosterForSak);
+        var dokumentLinks = mapLenker(historikkinnslag.getDokumentLinker(), journalPosterForSak);
         dto.setDokumentLinks(dokumentLinks);
         if (historikkinnslag.getOpprettetAv() != null) {
             dto.setOpprettetAv(medStorBokstav(historikkinnslag.getOpprettetAv()));
@@ -37,8 +37,8 @@ public final class HistorikkInnslagKonverter {
     }
 
     private static HistorikkInnslagDokumentLinkDto map(HistorikkinnslagDokumentLink lenke, List<JournalpostId> journalPosterForSak) {
-        Optional<JournalpostId> aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
-        HistorikkInnslagDokumentLinkDto dto = new HistorikkInnslagDokumentLinkDto();
+        var aktivJournalPost = aktivJournalPost(lenke.getJournalpostId(), journalPosterForSak);
+        var dto = new HistorikkInnslagDokumentLinkDto();
         dto.setTag(lenke.getLinkTekst());
         dto.setUtgått(aktivJournalPost.isEmpty());
         dto.setDokumentId(lenke.getDokumentId());

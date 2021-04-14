@@ -13,7 +13,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilVEDTAK_I_KLAGEBEHANDLING() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.KLAGE, BehandlingResultatType.KLAGE_MEDHOLD);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.KLAGE, BehandlingResultatType.KLAGE_MEDHOLD);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_KLAGEBEHANDLING);
@@ -22,7 +22,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilVEDTAK_I_ANKEBEHANDLING() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.ANKE, BehandlingResultatType.ANKE_OMGJOER);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.ANKE, BehandlingResultatType.ANKE_OMGJOER);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_ANKEBEHANDLING);
@@ -31,7 +31,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilVEDTAK_I_INNSYNBEHANDLING() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.INNSYN, BehandlingResultatType.INNSYN_INNVILGET);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.INNSYN, BehandlingResultatType.INNSYN_INNVILGET);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.VEDTAK_I_INNSYNBEHANDLING);
@@ -40,7 +40,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilAVSLAG() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.AVSLÅTT);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.AVSLAG);
@@ -49,7 +49,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilINNVILGETForInnvilget() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET);
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingResultatType.INNVILGET);
 
         // Assert
         assertThat(vedtakResultatType).isEqualTo(VedtakResultatType.INNVILGET);
@@ -58,7 +58,7 @@ public class UtledVedtakResultatTypeTest {
     @Test
     public void vedtakResultatTypeSettesTilINNVILGETForForeldrepengerEndret() {
         // Act
-        VedtakResultatType vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD,
+        var vedtakResultatType = UtledVedtakResultatType.utled(BehandlingType.FØRSTEGANGSSØKNAD,
                 BehandlingResultatType.FORELDREPENGER_ENDRET);
 
         // Assert

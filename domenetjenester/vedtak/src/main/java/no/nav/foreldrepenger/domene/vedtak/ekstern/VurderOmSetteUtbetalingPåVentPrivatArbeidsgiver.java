@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,10 +52,10 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
         var refusjoner = vurder(behandling);
         if (!refusjoner.isEmpty()) {
             // send en oppdrag til NØS hver privat arbeidsgiver, det kan være flere
-            List<BeregningsresultatPeriode> beregningsperioder = hentBeregningsperioder(behandling.getId());
-            for (AktørId arbeidsgiverAktørId : refusjoner) {
-                LocalDate førsteUttaksdato = hentFørsteUttaksdato(arbeidsgiverAktørId, beregningsperioder);
-                LocalDate vedtaksdato = hentVedtaksdato(behandling);
+            var beregningsperioder = hentBeregningsperioder(behandling.getId());
+            for (var arbeidsgiverAktørId : refusjoner) {
+                var førsteUttaksdato = hentFørsteUttaksdato(arbeidsgiverAktørId, beregningsperioder);
+                var vedtaksdato = hentVedtaksdato(behandling);
                 oppgaveTjeneste.opprettOppgaveSettUtbetalingPåVentPrivatArbeidsgiver(behandling.getId(),
                     førsteUttaksdato,
                     vedtaksdato,
@@ -74,13 +73,13 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
      */
     private Set<AktørId> vurder(Behandling behandling) {
         Set<AktørId> result = new HashSet<>();
-        List<Oppdragslinje150> oppdragslinje150List = hentAlleOppdragslinje150IkkeOPPH(behandling);
+        var oppdragslinje150List = hentAlleOppdragslinje150IkkeOPPH(behandling);
 
-        Long behandlingId = behandling.getId();
-        List<BeregningsresultatPeriode> beregningsperioder = hentBeregningsperioder(behandlingId);
-        for (Oppdragslinje150 oppdragslinje150 : oppdragslinje150List) {
-            LocalDate datoVedtakFom = oppdragslinje150.getDatoVedtakFom();
-            LocalDate datoVedtakTom = oppdragslinje150.getDatoVedtakTom();
+        var behandlingId = behandling.getId();
+        var beregningsperioder = hentBeregningsperioder(behandlingId);
+        for (var oppdragslinje150 : oppdragslinje150List) {
+            var datoVedtakFom = oppdragslinje150.getDatoVedtakFom();
+            var datoVedtakTom = oppdragslinje150.getDatoVedtakTom();
             beregningsperioder.stream()
                 .filter(brPeriode -> sjekkVedtakPeriode(datoVedtakFom, datoVedtakTom, brPeriode))
                 .flatMap(brPeriode -> brPeriode.getBeregningsresultatAndelList().stream())
@@ -91,7 +90,7 @@ class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver {
     }
 
     private List<Oppdragslinje150> hentAlleOppdragslinje150IkkeOPPH(Behandling behandling) {
-        Optional<Oppdragskontroll> oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
         return oppdragskontroll
             .map(Oppdragskontroll::getOppdrag110Liste)
             .orElse(Collections.emptyList())

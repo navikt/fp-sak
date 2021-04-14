@@ -33,22 +33,22 @@ public class FptilbakeRestKlient {
     }
 
     public boolean harÅpenTilbakekrevingsbehandling(Saksnummer saksnummer) {
-        URI uriHentÅpenTilbakekreving = lagRequestUri(saksnummer);
+        var uriHentÅpenTilbakekreving = lagRequestUri(saksnummer);
         return restClient.get(uriHentÅpenTilbakekreving, Boolean.class);
     }
 
     public TilbakekrevingVedtakDto hentTilbakekrevingsVedtakInfo(UUID uuid){
-        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO);
+        var uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_VEDTAK_INFO);
         return restClient.get(uriHentTilbakekrevingVedtaksInfo, TilbakekrevingVedtakDto.class);
     }
 
     public TilbakeBehandlingDto hentBehandlingInfo(UUID uuid){
-        URI uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO);
+        var uriHentTilbakekrevingVedtaksInfo = lagRequestUri(uuid, FPTILBAKE_HENT_TILBAKEKREVING_BEHANDLING_INFO);
         return restClient.get(uriHentTilbakekrevingVedtaksInfo, TilbakeBehandlingDto.class);
     }
 
     private URI lagRequestUri(Saksnummer saksnummer) {
-        String endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING;
+        var endpoint = FptilbakeFelles.getFptilbakeBaseUrl() + FPTILBAKE_HENT_ÅPEN_TILBAKEKREVING;
         try {
             return new URIBuilder(endpoint).addParameter("saksnummer", saksnummer.getVerdi()).build();
         } catch (URISyntaxException e) {
@@ -56,7 +56,7 @@ public class FptilbakeRestKlient {
         }
     }
     private URI lagRequestUri(UUID uuid, String endpoint) {
-        String endpointURI = FptilbakeFelles.getFptilbakeBaseUrl() + endpoint;
+        var endpointURI = FptilbakeFelles.getFptilbakeBaseUrl() + endpoint;
         try {
             return new URIBuilder(endpointURI).addParameter("uuid", uuid.toString()).build();
         } catch (URISyntaxException e) {

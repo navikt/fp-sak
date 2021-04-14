@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -82,17 +80,17 @@ public class OpprettOppgaveForBehandlingTaskTest {
     @Test
     public void skal_utføre_tasken_opprett_oppgave_for_behandling_av_førstegangsbehandling() throws Exception {
         // Arrange
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
-        Behandling behandling = behandlingBuilder.build();
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
+        var behandling = behandlingBuilder.build();
         lagreBehandling(behandling);
 
-        ProsessTaskData taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
+        var taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
+        var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
-        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaver)).isNotPresent();
 
         // Act
@@ -109,21 +107,21 @@ public class OpprettOppgaveForBehandlingTaskTest {
     @Test
     public void oppretter_oppgave_for_behandling_av_revurdering() throws Exception {
         // Arrange
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
-        Behandling behandling = behandlingBuilder.build();
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak).medBehandlendeEnhet(new OrganisasjonsEnhet("0234", null));
+        var behandling = behandlingBuilder.build();
         lagreBehandling(behandling);
 
-        Behandling revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).build();
+        var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).build();
         lagreBehandling(revurdering);
 
-        ProsessTaskData taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
+        var taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
-        OpprettOppgaveForBehandlingTask task = new OpprettOppgaveForBehandlingTask(tjeneste);
+        var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
         when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
 
         // Skal ikke ha en oppgave av typen revurder fra før
-        List<OppgaveBehandlingKobling> oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
+        var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.REVURDER, oppgaver)).isNotPresent();
 
         // Act
@@ -138,12 +136,12 @@ public class OpprettOppgaveForBehandlingTaskTest {
 
 
     private void lagreBehandling(Behandling behandling) {
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
     }
 
     private Fagsak opprettOgLagreFagsak() {
-        Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor()
+        var fagsak = FagsakBuilder.nyEngangstønadForMor()
             .medSaksnummer(new Saksnummer("124"))
             .build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);

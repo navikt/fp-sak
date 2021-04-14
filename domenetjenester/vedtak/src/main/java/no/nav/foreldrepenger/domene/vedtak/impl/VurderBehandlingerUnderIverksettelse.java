@@ -46,7 +46,7 @@ public class VurderBehandlingerUnderIverksettelse {
         if (!behandling.erYtelseBehandling()) {
             return false;
         }
-        LocalDateTime vedtaksTidspunkt = utledVedtakstidspunkt(behandling);
+        var vedtaksTidspunkt = utledVedtakstidspunkt(behandling);
         // Kan ikke se på behandlingId pga kø-sniking rundt berørt behandling
         return finnBehandlingerUnderIverksetting(behandling).stream()
             .map(this::utledVedtakstidspunkt)
@@ -64,7 +64,7 @@ public class VurderBehandlingerUnderIverksettelse {
             return Optional.empty();
         }
         // Finn behandlinger i samme sak. OBS på at berørt sniker i køen så man bør se på vedtakstidspunkt
-        Optional<BehandlingVedtak> venter = finnBehandlingerUnderIverksetting(behandling).stream()
+        var venter = finnBehandlingerUnderIverksetting(behandling).stream()
             .filter(beh -> BehandlingStegStatus.STARTET.equals(beh.getBehandlingStegStatus()))
             .map(beh -> behandlingVedtakRepository.hentForBehandlingHvisEksisterer(beh.getId()).orElse(null))
             .filter(Objects::nonNull)

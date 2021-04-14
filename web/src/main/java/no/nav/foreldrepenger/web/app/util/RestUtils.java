@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.web.app.util;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,13 +25,12 @@ public class RestUtils {
      * If the class have the
      */
     public static String getClassAnnotationValue(Class<?> aClass, @SuppressWarnings("rawtypes") Class annotationClass, String name) {
-        @SuppressWarnings("unchecked")
-        Annotation aClassAnnotation = aClass.getAnnotation(annotationClass);
+        @SuppressWarnings("unchecked") var aClassAnnotation = aClass.getAnnotation(annotationClass);
         if (aClassAnnotation != null) {
-            Class<? extends Annotation> type = aClassAnnotation.annotationType();
-            for (Method method : type.getDeclaredMethods()) {
+            var type = aClassAnnotation.annotationType();
+            for (var method : type.getDeclaredMethods()) {
                 try {
-                    Object value = method.invoke(aClassAnnotation, new Object[0]);
+                    var value = method.invoke(aClassAnnotation, new Object[0]);
                     if (method.getName().equals(name)) {
                         return value.toString();
                     }
@@ -49,8 +46,8 @@ public class RestUtils {
     }
 
     public static String getApiPath() {
-        String contextPath = JettyWebKonfigurasjon.CONTEXT_PATH;
-        String apiUri = ApplicationConfig.API_URI;
+        var contextPath = JettyWebKonfigurasjon.CONTEXT_PATH;
+        var apiUri = ApplicationConfig.API_URI;
         return contextPath + apiUri;
     }
 
@@ -60,11 +57,11 @@ public class RestUtils {
 
     public static Collection<ResourceLink> getRoutes() {
         Set<ResourceLink> routes = new HashSet<>();
-        Collection<Class<?>> restClasses = new RestImplementationClasses().getImplementationClasses();
-        for (Class<?> aClass : restClasses) {
-            String pathFromClass = getClassAnnotationValue(aClass, Path.class, "value");
-            Method[] methods = aClass.getMethods();
-            for (Method aMethod : methods) {
+        var restClasses = new RestImplementationClasses().getImplementationClasses();
+        for (var aClass : restClasses) {
+            var pathFromClass = getClassAnnotationValue(aClass, Path.class, "value");
+            var methods = aClass.getMethods();
+            for (var aMethod : methods) {
                 ResourceLink.HttpMethod method = null;
                 if (aMethod.getAnnotation(POST.class) != null) {
                     method = ResourceLink.HttpMethod.POST;
@@ -79,11 +76,11 @@ public class RestUtils {
                     method = ResourceLink.HttpMethod.DELETE;
                 }
                 if (method != null) {
-                    String pathFromMethod = "";
+                    var pathFromMethod = "";
                     if (aMethod.getAnnotation(Path.class) != null) {
                         pathFromMethod = aMethod.getAnnotation(Path.class).value();
                     }
-                    ResourceLink resourceLink = new ResourceLink(getApiPath() + pathFromClass + pathFromMethod, aMethod.getName(), method);
+                    var resourceLink = new ResourceLink(getApiPath() + pathFromClass + pathFromMethod, aMethod.getName(), method);
                     routes.add(resourceLink);
                 }
             }
@@ -92,7 +89,7 @@ public class RestUtils {
     }
 
     public static String convertObjectToQueryString(Object object) {
-        ObjectMapper mapper = new ObjectMapper();
+        var mapper = new ObjectMapper();
         return mapper.convertValue(object, UriFormat.class).toString();
     }
 

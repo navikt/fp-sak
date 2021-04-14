@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringValidatorUtil;
-import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 
 public class ManuellRegistreringEndringssøknadValidator {
 
@@ -32,9 +31,9 @@ public class ManuellRegistreringEndringssøknadValidator {
         validerOverføringAvKvoter(registreringDto).ifPresent(feltFeilDto1 -> result.add(feltFeilDto1));
 
         //Valider tidspermisjonsfelter som er felles for alle foreldretyper
-        TidsromPermisjonDto tidsromPermisjon = registreringDto.getTidsromPermisjon();
+        var tidsromPermisjon = registreringDto.getTidsromPermisjon();
         if(tidsromPermisjon != null) {
-            Optional<FeltFeilDto> feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
+            var feltFeilPermisjonsperiode = validerPermisjonsperiode(tidsromPermisjon);
             feltFeilPermisjonsperiode.ifPresent(feil -> result.add(feil));
 
             if (tidsromPermisjon.getUtsettelsePeriode() != null) {
@@ -49,11 +48,11 @@ public class ManuellRegistreringEndringssøknadValidator {
     }
 
     private static Optional<FeltFeilDto> validerPermisjonsperiode(TidsromPermisjonDto tidsromPermisjon) {
-        String feltnavn = "permisjonperioder";
+        var feltnavn = "permisjonperioder";
         List<String> feil = new ArrayList<>();
-        List<PermisjonPeriodeDto> permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
+        var permisjonperioder = tidsromPermisjon.getPermisjonsPerioder();
         if (!isNull(permisjonperioder)) {
-            List<ManuellRegistreringValidatorUtil.Periode> perioder = permisjonperioder.stream().map(fkp ->
+            var perioder = permisjonperioder.stream().map(fkp ->
                 new ManuellRegistreringValidatorUtil.Periode(fkp.getPeriodeFom(), fkp.getPeriodeTom())).collect(Collectors.toList());
             feil.addAll(ManuellRegistreringValidatorUtil.datoIkkeNull(perioder));
             feil.addAll(ManuellRegistreringValidatorUtil.startdatoFørSluttdato(perioder));
@@ -67,9 +66,9 @@ public class ManuellRegistreringEndringssøknadValidator {
     }
 
     private static Optional<FeltFeilDto> validerOverføringAvKvoter(ManuellRegistreringEndringsøknadDto registreringDto) {
-        TidsromPermisjonDto tidsromPermisjon = registreringDto.getTidsromPermisjon();
+        var tidsromPermisjon = registreringDto.getTidsromPermisjon();
 
-        for (OverføringsperiodeDto overføringsperiodeDto : tidsromPermisjon.getOverforingsperioder()) {
+        for (var overføringsperiodeDto : tidsromPermisjon.getOverforingsperioder()) {
             if (isNull(overføringsperiodeDto.getOverforingArsak())) {
                 return Optional.of(new FeltFeilDto("årsakForOverføring", PAAKREVD_FELT));
             }

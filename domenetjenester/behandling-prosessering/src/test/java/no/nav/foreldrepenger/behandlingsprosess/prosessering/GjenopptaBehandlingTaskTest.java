@@ -58,14 +58,14 @@ public class GjenopptaBehandlingTaskTest {
     public void skal_gjenoppta_behandling() {
         final Long behandlingId = 10L;
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel();
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
         lenient().when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.empty());
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(0L, behandlingId, AktørId.dummy().getId());
 
         task.doTask(prosessTaskData);
@@ -78,12 +78,12 @@ public class GjenopptaBehandlingTaskTest {
     public void skal_gjenoppta_behandling_bytteenhet() {
         final Long behandlingId = 10L;
 
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
-        BehandlingLås lås = mock(BehandlingLås.class);
-        BehandlingskontrollKontekst kontekst = mock(BehandlingskontrollKontekst.class);
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var enhet = new OrganisasjonsEnhet("2103", "NAV Viken");
+        var lås = mock(BehandlingLås.class);
+        var kontekst = mock(BehandlingskontrollKontekst.class);
+        var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel();
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
 
         behandling.setBehandlendeEnhet(organisasjonsEnhet);
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
@@ -94,14 +94,14 @@ public class GjenopptaBehandlingTaskTest {
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
         when(mockRegisterdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(any())).thenReturn(true);
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(0L, behandlingId, "0");
 
         task.doTask(prosessTaskData);
 
         verify(mockBehandlingskontrollTjeneste).initBehandlingskontroll(anyLong());
         verify(mockBehandlingskontrollTjeneste).prosesserBehandling(any());
-        ArgumentCaptor<OrganisasjonsEnhet> enhetArgumentCaptor = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
+        var enhetArgumentCaptor = ArgumentCaptor.forClass(OrganisasjonsEnhet.class);
         verify(mockEnhetsTjeneste).oppdaterBehandlendeEnhet(any(), enhetArgumentCaptor.capture(), any(), any());
         assertThat(enhetArgumentCaptor.getValue()).isEqualTo(enhet);
     }

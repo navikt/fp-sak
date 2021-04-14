@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat.opprettListeForAksjonspunkt;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -36,9 +35,9 @@ public class AksjonspunktUtlederForTilleggsopplysninger implements AksjonspunktU
 
     @Override
     public List<AksjonspunktResultat> utledAksjonspunkterFor(AksjonspunktUtlederInput param) {
-        final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(param.getBehandlingId());
+        final var søknad = søknadRepository.hentSøknadHvisEksisterer(param.getBehandlingId());
 
-        final Optional<String> tilleggsopplysninger = søknad.map(SøknadEntitet::getTilleggsopplysninger);
+        final var tilleggsopplysninger = søknad.map(SøknadEntitet::getTilleggsopplysninger);
         if (tilleggsopplysninger.isPresent()) {
             return opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER);
         }

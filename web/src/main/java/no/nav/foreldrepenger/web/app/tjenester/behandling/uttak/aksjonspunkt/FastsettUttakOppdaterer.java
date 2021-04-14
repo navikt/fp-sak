@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -50,8 +48,8 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
 
     @Override
     public OppdateringResultat oppdater(FastsetteUttakDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
+        var behandling = param.getBehandling();
+        var resultatBuilder = OppdateringResultat.utenTransisjon();
         avbrytOverflødigOverstyrAksjonpunkt(behandling)
             .ifPresent(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
@@ -71,7 +69,7 @@ public class FastsettUttakOppdaterer implements AksjonspunktOppdaterer<Fastsette
     }
 
     private void lagHistorikkInnslag(Behandling behandling, FastsetteUttakDto dto, ForeldrepengerUttak forrigeResultat) {
-        List<Historikkinnslag> historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
+        var historikkinnslag = UttakHistorikkUtil.forFastsetting().lagHistorikkinnslag(
             behandling, dto.getPerioder(), forrigeResultat.getGjeldendePerioder());
         historikkinnslag.forEach(innslag -> historikkAdapter.lagInnslag(innslag));
     }

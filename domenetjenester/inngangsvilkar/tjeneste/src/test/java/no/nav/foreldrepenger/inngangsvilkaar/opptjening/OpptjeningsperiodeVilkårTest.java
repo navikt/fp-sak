@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjen
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjeningsperiode;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
@@ -48,16 +47,16 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P10M"), Period.parse("P6M"),
+        var stputil = new SkjæringstidspunktUtils(Period.parse("P10M"), Period.parse("P6M"),
             Period.parse("P1Y"), Period.parse("P6M"));
-        YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
+        var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil);
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
-        InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
+        var oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
             beregnMorsMaksdatoTjeneste, iayTjeneste, null);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(oversetter,
             repositoryProvider.getFamilieHendelseRepository(), beregnMorsMaksdatoTjeneste, Period.parse("P10M"),
@@ -175,10 +174,10 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         scenario.medRegisterOpplysninger(fødtBarn);
         var behandling = scenario.lagre(repositoryProvider);
 
-        VilkårData data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
+        var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        OpptjeningsPeriode op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
     }
 
@@ -224,9 +223,9 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                                                        boolean ektefellesBarn,
                                                        NavBrukerKjønn kjønn,
                                                        boolean adoptererAlene) {
-        LocalDate omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
+        var omsorgsovertakelsedato = LocalDate.of(2018, 1, 1);
         if (kjønn.equals(NavBrukerKjønn.KVINNE)) {
-            ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
+            var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
             scenario.medSøknadHendelse()
                 .medAdopsjon(scenario.medSøknadHendelse()
                     .getAdopsjonBuilder()
@@ -241,27 +240,26 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
                     .medErEktefellesBarn(ektefellesBarn)
                     .medAdoptererAlene(adoptererAlene))
                 .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
-            Behandling behandling = scenario.lagre(repositoryProvider);
-            return behandling;
-        } else {
-            ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
-            scenario.medSøknadHendelse()
-                .medAdopsjon(scenario.medSøknadHendelse()
-                    .getAdopsjonBuilder()
-                    .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
-                    .medErEktefellesBarn(ektefellesBarn)
-                    .medAdoptererAlene(adoptererAlene))
-                .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
-            scenario.medBekreftetHendelse()
-                .medAdopsjon(scenario.medBekreftetHendelse()
-                    .getAdopsjonBuilder()
-                    .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
-                    .medErEktefellesBarn(ektefellesBarn)
-                    .medAdoptererAlene(adoptererAlene))
-                .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
-            Behandling behandling = scenario.lagre(repositoryProvider);
+            var behandling = scenario.lagre(repositoryProvider);
             return behandling;
         }
+        var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
+        scenario.medSøknadHendelse()
+            .medAdopsjon(scenario.medSøknadHendelse()
+                .getAdopsjonBuilder()
+                .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
+                .medErEktefellesBarn(ektefellesBarn)
+                .medAdoptererAlene(adoptererAlene))
+            .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
+        scenario.medBekreftetHendelse()
+            .medAdopsjon(scenario.medBekreftetHendelse()
+                .getAdopsjonBuilder()
+                .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
+                .medErEktefellesBarn(ektefellesBarn)
+                .medAdoptererAlene(adoptererAlene))
+            .leggTilBarn(omsorgsovertakelsedato.minusYears(alder));
+        var behandling = scenario.lagre(repositoryProvider);
+        return behandling;
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKa
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
-import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKobling;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -52,13 +51,13 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     public String gjenopptaBehandlinger() {
-        List<Behandling> behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
-        String callId = MDCOperations.getCallId();
+        var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
+        var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
-        LocalTime baseline = LocalTime.now();
+        var baseline = LocalTime.now();
 
-        for (Behandling behandling : behandlingListe) {
-            String nyCallId = callId + behandling.getId();
+        for (var behandling : behandlingListe) {
+            var nyCallId = callId + behandling.getId();
             opprettProsessTask(behandling, nyCallId, baseline, 1439);
         }
 
@@ -69,7 +68,7 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     private void opprettProsessTask(Behandling behandling, String callId, LocalTime baseline, int spread) {
         LOG.info("oppretter task med ny callId: {} ", callId);
-        ProsessTaskData prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
@@ -87,18 +86,18 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     public String oppdaterBehandlingerFraOppgaveFrist() {
-        LocalDate tom = LocalDate.now().minusDays(1);
-        LocalDate fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
-        List<OppgaveBehandlingKobling> oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom,
+        var tom = LocalDate.now().minusDays(1);
+        var fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
+        var oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom,
                 OPPGAVE_TYPER);
-        String callId = MDCOperations.getCallId();
+        var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
-        LocalTime baseline = LocalTime.now();
+        var baseline = LocalTime.now();
 
-        for (OppgaveBehandlingKobling oppgave : oppgaveListe) {
-            Behandling behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
+        for (var oppgave : oppgaveListe) {
+            var behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
-                String nyCallId = callId + behandling.getId();
+                var nyCallId = callId + behandling.getId();
                 opprettProsessTask(behandling, nyCallId, baseline, 1439);
             }
         }
@@ -109,13 +108,13 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     public String gjenopplivBehandlinger() {
-        List<Behandling> sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
-        String callId = MDCOperations.getCallId();
+        var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
+        var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
-        LocalTime baseline = LocalTime.now();
+        var baseline = LocalTime.now();
 
-        for (Behandling behandling : sovende) {
-            String nyCallId = callId + behandling.getId();
+        for (var behandling : sovende) {
+            var nyCallId = callId + behandling.getId();
             opprettProsessTask(behandling, nyCallId, baseline, 101);
         }
 

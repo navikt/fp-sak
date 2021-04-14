@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,7 +7,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -37,9 +34,9 @@ public class VurderTilbaketrekkOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     @Override
     public OppdateringResultat oppdater(VurderTilbaketrekkDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        Optional<Boolean> gammelVerdi = beregningsresultatRepository.lagreMedTilbaketrekk(behandling, dto.skalHindreTilbaketrekk());
-        Boolean originalSkalHindreTilbaketrekk = gammelVerdi.orElse(null);
+        var behandling = param.getBehandling();
+        var gammelVerdi = beregningsresultatRepository.lagreMedTilbaketrekk(behandling, dto.skalHindreTilbaketrekk());
+        var originalSkalHindreTilbaketrekk = gammelVerdi.orElse(null);
 
         lagHistorikkInnslag(dto, originalSkalHindreTilbaketrekk, param);
 
@@ -58,7 +55,8 @@ public class VurderTilbaketrekkOppdaterer implements AksjonspunktOppdaterer<Vurd
     private HistorikkEndretFeltVerdiType finnEndretVerdiType(Boolean skalHindreTilbaketrekk) {
         if (skalHindreTilbaketrekk == null) {
             return null;
-        } else return skalHindreTilbaketrekk ? HistorikkEndretFeltVerdiType.HINDRE_TILBAKETREKK : HistorikkEndretFeltVerdiType.UTFØR_TILBAKETREKK;
+        }
+        return skalHindreTilbaketrekk ? HistorikkEndretFeltVerdiType.HINDRE_TILBAKETREKK : HistorikkEndretFeltVerdiType.UTFØR_TILBAKETREKK;
     }
 
     private void oppdaterVedEndretVerdi(HistorikkEndretFeltVerdiType gammelVerdi, HistorikkEndretFeltVerdiType nyVerdi) {

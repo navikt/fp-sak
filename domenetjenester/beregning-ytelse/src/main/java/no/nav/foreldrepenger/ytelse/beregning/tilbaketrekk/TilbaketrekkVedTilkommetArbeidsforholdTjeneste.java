@@ -53,7 +53,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
                                                                                                                       Collection<Yrkesaktivitet> yrkesaktiviteter,
                                                                                                                       LocalDate skjæringstidspunkt) {
 
-        List<BRNøkkelMedAndeler> tilkomneAndeler = revurderingAndelerSortertPåNøkkel.stream()
+        var tilkomneAndeler = revurderingAndelerSortertPåNøkkel.stream()
             .filter(brNøkkelMedAndeler -> originaleAndelerSortertPåNøkkel.stream().map(BRNøkkelMedAndeler::getNøkkel).noneMatch(originalNøkkel -> originalNøkkel.equals(brNøkkelMedAndeler.getNøkkel())))
             .filter(n -> finnTidligsteStartdatoForArbeidsforholdPåNøkkel(n, yrkesaktiviteter, skjæringstidspunkt).isPresent())
             .collect(Collectors.toList());
@@ -67,7 +67,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
 
     private static Function<LocalDate, TilbaketrekkForTilkommetArbeidEntry> lagTilbaketrekkEntry(List<BRNøkkelMedAndeler> revurderingAndelerSortertPåNøkkel, List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt, List<BRNøkkelMedAndeler> tilkomneAndeler) {
         return d -> {
-            TilbaketrekkForTilkommetArbeidEntry entry = new TilbaketrekkForTilkommetArbeidEntry();
+            var entry = new TilbaketrekkForTilkommetArbeidEntry();
             entry.setTilkomneNøklerMedStartEtterDato(finnNøklerMedStartLikEllerEtter(yrkesaktiviteter, skjæringstidspunkt, tilkomneAndeler).apply(d));
             entry.setAndelerIRevurderingMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, revurderingAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter));
             entry.setAndelerIOriginalMedSluttFørDato(finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(d, skjæringstidspunkt, originaleAndelerSortertPåNøkkel, originaleAndelerSortertPåNøkkel, yrkesaktiviteter));
@@ -83,13 +83,13 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
     private static Map<LocalDate, List<BRNøkkelMedAndeler>> finnBrukersAndelerSomAvslutterFørStartdatoForTilkommet(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt,
                                                                                                                    List<BRNøkkelMedAndeler> nøkler,
                                                                                                                    List<BRNøkkelMedAndeler> originaleAndelerSortertPåNøkkel, Collection<Yrkesaktivitet> yrkesaktiviteter) {
-        List<BRNøkkelMedAndeler> nøklerSomSlutterFørDatoIkkeErTilkommet = nøkler.stream()
+        var nøklerSomSlutterFørDatoIkkeErTilkommet = nøkler.stream()
             .filter(harNøkkelAvsluttetArbeidsforhold(startdatoArbeid, skjæringstidspunkt, yrkesaktiviteter))
             .filter(erIkkeTilkommetIRevurdering(originaleAndelerSortertPåNøkkel))
             .collect(Collectors.toList());
         return nøklerSomSlutterFørDatoIkkeErTilkommet.stream()
             .collect(Collectors.toMap(n -> finnSluttdatoFørTilkommetForNøkkel(n, startdatoArbeid, yrkesaktiviteter, skjæringstidspunkt), List::of, (l1, l2) -> {
-                ArrayList<BRNøkkelMedAndeler> newList = new ArrayList<>();
+                var newList = new ArrayList<BRNøkkelMedAndeler>();
                 newList.addAll(l1);
                 newList.addAll(l2);
                 return newList;
@@ -125,12 +125,12 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
     private static Predicate<BeregningsresultatAndel> korrespondererTilAvsluttetArbeidsforhold(LocalDate startdatoArbeid, LocalDate skjæringstidspunkt, Collection<Yrkesaktivitet> yrkesaktiviteter) {
         return beregningsresultatAndel ->
         {
-            List<Yrkesaktivitet> matchendeAktiviteter = yrkesaktiviteter.stream()
+            var matchendeAktiviteter = yrkesaktiviteter.stream()
                 .filter(matchMedAndel(beregningsresultatAndel.getArbeidsgiver().get(), beregningsresultatAndel.getArbeidsforholdRef()))
                 .collect(Collectors.toList());
-            boolean harPeriodeSomSlutterFørStartdato = matchendeAktiviteter.stream()
+            var harPeriodeSomSlutterFørStartdato = matchendeAktiviteter.stream()
                 .anyMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(skjæringstidspunkt, startdatoArbeid));
-            boolean harIkkePeriodeSomSlutterEtterStartdato = matchendeAktiviteter.stream()
+            var harIkkePeriodeSomSlutterEtterStartdato = matchendeAktiviteter.stream()
                 .noneMatch(harAnsettelsesperiodeSomSlutterMellomDatoer(startdatoArbeid, TIDENES_ENDE));
             return harPeriodeSomSlutterFørStartdato && harIkkePeriodeSomSlutterEtterStartdato;
         };

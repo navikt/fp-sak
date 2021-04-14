@@ -11,7 +11,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
 
@@ -47,7 +46,7 @@ public class BeregningsresultatRepository {
     }
 
     public Optional<BehandlingBeregningsresultatEntitet> hentBeregningsresultatAggregat(Long behandlingId) {
-        TypedQuery<BehandlingBeregningsresultatEntitet> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
             "from BeregningsresultatFPAggregatEntitet aggregat " +
                 "where aggregat.behandlingId=:behandlingId and aggregat.aktiv = 'J'", BehandlingBeregningsresultatEntitet.class); //$NON-NLS-1$
         query.setParameter("behandlingId", behandlingId); //$NON-NLS-1$
@@ -55,13 +54,13 @@ public class BeregningsresultatRepository {
     }
 
     public void lagre(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
-        BehandlingBeregningsresultatBuilder builder = opprettResultatBuilderFor(behandling.getId());
+        var builder = opprettResultatBuilderFor(behandling.getId());
         builder.medBgBeregningsresultatFP(beregningsresultat);
         lagreOgFlush(behandling, builder);
     }
 
     public void lagreUtbetBeregningsresultat(Behandling behandling, BeregningsresultatEntitet utbetBeregningsresultatFP) {
-        BehandlingBeregningsresultatBuilder builder = opprettResultatBuilderFor(behandling.getId());
+        var builder = opprettResultatBuilderFor(behandling.getId());
         builder.medUtbetBeregningsresultatFP(utbetBeregningsresultatFP);
         lagreOgFlush(behandling, builder);
     }
@@ -74,13 +73,13 @@ public class BeregningsresultatRepository {
      * @return Tidligere verdi
      */
     public Optional<Boolean> lagreMedTilbaketrekk(Behandling behandling, boolean skalHindreTilbaketrekk) {
-        Long behandlingId = behandling.getId();
-        Optional<BehandlingBeregningsresultatEntitet> aggregatOpt = hentBeregningsresultatAggregat(behandlingId);
+        var behandlingId = behandling.getId();
+        var aggregatOpt = hentBeregningsresultatAggregat(behandlingId);
         if (!aggregatOpt.isPresent()) {
             throw new IllegalStateException("Finner ikke beregningsresultataggregat for behandlingen" + behandlingId);
         }
 
-        BehandlingBeregningsresultatBuilder builder = opprettResultatBuilderFor(aggregatOpt);
+        var builder = opprettResultatBuilderFor(aggregatOpt);
         builder.medSkalHindreTilbaketrekk(skalHindreTilbaketrekk);
         lagreOgFlush(behandling, builder);
 
@@ -88,12 +87,12 @@ public class BeregningsresultatRepository {
     }
 
     private void lagreOgFlush(Behandling behandling, BehandlingBeregningsresultatBuilder builder) {
-        Optional<BehandlingBeregningsresultatEntitet> tidligereAggregat = hentBeregningsresultatAggregat(behandling.getId());
+        var tidligereAggregat = hentBeregningsresultatAggregat(behandling.getId());
         if (tidligereAggregat.isPresent()) {
             tidligereAggregat.get().setAktiv(false);
             entityManager.persist(tidligereAggregat.get());
         }
-        BehandlingBeregningsresultatEntitet aggregatEntitet = builder.build(behandling.getId());
+        var aggregatEntitet = builder.build(behandling.getId());
         entityManager.persist(aggregatEntitet.getBgBeregningsresultatFP());
         aggregatEntitet.getBgBeregningsresultatFP().getBeregningsresultatPerioder().forEach(this::lagre);
         if (aggregatEntitet.getUtbetBeregningsresultatFP() != null) {
@@ -105,7 +104,7 @@ public class BeregningsresultatRepository {
     }
 
     private BehandlingBeregningsresultatBuilder opprettResultatBuilderFor(Long behandlingId) {
-        Optional<BehandlingBeregningsresultatEntitet> aggregat = hentBeregningsresultatAggregat(behandlingId);
+        var aggregat = hentBeregningsresultatAggregat(behandlingId);
         return opprettResultatBuilderFor(aggregat);
     }
 
@@ -123,7 +122,7 @@ public class BeregningsresultatRepository {
     }
 
     public void deaktiverBeregningsresultat(Long behandlingId, BehandlingLås skriveLås) {
-        Optional<BehandlingBeregningsresultatEntitet> aggregatOpt = hentBeregningsresultatAggregat(behandlingId);
+        var aggregatOpt = hentBeregningsresultatAggregat(behandlingId);
         aggregatOpt.ifPresent(aggregat -> setAktivOgLagre(aggregat, false));
         verifiserBehandlingLås(skriveLås);
         entityManager.flush();
@@ -140,7 +139,7 @@ public class BeregningsresultatRepository {
     }
 
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
-        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
                 " and periode.fomDato<=:dato" + //$NON-NLS-1$
                 " and periode.tomDato>=:dato", BeregningSats.class); //$NON-NLS-1$
 
@@ -152,7 +151,7 @@ public class BeregningsresultatRepository {
     }
 
     public BeregningSats finnGjeldendeSats(BeregningSatsType satsType) {
-        TypedQuery<BeregningSats> query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from BeregningSats where satsType=:satsType", BeregningSats.class); //$NON-NLS-1$
 
         query.setParameter("satsType", satsType); //$NON-NLS-1$
         return query.getResultList().stream()

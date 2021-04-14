@@ -12,7 +12,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_4_februar() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 4));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 4));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
@@ -21,7 +21,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_15_februar() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 18));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 18));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
@@ -30,7 +30,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_16_februar() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 19));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.FEBRUARY, 19));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 28));
@@ -39,7 +39,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_1_mars() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.MARCH, 1));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2019, Month.MARCH, 1));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2019, Month.FEBRUARY, 28));
@@ -48,7 +48,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_16_februar_2020() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.FEBRUARY, 19));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.FEBRUARY, 19));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2020, Month.FEBRUARY, 29));
@@ -57,7 +57,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_8_desember_2020() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 8));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 8));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2020, Month.DECEMBER, 31));
@@ -66,7 +66,7 @@ public class FinnAlleredeUtbetaltTomTest {
     @Test
     public void dagens_dato_7_desember_2020() {
         // Act
-        LocalDate utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 7));
+        var utbetaltTom = FinnAlleredeUtbetaltTom.finn(LocalDate.of(2020, Month.DECEMBER, 7));
 
         // Assert
         assertThat(utbetaltTom).isEqualTo(LocalDate.of(2020, Month.NOVEMBER, 30));

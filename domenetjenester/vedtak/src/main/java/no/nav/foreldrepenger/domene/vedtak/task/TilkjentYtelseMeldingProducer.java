@@ -59,7 +59,7 @@ public class TilkjentYtelseMeldingProducer {
                                   @KonfigVerdi("schema.registry.url") String schemaRegistryUrl,
                                   @KonfigVerdi("systembruker.username") String username,
                                   @KonfigVerdi("systembruker.password") String password) {
-        Properties properties = new Properties();
+        var properties = new Properties();
 
         properties.setProperty("bootstrap.servers", bootstrapServers);
         properties.setProperty("schema.registry.url", schemaRegistryUrl);
@@ -74,8 +74,8 @@ public class TilkjentYtelseMeldingProducer {
 
     void setUsernameAndPassword(String username, String password, Properties properties) {
         if (username != null && !username.isEmpty() && password != null && !password.isEmpty()) {
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
-            String jaasCfg = String.format(jaasTemplate, username, password);
+            var jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
+            var jaasCfg = String.format(jaasTemplate, username, password);
             properties.setProperty("sasl.jaas.config", jaasCfg);
         }
     }
@@ -120,19 +120,19 @@ public class TilkjentYtelseMeldingProducer {
     }
 
     public void sendTilkjentYtelse(Behandling behandling) {
-        String fagsakYtelseTypeKode = behandling.getFagsakYtelseType().getKode();
-        Saksnummer saksnummer = behandling.getFagsak().getSaksnummer();
-        AktørId aktørId = behandling.getAktørId();
-        UUID uuid = behandling.getUuid();
-        Long behandlingId = behandling.getId();
+        var fagsakYtelseTypeKode = behandling.getFagsakYtelseType().getKode();
+        var saksnummer = behandling.getFagsak().getSaksnummer();
+        var aktørId = behandling.getAktørId();
+        var uuid = behandling.getUuid();
+        var behandlingId = behandling.getId();
         sendTilkjentYtelse(fagsakYtelseTypeKode, saksnummer, aktørId, behandlingId, uuid);
     }
 
     public void sendTilkjentYtelse(String fagsakYtelseTypeKode, Saksnummer saksnummer, AktørId aktørId, long behandlingId, UUID behandlingUuid) {
-        TilkjentYtelseMelding verdi = new TilkjentYtelseMelding(fagsakYtelseTypeKode, saksnummer.getVerdi(), aktørId.getId(), behandlingId, behandlingUuid);
+        var verdi = new TilkjentYtelseMelding(fagsakYtelseTypeKode, saksnummer.getVerdi(), aktørId.getId(), behandlingId, behandlingUuid);
 
         try {
-            String verdiSomJson = OM.writeValueAsString(verdi);
+            var verdiSomJson = OM.writeValueAsString(verdi);
             sendJsonMedNøkkel(aktørId.getId(), verdiSomJson);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Kunne ikke konvertere til json for behandling " + behandlingId, e);

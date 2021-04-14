@@ -25,7 +25,7 @@ class MapperForInntektskategori {
     }
 
     static TilkjentYtelseV1.Inntektskategori mapInntektskategori(Inntektskategori inntektskategori) {
-        TilkjentYtelseV1.Inntektskategori resultat = INNTEKTSKATEGORI_MAP.get(inntektskategori);
+        var resultat = INNTEKTSKATEGORI_MAP.get(inntektskategori);
         if (resultat != null) {
             return resultat;
         }

@@ -363,7 +363,7 @@ public class PersoninfoTjeneste {
     }
 
     private static Landkoder mapStatsborgerskap(List<Statsborgerskap> statsborgerskap) {
-        List<Landkoder> alleLand = statsborgerskap.stream()
+        var alleLand = statsborgerskap.stream()
                 .map(Statsborgerskap::getLand)
                 .map(Landkoder::fraKodeDefaultUdefinert)
                 .collect(Collectors.toList());
@@ -471,7 +471,7 @@ public class PersoninfoTjeneste {
     private Adresseinfo mapVegadresse(AdresseType type, Vegadresse vegadresse) {
         if (vegadresse == null)
             return null;
-        String postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
+        var postnummer = Optional.ofNullable(vegadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var gateadresse = vegadresse.getAdressenavn().toUpperCase() + hvisfinnes2(vegadresse.getHusnummer(), vegadresse.getHusbokstav());
         return Adresseinfo.builder(type)
                 .medMatrikkelId(vegadresse.getMatrikkelId())
@@ -485,7 +485,7 @@ public class PersoninfoTjeneste {
     private Adresseinfo mapMatrikkeladresse(AdresseType type, Matrikkeladresse matrikkeladresse) {
         if (matrikkeladresse == null)
             return null;
-        String postnummer = Optional.ofNullable(matrikkeladresse.getPostnummer()).orElse(HARDKODET_POSTNR);
+        var postnummer = Optional.ofNullable(matrikkeladresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
                 .medMatrikkelId(matrikkeladresse.getMatrikkelId())
                 .medAdresselinje1(matrikkeladresse.getTilleggsnavn() != null ? matrikkeladresse.getTilleggsnavn().toUpperCase()
@@ -500,7 +500,7 @@ public class PersoninfoTjeneste {
     private Adresseinfo mapPostboksadresse(AdresseType type, Postboksadresse postboksadresse) {
         if (postboksadresse == null)
             return null;
-        String postnummer = Optional.ofNullable(postboksadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
+        var postnummer = Optional.ofNullable(postboksadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         var postboks = "Postboks" + hvisfinnes(postboksadresse.getPostboks());
         return Adresseinfo.builder(type)
                 .medAdresselinje1(postboksadresse.getPostbokseier() != null ? postboksadresse.getPostbokseier().toUpperCase() : postboks)
@@ -514,7 +514,7 @@ public class PersoninfoTjeneste {
     private Adresseinfo mapFriAdresseNorsk(AdresseType type, PostadresseIFrittFormat postadresse) {
         if (postadresse == null)
             return null;
-        String postnummer = Optional.ofNullable(postadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
+        var postnummer = Optional.ofNullable(postadresse.getPostnummer()).orElse(HARDKODET_POSTNR);
         return Adresseinfo.builder(type)
                 .medAdresselinje1(postadresse.getAdresselinje1() != null ? postadresse.getAdresselinje1().toUpperCase() : null)
                 .medAdresselinje2(postadresse.getAdresselinje2() != null ? postadresse.getAdresselinje2().toUpperCase() : null)

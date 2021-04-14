@@ -61,7 +61,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
                 .peek(pr -> pr.setRot(this))
                 .collect(Collectors.toSet());
         if (kladd.getOverstyring().getOverstyringsdato().isPresent()) {
-            OverstyrtLøpendeMedlemskap overstyring = kladd.getOverstyring();
+            var overstyring = kladd.getOverstyring();
             overstyrtLøpendeMedlemskap = new OverstyrtLøpendeMedlemskap(overstyring.getOverstyringsdato().get(),
                 overstyring.getVilkårUtfall(), overstyring.getAvslagsårsak());
         }
@@ -87,7 +87,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
             return false;
         }
 
-        MedlemskapsvilkårPeriodeEntitet that = (MedlemskapsvilkårPeriodeEntitet) o;
+        var that = (MedlemskapsvilkårPeriodeEntitet) o;
         return Objects.equals(perioder, that.perioder);
     }
 
@@ -98,7 +98,7 @@ public class MedlemskapsvilkårPeriodeEntitet extends BaseEntitet {
     }
 
     MedlemskapsvilkårPerioderEntitet.Builder getBuilderFor(LocalDate vurderingsdato) {
-        Optional<MedlemskapsvilkårPerioderEntitet> medlemOpt = perioder.stream()
+        var medlemOpt = perioder.stream()
                 .filter(medlem -> vurderingsdato.equals(medlem.getVurderingsdato()))
                 .findFirst();
         return MedlemskapsvilkårPerioderEntitet.Builder.oppdater(medlemOpt, vurderingsdato);

@@ -86,7 +86,7 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
         when(beregningsgrunnlagInputFelles.lagInput(any(BehandlingReferanse.class))).thenReturn(input);
 
         // Dto
-        FastsettBeregningsgrunnlagATFLDto dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
+        var dto = new FastsettBeregningsgrunnlagATFLDto("begrunnelse", Collections.emptyList(), null);
         // Act
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, ap, dto));
 

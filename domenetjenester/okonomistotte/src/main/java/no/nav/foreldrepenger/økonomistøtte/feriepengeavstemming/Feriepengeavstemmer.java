@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,9 +17,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -56,16 +53,16 @@ public class Feriepengeavstemmer {
     }
 
     public boolean avstem(long behandlingId, boolean logging) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        Optional<BeregningsresultatEntitet> beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var beregningsresultatOpt = beregningsresultatRepository.hentUtbetBeregningsresultat(behandlingId);
         if (behandling == null || beregningsresultatOpt.isEmpty()) {
             return false;
         }
         var saksnummer = behandling.getFagsak().getSaksnummer();
-        List<BeregningsresultatFeriepengerPrÅr> feriepengerAndeler = beregningsresultatOpt.get().getBeregningsresultatFeriepenger()
+        var feriepengerAndeler = beregningsresultatOpt.get().getBeregningsresultatFeriepenger()
             .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe)
             .orElse(Collections.emptyList());
-        List<Oppdrag110> positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
+        var positiveOppdrag = hentOppdragMedPositivKvittering.hentOppdragMedPositivKvittering(saksnummer);
 
         var oppdrag = sorterteOppdragFeriepenger(positiveOppdrag, logging);
         var tilkjent = sorterteTilkjenteFeriepenger(feriepengerAndeler);
@@ -114,7 +111,7 @@ public class Feriepengeavstemmer {
     private static Map<GrupperingNøkkel, BigDecimal> sorterteOppdragFeriepenger(List<Oppdrag110> oppdrag110Liste, boolean notQuiet) {
         Map<GrupperingNøkkel, BigDecimal> gjeldendeOL = new HashMap<>();
 
-        for (Oppdragslinje150 linje : sorterEtterDatoFP(oppdrag110Liste)) {
+        for (var linje : sorterEtterDatoFP(oppdrag110Liste)) {
             var nøkkel = new GrupperingNøkkel(Year.from(linje.getDatoVedtakFom().minusYears(1)), mottakerFraLinje150(linje));
             var forrige = gjeldendeOL.get(nøkkel);
             if (linje.gjelderOpphør()) {

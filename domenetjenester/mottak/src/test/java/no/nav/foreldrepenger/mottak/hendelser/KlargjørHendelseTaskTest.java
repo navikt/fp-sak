@@ -40,10 +40,10 @@ public class KlargjørHendelseTaskTest {
 
     @Test
     public void skal_kalle_videre_på_domenetjeneste() {
-        ForretningshendelseMottak domenetjeneste = mock(ForretningshendelseMottak.class);
-        KlargjørHendelseTask task = new KlargjørHendelseTask(domenetjeneste);
+        var domenetjeneste = mock(ForretningshendelseMottak.class);
+        var task = new KlargjørHendelseTask(domenetjeneste);
 
-        ProsessTaskData taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "FØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
@@ -52,8 +52,8 @@ public class KlargjørHendelseTaskTest {
         hendelse.setFødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
-        ArgumentCaptor<ForretningshendelseType> captorT = ArgumentCaptor.forClass(ForretningshendelseType.class);
-        ArgumentCaptor<HendelseDto> captorP = ArgumentCaptor.forClass(HendelseDto.class);
+        var captorT = ArgumentCaptor.forClass(ForretningshendelseType.class);
+        var captorP = ArgumentCaptor.forClass(HendelseDto.class);
 
         task.doTask(taskData);
 
@@ -64,17 +64,17 @@ public class KlargjørHendelseTaskTest {
 
     @Test
     public void skal_motta_fødsel() {
-        AktørId aktørId = AktørId.dummy();
-        ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
+        var aktørId = AktørId.dummy();
+        var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(FødselForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.FØDSEL)).thenReturn(saksvelger);
-        ForretningshendelseMottak domenetjeneste = new ForretningshendelseMottak(null,
+        var domenetjeneste = new ForretningshendelseMottak(null,
             saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
 
-        KlargjørHendelseTask task = new KlargjørHendelseTask(domenetjeneste);
+        var task = new KlargjørHendelseTask(domenetjeneste);
 
-        ProsessTaskData taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "FØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
@@ -84,7 +84,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setFødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
-        ArgumentCaptor<Forretningshendelse> captor = ArgumentCaptor.forClass(Forretningshendelse.class);
+        var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
         task.doTask(taskData);
 
@@ -97,16 +97,16 @@ public class KlargjørHendelseTaskTest {
 
     @Test
     public void skal_motta_dødfødsel() {
-        ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
+        var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødfødselForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.DØDFØDSEL)).thenReturn(saksvelger);
-        ForretningshendelseMottak domenetjeneste = new ForretningshendelseMottak(null,
+        var domenetjeneste = new ForretningshendelseMottak(null,
             saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
 
-        KlargjørHendelseTask task = new KlargjørHendelseTask(domenetjeneste);
+        var task = new KlargjørHendelseTask(domenetjeneste);
 
-        ProsessTaskData taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "DØDFØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødfødselHendelseDto();
@@ -116,7 +116,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setDødfødselsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
-        ArgumentCaptor<Forretningshendelse> captor = ArgumentCaptor.forClass(Forretningshendelse.class);
+        var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
         task.doTask(taskData);
 
@@ -127,16 +127,16 @@ public class KlargjørHendelseTaskTest {
 
     @Test
     public void skal_motta_død() {
-        ForretningshendelseSaksvelgerProvider saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
+        var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
         ForretningshendelseSaksvelger saksvelger = mock(DødForretningshendelseSaksvelger.class);
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.DØD)).thenReturn(saksvelger);
-        ForretningshendelseMottak domenetjeneste = new ForretningshendelseMottak(null,
+        var domenetjeneste = new ForretningshendelseMottak(null,
             saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
 
-        KlargjørHendelseTask task = new KlargjørHendelseTask(domenetjeneste);
+        var task = new KlargjørHendelseTask(domenetjeneste);
 
-        ProsessTaskData taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "DØD");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødHendelseDto();
@@ -146,7 +146,7 @@ public class KlargjørHendelseTaskTest {
         hendelse.setDødsdato(LocalDate.now());
         taskData.setPayload(JsonMapper.toJson(hendelse));
 
-        ArgumentCaptor<Forretningshendelse> captor = ArgumentCaptor.forClass(Forretningshendelse.class);
+        var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
 
         task.doTask(taskData);
 

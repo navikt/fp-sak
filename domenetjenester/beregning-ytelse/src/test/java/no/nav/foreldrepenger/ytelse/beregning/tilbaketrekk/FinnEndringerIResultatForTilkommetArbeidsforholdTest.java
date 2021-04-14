@@ -46,14 +46,14 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
 
     @BeforeEach
     public void setUp() {
-        BeregningsresultatEntitet revurderingResultat = BeregningsresultatEntitet.builder()
+        var revurderingResultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
         revurderingPeriode = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, SKJÆRINGSTIDSPUNKT.plusMonths(2))
                 .build(revurderingResultat);
-        BeregningsresultatEntitet originalResultat = BeregningsresultatEntitet.builder()
+        var originalResultat = BeregningsresultatEntitet.builder()
                 .medRegelInput("regelinput")
                 .medRegelSporing("Regelsporing")
                 .build();
@@ -65,21 +65,21 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     @Test
     public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_to_arbeidsforhold() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2);
 
-        BeregningsresultatAndel originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BeregningsresultatAndel revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(revurderingAndel, tilkommetAndeler.get(0), tilkommetAndeler.get(1));
-        List<BeregningsresultatAndel> originaleAndeler = List.of(originalAndel);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
+        var revurderingAndeler = List.of(revurderingAndel, tilkommetAndeler.get(0), tilkommetAndeler.get(1));
+        var originaleAndeler = List.of(originalAndel);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet);
 
         // Act
-        List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(endringer).hasSize(2);
@@ -100,25 +100,25 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     @Test
     public void skal_finne_største_tilbaketrekk_ved_tilbaketrekk_mellom_to_avsluttede_og_en_tilkommet_refusjon_mindre_enn_tilbaketrekk() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER2);
 
-        BeregningsresultatAndel originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BeregningsresultatAndel originalAndel2 = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
-        BeregningsresultatAndel revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BeregningsresultatAndel revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndel = lagAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var originalAndel2 = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
+        var revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var tilkommetAndel = lagAndelerMedFullUtbetalingTilArbeidsgiver(DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(tilkommetAndel.get(0), tilkommetAndel.get(1), revurderingAndel, revurderingAndel2);
-        List<BeregningsresultatAndel> originaleAndeler = List.of(originalAndel, originalAndel2);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2);
+        var revurderingAndeler = List.of(tilkommetAndel.get(0), tilkommetAndel.get(1), revurderingAndel, revurderingAndel2);
+        var originaleAndeler = List.of(originalAndel, originalAndel2);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2);
 
         // Act
-        List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(endringer).hasSize(2);
@@ -141,31 +141,31 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     @Test
     public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_en_tilkommet_tilbaketrekk_mindre_enn_refusjon() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(
+        var eksisterendeAktivitet3 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1).plusDays(1)),
                 ARBEIDSGIVER4);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(1)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(1)),
                 ARBEIDSGIVER2);
 
-        BeregningsresultatAndel originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
-        BeregningsresultatAndel originalAndel2 = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
-        BeregningsresultatAndel originalAndel3 = lagAndelMedFullUtbetalingTilBruker(DAGSATS / 2, ARBEIDSGIVER4, originalPeriode);
-        BeregningsresultatAndel revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BeregningsresultatAndel revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        BeregningsresultatAndel revurderingAndel3 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(3 * DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
+        var originalAndel = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER1, originalPeriode);
+        var originalAndel2 = lagAndelMedFullUtbetalingTilBruker(DAGSATS, ARBEIDSGIVER3, originalPeriode);
+        var originalAndel3 = lagAndelMedFullUtbetalingTilBruker(DAGSATS / 2, ARBEIDSGIVER4, originalPeriode);
+        var revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var revurderingAndel3 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
+        var tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(3 * DAGSATS, ARBEIDSGIVER2, revurderingPeriode);
 
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(tilkommetAndeler.get(0), tilkommetAndeler.get(1), revurderingAndel,
+        var revurderingAndeler = List.of(tilkommetAndeler.get(0), tilkommetAndeler.get(1), revurderingAndel,
                 revurderingAndel2, revurderingAndel3);
-        List<BeregningsresultatAndel> originaleAndeler = List.of(originalAndel, originalAndel2, originalAndel3);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2, eksisterendeAktivitet3);
+        var originaleAndeler = List.of(originalAndel, originalAndel2, originalAndel3);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, eksisterendeAktivitet2, eksisterendeAktivitet3);
 
         // Act
-        List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(endringer).hasSize(4);
@@ -198,36 +198,36 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
     @Test
     public void skal_hindre_tilbaketrekk_ved_omfordeling_mellom_tre_avsluttede_og_tre_tilkommet_men_kun_deler_av_settet_er_med_i_fordeling() {
         // Arrange
-        Yrkesaktivitet eksisterendeAktivitet = lagYrkesaktivitet(
+        var eksisterendeAktivitet = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(16)), ARBEIDSGIVER1);
-        Yrkesaktivitet eksisterendeAktivitet2 = lagYrkesaktivitet(
+        var eksisterendeAktivitet2 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusDays(15)), ARBEIDSGIVER3);
-        Yrkesaktivitet eksisterendeAktivitet3 = lagYrkesaktivitet(
+        var eksisterendeAktivitet3 = lagYrkesaktivitet(
                 DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10), SKJÆRINGSTIDSPUNKT.plusMonths(1)), ARBEIDSGIVER4);
-        Yrkesaktivitet tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2);
-        Yrkesaktivitet tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5);
-        Yrkesaktivitet tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)),
+        var tilkommetAktivitet = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusDays(20)), ARBEIDSGIVER2);
+        var tilkommetAktivitet2 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2)), ARBEIDSGIVER5);
+        var tilkommetAktivitet3 = lagYrkesaktivitet(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.plusMonths(2).plusDays(10)),
                 ARBEIDSGIVER6);
 
-        BeregningsresultatAndel originalAndel = lagAndelMedFullUtbetalingTilBruker(50, ARBEIDSGIVER1, originalPeriode);
-        BeregningsresultatAndel originalAndel2 = lagAndelMedFullUtbetalingTilBruker(80, ARBEIDSGIVER3, originalPeriode);
-        BeregningsresultatAndel originalAndel3 = lagAndelMedFullUtbetalingTilBruker(100, ARBEIDSGIVER4, originalPeriode);
-        BeregningsresultatAndel revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
-        BeregningsresultatAndel revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
-        BeregningsresultatAndel revurderingAndel3 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(100, ARBEIDSGIVER2, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndeler2 = lagAndelerMedFullUtbetalingTilArbeidsgiver(60, ARBEIDSGIVER5, revurderingPeriode);
-        List<BeregningsresultatAndel> tilkommetAndeler3 = lagAndelerMedFullUtbetalingTilArbeidsgiver(120, ARBEIDSGIVER6, revurderingPeriode);
+        var originalAndel = lagAndelMedFullUtbetalingTilBruker(50, ARBEIDSGIVER1, originalPeriode);
+        var originalAndel2 = lagAndelMedFullUtbetalingTilBruker(80, ARBEIDSGIVER3, originalPeriode);
+        var originalAndel3 = lagAndelMedFullUtbetalingTilBruker(100, ARBEIDSGIVER4, originalPeriode);
+        var revurderingAndel = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER1, revurderingPeriode);
+        var revurderingAndel2 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER3, revurderingPeriode);
+        var revurderingAndel3 = lagAndelMedFullUtbetalingTilBruker(0, ARBEIDSGIVER4, revurderingPeriode);
+        var tilkommetAndeler = lagAndelerMedFullUtbetalingTilArbeidsgiver(100, ARBEIDSGIVER2, revurderingPeriode);
+        var tilkommetAndeler2 = lagAndelerMedFullUtbetalingTilArbeidsgiver(60, ARBEIDSGIVER5, revurderingPeriode);
+        var tilkommetAndeler3 = lagAndelerMedFullUtbetalingTilArbeidsgiver(120, ARBEIDSGIVER6, revurderingPeriode);
 
-        List<BeregningsresultatAndel> revurderingAndeler = List.of(tilkommetAndeler.get(0), tilkommetAndeler.get(1),
+        var revurderingAndeler = List.of(tilkommetAndeler.get(0), tilkommetAndeler.get(1),
                 tilkommetAndeler2.get(0), tilkommetAndeler2.get(1), tilkommetAndeler3.get(0), tilkommetAndeler3.get(1), revurderingAndel,
                 revurderingAndel2, revurderingAndel3);
-        List<BeregningsresultatAndel> originaleAndeler = List.of(originalAndel, originalAndel2, originalAndel3);
-        List<Yrkesaktivitet> yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, tilkommetAktivitet2, tilkommetAktivitet3,
+        var originaleAndeler = List.of(originalAndel, originalAndel2, originalAndel3);
+        var yrkesaktiviteter = List.of(eksisterendeAktivitet, tilkommetAktivitet, tilkommetAktivitet2, tilkommetAktivitet3,
                 eksisterendeAktivitet2, eksisterendeAktivitet3);
 
         // Act
-        List<EndringIBeregningsresultat> endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
+        var endringer = finnEndringer(originaleAndeler, revurderingAndeler, yrkesaktiviteter, SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(endringer).hasSize(5);
@@ -286,7 +286,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
 
     private List<BeregningsresultatAndel> lagAndelerMedFullUtbetalingTilArbeidsgiver(int dagsats, Arbeidsgiver arbeidsgiver,
             BeregningsresultatPeriode periode) {
-        BeregningsresultatAndel brukersAndel = BeregningsresultatAndel.builder()
+        var brukersAndel = BeregningsresultatAndel.builder()
                 .medDagsats(0)
                 .medBrukerErMottaker(true)
                 .medArbeidsgiver(arbeidsgiver)
@@ -297,7 +297,7 @@ public class FinnEndringerIResultatForTilkommetArbeidsforholdTest {
                 .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
                 .medDagsatsFraBg(0)
                 .build(periode);
-        BeregningsresultatAndel arbeidsgiversAndel = BeregningsresultatAndel.builder()
+        var arbeidsgiversAndel = BeregningsresultatAndel.builder()
                 .medDagsats(dagsats)
                 .medBrukerErMottaker(false)
                 .medArbeidsgiver(arbeidsgiver)

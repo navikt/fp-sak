@@ -36,18 +36,18 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
 
     @Override
     public void lagHistorikk(Long behandlingId, FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, BeregningsgrunnlagEntitet nyttBeregningsgrunnlag, Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-            MottarYtelseDto mottarYtelseDto = dto.getMottarYtelse();
-        Optional<BeregningsgrunnlagEntitet> forrigeBG = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
+        var mottarYtelseDto = dto.getMottarYtelse();
+        var forrigeBG = forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
         if (erFrilanser(nyttBeregningsgrunnlag) && mottarYtelseDto.getFrilansMottarYtelse() != null) {
                 lagHistorikkinnslagForFrilans(forrigeBG, mottarYtelseDto, tekstBuilder);
         }
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
+        var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
         mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse()
             .forEach(a -> {
-                Optional<BeregningsgrunnlagPrStatusOgAndel> matchetAndel = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream()
+                var matchetAndel = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0).getBeregningsgrunnlagPrStatusOgAndelList().stream()
                     .filter(andel -> a.getAndelsnr() == andel.getAndelsnr()).findFirst();
                 matchetAndel.ifPresent(andel -> {
-                    Optional<Boolean> mottarYtelseVerdi = mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse().stream()
+                    var mottarYtelseVerdi = mottarYtelseDto.getArbeidstakerUtenIMMottarYtelse().stream()
                         .filter(mottarYtelseAndel -> mottarYtelseAndel.getAndelsnr() == andel.getAndelsnr())
                         .findFirst().map(ArbeidstakerandelUtenIMMottarYtelseDto::getMottarYtelse);
                     lagHistorikkinnslagForArbeidstakerUtenIM(forrigeBG, andel, mottarYtelseVerdi, tekstBuilder, arbeidsforholdOverstyringer);
@@ -63,9 +63,9 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
                                                           Optional<Boolean> mottarYtelseVerdi, HistorikkInnslagTekstBuilder tekstBuilder,
                                                           List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
         mottarYtelseVerdi.ifPresent(mottarYtelse -> {
-                Optional<Boolean> mottarYtelseForrige = finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(andel, forrigeBG);
+            var mottarYtelseForrige = finnVerdiForMottarYtelseForAndelIForrigeGrunnlag(andel, forrigeBG);
                 if (!mottarYtelseForrige.isPresent() || !mottarYtelseForrige.get().equals(mottarYtelse)){
-                    String andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
+                    var andelsInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(),
                         andel.getArbeidsgiver(),
                         andel.getArbeidsforholdRef(),
                         arbeidsforholdOverstyringer);
@@ -79,7 +79,7 @@ public class MottarYtelseHistorikkTjeneste extends FaktaOmBeregningHistorikkTjen
 
     private void lagHistorikkinnslagForFrilans(Optional<BeregningsgrunnlagEntitet> forrigeBG, MottarYtelseDto mottarYtelseDto,
                                                HistorikkInnslagTekstBuilder tekstBuilder) {
-        Optional<Boolean> mottarYtelseForrige = finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(forrigeBG);
+        var mottarYtelseForrige = finnVerdiForMottarYtelseForFrilansIForrigeGrunnlag(forrigeBG);
         if (!mottarYtelseForrige.isPresent() || !mottarYtelseForrige.get().equals(mottarYtelseDto.getFrilansMottarYtelse())) {
             tekstBuilder
                 .medEndretFelt(HistorikkEndretFeltType.MOTTAR_YTELSE_FRILANS, mottarYtelseForrige.orElse(null), mottarYtelseDto.getFrilansMottarYtelse());

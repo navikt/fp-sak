@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -90,19 +89,19 @@ public class FaktaUttakOverstyringshåndtererTest {
 
     @Test
     public void skal_generere_historikkinnslag_ved_slettet_søknadsperiode() {
-        Behandling behandling = opprettBehandling();
+        var behandling = opprettBehandling();
 
         var dto = opprettOverstyringSøknadsperioderDto();
         faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringPrecondition(dto, behandling);
         faktaUttakOverstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling);
 
         // Verifiserer HistorikkinnslagDto
-        ArgumentCaptor<Historikkinnslag> historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var historikkCapture = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkApplikasjonTjeneste).lagInnslag(historikkCapture.capture());
-        Historikkinnslag historikkinnslag = historikkCapture.getValue();
+        var historikkinnslag = historikkCapture.getValue();
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.UTTAK);
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        HistorikkinnslagDel del = historikkinnslag.getHistorikkinnslagDeler().get(0);
+        var del = historikkinnslag.getHistorikkinnslagDeler().get(0);
         assertThat(del.getSkjermlenke()).as("skjermlenke")
                 .hasValueSatisfying(skjermlenke -> assertThat(skjermlenke).isEqualTo(SkjermlenkeType.FAKTA_OM_UTTAK.getKode()));
         assertThat(del.getResultat())

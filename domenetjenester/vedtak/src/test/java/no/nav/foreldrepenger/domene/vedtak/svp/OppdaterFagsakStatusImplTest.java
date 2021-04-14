@@ -14,8 +14,6 @@ import org.mockito.MockitoAnnotations;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakStatusEventPubliserer;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
@@ -37,11 +35,11 @@ public class OppdaterFagsakStatusImplTest {
     @Test
     public void har_løpende_ytelsesvedtak_() {
         //Arrange
-        LocalDate maksDatoUttak = LocalDate.now().minusDays(0);
+        var maksDatoUttak = LocalDate.now().minusDays(0);
 
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        Behandling behandling = scenario.lagMocked();
-        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var behandling = scenario.lagMocked();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
         Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);
@@ -49,7 +47,7 @@ public class OppdaterFagsakStatusImplTest {
 
         var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,repositoryProvider.getBehandlingsresultatRepository(),maksDatoUttakTjeneste, uttakInputTjeneste);
         //Act
-        boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
+        var ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
 
         //Assert
         assertThat(ingenLøpendeYtelsesvedtak).as("Maksdato uttak er ikke utløpt").isFalse();
@@ -59,11 +57,11 @@ public class OppdaterFagsakStatusImplTest {
     @Test
     public void ingen_løpende_ytelsesvedtak() {
         //Arrange
-        LocalDate maksDatoUttak = LocalDate.now().minusDays(1);
+        var maksDatoUttak = LocalDate.now().minusDays(1);
 
-        ScenarioMorSøkerSvangerskapspenger scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
-        Behandling behandling = scenario.lagMocked();
-        BehandlingRepositoryProvider repositoryProvider = scenario.mockBehandlingRepositoryProvider();
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
+        var behandling = scenario.lagMocked();
+        var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null, null);
         Mockito.when(uttakInputTjeneste.lagInput(behandling)).thenReturn(uttakInput);
@@ -72,7 +70,7 @@ public class OppdaterFagsakStatusImplTest {
         var oppdaterFagsakStatusSVP = new OppdaterFagsakStatusImpl(repositoryProvider.getBehandlingRepository(),repositoryProvider.getFagsakRepository(),fagsakStatusEventPubliserer,repositoryProvider.getBehandlingsresultatRepository(),maksDatoUttakTjeneste, uttakInputTjeneste);
 
         //Act
-        boolean ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
+        var ingenLøpendeYtelsesvedtak = oppdaterFagsakStatusSVP.ingenLøpendeYtelsesvedtak(behandling);
 
         //Assert
         assertThat(ingenLøpendeYtelsesvedtak).as("Maksdato utløpt").isTrue();

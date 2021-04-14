@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.poststed;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -39,9 +38,9 @@ public class PostnummerSynkroniseringTjeneste {
     public void synkroniserPostnummer() {
         LOG.info("Synkroniserer kodeverk: {}", KODEVERK_POSTNUMMER); // NOSONAR
 
-        LocalDate kodeverksDato = poststedKodeverkRepository.getPostnummerKodeverksDato();
+        var kodeverksDato = poststedKodeverkRepository.getPostnummerKodeverksDato();
 
-        KodeverkInfo pnrInfo = kodeverkTjeneste.hentGjeldendeKodeverk(KODEVERK_POSTNUMMER).orElseThrow();
+        var pnrInfo = kodeverkTjeneste.hentGjeldendeKodeverk(KODEVERK_POSTNUMMER).orElseThrow();
         if (pnrInfo.getVersjonDato().isAfter(kodeverksDato)) {
             lagreNyVersjon(pnrInfo);
             LOG.info("Nye Postnummer lagret: versjon {} med dato {}", pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
@@ -51,9 +50,9 @@ public class PostnummerSynkroniseringTjeneste {
     }
 
     private void lagreNyVersjon(KodeverkInfo pnrInfo) {
-        Map<String, Poststed> eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
+        var eksisterendeMap = poststedKodeverkRepository.hentAllePostnummer().stream()
                 .collect(Collectors.toMap(Poststed::getPoststednummer, p -> p));
-        Map<String, KodeverkKode> masterKoderMap = kodeverkTjeneste.hentKodeverk(KODEVERK_POSTNUMMER, pnrInfo.getVersjon());
+        var masterKoderMap = kodeverkTjeneste.hentKodeverk(KODEVERK_POSTNUMMER, pnrInfo.getVersjon());
         masterKoderMap.forEach((key, value) -> synkroniserNyEllerEksisterendeKode(eksisterendeMap, value));
         poststedKodeverkRepository.setPostnummerKodeverksDato(pnrInfo.getVersjon(), pnrInfo.getVersjonDato());
     }
@@ -67,7 +66,7 @@ public class PostnummerSynkroniseringTjeneste {
     }
 
     private void synkroniserNyKode(KodeverkKode kodeverkKode) {
-        Poststed nytt = new Poststed(kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
+        var nytt = new Poststed(kodeverkKode.getKode(), kodeverkKode.getNavn(), kodeverkKode.getGyldigFom(), kodeverkKode.getGyldigTom());
         poststedKodeverkRepository.lagrePostnummer(nytt);
     }
 

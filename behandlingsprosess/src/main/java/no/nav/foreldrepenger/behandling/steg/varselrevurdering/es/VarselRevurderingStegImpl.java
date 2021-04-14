@@ -43,7 +43,7 @@ public class VarselRevurderingStegImpl implements VarselRevurderingSteg {
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
 
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         if (harUtførtVentRevurdering(behandling)) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();

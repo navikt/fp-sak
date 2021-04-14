@@ -59,7 +59,7 @@ public class BeregningsgrunnlagFaktaOmBeregningTilfelle extends BaseEntitet {
         if (!(o instanceof BeregningsgrunnlagFaktaOmBeregningTilfelle)) {
             return false;
         }
-        BeregningsgrunnlagFaktaOmBeregningTilfelle that = (BeregningsgrunnlagFaktaOmBeregningTilfelle) o;
+        var that = (BeregningsgrunnlagFaktaOmBeregningTilfelle) o;
         return Objects.equals(beregningsgrunnlag, that.beregningsgrunnlag) &&
                 Objects.equals(faktaOmBeregningTilfelle, that.faktaOmBeregningTilfelle);
     }

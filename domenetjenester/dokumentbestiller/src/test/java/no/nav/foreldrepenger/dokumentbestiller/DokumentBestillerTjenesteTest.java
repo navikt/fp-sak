@@ -36,7 +36,7 @@ public class DokumentBestillerTjenesteTest {
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
 
-        BrevHistorikkinnslag brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
+        var brevHistorikkinnslag = new BrevHistorikkinnslag(historikkRepositoryMock);
 
         tjeneste = new DokumentBestillerTjeneste(
                 repositoryProvider.getBehandlingRepository(),
@@ -52,9 +52,9 @@ public class DokumentBestillerTjenesteTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);
 
-        DokumentMalType dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
-        HistorikkAktør historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
+        var dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
+        var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
+        var bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
 
         // Act
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, false);
@@ -69,9 +69,9 @@ public class DokumentBestillerTjenesteTest {
         AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         settOpp(scenario);
 
-        DokumentMalType dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
-        HistorikkAktør historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        BestillBrevDto bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
+        var dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
+        var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
+        var bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
 
         // Act
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, true);
@@ -79,9 +79,9 @@ public class DokumentBestillerTjenesteTest {
         // Assert
         verify(dokumentKafkaBestiller).bestillBrevFraKafka(bestillBrevDto, historikkAktør);
 
-        ArgumentCaptor<Historikkinnslag> historikkinnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        var historikkinnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepositoryMock).lagre(historikkinnslagCaptor.capture());
-        Historikkinnslag historikkinnslag = historikkinnslagCaptor.getValue();
+        var historikkinnslag = historikkinnslagCaptor.getValue();
         assertThat(historikkinnslag.getType()).isEqualTo(HistorikkinnslagType.BREV_BESTILT);
     }
 

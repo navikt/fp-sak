@@ -10,16 +10,13 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -34,7 +31,7 @@ public class KlageNfpStegTest {
     @BeforeEach
     public void setUp() {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        BehandlingRepository behandlingRepositoryMock = mock(BehandlingRepository.class);
+        var behandlingRepositoryMock = mock(BehandlingRepository.class);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
 
         steg = new KlageNfpSteg(behandlingRepositoryMock, null, behandlendeEnhetTjeneste);
@@ -42,20 +39,20 @@ public class KlageNfpStegTest {
 
     @Test
     public void skalOppretteAksjonspunktManuellVurderingAvKlageNfpNårStegKjøres() {
-        ScenarioKlageEngangsstønad scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
-        Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+        var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
+        var klageBehandling = scenario.lagMocked();
+        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
                 new BehandlingLås(klageBehandling.getId()));
 
         // Act
-        BehandleStegResultat behandlingStegResultat = steg.utførSteg(kontekst);
+        var behandlingStegResultat = steg.utførSteg(kontekst);
 
         // Assert
         assertThat(behandlingStegResultat).isNotNull();
         assertThat(behandlingStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandlingStegResultat.getAksjonspunktListe()).hasSize(1);
 
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);
+        var aksjonspunktDefinisjon = behandlingStegResultat.getAksjonspunktListe().get(0);
         assertThat(aksjonspunktDefinisjon).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP);
     }
 
@@ -64,10 +61,10 @@ public class KlageNfpStegTest {
         // Arrange
 
         var scenario = ScenarioKlageEngangsstønad.forMedholdNK(ScenarioMorSøkerEngangsstønad.forFødsel());
-        Behandling klageBehandling = scenario.lagMocked();
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
+        var klageBehandling = scenario.lagMocked();
+        var kontekst = new BehandlingskontrollKontekst(klageBehandling.getFagsakId(), klageBehandling.getAktørId(),
                 new BehandlingLås(klageBehandling.getId()));
-        BehandlingRepositoryProvider repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
+        var repositoryProviderMock = scenario.mockBehandlingRepositoryProvider();
         steg = new KlageNfpSteg(repositoryProviderMock.getBehandlingRepository(), scenario.getKlageRepository(), behandlendeEnhetTjeneste);
 
         // Act

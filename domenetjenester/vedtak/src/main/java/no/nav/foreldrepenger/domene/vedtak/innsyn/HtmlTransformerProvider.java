@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.vedtak.innsyn;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class HtmlTransformerProvider {
             new AbstractMap.SimpleEntry<>(no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
             new AbstractMap.SimpleEntry<>(no.nav.foreldrepenger.vedtak.v2.VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
             .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
-    
+
     private static Map<String, Templates> templates = new ConcurrentHashMap<>(); // NOSONAR
 
     private HtmlTransformerProvider() {
@@ -32,12 +31,12 @@ public class HtmlTransformerProvider {
     }
 
     private static Templates lagTemplate(String xslTransformerFilename) {
-        TransformerFactory factory = TransformerFactory.newInstance();
+        var factory = TransformerFactory.newInstance();
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        var classLoader = Thread.currentThread().getContextClassLoader();
         // FIXME (ToreEndestad): Denne kan caches statisk og gjenbrukes (template)
-        try(InputStream inputStream = classLoader.getResourceAsStream(xslTransformerFilename)) {
-            Templates template = factory.newTemplates(new StreamSource(inputStream));
+        try(var inputStream = classLoader.getResourceAsStream(xslTransformerFilename)) {
+            var template = factory.newTemplates(new StreamSource(inputStream));
             return template;
         } catch (TransformerConfigurationException | IOException e) {
             throw new IllegalStateException("Kunne ikke lese template: " + xslTransformerFilename , e);

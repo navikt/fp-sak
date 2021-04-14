@@ -79,10 +79,10 @@ public class BehandlingStatusEvent implements BehandlingEvent {
     public static <V extends BehandlingStatusEvent> V nyEvent(BehandlingskontrollKontekst kontekst, BehandlingStatus nyStatus) {
         if (BehandlingStatus.AVSLUTTET.equals(nyStatus)) {
             return (V) new BehandlingAvsluttetEvent(kontekst, nyStatus);
-        } else if (BehandlingStatus.OPPRETTET.equals(nyStatus)) {
-            return (V) new BehandlingOpprettetEvent(kontekst, nyStatus);
-        } else {
-            return (V) new BehandlingStatusEvent(kontekst, nyStatus);
         }
+        if (BehandlingStatus.OPPRETTET.equals(nyStatus)) {
+            return (V) new BehandlingOpprettetEvent(kontekst, nyStatus);
+        }
+        return (V) new BehandlingStatusEvent(kontekst, nyStatus);
     }
 }

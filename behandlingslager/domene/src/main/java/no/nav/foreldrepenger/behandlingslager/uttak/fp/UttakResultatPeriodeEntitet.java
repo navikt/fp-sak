@@ -167,7 +167,8 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     public PeriodeResultatÅrsak getResultatÅrsak() {
         if (Objects.equals(klPeriodeResultatÅrsak, IkkeOppfyltÅrsak.KODEVERK)) {
             return IkkeOppfyltÅrsak.fraKode(periodeResultatÅrsak);
-        } else if (Objects.equals(klPeriodeResultatÅrsak, InnvilgetÅrsak.KODEVERK)) {
+        }
+        if (Objects.equals(klPeriodeResultatÅrsak, InnvilgetÅrsak.KODEVERK)) {
             return InnvilgetÅrsak.fraKode(periodeResultatÅrsak);
         }
         return PeriodeResultatÅrsak.UKJENT;
@@ -261,7 +262,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UttakResultatPeriodeEntitet that = (UttakResultatPeriodeEntitet) o;
+        var that = (UttakResultatPeriodeEntitet) o;
         return Objects.equals(perioder, that.perioder) &&
             Objects.equals(tidsperiode, that.tidsperiode);
     }

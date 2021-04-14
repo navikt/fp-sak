@@ -31,14 +31,14 @@ public final class Omfordelingstjeneste {
     }
 
     private static boolean kanOmfordeleUtenÅSjekkeArbeidsforholdId(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
-        List<BeregningsresultatAndel> revurderingAndeler = revurderingNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
-        List<BeregningsresultatAndel> originaleAndeler = originalNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
+        var revurderingAndeler = revurderingNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
+        var originaleAndeler = originalNøkkelMedAndeler.getAndelerTilknyttetNøkkel();
 
-        boolean revurderingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(revurderingAndeler);
-        boolean originalbehandlingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(originaleAndeler);
+        var revurderingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(revurderingAndeler);
+        var originalbehandlingHarMaksEttSettAndeler = nøkkelHarMaksEtSettMedAndeler(originaleAndeler);
 
-        boolean ingenOriginaleAndelerHarReferanse = originaleAndeler.stream().noneMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
-        boolean alleRevurderingAndelerHarReferanse = revurderingAndeler.stream().allMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
+        var ingenOriginaleAndelerHarReferanse = originaleAndeler.stream().noneMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
+        var alleRevurderingAndelerHarReferanse = revurderingAndeler.stream().allMatch(a -> a.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold());
 
         // Hvis alle 4 conditions er møtt kan andelene omfordeles selv om referanse ikke matcher. Dette er eneste unntak.
         return revurderingHarMaksEttSettAndeler && originalbehandlingHarMaksEttSettAndeler && ingenOriginaleAndelerHarReferanse && alleRevurderingAndelerHarReferanse;
@@ -46,8 +46,8 @@ public final class Omfordelingstjeneste {
     }
 
     private static boolean nøkkelHarMaksEtSettMedAndeler(List<BeregningsresultatAndel> andeler) {
-        long andelerDerBrukerErMottaker = andeler.stream().filter(BeregningsresultatAndel::erBrukerMottaker).count();
-        long andelerDerAGErMottaker = andeler.stream().filter(andel -> !andel.erBrukerMottaker()).count();
+        var andelerDerBrukerErMottaker = andeler.stream().filter(BeregningsresultatAndel::erBrukerMottaker).count();
+        var andelerDerAGErMottaker = andeler.stream().filter(andel -> !andel.erBrukerMottaker()).count();
         return andelerDerBrukerErMottaker <= 1 && andelerDerAGErMottaker <= 1;
     }
 

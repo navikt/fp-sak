@@ -10,12 +10,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderTidsbegrensetArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderteArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.rest.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -44,12 +42,12 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
                              Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                              InntektArbeidYtelseGrunnlag iayGrunnlag) {
 
-        VurderTidsbegrensetArbeidsforholdDto tidsbegrensetDto = dto.getVurderTidsbegrensetArbeidsforhold();
-        BeregningsgrunnlagPeriode periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
-        List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold = tidsbegrensetDto.getFastsatteArbeidsforhold();
-        List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
-        for (VurderteArbeidsforholdDto arbeidsforhold : fastsatteArbeidsforhold) {
-            BeregningsgrunnlagPrStatusOgAndel korrektAndel = periode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var tidsbegrensetDto = dto.getVurderTidsbegrensetArbeidsforhold();
+        var periode = nyttBeregningsgrunnlag.getBeregningsgrunnlagPerioder().get(0);
+        var fastsatteArbeidsforhold = tidsbegrensetDto.getFastsatteArbeidsforhold();
+        var arbeidsforholdOverstyringer = iayGrunnlag.getArbeidsforholdOverstyringer();
+        for (var arbeidsforhold : fastsatteArbeidsforhold) {
+            var korrektAndel = periode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
                 .filter(a -> a.getAndelsnr().equals(arbeidsforhold.getAndelsnr()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Finner ikke andel med andelsnr " + arbeidsforhold.getAndelsnr()));
@@ -71,9 +69,9 @@ public class VurderTidsbegrensetHistorikkTjeneste extends FaktaOmBeregningHistor
 
     private void oppdaterVedEndretVerdi(HistorikkEndretFeltType historikkEndretFeltType, VurderteArbeidsforholdDto arbeidsforhold, BeregningsgrunnlagPrStatusOgAndel andel,
                                         HistorikkInnslagTekstBuilder tekstBuilder, List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        String arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(), andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
-        HistorikkEndretFeltVerdiType opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isOpprinneligVerdi());
-        HistorikkEndretFeltVerdiType nyVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isTidsbegrensetArbeidsforhold());
+        var arbeidsforholdInfo = arbeidsgiverHistorikkinnslagTjeneste.lagHistorikkinnslagTekstForBeregningsgrunnlag(andel.getAktivitetStatus(), andel.getArbeidsgiver(), andel.getArbeidsforholdRef(), arbeidsforholdOverstyringer);
+        var opprinneligVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isOpprinneligVerdi());
+        var nyVerdi = konvertBooleanTilFaktaEndretVerdiType(arbeidsforhold.isTidsbegrensetArbeidsforhold());
         if (opprinneligVerdi != nyVerdi) {
             tekstBuilder.medEndretFelt(historikkEndretFeltType, arbeidsforholdInfo, opprinneligVerdi, nyVerdi);
         }

@@ -40,7 +40,7 @@ public class Trekkdager {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Trekkdager that = (Trekkdager) o;
+        var that = (Trekkdager) o;
         return Objects.equals(decimalValue(), that.decimalValue());
     }
 

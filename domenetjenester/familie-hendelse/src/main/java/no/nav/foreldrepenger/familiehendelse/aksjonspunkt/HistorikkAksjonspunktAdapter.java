@@ -33,7 +33,7 @@ class HistorikkAksjonspunktAdapter {
 
     public boolean håndterAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon, Vilkår vilkår, Boolean erVilkarOk, String begrunnelse,
                                     HistorikkEndretFeltType historikkEndretFeltType) {
-        boolean erEndret = oppdaterVedEndretVerdi(historikkEndretFeltType, vilkår.getGjeldendeVilkårUtfall(), erVilkarOk
+        var erEndret = oppdaterVedEndretVerdi(historikkEndretFeltType, vilkår.getGjeldendeVilkårUtfall(), erVilkarOk
             ? VilkårUtfallType.OPPFYLT
             : VilkårUtfallType.IKKE_OPPFYLT);
 
@@ -42,8 +42,8 @@ class HistorikkAksjonspunktAdapter {
                 erVilkarOk ? HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT : HistorikkEndretFeltVerdiType.VILKAR_IKKE_OPPFYLT);
         }
 
-        boolean erBegrunnelseForAksjonspunktEndret = param.erBegrunnelseEndret();
-        VilkårType vilkårType = behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
+        var erBegrunnelseForAksjonspunktEndret = param.erBegrunnelseEndret();
+        var vilkårType = behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
         historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
             .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon.getKode()));

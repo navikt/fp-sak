@@ -127,10 +127,11 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsresultatPeriode)) {
+        }
+        if (!(obj instanceof BeregningsresultatPeriode)) {
             return false;
         }
-        BeregningsresultatPeriode other = (BeregningsresultatPeriode) obj;
+        var other = (BeregningsresultatPeriode) obj;
         return Objects.equals(this.getBeregningsresultatPeriodeFom(), other.getBeregningsresultatPeriodeFom())
             && Objects.equals(this.getBeregningsresultatPeriodeTom(), other.getBeregningsresultatPeriodeTom())
             ;

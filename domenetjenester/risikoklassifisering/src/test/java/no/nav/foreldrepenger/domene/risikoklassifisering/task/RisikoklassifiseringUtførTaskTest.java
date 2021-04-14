@@ -37,10 +37,10 @@ public class RisikoklassifiseringUtførTaskTest {
 
     @Test
     public void skal_produsere_melding_til_kafka(){
-        ProsessTaskData prosessTaskData = new ProsessTaskData(TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(TASKTYPE);
         prosessTaskData.setProperty(RISIKOKLASSIFISERING_JSON, "json");
 
-        String konsumentId = UUID.randomUUID().toString();
+        var konsumentId = UUID.randomUUID().toString();
         prosessTaskData.setProperty(KONSUMENT_ID, konsumentId);
 
         prosessTaskData.setProperty(ProsessTaskData.BEHANDLING_ID, String.valueOf(BEHANDLING_ID));

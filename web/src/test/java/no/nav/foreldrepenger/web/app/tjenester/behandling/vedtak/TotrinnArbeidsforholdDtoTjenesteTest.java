@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -27,8 +26,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
@@ -36,7 +33,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnArbeidsforholdDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnsArbeidsforholdDto;
 
 @CdiDbAwareTest
 public class TotrinnArbeidsforholdDtoTjenesteTest {
@@ -61,13 +57,13 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        ArbeidsgiverTjeneste arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
+        var arbeidsgiverTjeneste = mock(ArbeidsgiverTjeneste.class);
         lenient().when(arbeidsgiverTjeneste.hent(Mockito.any())).thenReturn(new ArbeidsgiverOpplysninger(null, PRIVATPERSON_NAVN));
         lenient().when(arbeidsgiverTjeneste.hentVirksomhet(Mockito.any())).thenReturn(virksomhet);
         totrinnArbeidsforholdDtoTjeneste = new TotrinnArbeidsforholdDtoTjeneste(iayTjeneste, arbeidsgiverTjeneste);
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = lagre(scenario);
-        Totrinnsvurdering.Builder vurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
+        var vurderingBuilder = new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD);
         vurdering = vurderingBuilder.medGodkjent(true).medBegrunnelse("").build();
     }
 
@@ -78,10 +74,10 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     @Test
     public void skal_opprette_arbeidsforholdDto_for_virksomhet_som_arbeidsgiver_med_bekreftet_permisjon_med_status_BRUK_PERMISJON() {
         // Arrange
-        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(), BekreftetPermisjonStatus.BRUK_PERMISJON);
+        var bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(), BekreftetPermisjonStatus.BRUK_PERMISJON);
         opprettArbeidsforholdInformasjon(Arbeidsgiver.virksomhet(ORGNR), Optional.of(bekreftetPermisjon));
         // Act
-        List<TotrinnsArbeidsforholdDto> dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
+        var dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
         // Assert
         assertThat(dtoer).hasSize(1);
         assertThat(dtoer.get(0).getNavn()).isEqualTo("Virksomheten");
@@ -92,11 +88,11 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     @Test
     public void skal_opprette_arbeidsforholdDto_for_privatperson_som_arbeidsgiver_med_bekreftet_permisjon_med_status_IKKE_BRUK_PERMISJON() {
         // Arrange
-        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(),
+        var bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(),
                 BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
         opprettArbeidsforholdInformasjon(Arbeidsgiver.person(AktørId.dummy()), Optional.of(bekreftetPermisjon));
         // Act
-        List<TotrinnsArbeidsforholdDto> dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
+        var dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
         // Assert
         assertThat(dtoer).hasSize(1);
         assertThat(dtoer.get(0).getNavn()).isEqualTo("Mikke Mus");
@@ -106,10 +102,10 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     @Test
     public void skal_opprette_arbeidsforholdDto_for_privatperson_som_arbeidsgiver_med_bekreftet_permisjon_med_status_UGYLDIGE_PERIODER() {
         // Arrange
-        BekreftetPermisjon bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(), BekreftetPermisjonStatus.UGYLDIGE_PERIODER);
+        var bekreftetPermisjon = new BekreftetPermisjon(LocalDate.now(), LocalDate.now(), BekreftetPermisjonStatus.UGYLDIGE_PERIODER);
         opprettArbeidsforholdInformasjon(Arbeidsgiver.person(AktørId.dummy()), Optional.of(bekreftetPermisjon));
         // Act
-        List<TotrinnsArbeidsforholdDto> dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
+        var dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
         // Assert
         assertThat(dtoer).hasSize(1);
         assertThat(dtoer.get(0).getNavn()).isEqualTo("Mikke Mus");
@@ -121,7 +117,7 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
         // Arrange
         opprettArbeidsforholdInformasjon(Arbeidsgiver.person(AktørId.dummy()), Optional.empty());
         // Act
-        List<TotrinnsArbeidsforholdDto> dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
+        var dtoer = totrinnArbeidsforholdDtoTjeneste.hentArbeidsforhold(behandling, vurdering, Optional.empty());
         // Assert
         assertThat(dtoer).hasSize(1);
         assertThat(dtoer.get(0).getNavn()).isEqualTo("Mikke Mus");
@@ -129,8 +125,8 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
     }
 
     private void opprettArbeidsforholdInformasjon(Arbeidsgiver arbeidsgiver, Optional<BekreftetPermisjon> bekreftetPermisjon) {
-        ArbeidsforholdInformasjonBuilder informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandling.getId());
-        ArbeidsforholdOverstyringBuilder overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
+        var informasjonBuilder = arbeidsforholdTjeneste.opprettBuilderFor(behandling.getId());
+        var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
         overstyringBuilder.medHandling(ArbeidsforholdHandlingType.BRUK);
         bekreftetPermisjon.ifPresent(overstyringBuilder::medBekreftetPermisjon);
         overstyringBuilder.medArbeidsgiver(arbeidsgiver);

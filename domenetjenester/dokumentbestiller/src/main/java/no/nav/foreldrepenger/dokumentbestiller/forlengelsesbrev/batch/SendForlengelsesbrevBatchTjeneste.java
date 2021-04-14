@@ -30,14 +30,14 @@ public class SendForlengelsesbrevBatchTjeneste implements BatchTjeneste {
 
     @Override
     public String launch(BatchArguments arguments) {
-        final String gruppe = tjeneste.sendForlengelsesbrev();
+        final var gruppe = tjeneste.sendForlengelsesbrev();
         return BATCHNAME + "-" + gruppe;
     }
 
     @Override
     public BatchStatus status(String batchInstanceNumber) {
-        final String gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
-        final List<TaskStatus> taskStatuses = tjeneste.hentStatusForForlengelsesbrevBatchGruppe(gruppe);
+        final var gruppe = batchInstanceNumber.substring(batchInstanceNumber.indexOf('-') + 1);
+        final var taskStatuses = tjeneste.hentStatusForForlengelsesbrevBatchGruppe(gruppe);
 
         if (isCompleted(taskStatuses)) {
             if (isContainingFailures(taskStatuses)) {

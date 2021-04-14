@@ -37,20 +37,20 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
             HistorikkMeldingsHåndterer meldingsHåndterer) {
         this.topic = streamProperties.getTopic();
 
-        Properties props = setupProperties(streamProperties);
+        var props = setupProperties(streamProperties);
 
-        final StreamsBuilder builder = new StreamsBuilder();
+        final var builder = new StreamsBuilder();
 
         Consumed<String, String> stringStringConsumed = Consumed.with(Topology.AutoOffsetReset.EARLIEST);
         builder.stream(this.topic, stringStringConsumed)
                 .foreach(meldingsHåndterer::lagreMelding);
 
-        final Topology topology = builder.build();
+        final var topology = builder.build();
         stream = new KafkaStreams(topology, props);
     }
 
     private Properties setupProperties(HistorikkStreamKafkaProperties streamProperties) {
-        Properties props = new Properties();
+        var props = new Properties();
 
         props.setProperty(StreamsConfig.APPLICATION_ID_CONFIG, streamProperties.getApplicationId());
         props.setProperty(StreamsConfig.CLIENT_ID_CONFIG, streamProperties.getClientId());
@@ -61,7 +61,7 @@ public class HistorikkConsumer implements AppServiceHandler, KafkaIntegration {
             LOG.info("Using user name {} to authenticate against Kafka brokers ", streamProperties.getUsername());
             props.setProperty(SaslConfigs.SASL_MECHANISM, "PLAIN");
             props.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
+            var jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
             props.setProperty(SaslConfigs.SASL_JAAS_CONFIG,
                     String.format(jaasTemplate, streamProperties.getUsername(), streamProperties.getPassword()));
         }

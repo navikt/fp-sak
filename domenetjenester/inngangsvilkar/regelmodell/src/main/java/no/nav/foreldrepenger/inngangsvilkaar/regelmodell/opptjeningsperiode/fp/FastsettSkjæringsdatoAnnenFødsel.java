@@ -1,9 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -22,15 +20,15 @@ public class FastsettSkjæringsdatoAnnenFødsel extends LeafSpecification<Opptje
 
     @Override
     public Evaluation evaluate(OpptjeningsperiodeGrunnlag regelmodell) {
-        LocalDate skjæringsDatoOpptjening = regelmodell.getFørsteUttaksDato();
+        var skjæringsDatoOpptjening = regelmodell.getFørsteUttaksDato();
 
         if (skjæringsDatoOpptjening.isBefore(regelmodell.getHendelsesDato())) {
             skjæringsDatoOpptjening = regelmodell.getHendelsesDato();
         }
 
-        Optional<LocalDate> morsMaksdato = regelmodell.getMorsMaksdato();
+        var morsMaksdato = regelmodell.getMorsMaksdato();
         if (morsMaksdato.isPresent()) {
-            LocalDate førsteMuligeUttak = morsMaksdato.get().plusDays(1);
+            var førsteMuligeUttak = morsMaksdato.get().plusDays(1);
             if (skjæringsDatoOpptjening.isAfter(førsteMuligeUttak)) {
                 skjæringsDatoOpptjening = førsteMuligeUttak;
             }

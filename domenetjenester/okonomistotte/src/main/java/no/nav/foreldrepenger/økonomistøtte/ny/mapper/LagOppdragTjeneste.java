@@ -6,8 +6,6 @@ import javax.enterprise.context.Dependent;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Oppdrag;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.OverordnetOppdragKjedeOversikt;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.EndringsdatoTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.tjeneste.OppdragFactory;
 
@@ -17,31 +15,31 @@ public class LagOppdragTjeneste {
     public LagOppdragTjeneste() { }
 
     public Oppdragskontroll lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
-        GruppertYtelse målbilde = input.getTilkjentYtelse();
-        OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
+        var målbilde = input.getTilkjentYtelse();
+        var tidligereOppdrag = input.getTidligereOppdrag();
 
-        OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
+        var oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
 
         if (brukFellesEndringstidspunkt) {
             oppdragFactory.setFellesEndringstidspunkt(EndringsdatoTjeneste.normal().finnTidligsteEndringsdato(målbilde, tidligereOppdrag));
         }
-        List<Oppdrag> oppdragene = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
+        var oppdragene = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
         if (oppdragene.isEmpty()) {
             return null;
         }
-        Oppdragskontroll oppdragskontroll = LagOppdragskontrollTjeneste.lagOppdragskontroll(input);
-        OppdragMapper oppdragMapper = new OppdragMapper(input.getBrukerFnr(), tidligereOppdrag, input);
-        for (Oppdrag oppdrag : oppdragene) {
+        var oppdragskontroll = LagOppdragskontrollTjeneste.lagOppdragskontroll(input);
+        var oppdragMapper = new OppdragMapper(input.getBrukerFnr(), tidligereOppdrag, input);
+        for (var oppdrag : oppdragene) {
             oppdragMapper.mapTilOppdrag110(oppdrag, oppdragskontroll);
         }
         return oppdragskontroll;
     }
 
     public static List<Oppdrag> lagOppdrag(OppdragInput input) {
-        GruppertYtelse målbilde = input.getTilkjentYtelse();
-        OverordnetOppdragKjedeOversikt tidligereOppdrag = input.getTidligereOppdrag();
+        var målbilde = input.getTilkjentYtelse();
+        var tidligereOppdrag = input.getTidligereOppdrag();
 
-        OppdragFactory oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
+        var oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
         return oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
     }
 

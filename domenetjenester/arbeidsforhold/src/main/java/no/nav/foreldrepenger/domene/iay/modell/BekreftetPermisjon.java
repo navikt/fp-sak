@@ -48,7 +48,7 @@ public class BekreftetPermisjon {
         if ((o == null) || !(o instanceof BekreftetPermisjon)) {
             return false;
         }
-        BekreftetPermisjon that = (BekreftetPermisjon) o;
+        var that = (BekreftetPermisjon) o;
         return Objects.equals(periode, that.periode)
                 && Objects.equals(status, that.status);
     }

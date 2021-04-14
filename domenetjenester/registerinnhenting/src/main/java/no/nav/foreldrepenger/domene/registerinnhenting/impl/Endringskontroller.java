@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -74,11 +72,11 @@ public class Endringskontroller {
     }
 
     public void spolTilStartpunkt(Behandling behandling, EndringsresultatDiff endringsresultat, StartpunktType senesteStartpunkt) {
-        Long behandlingId = behandling.getId();
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
-        BehandlingReferanse ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
+        var behandlingId = behandling.getId();
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
 
-        StartpunktType startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
+        var startpunkt = FagsakYtelseTypeRef.Lookup.find(startpunktTjenester, behandling.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + behandling.getFagsakYtelseType().getKode()))
             .utledStartpunktForDiffBehandlingsgrunnlag(ref, endringsresultat);
 
@@ -94,16 +92,16 @@ public class Endringskontroller {
     }
 
     private void doSpolTilStartpunkt(BehandlingReferanse ref, Behandling behandling, StartpunktType startpunktType) {
-        BehandlingStegType fraSteg = behandling.getAktivtBehandlingSteg();
-        BehandlingStegType startPunktSteg = startpunktType.getBehandlingSteg();
-        boolean skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
+        var fraSteg = behandling.getAktivtBehandlingSteg();
+        var startPunktSteg = startpunktType.getBehandlingSteg();
+        var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
             behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(),
                 SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg(), startPunktSteg) < 0;
-        BehandlingStegType tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
+        var tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         // Inkluderer tilbakeføring samme steg UTGANG->INNGANG
-        boolean tilbakeføres = skalTilbakeføres(behandling, fraSteg, tilSteg);
+        var tilbakeføres = skalTilbakeføres(behandling, fraSteg, tilSteg);
 
         oppdaterStartpunktVedBehov(behandling, startpunktType);
 
@@ -126,7 +124,7 @@ public class Endringskontroller {
 
     private boolean skalTilbakeføres(Behandling behandling, BehandlingStegType fraSteg, BehandlingStegType tilSteg) {
         // Dersom vi står i UTGANG, og skal til samme steg som vi står i, vil det også være en tilbakeføring siden vi går UTGANG -> INNGANG
-        int sammenlign = behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(), fraSteg, tilSteg);
+        var sammenlign = behandlingskontrollTjeneste.sammenlignRekkefølge(behandling.getFagsakYtelseType(), behandling.getType(), fraSteg, tilSteg);
         return (sammenlign == 0 && BehandlingStegStatus.UTGANG.equals(behandling.getBehandlingStegStatus())) || sammenlign > 0;
     }
 
@@ -139,7 +137,7 @@ public class Endringskontroller {
             return;
         }
         //Skal bare settes på nytt dersom startpunkt er tidligere i prosessen.
-        StartpunktType gammelt = behandling.getStartpunkt();
+        var gammelt = behandling.getStartpunkt();
         if (nyttStartpunkt.getRangering() < gammelt.getRangering()) {
             behandling.setStartpunkt(nyttStartpunkt);
         }
@@ -157,7 +155,7 @@ public class Endringskontroller {
     }
 
     private void avsluttOppgaverIGsak(Behandling behandling, BehandlingStatus før) {
-        boolean behandlingIFatteVedtak = BehandlingStatus.FATTER_VEDTAK.equals(før);
+        var behandlingIFatteVedtak = BehandlingStatus.FATTER_VEDTAK.equals(før);
         if (behandlingIFatteVedtak) {
             oppgaveTjeneste.avslutt(behandling.getId(), OppgaveÅrsak.GODKJENNE_VEDTAK);
         }
@@ -168,7 +166,7 @@ public class Endringskontroller {
         var resultater = FagsakYtelseTypeRef.Lookup.find(KontrollerFaktaInngangsVilkårUtleder.class, kontrollerFaktaTjenester, ref.getFagsakYtelseType())
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + ref.getFagsakYtelseType().getKode()))
             .utledAksjonspunkterFomSteg(ref, fomSteg);
-        List<Aksjonspunkt> avbrytes = behandling.getÅpneAksjonspunkter().stream()
+        var avbrytes = behandling.getÅpneAksjonspunkter().stream()
             .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> resultater.isEmpty() || resultater.stream().noneMatch(ar -> ap.getAksjonspunktDefinisjon().equals(ar.getAksjonspunktDefinisjon())))
             .filter(ap -> behandlingskontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.getFagsakYtelseType(), ref.getBehandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))

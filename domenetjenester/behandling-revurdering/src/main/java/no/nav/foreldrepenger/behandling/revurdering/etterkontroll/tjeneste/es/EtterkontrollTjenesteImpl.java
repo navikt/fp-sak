@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.es;
 
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
@@ -61,7 +60,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
         }
 
-        Optional<BehandlingÅrsakType> utledetÅrsak = utledRevurderingsÅrsak(behandling, grunnlag, barnFraRegister.size());
+        var utledetÅrsak = utledRevurderingsÅrsak(behandling, grunnlag, barnFraRegister.size());
         if (utledetÅrsak.isEmpty() && skalReberegneES(behandling, barnFraRegister)) {
             return Optional.of(BehandlingÅrsakType.RE_SATS_REGULERING);
         }
@@ -76,7 +75,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
             int antallBarnRegister) {
-        int antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
+        var antallBarnSakBekreftet = finnAntallBekreftet(grunnlag);
 
         if ((antallBarnRegister == 0) && (finnAntallOverstyrtManglendeFødsel(grunnlag) > 0)) {
             return Optional.empty();
@@ -89,11 +88,11 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             return Optional.of(BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN);
         }
 
-        Optional<LocalDate> termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
+        var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
         if (termindato.isPresent()) {
-            LocalDate tidligsteTpsRegistreringsDato = termindato.get().minus(tpsRegistreringsTidsrom);
+            var tidligsteTpsRegistreringsDato = termindato.get().minus(tpsRegistreringsTidsrom);
             var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
-            LocalDate vedtaksDato = vedtak.getVedtaksdato();
+            var vedtaksDato = vedtak.getVedtaksdato();
             if (vedtaksDato.isBefore(tidligsteTpsRegistreringsDato)) {
                 return Optional.of(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
             }
@@ -117,7 +116,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     }
 
     private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

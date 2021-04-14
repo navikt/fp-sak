@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.dto.BeregningsgrunnlagDto;
@@ -30,7 +29,7 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
     }
 
     public Optional<BeregningsgrunnlagDto> map() {
-        List<BeregningsgrunnlagPeriodeDto> bgPerioder = grunnlag.getBeregningsgrunnlag()
+        var bgPerioder = grunnlag.getBeregningsgrunnlag()
             .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList())
             .stream()
@@ -45,10 +44,10 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
 
     private boolean utledBesteberegning() {
         // Automatisk besteberegnet
-        Optional<BesteberegninggrunnlagEntitet> besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag);
+        var besteBeregningGrunnlag = grunnlag.getBeregningsgrunnlag().flatMap(BeregningsgrunnlagEntitet::getBesteberegninggrunnlag);
 
         // Manuelt besteberegnet
-        boolean finnesBesteberegnetAndel = grunnlag.getBeregningsgrunnlag()
+        var finnesBesteberegnetAndel = grunnlag.getBeregningsgrunnlag()
             .map(BeregningsgrunnlagEntitet::getBeregningsgrunnlagPerioder)
             .orElse(Collections.emptyList())
             .stream()
@@ -66,10 +65,10 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
     }
 
     private BeregningsgrunnlagPeriodeDto mapPeriode(BeregningsgrunnlagPeriode bgPeriode) {
-        List<BeregningsgrunnlagAndelDto> andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var andeler = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(this::mapAndel)
             .collect(Collectors.toList());
-        BigDecimal bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+        var bruttoInkludertBortfaltNaturalytelsePrAar = bgPeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
             .map(BeregningsgrunnlagPrStatusOgAndel::getBruttoInkludertNaturalYtelser)
             .filter(Objects::nonNull)
             .reduce(BigDecimal::add)
@@ -90,12 +89,12 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
         if (bruttoInkludertBortfaltNaturalytelsePrAar == null) {
             return null;
         }
-        BigDecimal seksG = grunnbeløp.multipliser(6).getVerdi();
+        var seksG = grunnbeløp.multipliser(6).getVerdi();
         return bruttoInkludertBortfaltNaturalytelsePrAar.compareTo(seksG) > 0 ? seksG : bruttoInkludertBortfaltNaturalytelsePrAar;
     }
 
     private BeregningsgrunnlagAndelDto mapAndel(BeregningsgrunnlagPrStatusOgAndel andel) {
-        Optional<BgAndelArbeidsforholdDto> arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
+        var arbeidsforholdDto = andel.getBgAndelArbeidsforhold().map(this::mapArbeidsforhold);
         return new BeregningsgrunnlagAndelDto(andel.getDagsats(),
             andel.getAktivitetStatus(),
             andel.getBruttoPrÅr(), andel.getAvkortetPrÅr(),

@@ -211,7 +211,7 @@ public class OppdatererDtoMapper {
     }
 
     private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsettMånedsinntektUtenInntektsmeldingAndelDto mapAndel(FastsettMånedsinntektUtenInntektsmeldingAndelDto fastsettMånedsinntektUtenInntektsmeldingAndelDto) {
-        no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsatteVerdierDto fastsatteVerdier = no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsatteVerdierDto.Builder.ny()
+        var fastsatteVerdier = no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsatteVerdierDto.Builder.ny()
             .medFastsattBeløpPrMnd(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getFastsattBeløp())
             .medInntektskategori(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori() == null ? null : Inntektskategori.fraKode(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori().getKode()))
             .build();

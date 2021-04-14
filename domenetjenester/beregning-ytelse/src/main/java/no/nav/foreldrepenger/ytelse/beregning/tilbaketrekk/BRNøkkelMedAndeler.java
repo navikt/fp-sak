@@ -51,7 +51,7 @@ public class BRNøkkelMedAndeler {
     }
 
     public Optional<BeregningsresultatAndel> getBrukersAndelMedReferanse(InternArbeidsforholdRef ref) {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
+        var korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
             .collect(Collectors.toList());
         if(korresponderendeAndeler.size() > 1) {
@@ -62,7 +62,7 @@ public class BRNøkkelMedAndeler {
     }
 
     public Optional<BeregningsresultatAndel> getArbeidsgiversAndelMedReferanse(InternArbeidsforholdRef ref) {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+        var korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> Objects.equals(andel.getArbeidsforholdRef(), ref))
             .collect(Collectors.toList());
         if(korresponderendeAndeler.size() > 1) {
@@ -73,7 +73,7 @@ public class BRNøkkelMedAndeler {
     }
 
     public Optional<BeregningsresultatAndel> getBrukersAndelUtenreferanse() {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
+        var korresponderendeAndeler = getBrukersAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
             .collect(Collectors.toList());
 
@@ -85,7 +85,7 @@ public class BRNøkkelMedAndeler {
     }
 
     public Optional<BeregningsresultatAndel> getArbeidsgiversAndelUtenReferanse() {
-        List<BeregningsresultatAndel> korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
+        var korresponderendeAndeler = getArbeidsgiversAndelerTilknyttetNøkkel().stream()
             .filter(andel -> !andel.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
             .collect(Collectors.toList());
 

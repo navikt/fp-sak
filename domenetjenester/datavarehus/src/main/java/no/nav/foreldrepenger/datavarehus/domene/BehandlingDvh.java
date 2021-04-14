@@ -202,7 +202,7 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
         if (!super.equals(obj)) {
             return false;
         }
-        BehandlingDvh other = (BehandlingDvh) obj;
+        var other = (BehandlingDvh) obj;
         return Objects.equals(behandlingId, other.behandlingId)
                 && Objects.equals(fagsakId, other.fagsakId)
                 && Objects.equals(vedtakId, other.vedtakId)
@@ -384,7 +384,7 @@ public class BehandlingDvh extends DvhBaseEntitet {  // NOSONAR
         }
 
         public BehandlingDvh build() {
-            BehandlingDvh behandlingDvh = new BehandlingDvh();
+            var behandlingDvh = new BehandlingDvh();
             behandlingDvh.behandlingId = behandlingId;
             behandlingDvh.fagsakId = fagsakId;
             behandlingDvh.vedtakId = vedtakId;

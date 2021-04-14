@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -44,13 +42,13 @@ public class OpprettToTrinnsgrunnlag {
     }
 
     public void settNyttTotrinnsgrunnlag(Behandling behandling) {
-        Optional<BeregningsgrunnlagEntitet> beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
+        var beregningsgrunnlagOpt = beregningsgrunnlagTjeneste.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId())
                 .flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag);
-        Optional<Long> ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
-        Optional<UttakResultatEntitet> uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
+        var ytelseFordelingIdOpt = ytelsesFordelingRepository.hentIdPåAktivYtelsesFordeling(behandling.getId());
+        var uttakResultatOpt = fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId());
+        var iayGrunnlagOpt = iayTjeneste.finnGrunnlag(behandling.getId());
 
-        Totrinnresultatgrunnlag totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
+        var totrinnsresultatgrunnlag = new Totrinnresultatgrunnlag(behandling,
             ytelseFordelingIdOpt.orElse(null),
             uttakResultatOpt.map(UttakResultatEntitet::getId).orElse(null),
             beregningsgrunnlagOpt.map(BeregningsgrunnlagEntitet::getId).orElse(null),

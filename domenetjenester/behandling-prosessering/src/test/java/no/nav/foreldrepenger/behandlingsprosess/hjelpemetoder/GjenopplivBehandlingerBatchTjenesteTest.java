@@ -43,7 +43,7 @@ public class GjenopplivBehandlingerBatchTjenesteTest {
         when(mockTjeneste.hentStatusForGjenopptaBehandlingGruppe(GRUPPE)).thenReturn(asList(FERDIG_1, FERDIG_2));
 
         // Act
-        BatchStatus batchStatus = batchTjeneste.status(EXECUTION_ID);
+        var batchStatus = batchTjeneste.status(EXECUTION_ID);
 
         // Assert
         assertThat(batchStatus).isEqualTo(BatchStatus.OK);
@@ -55,7 +55,7 @@ public class GjenopplivBehandlingerBatchTjenesteTest {
         when(mockTjeneste.hentStatusForGjenopptaBehandlingGruppe(GRUPPE)).thenReturn(Collections.emptyList());
 
         // Act
-        BatchStatus batchStatus = batchTjeneste.status(EXECUTION_ID);
+        var batchStatus = batchTjeneste.status(EXECUTION_ID);
 
         // Assert
         assertThat(batchStatus).isEqualTo(BatchStatus.OK);
@@ -67,7 +67,7 @@ public class GjenopplivBehandlingerBatchTjenesteTest {
         when(mockTjeneste.hentStatusForGjenopptaBehandlingGruppe(GRUPPE)).thenReturn(asList(FERDIG_1, FEILET_1));
 
         // Act
-        BatchStatus batchStatus = batchTjeneste.status(EXECUTION_ID);
+        var batchStatus = batchTjeneste.status(EXECUTION_ID);
 
         // Assert
         assertThat(batchStatus).isEqualTo(BatchStatus.WARNING);
@@ -79,7 +79,7 @@ public class GjenopplivBehandlingerBatchTjenesteTest {
         when(mockTjeneste.hentStatusForGjenopptaBehandlingGruppe(GRUPPE)).thenReturn(asList(FERDIG_1, FEILET_1, KLAR_1));
 
         // Act
-        BatchStatus batchStatus = batchTjeneste.status(EXECUTION_ID);
+        var batchStatus = batchTjeneste.status(EXECUTION_ID);
 
         // Assert
         assertThat(batchStatus).isEqualTo(BatchStatus.RUNNING);

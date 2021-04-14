@@ -10,8 +10,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -59,20 +57,20 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
 
     @Override
     public OppdateringResultat oppdater(BekreftTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        Long behandlingId = param.getBehandlingId();
-        final FamilieHendelseGrunnlagEntitet grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+        var behandling = param.getBehandling();
+        var behandlingId = param.getBehandlingId();
+        final var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
 
-        LocalDate orginalTermindato = getTermindato(grunnlag);
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
+        var orginalTermindato = getTermindato(grunnlag);
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.TERMINDATO, orginalTermindato, dto.getTermindato());
 
-        LocalDate orginalUtstedtDato = getUtstedtdato(grunnlag);
+        var orginalUtstedtDato = getUtstedtdato(grunnlag);
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.UTSTEDTDATO, orginalUtstedtDato, dto.getUtstedtdato()) || erEndret;
 
-        Integer opprinneligAntallBarn = getAntallBarnVedSøknadTerminbekreftelse(grunnlag);
+        var opprinneligAntallBarn = getAntallBarnVedSøknadTerminbekreftelse(grunnlag);
         erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.ANTALL_BARN, opprinneligAntallBarn, dto.getAntallBarn()) || erEndret;
 
-        boolean kreverTotrinn = false;
+        var kreverTotrinn = false;
         if (erEndret || grunnlag.getOverstyrtVersjon().isPresent()) {
             kreverTotrinn = true;
             if (erEndret) {
@@ -80,7 +78,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             }
         }
 
-        final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         if (FamilieHendelseType.TERMIN.equals(grunnlag.getGjeldendeVersjon().getType())) {
             oppdatertOverstyrtHendelse
                 .tilbakestillBarn()
@@ -101,12 +99,12 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
             familieHendelseTjeneste.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
         }
 
-        final FamilieHendelseGrunnlagEntitet oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
+        final var oppdatertGrunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
-        final LocalDate forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        boolean skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
+        final var forrigeSkjæringstidspunkt = skjæringstidspunktTjeneste.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        var skalReinnhente = skalReinnhenteRegisteropplysninger(behandlingId, forrigeSkjæringstidspunkt);
 
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
+        var builder = OppdateringResultat.utenTransisjon().medTotrinnHvis(kreverTotrinn);
         if (skalReinnhente) {
             builder.medOppdaterGrunnlag();
         }
@@ -130,7 +128,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
     }
 
     private HistorikkinnslagType finnHistorikkinnslagType(BekreftTerminbekreftelseAksjonspunktDto dto) {
-        boolean funnetFeil = bekreftTerminbekreftelseValidator.validerOpplysninger(dto);
+        var funnetFeil = bekreftTerminbekreftelseValidator.validerOpplysninger(dto);
         return funnetFeil ? HistorikkinnslagType.TERMINBEKREFTELSE_UGYLDIG : HistorikkinnslagType.FAKTA_ENDRET;
     }
 

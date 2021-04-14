@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
@@ -57,7 +56,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     @Test
     public void opprettOppdragTestES() {
         // Arrange
-        GruppertYtelse.Builder gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
+        var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
@@ -66,7 +65,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         // Assert
         assertThat(oppdragskontroll).isPresent();
         verifiserOppdragskontroll(oppdragskontroll.get());
-        List<Oppdrag110> oppdrag110Liste = verifiserOppdrag110(oppdragskontroll.get());
+        var oppdrag110Liste = verifiserOppdrag110(oppdragskontroll.get());
         verifiserAvstemming(oppdrag110Liste);
         verifiserOppdragslinje150(oppdrag110Liste);
     }
@@ -75,7 +74,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public void hentOppdragskontrollTestES() {
         // Arrange
         // Arrange
-        GruppertYtelse.Builder gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO.minusDays(1), SATS_ES);
+        var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO.minusDays(1), SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
@@ -85,12 +84,12 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         assertThat(oppdragskontroll).isPresent();
         assertThat(oppdragskontroll.get().getOppdrag110Liste()).hasSize(1);
 
-        Oppdrag110 oppdrag110 = oppdragskontroll.get().getOppdrag110Liste().get(0);
+        var oppdrag110 = oppdragskontroll.get().getOppdrag110Liste().get(0);
         assertThat(oppdrag110).isNotNull();
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
         assertThat(oppdrag110.getAvstemming()).isNotNull();
 
-        Oppdragslinje150 oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
+        var oppdrlinje150 = oppdrag110.getOppdragslinje150Liste().get(0);
         assertThat(oppdrlinje150).isNotNull();
         assertThat(oppdrlinje150.getOppdrag110()).isNotNull();
     }
@@ -99,25 +98,25 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public void innvilgelseSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
-        GruppertYtelse.Builder gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
+        var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
         var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
-        Oppdrag110 originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
+        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
 
         // Arrange 2: Revurdering
-        GruppertYtelse.Builder gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES * 2);
+        var gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES * 2);
         var inputBuilder2 = getInputStandardBuilder(gruppertYtelseBuilder2.build()).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag.get())));
 
         var oppdragRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
-        Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
+        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
+        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.NY, null,
             originalOppdragslinje150.getDelytelseId() + 1, originalOppdragslinje150.getDelytelseId(),
@@ -128,14 +127,14 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public void avslagSomReferererTilTidligereOppdragPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
-        GruppertYtelse.Builder gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
+        var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_FØDSEL, VEDTAKSDATO, SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
         var originaltOppdrag = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder.build());
 
         assertThat(originaltOppdrag).isPresent();
-        Oppdrag110 originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
+        var originaltOppdrag110 = originaltOppdrag.get().getOppdrag110Liste().get(0);
 
         // Arrange 2: Revurdering
         var inputBuilder2 = getInputStandardBuilder(GruppertYtelse.TOM).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag.get())));
@@ -144,8 +143,8 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
         // Assert 2: Revurdering
         assertThat(oppdragRevurdering).isPresent();
-        Oppdragslinje150 originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
+        var originalOppdragslinje150 = originaltOppdrag110.getOppdragslinje150Liste().get(0);
+        var oppdragslinje150 = verifiserOppdrag110(oppdragRevurdering.get(), KodeEndring.ENDRING,
             originaltOppdrag110.getFagsystemId());
         verifiserOppdragslinje150(oppdragslinje150, KodeEndringLinje.ENDRING, KodeStatusLinje.OPPHØR,
             originalOppdragslinje150.getDelytelseId(), null, null, SATS_ES);
@@ -155,7 +154,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     public void avslagSomReferererTilForrigeOppdragSomTilhørerFørsteRevurderingPåSammeSak() {
         // Act 1: Førstegangsbehandling
         // Arrange
-        GruppertYtelse.Builder gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);
+        var gruppertYtelseBuilder = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);
         var inputBuilder = getInputStandardBuilder(gruppertYtelseBuilder.build());
 
         // Act
@@ -163,7 +162,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         assertThat(originaltOppdrag).isPresent();
         var førsteOppdrag = originaltOppdrag.get();
         // Arrange 2: Første revurdering
-        GruppertYtelse.Builder gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);
+        var gruppertYtelseBuilder2 = getGruppertYtelseBuilder(KodeKlassifik.ES_ADOPSJON, VEDTAKSDATO, SATS_ES);
         var inputBuilder2 = getInputStandardBuilder(gruppertYtelseBuilder2.build()).medTidligereOppdrag(mapTidligereOppdrag(List.of(førsteOppdrag)));
 
         var oppdragFørsteRevurdering = oppdragskontrollTjeneste.opprettOppdrag(inputBuilder2.build());
@@ -179,8 +178,8 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
         assertThat(oppdragAndreRevurdering).isPresent();
         var oppdrag110 = førsteOppdrag.getOppdrag110Liste().get(0);
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-        Oppdragslinje150 førstegangsOpp150 = oppdrag110.getOppdragslinje150Liste().get(0);
-        Oppdragslinje150 andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering.get(), KodeEndring.ENDRING,
+        var førstegangsOpp150 = oppdrag110.getOppdragslinje150Liste().get(0);
+        var andreRevurderingopp150 = verifiserOppdrag110(oppdragAndreRevurdering.get(), KodeEndring.ENDRING,
             oppdrag110.getFagsystemId());
         assertThat(andreRevurderingopp150.getDatoVedtakFom()).isEqualTo(førstegangsOpp150.getDatoVedtakFom());
         assertThat(andreRevurderingopp150.getDatoVedtakTom()).isEqualTo(førstegangsOpp150.getDatoVedtakTom());
@@ -194,7 +193,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
                                                  KodeEndring kodeEndring,
                                                  Long fagsystemId) {
         assertThat(oppdragskontroll.getOppdrag110Liste()).hasSize(1);
-        Oppdrag110 oppdrag110 = oppdragskontroll.getOppdrag110Liste().get(0);
+        var oppdrag110 = oppdragskontroll.getOppdrag110Liste().get(0);
         assertThat(oppdrag110.getKodeEndring()).isEqualTo(kodeEndring);
         assertThat(oppdrag110.getFagsystemId()).isEqualTo(fagsystemId);
         assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
@@ -221,14 +220,14 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     private List<Oppdragslinje150> verifiserOppdragslinje150(List<Oppdrag110> oppdrag110Liste) {
-        List<Oppdragslinje150> oppdragslinje150List = oppdrag110Liste.stream()
+        var oppdragslinje150List = oppdrag110Liste.stream()
             .flatMap(oppdrag110 -> oppdrag110.getOppdragslinje150Liste().stream())
             .collect(Collectors.toList());
 
-        long løpenummer = 100L;
-        for (Oppdrag110 oppdrag110 : oppdrag110Liste) {
+        var løpenummer = 100L;
+        for (var oppdrag110 : oppdrag110Liste) {
             assertThat(oppdrag110.getOppdragslinje150Liste()).hasSize(1);
-            Oppdragslinje150 oppdragslinje150 = oppdragslinje150List.get(0);
+            var oppdragslinje150 = oppdragslinje150List.get(0);
             assertThat(oppdragslinje150.getKodeEndringLinje()).isEqualTo(KodeEndringLinje.NY);
             assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
             assertThat(oppdragslinje150.getDelytelseId()).isEqualTo(
@@ -246,7 +245,7 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
 
     private void verifiserAvstemming(List<Oppdrag110> oppdrag110Liste) {
         assertThat(oppdrag110Liste).allSatisfy(oppdrag110 -> {
-            Avstemming avstemming = oppdrag110.getAvstemming();
+            var avstemming = oppdrag110.getAvstemming();
             assertThat(avstemming).isNotNull();
             assertThat(avstemming.getNøkkel()).isNotNull();
             assertEquals(avstemming.getNøkkel(), avstemming.getTidspunkt());
@@ -254,10 +253,10 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     private List<Oppdrag110> verifiserOppdrag110(Oppdragskontroll oppdragskontroll) {
-        List<Oppdrag110> oppdrag110List = oppdragskontroll.getOppdrag110Liste();
+        var oppdrag110List = oppdragskontroll.getOppdrag110Liste();
 
-        long initialLøpenummer = 100L;
-        for (Oppdrag110 oppdrag110 : oppdrag110List) {
+        var initialLøpenummer = 100L;
+        for (var oppdrag110 : oppdrag110List) {
             assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
             assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.ENGANGSSTØNAD);
             assertThat(oppdrag110.getFagsystemId()).isEqualTo(
@@ -278,8 +277,8 @@ public class NyOppdragskontrollTjenesteImplKontantytelseTest {
     }
 
     private Long concatenateValues(Long... values) {
-        List<Long> valueList = List.of(values);
-        String result = valueList.stream().map(Object::toString).collect(Collectors.joining());
+        var valueList = List.of(values);
+        var result = valueList.stream().map(Object::toString).collect(Collectors.joining());
 
         return Long.valueOf(result);
     }

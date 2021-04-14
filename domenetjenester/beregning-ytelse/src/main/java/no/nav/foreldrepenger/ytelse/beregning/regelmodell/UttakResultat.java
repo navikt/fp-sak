@@ -18,7 +18,7 @@ public class UttakResultat {
     }
 
     public LocalDateTimeline<UttakResultatPeriode> getUttakPeriodeTimeline() {
-        List<LocalDateSegment<UttakResultatPeriode>> uttaksPerioder = uttakResultatPerioder.stream()
+        var uttaksPerioder = uttakResultatPerioder.stream()
             .map(periode -> new LocalDateSegment<>(periode.getFom(), periode.getTom(), periode))
             .collect(Collectors.toList());
         return new LocalDateTimeline<>(uttaksPerioder);

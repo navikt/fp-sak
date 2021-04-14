@@ -37,9 +37,11 @@ public class BeregningsgrunnlagStatus {
                 .orElse(null);
             var arbeidsforholdId = getArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse).orElse(null);
             return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, arbeidsforholdId);
-        } else if (erFrilanser()) {
+        }
+        if (erFrilanser()) {
             return AktivitetIdentifikator.forFrilans();
-        } else if (erSelvstendigNæringsdrivende()) {
+        }
+        if (erSelvstendigNæringsdrivende()) {
             return AktivitetIdentifikator.forSelvstendigNæringsdrivende();
         }
         return AktivitetIdentifikator.annenAktivitet();
@@ -78,10 +80,11 @@ public class BeregningsgrunnlagStatus {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !obj.getClass().equals(this.getClass())) {
+        }
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
             return false;
         }
-        BeregningsgrunnlagStatus other = (BeregningsgrunnlagStatus) obj;
+        var other = (BeregningsgrunnlagStatus) obj;
         return Objects.equals(this.arbeidsforholdRef, other.arbeidsforholdRef)
             && Objects.equals(this.arbeidsgiver, other.arbeidsgiver)
             && Objects.equals(this.aktivitetStatus, other.aktivitetStatus);

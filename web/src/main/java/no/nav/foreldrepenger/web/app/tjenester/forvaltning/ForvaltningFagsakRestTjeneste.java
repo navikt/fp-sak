@@ -5,7 +5,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -39,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -61,7 +59,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
-import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFagsak")
 @ApplicationScoped
@@ -117,18 +114,17 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response avsluttFagsakUtenBehandling(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-            OppdaterFagsakStatus oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
-                    .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
-            oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
-            return Response.ok().build();
         }
+        LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
+                .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
+        oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
+        return Response.ok().build();
     }
 
     @POST
@@ -142,16 +138,16 @@ public class ForvaltningFagsakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
 
-        List<Tuple<Long, AktørId>> fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriodeNaticve(periode.getPeriodeFom(),
+        var fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriodeNaticve(periode.getPeriodeFom(),
                 periode.getPeriodeTom());
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
 
         fagsaker.forEach(f -> opprettJusteringTask(f.getElement1(), f.getElement2(), callId));
         return Response.ok(fagsaker.size()).build();
     }
 
     private void opprettJusteringTask(Long fagsakId, AktørId aktørId, String callId) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskRepository.lagre(prosessTaskData);
@@ -168,11 +164,11 @@ public class ForvaltningFagsakRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
 
-        final String callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
+        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
 
-        for (SaksnummerDto abacSaksnummer : saksnumre) {
-            Saksnummer saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
-            Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        for (var abacSaksnummer : saksnumre) {
+            var saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
+            var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
             if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
                 LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());;
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -194,36 +190,36 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response flyttFagsakTilInfotrygd(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
+        }
+        if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             if (!fagsak.getSkalTilInfotrygd()) {
                 LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
                 fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
             }
             return Response.ok().build();
-        } else {
-            List<Behandling> behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
-            if (behandlinger.isEmpty()) {
-                Response avslutning = avsluttFagsakUtenBehandling(saksnummerDto);
-                if (Response.Status.OK.equals(avslutning.getStatusInfo()) && !fagsak.getSkalTilInfotrygd()) {
-                    LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-                    fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
-                } else {
-                    return avslutning;
-                }
-            } else {
-                LOG.info("Henlegger behandlinger og flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
-                behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.MANGLER_BEREGNINGSREGLER));
-            }
-            return Response.ok().build();
         }
+        var behandlinger = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId());
+        if (behandlinger.isEmpty()) {
+            var avslutning = avsluttFagsakUtenBehandling(saksnummerDto);
+            if (Response.Status.OK.equals(avslutning.getStatusInfo()) && !fagsak.getSkalTilInfotrygd()) {
+                LOG.info("Flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+                fagsakRepository.fagsakSkalBehandlesAvInfotrygd(fagsak.getId());
+            } else {
+                return avslutning;
+            }
+        } else {
+            LOG.info("Henlegger behandlinger og flagger Infotrygd for fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+            behandlinger.forEach(behandling -> opprettHenleggelseTask(behandling, BehandlingResultatType.MANGLER_BEREGNINGSREGLER));
+        }
+        return Response.ok().build();
     }
 
     private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        ProsessTaskData prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
@@ -242,8 +238,8 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response stengFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -265,8 +261,8 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response gjenaapneFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !fagsak.getSkalTilInfotrygd()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -288,22 +284,21 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response kobleSammenFagsaker(@BeanParam @Valid KobleFagsakerDto dto) {
-        Saksnummer saksnummer1 = new Saksnummer(dto.getSaksnummer1());
-        Saksnummer saksnummer2 = new Saksnummer(dto.getSaksnummer2());
-        Fagsak fagsak1 = fagsakRepository.hentSakGittSaksnummer(saksnummer1).orElse(null);
-        Fagsak fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
-        FagsakRelasjon fagsakRelasjon1 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
-        FagsakRelasjon fagsakRelasjon2 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak2).orElse(null);
+        var saksnummer1 = new Saksnummer(dto.getSaksnummer1());
+        var saksnummer2 = new Saksnummer(dto.getSaksnummer2());
+        var fagsak1 = fagsakRepository.hentSakGittSaksnummer(saksnummer1).orElse(null);
+        var fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
+        var fagsakRelasjon1 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
+        var fagsakRelasjon2 = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak2).orElse(null);
         if (fagsak1 == null || fagsak2 == null || erFagsakRelasjonKoblet(fagsakRelasjon1) || erFagsakRelasjonKoblet(fagsakRelasjon2) // NOSONAR
                 || FagsakStatus.AVSLUTTET.equals(fagsak1.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak2.getStatus())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
-            Behandling behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
-                    .orElse(null);
-            fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
-            return Response.ok().build();
         }
+        LOG.info("Kobler sammen fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+        var behandlingEn = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak1.getId())
+                .orElse(null);
+        fagsakRelasjonTjeneste.kobleFagsaker(fagsak1, fagsak2, behandlingEn);
+        return Response.ok().build();
     }
 
     @POST
@@ -317,20 +312,19 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response kobleFraFagsaker(@BeanParam @Valid KobleFagsakerDto dto) {
-        Saksnummer saksnummer1 = new Saksnummer(dto.getSaksnummer1());
-        Saksnummer saksnummer2 = new Saksnummer(dto.getSaksnummer2());
-        Fagsak fagsak1 = fagsakRepository.hentSakGittSaksnummer(saksnummer1).orElse(null);
-        Fagsak fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
-        FagsakRelasjon fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
+        var saksnummer1 = new Saksnummer(dto.getSaksnummer1());
+        var saksnummer2 = new Saksnummer(dto.getSaksnummer2());
+        var fagsak1 = fagsakRepository.hentSakGittSaksnummer(saksnummer1).orElse(null);
+        var fagsak2 = fagsakRepository.hentSakGittSaksnummer(saksnummer2).orElse(null);
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsak1).orElse(null);
         if (fagsak1 == null || fagsak2 == null || fagsakRelasjon == null || !erFagsakRelasjonKoblet(fagsakRelasjon) ||
                 !fagsakRelasjon.getFagsakNrEn().getId().equals(fagsak1.getId()) ||
                 !fagsakRelasjon.getFagsakNrTo().get().getId().equals(fagsak2.getId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
-        } else {
-            LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
-            fagsakRelasjonTjeneste.fraKobleFagsaker(fagsak1, fagsak2);
-            return Response.ok().build();
         }
+        LOG.info("Kobler fra hverandre fagsaker med saksnummer: {} {}", saksnummer1.getVerdi(), saksnummer2.getVerdi()); // NOSONAR
+        fagsakRelasjonTjeneste.fraKobleFagsaker(fagsak1, fagsak2);
+        return Response.ok().build();
     }
 
     private boolean erFagsakRelasjonKoblet(FagsakRelasjon fagsakRelasjon) {
@@ -363,8 +357,8 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response flyttJournalpostTilFagsak(@BeanParam @Valid SaksnummerJournalpostDto dto) {
-        JournalpostId journalpostId = new JournalpostId(dto.getJournalpostId());
-        Saksnummer saksnummer = new Saksnummer(dto.getSaksnummer());
+        var journalpostId = new JournalpostId(dto.getJournalpostId());
+        var saksnummer = new Saksnummer(dto.getSaksnummer());
         opprettSakTjeneste.flyttJournalpostTilSak(journalpostId, saksnummer);
         return Response.ok().build();
     }
@@ -381,8 +375,8 @@ public class ForvaltningFagsakRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response oppdaterAktoerId(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        Saksnummer saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        Fagsak fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || fagsak.getSkalTilInfotrygd()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

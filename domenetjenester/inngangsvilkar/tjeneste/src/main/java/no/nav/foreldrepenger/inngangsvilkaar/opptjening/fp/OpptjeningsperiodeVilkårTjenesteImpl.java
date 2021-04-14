@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
-import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -62,25 +60,25 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     @Override
     public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
 
-        OpptjeningsperiodeGrunnlag grunnlag = opprettGrunnlag(behandlingReferanse, førsteUttaksdato);
+        var grunnlag = opprettGrunnlag(behandlingReferanse, førsteUttaksdato);
         grunnlag.setPeriodeLengde(antallMånederOpptjeningsperiode);
         grunnlag.setTidligsteUttakFørFødselPeriode(tidligsteUttakFørFødselPeriode);
 
-        final OpptjeningsPeriode data = new OpptjeningsPeriode();
-        Evaluation evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
+        final var data = new OpptjeningsPeriode();
+        var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
 
-        VilkårData resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
+        var resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
         resultat.setEkstraVilkårresultat(data);
         return resultat;
     }
 
     private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref, LocalDate førsteUttaksdato) {
 
-        OpptjeningsperiodeGrunnlag grunnlag = new OpptjeningsperiodeGrunnlag();
+        var grunnlag = new OpptjeningsperiodeGrunnlag();
 
-        Long behandlingId = ref.getBehandlingId();
-        final FamilieHendelseGrunnlagEntitet hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
-        final FamilieHendelseEntitet hendelse = hendelseAggregat.getGjeldendeVersjon();
+        var behandlingId = ref.getBehandlingId();
+        final var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
+        final var hendelse = hendelseAggregat.getGjeldendeVersjon();
 
         grunnlag.setFagsakÅrsak(finnFagsakÅrsak(hendelse));
         grunnlag.setSøkerRolle(finnFagsakSøkerRolle(ref));
@@ -106,7 +104,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     }
 
     private SoekerRolle finnFagsakSøkerRolle(BehandlingReferanse ref) {
-        RelasjonsRolleType relasjonsRolleType = ref.getRelasjonsRolleType();
+        var relasjonsRolleType = ref.getRelasjonsRolleType();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             return SoekerRolle.MORA;
         }
@@ -117,12 +115,14 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet familieHendelse) {
-        final FamilieHendelseType type = familieHendelse.getType();
+        final var type = familieHendelse.getType();
         if (familieHendelse.getGjelderFødsel()) {
             return FagsakÅrsak.FØDSEL;
-        } else if (FamilieHendelseType.ADOPSJON.equals(type)) {
+        }
+        if (FamilieHendelseType.ADOPSJON.equals(type)) {
             return FagsakÅrsak.ADOPSJON;
-        } else if (FamilieHendelseType.OMSORG.equals(type)) {
+        }
+        if (FamilieHendelseType.OMSORG.equals(type)) {
             return FagsakÅrsak.OMSORG;
         }
         return null;

@@ -39,7 +39,7 @@ class VedtakStreamKafkaProperties {
     }
 
     private static String applicationId() {
-        String prefix = ENV.getProperty("nais.app.name", "fpsak");
+        var prefix = ENV.getProperty("nais.app.name", "fpsak");
         return ENV.isProd() ? prefix + "-default" : prefix;
     }
 

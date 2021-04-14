@@ -38,7 +38,7 @@ public class Søknadsfristvilkår implements RuleService<SoeknadsfristvilkarGrun
     @SuppressWarnings("unchecked")
     @Override
     public Specification<SoeknadsfristvilkarGrunnlag> getSpecification() {
-        Ruleset<SoeknadsfristvilkarGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<SoeknadsfristvilkarGrunnlag>();
 
         Specification<SoeknadsfristvilkarGrunnlag> vilkår = rs.hvisRegel("FP_VK_3", "Hvis søknad er elektronisk ...")
                 .hvis(new SjekkElektroniskSøknad(), new SjekkFristForSøknad(Period.ofMonths(6), 0))

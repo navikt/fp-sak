@@ -80,13 +80,13 @@ public class OppdragslinjePatchDto {
 
     @AssertTrue
     boolean isPeriodeSannsynlig() {
-        long antallDager = ChronoUnit.DAYS.between(fom, tom) + 1;
+        var antallDager = ChronoUnit.DAYS.between(fom, tom) + 1;
         switch (satsType) {
             case "ENG":
                 return antallDager <= 31; //for feriepenger brukes 1 måned, for ES brukes 1 dag
             case "DAG":
                 //vanligvis begrenset til 17-18 uker, men kan være lenger ved gradert uttak
-                int maxSannsynligLengdeDager = 38 * 7;
+                var maxSannsynligLengdeDager = 38 * 7;
                 return antallDager < maxSannsynligLengdeDager;
             default:
                 return false;

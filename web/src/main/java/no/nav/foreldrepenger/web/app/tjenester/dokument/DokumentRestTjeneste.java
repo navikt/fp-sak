@@ -209,9 +209,8 @@ public class DokumentRestTjeneste {
                             return virksomhetTjeneste.finnOrganisasjon(t.getOrgnr())
                                     .orElseThrow(() -> new IllegalArgumentException("Kunne ikke hente virksomhet for orgNummer: " + t.getOrgnr()))
                                     .getNavn();
-                        } else {
-                            return "Privatperson";
                         }
+                        return "Privatperson";
                     })// TODO slå opp navnet på privatpersonen?
                     .findFirst();
             navn.ifPresent(dto::setGjelderFor);

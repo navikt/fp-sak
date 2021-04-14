@@ -40,7 +40,7 @@ public class BasicBehandlingBuilder {
         em.persist(bruker);
 
         // Opprett fagsak
-        String randomSaksnummer = System.nanoTime() + "";
+        var randomSaksnummer = System.nanoTime() + "";
         this.fagsak = Fagsak.opprettNy(ytelse, bruker, null, new Saksnummer(randomSaksnummer));
         em.persist(fagsak);
         em.flush();

@@ -49,7 +49,7 @@ public class OppgittAnnenAktivitet extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof OppgittAnnenAktivitet)) {
             return false;
         }
-        OppgittAnnenAktivitet that = (OppgittAnnenAktivitet) o;
+        var that = (OppgittAnnenAktivitet) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(arbeidType, that.arbeidType);
     }

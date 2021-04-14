@@ -61,7 +61,7 @@ public class VurderInnsynOppdatererTest {
 
     @BeforeEach
     public void konfigurerMocker() {
-        OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
+        var enhet = new OrganisasjonsEnhet("enhetId", "enhetNavn");
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         var oppretter = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
                 mock(ProsessTaskRepository.class));
@@ -82,10 +82,10 @@ public class VurderInnsynOppdatererTest {
         behandlingRepository.lagre(innsynbehandling, lås);
 
         // Act
-        boolean sattPåVent = true;
+        var sattPåVent = true;
 
-        LocalDateTime nå = LocalDateTime.now();
-        LocalDate frist = nå.toLocalDate().plusDays(3);
+        var nå = LocalDateTime.now();
+        var frist = nå.toLocalDate().plusDays(3);
         var dto = new VurderInnsynDto("grunn", InnsynResultatType.INNVILGET, frist, sattPåVent, Collections.emptyList(), frist);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 

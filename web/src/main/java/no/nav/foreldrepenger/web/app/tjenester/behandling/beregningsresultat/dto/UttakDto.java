@@ -54,8 +54,8 @@ public class UttakDto {
         }
 
         public UttakDto create() {
-            String stonadskontoTypeString = stønadskontoType == null ? null : stønadskontoType.getKode();
-            String periodeResultatTypeString = periodeResultatType == null ? null : periodeResultatType.getKode();
+            var stonadskontoTypeString = stønadskontoType == null ? null : stønadskontoType.getKode();
+            var periodeResultatTypeString = periodeResultatType == null ? null : periodeResultatType.getKode();
             return new UttakDto(stonadskontoTypeString, periodeResultatTypeString, gradering);
         }
     }

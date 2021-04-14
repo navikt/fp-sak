@@ -94,8 +94,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public InntektArbeidYtelseGrunnlag hentGrunnlag(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlagHvisEksisterer(behandling);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var grunnlag = hentGrunnlagHvisEksisterer(behandling);
         if (grunnlag == null) {
             throw new IllegalStateException("Fant ikke IAY grunnlag som forventet.");
         }
@@ -104,14 +104,14 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlag hentGrunnlagHvisEksisterer(Behandling behandling) {
         var request = initRequest(behandling);
-        AktørId aktørId = behandling.getAktørId();
+        var aktørId = behandling.getAktørId();
         return hentOgMapGrunnlag(request, aktørId);
     }
 
     @Override
     public InntektArbeidYtelseGrunnlag hentGrunnlag(UUID behandlingUuid) {
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
-        InntektArbeidYtelseGrunnlag grunnlag = hentGrunnlagHvisEksisterer(behandling);
+        var grunnlag = hentGrunnlagHvisEksisterer(behandling);
         if (grunnlag == null) {
             throw new IllegalStateException("Fant ikke IAY grunnlag som forventet.");
         }
@@ -134,7 +134,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (dto == null) {
             var request = initRequest(behandling, inntektArbeidYtelseGrunnlagUuid);
-            AktørId aktørId = behandling.getAktørId();
+            var aktørId = behandling.getAktørId();
             final var grunnlaget = hentOgMapGrunnlag(request, aktørId);
             if ((grunnlaget == null) || (grunnlaget.getEksternReferanse() == null)
                     || !grunnlaget.getEksternReferanse().equals(inntektArbeidYtelseGrunnlagUuid)) {
@@ -183,10 +183,10 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public List<Inntektsmelding> hentUnikeInntektsmeldingerForSak(Saksnummer saksnummer) {
-        Optional<Fagsak> fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
         if (fagsakOpt.isPresent()) {
-            Fagsak fagsak = fagsakOpt.get();
+            var fagsak = fagsakOpt.get();
             // Hent grunnlag fra abakus
             return hentOgMapAlleInntektsmeldinger(fagsak);
 
@@ -196,10 +196,10 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public List<RefusjonskravDato> hentRefusjonskravDatoerForSak(Saksnummer saksnummer) {
-        Optional<Fagsak> fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
         if (fagsakOpt.isPresent()) {
-            Fagsak fagsak = fagsakOpt.get();
+            var fagsak = fagsakOpt.get();
             // Hent grunnlag fra abakus
             return hentOgMapAlleRefusjonskravDatoer(fagsak);
 
@@ -209,19 +209,19 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
-        Optional<Long> originalBehandlingId = referanse.getOriginalBehandlingId();
+        var originalBehandlingId = referanse.getOriginalBehandlingId();
         if (originalBehandlingId.isEmpty()) {
             return Collections.emptyList();
         }
-        Behandling originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId.get());
-        UUID revurderingUUID = referanse.getBehandlingUuid();
-        InntektsmeldingDiffRequest req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.getAktørId().getId()));
+        var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId.get());
+        var revurderingUUID = referanse.getBehandlingUuid();
+        var req = new InntektsmeldingDiffRequest(new AktørIdPersonident(referanse.getAktørId().getId()));
         req.setEksternRefEn(revurderingUUID);
         req.setEksternRefTo(originalBehandling.getUuid());
         req.setSaksnummer(referanse.getSaksnummer().getVerdi());
         req.setYtelseType(KodeverkMapper.fraFagsakYtelseType(referanse.getFagsakYtelseType()));
         try {
-            InntektsmeldingerDto inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
+            var inntektsmeldingerDto = abakusTjeneste.hentInntektsmeldingDiff(req);
             return mapResult(inntektsmeldingerDto).getAlleInntektsmeldinger();
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Hente inntektsmeldingdiff: " + e.getMessage(), e);
@@ -230,14 +230,14 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer) {
-        SakInntektsmeldinger sakInntektsmeldinger = new SakInntektsmeldinger(saksnummer);
-        Optional<Fagsak> fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
+        var sakInntektsmeldinger = new SakInntektsmeldinger(saksnummer);
+        var fagsakOpt = fagsakRepository.hentSakGittSaksnummer(saksnummer);
 
         if (fagsakOpt.isPresent()) {
-            Fagsak fagsak = fagsakOpt.get();
+            var fagsak = fagsakOpt.get();
 
             // Hent grunnlag fra abakus
-            List<InntektArbeidYtelseGrunnlag> fagsakIayGrunnlag = hentOgMapAlleGrunnlag(fagsak);
+            var fagsakIayGrunnlag = hentOgMapAlleGrunnlag(fagsak);
 
             fagsakIayGrunnlag.forEach(iayg -> {
                 iayg.getInntektsmeldinger()
@@ -260,7 +260,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public void lagreIayAggregat(Long behandlingId, InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder) {
-        InntektArbeidYtelseGrunnlagBuilder iayGrunnlagBuilder = getGrunnlagBuilder(behandlingId, inntektArbeidYtelseAggregatBuilder);
+        var iayGrunnlagBuilder = getGrunnlagBuilder(behandlingId, inntektArbeidYtelseAggregatBuilder);
 
         konverterOgLagre(behandlingId, iayGrunnlagBuilder.build());
     }
@@ -289,7 +289,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void lagreArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
         Objects.requireNonNull(informasjonBuilder, "informasjonBuilder"); // NOSONAR
 
-        InntektArbeidYtelseGrunnlagBuilder iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
+        var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
 
         iayGrunnlagBuilder.ryddOppErstattedeArbeidsforhold(aktørId, informasjonBuilder.getReverserteErstattArbeidsforhold());
         iayGrunnlagBuilder.ryddOppErstattedeArbeidsforhold(aktørId, informasjonBuilder.getErstattArbeidsforhold());
@@ -311,7 +311,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             return;
         }
         final var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
-        final InntektsmeldingerMottattRequest inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(),
+        final var inntektsmeldingerMottattRequest = new InntektsmeldingerMottattRequest(saksnummer.getVerdi(),
                 behandling.getUuid(), aktør,
                 KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), inntektsmeldingerDto);
         try {
@@ -323,9 +323,9 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     @Override
     public void fjernSaksbehandletVersjon(Long behandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlagOpt = finnGrunnlag(behandlingId);
+        var iayGrunnlagOpt = finnGrunnlag(behandlingId);
         if (iayGrunnlagOpt.isPresent()) {
-            InntektArbeidYtelseGrunnlag iayGrunnlag = iayGrunnlagOpt.get();
+            var iayGrunnlag = iayGrunnlagOpt.get();
 
             if (iayGrunnlag.getSaksbehandletVersjon().isPresent()) {
                 iayGrunnlag.fjernSaksbehandlet();
@@ -355,8 +355,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     public void dropInntektsmeldinger(Long behandlingId, Set<JournalpostId> inntektsmeldingerSet) {
         Objects.requireNonNull(inntektsmeldingerSet, "inntektsmeldingerSet");
 
-        InntektArbeidYtelseGrunnlagBuilder iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
-        InntektsmeldingAggregat inntektsmeldinger = iayGrunnlagBuilder.getInntektsmeldinger();
+        var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
+        var inntektsmeldinger = iayGrunnlagBuilder.getInntektsmeldinger();
 
         Collection<Inntektsmelding> beholdInntektsmelding = inntektsmeldinger.getAlleInntektsmeldinger().stream()
                 .filter(im -> !inntektsmeldingerSet.contains(im.getJournalpostId()))
@@ -369,12 +369,13 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request, AktørId aktørId) {
         var dto = hentGrunnlag(request);
-        UUID forespurtGrunnlagsRef = request.getGrunnlagReferanse() != null ? request.getGrunnlagReferanse()
+        var forespurtGrunnlagsRef = request.getGrunnlagReferanse() != null ? request.getGrunnlagReferanse()
                 : request.getSisteKjenteGrunnlagReferanse();
         final var sisteGrunnlag = requestCache.getGrunnlag(forespurtGrunnlagsRef);
         if ((dto == null) && (sisteGrunnlag == null)) {
             return null;
-        } else if ((dto == null) && (sisteGrunnlag != null)) {
+        }
+        if ((dto == null) && (sisteGrunnlag != null)) {
             return sisteGrunnlag;
         }
         return mapOgCacheGrunnlag(dto, aktørId, request.getGrunnlagVersjon() == InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon.SISTE);
@@ -420,7 +421,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektsmeldingAggregat mapResult(InntektsmeldingerDto dto) {
         var mapInntektsmeldinger = new MapInntektsmeldinger.MapFraDto();
-        ArbeidsforholdInformasjonBuilder dummyBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        var dummyBuilder = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
         return mapInntektsmeldinger.map(dummyBuilder, dto);
     }
 
@@ -429,7 +430,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     private InntektArbeidYtelseGrunnlag mapResult(AktørId aktørId, InntektArbeidYtelseGrunnlagDto dto, boolean isAktiv) {
-        InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag = new IAYFraDtoMapper(aktørId).mapTilGrunnlagInklusivRegisterdata(dto, isAktiv);
+        var inntektArbeidYtelseGrunnlag = new IAYFraDtoMapper(aktørId).mapTilGrunnlagInklusivRegisterdata(dto, isAktiv);
         return new AbakusInntektArbeidYtelseGrunnlag(inntektArbeidYtelseGrunnlag, dto.getKoblingReferanse());
     }
 
@@ -480,12 +481,12 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseAggregatBuilder opprettBuilderFor(VersjonType versjonType, UUID angittReferanse, LocalDateTime opprettetTidspunkt,
             Optional<InntektArbeidYtelseGrunnlag> grunnlag) {
-        InntektArbeidYtelseGrunnlagBuilder grunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
+        var grunnlagBuilder = InntektArbeidYtelseGrunnlagBuilder.oppdatere(grunnlag);
         Objects.requireNonNull(grunnlagBuilder, "grunnlagBuilder");
-        Optional<InntektArbeidYtelseGrunnlag> aggregat = Optional.ofNullable(grunnlagBuilder.getKladd());
+        var aggregat = Optional.ofNullable(grunnlagBuilder.getKladd());
         Objects.requireNonNull(aggregat, "aggregat");
         if (aggregat.isPresent()) {
-            final InntektArbeidYtelseGrunnlag aggregat1 = aggregat.get();
+            final var aggregat1 = aggregat.get();
             return InntektArbeidYtelseAggregatBuilder.builderFor(hentRiktigVersjon(versjonType, aggregat1), angittReferanse, opprettetTidspunkt,
                     versjonType);
         }
@@ -495,7 +496,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     private Optional<InntektArbeidYtelseAggregat> hentRiktigVersjon(VersjonType versjonType, InntektArbeidYtelseGrunnlag ytelseGrunnlag) {
         if (versjonType == VersjonType.REGISTER) {
             return ytelseGrunnlag.getRegisterVersjon();
-        } else if (versjonType == VersjonType.SAKSBEHANDLET) {
+        }
+        if (versjonType == VersjonType.SAKSBEHANDLET) {
             return ytelseGrunnlag.getSaksbehandletVersjon();
         }
         throw new IllegalStateException("Kunne ikke finne riktig versjon av InntektArbeidYtelseAggregat");
@@ -503,13 +505,13 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlagBuilder getGrunnlagBuilder(Long behandlingId, InntektArbeidYtelseAggregatBuilder iayAggregetBuilder) {
         Objects.requireNonNull(iayAggregetBuilder, "iayAggregetBuilder"); // NOSONAR
-        InntektArbeidYtelseGrunnlagBuilder opptjeningAggregatBuilder = opprettGrunnlagBuilderFor(behandlingId);
+        var opptjeningAggregatBuilder = opprettGrunnlagBuilderFor(behandlingId);
         opptjeningAggregatBuilder.medData(iayAggregetBuilder);
         return opptjeningAggregatBuilder;
     }
 
     private InntektArbeidYtelseGrunnlagBuilder opprettGrunnlagBuilderFor(Long behandlingId) {
-        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidGrunnlag = finnGrunnlag(behandlingId);
+        var inntektArbeidGrunnlag = finnGrunnlag(behandlingId);
         return InntektArbeidYtelseGrunnlagBuilder.oppdatere(inntektArbeidGrunnlag);
     }
 
@@ -519,9 +521,9 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             return;
         }
 
-        Optional<InntektArbeidYtelseGrunnlag> tidligereAggregat = finnGrunnlag(behandlingId);
+        var tidligereAggregat = finnGrunnlag(behandlingId);
         if (tidligereAggregat.isPresent()) {
-            InntektArbeidYtelseGrunnlag tidligereGrunnlag = tidligereAggregat.get();
+            var tidligereGrunnlag = tidligereAggregat.get();
             if (new IAYDiffsjekker(false).getDiffEntity().diff(tidligereGrunnlag, nyttGrunnlag).isEmpty()) {
                 return;
             }
@@ -532,7 +534,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     private void lagreGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         lagreGrunnlag(konverterTilDto(behandling, nyttGrunnlag));
     }
 

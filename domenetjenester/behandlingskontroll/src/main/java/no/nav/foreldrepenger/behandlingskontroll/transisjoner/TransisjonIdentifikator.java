@@ -34,7 +34,7 @@ public final class TransisjonIdentifikator {
             return false;
         }
 
-        TransisjonIdentifikator that = (TransisjonIdentifikator) o;
+        var that = (TransisjonIdentifikator) o;
         return Objects.equals(id, that.id);
     }
 

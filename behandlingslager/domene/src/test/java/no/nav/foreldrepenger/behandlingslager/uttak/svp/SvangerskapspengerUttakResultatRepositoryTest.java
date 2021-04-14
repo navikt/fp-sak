@@ -50,7 +50,7 @@ public class SvangerskapspengerUttakResultatRepositoryTest extends EntityManager
             .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
             .build();
 
-        AktørId aktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
         var uttakArbeidsforhold = new SvangerskapspengerUttakResultatArbeidsforholdEntitet.Builder()
             .medArbeidsforhold(Arbeidsgiver.person(aktørId), null)
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)

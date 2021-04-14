@@ -143,10 +143,11 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof OppgittAnnenPartEntitet)) {
+        }
+        if (!(obj instanceof OppgittAnnenPartEntitet)) {
             return false;
         }
-        OppgittAnnenPartEntitet other = (OppgittAnnenPartEntitet) obj;
+        var other = (OppgittAnnenPartEntitet) obj;
         return Objects.equals(this.aktørId, other.getAktørId())
             && Objects.equals(this.begrunnelse, other.getBegrunnelse())
             && Objects.equals(this.getType(), other.getType())

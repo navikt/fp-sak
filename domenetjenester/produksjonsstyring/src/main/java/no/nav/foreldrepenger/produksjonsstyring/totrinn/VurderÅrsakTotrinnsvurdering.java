@@ -62,7 +62,7 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
         if (!(o instanceof VurderÅrsakTotrinnsvurdering)) {
             return false;
         }
-        VurderÅrsakTotrinnsvurdering that = (VurderÅrsakTotrinnsvurdering) o;
+        var that = (VurderÅrsakTotrinnsvurdering) o;
         return Objects.equals(getÅrsaksType(), that.getÅrsaksType()) &&
             Objects.equals(totrinnsvurdering, that.totrinnsvurdering);
     }

@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.ytelse.beregning.adapter;
 import java.math.RoundingMode;
 import java.util.Objects;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -40,7 +38,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
     }
 
     private static void mapPeriode(BeregningsresultatEntitet resultat, BeregningsresultatFeriepenger beregningsresultatFeriepenger, no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode regelBeregningsresultatPeriode) {
-        BeregningsresultatPeriode vlBeregningsresultatPeriode = resultat.getBeregningsresultatPerioder().stream()
+        var vlBeregningsresultatPeriode = resultat.getBeregningsresultatPerioder().stream()
             .filter(periode -> periode.getBeregningsresultatPeriodeFom().equals(regelBeregningsresultatPeriode.getFom()))
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke BeregningsresultatPeriode"));
@@ -53,12 +51,12 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
         if (regelAndel.getBeregningsresultatFeriepengerPrÅrListe().isEmpty()) {
             return;
         }
-        AktivitetStatus regelAndelAktivitetStatus = AktivitetStatusMapper.fraRegelTilVl(regelAndel);
-        String regelArbeidsgiverId = regelAndel.getArbeidsforhold() == null ? null : regelAndel.getArbeidsgiverId();
-        String regelArbeidsforholdId = regelAndel.getArbeidsforhold() != null ? regelAndel.getArbeidsforhold().getArbeidsforholdId() : null;
-        BeregningsresultatAndel andel = vlBeregningsresultatPeriode.getBeregningsresultatAndelList().stream()
+        var regelAndelAktivitetStatus = AktivitetStatusMapper.fraRegelTilVl(regelAndel);
+        var regelArbeidsgiverId = regelAndel.getArbeidsforhold() == null ? null : regelAndel.getArbeidsgiverId();
+        var regelArbeidsforholdId = regelAndel.getArbeidsforhold() != null ? regelAndel.getArbeidsforhold().getArbeidsforholdId() : null;
+        var andel = vlBeregningsresultatPeriode.getBeregningsresultatAndelList().stream()
             .filter(vlAndel -> {
-                String vlArbeidsforholdRef = vlAndel.getArbeidsforholdRef() == null ? null : vlAndel.getArbeidsforholdRef().getReferanse();
+                var vlArbeidsforholdRef = vlAndel.getArbeidsforholdRef() == null ? null : vlAndel.getArbeidsforholdRef().getReferanse();
                 return Objects.equals(vlAndel.getAktivitetStatus(), regelAndelAktivitetStatus)
                     && Objects.equals(vlAndel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null), regelArbeidsgiverId)
                     && Objects.equals(vlArbeidsforholdRef, regelArbeidsforholdId)
@@ -71,7 +69,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
             .filter(MapBeregningsresultatFeriepengerFraRegelTilVL::erAvrundetÅrsbeløpUlik0)
             .forEach(prÅr ->
         {
-            long årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
+            var årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
             BeregningsresultatFeriepengerPrÅr.builder()
                 .medOpptjeningsår(prÅr.getOpptjeningÅr())
                 .medÅrsbeløp(årsbeløp)
@@ -80,7 +78,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
     }
 
     private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr prÅr) {
-        long årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
+        var årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
         return årsbeløp != 0L;
     }
 }

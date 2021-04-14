@@ -75,7 +75,7 @@ public class SimulerOppdragTjenesteESTest {
             .thenReturn(familieHendelse);
         when(familieHendelse.getGjelderAdopsjon()).thenReturn(false);
 
-        OppdragInputTjeneste oppdragInputTjeneste = new OppdragInputTjeneste(
+        var oppdragInputTjeneste = new OppdragInputTjeneste(
             behandlingRepository,
             null,
             behandlingVedtakRepository,

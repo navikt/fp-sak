@@ -34,13 +34,13 @@ public class RevurderingHistorikk {
             return;
         }
 
-        HistorikkAktør historikkAktør = manueltOpprettet ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN;
+        var historikkAktør = manueltOpprettet ? HistorikkAktør.SAKSBEHANDLER : HistorikkAktør.VEDTAKSLØSNINGEN;
 
-        Historikkinnslag revurderingsInnslag = new Historikkinnslag();
+        var revurderingsInnslag = new Historikkinnslag();
         revurderingsInnslag.setBehandling(behandling);
         revurderingsInnslag.setType(HistorikkinnslagType.REVURD_OPPR);
         revurderingsInnslag.setAktør(historikkAktør);
-        HistorikkInnslagTekstBuilder historiebygger = new HistorikkInnslagTekstBuilder()
+        var historiebygger = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.REVURD_OPPR)
                 .medBegrunnelse(revurderingÅrsaker.stream().findFirst().orElse(BehandlingÅrsakType.UDEFINERT));
         historiebygger.build(revurderingsInnslag);
@@ -49,12 +49,12 @@ public class RevurderingHistorikk {
     }
 
     public void opprettHistorikkinnslagForFødsler(Behandling behandling, List<FødtBarnInfo> barnFødtIPeriode) {
-        Historikkinnslag fødselInnslag = new Historikkinnslag();
+        var fødselInnslag = new Historikkinnslag();
         fødselInnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         fødselInnslag.setType(HistorikkinnslagType.NY_INFO_FRA_TPS);
         fødselInnslag.setBehandling(behandling);
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        var dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         String fødselsdatoVerdi;
         if (barnFødtIPeriode.size() > 1) {
             SortedSet<LocalDate> fødselsdatoer = new TreeSet<>(
@@ -63,7 +63,7 @@ public class RevurderingHistorikk {
         } else {
             fødselsdatoVerdi = dateFormat.format(barnFødtIPeriode.get(0).getFødselsdato());
         }
-        HistorikkInnslagTekstBuilder historieBuilder = new HistorikkInnslagTekstBuilder()
+        var historieBuilder = new HistorikkInnslagTekstBuilder()
                 .medHendelse(HistorikkinnslagType.NY_INFO_FRA_TPS)
                 .medOpplysning(HistorikkOpplysningType.FODSELSDATO, fødselsdatoVerdi)
                 .medOpplysning(HistorikkOpplysningType.TPS_ANTALL_BARN, barnFødtIPeriode.size());
@@ -77,7 +77,7 @@ public class RevurderingHistorikk {
             HistorikkinnslagType historikkinnslagType,
             LocalDateTime fristTid,
             Venteårsak venteårsak) {
-        HistorikkInnslagTekstBuilder builder = new HistorikkInnslagTekstBuilder();
+        var builder = new HistorikkInnslagTekstBuilder();
         if (fristTid != null) {
             builder.medHendelse(historikkinnslagType, fristTid.toLocalDate());
         } else {
@@ -86,7 +86,7 @@ public class RevurderingHistorikk {
         if (venteårsak != null) {
             builder.medÅrsak(venteårsak);
         }
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
         historikkinnslag.setType(historikkinnslagType);
         historikkinnslag.setBehandlingId(behandlingId);

@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
@@ -46,14 +45,13 @@ class AksjonspunktResultatOppretter {
             endringAksjonspunkter.addAll(fjernGjensidigEkskluderendeAksjonspunkter(apResultater));
             endringAksjonspunkter.addAll(leggTilResultatPåBehandling(behandlingStegType, apResultater));
             return endringAksjonspunkter;
-        } else {
-            return new ArrayList<>();
         }
+        return new ArrayList<>();
     }
 
     private List<Aksjonspunkt> fjernGjensidigEkskluderendeAksjonspunkter(List<AksjonspunktResultat> nyeApResultater) {
         List<Aksjonspunkt> avbrutteAksjonspunkter = new ArrayList<>();
-        Set<String> nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).map(AksjonspunktDefinisjon::getKode)
+        var nyeApDef = nyeApResultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).map(AksjonspunktDefinisjon::getKode)
                 .collect(toSet());
         eksisterende.values().stream()
                 .filter(Aksjonspunkt::erÅpentAksjonspunkt)
@@ -72,7 +70,7 @@ class AksjonspunktResultatOppretter {
     }
 
     private Aksjonspunkt oppdaterAksjonspunktMedResultat(BehandlingStegType behandlingStegType, AksjonspunktResultat resultat) {
-        Aksjonspunkt oppdatert = eksisterende.get(resultat.getAksjonspunktDefinisjon());
+        var oppdatert = eksisterende.get(resultat.getAksjonspunktDefinisjon());
         if (oppdatert == null) {
             oppdatert = aksjonspunktKontrollRepository.leggTilAksjonspunkt(behandling, resultat.getAksjonspunktDefinisjon(), behandlingStegType);
             eksisterende.putIfAbsent(oppdatert.getAksjonspunktDefinisjon(), oppdatert);

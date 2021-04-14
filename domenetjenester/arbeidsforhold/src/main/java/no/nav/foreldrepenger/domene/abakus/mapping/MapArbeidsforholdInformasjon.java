@@ -145,20 +145,20 @@ final class MapArbeidsforholdInformasjon {
 
             if ((internReferanse != null) && (eksternReferanse != null)) {
                 return new ArbeidsforholdReferanseDto(arbeidsgiver, new ArbeidsforholdRefDto(internReferanse, eksternReferanse));
-            } else if ((internReferanse == null) && (eksternReferanse != null)) {
+            }
+            if ((internReferanse == null) && (eksternReferanse != null)) {
                 LOG.warn("Mangler internReferanse for eksternReferanse:" + eksternReferanse + ", arbeidsgiver=" + arbeidsgiver);
                 return null;
-            } else if ((internReferanse == null) && (eksternReferanse == null)) {
-                return null;
-            } else {
-                if (internReferanse != null) {
-                    throw new IllegalStateException(
-                            "Mangler eksternReferanse for internReferanse:" + internReferanse + ", arbeidsgiver=" + arbeidsgiver);
-                } else {
-                    throw new IllegalStateException(
-                            "Mangler internReferanse for eksternReferanse:" + eksternReferanse + ", arbeidsgiver=" + arbeidsgiver);
-                }
             }
+            if ((internReferanse == null) && (eksternReferanse == null)) {
+                return null;
+            }
+            if (internReferanse != null) {
+                throw new IllegalStateException(
+                        "Mangler eksternReferanse for internReferanse:" + internReferanse + ", arbeidsgiver=" + arbeidsgiver);
+            }
+            throw new IllegalStateException(
+                    "Mangler internReferanse for eksternReferanse:" + eksternReferanse + ", arbeidsgiver=" + arbeidsgiver);
         }
 
         private ArbeidsforholdRefDto mapArbeidsforholdsId(no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon arbeidsforholdInformasjon,

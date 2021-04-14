@@ -101,16 +101,16 @@ public class AksjonspunktTjeneste {
     }
 
     public void bekreftAksjonspunkter(Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer, Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         setAnsvarligSaksbehandler(bekreftedeAksjonspunktDtoer, behandling);
 
         spoolTilbakeTilTidligsteAksjonspunkt(bekreftedeAksjonspunktDtoer, kontekst);
 
-        Skjæringstidspunkt skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
 
-        OverhoppResultat overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling, skjæringstidspunkter);
+        var overhoppResultat = bekreftAksjonspunkter(kontekst, bekreftedeAksjonspunktDtoer, behandling, skjæringstidspunkter);
 
         historikkTjenesteAdapter.opprettHistorikkInnslag(behandling.getId(), HistorikkinnslagType.FAKTA_ENDRET);
 
@@ -144,7 +144,7 @@ public class AksjonspunktTjeneste {
         // tilbake). Vil utvides etter behov når regler for spoling bakover blir klarere.
         // Her sikres at behandlingskontroll hopper tilbake til aksjonspunktenes tidligste "løsesteg" dersom aktivt
         // behandlingssteg er lenger fremme i sekvensen
-        List<String> bekreftedeApKoder = aksjonspunktDtoer.stream()
+        var bekreftedeApKoder = aksjonspunktDtoer.stream()
             .map(AksjonspunktKode::getKode)
             .collect(toList());
 
@@ -153,30 +153,30 @@ public class AksjonspunktTjeneste {
 
     private void håndterOverhopp(OverhoppResultat overhoppResultat, BehandlingskontrollKontekst kontekst) {
         // TODO (essv): PKMANTIS-1992 Skrive om alle overhopp til å bruke transisjon (se fremoverTransisjon nedenfor)
-        Optional<OppdateringResultat> funnetHenleggelse = overhoppResultat.finnHenleggelse();
+        var funnetHenleggelse = overhoppResultat.finnHenleggelse();
         if (funnetHenleggelse.isPresent()) {
-            OppdateringResultat henleggelse = funnetHenleggelse.get();
+            var henleggelse = funnetHenleggelse.get();
             henleggBehandlingTjeneste.henleggBehandling(kontekst.getBehandlingId(),
                 henleggelse.getHenleggelseResultat(), henleggelse.getHenleggingsbegrunnelse());
         } else {
-            Optional<TransisjonIdentifikator> fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
+            var fremoverTransisjon = overhoppResultat.finnFremoverTransisjon();
             if (fremoverTransisjon.isPresent()) {
-                TransisjonIdentifikator riktigTransisjon = utledFremhoppTransisjon(kontekst, fremoverTransisjon.get());
+                var riktigTransisjon = utledFremhoppTransisjon(kontekst, fremoverTransisjon.get());
                 behandlingskontrollTjeneste.fremoverTransisjon(riktigTransisjon, kontekst);
             }
         }
     }
 
     public void overstyrAksjonspunkter(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter, Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
 
         // Tilbakestill gjeldende steg før fremføring
         spoolTilbakeTilTidligsteAksjonspunkt(overstyrteAksjonspunkter, kontekst);
 
-        OverhoppResultat overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
+        var overhoppForOverstyring = overstyrVilkårEllerBeregning(overstyrteAksjonspunkter, behandling, kontekst);
 
-        List<Aksjonspunkt> utførteAksjonspunkter = lagreHistorikkInnslag(behandling);
+        var utførteAksjonspunkter = lagreHistorikkInnslag(behandling);
 
         behandlingskontrollTjeneste.aksjonspunkterEndretStatus(kontekst, behandling.getAktivtBehandlingSteg(), utførteAksjonspunkter);
 
@@ -208,7 +208,7 @@ public class AksjonspunktTjeneste {
 
     private TransisjonIdentifikator utledFremhoppTransisjon(BehandlingskontrollKontekst kontekst, TransisjonIdentifikator transisjon) {
         if (FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR.equals(transisjon)) {
-            Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+            var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
             if (behandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsak().getYtelseType())
                 && !harAvslåttForrigeBehandling(behandling)) {
                 return FellesTransisjoner.FREMHOPP_TIL_UTTAKSPLAN;
@@ -219,9 +219,9 @@ public class AksjonspunktTjeneste {
     }
 
     private boolean harAvslåttForrigeBehandling(Behandling revurdering) {
-        Optional<Long> originalBehandlingId = revurdering.getOriginalBehandlingId();
+        var originalBehandlingId = revurdering.getOriginalBehandlingId();
         if (originalBehandlingId.isPresent()) {
-            Behandlingsresultat behandlingsresultat = getBehandlingsresultat(originalBehandlingId.get());
+            var behandlingsresultat = getBehandlingsresultat(originalBehandlingId.get());
             // Dersom originalBehandling er et beslutningsvedtak må vi lete videre etter det faktiske resultatet for å kunne vurdere om forrige
             // behandling var avslått
             if (BehandlingResultatType.INGEN_ENDRING.equals(behandlingsresultat.getBehandlingResultatType())) {
@@ -235,13 +235,13 @@ public class AksjonspunktTjeneste {
     @SuppressWarnings("unchecked")
     private OverhoppResultat overstyrVilkårEllerBeregning(Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunkter,
                                                           Behandling behandling, BehandlingskontrollKontekst kontekst) {
-        OverhoppResultat overhoppResultat = OverhoppResultat.tomtResultat();
+        var overhoppResultat = OverhoppResultat.tomtResultat();
 
         // oppdater for overstyring
         overstyrteAksjonspunkter.forEach(dto -> {
             @SuppressWarnings("rawtypes")
             Overstyringshåndterer overstyringshåndterer = finnOverstyringshåndterer(dto);
-            OppdateringResultat oppdateringResultat = overstyringshåndterer.håndterOverstyring(dto, behandling, kontekst);
+            var oppdateringResultat = overstyringshåndterer.håndterOverstyring(dto, behandling, kontekst);
             overhoppResultat.leggTil(oppdateringResultat);
 
             settToTrinnPåOverstyrtAksjonspunktHvisKreves(behandling, dto, oppdateringResultat.kreverTotrinnsKontroll());
@@ -257,15 +257,15 @@ public class AksjonspunktTjeneste {
             overstyringshåndterer.håndterAksjonspunktForOverstyringHistorikk(dto, behandling);
         });
 
-        boolean totrinn = overhoppResultat.finnTotrinn();
+        var totrinn = overhoppResultat.finnTotrinn();
         overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.getElement1(), res.getElement2(), true));
 
         return overhoppResultat;
     }
 
     private void opprettAksjonspunktForOverstyring(BehandlingskontrollKontekst kontekst, Behandling behandling, OverstyringAksjonspunkt dto, AksjonspunktDefinisjon apDef) {
-        Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apDef);
-        Aksjonspunkt aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apDef)).get(0));
+        var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apDef);
+        var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> behandlingskontrollTjeneste.lagreAksjonspunkterFunnet(kontekst, List.of(apDef)).get(0));
 
         if (aksjonspunkt.erAvbrutt()) {
             // Må reåpne avbrutte før de kan settes til utført (kunne ha vært én operasjon i aksjonspunktRepository)
@@ -277,8 +277,8 @@ public class AksjonspunktTjeneste {
     }
 
     private void håndterEkstraAksjonspunktResultat(BehandlingskontrollKontekst kontekst, Behandling behandling, boolean totrinn, AksjonspunktResultat apRes, AksjonspunktStatus nyStatus, boolean overstyring) {
-        Optional<Aksjonspunkt> eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apRes.getAksjonspunktDefinisjon());
-        Aksjonspunkt aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
+        var eksisterendeAksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(apRes.getAksjonspunktDefinisjon());
+        var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
 
         if (totrinn && !AksjonspunktStatus.AVBRUTT.equals(nyStatus)  && aksjonspunktStøtterTotrinn(aksjonspunkt)) {
             aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
@@ -316,7 +316,7 @@ public class AksjonspunktTjeneste {
         // SøkersOpplysningspliktOverstyringshåndterer?
         // vis vi aldri sender inn mer enn en overstyring kan historikk opprettes også der.
 
-        List<Aksjonspunkt> utførteAksjonspunkter = behandling
+        var utførteAksjonspunkter = behandling
             .getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST)
             .map(Collections::singletonList)
             .orElse(emptyList());
@@ -335,20 +335,20 @@ public class AksjonspunktTjeneste {
                                                    Behandling behandling,
                                                    Skjæringstidspunkt skjæringstidspunkter) {
 
-        OverhoppResultat overhoppResultat = OverhoppResultat.tomtResultat();
+        var overhoppResultat = OverhoppResultat.tomtResultat();
 
-        VilkårResultat.Builder vilkårBuilder = harVilkårResultat(behandling)
+        var vilkårBuilder = harVilkårResultat(behandling)
             ? VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             : VilkårResultat.builder();
 
         bekreftedeAksjonspunktDtoer
             .forEach(dto -> bekreftAksjonspunkt(kontekst, behandling, skjæringstidspunkter, vilkårBuilder, overhoppResultat, dto));
 
-        VilkårResultat vilkårResultat = vilkårBuilder.buildFor(behandling);
+        var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
-        boolean totrinn = overhoppResultat.finnTotrinn();
+        var totrinn = overhoppResultat.finnTotrinn();
         overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.getElement1(), res.getElement2(), false));
 
         return overhoppResultat;
@@ -360,12 +360,12 @@ public class AksjonspunktTjeneste {
                                      OverhoppResultat overhoppResultat,
                                      BekreftetAksjonspunktDto dto) {
         // Endringskontroll for aksjonspunkt
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode())
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode())
             .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Har ikke aksjonspunkt av type: " + dto.getKode()));
 
-        AksjonspunktOppdaterer<BekreftetAksjonspunktDto> oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getKode());
-        AksjonspunktOppdaterParameter param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, dto);
-        OppdateringResultat delresultat = oppdaterer.oppdater(dto, param);
+        var oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getKode());
+        var param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, dto);
+        var delresultat = oppdaterer.oppdater(dto, param);
         overhoppResultat.leggTil(delresultat);
         byggVilkårResultat(vilkårBuilder, delresultat);
 
@@ -380,8 +380,8 @@ public class AksjonspunktTjeneste {
 
     private void byggVilkårResultat(Builder vilkårBuilder, OppdateringResultat delresultat) {
         delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> {
-            boolean erManueltVurdert = true;
-            boolean erOverstyrt = false;
+            var erManueltVurdert = true;
+            var erOverstyrt = false;
             String regelEvaluering = null;
             String regelInput = null;
             vilkårBuilder.leggTilVilkårResultat(
@@ -404,12 +404,12 @@ public class AksjonspunktTjeneste {
     @SuppressWarnings("unchecked")
     private AksjonspunktOppdaterer<BekreftetAksjonspunktDto> finnAksjonspunktOppdaterer(Class<? extends BekreftetAksjonspunktDto> dtoClass,
                                                                                         String aksjonspunktDefinisjonKode) {
-        Instance<Object> instance = finnAdapter(dtoClass, AksjonspunktOppdaterer.class);
+        var instance = finnAdapter(dtoClass, AksjonspunktOppdaterer.class);
         if (instance.isUnsatisfied()) {
             throw new TekniskException("FP-770743",
                 "Finner ikke håndtering for aksjonspunkt med kode: " + aksjonspunktDefinisjonKode);
         }
-        Object minInstans = instance.get();
+        var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
                 "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
@@ -419,8 +419,8 @@ public class AksjonspunktTjeneste {
     }
 
     private Instance<Object> finnAdapter(Class<?> cls, final Class<?> targetAdapter) {
-        CDI<Object> cdi = CDI.current();
-        Instance<Object> instance = cdi.select(new DtoTilServiceAdapter.Literal(cls, targetAdapter));
+        var cdi = CDI.current();
+        var instance = cdi.select(new DtoTilServiceAdapter.Literal(cls, targetAdapter));
 
         // hvis unsatisfied, søk parent
         while (instance.isUnsatisfied() && !Objects.equals(Object.class, cls)) {
@@ -436,13 +436,13 @@ public class AksjonspunktTjeneste {
 
     @SuppressWarnings("unchecked")
     private <V extends OverstyringAksjonspunktDto> Overstyringshåndterer<V> finnOverstyringshåndterer(V dto) {
-        Instance<Object> instance = finnAdapter(dto.getClass(), Overstyringshåndterer.class);
+        var instance = finnAdapter(dto.getClass(), Overstyringshåndterer.class);
 
         if (instance.isUnsatisfied()) {
             throw new TekniskException("FP-475766",
                 "Finner ikke overstyringshåndterer for DTO: " + dto.getClass().getSimpleName());
         }
-        Object minInstans = instance.get();
+        var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
             throw new IllegalStateException(
                 "Kan ikke ha @Dependent scope bean ved Instance lookup dersom en ikke også håndtere lifecycle selv: " + minInstans.getClass());
@@ -452,15 +452,15 @@ public class AksjonspunktTjeneste {
 
     private void settToTrinnPåOverstyrtAksjonspunktHvisKreves(Behandling behandling, OverstyringAksjonspunktDto dto,
                                                               boolean resultatKreverTotrinn) {
-        AksjonspunktDefinisjon aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         if (resultatKreverTotrinn && behandling.harAksjonspunktMedType(aksjonspunktDefinisjon)) {
-            Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
+            var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
             aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
         }
     }
 
     private boolean aksjonspunktStøtterTotrinn(Aksjonspunkt aksjonspunkt) {
-        SkjermlenkeType aksjonspunktSkjermlenkeType = aksjonspunkt.getAksjonspunktDefinisjon().getSkjermlenkeType();
+        var aksjonspunktSkjermlenkeType = aksjonspunkt.getAksjonspunktDefinisjon().getSkjermlenkeType();
         return !VEDTAK_AP.contains(aksjonspunkt.getAksjonspunktDefinisjon())
             // Aksjonspunkter må ha SkjermlenkeType for å støtte totrinnskontroll
             && aksjonspunktSkjermlenkeType != null

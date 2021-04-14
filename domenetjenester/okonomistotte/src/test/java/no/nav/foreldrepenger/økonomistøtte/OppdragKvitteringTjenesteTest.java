@@ -15,7 +15,7 @@ public class OppdragKvitteringTjenesteTest {
         var oppdrag110 = lagOppdrag110("00");
 
         // Act
-        boolean resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
+        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -27,7 +27,7 @@ public class OppdragKvitteringTjenesteTest {
         var oppdrag110 = lagOppdrag110("04");
 
         // Act
-        boolean resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
+        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -39,7 +39,7 @@ public class OppdragKvitteringTjenesteTest {
         var oppdrag110 = lagOppdrag110("08");
 
         // Act
-        boolean resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
+        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -51,7 +51,7 @@ public class OppdragKvitteringTjenesteTest {
         var oppdrag110 = lagOppdrag110("12");
 
         // Act
-        boolean resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
+        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -63,7 +63,7 @@ public class OppdragKvitteringTjenesteTest {
         var oppdrag110 = lagOppdrag110(null);
 
         // Act
-        boolean resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
+        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -71,7 +71,7 @@ public class OppdragKvitteringTjenesteTest {
 
     private Oppdrag110 lagOppdrag110(String alvorlighetsgrad) {
         var oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 123L);
+        var oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 123L);
         if (alvorlighetsgrad != null) {
             lagOppdragKvittering(oppdrag110, alvorlighetsgrad);
         }

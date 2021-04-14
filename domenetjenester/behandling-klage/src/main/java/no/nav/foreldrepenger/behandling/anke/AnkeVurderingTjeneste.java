@@ -5,7 +5,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -115,14 +114,14 @@ public class AnkeVurderingTjeneste {
     }
 
     private void tilbakeførBehandling(Behandling behandling) {
-        BehandlingskontrollKontekst kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling.getId());
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligereBehandlingSteg(kontekst, BehandlingStegType.FORESLÅ_VEDTAK);
         prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
     }
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, AnkeVurdering ankeVurdering) {
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
-        BehandlingResultatType behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
+        var behandlingResultatType = BehandlingResultatType.tolkBehandlingResultatType(ankeVurdering);
         if (behandlingsresultat != null) {
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                     .medBehandlingResultatType(behandlingResultatType);

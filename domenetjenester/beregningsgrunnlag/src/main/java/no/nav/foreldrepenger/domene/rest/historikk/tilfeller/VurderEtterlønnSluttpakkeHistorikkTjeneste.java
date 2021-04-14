@@ -31,13 +31,13 @@ public class VurderEtterlønnSluttpakkeHistorikkTjeneste extends FaktaOmBeregnin
     }
 
     private void lagHistorikkForVurdering(FaktaBeregningLagreDto dto, HistorikkInnslagTekstBuilder tekstBuilder, Optional<BeregningsgrunnlagEntitet> forrigeBg) {
-        VurderEtterlønnSluttpakkeDto vurderDto = dto.getVurderEtterlønnSluttpakke();
-        Boolean opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.map(this::hentOpprinneligVerdiErEtterlønnSluttpakke).orElse(null);
+        var vurderDto = dto.getVurderEtterlønnSluttpakke();
+        var opprinneligVerdiEtterlønnSLuttpakke = forrigeBg.map(this::hentOpprinneligVerdiErEtterlønnSluttpakke).orElse(null);
         lagHistorikkinnslagVurderEtterlønnSluttpakke(vurderDto, opprinneligVerdiEtterlønnSLuttpakke, tekstBuilder);
     }
 
     private Boolean hentOpprinneligVerdiErEtterlønnSluttpakke(BeregningsgrunnlagEntitet beregningsgrunnlag) {
-        List<BeregningsgrunnlagPrStatusOgAndel> etterlønnSluttpakkeAndeler = finnEtterlønnSluttpakkeAndel(beregningsgrunnlag);
+        var etterlønnSluttpakkeAndeler = finnEtterlønnSluttpakkeAndel(beregningsgrunnlag);
         if (!etterlønnSluttpakkeAndeler.isEmpty()) {
             return etterlønnSluttpakkeAndeler.stream()
                 .anyMatch(a -> Boolean.TRUE.equals(a.getFastsattAvSaksbehandler()) && a.getBeregnetPrÅr() != null &&

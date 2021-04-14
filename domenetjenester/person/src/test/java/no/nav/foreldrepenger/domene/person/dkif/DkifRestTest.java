@@ -49,7 +49,7 @@ public class DkifRestTest {
     @Test
     public void mapping_jurdisk_enhet() throws IOException {
         // Arrange
-        String ny = """
+        var ny = """
             {
               "kontaktinfo": {
                 "12345678901": {

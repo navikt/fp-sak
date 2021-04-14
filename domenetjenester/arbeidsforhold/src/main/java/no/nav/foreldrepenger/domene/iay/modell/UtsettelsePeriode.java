@@ -86,7 +86,7 @@ public class UtsettelsePeriode extends BaseEntitet implements IndexKey {
         if ((o == null) || !(o instanceof UtsettelsePeriode)) {
             return false;
         }
-        UtsettelsePeriode that = (UtsettelsePeriode) o;
+        var that = (UtsettelsePeriode) o;
         return Objects.equals(periode, that.periode) &&
                 Objects.equals(årsak, that.årsak);
     }

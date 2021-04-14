@@ -45,7 +45,7 @@ public class BehandleStegResultat {
      * for consumer.
      */
     public static BehandleStegResultat utførtMedAksjonspunkter(List<AksjonspunktDefinisjon> aksjonspunktListe) {
-        List<AksjonspunktResultat> aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
+        var aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
         return new BehandleStegResultat(FellesTransisjoner.UTFØRT, aksjonspunktResultater);
     }
 
@@ -58,7 +58,7 @@ public class BehandleStegResultat {
     }
 
     public static BehandleStegResultat tilbakeførtMedAksjonspunkter(List<AksjonspunktDefinisjon> aksjonspunktListe) {
-        List<AksjonspunktResultat> aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
+        var aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktListe);
         return new BehandleStegResultat(FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT, aksjonspunktResultater);
     }
 
@@ -68,7 +68,7 @@ public class BehandleStegResultat {
 
     public static BehandleStegResultat fremoverførtMedAksjonspunkter(TransisjonIdentifikator transisjon,
             List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
-        List<AksjonspunktResultat> aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktDefinisjoner);
+        var aksjonspunktResultater = konverterTilAksjonspunktResultat(aksjonspunktDefinisjoner);
         return new BehandleStegResultat(transisjon, aksjonspunktResultater);
     }
 

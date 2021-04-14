@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
@@ -34,18 +33,19 @@ public class SkjæringstidspunktRegisterinnhentingTjenesteImpl implements Skjær
 
     @Override
     public LocalDate utledSkjæringstidspunktForRegisterInnhenting(Long behandlingId) {
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
-        FagsakYtelseType ytelseType = behandling.getFagsakYtelseType();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var ytelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return engangsstønad.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        } else if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-            return foreldrepenger.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
-            return svangerskapspenger.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
-        } else {
-            throw new IllegalStateException("Utvikler-feil: har ikke " + SkjæringstidspunktRegisterinnhentingTjeneste.class.getName() + " for behandling "
-                + behandlingId + ", ytelseType=" + ytelseType);
         }
+        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
+            return foreldrepenger.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelseType)) {
+            return svangerskapspenger.utledSkjæringstidspunktForRegisterInnhenting(behandlingId);
+        }
+        throw new IllegalStateException("Utvikler-feil: har ikke " + SkjæringstidspunktRegisterinnhentingTjeneste.class.getName() + " for behandling "
+            + behandlingId + ", ytelseType=" + ytelseType);
     }
 
 }

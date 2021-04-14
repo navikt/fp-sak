@@ -38,12 +38,12 @@ public class FinnEndringsdatoMellomPeriodeLister {
      */
     public Optional<LocalDate> finnEndringsdato(List<BeregningsresultatPeriode> revurderingPerioder,
                                                 List<BeregningsresultatPeriode> originalePerioder) {
-        LocalDateTimeline<TidslinjePeriodeWrapper> union = opprettTidslinjeUnion(revurderingPerioder, originalePerioder);
-        Optional<LocalDateSegment<TidslinjePeriodeWrapper>> first = union.toSegments().stream()
+        var union = opprettTidslinjeUnion(revurderingPerioder, originalePerioder);
+        var first = union.toSegments().stream()
             .sorted(Comparator.comparing(LocalDateSegment::getFom))
             .filter(wrapper -> {
-                BeregningsresultatPeriode nyPeriode = wrapper.getValue().getRevurderingPeriode();
-                BeregningsresultatPeriode gammelPeriode = wrapper.getValue().getOriginalPeriode();
+                var nyPeriode = wrapper.getValue().getRevurderingPeriode();
+                var gammelPeriode = wrapper.getValue().getOriginalPeriode();
                 return sjekkForEndringMellomPerioder.sjekk(nyPeriode, gammelPeriode);
             })
             .findFirst();
@@ -52,18 +52,18 @@ public class FinnEndringsdatoMellomPeriodeLister {
 
     private LocalDateTimeline<TidslinjePeriodeWrapper> opprettTidslinjeUnion(List<BeregningsresultatPeriode> revurderingPerioder,
                                                                                     List<BeregningsresultatPeriode>  originalePerioder) {
-        LocalDateTimeline<BeregningsresultatPeriode> revurderingTidslinje = new LocalDateTimeline<>(revurderingPerioder.stream()
+        var revurderingTidslinje = new LocalDateTimeline<BeregningsresultatPeriode>(revurderingPerioder.stream()
             .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p))
             .collect(Collectors.toList()));
-        LocalDateTimeline<BeregningsresultatPeriode> originalTidslinje = new LocalDateTimeline<>(originalePerioder.stream()
+        var originalTidslinje = new LocalDateTimeline<BeregningsresultatPeriode>(originalePerioder.stream()
             .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(p -> new LocalDateSegment<>(p.getBeregningsresultatPeriodeFom(), p.getBeregningsresultatPeriodeTom(), p))
             .collect(Collectors.toList()));
         return revurderingTidslinje.union(originalTidslinje, (interval, revurderingSegment, originalSegment) -> {
-            BeregningsresultatPeriode revurderingSegmentVerdi = revurderingSegment != null ? revurderingSegment.getValue() : null;
-            BeregningsresultatPeriode originalSegmentVerdi = originalSegment != null ? originalSegment.getValue() : null;
-            TidslinjePeriodeWrapper wrapper = new TidslinjePeriodeWrapper(revurderingSegmentVerdi, originalSegmentVerdi);
+            var revurderingSegmentVerdi = revurderingSegment != null ? revurderingSegment.getValue() : null;
+            var originalSegmentVerdi = originalSegment != null ? originalSegment.getValue() : null;
+            var wrapper = new TidslinjePeriodeWrapper(revurderingSegmentVerdi, originalSegmentVerdi);
             return new LocalDateSegment<>(interval, wrapper);
         });
     }

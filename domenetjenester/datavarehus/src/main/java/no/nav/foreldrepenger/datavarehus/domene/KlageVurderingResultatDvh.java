@@ -73,7 +73,7 @@ public class KlageVurderingResultatDvh extends DvhBaseEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        KlageVurderingResultatDvh that = (KlageVurderingResultatDvh) o;
+        var that = (KlageVurderingResultatDvh) o;
         return Objects.equals(klageBehandlingId, that.klageBehandlingId) &&
             Objects.equals(klageVurdertAv, that.klageVurdertAv) &&
             Objects.equals(klageVurdering, that.klageVurdering) &&

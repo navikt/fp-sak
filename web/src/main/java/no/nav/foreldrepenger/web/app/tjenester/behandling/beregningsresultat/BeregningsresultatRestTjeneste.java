@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -22,7 +20,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -80,8 +77,8 @@ public class BeregningsresultatRestTjeneste {
     @Deprecated
     public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
@@ -93,7 +90,7 @@ public class BeregningsresultatRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
 
@@ -105,8 +102,8 @@ public class BeregningsresultatRestTjeneste {
     @Deprecated
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling)
@@ -119,7 +116,7 @@ public class BeregningsresultatRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
     }
 
@@ -131,8 +128,8 @@ public class BeregningsresultatRestTjeneste {
     @Deprecated
     public TilkjentYtelse hentTilkjentYtelse(
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
         return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
@@ -143,7 +140,7 @@ public class BeregningsresultatRestTjeneste {
     @Operation(description = "Hent beregningsresultat", summary = ("Brukes av fpoppdrag."), tags = "beregningsresultat")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public TilkjentYtelse hentTilkjentYtelse(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
     }
 
@@ -154,7 +151,7 @@ public class BeregningsresultatRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Boolean harRevurderingSammeResultatSomOriginalBehandling(
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        Behandling behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         if (!BehandlingType.REVURDERING.getKode().equals(behandling.getType().getKode())) {
             throw new IllegalStateException("Behandling må være en revurdering");
         }
@@ -164,24 +161,24 @@ public class BeregningsresultatRestTjeneste {
             return false;
         }
 
-        List<KonsekvensForYtelsen> konsekvenserForYtelsen = behandlingsresultat.getKonsekvenserForYtelsen();
+        var konsekvenserForYtelsen = behandlingsresultat.getKonsekvenserForYtelsen();
         if (konsekvenserForYtelsen != null) {
             return konsekvenserForYtelsen.stream().anyMatch(kfy -> KonsekvensForYtelsen.INGEN_ENDRING.getKode().equals(kfy.getKode()));
         }
 
-        Long originalBehandlingId = behandling.getOriginalBehandlingId()
+        var originalBehandlingId = behandling.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering må ha originalbehandling"));
-        Behandlingsresultat originaltBehandlingsresultat = getBehandlingsresultat(originalBehandlingId);
-        BehandlingResultatType behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
+        var originaltBehandlingsresultat = getBehandlingsresultat(originalBehandlingId);
+        var behandlingResultatType = behandlingsresultat.getBehandlingResultatType();
 
-        boolean harSammeResultatType = behandlingResultatType.getKode().equals(originaltBehandlingsresultat.getBehandlingResultatType().getKode());
-        boolean erInnvilget = BehandlingResultatType.INNVILGET.getKode().equals(behandlingResultatType.getKode());
-        boolean erEngangsstønad = FagsakYtelseType.ENGANGSTØNAD.getKode().equals(behandling.getFagsakYtelseType().getKode());
+        var harSammeResultatType = behandlingResultatType.getKode().equals(originaltBehandlingsresultat.getBehandlingResultatType().getKode());
+        var erInnvilget = BehandlingResultatType.INNVILGET.getKode().equals(behandlingResultatType.getKode());
+        var erEngangsstønad = FagsakYtelseType.ENGANGSTØNAD.getKode().equals(behandling.getFagsakYtelseType().getKode());
 
         if (harSammeResultatType && erInnvilget && erEngangsstønad) {
-            BeregningsresultatEngangsstønadDto beregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(uuidDto);
+            var beregningsresultatEngangsstønadDto = this.hentBeregningsresultatEngangsstønad(uuidDto);
             var originalUuid = behandlingRepository.hentBehandling(originalBehandlingId).getUuid();
-            BeregningsresultatEngangsstønadDto originalBeregningsresultatEngangsstønadDto = this
+            var originalBeregningsresultatEngangsstønadDto = this
                     .hentBeregningsresultatEngangsstønad(new UuidDto(originalUuid));
             return beregningsresultatEngangsstønadDto != null
                     && beregningsresultatEngangsstønadDto.getAntallBarn().equals(originalBeregningsresultatEngangsstønadDto.getAntallBarn());

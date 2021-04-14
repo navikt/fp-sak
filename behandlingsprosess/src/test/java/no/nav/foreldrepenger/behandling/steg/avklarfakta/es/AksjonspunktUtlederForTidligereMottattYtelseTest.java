@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederInput;
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -60,13 +58,13 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_ikke_har_mottatt_stønad_før() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -79,17 +77,17 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_ikke_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_lenge_før() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(15),
                 LocalDate.now().minusMonths(5));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -98,17 +96,17 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_før() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().minusMonths(9),
                 LocalDate.now().minusMonths(0));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -119,20 +117,20 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_har_foreldrepenge_sak_under_behandling() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
 
         var scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         byggBehandling(scenarioFP, aktørId, annenAktørId);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.SYKEPENGER, LocalDate.now().minusMonths(5),
                 LocalDate.now().minusMonths(4)); // For å
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -143,17 +141,17 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_har__foreldrepenger_med_framtidig_start() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.FORELDREPENGER, LocalDate.now().plusMonths(4),
                 LocalDate.now().plusMonths(7));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -164,19 +162,19 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_har_mottatt_stønad_før_men_etter_stp() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
-        LocalDate fødselsdato = LocalDate.now().minusWeeks(6);
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
+        var fødselsdato = LocalDate.now().minusWeeks(6);
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadDato(LocalDate.now());
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, fødselsdato.plusWeeks(3),
                 fødselsdato.plusWeeks(3));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -187,16 +185,16 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_har_inntekt_fra_stønad() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
 
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseInntektForAktør(behandling.getId(), aktørId, LocalDate.now().minusMonths(2));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -207,17 +205,17 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_ikke_opprette_aksjonspunkt_hvis_behandling_har_type_REVURDERING() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
 
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
-        Behandling.Builder builder = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING);
-        Behandling revurdering = builder.build();
+        var builder = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING);
+        var revurdering = builder.build();
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(revurdering));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(revurdering));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -226,16 +224,16 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_annenpart_har_mottatt_stønad_før() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
 
         leggTilYtelseForAktør(behandling, annenAktørId, RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusMonths(2),
                 LocalDate.now().minusMonths(2));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);
@@ -246,17 +244,17 @@ public class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityMana
     @Test
     public void skal_opprette_aksjonspunkt_om_soker_annenpart_har_mottatt_fp_før() {
         // Arrange
-        AktørId aktørId = AktørId.dummy();
-        AktørId annenAktørId = AktørId.dummy();
+        var aktørId = AktørId.dummy();
+        var annenAktørId = AktørId.dummy();
         var scenarioFar = ScenarioFarSøkerForeldrepenger.forFødsel();
         byggBehandling(scenarioFar, annenAktørId, aktørId);
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        Behandling behandling = byggBehandling(scenario, aktørId, annenAktørId);
+        var behandling = byggBehandling(scenario, aktørId, annenAktørId);
         leggTilYtelseForAktør(behandling, behandling.getAktørId(), RelatertYtelseType.ENGANGSSTØNAD, LocalDate.now().minusYears(2),
                 LocalDate.now().minusYears(2));
 
         // Act
-        List<AksjonspunktResultat> aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
+        var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));
 
         // Assert
         assertThat(aksjonspunktResultater).hasSize(1);

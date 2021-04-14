@@ -46,7 +46,7 @@ public class RisikovurderingTjenesteTest {
 
     @BeforeEach
     public void setup() {
-        ScenarioMorSøkerForeldrepenger scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
         risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository,
             behandlingRepository,
@@ -57,7 +57,7 @@ public class RisikovurderingTjenesteTest {
     @Test
     public void skal_teste_at_risikowrapper_lagres_for_en_behandling_som_matcher_uuid() {
         // Arrange
-        UUID uuid = behandling.getUuid();
+        var uuid = behandling.getUuid();
         when(behandlingRepository.hentBehandlingHvisFinnes(uuid)).thenReturn(Optional.of(behandling));
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.empty());
 
@@ -71,7 +71,7 @@ public class RisikovurderingTjenesteTest {
     @Test
     public void skal_teste_at_risikowrapper_ikke_lagres_for_en_behandling_når_det_allerede_finnes_et_resultat() {
         // Arrange
-        UUID uuid = behandling.getUuid();
+        var uuid = behandling.getUuid();
         when(behandlingRepository.hentBehandlingHvisFinnes(uuid)).thenReturn(Optional.of(behandling));
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(RisikoklassifiseringEntitet.builder().buildFor(123L)));
 
@@ -86,7 +86,7 @@ public class RisikovurderingTjenesteTest {
     @Test
     public void skal_teste_at_risikowrapper_ikke_lagres_når_det_ikke_finnes_behandling_med_matchende_uuid() {
         // Arrange
-        UUID uuid = behandling.getUuid();
+        var uuid = behandling.getUuid();
         when(behandlingRepository.hentBehandlingHvisFinnes(uuid)).thenReturn(Optional.empty());
 
         // Act
@@ -102,7 +102,7 @@ public class RisikovurderingTjenesteTest {
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.empty());
 
         // Act
-        Optional<FaresignalWrapper> faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
+        var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(faresignalWrapper).isNotPresent();
@@ -115,7 +115,7 @@ public class RisikovurderingTjenesteTest {
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.IKKE_HØY)));
 
         // Act
-        Optional<FaresignalWrapper> faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
+        var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(faresignalWrapper).isPresent();
@@ -129,15 +129,15 @@ public class RisikovurderingTjenesteTest {
     @Test
     public void skal_teste_at_vi_henter_resultat_fra_fprisk_ved_høy_risiko() {
         // Arrange
-        UUID uuid = behandling.getUuid();
+        var uuid = behandling.getUuid();
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY)));
-        FaresignalerRespons respons = new FaresignalerRespons();
+        var respons = new FaresignalerRespons();
         when(hentFaresignalerTjeneste.hentFaresignalerForBehandling(uuid)).thenReturn(Optional.of(respons));
-        FaresignalWrapper wrapper = new FaresignalWrapper();
+        var wrapper = new FaresignalWrapper();
         when(mapper.fraFaresignalRespons(any())).thenReturn(wrapper);
 
         // Act
-        Optional<FaresignalWrapper> faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
+        var faresignalWrapper = risikovurderingTjeneste.finnKontrollresultatForBehandling(behandling);
 
         // Assert
         assertThat(faresignalWrapper).isPresent();
@@ -151,7 +151,7 @@ public class RisikovurderingTjenesteTest {
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.HØY)));
 
         // Act
-        boolean skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
+        var skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
 
         // Assert
         assertThat(skalOppretteAksjonspunkt).isTrue();
@@ -163,7 +163,7 @@ public class RisikovurderingTjenesteTest {
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(lagEntitet(Kontrollresultat.IKKE_HØY)));
 
         // Act
-        boolean skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
+        var skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
 
         // Assert
         assertThat(skalOppretteAksjonspunkt).isFalse();
@@ -175,7 +175,7 @@ public class RisikovurderingTjenesteTest {
         when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.empty());
 
         // Act
-        boolean skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
+        var skalOppretteAksjonspunkt = risikovurderingTjeneste.skalVurdereFaresignaler(behandling.getId());
 
         // Assert
         assertThat(skalOppretteAksjonspunkt).isFalse();

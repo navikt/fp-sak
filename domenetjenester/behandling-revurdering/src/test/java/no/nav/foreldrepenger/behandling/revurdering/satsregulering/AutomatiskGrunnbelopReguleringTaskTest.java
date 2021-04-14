@@ -7,8 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -24,9 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -60,10 +56,10 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     @Test
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
-        Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -74,19 +70,19 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     }
 
     private void assertRevurdering(Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Ingen revurdering").isPresent();
-        List<BehandlingÅrsak> behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
+        var behandlingÅrsaker = revurdering.get().getBehandlingÅrsaker();
         assertThat(behandlingÅrsaker).isNotEmpty();
-        List<BehandlingÅrsakType> årsaker = behandlingÅrsaker.stream()
+        var årsaker = behandlingÅrsaker.stream()
                 .map(bå -> bå.getBehandlingÅrsakType())
                 .collect(Collectors.toList());
         assertThat(årsaker).contains(behandlingÅrsakType);
     }
 
     private void assertIngenRevurdering(Fagsak fagsak) {
-        Optional<Behandling> revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var revurdering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 fagsak.getId(), BehandlingType.REVURDERING);
         assertThat(revurdering).as("Har revurdering: " + fagsak.getId()).isNotPresent();
     }
@@ -99,10 +95,10 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     @Test
     public void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
-        Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
+        var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
@@ -114,27 +110,27 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     @Test
     public void skal_køe_revurdering_dersom_åpen_berørt_på_fagsak() {
-        Behandling behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
-        ProsessTaskData prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
         prosessTaskData.setSekvens("1");
 
         var task = createTask();
         task.doTask(prosessTaskData);
 
-        Optional<Behandling> regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
+        var regulering = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(
                 behandling.getFagsakId(), BehandlingType.REVURDERING);
         assertThat(regulering.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING))).isPresent();
         verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status) {
-        LocalDate terminDato = LocalDate.now().plusDays(10);
+        var terminDato = LocalDate.now().plusDays(10);
 
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medSøknadDato(terminDato.minusDays(20));
 
         scenario.medSøknadHendelse()
@@ -163,11 +159,11 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         scenario.medBehandlingsresultat(
                 Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.setStatus(status);
         // Whitebox.setInternalState(behandling, "status", status);
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
         repositoryProvider.getOpptjeningRepository()

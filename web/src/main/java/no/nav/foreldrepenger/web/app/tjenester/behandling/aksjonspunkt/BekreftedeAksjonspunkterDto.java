@@ -30,7 +30,7 @@ public class BekreftedeAksjonspunkterDto implements AbacDto {
 
     public static BekreftedeAksjonspunkterDto lagDto(Long behandlingId, Long behandlingVersjon,
                                                      Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer) {
-        BekreftedeAksjonspunkterDto dto = new BekreftedeAksjonspunkterDto();
+        var dto = new BekreftedeAksjonspunkterDto();
         dto.behandlingId = new BehandlingIdDto(behandlingId);
         dto.behandlingVersjon = behandlingVersjon;
         dto.bekreftedeAksjonspunktDtoer = bekreftedeAksjonspunktDtoer;
@@ -51,14 +51,14 @@ public class BekreftedeAksjonspunkterDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abac = AbacDataAttributter.opprett();
-        
+        var abac = AbacDataAttributter.opprett();
+
         if(getBehandlingId().getBehandlingId()!=null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId().getBehandlingId());
         } else if (getBehandlingId().getBehandlingUuid() != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingId().getBehandlingUuid());
         }
-        
+
         bekreftedeAksjonspunktDtoer.forEach(apDto -> abac.leggTil(apDto.abacAttributter()));
         return abac;
     }

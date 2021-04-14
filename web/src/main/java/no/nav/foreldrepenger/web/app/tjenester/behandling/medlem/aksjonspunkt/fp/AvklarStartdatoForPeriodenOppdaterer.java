@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.BekreftStartdatoForPerioden;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
 @ApplicationScoped
@@ -46,22 +45,21 @@ public class AvklarStartdatoForPeriodenOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarStartdatoForPeriodenDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        OppdateringResultat.Builder resultatBuilder = OppdateringResultat.utenTransisjon();
+        var behandling = param.getBehandling();
+        var resultatBuilder = OppdateringResultat.utenTransisjon();
         avbrytOverflødigOverstyrAksjonpunkt(behandling)
             .ifPresent(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-        LocalDate skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
         var førsteUttakDato = param.getSkjæringstidspunkt().getFørsteUttaksdato();
-        LocalDate startdatoFraSoknad = dto.getStartdatoFraSoknad();
+        var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.equals(førsteUttakDato) || harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, skjæringstidspunkt)) {
 
             if (harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, skjæringstidspunkt)) {
                 return OppdateringResultat.utenTransisjon().medBeholdAksjonspunktÅpent().build();
-            } else {
-                HistorikkInnslagTekstBuilder tekstBuilder = historikkAdapter.tekstBuilder();
-                tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
-                tekstBuilder.medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, førsteUttakDato, startdatoFraSoknad);
             }
+            var tekstBuilder = historikkAdapter.tekstBuilder();
+            tekstBuilder.medSkjermlenke(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
+            tekstBuilder.medEndretFelt(HistorikkEndretFeltType.STARTDATO_FRA_SOKNAD, førsteUttakDato, startdatoFraSoknad);
         }
         ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(behandling.getId(), new BekreftStartdatoForPerioden(startdatoFraSoknad));
 

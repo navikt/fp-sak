@@ -18,9 +18,9 @@ public class LeggTilResultat {
             AksjonspunktÅrsak årsak,
             Arbeidsgiver arbeidsgiver,
             Set<InternArbeidsforholdRef> arbeidsforholdRefs) {
-        final Set<ArbeidsforholdMedÅrsak> arbeidsgiverSet = result.getOrDefault(arbeidsgiver, new HashSet<>());
+        final var arbeidsgiverSet = result.getOrDefault(arbeidsgiver, new HashSet<>());
         arbeidsforholdRefs.forEach(ref -> {
-            Optional<ArbeidsforholdMedÅrsak> arbeidsforhold = finnArbeidsforholdMedMatchendeReferanse(arbeidsgiverSet, ref);
+            var arbeidsforhold = finnArbeidsforholdMedMatchendeReferanse(arbeidsgiverSet, ref);
             if (arbeidsforhold.isPresent()) {
                 arbeidsforhold.get().leggTilÅrsak(årsak);
             } else {

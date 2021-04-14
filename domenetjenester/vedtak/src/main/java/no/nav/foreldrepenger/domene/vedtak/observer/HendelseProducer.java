@@ -30,7 +30,7 @@ public class HendelseProducer {
                             String schemaRegistryUrl,
                             String username,
                             String password) {
-        Properties properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl,
+        var properties = KafkaPropertiesUtil.opprettProperties(bootstrapServers, schemaRegistryUrl,
             getProducerClientId(topicName), username, password);
 
         this.topic = topicName;

@@ -11,12 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
 @Immutable
 @Entity(name = "Refusjonsinfo156")
@@ -90,7 +88,7 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
         if (!(object instanceof Refusjonsinfo156)) {
             return false;
         }
-        Refusjonsinfo156 refusjonsinfo156 = (Refusjonsinfo156) object;
+        var refusjonsinfo156 = (Refusjonsinfo156) object;
         return Objects.equals(maksDato, refusjonsinfo156.getMaksDato())
              && Objects.equals(refunderesId, refusjonsinfo156.getRefunderesId())
             && Objects.equals(datoFom, refusjonsinfo156.getDatoFom());
@@ -133,7 +131,7 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
 
         public Refusjonsinfo156 build() {
             verifyStateForBuild();
-            Refusjonsinfo156 refusjon156 = new Refusjonsinfo156();
+            var refusjon156 = new Refusjonsinfo156();
             refusjon156.maksDato = maksDato;
             refusjon156.refunderesId = refunderesId;
             refusjon156.datoFom = datoFom;

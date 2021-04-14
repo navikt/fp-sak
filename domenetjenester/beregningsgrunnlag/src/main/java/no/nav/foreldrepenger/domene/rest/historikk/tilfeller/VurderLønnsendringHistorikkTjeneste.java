@@ -25,8 +25,8 @@ public class VurderLønnsendringHistorikkTjeneste extends FaktaOmBeregningHistor
         if (!dto.getFaktaOmBeregningTilfeller().contains(FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING)) {
             return;
         }
-        VurderLønnsendringDto lønnsendringDto = dto.getVurdertLonnsendring();
-        Boolean opprinneligVerdiErLønnsendring = hentOpprinneligVerdiErLønnsendring(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
+        var lønnsendringDto = dto.getVurdertLonnsendring();
+        var opprinneligVerdiErLønnsendring = hentOpprinneligVerdiErLønnsendring(forrigeGrunnlag.flatMap(BeregningsgrunnlagGrunnlagEntitet::getBeregningsgrunnlag));
         lagHistorikkinnslag(lønnsendringDto, opprinneligVerdiErLønnsendring, tekstBuilder);
     }
 

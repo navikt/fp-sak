@@ -4,18 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -35,16 +30,16 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagreOgHenteOppdragskontroll() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
         // Act
         økonomioppdragRepository.lagre(oppdrkontroll);
 
         // Assert
-        Long id = oppdrkontroll.getId();
+        var id = oppdrkontroll.getId();
         assertThat(id).isNotNull();
 
-        Oppdragskontroll oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
+        var oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
 
         assertThat(oppdrkontrollLest).isNotNull();
     }
@@ -52,8 +47,8 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagreOgSøkeOppOppdragskontrollForPeriode() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Long behandlingId = oppdrkontroll.getBehandlingId();
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var behandlingId = oppdrkontroll.getBehandlingId();
         OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
 
         // Act
@@ -61,7 +56,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
 
-        List<Oppdrag110> oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
+        var oppdragListe = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now(),
             LocalDate.now(), KodeFagområde.ENGANGSSTØNAD);
         assertThat(oppdragListe.stream().map(o -> o.getOppdragskontroll().getBehandlingId())).contains(behandlingId);
     }
@@ -69,8 +64,8 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void finnAlleOppdragUtenKvittering() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
 
         økonomioppdragRepository.lagre(oppdrkontroll);
@@ -83,10 +78,10 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void kastExceptionHvisFlereOppdragUtenKvitteringFinnes() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
-        Oppdrag110 oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110_2);
 
         økonomioppdragRepository.lagre(oppdrkontroll);
@@ -98,10 +93,10 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void okHvisFlereOppdragFinnesMenKunEnnUtenKvittering() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
-        Oppdrag110 oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdr110_2 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
         OppdragTestDataHelper.buildOppdragslinje150(oppdr110_2);
         økonomioppdragRepository.lagre(oppdrkontroll);
 
@@ -122,7 +117,7 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         var førSize = økonomioppdragRepository.hentOppdrag110ForPeriodeOgFagområde(LocalDate.now().minusDays(1),
             LocalDate.now().minusDays(1), KodeFagområde.ENGANGSSTØNAD).size();
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
 
         // Act
         økonomioppdragRepository.lagre(oppdrkontroll);
@@ -137,17 +132,17 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagreOppdrag110() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
         OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
 
         // Act
-        long id = økonomioppdragRepository.lagre(oppdrkontroll);
+        var id = økonomioppdragRepository.lagre(oppdrkontroll);
 
         // Assert
 
-        Oppdragskontroll oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
+        var oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
         assertThat(oppdrkontrollLest.getOppdrag110Liste()).hasSize(1);
-        Oppdrag110 oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
+        var oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
         assertThat(oppdr110Lest).isNotNull();
         assertThat(oppdr110Lest.getId()).isNotEqualTo(0);
     }
@@ -155,9 +150,9 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagreOppdragKvittering() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        long id = økonomioppdragRepository.lagre(oppdrkontroll);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdrag110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var id = økonomioppdragRepository.lagre(oppdrkontroll);
 
         var oppdragKvittering = OppdragKvitteringTestUtil.lagPositivKvitting(oppdrag110);
 
@@ -166,31 +161,31 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
 
-        Oppdragskontroll oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
+        var oppdrkontrollLest = økonomioppdragRepository.hentOppdragskontroll(id);
         assertThat(oppdrkontrollLest.getOppdrag110Liste()).hasSize(1);
-        Oppdrag110 oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
+        var oppdr110Lest = oppdrkontrollLest.getOppdrag110Liste().get(0);
         assertThat(oppdr110Lest).isNotNull();
         assertThat(oppdr110Lest.getId()).isNotEqualTo(0);
-        OppdragKvittering oppdrKvittering = oppdr110Lest.getOppdragKvittering();
+        var oppdrKvittering = oppdr110Lest.getOppdragKvittering();
         assertThat(oppdrKvittering).isNotNull();
         assertThat(oppdrKvittering.getId()).isNotEqualTo(0);
     }
 
     @Test
     public void finnerAlleOppdragForSak() {
-        Saksnummer saksnr = new Saksnummer("1234");
-        long nyesteFagsystemId = 101L;
+        var saksnr = new Saksnummer("1234");
+        var nyesteFagsystemId = 101L;
 
-        Oppdragskontroll oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll(saksnr, 1L);
+        var oppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll(saksnr, 1L);
         OppdragTestDataHelper.buildOppdrag110ES(oppdragskontroll, 100L);
         økonomioppdragRepository.lagre(oppdragskontroll);
 
-        Oppdragskontroll nyesteOppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll(saksnr, 2L);
+        var nyesteOppdragskontroll = OppdragTestDataHelper.buildOppdragskontroll(saksnr, 2L);
         OppdragTestDataHelper.buildOppdrag110ES(nyesteOppdragskontroll, nyesteFagsystemId);
         økonomioppdragRepository.lagre(nyesteOppdragskontroll);
 
 
-        List<Oppdragskontroll> oppdragListe = økonomioppdragRepository.finnAlleOppdragForSak(saksnr);
+        var oppdragListe = økonomioppdragRepository.finnAlleOppdragForSak(saksnr);
         assertThat(oppdragListe).hasSize(2);
         assertThat(oppdragListe).containsExactlyInAnyOrder(oppdragskontroll, nyesteOppdragskontroll);
 
@@ -199,27 +194,27 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void lagreOppdragslinje150() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        Oppdragslinje150 oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
 
         // Act
         økonomioppdragRepository.lagre(oppdrkontroll);
 
         // Assert
-        Long id = oppdrLinje150.getId();
+        var id = oppdrLinje150.getId();
         assertThat(id).isNotNull();
 
-        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
+        var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
     }
 
     @Test
     public void lagreRefusjonsinfo156() {
         // Arrange
-        Oppdragskontroll oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
-        Oppdrag110 oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
-        Oppdragslinje150 oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
+        var oppdrkontroll = OppdragTestDataHelper.buildOppdragskontroll();
+        var oppdr110 = OppdragTestDataHelper.buildOppdrag110ES(oppdrkontroll, 44L);
+        var oppdrLinje150 = OppdragTestDataHelper.buildOppdragslinje150(oppdr110);
 
         OppdragTestDataHelper.buildRefusjonsinfo156(oppdrLinje150);
 
@@ -227,12 +222,12 @@ public class ØkonomioppdragRepositoryTest extends EntityManagerAwareTest {
         økonomioppdragRepository.lagre(oppdrkontroll);
 
         // Assert
-        Long id = oppdrLinje150.getId();
+        var id = oppdrLinje150.getId();
         assertThat(id).isNotNull();
 
-        Oppdragslinje150 oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
+        var oppdrLinje150Lest = entityManager.find(Oppdragslinje150.class, id);
         assertThat(oppdrLinje150Lest).isNotNull();
-        Refusjonsinfo156 refusjonsinfo156Lest = oppdrLinje150Lest.getRefusjonsinfo156();
+        var refusjonsinfo156Lest = oppdrLinje150Lest.getRefusjonsinfo156();
         assertThat(refusjonsinfo156Lest).isNotNull();
         assertThat(refusjonsinfo156Lest.getId()).isNotEqualTo(0);
     }

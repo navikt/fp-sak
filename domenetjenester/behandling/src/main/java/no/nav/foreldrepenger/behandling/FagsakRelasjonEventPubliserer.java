@@ -26,7 +26,7 @@ public class FagsakRelasjonEventPubliserer {
             return;
         }
 
-        FagsakRelasjonEvent event = new FagsakRelasjonEvent(fagsakRelasjon);
+        var event = new FagsakRelasjonEvent(fagsakRelasjon);
         fagsakRelasjonEvent.fire(event);
     }
 }

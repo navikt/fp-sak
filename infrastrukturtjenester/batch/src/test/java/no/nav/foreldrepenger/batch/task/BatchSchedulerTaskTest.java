@@ -33,7 +33,7 @@ public class BatchSchedulerTaskTest {
         // Arrange
         task.doTask(taskData);
         var props = testsupport.getTaskDataList();
-        List<String> matches = props.stream()
+        var matches = props.stream()
                 .map(t -> t.getProperty(BatchRunnerTask.BATCH_PARAMS))
                 .filter(Objects::nonNull)
                 .filter(s -> s.matches("[a-zA-Z,= ]*antallDager=[1-7]"))

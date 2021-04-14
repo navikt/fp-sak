@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
@@ -48,7 +47,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     void oppdaterFritekstVedtaksbrev(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
+        var behandling = param.getBehandling();
         settFritekstBrev(behandling, dto.getOverskrift(), dto.getFritekstBrev());
         opprettHistorikkinnslag(behandling);
     }
@@ -102,7 +101,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     OppdateringResultat standardHåndteringUtenTotrinn(VedtaksbrevOverstyringDto dto, AksjonspunktOppdaterParameter param) {
-        OppdateringResultat.Builder builder = OppdateringResultat.utenTransisjon();
+        var builder = OppdateringResultat.utenTransisjon();
         if (dto.isSkalBrukeOverstyrendeFritekstBrev()) {
             oppdaterFritekstVedtaksbrev(dto, param);
             builder.medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FATTE_VEDTAK);
@@ -113,15 +112,15 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     void opprettHistorikkinnslag(Behandling behandling) {
-        VedtakResultatType vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
+        var vedtakResultatType = vedtakTjeneste.utledVedtakResultatType(behandling);
 
-        HistorikkInnslagTekstBuilder tekstBuilder = new HistorikkInnslagTekstBuilder()
+        var tekstBuilder = new HistorikkInnslagTekstBuilder()
                 .medResultat(vedtakResultatType)
                 .medSkjermlenke(SkjermlenkeType.VEDTAK)
                 .medHendelse(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
                         : HistorikkinnslagType.FORSLAG_VEDTAK);
 
-        Historikkinnslag innslag = new Historikkinnslag();
+        var innslag = new Historikkinnslag();
         innslag.setType(BehandlingType.INNSYN.equals(behandling.getType()) ? HistorikkinnslagType.FORSLAG_VEDTAK_UTEN_TOTRINN
                 : HistorikkinnslagType.FORSLAG_VEDTAK);
         innslag.setAktør(HistorikkAktør.SAKSBEHANDLER);

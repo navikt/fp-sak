@@ -83,7 +83,7 @@ public class AksjonspunktResultat {
             return false;
         }
 
-        AksjonspunktResultat that = (AksjonspunktResultat) o;
+        var that = (AksjonspunktResultat) o;
 
         return aksjonspunktDefinisjon.getKode().equals(that.aksjonspunktDefinisjon.getKode());
     }

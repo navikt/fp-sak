@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +26,7 @@ public class SoapApiAbacTest {
      */
     @Test
     public void test_at_alle_soapmetoder_er_annotert_med_BeskyttetRessurs() throws Exception {
-        for (Method soapMethod : SoapApiTester.finnAlleSoapMetoder()) {
+        for (var soapMethod : SoapApiTester.finnAlleSoapMetoder()) {
             if (soapMethod.getAnnotation(BeskyttetRessurs.class) == null) {
                 throw new AssertionError("Mangler @" + BeskyttetRessurs.class.getSimpleName() + "-annotering på " + soapMethod);
             }
@@ -43,10 +42,10 @@ public class SoapApiAbacTest {
      */
     @Test
     public void test_at_alle_input_parametre_til_soapmetoder_er_annotert_med_TilpassetAbacAttributt() {
-        String feilmelding = "Parameter type %s på metode %s.%s må ha annotering " + TilpassetAbacAttributt.class.getSimpleName() + ".\n";
-        StringBuilder feilmeldinger = new StringBuilder();
-        for (Method soapMethod : soapMethods) {
-            for (Parameter parameter : soapMethod.getParameters()) {
+        var feilmelding = "Parameter type %s på metode %s.%s må ha annotering " + TilpassetAbacAttributt.class.getSimpleName() + ".\n";
+        var feilmeldinger = new StringBuilder();
+        for (var soapMethod : soapMethods) {
+            for (var parameter : soapMethod.getParameters()) {
                 if (parameter.getAnnotation(TilpassetAbacAttributt.class) == null) {
                     feilmeldinger.append(String.format(feilmelding, parameter.getType().getSimpleName(),
                             soapMethod.getDeclaringClass().getSimpleName(), soapMethod.getName()));

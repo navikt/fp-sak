@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -26,7 +24,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.UuidDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -70,13 +67,13 @@ public class VilkårRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getVilkår(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), false);
-        CacheControl cc = new CacheControl();
+        var dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), false);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);
@@ -91,13 +88,13 @@ public class VilkårRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getVilkårFull(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        Long behandlingId = behandlingIdDto.getBehandlingId();
-        Behandling behandling = behandlingId != null
+        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        List<VilkårDto> dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), true);
-        CacheControl cc = new CacheControl();
+        var dto = VilkårDtoMapper.lagVilkarDto(behandling, getBehandlingsresultat(behandling.getId()), true);
+        var cc = new CacheControl();
         cc.setNoCache(true);
         cc.setNoStore(true);
         cc.setMaxAge(0);

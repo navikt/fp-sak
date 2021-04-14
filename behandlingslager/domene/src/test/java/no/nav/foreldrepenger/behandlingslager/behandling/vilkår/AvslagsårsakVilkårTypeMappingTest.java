@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 
 public class AvslagsårsakVilkårTypeMappingTest {
@@ -16,7 +13,7 @@ public class AvslagsårsakVilkårTypeMappingTest {
 
     @Test
     public void skal_hente_alle_avslagsårsaker_gruppert_på_vilkårstype() {
-        Map<VilkårType, Set<Avslagsårsak>> map = VilkårType.finnAvslagårsakerGruppertPåVilkårType();
+        var map = VilkårType.finnAvslagårsakerGruppertPåVilkårType();
         assertThat(map.get(VilkårType.SØKERSOPPLYSNINGSPLIKT)).containsOnly(Avslagsårsak.MANGLENDE_DOKUMENTASJON);
         assertThat(map.get(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD))
                 .containsOnly(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F, Avslagsårsak.OMSORGSOVERTAKELSE_ETTER_56_UKER,

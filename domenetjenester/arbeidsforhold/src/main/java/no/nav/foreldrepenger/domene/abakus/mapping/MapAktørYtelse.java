@@ -149,7 +149,7 @@ public class MapAktørYtelse {
         }
 
         private YtelserDto mapTilYtelser(AktørYtelse ay) {
-            AktørIdPersonident person = new AktørIdPersonident(ay.getAktørId().getId());
+            var person = new AktørIdPersonident(ay.getAktørId().getId());
             return new YtelserDto(person)
                     .medYtelser(mapTilYtelser(ay.getAlleYtelser()));
         }
@@ -159,7 +159,7 @@ public class MapAktørYtelse {
         }
 
         private YtelseGrunnlagDto mapYtelseGrunnlag(YtelseGrunnlag gr) {
-            YtelseGrunnlagDto dto = new YtelseGrunnlagDto();
+            var dto = new YtelseGrunnlagDto();
             gr.getArbeidskategori().ifPresent(ak -> dto.setArbeidskategoriDto(KodeverkMapper.mapArbeidskategoriTilDto(ak)));
             gr.getOpprinneligIdentdato().ifPresent(dto::setOpprinneligIdentDato);
             gr.getDekningsgradProsent().map(Stillingsprosent::getVerdi).ifPresent(dto::setDekningsgradProsent);
@@ -190,7 +190,7 @@ public class MapAktørYtelse {
 
             ytelse.getYtelseGrunnlag().map(this::mapYtelseGrunnlag).ifPresent(gr -> dto.setGrunnlag(gr));
 
-            Comparator<AnvisningDto> compAnvisning = Comparator
+            var compAnvisning = Comparator
                     .comparing((AnvisningDto anv) -> anv.getPeriode().getFom(), Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(anv -> anv.getPeriode().getTom(), Comparator.nullsLast(Comparator.naturalOrder()));
 
@@ -237,10 +237,9 @@ public class MapAktørYtelse {
         private static Periode mapPeriode(LocalDate fom, LocalDate tom) {
             if (fom.isAfter(tom)) {
                 return new Periode(tom, tom); // kort ned til 1 dag
-            } else {
-                // do the right thing
-                return new Periode(fom, tom);
             }
+            // do the right thing
+            return new Periode(fom, tom);
 
         }
 

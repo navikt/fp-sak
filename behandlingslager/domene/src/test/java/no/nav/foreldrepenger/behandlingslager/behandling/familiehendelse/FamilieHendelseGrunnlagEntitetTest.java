@@ -16,22 +16,22 @@ public class FamilieHendelseGrunnlagEntitetTest {
     @Test
     public void endring_av_bekreftet_omsorg_familie_hendelse_ved_registerinnhenting() {
         // Grunnlag
-        final FamilieHendelseGrunnlagBuilder fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
+        final var fhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.empty());
 
-        final FamilieHendelseBuilder builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse(HendelseVersjonType.SØKNAD, true);
+        final var builderSøknad = opprettNyOmsorgovertagelseFamilieHendelse(HendelseVersjonType.SØKNAD, true);
 
         fhGrunnlagBuilder.medSøknadVersjon(builderSøknad);
         fhGrunnlagBuilder.medBekreftetVersjon(builderSøknad);
 
-        FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag = fhGrunnlagBuilder.build();
+        var familieHendelseGrunnlag = fhGrunnlagBuilder.build();
 
         // Oppdatering
-        FamilieHendelseGrunnlagBuilder oppdateringFhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.of(familieHendelseGrunnlag));
-        FamilieHendelseBuilder oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(),
+        var oppdateringFhGrunnlagBuilder = FamilieHendelseGrunnlagBuilder.oppdatere(Optional.of(familieHendelseGrunnlag));
+        var oppdateringFhBuilder = FamilieHendelseBuilder.oppdatere(familieHendelseGrunnlag.getBekreftetVersjon(),
                 HendelseVersjonType.BEKREFTET);
 
         oppdateringFhGrunnlagBuilder.medBekreftetVersjon(oppdateringFhBuilder);
-        FamilieHendelseGrunnlagEntitet build = oppdateringFhGrunnlagBuilder.build();
+        var build = oppdateringFhGrunnlagBuilder.build();
 
         assertThat(build.getSøknadVersjon()).isNotNull();
         assertThat(build.getBekreftetVersjon()).isNotNull();
@@ -41,11 +41,11 @@ public class FamilieHendelseGrunnlagEntitetTest {
     }
 
     private FamilieHendelseBuilder opprettNyOmsorgovertagelseFamilieHendelse(HendelseVersjonType type, boolean erOmsorgovertakelse) {
-        final FamilieHendelseBuilder familieHendelseBuilder = FamilieHendelseBuilder.ny(type);
-        final int antallBarn = 1;
-        LocalDate ommsorgsovertakelseDato = LocalDate.of(2015, 7, 12);
+        final var familieHendelseBuilder = FamilieHendelseBuilder.ny(type);
+        final var antallBarn = 1;
+        var ommsorgsovertakelseDato = LocalDate.of(2015, 7, 12);
 
-        final FamilieHendelseBuilder.AdopsjonBuilder adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder()
+        final var adopsjonBuilder = familieHendelseBuilder.getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(ommsorgsovertakelseDato);
 
         if (erOmsorgovertakelse) {

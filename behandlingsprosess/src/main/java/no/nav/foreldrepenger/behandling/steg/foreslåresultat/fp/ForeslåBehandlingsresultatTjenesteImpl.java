@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
@@ -61,7 +60,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
 
     @Override
     public Behandlingsresultat foreslåBehandlingsresultat(BehandlingReferanse ref) {
-        Optional<Behandlingsresultat> behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId());
         if (behandlingsresultat.isPresent()) {
             if (sjekkVilkårAvslått(behandlingsresultat.get())) {
                 vilkårAvslått(ref, behandlingsresultat.get());
@@ -72,7 +71,7 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
                 Optional.ofNullable(behandlingsresultat.get().getAvslagsårsak())
                         .ifPresent(ufjernetÅrsak -> behandlingsresultat.get().setAvslagsårsak(Avslagsårsak.UDEFINERT));
                 if (ref.erRevurdering()) {
-                    boolean erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
+                    var erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
                     return revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
                 }
             }
@@ -85,16 +84,16 @@ class ForeslåBehandlingsresultatTjenesteImpl implements no.nav.foreldrepenger.b
     }
 
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
-        Optional<Vilkår> ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
+        var ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
         ikkeOppfyltVilkår.ifPresent(vilkår -> {
-            Avslagsårsak avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
+            var avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
             behandlingsresultat.setAvslagsårsak(avslagsårsak);
         });
         if (ref.erRevurdering()) {
-            boolean erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
+            var erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
             revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);
         } else {
-            Behandlingsresultat.Builder resultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
+            var resultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat)
                     .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT);
             if (skalTilInfoTrygd(ref)) {
                 resultatBuilder.medVedtaksbrev(Vedtaksbrev.INGEN);

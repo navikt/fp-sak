@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.fpsak.tidsserie.LocalDateTimeline;
 
 public class VurderBehovForÅHindreTilbaketrekkTest {
 
@@ -38,17 +37,17 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void ingenEndringSkalGiEmpty() {
         // Arrange
-        int inntektBeløp = 1000;
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(0, inntektBeløp);
-        BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(0, inntektBeløp);
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var inntektBeløp = 1000;
+        var forrigeTY = lagBeregningsresultatFP(0, inntektBeløp);
+        var denneTY = lagBeregningsresultatFP(0, inntektBeløp);
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -57,13 +56,13 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void økningIRefusjonOgReduksjonFraBrukerSkalGiEndringsdato() {
         // Arrange
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(200, 800);
-        BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(0, 1000);
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
+        var forrigeTY = lagBeregningsresultatFP(200, 800);
+        var denneTY = lagBeregningsresultatFP(0, 1000);
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO), List.of(), SKJÆRINGSTIDSPUNKT);
 
@@ -74,16 +73,16 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void ingenRefusjonIForrigeOgFullRefusjonIRevurderingSkalGiEndringsdato() {
         // Arrange
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(1000, 0);
-        BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(0, 1000);
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTY = lagBeregningsresultatFP(1000, 0);
+        var denneTY = lagBeregningsresultatFP(0, 1000);
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -92,15 +91,15 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void ingenTilkjentYtelseIRevurderingSkalGiEmpty() {
         // Arrange
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(0, 1000);
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var forrigeTY = lagBeregningsresultatFP(0, 1000);
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
         List<BeregningsresultatPeriode> denneTYPerioder = Collections.emptyList();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -109,16 +108,16 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void økningSkalGiEmpty() {
         // Arrange
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(0, 1000);
-        BeregningsresultatEntitet denneTY = lagBeregningsresultatFP(200, 800);
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTY = lagBeregningsresultatFP(0, 1000);
+        var denneTY = lagBeregningsresultatFP(200, 800);
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -127,33 +126,33 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void reduksjonEtterUtbetaltTomSkalGiEmpty() {
         // Arrange
-        BeregningsresultatEntitet forrigeTY = lagBeregningsresultatFP(200, 800);
+        var forrigeTY = lagBeregningsresultatFP(200, 800);
 
-        BeregningsresultatEntitet br = BeregningsresultatEntitet.builder()
+        var br = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder()
+        var periode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(br);
         lagAndel(periode1, ARBEIDSGIVER1, true, 200);
         lagAndel(periode1, ARBEIDSGIVER1, false, 800);
-        BeregningsresultatPeriode periode2 = BeregningsresultatPeriode.builder()
+        var periode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(br);
         lagAndel(periode2, ARBEIDSGIVER1, true, 0);
         lagAndel(periode2, ARBEIDSGIVER1, false, 1000);
-        BeregningsresultatEntitet denneTY = periode1.getBeregningsresultat();
+        var denneTY = periode1.getBeregningsresultat();
 
-        List<BeregningsresultatPeriode> forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = denneTY.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTYPerioder = forrigeTY.getBeregningsresultatPerioder();
+        var denneTYPerioder = denneTY.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -162,46 +161,46 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void bortfaltAndelSkalIkkeGiAksjonspunkt() {
         // Arrange
-        BeregningsresultatEntitet originalBR = BeregningsresultatEntitet.builder()
+        var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode originalPeriode1 = BeregningsresultatPeriode.builder()
+        var originalPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 200);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, false, 800);
-        BeregningsresultatPeriode originalPeriode2 = BeregningsresultatPeriode.builder()
+        var originalPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(originalBR);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, true, 0);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, false, 1000);
 
-        BeregningsresultatEntitet revurderingBR = BeregningsresultatEntitet.builder()
+        var revurderingBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode revurderingPeriode1 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER2, true, 200);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER2, false, 800);
-        BeregningsresultatPeriode revurderingPeriode2 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 1000);
 
-        List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
+        var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isFalse();
@@ -210,33 +209,33 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void originalAndelUtenReferanseOgRefusjonSplittetTilToAndelerMedReferanseOgRefusjon() {
         // Arrange
-        BeregningsresultatEntitet originalBR = BeregningsresultatEntitet.builder()
+        var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode originalPeriode1 = BeregningsresultatPeriode.builder()
+        var originalPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 1000, null);
-        BeregningsresultatPeriode originalPeriode2 = BeregningsresultatPeriode.builder()
+        var originalPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(originalBR);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, true, 1000, null);
 
-        BeregningsresultatEntitet revurderingBR = BeregningsresultatEntitet.builder()
+        var revurderingBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode revurderingPeriode1 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF2);
-        BeregningsresultatPeriode revurderingPeriode2 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF1);
@@ -244,14 +243,14 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 500, REF2);
 
-        List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
+        var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isTrue();
@@ -266,35 +265,35 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     @Test
     public void revurderingAndelerMedReferanseSomIkkeMatcherOriginaleAndelerOgOriginalAndelerHarIkkeNullReferanse() {
         // Arrange
-        BeregningsresultatEntitet originalBR = BeregningsresultatEntitet.builder()
+        var originalBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode originalPeriode1 = BeregningsresultatPeriode.builder()
+        var originalPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 0, REF3);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, false, 1000, REF3);
-        BeregningsresultatPeriode originalPeriode2 = BeregningsresultatPeriode.builder()
+        var originalPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(originalBR);
         lagAndel(originalPeriode1, ARBEIDSGIVER1, true, 0, REF3);
         lagAndel(originalPeriode2, ARBEIDSGIVER1, false, 1000, REF3);
 
-        BeregningsresultatEntitet revurderingBR = BeregningsresultatEntitet.builder()
+        var revurderingBR = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode revurderingPeriode1 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(revurderingBR);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF1);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode1, ARBEIDSGIVER1, false, 500, REF2);
-        BeregningsresultatPeriode revurderingPeriode2 = BeregningsresultatPeriode.builder()
+        var revurderingPeriode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(revurderingBR);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF1);
@@ -302,21 +301,21 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, true, 0, REF2);
         lagAndel(revurderingPeriode2, ARBEIDSGIVER1, false, 500, REF2);
 
-        List<BeregningsresultatPeriode> forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
-        List<BeregningsresultatPeriode> denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
-        LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
+        var forrigeTYPerioder = originalBR.getBeregningsresultatPerioder();
+        var denneTYPerioder = revurderingBR.getBeregningsresultatPerioder();
+        var brAndelTidslinje = MapBRAndelSammenligningTidslinje.opprettTidslinjeTest(
                 forrigeTYPerioder,
                 denneTYPerioder, DAGENS_DATO);
 
         // Act
-        boolean resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
+        var resultat = VurderBehovForÅHindreTilbaketrekk.skalVurdereTilbaketrekk(brAndelTidslinje, List.of(), SKJÆRINGSTIDSPUNKT);
 
         // Assert
         assertThat(resultat).isTrue();
     }
 
     private BeregningsresultatEntitet lagBeregningsresultatFP(int dagsatsBruker, int dagsatsArbeidsgiver) {
-        List<BeregningsresultatPeriode> brpList = lagBeregningsresultatPeriode();
+        var brpList = lagBeregningsresultatPeriode();
         brpList.forEach(brp -> {
             lagAndel(brp, ARBEIDSGIVER1, true, dagsatsBruker);
             if (dagsatsArbeidsgiver > 0) {
@@ -327,15 +326,15 @@ public class VurderBehovForÅHindreTilbaketrekkTest {
     }
 
     private List<BeregningsresultatPeriode> lagBeregningsresultatPeriode() {
-        BeregningsresultatEntitet br = BeregningsresultatEntitet.builder()
+        var br = BeregningsresultatEntitet.builder()
                 .medRegelSporing("regelsporing")
                 .medRegelInput("regelinput")
                 .build();
 
-        BeregningsresultatPeriode periode1 = BeregningsresultatPeriode.builder()
+        var periode1 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(SKJÆRINGSTIDSPUNKT, ANDRE_PERIODE_FOM.minusDays(1))
                 .build(br);
-        BeregningsresultatPeriode periode2 = BeregningsresultatPeriode.builder()
+        var periode2 = BeregningsresultatPeriode.builder()
                 .medBeregningsresultatPeriodeFomOgTom(ANDRE_PERIODE_FOM, SISTE_UTTAKSDAG)
                 .build(br);
         return List.of(periode1, periode2);

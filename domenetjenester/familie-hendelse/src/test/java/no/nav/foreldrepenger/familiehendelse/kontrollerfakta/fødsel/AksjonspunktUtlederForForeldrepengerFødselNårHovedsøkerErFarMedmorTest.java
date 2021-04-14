@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -56,10 +53,10 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     @Test
     public void ingen_akjsonspunkter_dersom_fødsel_registrert_i_TPS_og_antall_barn_stemmer_med_søknad() {
         // Oppsett
-        AksjonspunktUtlederForForeldrepengerFødsel testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
+        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
 
-        Behandling behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, 1);
-        List<AksjonspunktResultat> utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
+        var behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 1, 1);
+        var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).isEmpty();
         verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
@@ -72,10 +69,10 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     @Test
     public void sjekk_manglende_fødsel_dersom_fødsel_registrert_i_TPS_og_antall_barn_ikke_stemmer_med_søknad() {
         // Oppsett
-        AksjonspunktUtlederForForeldrepengerFødsel testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
+        var testObjekt = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(mock(InntektArbeidYtelseTjeneste.class), familieHendelseTjeneste));
 
-        Behandling behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 2, 1);
-        List<AksjonspunktResultat> utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
+        var behandling = opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate.now(), 2, 1);
+        var utledeteAksjonspunkter = testObjekt.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(testObjekt).samsvarerAntallBarnISøknadMedAntallBarnITps(any(FamilieHendelseGrunnlagEntitet.class));
@@ -83,8 +80,8 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
 
     @Test
     public void sjekk_aksjonspunkter_når_søker_oppgir_termindato() {
-        Behandling behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var behandling = opprettBehandlingMedOppgittTerminOgBehandlingType(TERMINDAT0_NÅ);
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).hasSize(2);
         assertThat(utledeteAksjonspunkter.get(0).getAksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
@@ -93,8 +90,8 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
 
     @Test
     public void sjekk_manglende_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
-        Behandling behandling = opprettBehandlingMedOppgittFødsel(FØDSEL_17_SIDEN);
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var behandling = opprettBehandlingMedOppgittFødsel(FØDSEL_17_SIDEN);
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(SJEKK_MANGLENDE_FØDSEL));
         verify(apUtleder).erFristForRegistreringAvFødselPassert(any(FamilieHendelseGrunnlagEntitet.class));
@@ -102,8 +99,8 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
 
     @Test
     public void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_14_dager_siden_fødsel() {
-        Behandling behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now());
-        List<AksjonspunktResultat> utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
+        var behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now());
+        var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));
         assertThat(utledeteAksjonspunkter.get(0).getFrist()).isNotNull();
@@ -112,7 +109,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     private Behandling opprettBehandlingFarSøkerFødselRegistrertITps(LocalDate fødseldato, int antallBarnSøknad, int antallBarnTps) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger
+        var scenario = ScenarioFarSøkerForeldrepenger
             .forFødsel();
         scenario.medSøknadHendelse()
             .medFødselsDato(fødseldato, antallBarnSøknad)
@@ -123,7 +120,7 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     private Behandling opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate termindato) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger
+        var scenario = ScenarioFarSøkerForeldrepenger
             .forFødselMedGittAktørId(GITT_AKTØR_ID);
         scenario.medSøknadHendelse().medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medUtstedtDato(LocalDate.now())
@@ -134,16 +131,16 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedm
     }
 
     private Behandling opprettBehandlingMedOppgittFødsel(LocalDate fødseldato) {
-        ScenarioFarSøkerForeldrepenger scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødseldato);
         leggTilSøker(scenario, NavBrukerKjønn.MANN);
         return scenario.lagre(repositoryProvider);
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
             .build();

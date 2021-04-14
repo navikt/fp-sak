@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -24,12 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -70,7 +67,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         if (uttak.isEmpty() || uttak.get().getGjeldendePerioder().isEmpty()) {
             return Optional.empty();
         }
-        Set<PeriodeResultatÅrsak> opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
+        var opphørsAvslagÅrsaker = IkkeOppfyltÅrsak.opphørsAvslagÅrsaker();
         var perioder = uttak.get().getGjeldendePerioder()
             .stream()
             .sorted(Comparator.comparing(ForeldrepengerUttakPeriode::getFom).reversed())
@@ -80,7 +77,7 @@ public class BeregningsresultatMedUttaksplanMapper {
         if (!opphørsAvslagÅrsaker.contains(sistePeriode.getResultatÅrsak())) {
             return Optional.empty();
         }
-        LocalDate opphørsdato = sistePeriode.getFom();
+        var opphørsdato = sistePeriode.getFom();
         for (var periode : perioder) {
             if (opphørsAvslagÅrsaker.contains(periode.getResultatÅrsak()) && periode.getFom().isBefore(opphørsdato)) {
                 opphørsdato = periode.getFom();
@@ -97,8 +94,8 @@ public class BeregningsresultatMedUttaksplanMapper {
 
     List<BeregningsresultatPeriodeDto> lagPerioder(long behandlingId, BeregningsresultatEntitet beregningsresultat, Optional<ForeldrepengerUttak> uttak) {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingId);
-        List<BeregningsresultatPeriode> beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder();
-        Map<Tuple<AktivitetStatus, Optional<String>>, Optional<LocalDate>> andelTilSisteUtbetalingsdatoMap = finnSisteUtbetalingdatoForAlleAndeler(beregningsresultatPerioder);
+        var beregningsresultatPerioder = beregningsresultat.getBeregningsresultatPerioder();
+        var andelTilSisteUtbetalingsdatoMap = finnSisteUtbetalingdatoForAlleAndeler(beregningsresultatPerioder);
         return beregningsresultatPerioder.stream()
             .sorted(Comparator.comparing(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom))
             .map(beregningsresultatPeriode -> BeregningsresultatPeriodeDto.build()
@@ -115,16 +112,16 @@ public class BeregningsresultatMedUttaksplanMapper {
                                                        Map<Tuple<AktivitetStatus, Optional<String>>, Optional<LocalDate>> andelTilSisteUtbetalingsdatoMap,
                                                        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag) {
 
-        List<BeregningsresultatAndel> beregningsresultatAndelList = beregningsresultatPeriode.getBeregningsresultatAndelList();
+        var beregningsresultatAndelList = beregningsresultatPeriode.getBeregningsresultatAndelList();
 
         // grupper alle andeler som har samme aktivitetstatus og arbeidsforholdId og legg dem i en tuple med hendholdsvis brukers og arbeidsgivers andel
-        List<Tuple<BeregningsresultatAndel, Optional<BeregningsresultatAndel>>> andelListe = genererAndelListe(beregningsresultatAndelList);
+        var andelListe = genererAndelListe(beregningsresultatAndelList);
         return andelListe.stream()
             .map(andelPar -> {
-                BeregningsresultatAndel brukersAndel = andelPar.getElement1();
-                Optional<BeregningsresultatAndel> arbeidsgiversAndel = andelPar.getElement2();
-                Optional<Arbeidsgiver> arbeidsgiver = brukersAndel.getArbeidsgiver();
-                BeregningsresultatPeriodeAndelDto.Builder dtoBuilder = BeregningsresultatPeriodeAndelDto.build()
+                var brukersAndel = andelPar.getElement1();
+                var arbeidsgiversAndel = andelPar.getElement2();
+                var arbeidsgiver = brukersAndel.getArbeidsgiver();
+                var dtoBuilder = BeregningsresultatPeriodeAndelDto.build()
                     .medRefusjon(arbeidsgiversAndel.map(BeregningsresultatAndel::getDagsats).orElse(0))
                     .medTilSøker(brukersAndel.getDagsats())
                     .medUtbetalingsgrad(brukersAndel.getUtbetalingsgrad())
@@ -169,16 +166,16 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     private List<Tuple<BeregningsresultatAndel, Optional<BeregningsresultatAndel>>> genererAndelListe(List<BeregningsresultatAndel> beregningsresultatAndelList) {
-        Map<Tuple<AktivitetStatus, Optional<String>>, List<BeregningsresultatAndel>> collect = beregningsresultatAndelList.stream()
+        var collect = beregningsresultatAndelList.stream()
             .collect(Collectors.groupingBy(this::genererAndelKey));
 
         return collect.values().stream().map(andeler -> {
-            BeregningsresultatAndel brukerAndel = andeler.stream()
+            var brukerAndel = andeler.stream()
                 .filter(BeregningsresultatAndel::erBrukerMottaker)
                 .reduce(this::slåSammenAndeler)
                 .orElseThrow(() -> new IllegalStateException("Utvilkerfeil: Mangler andel for bruker, men skal alltid ha andel for bruker her."));
 
-            Optional<BeregningsresultatAndel> arbeidsgiverAndel = andeler.stream()
+            var arbeidsgiverAndel = andeler.stream()
                 .filter(a -> !a.erBrukerMottaker())
                 .reduce(this::slåSammenAndeler);
 
@@ -194,7 +191,8 @@ public class BeregningsresultatMedUttaksplanMapper {
         // 2. orgNr
         if (andel.getArbeidsforholdRef() != null && andel.getArbeidsforholdRef().getReferanse() != null) {
             return Optional.of(andel.getArbeidsforholdRef().getReferanse());
-        } else return andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator);
+        }
+        return andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator);
     }
 
     private UttakDto lagUttak(Optional<ForeldrepengerUttak> uttak,
@@ -207,7 +205,7 @@ public class BeregningsresultatMedUttaksplanMapper {
 
         var perioder = uttak.get().getGjeldendePerioder();
 
-        Optional<UttakDto> uttakDto = perioder.stream()
+        var uttakDto = perioder.stream()
             .findAny()
             .map(uttakPerArbeidsforhold -> finnTilhørendeUttakPeriodeAktivitet(perioder, beregningsresultatPeriode))
             .flatMap(uttakPeriode -> lagUttakDto(uttakPeriode, brukersAndel));
@@ -219,7 +217,7 @@ public class BeregningsresultatMedUttaksplanMapper {
 
     private Optional<UttakDto> lagUttakDto(ForeldrepengerUttakPeriode uttakPeriode, BeregningsresultatAndel brukersAndel) {
         var aktiviteter = uttakPeriode.getAktiviteter();
-        Optional<ForeldrepengerUttakPeriodeAktivitet> korrektUttakAndelOpt = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
+        var korrektUttakAndelOpt = finnKorrektUttaksAndel(brukersAndel, aktiviteter);
         return korrektUttakAndelOpt.map(foreldrepengerUttakPeriodeAktivitet -> UttakDto.build()
             .medStønadskontoType(foreldrepengerUttakPeriodeAktivitet.getTrekkonto())
             .medPeriodeResultatType(uttakPeriode.getResultatType())
@@ -235,13 +233,14 @@ public class BeregningsresultatMedUttaksplanMapper {
     private Optional<ForeldrepengerUttakPeriodeAktivitet> finnKorrektUttaksAndel(BeregningsresultatAndel brukersAndel, List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
         if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             return førsteAvType(aktiviteter, UttakArbeidType.FRILANS);
-        } else if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
-            return førsteAvType(aktiviteter, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
-        } else if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)) {
-            return finnKorrektArbeidstakerAndel(brukersAndel, aktiviteter);
-        } else {
-            return førsteAvType(aktiviteter, UttakArbeidType.ANNET);
         }
+        if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
+            return førsteAvType(aktiviteter, UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
+        }
+        if (brukersAndel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)) {
+            return finnKorrektArbeidstakerAndel(brukersAndel, aktiviteter);
+        }
+        return førsteAvType(aktiviteter, UttakArbeidType.ANNET);
     }
 
     private Optional<ForeldrepengerUttakPeriodeAktivitet> førsteAvType(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter, UttakArbeidType type) {
@@ -276,9 +275,9 @@ public class BeregningsresultatMedUttaksplanMapper {
     }
 
     private BeregningsresultatAndel slåSammenAndeler(BeregningsresultatAndel a, BeregningsresultatAndel b) {
-        InternArbeidsforholdRef førsteArbeidsforholdId = a.getArbeidsforholdRef();
-        InternArbeidsforholdRef andreArbeidsforholdId = b.getArbeidsforholdRef();
-        boolean harUlikeArbeidsforholdIder = false;
+        var førsteArbeidsforholdId = a.getArbeidsforholdRef();
+        var andreArbeidsforholdId = b.getArbeidsforholdRef();
+        var harUlikeArbeidsforholdIder = false;
         if (førsteArbeidsforholdId != null && andreArbeidsforholdId != null) {
             harUlikeArbeidsforholdIder = !Objects.equals(førsteArbeidsforholdId.getReferanse(), andreArbeidsforholdId.getReferanse());
         }
@@ -288,7 +287,7 @@ public class BeregningsresultatMedUttaksplanMapper {
             || !a.getBeregningsresultatPeriode().equals(b.getBeregningsresultatPeriode())) {
             throw new IllegalStateException("Utviklerfeil: Andeler som slås sammen skal ikke ha ulikt arbeidsforhold, periode, stillingsprosent eller utbetalingsgrad");
         }
-        BeregningsresultatAndel ny = Kopimaskin.deepCopy(a, a.getBeregningsresultatPeriode());
+        var ny = Kopimaskin.deepCopy(a, a.getBeregningsresultatPeriode());
         BeregningsresultatAndel.builder(ny)
             .medDagsats(a.getDagsats() + b.getDagsats())
             .medDagsatsFraBg(a.getDagsatsFraBg() + b.getDagsatsFraBg());

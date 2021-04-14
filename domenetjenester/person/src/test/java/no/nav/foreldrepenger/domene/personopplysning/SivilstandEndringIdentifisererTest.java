@@ -19,26 +19,26 @@ public class SivilstandEndringIdentifisererTest {
 
     @Test
     public void testSivilstandUendret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erSivilstandEndretForBruker();
+        var erEndret = differ.erSivilstandEndretForBruker();
         assertThat(erEndret).as("Forventer at sivilstand er uendret").isFalse();
     }
 
     @Test
     public void testSivilstandEndret() {
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
-        PersonopplysningGrunnlagEntitet personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.UGIFT);
-        PersonopplysningGrunnlagDiff differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
+        var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(SivilstandType.GIFT);
+        var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(SivilstandType.UGIFT);
+        var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        boolean erEndret = differ.erSivilstandEndretForBruker();
+        var erEndret = differ.erSivilstandEndretForBruker();
         assertThat(erEndret).as("Forventer at endring i sivilstand blir detektert.").isTrue();
     }
 
     private PersonopplysningGrunnlagEntitet opprettPersonopplysningGrunnlag(SivilstandType sivilstand) {
-        final PersonInformasjonBuilder builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
+        final var builder1 = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
         builder1.leggTil(builder1.getPersonopplysningBuilder(AKTØRID).medSivilstand(sivilstand));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }

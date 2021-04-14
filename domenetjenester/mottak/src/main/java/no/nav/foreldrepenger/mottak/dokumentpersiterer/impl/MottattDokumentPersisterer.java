@@ -58,7 +58,8 @@ public class MottattDokumentPersisterer {
 
         if (instance.isAmbiguous()) {
             throw new TekniskException("FP-947148", "Mer enn en implementasjon funnet for skjematype " + namespace);
-        } else if (instance.isUnsatisfied()) {
+        }
+        if (instance.isUnsatisfied()) {
             throw MottattDokumentFeil.ukjentSkjemaType(namespace);
         }
         var minInstans = instance.get();

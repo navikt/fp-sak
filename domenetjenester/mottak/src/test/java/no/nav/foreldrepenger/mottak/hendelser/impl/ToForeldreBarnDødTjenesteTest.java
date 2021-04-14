@@ -43,9 +43,9 @@ public class ToForeldreBarnDødTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        ScenarioMorSøkerForeldrepenger scenarioF1 = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenarioF1 = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioF1.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        ScenarioFarSøkerForeldrepenger scenarioF2 = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var scenarioF2 = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenarioF2.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         behandlingF1 = scenarioF1.lagMocked();
         behandlingF2 = scenarioF2.lagMocked();
@@ -62,7 +62,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF1);
@@ -84,7 +84,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF1);
@@ -108,7 +108,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF2);
@@ -123,7 +123,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF1);
@@ -138,7 +138,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF2);
@@ -152,7 +152,7 @@ public class ToForeldreBarnDødTjenesteTest {
         toForeldreBarnDødTjeneste = new ToForeldreBarnDødTjeneste(uttakTjeneste);
 
         // Act
-        Behandling behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
+        var behandlingSomSkalRevurderes = toForeldreBarnDødTjeneste.finnBehandlingSomSkalRevurderes(behandlingF1, behandlingF2);
 
         // Assert
         assertThat(behandlingSomSkalRevurderes).isEqualTo(behandlingF1);

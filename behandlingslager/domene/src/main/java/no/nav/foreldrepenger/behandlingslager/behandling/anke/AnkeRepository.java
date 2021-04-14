@@ -9,7 +9,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -35,7 +34,7 @@ public class AnkeRepository {
     private Optional<AnkeResultatEntitet> hentAnkeResultat(Long ankeBehandlingId) {
         Objects.requireNonNull(ankeBehandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
 
-        final TypedQuery<AnkeResultatEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             " FROM AnkeResultat WHERE ankeBehandlingId = :behandlingId", AnkeResultatEntitet.class);// NOSONAR //$NON-NLS-1$
         query.setParameter("behandlingId", ankeBehandlingId);
         return hentUniktResultat(query);
@@ -43,21 +42,21 @@ public class AnkeRepository {
 
     private Optional<AnkeVurderingResultatEntitet> hentVurderingsResultaterForAnkeBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR //$NON-NLS-1$
-        final TypedQuery<AnkeVurderingResultatEntitet> query = entityManager.createQuery(
+        final var query = entityManager.createQuery(
             " FROM AnkeVurderingResultat WHERE ankeResultat.ankeBehandlingId = :behandlingId", AnkeVurderingResultatEntitet.class);// NOSONAR //$NON-NLS-1$
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     private AnkeResultatEntitet leggTilAnkeResultat(Long ankeBehandlingId) {
-        AnkeResultatEntitet nyttResultat = AnkeResultatEntitet.builder().medAnkeBehandlingId(ankeBehandlingId).build();
+        var nyttResultat = AnkeResultatEntitet.builder().medAnkeBehandlingId(ankeBehandlingId).build();
         entityManager.persist(nyttResultat);
         entityManager.flush();
         return nyttResultat;
     }
 
     public void settPåAnketBehandling(Long ankeBehandlingId, Long påAnketBehandlingId) {
-        AnkeResultatEntitet ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandlingId);
+        var ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandlingId);
         if (Objects.equals(påAnketBehandlingId, ankeResultat.getPåAnketBehandlingId().orElse(null))) {
             return;
         }

@@ -30,12 +30,12 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
                 return false;
             }
 
-            List<Arbeidsgiver> arbeidsgivere = finnRelevanteArbeidsgivereMedLøpendeAvtaleEllerAvtaleSomErGyldigPåStp(skjæringstidspunkt, filter);
+            var arbeidsgivere = finnRelevanteArbeidsgivereMedLøpendeAvtaleEllerAvtaleSomErGyldigPåStp(skjæringstidspunkt, filter);
             if (arbeidsgivere.isEmpty()) {
                 return false;
             }
 
-            InntektFilter inntektFilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterPensjonsgivende();
+            var inntektFilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId)).før(skjæringstidspunkt).filterPensjonsgivende();
             if (inntektFilter.isEmpty()) {
                 return false;
             }
@@ -62,7 +62,7 @@ class FinnOmSøkerHarArbeidsforholdOgInntekt {
 
     private static boolean sjekkOmGjelderRelevantArbeidsgiverOgNærSkjæringstidspunktet(InntektFilter filter, LocalDate skjæringstidspunkt,
                                                                                        List<Arbeidsgiver> aktørArbeid) {
-        LocalDate iDag = LocalDate.now();
+        var iDag = LocalDate.now();
         return filter.anyMatchFilter((inntekt, inntektspost) -> {
             return aktørArbeid.contains(inntekt.getArbeidsgiver())
                 && ErInntektNærSkjæringstidspunkt.erNær(inntektspost, skjæringstidspunkt, iDag);

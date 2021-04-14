@@ -3,22 +3,17 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -45,10 +40,10 @@ public class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void skal_generere_historikkinnslag_ved_avklaring_av_ektefelle() {
         // Arrange
-        boolean oppdatertEktefellesBarn = true;
+        var oppdatertEktefellesBarn = true;
 
         // Behandling
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
+        var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(LocalDate.now()));
@@ -62,26 +57,26 @@ public class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 
-        Behandling behandling = scenario.getBehandling();
+        var behandling = scenario.getBehandling();
 
         // Dto
-        BekreftEktefelleAksjonspunktDto dto = new BekreftEktefelleAksjonspunktDto("begrunnelse", oppdatertEktefellesBarn);
+        var dto = new BekreftEktefelleAksjonspunktDto("begrunnelse", oppdatertEktefellesBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
 
         // Act
         new BekreftEktefelleOppdaterer(repositoryProvider, lagMockHistory(), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);
-        List<HistorikkinnslagDel> historikkInnslag = tekstBuilder.build(historikkinnslag);
+        var historikkInnslag = tekstBuilder.build(historikkinnslag);
 
         // Assert
         assertThat(historikkInnslag).hasSize(1);
 
-        HistorikkinnslagDel del = historikkInnslag.get(0);
-        List<HistorikkinnslagFelt> feltList = del.getEndredeFelt();
+        var del = historikkInnslag.get(0);
+        var feltList = del.getEndredeFelt();
         assertThat(feltList).hasSize(1);
-        Optional<HistorikkinnslagFelt> feltOpt = del.getEndretFelt(HistorikkEndretFeltType.EKTEFELLES_BARN);
+        var feltOpt = del.getEndretFelt(HistorikkEndretFeltType.EKTEFELLES_BARN);
         assertThat(feltOpt).hasValueSatisfying(felt -> {
             assertThat(felt.getNavn()).as("navn").isEqualTo(HistorikkEndretFeltType.EKTEFELLES_BARN.getKode());
             assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
@@ -90,7 +85,7 @@ public class BekreftEktefelleOppdatererTest extends EntityManagerAwareTest {
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }

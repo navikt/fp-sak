@@ -16,7 +16,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.jpa.QueryHints;
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -97,7 +95,7 @@ public class BehandlingRepository {
     public List<Behandling> hentAbsoluttAlleBehandlingerForSaksnummer(Saksnummer saksnummer) {
         Objects.requireNonNull(saksnummer, "saksnummer"); //$NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.saksnummer=:saksnummer", //$NON-NLS-1$
                 Behandling.class);
         query.setParameter("saksnummer", saksnummer); //$NON-NLS-1$
@@ -112,7 +110,7 @@ public class BehandlingRepository {
     public List<Behandling> hentAbsoluttAlleBehandlingerForFagsak(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh from Behandling AS beh, Fagsak AS fagsak WHERE beh.fagsak.id=fagsak.id AND fagsak.id=:fagsakId", //$NON-NLS-1$
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId); // $NON-NLS-1$
@@ -138,7 +136,7 @@ public class BehandlingRepository {
      * behandlingsårsaker
      */
     public List<Behandling> hentBehandlingerMedÅrsakerForFagsakId(Long fagsakId, Set<BehandlingÅrsakType> årsaker) {
-        TypedQuery<Behandling> query = entityManager.createQuery("SELECT b FROM Behandling b" +
+        var query = entityManager.createQuery("SELECT b FROM Behandling b" +
                 " WHERE b.fagsak.id = :fagsakId " +
                 " AND EXISTS (SELECT å FROM BehandlingÅrsak å" +
                 "   WHERE å.behandling = b AND å.behandlingÅrsakType IN :årsaker)", Behandling.class);
@@ -154,7 +152,7 @@ public class BehandlingRepository {
     public List<Behandling> hentBehandlingerSomIkkeErAvsluttetForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh from Behandling AS beh WHERE beh.fagsak.id = :fagsakId AND beh.status != :status", //$NON-NLS-1$
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId); // $NON-NLS-1$
@@ -169,7 +167,7 @@ public class BehandlingRepository {
     public List<Behandling> hentÅpneBehandlingerForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh from Behandling AS beh " +
                         "WHERE beh.fagsak.id = :fagsakId " +
                         "AND beh.status NOT IN (:status)", //$NON-NLS-1$
@@ -183,7 +181,7 @@ public class BehandlingRepository {
     public List<Long> hentÅpneBehandlingerIdForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
-        TypedQuery<Long> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh.id from Behandling AS beh " +
                         "WHERE beh.fagsak.id = :fagsakId " +
                         "AND beh.status NOT IN (:status)", //$NON-NLS-1$
@@ -203,7 +201,7 @@ public class BehandlingRepository {
     public List<Behandling> hentÅpneYtelseBehandlingerForFagsakId(Long fagsakId) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // $NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT beh from Behandling AS beh " +
                         "WHERE beh.fagsak.id = :fagsakId " +
                         "AND beh.behandlingType IN (:ytelseTyper) " +
@@ -218,7 +216,7 @@ public class BehandlingRepository {
 
     /** Kaller lagre Behandling, og renser first-level cache i JPA. */
     public Long lagreOgClear(Behandling behandling, BehandlingLås lås) {
-        Long id = lagre(behandling, lås);
+        var id = lagre(behandling, lås);
         entityManager.clear();
         return id;
     }
@@ -258,7 +256,7 @@ public class BehandlingRepository {
         // BehandlingResultatType = Innvilget, endret, ikke endret, avslått.
         Objects.requireNonNull(fagsakId, FAGSAK_ID); // NOSONAR //$NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT behandling FROM Behandling behandling " +
                         "INNER JOIN Behandlingsresultat behandlingsresultat " +
                         "ON behandling=behandlingsresultat.behandling " +
@@ -281,7 +279,7 @@ public class BehandlingRepository {
         // BehandlingResultatType = Innvilget, endret.
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "SELECT behandling FROM Behandling behandling " +
                         "INNER JOIN Behandlingsresultat behandlingsresultat " +
                         "ON behandling=behandlingsresultat.behandling " +
@@ -325,12 +323,12 @@ public class BehandlingRepository {
      */
     public BehandlingLås taSkriveLås(Behandling behandling) {
         Objects.requireNonNull(behandling, "behandling"); //$NON-NLS-1$
-        Long behandlingId = behandling.getId();
+        var behandlingId = behandling.getId();
         return taSkriveLås(behandlingId);
     }
 
     public BehandlingLås taSkriveLås(Long behandlingId) {
-        BehandlingLåsRepository låsRepo = new BehandlingLåsRepository(entityManager);
+        var låsRepo = new BehandlingLåsRepository(entityManager);
         return låsRepo.taLås(behandlingId);
     }
 
@@ -344,12 +342,12 @@ public class BehandlingRepository {
      */
     @Deprecated
     public void slettTidligereBeregningerES(Behandling behandling, BehandlingLås lås) {
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         if (behandlingsresultat != null
                 && behandlingsresultat.getBeregningResultat() != null) {
             behandlingsresultat.getBeregningResultat().getBeregninger()
                     .forEach(beregning -> {
-                        Query query = entityManager.createQuery(
+                        var query = entityManager.createQuery(
                                 "DELETE FROM LegacyESBeregning b WHERE b.id=:beregningId");
                         query.setParameter("beregningId", beregning.getId()); //$NON-NLS-1$
                         query.executeUpdate();
@@ -363,7 +361,7 @@ public class BehandlingRepository {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
         Objects.requireNonNull(behandlingType, "behandlingType");
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "from Behandling where fagsak.id=:fagsakId and behandlingType in (:behandlingType) order by opprettetTidspunkt desc",
                 Behandling.class);
         query.setParameter(FAGSAK_ID, fagsakId);
@@ -386,7 +384,7 @@ public class BehandlingRepository {
     private Optional<Behandling> finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeForFagsakId(Long fagsakId, Set<BehandlingType> behandlingTyper) {
         Objects.requireNonNull(fagsakId, FAGSAK_ID);
 
-        TypedQuery<Behandling> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 " FROM Behandling b WHERE b.fagsak.id=:fagsakId " +
                         " AND b.behandlingType IN :behandlingTyper " +
                         " AND NOT EXISTS (SELECT r FROM Behandlingsresultat r" +
@@ -411,7 +409,7 @@ public class BehandlingRepository {
     private TypedQuery<Behandling> lagBehandlingQuery(Long behandlingId) {
         Objects.requireNonNull(behandlingId, BEHANDLING_ID); // NOSONAR //$NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery("from Behandling where id=:" + BEHANDLING_ID, Behandling.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from Behandling where id=:" + BEHANDLING_ID, Behandling.class); //$NON-NLS-1$
         query.setParameter(BEHANDLING_ID, behandlingId); // $NON-NLS-1$
         return query;
     }
@@ -419,13 +417,13 @@ public class BehandlingRepository {
     private TypedQuery<Behandling> lagBehandlingQuery(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, BEHANDLING_UUID); // NOSONAR //$NON-NLS-1$
 
-        TypedQuery<Behandling> query = entityManager.createQuery("from Behandling where uuid=:" + BEHANDLING_UUID, Behandling.class); //$NON-NLS-1$
+        var query = entityManager.createQuery("from Behandling where uuid=:" + BEHANDLING_UUID, Behandling.class); //$NON-NLS-1$
         query.setParameter(BEHANDLING_UUID, behandlingUuid); // $NON-NLS-1$
         return query;
     }
 
     private Long lagre(VilkårResultat vilkårResultat) {
-        Behandling originalBehandling = vilkårResultat.getOriginalBehandling();
+        var originalBehandling = vilkårResultat.getOriginalBehandling();
 
         if (originalBehandling == null || originalBehandling.getId() == null) {
             throw new IllegalStateException("Glemt å lagre " // NOSONAR //$NON-NLS-1$
@@ -437,10 +435,10 @@ public class BehandlingRepository {
 
         entityManager.persist(originalBehandling);
         entityManager.persist(vilkårResultat);
-        for (Vilkår ivr : vilkårResultat.getVilkårene()) {
+        for (var ivr : vilkårResultat.getVilkårene()) {
             entityManager.persist(ivr);
             entityManager.persist(ivr.getVilkårResultat());
-            for (Vilkår vr : ivr.getVilkårResultat().getVilkårene()) {
+            for (var vr : ivr.getVilkårResultat().getVilkårene()) {
                 entityManager.persist(vr);
             }
         }
@@ -449,23 +447,23 @@ public class BehandlingRepository {
 
     /** sjekk lås og oppgrader til skriv */
     public void verifiserBehandlingLås(BehandlingLås lås) {
-        BehandlingLåsRepository låsHåndterer = new BehandlingLåsRepository(entityManager);
+        var låsHåndterer = new BehandlingLåsRepository(entityManager);
         låsHåndterer.oppdaterLåsVersjon(lås);
     }
 
     Long lagre(Behandling behandling) {
         entityManager.persist(behandling);
 
-        Behandlingsresultat behandlingsresultat = getBehandlingsresultat(behandling);
+        var behandlingsresultat = getBehandlingsresultat(behandling);
         if (behandlingsresultat != null) {
             entityManager.persist(behandlingsresultat);
 
-            VilkårResultat vilkårResultat = behandlingsresultat.getVilkårResultat();
+            var vilkårResultat = behandlingsresultat.getVilkårResultat();
             if (vilkårResultat != null && vilkårResultat.getId() == null) {
                 throw flereAggregatOpprettelserISammeLagringException(VilkårResultat.class);
             }
         }
-        List<BehandlingÅrsak> behandlingÅrsak = behandling.getBehandlingÅrsaker();
+        var behandlingÅrsak = behandling.getBehandlingÅrsaker();
         behandlingÅrsak.forEach(entityManager::persist);
 
         entityManager.flush();
@@ -478,7 +476,7 @@ public class BehandlingRepository {
     }
 
     public Boolean erVersjonUendret(Long behandlingId, Long versjon) {
-        Query query = entityManager.createNativeQuery(
+        var query = entityManager.createNativeQuery(
                 "SELECT COUNT(*) FROM dual " +
                         "WHERE exists (SELECT 1 FROM behandling WHERE (behandling.id = ?) AND (behandling.versjon = ?))");
         query.setParameter(1, behandlingId);
@@ -487,7 +485,7 @@ public class BehandlingRepository {
     }
 
     public void oppdaterSistOppdatertTidspunkt(Behandling behandling, LocalDateTime tidspunkt) {
-        Query query = entityManager.createNativeQuery("UPDATE BEHANDLING BE SET BE.SIST_OPPDATERT_TIDSPUNKT = :tidspunkt WHERE " +
+        var query = entityManager.createNativeQuery("UPDATE BEHANDLING BE SET BE.SIST_OPPDATERT_TIDSPUNKT = :tidspunkt WHERE " +
                 "BE.ID = :behandling_id");
 
         query.setParameter("tidspunkt", tidspunkt); // NOSONAR $NON-NLS-1$
@@ -497,22 +495,22 @@ public class BehandlingRepository {
     }
 
     public Optional<LocalDateTime> hentSistOppdatertTidspunkt(Long behandlingId) {
-        Query query = entityManager.createNativeQuery("SELECT be.SIST_OPPDATERT_TIDSPUNKT FROM BEHANDLING be WHERE be.ID = :behandling_id");
+        var query = entityManager.createNativeQuery("SELECT be.SIST_OPPDATERT_TIDSPUNKT FROM BEHANDLING be WHERE be.ID = :behandling_id");
 
         query.setParameter("behandling_id", behandlingId); // NOSONAR $NON-NLS-1$
 
-        Object resultat = query.getSingleResult();
+        var resultat = query.getSingleResult();
         if (resultat == null) {
             return Optional.empty();
         }
 
-        Timestamp timestamp = (Timestamp) resultat;
-        LocalDateTime value = LocalDateTime.ofInstant(timestamp.toInstant(), TimeZone.getDefault().toZoneId());
+        var timestamp = (Timestamp) resultat;
+        var value = LocalDateTime.ofInstant(timestamp.toInstant(), TimeZone.getDefault().toZoneId());
         return Optional.of(value);
     }
 
     public List<BehandlingÅrsak> finnÅrsakerForBehandling(Behandling behandling) {
-        TypedQuery<BehandlingÅrsak> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "FROM BehandlingÅrsak  årsak " +
                         "WHERE (årsak.behandling = :behandling)",
                 BehandlingÅrsak.class);
@@ -523,7 +521,7 @@ public class BehandlingRepository {
     }
 
     public List<BehandlingÅrsakType> finnÅrsakTyperForBehandling(Behandling behandling) {
-        TypedQuery<BehandlingÅrsakType> query = entityManager.createQuery(
+        var query = entityManager.createQuery(
                 "select distinct behandlingÅrsakType FROM BehandlingÅrsak årsak " +
                         "WHERE årsak.behandling = :behandling",
                 BehandlingÅrsakType.class);

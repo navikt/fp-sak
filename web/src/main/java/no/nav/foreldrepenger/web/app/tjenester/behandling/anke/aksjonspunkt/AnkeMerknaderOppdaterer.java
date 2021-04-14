@@ -41,7 +41,7 @@ public class AnkeMerknaderOppdaterer implements AksjonspunktOppdaterer<AnkeMerkn
 
     @Override
     public OppdateringResultat oppdater(AnkeMerknaderResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(param.getBehandlingId());
         håndterAnkeVurdering(behandling, dto);
 
         var builder = OppdateringResultat.utenTransisjon();

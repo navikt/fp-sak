@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,22 +39,22 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
     @Override
     public Evaluation evaluate(OpptjeningsvilkårMellomregning data) {
 
-        Map<Aktivitet, LocalDateTimeline<AktivitetStatus>> ikkeGodkjent = finnPerioderSomIkkeHarNokInntektForOpplystArbeid(data);
+        var ikkeGodkjent = finnPerioderSomIkkeHarNokInntektForOpplystArbeid(data);
 
-        LocalDate sisteAntattGodkjentDato = sisteAntattGodkjentDato(data);
+        var sisteAntattGodkjentDato = sisteAntattGodkjentDato(data);
 
 
         // regn utførste dato for antatt godkjent bakover
-        Period periodeAntattGodkjentAksepteres = data.getGrunnlag().getPeriodeAntattGodkjentFørBehandlingstidspunkt();
-        LocalDate førsteDatoForAntattGodkjent = sisteAntattGodkjentDato
+        var periodeAntattGodkjentAksepteres = data.getGrunnlag().getPeriodeAntattGodkjentFørBehandlingstidspunkt();
+        var førsteDatoForAntattGodkjent = sisteAntattGodkjentDato
             .plusMonths(1).withDayOfMonth(1) // Periode P2M blir denne måneden (enn så lenge) og forrige måned
             .minus(periodeAntattGodkjentAksepteres);
 
-        LocalDateInterval antattGodkjentInterval = new LocalDateInterval(førsteDatoForAntattGodkjent, sisteAntattGodkjentDato);
+        var antattGodkjentInterval = new LocalDateInterval(førsteDatoForAntattGodkjent, sisteAntattGodkjentDato);
 
-        AntaGodkjent antaGodkjent = new AntaGodkjent(antattGodkjentInterval, ikkeGodkjent);
+        var antaGodkjent = new AntaGodkjent(antattGodkjentInterval, ikkeGodkjent);
 
-        LocalDateInterval opptjeningPeriode = data.getGrunnlag().getOpptjeningPeriode();
+        var opptjeningPeriode = data.getGrunnlag().getOpptjeningPeriode();
 
         data.setAntattGodkjentePerioder(antaGodkjent.getAntattGodkjentResultat(opptjeningPeriode));
         data.setUnderkjentePerioder(antaGodkjent.getUnderkjentResultat(opptjeningPeriode));
@@ -76,10 +75,10 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
     private Map<Aktivitet, LocalDateTimeline<AktivitetStatus>> finnPerioderSomIkkeHarNokInntektForOpplystArbeid(OpptjeningsvilkårMellomregning data) {
 
-        Map<Aktivitet, LocalDateTimeline<Boolean>> aktiviteter = data.getAktivitetTidslinjer(false, false);
-        Map<Aktivitet, LocalDateTimeline<Long>> inntekter = data.getInntektTidslinjer();
-        Opptjeningsgrunnlag grunnlag = data.getGrunnlag();
-        UnderkjennPerioder underkjennPerioder = new UnderkjennPerioder(inntekter, grunnlag.getMinsteInntekt());
+        var aktiviteter = data.getAktivitetTidslinjer(false, false);
+        var inntekter = data.getInntektTidslinjer();
+        var grunnlag = data.getGrunnlag();
+        var underkjennPerioder = new UnderkjennPerioder(inntekter, grunnlag.getMinsteInntekt());
 
         aktiviteter.entrySet().stream()
             .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()) || FRILANSREGISTER.equals(e.getKey().getAktivitetType()))
@@ -106,22 +105,22 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         }
 
         void underkjennPeriode(Entry<Aktivitet, LocalDateTimeline<Boolean>> e) {
-            Aktivitet key = e.getKey().forInntekt();
-            LocalDateTimeline<Boolean> arbeid = e.getValue();
+            var key = e.getKey().forInntekt();
+            var arbeid = e.getValue();
             LocalDateTimeline<AktivitetStatus> periode;
             if (!inntekter.containsKey(key)) {
                 periode = arbeid.mapValue(a -> AktivitetStatus.IKKE_GODKJENT);
             } else {
 
-                LocalDateTimeline<Long> inntekt = inntekter.get(key);
+                var inntekt = inntekter.get(key);
 
-                LocalDateTimeline<Long> okInntekt = inntekt
+                var okInntekt = inntekt
                     .filterValue(this::filtrerInntektFunksjon);
 
-                LocalDateTimeline<Boolean> okArbeid = okInntekt.intersection(arbeid,
+                var okArbeid = okInntekt.intersection(arbeid,
                     StandardCombinators::rightOnly);
 
-                LocalDateTimeline<Boolean> underkjentArbeid = arbeid.disjoint(okArbeid,
+                var underkjentArbeid = arbeid.disjoint(okArbeid,
                     StandardCombinators::leftOnly);
 
                 periode = underkjentArbeid.mapValue(a -> AktivitetStatus.IKKE_GODKJENT);
@@ -171,11 +170,11 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         }
 
         private void fyllAntattGodkjent(Entry<Aktivitet, LocalDateTimeline<AktivitetStatus>> e) {
-            Aktivitet key = e.getKey();
-            LocalDateTimeline<AktivitetStatus> arbeid = e.getValue();
+            var key = e.getKey();
+            var arbeid = e.getValue();
 
             // la antatt godkjent overstyre ikke godkjent.
-            LocalDateTimeline<AktivitetStatus> medAntattGodkjent = arbeid.combine(antattGodkjent,
+            var medAntattGodkjent = arbeid.combine(antattGodkjent,
                 this::antaGodkjentFramforIkkeGodkjent, JoinStyle.LEFT_JOIN);
 
             if (!medAntattGodkjent.isEmpty()) {
@@ -186,21 +185,21 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         private LocalDateSegment<AktivitetStatus> antaGodkjentFramforIkkeGodkjent(LocalDateInterval di,
                                                                                   LocalDateSegment<AktivitetStatus> lhs,
                                                                                   LocalDateSegment<AktivitetStatus> rhs) {
-            AktivitetStatus nyStatus = lhs == null || Objects.equals(lhs.getValue(), AktivitetStatus.IKKE_GODKJENT)
+            var nyStatus = lhs == null || Objects.equals(lhs.getValue(), AktivitetStatus.IKKE_GODKJENT)
                 ? (rhs == null ? (lhs == null ? null : lhs.getValue()) : rhs.getValue())
                 : lhs.getValue();
             return new LocalDateSegment<>(di, nyStatus);
         }
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> getAntattGodkjentResultat(LocalDateInterval interval) {
-            Map<Aktivitet, LocalDateTimeline<Boolean>> resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
+            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> filtrertForStatus(e.getValue(), AktivitetStatus.ANTATT_GODKJENT)));
 
             return avgrensTilPeriode(resultat, interval);
         }
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> getUnderkjentResultat(LocalDateInterval interval) {
-            Map<Aktivitet, LocalDateTimeline<Boolean>> resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
+            var resultat = medAntattGodkjentFramforIkkeGodkjent.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> filtrertForStatus(e.getValue(), AktivitetStatus.IKKE_GODKJENT)));
             return avgrensTilPeriode(resultat, interval);
         }

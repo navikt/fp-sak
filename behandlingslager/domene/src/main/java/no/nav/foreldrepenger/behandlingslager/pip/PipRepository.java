@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -38,7 +36,7 @@ public class PipRepository {
     public Optional<PipBehandlingsData> hentDataForBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId"); // NOSONAR
 
-        String sql = """
+        var sql = """
             SELECT b.behandling_status behandligStatus,
             b.ansvarlig_saksbehandler ansvarligSaksbehandler,
             f.id fagsakId, f.fagsak_status fagsakStatus
@@ -47,24 +45,23 @@ public class PipRepository {
             WHERE b.id = :behandlingId
             """;
 
-        Query query = entityManager.createNativeQuery(sql, "PipDataResult");
+        var query = entityManager.createNativeQuery(sql, "PipDataResult");
         query.setParameter("behandlingId", behandlingId);
 
-        @SuppressWarnings("rawtypes")
-        List resultater = query.getResultList();
+        @SuppressWarnings("rawtypes") var resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
-        } else if (resultater.size() == 1) {
-            return Optional.of((PipBehandlingsData) resultater.get(0));
-        } else {
-            throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingId " + behandlingId);
         }
+        if (resultater.size() == 1) {
+            return Optional.of((PipBehandlingsData) resultater.get(0));
+        }
+        throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingId " + behandlingId);
     }
 
     public Optional<PipBehandlingsData> hentDataForBehandlingUuid(UUID behandlingUuid) {
         Objects.requireNonNull(behandlingUuid, "behandlingUuid"); // NOSONAR
 
-        String sql = """
+        var sql = """
             SELECT b.behandling_status behandligStatus,
             b.ansvarlig_saksbehandler ansvarligSaksbehandler,
             f.id fagsakId, f.fagsak_status fagsakStatus
@@ -73,18 +70,17 @@ public class PipRepository {
             WHERE b.uuid = :behandlingUuid
             """;
 
-        Query query = entityManager.createNativeQuery(sql, "PipDataResult");
+        var query = entityManager.createNativeQuery(sql, "PipDataResult");
         query.setParameter("behandlingUuid", behandlingUuid);
 
-        @SuppressWarnings("rawtypes")
-        List resultater = query.getResultList();
+        @SuppressWarnings("rawtypes") var resultater = query.getResultList();
         if (resultater.isEmpty()) {
             return Optional.empty();
-        } else if (resultater.size() == 1) {
-            return Optional.of((PipBehandlingsData) resultater.get(0));
-        } else {
-            throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingUuid " + behandlingUuid);
         }
+        if (resultater.size() == 1) {
+            return Optional.of((PipBehandlingsData) resultater.get(0));
+        }
+        throw new IllegalStateException("Forventet 0 eller 1 treff etter søk på behandlingId, fikk flere for behandlingUuid " + behandlingUuid);
     }
 
     public Set<AktørId> hentAktørIdKnyttetTilFagsaker(Collection<Long> fagsakIder) {
@@ -92,7 +88,7 @@ public class PipRepository {
         if (fagsakIder.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = """
+        var sql = """
             SELECT por.AKTOER_ID From Fagsak fag
             JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
             JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
@@ -111,7 +107,7 @@ public class PipRepository {
             WHERE fag.id in (:fagsakIder) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
             """;
 
-        Query query = entityManager.createNativeQuery(sql); // NOSONAR
+        var query = entityManager.createNativeQuery(sql); // NOSONAR
         query.setParameter("fagsakIder", fagsakIder);
 
         @SuppressWarnings("unchecked")
@@ -122,7 +118,7 @@ public class PipRepository {
     public Set<AktørId> hentAktørIdKnyttetTilSaksnummer(String saksnummer) {
         Objects.requireNonNull(saksnummer, SAKSNUMMER);
 
-        String sql = """
+        var sql = """
             SELECT por.AKTOER_ID From Fagsak fag
             JOIN BEHANDLING beh ON fag.ID = beh.FAGSAK_ID
             JOIN GR_PERSONOPPLYSNING grp ON grp.behandling_id = beh.ID
@@ -141,7 +137,7 @@ public class PipRepository {
             WHERE fag.SAKSNUMMER = (:saksnummer) AND grp.aktiv = 'J' AND sa.AKTOER_ID IS NOT NULL
             """;
 
-        Query query = entityManager.createNativeQuery(sql); // NOSONAR
+        var query = entityManager.createNativeQuery(sql); // NOSONAR
         query.setParameter(SAKSNUMMER, saksnummer);
 
         @SuppressWarnings("unchecked")
@@ -154,11 +150,11 @@ public class PipRepository {
         if (journalpostId.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
-        Query query = entityManager.createNativeQuery(sql);
+        var sql = "SELECT fagsak_id FROM JOURNALPOST WHERE journalpost_id in (:journalpostId)";
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("journalpostId", journalpostId.stream().map(j -> j.getVerdi()).collect(Collectors.toList()));
 
-        List<BigDecimal> result = (List<BigDecimal>) query.getResultList();
+        var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -167,10 +163,10 @@ public class PipRepository {
         if (oppgaveIder.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT behandling_id FROM OPPGAVE_BEHANDLING_KOBLING WHERE oppgave_id in (:oppgaveIder)";
-        Query query = entityManager.createNativeQuery(sql);
+        var sql = "SELECT behandling_id FROM OPPGAVE_BEHANDLING_KOBLING WHERE oppgave_id in (:oppgaveIder)";
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("oppgaveIder", oppgaveIder);
-        List<BigDecimal> result = (List<BigDecimal>) query.getResultList();
+        var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -185,10 +181,10 @@ public class PipRepository {
         if (aktørId.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT f.id from FAGSAK f join BRUKER b on (f.bruker_id = b.id) where b.aktoer_id in (:aktørId)";
-        Query query = entityManager.createNativeQuery(sql);
+        var sql = "SELECT f.id from FAGSAK f join BRUKER b on (f.bruker_id = b.id) where b.aktoer_id in (:aktørId)";
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("aktørId", aktørId.stream().map(AktørId::getId).collect(Collectors.toList()));
-        List<BigDecimal> result = (List<BigDecimal>) query.getResultList();
+        var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -197,10 +193,10 @@ public class PipRepository {
         if (saksnummre.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT id from FAGSAK where saksnummer in (:saksnummre) ";
-        Query query = entityManager.createNativeQuery(sql);
+        var sql = "SELECT id from FAGSAK where saksnummer in (:saksnummre) ";
+        var query = entityManager.createNativeQuery(sql);
         query.setParameter("saksnummre", saksnummre);
-        List<BigDecimal> result = (List<BigDecimal>) query.getResultList();
+        var result = (List<BigDecimal>) query.getResultList();
         return result.stream().map(BigDecimal::longValue).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -208,8 +204,8 @@ public class PipRepository {
         if (behandlingsUUIDer == null || behandlingsUUIDer.isEmpty()) {
             return Collections.emptySet();
         }
-        String sql = "SELECT beh.id from Behandling AS beh WHERE beh.uuid IN (:uuider)";
-        TypedQuery<Long> query = entityManager.createQuery(sql, Long.class);
+        var sql = "SELECT beh.id from Behandling AS beh WHERE beh.uuid IN (:uuider)";
+        var query = entityManager.createQuery(sql, Long.class);
         query.setParameter("uuider", behandlingsUUIDer);
         return query.getResultStream().collect(Collectors.toCollection(LinkedHashSet::new));
     }

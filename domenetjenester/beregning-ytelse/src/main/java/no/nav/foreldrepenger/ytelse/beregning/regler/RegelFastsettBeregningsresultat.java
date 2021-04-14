@@ -23,20 +23,19 @@ public class RegelFastsettBeregningsresultat implements RuleService<Beregningsre
     @Override
     public Evaluation evaluer(BeregningsresultatRegelmodell input, Object outputContainer) {
         if (outputContainer instanceof Beregningsresultat) {
-            Beregningsresultat beregningsresultat = (Beregningsresultat) outputContainer;
-            BeregningsresultatRegelmodellMellomregning mellomregning = new BeregningsresultatRegelmodellMellomregning(input, beregningsresultat);
+            var beregningsresultat = (Beregningsresultat) outputContainer;
+            var mellomregning = new BeregningsresultatRegelmodellMellomregning(input, beregningsresultat);
             return getSpecification().evaluate(mellomregning);
-        } else {
-            throw new IllegalArgumentException("Invalid output container class " + outputContainer.getClass());
         }
+        throw new IllegalArgumentException("Invalid output container class " + outputContainer.getClass());
 
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Specification<BeregningsresultatRegelmodellMellomregning> getSpecification() {
-        Ruleset<BeregningsresultatRegelmodellMellomregning> rs = new Ruleset<>();
-        Specification<BeregningsresultatRegelmodellMellomregning> fastsettBeregningsresultat =
+        var rs = new Ruleset<BeregningsresultatRegelmodellMellomregning>();
+        var fastsettBeregningsresultat =
                 rs.beregningsRegel(FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.ID, FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder.BESKRIVELSE,
                         new FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder(),
                         new Beregnet());

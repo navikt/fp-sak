@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +15,7 @@ public class TilgrensendeYtelserDtoTest {
 
     @Test
     public void skal_sortere_null_first() {
-        List<TilgrensendeYtelserDto> tilgrensendeYtelserDtos = Arrays.asList(
+        var tilgrensendeYtelserDtos = Arrays.asList(
                 lagTilgrensendeYtelserDto(I_DAG.minusYears(3)),
                 lagTilgrensendeYtelserDto(I_DAG.minusDays(2)),
                 lagTilgrensendeYtelserDto(I_DAG.plusWeeks(3)),
@@ -41,7 +40,7 @@ public class TilgrensendeYtelserDtoTest {
     }
 
     private TilgrensendeYtelserDto lagTilgrensendeYtelserDto(LocalDate periodeFraDato) {
-        TilgrensendeYtelserDto tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
+        var tilgrensendeYtelserDto = new TilgrensendeYtelserDto();
         tilgrensendeYtelserDto.setPeriodeFraDato(periodeFraDato);
         return tilgrensendeYtelserDto;
     }

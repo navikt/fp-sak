@@ -8,7 +8,6 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -32,7 +31,7 @@ public class InnsynRepository {
         innsyn.getInnsynDokumenterOld().clear();
 
         innsynDokumenter.forEach(dok -> {
-            InnsynDokumentEntitet entitet = new InnsynDokumentEntitet(dok.isFikkInnsyn(), dok.getJournalpostId(), dok.getDokumentId());
+            var entitet = new InnsynDokumentEntitet(dok.isFikkInnsyn(), dok.getJournalpostId(), dok.getDokumentId());
             entitet.setInnsyn(innsyn);
             innsyn.getInnsynDokumenterOld().add(entitet);
         });
@@ -41,13 +40,13 @@ public class InnsynRepository {
     }
 
     public Optional<InnsynEntitet> hentForBehandling(long behandlingId) {
-        TypedQuery<InnsynEntitet> query = entityManager.createQuery("from Innsyn where behandlingId = :behandlingId", InnsynEntitet.class);
+        var query = entityManager.createQuery("from Innsyn where behandlingId = :behandlingId", InnsynEntitet.class);
         query.setParameter("behandlingId", behandlingId);
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
     public List<InnsynDokumentEntitet> hentDokumenterForInnsyn(long innsynId) {
-        TypedQuery<InnsynDokumentEntitet> query = entityManager.createQuery("from InnsynDokument where innsyn.id=:innsynId", InnsynDokumentEntitet.class);
+        var query = entityManager.createQuery("from InnsynDokument where innsyn.id=:innsynId", InnsynDokumentEntitet.class);
         query.setParameter("innsynId", innsynId);
         return query.getResultList();
     }

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.uttak;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.input.BeregningsgrunnlagStatus;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -50,7 +48,7 @@ public class RelevanteArbeidsforholdTjeneste {
                 return true;
             }
         }
-        for (UttakAktivitetEntitet uttakAktivitet : uttakAktiviteter) {
+        for (var uttakAktivitet : uttakAktiviteter) {
             if (!finnesBgStatusLikUttakAktivitet(bgStatuser, uttakAktivitet)) {
                 return true;
             }
@@ -100,14 +98,14 @@ public class RelevanteArbeidsforholdTjeneste {
         if (!status.erArbeidstaker()) {
             return false;
         }
-        Optional<Arbeidsgiver> arbeidsgiver = status.getArbeidsgiver();
+        var arbeidsgiver = status.getArbeidsgiver();
         if (arbeidsgiver.isEmpty()) {
             return a.getArbeidsgiver().isEmpty();
         }
         if (a.getArbeidsgiver().isEmpty()) {
             return false;
         }
-        Optional<InternArbeidsforholdRef> arbeidsforholdRef = status.getArbeidsforholdRef();
+        var arbeidsforholdRef = status.getArbeidsforholdRef();
         return Objects.equals(a.getArbeidsgiver().get().getIdentifikator(), arbeidsgiver.get().getIdentifikator())
             && Objects.equals(a.getArbeidsforholdRef(), arbeidsforholdRef.orElse(InternArbeidsforholdRef.nullRef()));
     }

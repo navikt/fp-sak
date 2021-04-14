@@ -41,7 +41,7 @@ public class Transisjoner {
     }
 
     public static StegTransisjon finnTransisjon(TransisjonIdentifikator transisjonIdentifikator) {
-        for (StegTransisjon transisjon : ALLE_TRANSISJONER) {
+        for (var transisjon : ALLE_TRANSISJONER) {
             if (transisjon.getId().equals(transisjonIdentifikator.getId())) {
                 return transisjon;
             }

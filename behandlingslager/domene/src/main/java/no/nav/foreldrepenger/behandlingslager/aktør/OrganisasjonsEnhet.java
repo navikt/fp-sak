@@ -20,7 +20,7 @@ public class OrganisasjonsEnhet {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrganisasjonsEnhet that = (OrganisasjonsEnhet) o;
+        var that = (OrganisasjonsEnhet) o;
         return Objects.equals(enhetId, that.enhetId);
     }
 

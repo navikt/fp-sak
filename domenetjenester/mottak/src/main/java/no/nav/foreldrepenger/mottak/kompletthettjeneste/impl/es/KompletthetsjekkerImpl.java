@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,14 +16,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadVedleggEntitet;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -72,11 +66,10 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     public KompletthetResultat vurderForsendelseKomplett(BehandlingReferanse ref) {
         if (utledAlleManglendeVedleggForForsendelse(ref).isEmpty()) {
             return KompletthetResultat.oppfylt();
-        } else {
-            AksjonspunktDefinisjon definisjon = AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
-            LocalDateTime ønsketFrist = LocalDateTime.now().plusDays(definisjon.getFristPeriod().getDays());
-            return KompletthetResultat.ikkeOppfylt(ønsketFrist, Venteårsak.AVV_DOK);
         }
+        var definisjon = AUTO_VENTER_PÅ_KOMPLETT_SØKNAD;
+        var ønsketFrist = LocalDateTime.now().plusDays(definisjon.getFristPeriod().getDays());
+        return KompletthetResultat.ikkeOppfylt(ønsketFrist, Venteårsak.AVV_DOK);
     }
 
     // Spør Joark om dokumentliste og sjekker det som finnes i vedleggslisten på søknaden mot det som ligger i Joark.
@@ -84,14 +77,14 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     @Override
     public List<ManglendeVedlegg> utledAlleManglendeVedleggForForsendelse(BehandlingReferanse ref) {
 
-        final Optional<SøknadEntitet> søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
+        final var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.getBehandlingId());
 
         // Manuelt registrerte søknader har foreløpig ikke vedleggsliste og kan derfor ikke kompletthetssjekkes:
         if (!søknad.isPresent() || (!søknad.get().getElektroniskRegistrert() || søknad.get().getSøknadVedlegg() == null || søknad.get().getSøknadVedlegg().isEmpty())) {
             return emptyList();
         }
 
-        Set<DokumentTypeId> dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN);
+        var dokumentTypeIds = dokumentArkivTjeneste.hentDokumentTypeIdForSak(ref.getSaksnummer(), LocalDate.MIN);
 
         return søknad.get().getSøknadVedlegg()
             .stream()
@@ -110,8 +103,8 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
 
     @Override
     public boolean erForsendelsesgrunnlagKomplett(BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
-        SøknadEntitet søknad = søknadRepository.hentSøknad(behandlingId);
+        var behandlingId = ref.getBehandlingId();
+        var søknad = søknadRepository.hentSøknad(behandlingId);
         if (søknad == null) {
             // Uten søknad må det antas at den heller ikke er komplett. Sjekker nedenfor forutsetter at søknad finnes.
             return false;
@@ -121,7 +114,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             return true;
         }
 
-        List<ManglendeVedlegg> manglendeVedlegg = utledAlleManglendeVedleggForForsendelse(ref);
+        var manglendeVedlegg = utledAlleManglendeVedleggForForsendelse(ref);
         if (manglendeVedlegg.isEmpty()) {
             return true;
         }
@@ -134,13 +127,13 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
     }
 
     private boolean finnesBarnet(BehandlingReferanse ref) {
-        Long behandlingId = ref.getBehandlingId();
-        final Optional<LocalDate> fødselsDato = familieHendelseRepository.hentAggregat(behandlingId).getSøknadVersjon().getBarna()
+        var behandlingId = ref.getBehandlingId();
+        final var fødselsDato = familieHendelseRepository.hentAggregat(behandlingId).getSøknadVersjon().getBarna()
             .stream().map(UidentifisertBarn::getFødselsdato).findFirst();
 
         if (fødselsDato.isPresent()) {
-            PersonopplysningerAggregat personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
-            List<PersonopplysningEntitet> alleBarn = personopplysninger.getBarna();
+            var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+            var alleBarn = personopplysninger.getBarna();
             return alleBarn.stream().anyMatch(bb -> bb.getFødselsdato().equals(fødselsDato.get()));
         }
         return false;

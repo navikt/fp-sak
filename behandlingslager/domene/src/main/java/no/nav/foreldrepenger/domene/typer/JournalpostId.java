@@ -20,7 +20,7 @@ public class JournalpostId implements Serializable, IndexKey {
 
     private static final Pattern VALID = Pattern.compile("^(-?[1-9]|[a-z0])[" + CHARS + "]*$", Pattern.CASE_INSENSITIVE);
     private static final Pattern INVALID = Pattern.compile("[^"+CHARS+"]+", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-    
+
     @JsonValue
     @Column(name = "journalpost_id", updatable = false)
     private String journalpostId;  // NOSONAR
@@ -47,7 +47,7 @@ public class JournalpostId implements Serializable, IndexKey {
     public String getIndexKey() {
         return journalpostId;
     }
-    
+
     public String getVerdi() {
         return journalpostId;
     }
@@ -56,10 +56,11 @@ public class JournalpostId implements Serializable, IndexKey {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (obj == null || !getClass().equals(obj.getClass())) {
+        }
+        if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        JournalpostId other = (JournalpostId) obj;
+        var other = (JournalpostId) obj;
         return Objects.equals(journalpostId, other.journalpostId);
     }
 
@@ -72,7 +73,7 @@ public class JournalpostId implements Serializable, IndexKey {
     public String toString() {
         return getClass().getSimpleName() + "<" + journalpostId + ">";
     }
-    
+
     public static boolean erGyldig(String input) {
         return input != null && !(input = input.trim()).isEmpty() && VALID.matcher(input).matches();  // NOSONAR
     }

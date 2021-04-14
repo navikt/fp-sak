@@ -9,13 +9,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,12 +47,12 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     @Test
     public void kallPdpMedSamlTokenNårIdTokenErSamlToken() throws Exception {
-        AbacIdToken idToken = AbacIdToken.withSamlToken("SAML");
-        XacmlResponseWrapper responseWrapper = createResponse("xacmlresponse.json");
-        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+        var idToken = AbacIdToken.withSamlToken("SAML");
+        var responseWrapper = createResponse("xacmlresponse.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
-        PdpRequest pdpRequest = lagPdpRequest();
+        var pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
@@ -65,13 +62,13 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     @Test
     public void kallPdpUtenFnrResourceHvisPersonlisteErTom() throws FileNotFoundException {
-        AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("xacmlresponse.json");
-        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+        var idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
+        var responseWrapper = createResponse("xacmlresponse.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
 
-        PdpRequest pdpRequest = lagPdpRequest();
+        var pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.emptySet());
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
@@ -81,13 +78,13 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     @Test
     public void kallPdpMedJwtTokenBodyNårIdTokenErJwtToken() throws Exception {
-        AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("xacmlresponse.json");
-        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+        var idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
+        var responseWrapper = createResponse("xacmlresponse.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
 
-        PdpRequest pdpRequest = lagPdpRequest();
+        var pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, Collections.singleton("12345678900"));
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
@@ -97,9 +94,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     @Test
     public void kallPdpMedFlereAttributtSettNårPersonlisteStørreEnn1() throws FileNotFoundException {
-        AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("xacml3response.json");
-        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+        var idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
+        var responseWrapper = createResponse("xacml3response.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
         Set<String> personnr = new HashSet<>();
@@ -107,12 +104,12 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         personnr.add("12345678901");
         personnr.add("12345678902");
 
-        PdpRequest pdpRequest = lagPdpRequest();
+        var pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        String xacmlRequestString = captor.getValue().build().toString();
+        var xacmlRequestString = captor.getValue().build().toString();
 
         assertThat(xacmlRequestString.contains("12345678900")).isTrue();
         assertThat(xacmlRequestString.contains("12345678901")).isTrue();
@@ -121,9 +118,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
 
     @Test
     public void sporingsloggListeSkalHaSammeRekkefølgePåidenterSomXacmlRequest() throws FileNotFoundException {
-        AbacIdToken idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
-        XacmlResponseWrapper responseWrapper = createResponse("xacml3response.json");
-        ArgumentCaptor<XacmlRequestBuilder> captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
+        var idToken = AbacIdToken.withOidcToken(JWT_TOKEN);
+        var responseWrapper = createResponse("xacml3response.json");
+        var captor = ArgumentCaptor.forClass(XacmlRequestBuilder.class);
 
         when(pdpConsumerMock.evaluate(captor.capture())).thenReturn(responseWrapper);
         Set<String> personnr = new HashSet<>();
@@ -131,23 +128,23 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
         personnr.add("12345678901");
         personnr.add("12345678902");
 
-        PdpRequest pdpRequest = lagPdpRequest();
+        var pdpRequest = lagPdpRequest();
         pdpRequest.put(RESOURCE_FELLES_PERSON_FNR, personnr);
         pdpRequest.put(PdpKlient.ENVIRONMENT_AUTH_TOKEN, idToken);
         pdpKlient.forespørTilgang(pdpRequest);
 
-        JsonObject xacmlRequest = captor.getValue().build();
-        JsonArray resourceArray = xacmlRequest.getJsonObject("Request").getJsonArray("Resource");
+        var xacmlRequest = captor.getValue().build();
+        var resourceArray = xacmlRequest.getJsonObject("Request").getJsonArray("Resource");
 
-        List<String> personer = pdpRequest.getListOfString(RESOURCE_FELLES_PERSON_FNR);
+        var personer = pdpRequest.getListOfString(RESOURCE_FELLES_PERSON_FNR);
 
-        for (int i = 0; i < personer.size(); i++) {
+        for (var i = 0; i < personer.size(); i++) {
             assertThat(resourceArray.get(i).toString().contains(personer.get(i))).isTrue();
         }
     }
 
     private static PdpRequest lagPdpRequest() {
-        PdpRequest request = new PdpRequest();
+        var request = new PdpRequest();
         request.put(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE, "foreldrepenger");
         request.put(NavAbacCommonAttributter.XACML10_ACTION_ACTION_ID, BeskyttetRessursActionAttributt.READ.getEksternKode());
         request.put(NavAbacCommonAttributter.RESOURCE_FELLES_RESOURCE_TYPE, FPSakBeskyttetRessursAttributt.FAGSAK);
@@ -155,9 +152,9 @@ public class AppXacmlRequestBuilderTjenesteImplTest {
     }
 
     private XacmlResponseWrapper createResponse(String jsonFile) throws FileNotFoundException {
-        File file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
-        JsonReader reader = Json.createReader(new FileReader(file));
-        JsonObject jo = (JsonObject) reader.read();
+        var file = new File(getClass().getClassLoader().getResource(jsonFile).getFile());
+        var reader = Json.createReader(new FileReader(file));
+        var jo = (JsonObject) reader.read();
         return new XacmlResponseWrapper(jo);
     }
 }

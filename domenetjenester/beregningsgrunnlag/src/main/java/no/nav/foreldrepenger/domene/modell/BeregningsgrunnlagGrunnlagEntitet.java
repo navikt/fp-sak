@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.modell;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -103,14 +102,14 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
 
     private Optional<BeregningAktivitetAggregatEntitet> getOverstyrteAktiviteter() {
         if (overstyringer != null) {
-            List<BeregningAktivitetEntitet> overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter().stream()
+            var overstyrteAktiviteter = registerAktiviteter.getBeregningAktiviteter().stream()
                     .filter(beregningAktivitet -> beregningAktivitet.skalBrukes(overstyringer))
                     .collect(Collectors.toList());
-            BeregningAktivitetAggregatEntitet.Builder overstyrtBuilder = BeregningAktivitetAggregatEntitet.builder()
+            var overstyrtBuilder = BeregningAktivitetAggregatEntitet.builder()
                     .medSkjæringstidspunktOpptjening(registerAktiviteter.getSkjæringstidspunktOpptjening());
             overstyrteAktiviteter.forEach(aktivitet -> {
-                Optional<BeregningAktivitetOverstyringEntitet> overstyrtAktivitet = hentOverstyrtAktivitet(overstyringer, aktivitet);
-                BeregningAktivitetEntitet kopiert = BeregningAktivitetEntitet.kopier(aktivitet)
+                var overstyrtAktivitet = hentOverstyrtAktivitet(overstyringer, aktivitet);
+                var kopiert = BeregningAktivitetEntitet.kopier(aktivitet)
                     .medPeriode(getIntervall(aktivitet, overstyrtAktivitet))
                     .build();
                 overstyrtBuilder.leggTilAktivitet(kopiert);
@@ -158,7 +157,7 @@ public class BeregningsgrunnlagGrunnlagEntitet extends BaseEntitet {
     }
 
     public BeregningAktivitetAggregatEntitet getOverstyrteEllerRegisterAktiviteter() {
-        Optional<BeregningAktivitetAggregatEntitet> overstyrteAktiviteter = getOverstyrteAktiviteter();
+        var overstyrteAktiviteter = getOverstyrteAktiviteter();
         if (overstyrteAktiviteter.isPresent()) {
             return overstyrteAktiviteter.get();
         }

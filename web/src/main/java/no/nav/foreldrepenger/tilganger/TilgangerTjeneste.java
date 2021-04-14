@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.tilganger;
 
-import java.util.Collection;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -51,14 +49,14 @@ public class TilgangerTjeneste {
     }
 
     public InnloggetNavAnsattDto innloggetBruker() {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        LdapBruker ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
+        var ident = SubjectHandler.getSubjectHandler().getUid();
+        var ldapBruker = new LdapBrukeroppslag().hentBrukerinformasjon(ident);
         return getInnloggetBruker(ident, ldapBruker);
     }
 
     InnloggetNavAnsattDto getInnloggetBruker(String ident, LdapBruker ldapBruker) {
-        String navn = ldapBruker.getDisplayName();
-        Collection<String> grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
+        var navn = ldapBruker.getDisplayName();
+        var grupper = LdapUtil.filtrerGrupper(ldapBruker.getGroups());
         return InnloggetNavAnsattDto.builder()
             .setBrukernavn(ident)
             .setNavn(navn)

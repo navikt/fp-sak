@@ -14,10 +14,10 @@ public final class OmfordelRevurderingsandelerMedReferanser {
     public static List<EndringIBeregningsresultat> omfordel(BRNøkkelMedAndeler revurderingNøkkelMedAndeler, BRNøkkelMedAndeler originalNøkkelMedAndeler) {
         List<EndringIBeregningsresultat> list = new ArrayList<>();
 
-        for (BeregningsresultatAndel revurderingAndel : revurderingNøkkelMedAndeler.getAndelerSomHarReferanse()) {
-            int reberegnetDagsats = getReberegnetDagsats(revurderingAndel,  revurderingNøkkelMedAndeler, originalNøkkelMedAndeler);
+        for (var revurderingAndel : revurderingNøkkelMedAndeler.getAndelerSomHarReferanse()) {
+            var reberegnetDagsats = getReberegnetDagsats(revurderingAndel,  revurderingNøkkelMedAndeler, originalNøkkelMedAndeler);
             if (erDagsatsEndret(revurderingAndel, reberegnetDagsats)) {
-                EndringIBeregningsresultat endring = new EndringIBeregningsresultat(revurderingAndel, reberegnetDagsats);
+                var endring = new EndringIBeregningsresultat(revurderingAndel, reberegnetDagsats);
                 list.add(endring);
             }
         }

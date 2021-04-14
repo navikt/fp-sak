@@ -38,7 +38,7 @@ public class AvklarteDatoerTjenesteTest {
         grunnlagOppretter.lagreUttaksgrenser(behandling.getId(), LocalDate.of(2019, Month.MAY, 1),
             LocalDate.of(2019, Month.AUGUST, 1));
 
-        UttakInput input = input(behandling, termindato, null);
+        var input = input(behandling, termindato, null);
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
 
         assertThat(avklarteDatoer).isNotNull();

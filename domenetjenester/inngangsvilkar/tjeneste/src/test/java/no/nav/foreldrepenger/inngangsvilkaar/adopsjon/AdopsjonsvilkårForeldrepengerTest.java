@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -28,14 +27,10 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
@@ -64,9 +59,9 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_avslag_barn_adopteres_er_over_15_år_på_overtakelsesdato() {
-        Behandling behandling = settOppAdopsjonBehandlingFor(16, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
+        var behandling = settOppAdopsjonBehandlingFor(16, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
 
-        VilkårData data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
@@ -79,23 +74,23 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_avslag_dersom_stønadsperiode_for_annen_forelder_er_brukt_opp() throws Exception {
-        LocalDate maksdatoForeldrepenger = LocalDate.of(2018, 8, 1);
-        LocalDate omsorgsovertakelsedato = LocalDate.of(2018, 9, 1);
+        var maksdatoForeldrepenger = LocalDate.of(2018, 8, 1);
+        var omsorgsovertakelsedato = LocalDate.of(2018, 9, 1);
 
-        YtelseMaksdatoTjeneste beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
+        var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
         Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
 
-        InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider,
+        var oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock,
             iayTjeneste, null);
 
-        Behandling behandling = settOppAdopsjonBehandlingFor(10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
+        var behandling = settOppAdopsjonBehandlingFor(10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
 
-        VilkårData data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
@@ -106,24 +101,24 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_innvilgelse_dersom_stønadsperiode_for_annen_forelder_ikke_er_brukt_opp() throws Exception {
-        LocalDate maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
-        LocalDate omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
+        var maksdatoForeldrepenger = LocalDate.of(2018, 6, 1);
+        var omsorgsovertakelsedato = LocalDate.of(2018, 5, 1);
 
-        YtelseMaksdatoTjeneste beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
+        var beregnMorsMaksdatoTjenesteMock = Mockito.mock(YtelseMaksdatoTjeneste.class);
         Mockito.when(beregnMorsMaksdatoTjenesteMock.beregnMaksdatoForeldrepenger(any())).thenReturn(Optional.of(maksdatoForeldrepenger));
 
-        InngangsvilkårOversetter oversetter = new InngangsvilkårOversetter(repositoryProvider,
+        var oversetter = new InngangsvilkårOversetter(repositoryProvider,
             personopplysningTjeneste, beregnMorsMaksdatoTjenesteMock,
             iayTjeneste, null);
 
-        Behandling behandling = settOppAdopsjonBehandlingFor(
+        var behandling = settOppAdopsjonBehandlingFor(
             10, true, NavBrukerKjønn.KVINNE, false, omsorgsovertakelsedato);
 
-        VilkårData data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(data.getRegelInput());
-        String ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
+        var om = new ObjectMapper();
+        var jsonNode = om.readTree(data.getRegelInput());
+        var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
@@ -134,10 +129,10 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_innvilgelse_dersom_kvinne_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        Behandling behandling = settOppAdopsjonBehandlingFor(
+        var behandling = settOppAdopsjonBehandlingFor(
             10, false, NavBrukerKjønn.KVINNE, false, LocalDate.of(2018, 1, 1));
 
-        VilkårData data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         System.out.println(data.getVilkårUtfallMerknad());
@@ -147,10 +142,10 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_gi_innvilgelse_dersom_mann_alene_adopterer_barn_10år_som_ikke_tilhører_ektefelle_eller_samboer() {
-        Behandling behandling = settOppAdopsjonBehandlingFor(
+        var behandling = settOppAdopsjonBehandlingFor(
             10, false, NavBrukerKjønn.MANN, true, LocalDate.of(2018, 1, 1));
 
-        VilkårData data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
+        var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
         assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
@@ -160,7 +155,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     private Behandling settOppAdopsjonBehandlingFor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn,
                                                     boolean adoptererAlene, LocalDate omsorgsovertakelsedato) {
 
-        AbstractTestScenario<?> scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
+        var scenario = kjønn.equals(NavBrukerKjønn.KVINNE) ? ScenarioMorSøkerEngangsstønad.forAdopsjon()
             : ScenarioFarSøkerEngangsstønad.forAdopsjon();
 
         leggTilSøker(scenario, kjønn);
@@ -180,9 +175,9 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario, NavBrukerKjønn kjønn) {
-        Builder builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
-        AktørId søkerAktørId = scenario.getDefaultBrukerAktørId();
-        PersonInformasjon søker = builderForRegisteropplysninger
+        var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
+        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var søker = builderForRegisteropplysninger
             .medPersonas()
             .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
             .build();

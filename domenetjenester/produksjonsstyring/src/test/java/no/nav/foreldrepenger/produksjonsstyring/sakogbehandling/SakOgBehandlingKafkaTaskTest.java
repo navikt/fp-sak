@@ -13,9 +13,7 @@ import org.mockito.ArgumentCaptor;
 
 import contract.sob.dto.BehandlingAvsluttet;
 import contract.sob.dto.BehandlingOpprettet;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -43,45 +41,45 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
     @Test
     public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErOpprettet() {
 
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        final Behandling behandling = scenario.lagre(repositoryProvider);
-        Fagsak fagsak = behandling.getFagsak();
+        final var behandling = scenario.lagre(repositoryProvider);
+        var fagsak = behandling.getFagsak();
         var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
-        ArgumentCaptor<String> captorKey = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> captorVal = ArgumentCaptor.forClass(String.class);
+        var captorKey = ArgumentCaptor.forClass(String.class);
+        var captorVal = ArgumentCaptor.forClass(String.class);
         observer.doTask(task);
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
-        String value = captorVal.getValue();
-        BehandlingOpprettet roundtrip = JsonObjectMapper.fromJson(value, BehandlingOpprettet.class);
+        var value = captorVal.getValue();
+        var roundtrip = JsonObjectMapper.fromJson(value, BehandlingOpprettet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
     }
 
     @Test
     public void skalOppretteOppdaterSakOgBehandlingTaskMedAlleParametereNårBehandlingErAvsluttet() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().plusDays(1)));
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         behandling.avsluttBehandling();
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
-        Fagsak fagsak =behandling.getFagsak();
+        var fagsak =behandling.getFagsak();
         var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
-        ArgumentCaptor<String> captorKey = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> captorVal = ArgumentCaptor.forClass(String.class);
+        var captorKey = ArgumentCaptor.forClass(String.class);
+        var captorVal = ArgumentCaptor.forClass(String.class);
         observer.doTask(task);
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
-        String key = captorKey.getValue();
-        String value = captorVal.getValue();
-        BehandlingAvsluttet roundtrip = JsonObjectMapper.fromJson(value, BehandlingAvsluttet.class);
+        var key = captorKey.getValue();
+        var value = captorVal.getValue();
+        var roundtrip = JsonObjectMapper.fromJson(value, BehandlingAvsluttet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
     }

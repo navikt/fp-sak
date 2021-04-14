@@ -24,7 +24,7 @@ public class BehandlingVedtakEventPubliserer {
 
     public void fireEvent(BehandlingVedtak vedtak, Behandling behandling) {
 
-        BehandlingVedtakEvent event = new BehandlingVedtakEvent(vedtak, behandling);
+        var event = new BehandlingVedtakEvent(vedtak, behandling);
         behandlingVedtakEvent.fire(event);
     }
 }

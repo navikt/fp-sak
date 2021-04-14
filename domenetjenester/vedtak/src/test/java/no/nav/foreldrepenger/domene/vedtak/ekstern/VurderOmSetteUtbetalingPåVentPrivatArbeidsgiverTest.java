@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -262,7 +261,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     private Oppdragslinje150 byggOppdrag150(LocalDate datoVedtakFom, LocalDate datoVedtakTom, boolean erBruker, boolean gjelderOpphør) {
-        Oppdragslinje150.Builder builder = Oppdragslinje150.builder()
+        var builder = Oppdragslinje150.builder()
             .medKodeEndringLinje(KodeEndringLinje.NY)
             .medDatoStatusFom(LocalDate.now())
             .medVedtakId("123")
@@ -325,7 +324,7 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     private BeregningsresultatAndel byggBeregningsresultatAndel(BeregningsresultatPeriode beregningsresultatPeriode,
                                                                 Boolean brukerErMottaker, int dagsats,
                                                                 String virksomhetOrgnr, AktørId aktørId) {
-        BeregningsresultatAndel.Builder andelBuilder = BeregningsresultatAndel.builder()
+        var andelBuilder = BeregningsresultatAndel.builder()
             .medBrukerErMottaker(brukerErMottaker);
 
         if (virksomhetOrgnr != null) {
@@ -344,21 +343,21 @@ public class VurderOmSetteUtbetalingPåVentPrivatArbeidsgiverTest {
     }
 
     private Behandling opprettOgLagreBehandling() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var behandling = scenario.lagre(repositoryProvider);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         Behandlingsresultat.builderForInngangsvilkår()
             .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING)
             .medRettenTil(RettenTil.HAR_RETT_TIL_FP)
             .medVedtaksbrev(Vedtaksbrev.INGEN)
             .buildFor(behandling);
 
-        Behandlingsresultat behandlingsresultat = behandling.getBehandlingsresultat();
+        var behandlingsresultat = behandling.getBehandlingsresultat();
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         entityManager.persist(behandlingsresultat);
 
-        BehandlingVedtak behandlingVedtak = byggBehandlingVedtak(LocalDateTime.now(), behandlingsresultat);
+        var behandlingVedtak = byggBehandlingVedtak(LocalDateTime.now(), behandlingsresultat);
         repositoryProvider.getBehandlingVedtakRepository().lagre(behandlingVedtak, lås);
 
         entityManager.flush();

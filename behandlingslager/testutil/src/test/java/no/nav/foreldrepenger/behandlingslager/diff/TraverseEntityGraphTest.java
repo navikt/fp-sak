@@ -18,22 +18,19 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.diff.TraverseGraph.TraverseResult;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 
 public class TraverseEntityGraphTest {
 
     @Test
     public void skal_traverse_entity_graph() {
-        ScenarioMorSøkerEngangsstønad scenario = lagTestScenario();
+        var scenario = lagTestScenario();
 
-        Behandling behandling = scenario.lagMocked();
+        var behandling = scenario.lagMocked();
 
-        TraverseGraph traverser = lagTraverser();
+        var traverser = lagTraverser();
 
-        @SuppressWarnings("unused")
-        TraverseResult result = traverser.traverse(behandling);
+        @SuppressWarnings("unused") var result = traverser.traverse(behandling);
         // Map<Node, Object> values = new TreeMap<>(result.getValues());
 
         // values.forEach((e, v) -> System.out.println(e + "= " + v));
@@ -42,12 +39,12 @@ public class TraverseEntityGraphTest {
     @Test
     public void skal_ikke_ha_diff_for_seg_selv() {
 
-        final ScenarioMorSøkerEngangsstønad scenario = lagTestScenario();
-        Behandling target = scenario.lagMocked();
+        final var scenario = lagTestScenario();
+        var target = scenario.lagMocked();
 
-        DiffEntity differ = new DiffEntity(lagTraverser());
+        var differ = new DiffEntity(lagTraverser());
 
-        DiffResult diffResult = differ.diff(target, target);
+        var diffResult = differ.diff(target, target);
 
         assertThat(diffResult.getLeafDifferences()).isEmpty();
     }
@@ -55,27 +52,27 @@ public class TraverseEntityGraphTest {
     @Test
     public void skal_sammenligne_Lists_med_forskjellig_rekkefølge() {
 
-        DiffEntity differ = new DiffEntity(lagTraverser());
+        var differ = new DiffEntity(lagTraverser());
 
-        DummyEntitetMedListe en = new DummyEntitetMedListe();
+        var en = new DummyEntitetMedListe();
 
         en.leggTil(new DummyEntitet("a"));
         en.leggTil(new DummyEntitet("b"));
 
         // sjekk med annen rekkefølge
-        DummyEntitetMedListe to = new DummyEntitetMedListe();
+        var to = new DummyEntitetMedListe();
         to.leggTil(new DummyEntitet("b"));
         to.leggTil(new DummyEntitet("a"));
         assertThat(differ.diff(en, to).getLeafDifferences()).isEmpty();
 
         // sjekk også med kopi av seg selv
-        DummyEntitetMedListe tre = new DummyEntitetMedListe();
+        var tre = new DummyEntitetMedListe();
         tre.leggTil(new DummyEntitet("a"));
         tre.leggTil(new DummyEntitet("b"));
         assertThat(differ.diff(en, tre).getLeafDifferences()).isEmpty();
 
         // sjekk med noe annerledes
-        DummyEntitetMedListe fem = new DummyEntitetMedListe();
+        var fem = new DummyEntitetMedListe();
         fem.leggTil(new DummyEntitet("a"));
         fem.leggTil(new DummyEntitet("c"));
         assertThat(differ.diff(en, fem).getLeafDifferences()).hasSize(2);
@@ -84,15 +81,15 @@ public class TraverseEntityGraphTest {
 
     @Test
     public void skal_sammenligne_Lists_med_forskjellig_størrelse() {
-        DiffEntity differ = new DiffEntity(lagTraverser());
+        var differ = new DiffEntity(lagTraverser());
 
-        DummyEntitetMedListe en = new DummyEntitetMedListe();
+        var en = new DummyEntitetMedListe();
 
         en.leggTil(new DummyEntitet("a"));
         en.leggTil(new DummyEntitet("b"));
 
         // sjekk med noe mer
-        DummyEntitetMedListe fire = new DummyEntitetMedListe();
+        var fire = new DummyEntitetMedListe();
         fire.leggTil(new DummyEntitet("a"));
         fire.leggTil(new DummyEntitet("b"));
         fire.leggTil(new DummyEntitet("c"));
@@ -103,18 +100,18 @@ public class TraverseEntityGraphTest {
     @Test
     public void skal_diffe_fødselsdato() {
 
-        final ScenarioMorSøkerEngangsstønad scenario = lagTestScenario();
+        final var scenario = lagTestScenario();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(2));
-        Behandling target1 = scenario.lagMocked();
-        final ScenarioMorSøkerEngangsstønad scenario1 = lagTestScenario();
+        var target1 = scenario.lagMocked();
+        final var scenario1 = lagTestScenario();
         scenario1.medSøknadHendelse().medFødselsDato(LocalDate.now().plusDays(3));
-        final Behandling target2 = scenario.lagMocked();
+        final var target2 = scenario.lagMocked();
 
-        DiffEntity differ = new DiffEntity(lagTraverser());
+        var differ = new DiffEntity(lagTraverser());
 
-        DiffResult diffResult = differ.diff(target1, target2);
+        var diffResult = differ.diff(target1, target2);
 
-        Map<Node, Pair> leafDifferences = diffResult.getLeafDifferences();
+        var leafDifferences = diffResult.getLeafDifferences();
         assertThat(leafDifferences.size()).isGreaterThanOrEqualTo(0);
         assertThat(containsKey(leafDifferences, "Behandlingsgrunnlag.søknad.familieHendelse.barna.[0].fødselsdato")).isFalse();
 
@@ -124,20 +121,20 @@ public class TraverseEntityGraphTest {
     @Test
     public void skal_kun_diffe_på_markerte_felt() {
         // Arrange
-        MedlemskapPerioderEntitet medlemskap1 = new MedlemskapPerioderBuilder()
+        var medlemskap1 = new MedlemskapPerioderBuilder()
                 .medMedlId(1L) // MedlId er ikke markert
                 .medErMedlem(true)
                 .build();
 
-        MedlemskapPerioderEntitet medlemskap2 = new MedlemskapPerioderBuilder()
+        var medlemskap2 = new MedlemskapPerioderBuilder()
                 .medMedlId(2L) // MedlId er ikke markert
                 .medErMedlem(false)
                 .build();
 
-        DiffEntity differ = new DiffEntity(lagTraverserForTrackedFields());
+        var differ = new DiffEntity(lagTraverserForTrackedFields());
 
         // Act
-        DiffResult diffResult = differ.diff(medlemskap1, medlemskap2);
+        var diffResult = differ.diff(medlemskap1, medlemskap2);
 
         // Assert
         assertThat(diffResult.getLeafDifferences()).hasSize(1);
@@ -146,13 +143,13 @@ public class TraverseEntityGraphTest {
     @Test
     public void skal_oppdage_diff_når_det_kommer_ny_entry() {
         // Arrange
-        MedlemskapPerioderEntitet periode1 = new MedlemskapPerioderBuilder().medErMedlem(true).build();
-        MedlemskapPerioderEntitet periode2 = new MedlemskapPerioderBuilder().medErMedlem(false).build();
+        var periode1 = new MedlemskapPerioderBuilder().medErMedlem(true).build();
+        var periode2 = new MedlemskapPerioderBuilder().medErMedlem(false).build();
 
-        DiffEntity differ = new DiffEntity(lagTraverserForTrackedFields());
+        var differ = new DiffEntity(lagTraverserForTrackedFields());
 
         // Act
-        DiffResult diffResult = differ.diff(Arrays.asList(periode1), Arrays.asList(periode1, periode2));
+        var diffResult = differ.diff(Arrays.asList(periode1), Arrays.asList(periode1, periode2));
 
         // Assert
         assertThat(diffResult.getLeafDifferences()).hasSize(1);
@@ -162,27 +159,27 @@ public class TraverseEntityGraphTest {
     public void skal_oppdage_diff_i_kodeverk() throws Exception {
 
         // Arrange
-        MedlemskapPerioderEntitet periode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();
-        MedlemskapPerioderEntitet periode2 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.TPS).build();
+        var periode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();
+        var periode2 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.TPS).build();
 
-        DiffEntity differ = new DiffEntity(lagTraverser());
+        var differ = new DiffEntity(lagTraverser());
 
         // Act
-        DiffResult diffResult = differ.diff(periode1, periode2);
+        var diffResult = differ.diff(periode1, periode2);
 
         // Assert
-        Map<Node, Pair> leafDiffs = diffResult.getLeafDifferences();
+        var leafDiffs = diffResult.getLeafDifferences();
         assertThat(leafDiffs).hasSize(1);
 
         // diff mot kopi
-        MedlemskapPerioderEntitet nyPeriode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();
-        DiffResult diffResultNy = differ.diff(periode1, nyPeriode1);
+        var nyPeriode1 = new MedlemskapPerioderBuilder().medKildeType(MedlemskapKildeType.ANNEN).build();
+        var diffResultNy = differ.diff(periode1, nyPeriode1);
         assertThat(diffResultNy.getLeafDifferences()).isEmpty();
 
     }
 
     private boolean containsKey(Map<Node, Pair> leafDifferences, String key) {
-        for (Node node : leafDifferences.keySet()) {
+        for (var node : leafDifferences.keySet()) {
             if (node.toString().equals(key)) {
                 return true;
             }
@@ -206,7 +203,7 @@ public class TraverseEntityGraphTest {
     }
 
     private ScenarioMorSøkerEngangsstønad lagTestScenario() {
-        ScenarioMorSøkerEngangsstønad scenario = ScenarioMorSøkerEngangsstønad
+        var scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medTilleggsopplysninger("hello");
         return scenario;

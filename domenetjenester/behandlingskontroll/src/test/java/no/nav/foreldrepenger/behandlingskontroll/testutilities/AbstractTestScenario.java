@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.persistence.EntityManager;
-
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
@@ -20,8 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehand
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -76,8 +72,8 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         if (behandling != null) {
             throw new IllegalStateException("build allerede kalt.  Hent Behandling via getBehandling eller opprett nytt scenario.");
         }
-        BehandlingRepository behandlingRepo = repositoryProvider.getBehandlingRepository();
-        Builder behandlingBuilder = grunnBuild(repositoryProvider);
+        var behandlingRepo = repositoryProvider.getBehandlingRepository();
+        var behandlingBuilder = grunnBuild(repositoryProvider);
 
         this.behandling = behandlingBuilder.build();
 
@@ -87,7 +83,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
 
         leggTilAksjonspunkter(behandling);
 
-        BehandlingLås lås = behandlingRepo.taSkriveLås(behandling);
+        var lås = behandlingRepo.taSkriveLås(behandling);
         behandlingRepo.lagre(behandling, lås);
 
         // opprett og lagre resulater på behandling
@@ -97,7 +93,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     }
 
     private Builder grunnBuild(BehandlingskontrollServiceProvider repositoryProvider) {
-        FagsakRepository fagsakRepo = repositoryProvider.getFagsakRepository();
+        var fagsakRepo = repositoryProvider.getFagsakRepository();
 
         lagFagsak(fagsakRepo);
 
@@ -108,10 +104,10 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private void lagFagsak(FagsakRepository fagsakRepo) {
         // opprett og lagre fagsak. Må gjøres før kan opprette behandling
         if (!Mockito.mockingDetails(fagsakRepo).isMock()) {
-            final EntityManager entityManager = fagsakRepo.getEntityManager();
+            final var entityManager = fagsakRepo.getEntityManager();
             if (entityManager != null) {
-                NavBrukerRepository brukerRepository = new NavBrukerRepository(entityManager);
-                final NavBruker navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
+                var brukerRepository = new NavBrukerRepository(entityManager);
+                final var navBruker = brukerRepository.hent(fagsakBuilder.getBrukerBuilder().getAktørId())
                         .orElseGet(() -> NavBruker.opprettNy(fagsakBuilder.getBrukerBuilder().getAktørId(),
                                 fagsakBuilder.getBrukerBuilder().getSpråkkode() != null ? fagsakBuilder.getBrukerBuilder().getSpråkkode()
                                         : Språkkode.NB));
@@ -119,7 +115,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             }
         }
         fagsak = fagsakBuilder.build();
-        Long fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR
+        var fagsakId = fagsakRepo.opprettNy(fagsak); // NOSONAR
         fagsak.setId(fagsakId);
     }
 

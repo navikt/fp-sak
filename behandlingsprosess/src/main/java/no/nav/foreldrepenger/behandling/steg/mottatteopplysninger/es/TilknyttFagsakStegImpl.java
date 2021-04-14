@@ -37,7 +37,7 @@ public class TilknyttFagsakStegImpl implements TilknyttFagsakSteg {
 
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
-        Behandling behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
+        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         avsluttTidligereRegistreringsoppgave(behandling);
         return BehandleStegResultat.utførtUtenAksjonspunkter();
     }

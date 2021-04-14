@@ -42,7 +42,7 @@ public class KontrollresultatDto {
     }
 
     public static KontrollresultatDto ikkeKlassifisert() {
-        KontrollresultatDto dto = new KontrollresultatDto();
+        var dto = new KontrollresultatDto();
         dto.setKontrollresultat(Kontrollresultat.IKKE_KLASSIFISERT);
         return dto;
     }

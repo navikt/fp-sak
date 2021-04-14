@@ -6,7 +6,6 @@ import static org.mockito.Mockito.lenient;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +60,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, false, true);
 
-        OrganisasjonsEnhet enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetNormal);
@@ -72,7 +71,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, false, false, true);
 
-        OrganisasjonsEnhet enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet).isEqualTo(enhetKode6);
@@ -83,8 +82,8 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, true, false, true);
 
-        OrganisasjonsEnhet enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
-        OrganisasjonsEnhet enhet1 = enhetsTjeneste
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet1 = enhetsTjeneste
                 .oppdaterEnhetSjekkOppgittePersoner(enhet.getEnhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
 
         assertThat(enhet).isNotNull();
@@ -96,8 +95,8 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true, true);
 
-        OrganisasjonsEnhet enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
-        OrganisasjonsEnhet enhet1 = enhetsTjeneste
+        var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
+        var enhet1 = enhetsTjeneste
                 .oppdaterEnhetSjekkOppgittePersoner(enhet.getEnhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
 
         assertThat(enhet).isNotNull();
@@ -109,7 +108,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true, false);
 
-        Optional<OrganisasjonsEnhet> enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();
@@ -121,7 +120,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, false, false);
 
-        OrganisasjonsEnhet enhet = enhetsTjeneste.enhetsPresedens(enhetNormal, enhetKode6);
+        var enhet = enhetsTjeneste.enhetsPresedens(enhetNormal, enhetKode6);
 
         assertThat(enhet).isEqualTo(enhetKode6);
     }
@@ -131,7 +130,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, false, true, false);
 
-        Optional<OrganisasjonsEnhet> enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isNotPresent();
@@ -142,7 +141,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, true, false, true);
 
-        Optional<OrganisasjonsEnhet> enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();
@@ -154,7 +153,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true, false);
 
-        Optional<OrganisasjonsEnhet> enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();
@@ -172,7 +171,7 @@ public class EnhetsTjenesteTest {
         lenient().when(personinfoAdapter.hentDiskresjonskode(BARN_AKTØR_ID)).thenReturn(barnKode6 ? Diskresjonskode.KODE6 : Diskresjonskode.UDEFINERT);
 
         lenient().doAnswer((Answer<List<ArbeidsfordelingResponse>>) invocation -> {
-            ArbeidsfordelingRequest data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
+            var data = (ArbeidsfordelingRequest) invocation.getArguments()[0];
             return Objects.equals("SPSF", data.getDiskresjonskode()) ? List.of(respKode6) : List.of(respNormal);
         }).when(arbeidsfordelingTjeneste).finnEnhet(any(ArbeidsfordelingRequest.class));
 

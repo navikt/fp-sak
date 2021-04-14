@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.AktørYtelseEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYGrunnlagDiff;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -54,7 +53,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        StartpunktType startpunkt = utledStartpunkterES(revurdering, differanse).stream()
+        var startpunkt = utledStartpunkterES(revurdering, differanse).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
         return StartpunktType.inngangsVilkårStartpunkt().contains(startpunkt) ? startpunkt : StartpunktType.UDEFINERT;
@@ -62,7 +61,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     private List<StartpunktType> utledStartpunkterES(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
         List<StartpunktType> startpunkter = new ArrayList<>();
-        FamilieHendelseGrunnlagEntitet grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
+        var grunnlagForBehandling = familieHendelseTjeneste.hentAggregat(revurdering.getBehandlingId());
         if (skalSjekkeForManglendeFødsel(grunnlagForBehandling))
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 
@@ -75,10 +74,10 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
         differanse.hentDelresultat(PersonInformasjonEntitet.class).filter(EndringsresultatDiff::erSporedeFeltEndret)
             .ifPresent(diff -> startpunkter.add(utledStartpunktForDelresultat(revurdering, diff)));
         differanse.hentDelresultat(InntektArbeidYtelseGrunnlag.class).filter(EndringsresultatDiff::erSporedeFeltEndret).ifPresent(diff -> {
-            InntektArbeidYtelseGrunnlag grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
-            InntektArbeidYtelseGrunnlag grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
-            IAYGrunnlagDiff iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
-            AktørYtelseEndring aktørYtelseEndringForSøker = iayGrunnlagDiff
+            var grunnlag1 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId1());
+            var grunnlag2 = iayTjeneste.hentGrunnlagPåId(revurdering.getBehandlingId(), (UUID)diff.getGrunnlagId2());
+            var iayGrunnlagDiff = new IAYGrunnlagDiff(grunnlag1, grunnlag2);
+            var aktørYtelseEndringForSøker = iayGrunnlagDiff
                 .endringPåAktørYtelseForAktør(revurdering.getSaksnummer(), revurdering.getUtledetSkjæringstidspunkt(), revurdering.getAktørId());
             if (aktørYtelseEndringForSøker.erEksklusiveYtelserEndret())
                 startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
@@ -93,10 +92,10 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {
-        FamilieHendelseGrunnlagEntitet grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
-        FamilieHendelseGrunnlagEntitet grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
-        Integer antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
-        Integer antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
+        var grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
+        var grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
+        var antallBarn1 = grunnlag1.getGjeldendeVersjon().getAntallBarn();
+        var antallBarn2 = grunnlag2.getGjeldendeVersjon().getAntallBarn();
 
         return !antallBarn1.equals(antallBarn2);
     }

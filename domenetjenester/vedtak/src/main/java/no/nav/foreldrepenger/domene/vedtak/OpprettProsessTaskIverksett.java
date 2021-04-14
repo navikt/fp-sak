@@ -12,10 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -70,10 +68,10 @@ public class OpprettProsessTaskIverksett {
     }
 
     public void opprettIverksettingTasks(Behandling behandling) {
-        ProsessTaskGruppe taskGruppe = new ProsessTaskGruppe();
+        var taskGruppe = new ProsessTaskGruppe();
         // Felles
-        ProsessTaskData avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
-        Optional<ProsessTaskData> avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
+        var avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
+        var avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
 
         // Send brev og oppdrag i parallell
         List<ProsessTaskData> parallelle = new ArrayList<>();
@@ -118,12 +116,12 @@ public class OpprettProsessTaskIverksett {
     }
 
     private Optional<ProsessTaskData> opprettTaskDataForAnke(Behandling behandling) {
-        AnkeVurderingResultatEntitet vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
+        var vurderingsresultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId()).orElse(null);
         if (vurderingsresultat == null)
             return Optional.empty();
-        AnkeVurdering vurdering = vurderingsresultat.getAnkeVurdering();
-        AnkeVurdering trygderett = vurderingsresultat.getTrygderettVurdering();
-        Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
+        var vurdering = vurderingsresultat.getAnkeVurdering();
+        var trygderett = vurderingsresultat.getTrygderettVurdering();
+        var sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
         if (ANKE_ENDRES.contains(vurdering) || ANKE_ENDRES.contains(trygderett)) {
             return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_ANKE_BESKRIVELSE));
         }
@@ -131,11 +129,11 @@ public class OpprettProsessTaskIverksett {
     }
 
     private Optional<ProsessTaskData> opprettTaskDataForKlage(Behandling behandling) {
-        KlageVurderingResultat vurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
+        var vurderingResultat = klageRepository.hentGjeldendeKlageVurderingResultat(behandling).orElse(null);
         if (vurderingResultat == null)
             return Optional.empty();
         var vurdering = vurderingResultat.getKlageVurdering();
-        Behandling sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
+        var sisteYtelseBeh = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsakId()).orElse(behandling);
         if (KLAGE_ENDRES.contains(vurdering)) {
             return Optional.of(lagOpprettVurderKonsekvensTask(sisteYtelseBeh, VKY_KLAGE_BESKRIVELSE));
         }
@@ -144,7 +142,7 @@ public class OpprettProsessTaskIverksett {
     }
 
     private ProsessTaskData lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
-        ProsessTaskData opprettOppgave = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var opprettOppgave = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);

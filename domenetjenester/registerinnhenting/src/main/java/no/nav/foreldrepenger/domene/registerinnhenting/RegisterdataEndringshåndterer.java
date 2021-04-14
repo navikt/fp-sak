@@ -18,8 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -79,13 +77,13 @@ public class RegisterdataEndringshåndterer {
         if (erAvslag(behandling) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return false;
         }
-        LocalDateTime midnatt = LocalDate.now().atStartOfDay();
-        Optional<LocalDateTime> opplysningerOppdatertTidspunkt = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId());
+        var midnatt = LocalDate.now().atStartOfDay();
+        var opplysningerOppdatertTidspunkt = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId());
         if (oppdatereRegisterdataTidspunkt == null) {
             // konfig-verdien er ikke satt
             return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);
         }
-        LocalDateTime nårOppdatereRegisterdata = LocalDateTime.now().minus(oppdatereRegisterdataTidspunkt);
+        var nårOppdatereRegisterdata = LocalDateTime.now().minus(oppdatereRegisterdataTidspunkt);
         if (nårOppdatereRegisterdata.isAfter(midnatt)) {
             // konfigverdien er etter midnatt, da skal midnatt gjelde
             return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);
@@ -112,7 +110,7 @@ public class RegisterdataEndringshåndterer {
     }
 
     private void doReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
-        boolean gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
+        var gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
             LOG.info("Starter behandlingId={} på nytt. gåttOverTerminDatoOgIngenFødselsdato={}, {}",
                 behandling.getId(), gåttOverTerminDatoOgIngenFødselsdato, endringsresultat); // NOSONAR //$NON-NLS-1$
@@ -135,21 +133,21 @@ public class RegisterdataEndringshåndterer {
         if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)) {
             return;
         }
-        boolean skalOppdatereRegisterdata = skalInnhenteRegisteropplysningerPåNytt(behandling);
+        var skalOppdatereRegisterdata = skalInnhenteRegisteropplysningerPåNytt(behandling);
 
         // Utled diff hvis registerdata skal oppdateres
-        EndringsresultatDiff endringsresultat = skalOppdatereRegisterdata ? oppdaterRegisteropplysninger(behandling) : opprettDiffUtenEndring();
+        var endringsresultat = skalOppdatereRegisterdata ? oppdaterRegisteropplysninger(behandling) : opprettDiffUtenEndring();
 
         doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, true);
     }
 
     private boolean isGåttOverTerminDatoOgIngenFødselsdato(Long behandlingId) {
-        Optional<FamilieHendelseGrunnlagEntitet> fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandlingId);
+        var fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandlingId);
         return fhGrunnlag.isEmpty() || familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(fhGrunnlag.get());
     }
 
     private EndringsresultatDiff oppdaterRegisteropplysninger(Behandling behandling) {
-        EndringsresultatSnapshot grunnlagSnapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
+        var grunnlagSnapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
 
         registerdataInnhenter.innhentPersonopplysninger(behandling);
         registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
@@ -158,7 +156,7 @@ public class RegisterdataEndringshåndterer {
         // oppdater alltid tidspunktet grunnlagene ble oppdater eller forsøkt oppdatert!
         behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now());
         // Finn alle endringer som registerinnhenting har gjort på behandlingsgrunnlaget
-        EndringsresultatDiff endringsresultat = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot);
+        var endringsresultat = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot);
         return endringsresultat;
     }
 

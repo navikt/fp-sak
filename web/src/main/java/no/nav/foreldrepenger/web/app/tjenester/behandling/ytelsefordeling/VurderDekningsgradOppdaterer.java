@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
-import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -14,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,10 +46,10 @@ public class VurderDekningsgradOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     @Override
     public OppdateringResultat oppdater(VurderDekningsgradDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        int dekningsgradFraDto = dto.getDekningsgrad();
-        Dekningsgrad gjeldendeDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad();
-        boolean erDekningsgradEndret = gjeldendeDekningsgrad.getVerdi() != dekningsgradFraDto;
+        var behandling = param.getBehandling();
+        var dekningsgradFraDto = dto.getDekningsgrad();
+        var gjeldendeDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad();
+        var erDekningsgradEndret = gjeldendeDekningsgrad.getVerdi() != dekningsgradFraDto;
         if (erDekningsgradEndret) {
             oppdaterDekningsgrad(behandling, dekningsgradFraDto);
         }
@@ -66,7 +63,7 @@ public class VurderDekningsgradOppdaterer implements AksjonspunktOppdaterer<Vurd
     }
 
     private void oppdaterFagsakRelasjon(Behandling behandling, int dekningsgradFraDto) {
-        Dekningsgrad nyDekningsgrad = Dekningsgrad.grad(dekningsgradFraDto);
+        var nyDekningsgrad = Dekningsgrad.grad(dekningsgradFraDto);
         fagsakRelasjonTjeneste.overstyrDekningsgrad(behandling.getFagsak(), nyDekningsgrad);
     }
 
@@ -80,18 +77,18 @@ public class VurderDekningsgradOppdaterer implements AksjonspunktOppdaterer<Vurd
 
     private void lagHistorikkinnslagHvisEndring(AksjonspunktOppdaterParameter param, int gammelDekningsgrad, int nyDekningsgrad, boolean erDekningsgradEndret, String begrunnelse) {
         historikkAdapter.tekstBuilder().ferdigstillHistorikkinnslagDel();
-        List<HistorikkinnslagDel> historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
-        boolean erBegrunnelseEndret = param.erBegrunnelseEndret();
+        var historikkDeler = historikkAdapter.tekstBuilder().getHistorikkinnslagDeler();
+        var erBegrunnelseEndret = param.erBegrunnelseEndret();
         if (erBegrunnelseEndret || erDekningsgradEndret) {
-            String fraVerdi = gammelDekningsgrad + "%";
-            String tilVerdi = nyDekningsgrad + "%";
+            var fraVerdi = gammelDekningsgrad + "%";
+            var tilVerdi = nyDekningsgrad + "%";
             historikkAdapter.tekstBuilder().medBegrunnelse(begrunnelse);
             if (!erDekningsgradEndret) {
                 historikkAdapter.tekstBuilder().medEndretFeltBegrunnelse(HistorikkEndretFeltType.DEKNINGSGRAD, fraVerdi, tilVerdi);
             } else {
                 historikkAdapter.tekstBuilder().medEndretFelt(HistorikkEndretFeltType.DEKNINGSGRAD, fraVerdi, tilVerdi);
             }
-            boolean erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
+            var erSkjermlenkeSatt = historikkDeler.stream().anyMatch(historikkDel -> historikkDel.getSkjermlenke().isPresent());
             if (!erSkjermlenkeSatt) {
                 historikkAdapter.tekstBuilder().medSkjermlenke(SkjermlenkeType.BEREGNING_FORELDREPENGER);
             }

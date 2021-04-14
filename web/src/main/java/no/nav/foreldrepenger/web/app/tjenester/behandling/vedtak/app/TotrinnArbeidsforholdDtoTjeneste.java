@@ -13,13 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnsArbeidsforholdDto;
@@ -56,8 +53,8 @@ public class TotrinnArbeidsforholdDtoTjeneste {
             }
 
             if (arbeidsforholdInformasjonOpt.isPresent()) {
-                ArbeidsforholdInformasjon arbeidsforholdInformasjon = arbeidsforholdInformasjonOpt.get();
-                List<ArbeidsforholdOverstyring> overstyringer = arbeidsforholdInformasjon.getOverstyringer();
+                var arbeidsforholdInformasjon = arbeidsforholdInformasjonOpt.get();
+                var overstyringer = arbeidsforholdInformasjon.getOverstyringer();
                 return overstyringer.stream()
                     .map(this::lagArbeidsforholdDto)
                     .collect(Collectors.toList());
@@ -67,33 +64,33 @@ public class TotrinnArbeidsforholdDtoTjeneste {
     }
 
     private TotrinnsArbeidsforholdDto lagArbeidsforholdDto(ArbeidsforholdOverstyring arbeidsforhold) {
-        String ref = arbeidsforhold.getArbeidsforholdRef().getReferanse();
-        ArbeidsforholdHandlingType handling = arbeidsforhold.getHandling();
-        Boolean brukPermisjon = skalPermisjonBrukes(arbeidsforhold);
+        var ref = arbeidsforhold.getArbeidsforholdRef().getReferanse();
+        var handling = arbeidsforhold.getHandling();
+        var brukPermisjon = skalPermisjonBrukes(arbeidsforhold);
         if (OrgNummer.erKunstig(arbeidsforhold.getArbeidsgiver().getIdentifikator()) && arbeidsforhold.getArbeidsgiverNavn() != null) {
             return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), arbeidsforhold.getArbeidsgiverNavn(),
                 arbeidsforhold.getArbeidsgiver().getOrgnr(), ref, handling, brukPermisjon);
         }
         if (arbeidsforhold.getArbeidsgiver().erAktørId()) {
-            ArbeidsgiverOpplysninger arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsforhold.getArbeidsgiver());
+            var arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsforhold.getArbeidsgiver());
             if (arbeidsgiverOpplysninger != null) {
-                String navn = arbeidsgiverOpplysninger.getNavn();
-                String fødselsdato = arbeidsgiverOpplysninger.getIdentifikator();
+                var navn = arbeidsgiverOpplysninger.getNavn();
+                var fødselsdato = arbeidsgiverOpplysninger.getIdentifikator();
                 return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), navn, fødselsdato, ref, handling, brukPermisjon);
             }
         }
         if (arbeidsforhold.getArbeidsgiver().getErVirksomhet()) {
-            String orgnr = arbeidsforhold.getArbeidsgiver().getOrgnr();
-            String navn = arbeidsgiverTjeneste.hentVirksomhet(orgnr).getNavn();
+            var orgnr = arbeidsforhold.getArbeidsgiver().getOrgnr();
+            var navn = arbeidsgiverTjeneste.hentVirksomhet(orgnr).getNavn();
             return new TotrinnsArbeidsforholdDto(arbeidsforhold.getArbeidsgiver().getIdentifikator(), navn, orgnr, ref, handling, brukPermisjon);
         }
         throw new IllegalStateException("Klarer ikke identifisere arbeidsgiver under iverksettelse av totrinnskontroll");
     }
 
     private Boolean skalPermisjonBrukes(ArbeidsforholdOverstyring arbeidsforhold) {
-        Optional<BekreftetPermisjon> bekreftetPermisjonOpt = arbeidsforhold.getBekreftetPermisjon();
+        var bekreftetPermisjonOpt = arbeidsforhold.getBekreftetPermisjon();
         if (bekreftetPermisjonOpt.isPresent()) {
-            BekreftetPermisjon bekreftetPermisjon = bekreftetPermisjonOpt.get();
+            var bekreftetPermisjon = bekreftetPermisjonOpt.get();
             if (BekreftetPermisjonStatus.BRUK_PERMISJON.equals(bekreftetPermisjon.getStatus())){
                 return true;
             }

@@ -49,7 +49,7 @@ public class SimulerOppdragDto {
     @JsonIgnore
     public static SimulerOppdragDto lagDto(Long behandlingId, List<String> råXml) {
         Objects.requireNonNull(råXml, "Rå XML kan ikke være null");
-        List<String> encoded = råXml.stream()
+        var encoded = råXml.stream()
             .map(str -> Base64.getEncoder()
                 .encodeToString(str.getBytes(StandardCharsets.UTF_8)))
             .collect(Collectors.toList());

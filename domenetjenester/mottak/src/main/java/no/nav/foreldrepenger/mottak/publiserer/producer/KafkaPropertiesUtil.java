@@ -7,7 +7,7 @@ class KafkaPropertiesUtil {
     private KafkaPropertiesUtil() {}
 
     static Properties opprettProperties(String bootstrapServers, String schemaRegistryUrl, String clientId, String username, String password) {
-        Properties properties = new Properties();
+        var properties = new Properties();
 
         properties.setProperty("bootstrap.servers", bootstrapServers);
         properties.setProperty("schema.registry.url", schemaRegistryUrl);
@@ -22,8 +22,8 @@ class KafkaPropertiesUtil {
     private static void setUsernameAndPassword(String username, String password, Properties properties) {
         if ((username != null && !username.isEmpty())
                 && (password != null && !password.isEmpty())) {
-            String jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
-            String jaasCfg = String.format(jaasTemplate, username, password);
+            var jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
+            var jaasCfg = String.format(jaasTemplate, username, password);
             properties.setProperty("sasl.jaas.config", jaasCfg);
         }
     }

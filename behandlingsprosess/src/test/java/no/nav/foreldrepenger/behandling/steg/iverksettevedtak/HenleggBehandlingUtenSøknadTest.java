@@ -40,14 +40,14 @@ public class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
 
     @Test
     public void kan_henlegge_behandling_uten_søknad_som_er_satt_på_vent() {
-        ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
+        var scenario = ScenarioMorSøkerForeldrepenger // Oppretter scenario uten søknad for å simulere sitausjoner som
                                                                                  // f.eks der inntektsmelding kommer først.
                 .forFødselUtenSøknad(AktørId.dummy())
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);
         var behandling = scenario.lagre(repositoryProvider);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.REGISTRER_SØKNAD);
-        BehandlingResultatType behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
+        var behandlingsresultat = BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
         henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), behandlingsresultat, "begrunnelse");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
         assertThat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getStatus).filter(AksjonspunktStatus.AVBRUTT::equals).count())

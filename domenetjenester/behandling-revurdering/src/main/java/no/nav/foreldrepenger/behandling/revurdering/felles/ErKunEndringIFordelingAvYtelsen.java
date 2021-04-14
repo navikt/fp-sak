@@ -29,8 +29,8 @@ class ErKunEndringIFordelingAvYtelsen {
     }
 
     public static Behandlingsresultat fastsett(Behandling revurdering, Behandlingsresultat behandlingsresultat, boolean erVarselOmRevurderingSendt) {
-        Vedtaksbrev vedtaksbrev = utledVedtaksbrev(erVarselOmRevurderingSendt);
-        Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
+        var vedtaksbrev = utledVedtaksbrev(erVarselOmRevurderingSendt);
+        var behandlingsresultatBuilder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
         behandlingsresultatBuilder.medBehandlingResultatType(BehandlingResultatType.FORELDREPENGER_ENDRET);
         behandlingsresultatBuilder.medVedtaksbrev(vedtaksbrev);
         behandlingsresultatBuilder.medRettenTil(RettenTil.HAR_RETT_TIL_FP);
@@ -43,23 +43,24 @@ class ErKunEndringIFordelingAvYtelsen {
 
         if (!revurderingsGrunnlagOpt.isPresent() && !originalGrunnlagOpt.isPresent()) {
             return false;
-        } else if (!revurderingsGrunnlagOpt.isPresent() || !originalGrunnlagOpt.isPresent()) {
+        }
+        if (!revurderingsGrunnlagOpt.isPresent() || !originalGrunnlagOpt.isPresent()) {
             return true;
         }
 
-        BeregningsgrunnlagEntitet revurderingsGrunnlag = revurderingsGrunnlagOpt.get();
-        BeregningsgrunnlagEntitet originalgGrunnlag = originalGrunnlagOpt.get();
+        var revurderingsGrunnlag = revurderingsGrunnlagOpt.get();
+        var originalgGrunnlag = originalGrunnlagOpt.get();
 
-        List<BeregningsgrunnlagPeriode> revurderingPerioder = revurderingsGrunnlag.getBeregningsgrunnlagPerioder();
-        List<BeregningsgrunnlagPeriode> originalePerioder = originalgGrunnlag.getBeregningsgrunnlagPerioder();
+        var revurderingPerioder = revurderingsGrunnlag.getBeregningsgrunnlagPerioder();
+        var originalePerioder = originalgGrunnlag.getBeregningsgrunnlagPerioder();
 
-        for (BeregningsgrunnlagPeriode periode : revurderingPerioder) {
+        for (var periode : revurderingPerioder) {
             if (erUlikKorresponderendePeriode(originalePerioder, periode)) {
                 return true;
             }
         }
 
-        for (BeregningsgrunnlagPeriode periode : originalePerioder) {
+        for (var periode : originalePerioder) {
             if (erUlikKorresponderendePeriode(revurderingPerioder, periode)) {
                 return true;
             }
@@ -70,9 +71,9 @@ class ErKunEndringIFordelingAvYtelsen {
 
     private static boolean erUlikKorresponderendePeriode(List<BeregningsgrunnlagPeriode> sammenlignPerioder,
             BeregningsgrunnlagPeriode periodeÅSammenligne) {
-        LocalDate fom = periodeÅSammenligne.getBeregningsgrunnlagPeriodeFom();
+        var fom = periodeÅSammenligne.getBeregningsgrunnlagPeriodeFom();
 
-        Optional<BeregningsgrunnlagPeriode> førsteKronologiskePeriode = sammenlignPerioder.stream()
+        var førsteKronologiskePeriode = sammenlignPerioder.stream()
                 .min(Comparator.comparing(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPeriodeFom));
         if (førsteKronologiskePeriode.isPresent()) {
             if (fom.isBefore(førsteKronologiskePeriode.get().getBeregningsgrunnlagPeriodeFom())) {
@@ -80,7 +81,7 @@ class ErKunEndringIFordelingAvYtelsen {
             }
         }
 
-        BeregningsgrunnlagPeriode korresponderendePeriode = sammenlignPerioder.stream()
+        var korresponderendePeriode = sammenlignPerioder.stream()
                 .filter(originalPeriode -> periodeInneholderDato(originalPeriode, fom)).findFirst()
                 .orElseThrow(() -> new IllegalStateException("Fant ingen overlapp for beregningsgrunnlagperiode"));
 
@@ -96,10 +97,10 @@ class ErKunEndringIFordelingAvYtelsen {
     }
 
     private static boolean harPerioderUlikeAndeler(BeregningsgrunnlagPeriode revuderingPeriode, BeregningsgrunnlagPeriode originalPeriode) {
-        List<BeregningsgrunnlagPrStatusOgAndel> revuderingAndeler = revuderingPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
-        List<BeregningsgrunnlagPrStatusOgAndel> originaleAndeler = originalPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
-        for (BeregningsgrunnlagPrStatusOgAndel andel : revuderingAndeler) {
-            Optional<BeregningsgrunnlagPrStatusOgAndel> matchetAndel = finnMatchendeAndel(andel, originaleAndeler);
+        var revuderingAndeler = revuderingPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
+        var originaleAndeler = originalPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
+        for (var andel : revuderingAndeler) {
+            var matchetAndel = finnMatchendeAndel(andel, originaleAndeler);
             if (!matchetAndel.isPresent() || !erAndelerLike(andel, matchetAndel.get())) {
                 return true;
             }
@@ -122,9 +123,8 @@ class ErKunEndringIFordelingAvYtelsen {
         if (erVarselOmRevurderingSendt) {
             // Krav 17
             return Vedtaksbrev.AUTOMATISK;
-        } else {
-            // Krav 12
-            return Vedtaksbrev.INGEN;
         }
+        // Krav 12
+        return Vedtaksbrev.INGEN;
     }
 }

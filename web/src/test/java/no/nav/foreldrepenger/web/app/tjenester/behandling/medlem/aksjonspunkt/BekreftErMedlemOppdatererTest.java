@@ -6,19 +6,15 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapManuellVurderingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -47,7 +43,7 @@ public class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
     @Test
     public void bekreft_er_medlem_vurdering() {
         // Arrange
-        ScenarioFarSøkerEngangsstønad scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad()
                 .medSøknadsdato(now);
         scenario.medSøknadHendelse()
@@ -56,34 +52,34 @@ public class BekreftErMedlemOppdatererTest extends EntityManagerAwareTest {
 
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
 
-        Behandling behandling = scenario.lagre(repositoryProvider);
-        Aksjonspunkt aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
-        BekreftedePerioderDto bekreftetPeriode = new BekreftedePerioderDto();
+        var behandling = scenario.lagre(repositoryProvider);
+        var aksjonspunkt = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE);
+        var bekreftetPeriode = new BekreftedePerioderDto();
         bekreftetPeriode.setMedlemskapManuellVurderingType(MedlemskapManuellVurderingType.MEDLEM);
 
-        BekreftErMedlemVurderingDto dto = new BekreftErMedlemVurderingDto("test", List.of(bekreftetPeriode));
+        var dto = new BekreftErMedlemVurderingDto("test", List.of(bekreftetPeriode));
 
         // Act
-        final MedlemskapAksjonspunktTjeneste medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
+        final var medlemskapTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
         new BekreftErMedlemVurderingOppdaterer(repositoryProvider, lagMockHistory(), medlemskapTjeneste)
                 .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
-        VurdertMedlemskap vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
+        var vurdertMedlemskap = getVurdertMedlemskap(behandling.getId(), repositoryProvider);
         assertThat(vurdertMedlemskap.getMedlemsperiodeManuellVurdering())
                 .isEqualTo(MedlemskapManuellVurderingType.MEDLEM);
     }
 
     private HistorikkTjenesteAdapter lagMockHistory() {
-        HistorikkTjenesteAdapter mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
+        var mockHistory = Mockito.mock(HistorikkTjenesteAdapter.class);
         Mockito.when(mockHistory.tekstBuilder()).thenReturn(tekstBuilder);
         return mockHistory;
     }
 
     private VurdertMedlemskap getVurdertMedlemskap(Long behandlingId, BehandlingRepositoryProvider repositoryProvider) {
-        MedlemskapRepository medlemskapRepository = repositoryProvider.getMedlemskapRepository();
-        Optional<VurdertMedlemskap> vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
+        var medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        var vurdertMedlemskap = medlemskapRepository.hentVurdertMedlemskap(behandlingId);
         return vurdertMedlemskap.orElse(null);
     }
 }

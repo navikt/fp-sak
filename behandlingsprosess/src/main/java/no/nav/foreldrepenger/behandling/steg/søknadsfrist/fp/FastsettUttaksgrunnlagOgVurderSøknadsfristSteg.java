@@ -85,7 +85,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
                                    BehandlingStegType førsteSteg,
                                    BehandlingStegType sisteSteg) {
         if (!Objects.equals(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER, førsteSteg)) {
-            Optional<YtelseFordelingAggregat> opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(
+            var opprinnelig = ytelsesFordelingRepository.hentAggregatHvisEksisterer(
                 kontekst.getBehandlingId());
             if (opprinnelig.isPresent()) {
                 rydd(kontekst.getBehandlingId(), opprinnelig.get());
@@ -106,9 +106,9 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristSteg implements Behandli
     }
 
     private void rydd(Long behandlingId, YtelseFordelingAggregat ytelseFordelingAggregat) {
-        YtelseFordelingAggregat.Builder builder = YtelseFordelingAggregat.Builder.oppdatere(
+        var builder = YtelseFordelingAggregat.Builder.oppdatere(
             Optional.of(ytelseFordelingAggregat));
-        YtelseFordelingAggregat ytelseFordeling = builder.medJustertFordeling(null)
+        var ytelseFordeling = builder.medJustertFordeling(null)
             .medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder(
                 ytelseFordelingAggregat.getAvklarteDatoer()).medOpprinneligEndringsdato(null).build())
             .build();

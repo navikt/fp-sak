@@ -21,11 +21,11 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     public static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
-        List<AktivitetStatus> aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
+        var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
             .map(vlBGAktivitetStatus -> AktivitetStatusMapper.fraVLTilRegel(vlBGAktivitetStatus.getAktivitetStatus()))
             .collect(Collectors.toList());
 
-        List<BeregningsgrunnlagPeriode> perioder = mapBeregningsgrunnlagPerioder(vlBeregningsgrunnlag);
+        var perioder = mapBeregningsgrunnlagPerioder(vlBeregningsgrunnlag);
 
         return no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(vlBeregningsgrunnlag.getSkjæringstidspunkt())
@@ -41,9 +41,9 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
     }
 
     private static BeregningsgrunnlagPeriode mapBeregningsgrunnlagPeriode(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
-        final BeregningsgrunnlagPeriode.Builder regelBGPeriode = BeregningsgrunnlagPeriode.builder()
+        final var regelBGPeriode = BeregningsgrunnlagPeriode.builder()
             .medPeriode(Periode.of(vlBGPeriode.getBeregningsgrunnlagPeriodeFom(), vlBGPeriode.getBeregningsgrunnlagPeriodeTom()));
-        List<BeregningsgrunnlagPrStatus> beregningsgrunnlagPrStatus = mapVLBGPrStatus(vlBGPeriode);
+        var beregningsgrunnlagPrStatus = mapVLBGPrStatus(vlBGPeriode);
         beregningsgrunnlagPrStatus.forEach(regelBGPeriode::medBeregningsgrunnlagPrStatus);
 
         return regelBGPeriode.build();
@@ -53,15 +53,15 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
         List<BeregningsgrunnlagPrStatus> liste = new ArrayList<>();
         BeregningsgrunnlagPrStatus bgpsATFL = null;
 
-        for (BeregningsgrunnlagPrStatusOgAndel vlBGPStatus : vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()) {
-            final AktivitetStatus regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
+        for (var vlBGPStatus : vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()) {
+            final var regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
             if (AktivitetStatus.ATFL.equals(regelAktivitetStatus)) {
                 if (bgpsATFL == null) {  // Alle ATFL håndteres samtidig her
                     bgpsATFL = mapVLBGPStatusForATFL(vlBGPeriode);
                     liste.add(bgpsATFL);
                 }
             } else {
-                BeregningsgrunnlagPrStatus bgps = mapVLBGPStatusForAlleAktivietetStatuser(vlBGPStatus);
+                var bgps = mapVLBGPStatusForAlleAktivietetStatuser(vlBGPStatus);
                 liste.add(bgps);
             }
         }
@@ -70,7 +70,7 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
 
     // Ikke ATFL og TY, de har separat mapping
     private static BeregningsgrunnlagPrStatus mapVLBGPStatusForAlleAktivietetStatuser(BeregningsgrunnlagPrStatusOgAndel vlBGPStatus) {
-        final AktivitetStatus regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
+        final var regelAktivitetStatus = AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus());
         return BeregningsgrunnlagPrStatus.builder()
             .medAktivitetStatus(regelAktivitetStatus)
             .medRedusertBrukersAndelPrÅr(vlBGPStatus.getRedusertBrukersAndelPrÅr())
@@ -81,11 +81,11 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
     // Felles mapping av alle statuser som mapper til ATFL
     private static BeregningsgrunnlagPrStatus mapVLBGPStatusForATFL(no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode vlBGPeriode) {
 
-        BeregningsgrunnlagPrStatus.Builder regelBGPStatusATFL = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL);
+        var regelBGPStatusATFL = BeregningsgrunnlagPrStatus.builder().medAktivitetStatus(AktivitetStatus.ATFL);
 
-        for (BeregningsgrunnlagPrStatusOgAndel vlBGPStatus : vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()) {
+        for (var vlBGPStatus : vlBGPeriode.getBeregningsgrunnlagPrStatusOgAndelList()) {
             if (AktivitetStatus.ATFL.equals(AktivitetStatusMapper.fraVLTilRegel(vlBGPStatus.getAktivitetStatus()))) {
-                BeregningsgrunnlagPrArbeidsforhold regelArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.builder()
+                var regelArbeidsforhold = BeregningsgrunnlagPrArbeidsforhold.builder()
                     .medArbeidsforhold(ArbeidsforholdMapper.mapArbeidsforholdFraBeregningsgrunnlag(vlBGPStatus))
                     .medRedusertRefusjonPrÅr(vlBGPStatus.getRedusertRefusjonPrÅr())
                     .medRedusertBrukersAndelPrÅr(vlBGPStatus.getRedusertBrukersAndelPrÅr())

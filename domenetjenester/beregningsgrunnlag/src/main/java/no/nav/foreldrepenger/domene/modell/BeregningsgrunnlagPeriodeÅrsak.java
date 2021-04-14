@@ -72,10 +72,11 @@ public class BeregningsgrunnlagPeriodeÅrsak extends BaseEntitet {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof BeregningsgrunnlagPeriodeÅrsak)) {
+        }
+        if (!(obj instanceof BeregningsgrunnlagPeriodeÅrsak)) {
             return false;
         }
-        BeregningsgrunnlagPeriodeÅrsak other = (BeregningsgrunnlagPeriodeÅrsak) obj;
+        var other = (BeregningsgrunnlagPeriodeÅrsak) obj;
         return Objects.equals(this.getBeregningsgrunnlagPeriode(), other.getBeregningsgrunnlagPeriode())
                 && Objects.equals(this.getPeriodeÅrsak(), other.getPeriodeÅrsak());
     }

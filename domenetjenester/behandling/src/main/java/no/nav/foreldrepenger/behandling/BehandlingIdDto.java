@@ -84,7 +84,7 @@ public class BehandlingIdDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        AbacDataAttributter abac = AbacDataAttributter.opprett();
+        var abac = AbacDataAttributter.opprett();
         if (behandlingId != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
         } else if (behandlingUuid != null) {

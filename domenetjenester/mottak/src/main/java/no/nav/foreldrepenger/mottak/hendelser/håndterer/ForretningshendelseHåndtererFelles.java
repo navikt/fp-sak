@@ -44,7 +44,7 @@ public class ForretningshendelseHåndtererFelles {
     }
 
     public Behandling opprettRevurderingLagStartTask(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        Behandling revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
+        var revurdering = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         return revurdering;
     }
@@ -59,7 +59,7 @@ public class ForretningshendelseHåndtererFelles {
             // Oppdateringer fanges opp etter at behandling tas av kø, ettersom den vil passere steg innhentregisteropplysninger
             return;
         }
-        Behandling køetBehandling = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
+        var køetBehandling = behandlingsoppretter.opprettRevurdering(fagsak, behandlingÅrsakType);
         historikkinnslagTjeneste.opprettHistorikkinnslagForVenteFristRelaterteInnslag(køetBehandling, HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
         køKontroller.enkøBehandling(køetBehandling);
     }

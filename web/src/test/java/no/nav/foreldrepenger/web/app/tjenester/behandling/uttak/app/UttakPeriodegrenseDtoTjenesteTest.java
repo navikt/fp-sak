@@ -18,10 +18,10 @@ public class UttakPeriodegrenseDtoTjenesteTest {
 
     @Test
     public void finnerSøknadsfristForPeriodeStartDato() {
-        LocalDate periodeStart = LocalDate.of(2018, 1, 31);
-        LocalDate forventetSøknadsfrist = LocalDate.of(2018, 4, 30);
+        var periodeStart = LocalDate.of(2018, 1, 31);
+        var forventetSøknadsfrist = LocalDate.of(2018, 4, 30);
 
-        LocalDate søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart);
+        var søknadsfrist = tjeneste.finnSøknadsfristForPeriodeMedStart(periodeStart);
         assertThat(søknadsfrist).isEqualTo(forventetSøknadsfrist);
 
         periodeStart = LocalDate.of(2018, 1, 31);

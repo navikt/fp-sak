@@ -37,16 +37,15 @@ public class IAYGrunnlagDiff {
         // quick check
         if (eksisterende.isPresent() != nye.isPresent()) {
             return true;
-        } else if (!eksisterende.isPresent() && !nye.isPresent()) {
-            return false;
-        } else {
-            if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.get().getAlleInntektsmeldinger().size()) {
-                return true;
-            } else {
-                DiffResult diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
-                return !diff.isEmpty();
-            }
         }
+        if (!eksisterende.isPresent() && !nye.isPresent()) {
+            return false;
+        }
+        if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.get().getAlleInntektsmeldinger().size()) {
+            return true;
+        }
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
+        return !diff.isEmpty();
     }
 
     public boolean erEndringPåAktørArbeidForAktør(LocalDate skjæringstidspunkt, AktørId aktørId) {
@@ -56,19 +55,19 @@ public class IAYGrunnlagDiff {
         // quick check
         if (eksisterendeAktørArbeid.isPresent() != nyAktørArbeid.isPresent()) {
             return true;
-        } else if (!eksisterendeAktørArbeid.isPresent() && !nyAktørArbeid.isPresent()) {
+        }
+        if (!eksisterendeAktørArbeid.isPresent() && !nyAktørArbeid.isPresent()) {
             return false;
-        } else {
-            var eksisterendeFilter = new YrkesaktivitetFilter(null, eksisterendeAktørArbeid).før(skjæringstidspunkt);
-            var nyFilter = new YrkesaktivitetFilter(null, nyAktørArbeid).før(skjæringstidspunkt);
-            if ((eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size())
-                    || (eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size())) {
-                return true;
-            }
+        }
+        var eksisterendeFilter = new YrkesaktivitetFilter(null, eksisterendeAktørArbeid).før(skjæringstidspunkt);
+        var nyFilter = new YrkesaktivitetFilter(null, nyAktørArbeid).før(skjæringstidspunkt);
+        if ((eksisterendeFilter.getYrkesaktiviteter().size() != nyFilter.getYrkesaktiviteter().size())
+                || (eksisterendeFilter.getAnsettelsesPerioder().size() != nyFilter.getAnsettelsesPerioder().size())) {
+            return true;
         }
 
         // deep check
-        DiffResult diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterendeAktørArbeid.get(), nyAktørArbeid.get());
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterendeAktørArbeid.get(), nyAktørArbeid.get());
         return !diff.isEmpty();
     }
 
@@ -80,19 +79,19 @@ public class IAYGrunnlagDiff {
         // quick check
         if (eksisterende.isPresent() != nye.isPresent()) {
             return true;
-        } else if (!eksisterende.isPresent() && !nye.isPresent()) {
+        }
+        if (!eksisterende.isPresent() && !nye.isPresent()) {
             return false;
-        } else {
-            var eksisterendeInntektFilter = new InntektFilter(eksisterende).før(skjæringstidspunkt);
-            var nyeInntektFilter = new InntektFilter(nye).før(skjæringstidspunkt);
-            // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff
-            // pensjonsgivende, beregning og Sigrun
-            if (eksisterendeInntektFilter.getFiltrertInntektsposter().size() != nyeInntektFilter.getFiltrertInntektsposter().size()) {
-                return true;
-            }
+        }
+        var eksisterendeInntektFilter = new InntektFilter(eksisterende).før(skjæringstidspunkt);
+        var nyeInntektFilter = new InntektFilter(nye).før(skjæringstidspunkt);
+        // TODO - raffinere med tanke på Startpunkt BEREGNING. Kan sjekke på diff
+        // pensjonsgivende, beregning og Sigrun
+        if (eksisterendeInntektFilter.getFiltrertInntektsposter().size() != nyeInntektFilter.getFiltrertInntektsposter().size()) {
+            return true;
         }
         // deep check
-        DiffResult diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
+        var diff = new IAYDiffsjekker().getDiffEntity().diff(eksisterende.get(), nye.get());
         return !diff.isEmpty();
     }
 
@@ -103,15 +102,15 @@ public class IAYGrunnlagDiff {
                 && ((ytelse.getSaksnummer() == null) || !ytelse.getSaksnummer().equals(egetSaksnummer));
         // Setter fris for å få med nye "parallelle" søknader, men unngår overlapp med
         // neste barn. Kan tunes. Annen søknad får AP når denne vedtatt
-        LocalDate datoForEksklusiveTyper = LocalDate.now().isAfter(skjæringstidspunkt) ? skjæringstidspunkt.plusMonths(3L) : skjæringstidspunkt;
+        var datoForEksklusiveTyper = LocalDate.now().isAfter(skjæringstidspunkt) ? skjæringstidspunkt.plusMonths(3L) : skjæringstidspunkt;
 
-        List<Ytelse> førYtelserFpsak = hentYtelserForAktør(grunnlag1, datoForEksklusiveTyper, aktørId, predikatEksklusiveTyper);
-        List<Ytelse> nåYtelserFpsak = hentYtelserForAktør(grunnlag2, datoForEksklusiveTyper, aktørId, predikatEksklusiveTyper);
-        boolean erEksklusiveYtlserEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserFpsak, nåYtelserFpsak).isEmpty();
+        var førYtelserFpsak = hentYtelserForAktør(grunnlag1, datoForEksklusiveTyper, aktørId, predikatEksklusiveTyper);
+        var nåYtelserFpsak = hentYtelserForAktør(grunnlag2, datoForEksklusiveTyper, aktørId, predikatEksklusiveTyper);
+        var erEksklusiveYtlserEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserFpsak, nåYtelserFpsak).isEmpty();
 
-        List<Ytelse> førYtelserEkstern = hentYtelserForAktør(grunnlag1, skjæringstidspunkt, aktørId, predikatAndreYtelseTyper);
-        List<Ytelse> nåYtelserEkstern = hentYtelserForAktør(grunnlag2, skjæringstidspunkt, aktørId, predikatAndreYtelseTyper);
-        boolean erAndreYtelserEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
+        var førYtelserEkstern = hentYtelserForAktør(grunnlag1, skjæringstidspunkt, aktørId, predikatAndreYtelseTyper);
+        var nåYtelserEkstern = hentYtelserForAktør(grunnlag2, skjæringstidspunkt, aktørId, predikatAndreYtelseTyper);
+        var erAndreYtelserEndret = !new IAYDiffsjekker().getDiffEntity().diff(førYtelserEkstern, nåYtelserEkstern).isEmpty();
 
         return new AktørYtelseEndring(erEksklusiveYtlserEndret, erAndreYtelserEndret);
     }

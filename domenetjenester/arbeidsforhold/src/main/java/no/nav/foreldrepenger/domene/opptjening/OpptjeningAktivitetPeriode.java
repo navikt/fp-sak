@@ -55,7 +55,7 @@ public class OpptjeningAktivitetPeriode {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-        OpptjeningAktivitetPeriode other = (OpptjeningAktivitetPeriode) o;
+        var other = (OpptjeningAktivitetPeriode) o;
         return Objects.equals(opptjeningAktivitetType, other.opptjeningAktivitetType) &&
                 Objects.equals(grupperingNøkkel, other.grupperingNøkkel) &&
                 Objects.equals(begrunnelse, other.begrunnelse);
@@ -89,7 +89,7 @@ public class OpptjeningAktivitetPeriode {
         }
 
         public static Builder lagNyBasertPå(OpptjeningAktivitetPeriode kladd) {
-            OpptjeningAktivitetPeriode periode = ny()
+            var periode = ny()
                     .medPeriode(kladd.getPeriode())
                     .medOpptjeningAktivitetType(kladd.getOpptjeningAktivitetType())
                     .medVurderingsStatus(kladd.getVurderingsStatus())

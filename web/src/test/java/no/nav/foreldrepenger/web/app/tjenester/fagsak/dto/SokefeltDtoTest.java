@@ -13,8 +13,8 @@ public class SokefeltDtoTest {
 
     @Test
     public void skal_ha_spesial_abac_type_når_det_er_et_fødslelsnummer_siden_alle_sakene_kan_være_knyttet_til_andre_parter() throws Exception {
-        String fnr = new FiktiveFnr().nesteKvinneFnr();
-        SokefeltDto dto = new SokefeltDto(fnr);
+        var fnr = new FiktiveFnr().nesteKvinneFnr();
+        var dto = new SokefeltDto(fnr);
 
         assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.FNR, fnr)
@@ -23,7 +23,7 @@ public class SokefeltDtoTest {
 
     @Test
     public void skal_ha_normal_saksnummer_abac_type_når_det_ikke_er_et_fødslelsnummer() throws Exception {
-        Saksnummer saksnummer = new Saksnummer("123123123123");
+        var saksnummer = new Saksnummer("123123123123");
         assertThat(new SokefeltDto(saksnummer).abacAttributter()).isEqualTo(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer.getVerdi()));
     }
 }

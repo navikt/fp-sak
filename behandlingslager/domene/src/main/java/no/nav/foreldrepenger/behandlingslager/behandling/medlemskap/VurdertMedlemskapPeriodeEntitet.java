@@ -45,8 +45,8 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
     }
 
     public VurdertLøpendeMedlemskapBuilder getBuilderFor(LocalDate vurderingsdato) {
-        Optional<VurdertLøpendeMedlemskapEntitet> first = perioder.stream().filter(p -> p.getVurderingsdato().equals(vurderingsdato)).findFirst();
-        VurdertLøpendeMedlemskapBuilder builder = new VurdertLøpendeMedlemskapBuilder(first);
+        var first = perioder.stream().filter(p -> p.getVurderingsdato().equals(vurderingsdato)).findFirst();
+        var builder = new VurdertLøpendeMedlemskapBuilder(first);
         builder.medVurderingsdato(vurderingsdato);
         return builder;
     }
@@ -66,7 +66,7 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
             return false;
         }
 
-        VurdertMedlemskapPeriodeEntitet that = (VurdertMedlemskapPeriodeEntitet) o;
+        var that = (VurdertMedlemskapPeriodeEntitet) o;
         return Objects.equals(perioder, that.perioder);
     }
 
@@ -91,7 +91,7 @@ public class VurdertMedlemskapPeriodeEntitet extends BaseEntitet {
 
         public Builder leggTil(VurdertLøpendeMedlemskapBuilder builder) {
             if (!builder.erOppdatering()) {
-                VurdertLøpendeMedlemskapEntitet entitet = builder.build();
+                var entitet = builder.build();
                 medlemskapMal.perioder.add(entitet);
             }
             return this;

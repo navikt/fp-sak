@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.medlem.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -12,11 +11,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapsvilkårPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -48,44 +43,44 @@ public class MedlemTjenesteTest {
     @Test
     public void skal_returnere_empty_når_vilkåret_er_overstyrt_til_godkjent() {
         // Arrange
-        Tuple<Behandling, Behandlingsresultat> tuple = lagBehandling();
-        LocalDate now = LocalDate.now();
-        Behandling behandling = tuple.getElement1();
-        Behandlingsresultat behandlingsresultat = tuple.getElement2();
+        var tuple = lagBehandling();
+        var now = LocalDate.now();
+        var behandling = tuple.getElement1();
+        var behandlingsresultat = tuple.getElement2();
 
-        VilkårResultat.Builder vilkår = VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat());
+        var vilkår = VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat());
         vilkår.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
         vilkår.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null);
 
-        VilkårResultat vilkårResultat = vilkår.buildFor(behandling);
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var vilkårResultat = vilkår.buildFor(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(vilkårResultat, lås);
 
-        MedlemskapVilkårPeriodeGrunnlagEntitet.Builder grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        MedlemskapsvilkårPeriodeEntitet.Builder builder = grBuilder.getPeriodeBuilder();
-        MedlemskapsvilkårPerioderEntitet.Builder periode = builder.getBuilderForVurderingsdato(now);
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var builder = grBuilder.getPeriodeBuilder();
+        var periode = builder.getBuilderForVurderingsdato(now);
         periode.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT);
         builder.leggTil(periode);
         grBuilder.medMedlemskapsvilkårPeriode(builder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
 
         // Act
-        Optional<LocalDate> localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
+        var localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
 
         // Assert
         assertThat(localDate).isEmpty();
     }
 
     private Tuple<Behandling, Behandlingsresultat> lagBehandling() {
-        final Fagsak fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
-        final Behandling.Builder builder = Behandling.forFørstegangssøknad(fagsak);
-        final Behandling behandling = builder.build();
+        final var builder = Behandling.forFørstegangssøknad(fagsak);
+        final var behandling = builder.build();
 
-        BehandlingLås lås = behandlingRepository.taSkriveLås(behandling);
+        var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
-        Behandlingsresultat.Builder behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
+        var behandlingsresultatBuilder = Behandlingsresultat.builderForInngangsvilkår();
+        var behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         behandlingRepository.lagre(behandling, lås);
         return new Tuple<>(behandling, behandlingsresultat);

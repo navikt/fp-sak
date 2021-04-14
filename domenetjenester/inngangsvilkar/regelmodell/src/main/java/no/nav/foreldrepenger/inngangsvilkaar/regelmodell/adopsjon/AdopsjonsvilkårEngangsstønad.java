@@ -39,7 +39,7 @@ public class AdopsjonsvilkårEngangsstønad implements RuleService<Adopsjonsvilk
     @SuppressWarnings("unchecked")
     @Override
     public Specification<AdopsjonsvilkårGrunnlag> getSpecification() {
-        Ruleset<AdopsjonsvilkårGrunnlag> rs = new Ruleset<>();
+        var rs = new Ruleset<AdopsjonsvilkårGrunnlag>();
 
         Specification<AdopsjonsvilkårGrunnlag> mannAdoptererNode =
             rs.hvisRegel(SjekkMannAdoptererAlene.ID, "Hvis mann adopterer alene ...")

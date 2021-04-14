@@ -18,14 +18,12 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.FastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 import no.nav.foreldrepenger.behandling.steg.søknadsfrist.fp.VurderSøknadsfristTjeneste;
-import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -35,9 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -110,18 +106,18 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     }
 
     private Behandling opprettBehandling() {
-        Fagsak fagsak = FagsakBuilder.nyForeldrepengerForMor()
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor()
                 .medSaksnummer(new Saksnummer("2"))
                 .medBrukerAktørId(AKTØRID).build();
 
         behandlingRepositoryProvider.getFagsakRepository().opprettNy(fagsak);
 
-        Behandling.Builder behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
+        var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
 
         var behandling = behandlingBuilder.build();
         behandling.setAnsvarligSaksbehandler("VL");
 
-        Behandlingsresultat behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
+        var behandlingsresultat = Behandlingsresultat.opprettFor(behandling);
         var lås = behandlingRepositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId());
         behandlingRepository.lagre(behandling, lås);
 
@@ -133,20 +129,20 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     @Test
     public void skalOppretteAksjonspunktForÅVurdereSøknadsfristHvisSøktePerioderUtenforSøknadsfrist() {
         var behandling = opprettBehandling();
-        LocalDate mottattDato = LocalDate.now();
-        LocalDate førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); // En dag forbi søknadsfrist
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
+        var mottattDato = LocalDate.now();
+        var førsteUttaksdato = mottattDato.with(DAY_OF_MONTH, 1).minusMonths(3).minusDays(1); // En dag forbi søknadsfrist
+        var periode1 = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
                 .build();
 
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
                 .build();
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
@@ -154,13 +150,13 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        final SøknadEntitet søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
+        final var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
-        BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
+        var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
         assertThat(behandleStegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
@@ -177,20 +173,20 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     @Test
     public void skalIkkeOppretteAksjonspunktHvisSøktePerioderInnenforSøknadsfrist() {
         var behandling = opprettBehandling();
-        LocalDate førsteUttaksdato = LocalDate.now().with(DAY_OF_MONTH, 1).minusMonths(3);
-        LocalDate mottattDato = LocalDate.now();
-        OppgittPeriodeEntitet periode1 = OppgittPeriodeBuilder.ny()
+        var førsteUttaksdato = LocalDate.now().with(DAY_OF_MONTH, 1).minusMonths(3);
+        var mottattDato = LocalDate.now();
+        var periode1 = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .medPeriode(førsteUttaksdato, førsteUttaksdato.plusWeeks(6))
                 .build();
 
-        OppgittPeriodeEntitet periode2 = OppgittPeriodeBuilder.ny()
+        var periode2 = OppgittPeriodeBuilder.ny()
                 .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
                 .medPeriode(førsteUttaksdato.plusWeeks(6).plusDays(1), førsteUttaksdato.plusWeeks(10))
                 .build();
 
-        OppgittDekningsgradEntitet dekningsgrad = OppgittDekningsgradEntitet.bruk100();
-        Long behandlingId = behandling.getId();
+        var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
+        var behandlingId = behandling.getId();
 
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, periode2), true);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId)
@@ -198,14 +194,14 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
             .medOppgittDekningsgrad(dekningsgrad);
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
 
-        final SøknadEntitet søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
+        final var søknad = opprettSøknad(førsteUttaksdato, mottattDato, behandling);
         behandlingRepositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
-        Fagsak fagsak = behandling.getFagsak();
+        var fagsak = behandling.getFagsak();
         // Act
-        BehandlingskontrollKontekst kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
+        var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(),
                 behandlingRepository.taSkriveLås(behandling));
-        BehandleStegResultat behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
+        var behandleStegResultat = fastsettUttaksgrunnlagOgVurderSøknadsfristSteg.utførSteg(kontekst);
 
         // Assert
         assertThat(behandleStegResultat.getAksjonspunktListe()).isEmpty();
@@ -219,7 +215,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
     }
 
     private SøknadEntitet opprettSøknad(LocalDate fødselsdato, LocalDate mottattDato, Behandling behandling) {
-        final FamilieHendelseBuilder søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
+        final var søknadHendelse = familieHendelseRepository.opprettBuilderFor(behandling)
                 .medAntallBarn(1)
                 .medFødselsDato(fødselsdato);
         familieHendelseRepository.lagre(behandling, søknadHendelse);

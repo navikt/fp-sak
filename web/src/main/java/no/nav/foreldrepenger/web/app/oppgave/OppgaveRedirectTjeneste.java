@@ -42,9 +42,9 @@ public class OppgaveRedirectTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response doRedirect(@QueryParam("oppgaveId") @Valid OppgaveIdDto oppgaveId,
             @QueryParam("sakId") @Valid SaksnummerDto saksnummerDto) {
-        OppgaveRedirectData data = OppgaveRedirectData.hent(oppgaveBehandlingKoblingRepository, fagsakRepository, oppgaveId, saksnummerDto);
-        String url = redirectFactory.lagRedirect(data);
-        Response.ResponseBuilder responser = Response.temporaryRedirect(URI.create(url));
+        var data = OppgaveRedirectData.hent(oppgaveBehandlingKoblingRepository, fagsakRepository, oppgaveId, saksnummerDto);
+        var url = redirectFactory.lagRedirect(data);
+        var responser = Response.temporaryRedirect(URI.create(url));
         responser.encoding("UTF-8");
         return responser.build();
     }

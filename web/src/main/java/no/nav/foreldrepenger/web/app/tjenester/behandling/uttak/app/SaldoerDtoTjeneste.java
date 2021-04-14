@@ -13,9 +13,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -27,7 +25,6 @@ import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
-import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoResultat;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet;
@@ -72,12 +69,12 @@ public class SaldoerDtoTjeneste {
     }
 
     public SaldoerDto lagStønadskontoerDto(UttakInput input) {
-        SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(input);
+        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(input);
         return lagStønadskontoDto(input, saldoUtregning);
     }
 
     public SaldoerDto lagStønadskontoerDto(UttakInput input, List<UttakResultatPeriodeLagreDto> perioder) {
-        SaldoUtregning saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(input, mapFromDto(perioder));
+        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(input, mapFromDto(perioder));
         return lagStønadskontoDto(input, saldoUtregning);
     }
 
@@ -92,7 +89,7 @@ public class SaldoerDtoTjeneste {
         Map<String, StønadskontoDto> stønadskontoMap = new HashMap<>();
         for (var stønadskontotype : saldoUtregning.stønadskontoer()) {
             List<AktivitetSaldoDto> aktivitetSaldoListe = new ArrayList<>();
-            for (AktivitetIdentifikator aktivitet : saldoUtregning.aktiviteterForSøker()) {
+            for (var aktivitet : saldoUtregning.aktiviteterForSøker()) {
                 var saldo = saldoUtregning.saldo(stønadskontotype, aktivitet);
                 var aktivitetIdentifikatorDto = mapToDto(aktivitet);
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
@@ -130,9 +127,9 @@ public class SaldoerDtoTjeneste {
             stønadskonto)) {
             return Optional.empty();
         }
-        YtelseFordelingAggregat yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
-        FagsakRelasjon fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
-        StønadskontoResultat stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat,
+        var yfAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
+        var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonFor(ref.getSaksnummer());
+        var stønadskontoberegning = stønadskontoRegelAdapter.beregnKontoerMedResultat(ref, yfAggregat,
             fagsakRelasjon, annenpart, fpGrunnlag);
         int prematurdager = stønadskontoberegning.getAntallPrematurDager();
         int flerbarnsdager = stønadskontoberegning.getAntallFlerbarnsdager();

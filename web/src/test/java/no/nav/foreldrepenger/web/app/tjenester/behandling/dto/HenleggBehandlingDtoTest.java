@@ -11,7 +11,7 @@ public class HenleggBehandlingDtoTest {
 
     @Test
     public void skal_ha_med_behandlingId_til_abac() throws Exception {
-        HenleggBehandlingDto dto = new HenleggBehandlingDto();
+        var dto = new HenleggBehandlingDto();
         dto.setBehandlingId(1234L);
 
         assertThat(dto.abacAttributter()).isEqualTo(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, 1234L));

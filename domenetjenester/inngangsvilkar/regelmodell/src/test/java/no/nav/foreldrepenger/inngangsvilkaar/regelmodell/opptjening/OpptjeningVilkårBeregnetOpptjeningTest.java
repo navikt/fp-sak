@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,19 +21,19 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
 
     @Test
     public void skal_få_ikke_godkjent_for_beregnet_opptjening_med_mellomliggende_periode_og_for_kort_varighet() throws Exception {
-        int maksMellomliggendeDager = 14;
-        int minForegåendeDager = 4*7;
+        var maksMellomliggendeDager = 14;
+        var minForegåendeDager = 4*7;
 
-        LocalDate dt1 = LocalDate.of(2017, 10, 01);
-        LocalDate dt2 = LocalDate.of(2017, 11, 20);
-        LocalDate dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
-        LocalDate dt4 = dt3.plusDays(15);
-        LocalDate endOfInntekt = dt1.plusMonths(2).minusDays(1);
+        var dt1 = LocalDate.of(2017, 10, 01);
+        var dt2 = LocalDate.of(2017, 11, 20);
+        var dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
+        var dt4 = dt3.plusDays(15);
+        var endOfInntekt = dt1.plusMonths(2).minusDays(1);
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        LocalDate behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
+        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
         grunnlag.setMaksMellomliggendePeriodeForArbeidsforhold(Period.ofDays(maksMellomliggendeDager));
         grunnlag.setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period.ofDays(minForegåendeDager));
 
@@ -47,8 +46,8 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
-        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+        var output = new OpptjeningsvilkårResultat();
+        var evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
         // Assert
 
@@ -62,35 +61,35 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         assertThat(output.getResultatTidslinje()).isEqualTo(new LocalDateTimeline<>(dt1, endOfInntekt, Boolean.TRUE));
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.ofMonths(2));
 
-        Resultat forventet = Resultat.NEI;
+        var forventet = Resultat.NEI;
         assertForventetResultat(evaluation, forventet);
 
 
     }
 
     private void assertForventetResultat(Evaluation evaluation, Resultat forventet) {
-        EvaluationSummary summary = new EvaluationSummary(evaluation);
-        Collection<Evaluation> total = summary.leafEvaluations();
+        var summary = new EvaluationSummary(evaluation);
+        var total = summary.leafEvaluations();
         assertThat(total).hasSize(1);
         assertThat(total.stream().map(e -> e.result())).containsOnly(forventet);
     }
 
     @Test
     public void skal_få_avslag_når_bekreftet_opptjening_er_5mnd_og_antatt_opptjening_er_6mnd() throws Exception {
-        int maksMellomliggendeDager = 14;
-        int minForegåendeDager = 4*7;
+        var maksMellomliggendeDager = 14;
+        var minForegåendeDager = 4*7;
 
-        LocalDate behandlingstidspunkt = LocalDate.now();
-        LocalDate dt1 = behandlingstidspunkt.minusMonths(6).minusDays(3);
-        LocalDate dt2 = behandlingstidspunkt.minusMonths(2).plusDays(2);
-        LocalDate dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
-        LocalDate dt4 = behandlingstidspunkt.plusDays(100);
+        var behandlingstidspunkt = LocalDate.now();
+        var dt1 = behandlingstidspunkt.minusMonths(6).minusDays(3);
+        var dt2 = behandlingstidspunkt.minusMonths(2).plusDays(2);
+        var dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
+        var dt4 = behandlingstidspunkt.plusDays(100);
 
-        LocalDate endOfInntekt = behandlingstidspunkt.minusMonths(1);
+        var endOfInntekt = behandlingstidspunkt.minusMonths(1);
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
         grunnlag.setMaksMellomliggendePeriodeForArbeidsforhold(Period.ofDays(maksMellomliggendeDager));
         grunnlag.setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period.ofDays(minForegåendeDager));
 
@@ -103,10 +102,10 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
-        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+        var output = new OpptjeningsvilkårResultat();
+        var evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
-        Resultat forventet = Resultat.NEI;
+        var forventet = Resultat.NEI;
         assertForventetResultat(evaluation, forventet);
 
         // Assert
@@ -126,22 +125,22 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
 
     @Test
     public void skal_få_ikke_oppfylt_når_bekreftet_opptjening_er_4mnd_og_antatt_opptjening_er_5mnd() throws Exception {
-        int maksMellomliggendeDager = 14;
-        int minForegåendeDager = 4*7;
+        var maksMellomliggendeDager = 14;
+        var minForegåendeDager = 4*7;
 
-        LocalDate behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
         // datoer tunet for å gi akkurat 4 måneder opptjening
-        LocalDate dt1 = LocalDate.of(2017, 8, 24);
-        LocalDate dt2 = LocalDate.of(2017, 11, 20);
-        LocalDate dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
-        LocalDate dt4 = behandlingstidspunkt.plusDays(100);
+        var dt1 = LocalDate.of(2017, 8, 24);
+        var dt2 = LocalDate.of(2017, 11, 20);
+        var dt3 = dt2.plusDays(maksMellomliggendeDager / 2);
+        var dt4 = behandlingstidspunkt.plusDays(100);
 
         // dato tunet for å sikre at en måned kan settes som antatt opptjent (men fortsatt ikke nok til å gi Ok)
-        LocalDate endOfInntekt = behandlingstidspunkt.minusMonths(1);
+        var endOfInntekt = behandlingstidspunkt.minusMonths(1);
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        Opptjeningsgrunnlag grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
         grunnlag.setMaksMellomliggendePeriodeForArbeidsforhold(Period.ofDays(maksMellomliggendeDager));
         grunnlag.setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period.ofDays(minForegåendeDager));
 
@@ -154,10 +153,10 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
 
         // Act
-        OpptjeningsvilkårResultat output = new OpptjeningsvilkårResultat();
-        Evaluation evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
+        var output = new OpptjeningsvilkårResultat();
+        var evaluation = new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
 
-        Resultat forventet = Resultat.NEI;
+        var forventet = Resultat.NEI;
         assertForventetResultat(evaluation, forventet);
 
         // Assert

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -12,7 +11,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -45,10 +43,10 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
 
     @Override
     public OppdateringResultat oppdater(BekreftMannAdoptererAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        Behandling behandling = param.getBehandling();
-        boolean totrinn = håndterEndringHistorikk(dto, behandling, param);
+        var behandling = param.getBehandling();
+        var totrinn = håndterEndringHistorikk(dto, behandling, param);
 
-        final FamilieHendelseBuilder oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
+        final var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderFor(behandling);
         oppdatertOverstyrtHendelse
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medAdoptererAlene(dto.getMannAdoptererAlene()));
@@ -57,12 +55,12 @@ public class BekreftMannAdoptererOppdaterer implements AksjonspunktOppdaterer<Be
     }
 
     private boolean håndterEndringHistorikk(BekreftMannAdoptererAksjonspunktDto dto, Behandling behandling, AksjonspunktOppdaterParameter param) {
-        Optional<Boolean> mannAdoptererAlene = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
+        var mannAdoptererAlene = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId())
             .getOverstyrtVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
             .map(AdopsjonEntitet::getAdoptererAlene);
 
-        boolean erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.MANN_ADOPTERER, konvertBooleanTilFaktaEndretVerdiType(mannAdoptererAlene.orElse(null)),
+        var erEndret = oppdaterVedEndretVerdi(HistorikkEndretFeltType.MANN_ADOPTERER, konvertBooleanTilFaktaEndretVerdiType(mannAdoptererAlene.orElse(null)),
             konvertBooleanTilFaktaEndretVerdiType(dto.getMannAdoptererAlene()));
 
         historikkAdapter.tekstBuilder()

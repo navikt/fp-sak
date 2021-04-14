@@ -25,7 +25,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
 
     @Override
     public StartpunktType utledStartpunktForDiffBehandlingsgrunnlag(BehandlingReferanse revurdering, EndringsresultatDiff differanse) {
-        boolean sporedeFeltEndret = differanse.hentDelresultater().stream().anyMatch(EndringsresultatDiff::erSporedeFeltEndret);
+        var sporedeFeltEndret = differanse.hentDelresultater().stream().anyMatch(EndringsresultatDiff::erSporedeFeltEndret);
         var startpunktType = sporedeFeltEndret ?
             StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT :
             StartpunktType.UDEFINERT;

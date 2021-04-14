@@ -48,7 +48,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BehandlingDokumentBestiltEntitet that = (BehandlingDokumentBestiltEntitet) o;
+        var that = (BehandlingDokumentBestiltEntitet) o;
         return Objects.equals(behandlingDokument, that.behandlingDokument) &&
             Objects.equals(dokumentMalType, that.dokumentMalType);
     }

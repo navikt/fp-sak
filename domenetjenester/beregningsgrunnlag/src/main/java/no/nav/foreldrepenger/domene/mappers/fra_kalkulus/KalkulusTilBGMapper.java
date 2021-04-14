@@ -163,7 +163,8 @@ public final class KalkulusTilBGMapper {
                                            Optional<FaktaArbeidsforholdDto> faktaArbeidsforhold) {
         if (fraKalkulus.getAktivitetStatus().erFrilanser()) {
             return faktaAktør.map(FaktaAktørDto::getHarFLMottattYtelse).orElse(null);
-        } else if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
+        }
+        if (fraKalkulus.getAktivitetStatus().erArbeidstaker() && faktaArbeidsforhold.isPresent()) {
             return faktaArbeidsforhold.get().getHarMottattYtelse();
         }
         return null;

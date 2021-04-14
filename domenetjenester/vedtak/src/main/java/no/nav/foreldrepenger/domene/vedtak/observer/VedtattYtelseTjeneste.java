@@ -2,11 +2,9 @@ package no.nav.foreldrepenger.domene.vedtak.observer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -56,12 +54,12 @@ public class VedtattYtelseTjeneste {
     }
 
     public Ytelse genererYtelse(Behandling behandling) {
-        final BehandlingVedtak vedtak = vedtakRepository.hentForBehandling(behandling.getId());
-        Optional<BeregningsresultatEntitet> berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
+        final var vedtak = vedtakRepository.hentForBehandling(behandling.getId());
+        var berResultat = tilkjentYtelseRepository.hentUtbetBeregningsresultat(behandling.getId());
 
-        final Aktør aktør = new Aktør();
+        final var aktør = new Aktør();
         aktør.setVerdi(behandling.getAktørId().getId());
-        final YtelseV1 ytelse = new YtelseV1();
+        final var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPSAK);
         ytelse.setSaksnummer(behandling.getFagsak().getSaksnummer().getVerdi());
         ytelse.setVedtattTidspunkt(vedtak.getVedtakstidspunkt());
@@ -96,8 +94,8 @@ public class VedtattYtelseTjeneste {
     }
 
     private Anvisning mapForeldrepengerPeriode(BeregningsresultatPeriode periode) {
-        final Anvisning anvisning = new Anvisning();
-        final Periode p = new Periode();
+        final var anvisning = new Anvisning();
+        final var p = new Periode();
         p.setFom(periode.getBeregningsresultatPeriodeFom());
         p.setTom(periode.getBeregningsresultatPeriodeTom());
         anvisning.setPeriode(p);
@@ -111,11 +109,11 @@ public class VedtattYtelseTjeneste {
         if (beregningsgrunnlag == null) {
             return List.of();
         }
-        List<LocalDateSegment<DagsatsUtbgradSVP>> grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+        var grunnlagSatsUtbetGrad = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> new LocalDateSegment<>(p.getBeregningsgrunnlagPeriodeFom(), p.getBeregningsgrunnlagPeriodeTom(), beregnGrunnlagSatsUtbetGradSvp(p, beregningsgrunnlag.getGrunnbeløp().getVerdi())))
             .collect(Collectors.toList());
-        LocalDateTimeline<DagsatsUtbgradSVP> resultatTidslinje = new LocalDateTimeline<>(tilkjent.getBeregningsresultatPerioder().stream()
+        var resultatTidslinje = new LocalDateTimeline<DagsatsUtbgradSVP>(tilkjent.getBeregningsresultatPerioder().stream()
             .filter(p -> p.getDagsats() > 0)
             .map(p -> finnKombinertDagsatsUtbetaling(p, grunnlagSatsUtbetGrad))
             .filter(Objects::nonNull)
@@ -135,8 +133,8 @@ public class VedtattYtelseTjeneste {
     }
 
     private Anvisning mapSvangerskapspengerPeriode(LocalDateSegment<DagsatsUtbgradSVP> periode) {
-        final Anvisning anvisning = new Anvisning();
-        final Periode p = new Periode();
+        final var anvisning = new Anvisning();
+        final var p = new Periode();
         p.setFom(periode.getFom());
         p.setTom(periode.getTom());
         anvisning.setPeriode(p);
@@ -156,12 +154,12 @@ public class VedtattYtelseTjeneste {
     }
 
     private Periode utledPeriode(BehandlingVedtak vedtak, BeregningsresultatEntitet beregningsresultat) {
-        final Periode periode = new Periode();
+        final var periode = new Periode();
         if (beregningsresultat != null) {
-            Optional<LocalDate> minFom = beregningsresultat.getBeregningsresultatPerioder().stream()
+            var minFom = beregningsresultat.getBeregningsresultatPerioder().stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
                 .min(Comparator.naturalOrder());
-            Optional<LocalDate> maxTom = beregningsresultat.getBeregningsresultatPerioder().stream()
+            var maxTom = beregningsresultat.getBeregningsresultatPerioder().stream()
                 .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
                 .max(Comparator.naturalOrder());
             if (minFom.isEmpty()) {
@@ -176,10 +174,9 @@ public class VedtattYtelseTjeneste {
                 periode.setTom(Tid.TIDENES_ENDE);
             }
             return periode;
-        } else {
-            periode.setFom(vedtak.getVedtaksdato());
-            periode.setTom(vedtak.getVedtaksdato());
         }
+        periode.setFom(vedtak.getVedtaksdato());
+        periode.setTom(vedtak.getVedtaksdato());
         return periode;
     }
 
@@ -187,9 +184,11 @@ public class VedtattYtelseTjeneste {
     private YtelseType map(FagsakYtelseType type) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(type)) {
             return YtelseType.ENGANGSTØNAD;
-        } else if (FagsakYtelseType.FORELDREPENGER.equals(type)) {
+        }
+        if (FagsakYtelseType.FORELDREPENGER.equals(type)) {
             return YtelseType.FORELDREPENGER;
-        } else if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(type)) {
+        }
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(type)) {
             return YtelseType.SVANGERSKAPSPENGER;
         }
         throw new IllegalStateException("Ukjent ytelsestype " + type);
@@ -232,7 +231,7 @@ public class VedtattYtelseTjeneste {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            DagsatsUtbgradSVP that = (DagsatsUtbgradSVP) o;
+            var that = (DagsatsUtbgradSVP) o;
             return dagsats == that.dagsats &&
                 utbetalingsgrad == that.utbetalingsgrad;
         }

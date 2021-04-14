@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -23,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
@@ -64,8 +62,8 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
     @Override
     public final BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         long behandlingId = kontekst.getBehandlingId();
-        Behandlingsresultat behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
-        Optional<BehandlingVedtak> fantVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hent(behandlingId);
+        var fantVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId);
         if (behandlingsresultat.isBehandlingHenlagt() && fantVedtak.isEmpty()) {
             // Gå til avslutning. Dersom alle henlagte skal innom her så bør man sjekke
             // behov for Berørt og andre IVED.VENTER
@@ -74,14 +72,14 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
         if (fantVedtak.isEmpty()) {
             throw new IllegalStateException(String.format("Utviklerfeil: Kan ikke iverksette, behandling mangler vedtak %s", behandlingId));
         }
-        BehandlingVedtak vedtak = fantVedtak.get();
-        Behandling behandling = behandlingRepository.hentBehandling(behandlingId);
+        var vedtak = fantVedtak.get();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         if (IverksettingStatus.IVERKSATT.equals(vedtak.getIverksettingStatus())) {
             LOG.info("Behandling {}: Iverksetting allerede fullført", kontekst.getBehandlingId());
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
-        Optional<Venteårsak> venteårsakOpt = kanBegynneIverksetting(behandling);
+        var venteårsakOpt = kanBegynneIverksetting(behandling);
         if (venteårsakOpt.filter(Venteårsak.VENT_TIDLIGERE_BEHANDLING::equals).isPresent()) {
             LOG.info("Behandling {}: Iverksetting venter på annen behandling", behandlingId);
             // Bruker transisjon startet for "prøv utførSteg senere". Stegstatus VENTER
@@ -110,11 +108,11 @@ public class IverksetteVedtakStegFelles implements IverksetteVedtakSteg {
     }
 
     private void opprettHistorikkinnslagNårIverksettelsePåVent(Behandling behandling) {
-        HistorikkInnslagTekstBuilder delBuilder = new HistorikkInnslagTekstBuilder();
+        var delBuilder = new HistorikkInnslagTekstBuilder();
         delBuilder.medHendelse(HistorikkinnslagType.IVERKSETTELSE_VENT);
         delBuilder.medÅrsak(Venteårsak.VENT_TIDLIGERE_BEHANDLING);
 
-        Historikkinnslag historikkinnslag = new Historikkinnslag();
+        var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.IVERKSETTELSE_VENT);
         historikkinnslag.setBehandlingId(behandling.getId());
         historikkinnslag.setFagsakId(behandling.getFagsakId());

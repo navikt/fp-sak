@@ -29,8 +29,8 @@ public class SjekkOmPerioderHarEndringIAndeler {
      *         False hvis det ikke har skjedd en endring
      */
     public boolean sjekk(BeregningsresultatPeriode nyPeriode, BeregningsresultatPeriode gammelPeriode) {
-        List<BeregningsresultatAndel> nyeAndeler = nyPeriode.getBeregningsresultatAndelList();
-        List<BeregningsresultatAndel> gamleAndeler = gammelPeriode.getBeregningsresultatAndelList();
+        var nyeAndeler = nyPeriode.getBeregningsresultatAndelList();
+        var gamleAndeler = gammelPeriode.getBeregningsresultatAndelList();
         if (nyeAndeler.size() != gamleAndeler.size()) {
             return true;
         }
@@ -39,7 +39,7 @@ public class SjekkOmPerioderHarEndringIAndeler {
 
     private boolean finnKorresponderendeAndel(BeregningsresultatAndel nyAndel, List<BeregningsresultatAndel> gamleAndeler) {
         var nyAndelNøkkel = nyAndel.getAktivitetOgArbeidsforholdNøkkel();
-        long antallAndelerSomKorresponderer = gamleAndeler.stream().filter(gammelAndel ->
+        var antallAndelerSomKorresponderer = gamleAndeler.stream().filter(gammelAndel ->
             Objects.equals(nyAndel.erBrukerMottaker(), gammelAndel.erBrukerMottaker()) &&
                 Objects.equals(nyAndelNøkkel, gammelAndel.getAktivitetOgArbeidsforholdNøkkel()) &&
                 Objects.equals(nyAndel.getDagsats(), gammelAndel.getDagsats()) &&

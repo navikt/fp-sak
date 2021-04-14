@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegKonfigurasjon;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegResultat;
@@ -19,13 +18,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegTilstandSnapshot;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.StegProsesseringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent;
-import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegTilstandEndringEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingTransisjonEvent;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.StegTransisjon;
-import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifikator;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
@@ -33,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -80,29 +75,29 @@ class BehandlingStegVisitor {
     }
 
     protected StegProsesseringResultat prosesser() {
-        StegProsesseringResultat resultat = prosesserSteg(stegModell, false);
+        var resultat = prosesserSteg(stegModell, false);
         return resultat;
     }
 
     protected StegProsesseringResultat gjenoppta() {
-        StegProsesseringResultat resultat = prosesserSteg(stegModell, true);
+        var resultat = prosesserSteg(stegModell, true);
         return resultat;
     }
 
     private StegProsesseringResultat prosesserSteg(BehandlingStegModell stegModell, boolean gjenoppta) {
-        BehandlingSteg steg = stegModell.getSteg();
-        BehandlingStegType stegType = stegModell.getBehandlingStegType();
-        AksjonspunktResultatOppretter apHåndterer = new AksjonspunktResultatOppretter(aksjonspunktKontrollRepository, behandling);
+        var steg = stegModell.getSteg();
+        var stegType = stegModell.getBehandlingStegType();
+        var apHåndterer = new AksjonspunktResultatOppretter(aksjonspunktKontrollRepository, behandling);
 
         // Sett riktig status for steget før det utføres
-        BehandlingStegStatus førStegStatus = behandling.getBehandlingStegStatus();
+        var førStegStatus = behandling.getBehandlingStegStatus();
         LOG.info("Prosesserer steg={}, stegStatus={}", stegType, førStegStatus);
         // Vanlig prosessering skal ikke gjennomføres hvis steget VENTER.
         if (!gjenoppta && BehandlingStegStatus.VENTER.equals(førStegStatus)) {
             return StegProsesseringResultat.medMuligTransisjon(førStegStatus, BehandleStegResultat.settPåVent().getTransisjon());
         }
-        BehandlingStatus førStatus = behandling.getStatus();
-        BehandlingStegStatus førsteStegStatus = utledStegStatusFørUtføring(stegModell);
+        var førStatus = behandling.getStatus();
+        var førsteStegStatus = utledStegStatusFørUtføring(stegModell);
         oppdaterBehandlingStegStatus(behandling, stegType, førStegStatus, førsteStegStatus);
 
         // Utfør steg hvis tillatt av stegets før-status. Utled stegets nye status.
@@ -119,10 +114,10 @@ class BehandlingStegVisitor {
             }
 
             funnetAksjonspunkter.addAll(apHåndterer.opprettAksjonspunkter(resultat.getAksjonspunktResultater(), stegType));
-            BehandlingStegStatus nyStegStatus = håndterResultatAvSteg(stegModell, resultat, behandling);
+            var nyStegStatus = håndterResultatAvSteg(stegModell, resultat, behandling);
             stegResultat = StegProsesseringResultat.medMuligTransisjon(nyStegStatus, resultat.getTransisjon());
         } else if (BehandlingStegStatus.erVedUtgang(førsteStegStatus)) {
-            BehandlingStegStatus nyStegStatus = utledUtgangStegStatus(stegModell.getBehandlingStegType());
+            var nyStegStatus = utledUtgangStegStatus(stegModell.getBehandlingStegType());
             stegResultat = StegProsesseringResultat.utenOverhopp(nyStegStatus);
         } else {
             stegResultat = StegProsesseringResultat.utenOverhopp(førsteStegStatus);
@@ -140,7 +135,7 @@ class BehandlingStegVisitor {
         LOG.info("Avslutter steg={}, transisjon={} og funnet aksjonspunkter={}", stegType, stegResultat,
                 funnetAksjonspunkter.stream().map(Aksjonspunkt::getAksjonspunktDefinisjon).collect(Collectors.toList()));
 
-        Optional<BehandlingStegTilstand> stegTilstandFør = behandling.getSisteBehandlingStegTilstand();
+        var stegTilstandFør = behandling.getSisteBehandlingStegTilstand();
 
         // Sett riktig status for steget etter at det er utført. Lagre eventuelle
         // endringer fra steg på behandling
@@ -148,18 +143,18 @@ class BehandlingStegVisitor {
         oppdaterBehandlingStegStatus(behandling, stegType, førsteStegStatus, stegResultat.getNyStegStatus());
 
         // Publiser statusevent
-        BehandlingStatus etterStatus = behandling.getStatus();
+        var etterStatus = behandling.getStatus();
         eventPubliserer.fireEvent(kontekst, førStatus, etterStatus);
 
         // Publiser transisjonsevent
-        StegTransisjon transisjon = behandlingModell.finnTransisjon(stegResultat.getTransisjon());
-        BehandlingStegType tilSteg = finnFremoverhoppSteg(stegType, transisjon);
+        var transisjon = behandlingModell.finnTransisjon(stegResultat.getTransisjon());
+        var tilSteg = finnFremoverhoppSteg(stegType, transisjon);
         eventPubliserer.fireEvent(opprettEvent(stegResultat, transisjon, stegTilstandFør.orElse(null), tilSteg));
 
         // Publiser event om endring i stegets tilstand
-        BehandlingStegTilstandSnapshot fraTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(stegTilstandFør);
-        BehandlingStegTilstandSnapshot tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
-        BehandlingStegTilstandEndringEvent behandlingStegTilstandEndringEvent = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst,
+        var fraTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(stegTilstandFør);
+        var tilTilstand = BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand());
+        var behandlingStegTilstandEndringEvent = BehandlingModellImpl.nyBehandlingStegTilstandEndring(kontekst,
                 fraTilstand, tilTilstand);
         eventPubliserer.fireEvent(behandlingStegTilstandEndringEvent);
 
@@ -179,8 +174,8 @@ class BehandlingStegVisitor {
     private BehandlingStegType finnFremoverhoppSteg(BehandlingStegType stegType, StegTransisjon transisjon) {
         BehandlingStegType tilSteg = null;
         if (transisjon.getMålstegHvisHopp().isPresent()) {
-            BehandlingStegModell fraStegModell = behandlingModell.finnSteg(stegType);
-            BehandlingStegModell tilStegModell = transisjon.nesteSteg(fraStegModell);
+            var fraStegModell = behandlingModell.finnSteg(stegType);
+            var tilStegModell = transisjon.nesteSteg(fraStegModell);
             tilSteg = tilStegModell != null ? tilStegModell.getBehandlingStegType() : null;
         }
         return tilSteg;
@@ -190,7 +185,7 @@ class BehandlingStegVisitor {
         LOG.info("Markerer nytt steg som aktivt: {}", stegType);
 
         // Flytt aktivt steg til gjeldende steg hvis de ikke er like
-        BehandlingStegStatus sluttStatusForAndreSteg = behandlingStegKonfigurasjon.getUtført();
+        var sluttStatusForAndreSteg = behandlingStegKonfigurasjon.getUtført();
         settBehandlingStegSomGjeldende(stegType, sluttStatusForAndreSteg);
 
         fyrEventBehandlingStegOvergang(forrigeTilstand, BehandlingModellImpl.tilBehandlingsStegSnapshot(behandling.getBehandlingStegTilstand()));
@@ -201,14 +196,14 @@ class BehandlingStegVisitor {
     }
 
     private void fyrEventBehandlingStegOvergang(BehandlingStegTilstandSnapshot forrigeTilstand, BehandlingStegTilstandSnapshot nyTilstand) {
-        BehandlingStegOvergangEvent event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, forrigeTilstand,
+        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(behandlingModell, forrigeTilstand,
                 nyTilstand, kontekst);
 
         eventPubliserer.fireEvent(event);
     }
 
     private void fyrEventBehandlingStegTilbakeføring(Optional<BehandlingStegTilstand> forrige, Optional<BehandlingStegTilstand> ny) {
-        BehandlingStegOvergangEvent event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(
+        var event = BehandlingModellImpl.nyBehandlingStegOvergangEvent(
                 behandlingModell, BehandlingModellImpl.tilBehandlingsStegSnapshot(forrige), BehandlingModellImpl.tilBehandlingsStegSnapshot(ny),
                 kontekst);
 
@@ -219,7 +214,7 @@ class BehandlingStegVisitor {
             BehandlingStegType stegType,
             BehandlingStegStatus førsteStegStatus,
             BehandlingStegStatus nyStegStatus) {
-        Optional<BehandlingStegTilstand> behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
+        var behandlingStegTilstand = behandling.getBehandlingStegTilstand(stegType);
         if (behandlingStegTilstand.isPresent()) {
             if (erForskjellig(førsteStegStatus, nyStegStatus)) {
                 InternalManipulerBehandling.forceOppdaterBehandlingSteg(behandling, stegType, nyStegStatus, BehandlingStegStatus.UTFØRT);
@@ -231,23 +226,22 @@ class BehandlingStegVisitor {
 
     private BehandlingStegStatus utledStegStatusFørUtføring(BehandlingStegModell stegModell) {
 
-        BehandlingStegStatus nåBehandlingStegStatus = behandling.getBehandlingStegStatus();
+        var nåBehandlingStegStatus = behandling.getBehandlingStegStatus();
 
-        BehandlingStegType stegType = stegModell.getBehandlingStegType();
+        var stegType = stegModell.getBehandlingStegType();
 
         if (erForbiInngang(nåBehandlingStegStatus)) {
             // Hvis vi har kommet forbi INNGANG, så gå direkte videre til det gjeldende
             // statusen
             return nåBehandlingStegStatus;
-        } else {
-            boolean måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream()
-                    .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
-
-            BehandlingStegStatus nyStatus = måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
-                    : behandlingStegKonfigurasjon.getStartet();
-
-            return nyStatus;
         }
+        var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter().stream()
+                .anyMatch(ap -> skalHåndteresHer(stegType, ap, VurderingspunktType.INN));
+
+        var nyStatus = måHåndereAksjonspunktHer ? behandlingStegKonfigurasjon.getInngang()
+                : behandlingStegKonfigurasjon.getStartet();
+
+        return nyStatus;
     }
 
     private boolean skalHåndteresHer(BehandlingStegType stegType, Aksjonspunkt ap, VurderingspunktType vurderingspunktType) {
@@ -264,17 +258,17 @@ class BehandlingStegVisitor {
      */
     private BehandlingStegStatus håndterResultatAvSteg(BehandlingStegModell stegModell, BehandleStegResultat resultat, Behandling behandling) {
 
-        TransisjonIdentifikator transisjonIdentifikator = resultat.getTransisjon();
+        var transisjonIdentifikator = resultat.getTransisjon();
         if (transisjonIdentifikator == null) {
             throw new IllegalArgumentException("Utvikler-feil: mangler transisjon");
         }
 
-        StegTransisjon transisjon = behandlingModell.finnTransisjon(transisjonIdentifikator);
+        var transisjon = behandlingModell.finnTransisjon(transisjonIdentifikator);
 
         if (FellesTransisjoner.TILBAKEFØRT_TIL_AKSJONSPUNKT.getId().equals(transisjon.getId())) {
             // tilbakefør til tidligere steg basert på hvilke aksjonspunkter er åpne.
-            Optional<BehandlingStegTilstand> forrige = behandling.getSisteBehandlingStegTilstand();
-            BehandlingStegStatus behandlingStegStatus = håndterTilbakeføringTilTidligereSteg(behandling, stegModell.getBehandlingStegType());
+            var forrige = behandling.getSisteBehandlingStegTilstand();
+            var behandlingStegStatus = håndterTilbakeføringTilTidligereSteg(behandling, stegModell.getBehandlingStegType());
             fyrEventBehandlingStegTilbakeføring(forrige, behandling.getSisteBehandlingStegTilstand());
             return behandlingStegStatus;
         }
@@ -308,7 +302,7 @@ class BehandlingStegVisitor {
     }
 
     private boolean harÅpneAksjonspunkter(Behandling behandling, BehandlingStegType behandlingStegType) {
-        boolean måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter()
+        var måHåndereAksjonspunktHer = behandling.getÅpneAksjonspunkter()
                 .stream()
                 .anyMatch(ap -> skalHåndteresHer(behandlingStegType, ap, VurderingspunktType.UT));
 
@@ -316,21 +310,21 @@ class BehandlingStegVisitor {
     }
 
     private BehandlingStegStatus håndterTilbakeføringTilTidligereSteg(Behandling behandling, BehandlingStegType inneværendeBehandlingStegType) {
-        BehandlingStegStatus tilbakeførtStegStatus = behandlingStegKonfigurasjon.mapTilStatus(BehandlingStegResultat.TILBAKEFØRT);
-        BehandlingStegStatus inneværendeBehandlingStegStatus = behandling.getBehandlingStegStatus();
+        var tilbakeførtStegStatus = behandlingStegKonfigurasjon.mapTilStatus(BehandlingStegResultat.TILBAKEFØRT);
+        var inneværendeBehandlingStegStatus = behandling.getBehandlingStegStatus();
 
-        List<Aksjonspunkt> åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
+        var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         if (!åpneAksjonspunkter.isEmpty()) {
-            List<String> aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).collect(Collectors.toList());
-            BehandlingStegModell nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
-            Optional<BehandlingStegStatus> nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
+            var aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).collect(Collectors.toList());
+            var nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
+            var nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
                     aksjonspunkter);
 
             // oppdater inneværende steg
             oppdaterBehandlingStegStatus(behandling, inneværendeBehandlingStegType, inneværendeBehandlingStegStatus, tilbakeførtStegStatus);
 
             // oppdater nytt steg
-            BehandlingStegType nesteStegtype = nesteBehandlingStegModell.getBehandlingStegType();
+            var nesteStegtype = nesteBehandlingStegModell.getBehandlingStegType();
             oppdaterBehandlingStegType(nesteStegtype, nesteStegStatus.isPresent() ? nesteStegStatus.get() : null, tilbakeførtStegStatus);
         }
         return tilbakeførtStegStatus;
@@ -340,7 +334,7 @@ class BehandlingStegVisitor {
             BehandlingStegStatus sluttStegStatusVedOvergang) {
         Objects.requireNonNull(behandlingRepository, "behandlingRepository");
 
-        BehandlingStegType siste = behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null);
+        var siste = behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null);
 
         if (!erSammeStegSomFør(nesteStegType, siste)) {
 
@@ -350,7 +344,7 @@ class BehandlingStegVisitor {
     }
 
     protected void settBehandlingStegSomGjeldende(BehandlingStegType nesteStegType, BehandlingStegStatus sluttStegStatusVedOvergang) {
-        BehandlingStatus førStatus = behandling.getStatus();
+        var førStatus = behandling.getStatus();
         oppdaterBehandlingStegType(nesteStegType, null, sluttStegStatusVedOvergang);
         if (!Objects.equals(førStatus, behandling.getStatus())) {
             eventPubliserer.fireEvent(kontekst, førStatus, behandling.getStatus());
@@ -370,7 +364,7 @@ class BehandlingStegVisitor {
      * identifiseres ETTER at de skal være håndtert.
      */
     private void guardAlleÅpneAksjonspunkterHarDefinertVurderingspunkt() {
-        BehandlingStegType aktivtBehandlingSteg = behandling.getAktivtBehandlingSteg();
+        var aktivtBehandlingSteg = behandling.getAktivtBehandlingSteg();
 
         List<Aksjonspunkt> gjenværendeÅpneAksjonspunkt = new ArrayList<>(behandling.getÅpneAksjonspunkter());
 
@@ -396,11 +390,11 @@ class BehandlingStegVisitor {
     }
 
     private void filterVekkAksjonspunktHåndtertAvFremtidigVurderingspunkt(BehandlingStegModell bsm, List<Aksjonspunkt> åpneAksjonspunkter) {
-        BehandlingStegType stegType = bsm.getBehandlingStegType();
-        List<AksjonspunktDefinisjon> inngangKriterier = stegType.getAksjonspunktDefinisjonerInngang();
-        List<AksjonspunktDefinisjon> utgangKriterier = stegType.getAksjonspunktDefinisjonerUtgang();
+        var stegType = bsm.getBehandlingStegType();
+        var inngangKriterier = stegType.getAksjonspunktDefinisjonerInngang();
+        var utgangKriterier = stegType.getAksjonspunktDefinisjonerUtgang();
         åpneAksjonspunkter.removeIf(elem -> {
-            AksjonspunktDefinisjon elemAksDef = elem.getAksjonspunktDefinisjon();
+            var elemAksDef = elem.getAksjonspunktDefinisjon();
             return elem.erÅpentAksjonspunkt() && (inngangKriterier.contains(elemAksDef) || utgangKriterier.contains(elemAksDef));
         });
     }
