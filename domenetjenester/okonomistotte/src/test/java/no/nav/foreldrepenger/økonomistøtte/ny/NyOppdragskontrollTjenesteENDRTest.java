@@ -157,9 +157,9 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var builder = getInputStandardBuilder(gruppertYtelse);
         Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
-        LocalDate endringsdato = b1Periode.getBeregningsresultatPeriodeFom().minusDays(1);
+        LocalDate endringsdato = b1Periode.getBeregningsresultatPeriodeFom().minusDays(11);
         BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
-        BeregningsresultatPeriode b2Periode = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 10, 20);
+        BeregningsresultatPeriode b2Periode = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 20);
         buildBeregningsresultatAndel(b2Periode, true, 1500, BigDecimal.valueOf(100), virksomhet);
 
         GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
@@ -1268,7 +1268,202 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         Oppdragslinje150 opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
         Oppdragslinje150 opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(16));
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(16));
+    }
+
+    @Test
+    public void skalOppdatereRefusjonsInfoTilSisteutbetalingsdagHvisIkkeOpphør() {
+        // Arrange
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+        List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
+
+        LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
+        LocalDate endringsdato = sistePeriodeTom.plusDays(1);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
+        BeregningsresultatPeriode brPeriodeRevurdering_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 1, 10);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriodeRevurdering_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 25);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
+
+        //Assert
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
+        assertThat(originaltOppdrag110Liste).hasSize(2);
+        assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
+            }
+        );
+        assertThat(revurderingOppdrag110Liste).hasSize(2);
+        assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            }
+        );
+        List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
+            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+        assertThat(revurderingOpp150Liste).hasSize(2);
+        assertThat(revurderingOpp150Liste).allSatisfy(opp150 -> {
+            assertThat(opp150.getDatoVedtakFom()).isEqualTo(endringsdato);
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
+            assertThat(opp150.gjelderOpphør()).isFalse();
+        });
+        Oppdragslinje150 opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
+        Oppdragslinje150 opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(25));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(25));
+    }
+
+    @Test
+    public void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirTidligere() {
+        // Arrange
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+        List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
+
+        LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
+        LocalDate endringsdato = sistePeriodeTom.plusDays(1);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
+        BeregningsresultatPeriode brPeriodeRevurdering_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, -5, 10);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriodeRevurdering_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
+
+        //Assert
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
+        assertThat(originaltOppdrag110Liste).hasSize(2);
+        assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
+            }
+        );
+        assertThat(revurderingOppdrag110Liste).hasSize(2);
+        assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            }
+        );
+        List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
+            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+        assertThat(revurderingOpp150Liste).hasSize(6);
+        assertThat(revurderingOpp150Liste).allSatisfy(opp150 -> {
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
+        });
+        Oppdragslinje150 opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
+        Oppdragslinje150 opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(-5));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(-5));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
+    }
+
+    @Test
+    public void skalOppdatereRefusjonsInfoHvisFørsteUttaksdagBlirSenere() {
+        // Arrange
+        BeregningsresultatEntitet beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        BeregningsresultatPeriode brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
+        buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriode_2 = buildBeregningsresultatPeriode(beregningsresultat, 11, 20);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriode_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        TilkjentYtelseMapper mapper = new TilkjentYtelseMapper(FamilieYtelseType.FØDSEL);
+        GruppertYtelse gruppertYtelse = mapper.fordelPåNøkler(beregningsresultat);
+        var builder = getInputStandardBuilder(gruppertYtelse);
+        Oppdragskontroll originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
+        List<Oppdrag110> originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
+
+        LocalDate sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
+        LocalDate endringsdato = sistePeriodeTom.plusDays(1);
+        BeregningsresultatEntitet beregningsresultatRevurderingFP = buildBeregningsresultatFP(Optional.of(endringsdato));
+        BeregningsresultatPeriode brPeriodeRevurdering_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 5, 10);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 500, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 600, BigDecimal.valueOf(100), virksomhet2);
+        BeregningsresultatPeriode brPeriodeRevurdering_2 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 11, 20);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1000, BigDecimal.valueOf(100), virksomhet);
+        buildBeregningsresultatAndel(brPeriodeRevurdering_2, false, 1100, BigDecimal.valueOf(100), virksomhet2);
+        GruppertYtelse gruppertYtelse2 = mapper.fordelPåNøkler(beregningsresultatRevurderingFP);
+        var builder2 = getInputStandardBuilder(gruppertYtelse2).medTidligereOppdrag(mapTidligereOppdrag(List.of(originaltOppdrag)));
+
+        // Act
+        Oppdragskontroll oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
+        List<Oppdrag110> revurderingOppdrag110Liste = oppdragRevurdering.getOppdrag110Liste();
+
+        //Assert
+        OppdragskontrollTestVerktøy.verifiserAvstemming(oppdragRevurdering);
+        assertThat(originaltOppdrag110Liste).hasSize(2);
+        assertThat(originaltOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.NY);
+            }
+        );
+        assertThat(revurderingOppdrag110Liste).hasSize(2);
+        assertThat(revurderingOppdrag110Liste).allSatisfy(oppdrag110 -> {
+                assertThat(oppdrag110.getKodeFagomrade()).isEqualTo(KodeFagområde.FORELDREPENGER_ARBEIDSGIVER);
+                assertThat(oppdrag110.getKodeEndring()).isEqualTo(KodeEndring.ENDRING);
+            }
+        );
+        List<Oppdragslinje150> revurderingOpp150Liste = revurderingOppdrag110Liste.stream()
+            .flatMap(opp110 -> opp110.getOppdragslinje150Liste().stream())
+            .collect(Collectors.toList());
+        assertThat(revurderingOpp150Liste).hasSize(6);
+        assertThat(revurderingOpp150Liste).allSatisfy(opp150 -> {
+            assertThat(opp150.getKodeKlassifik()).isEqualTo(KodeKlassifik.FPF_REFUSJON_AG);
+        });
+        Oppdragslinje150 opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
+        Oppdragslinje150 opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
     }
 
     /**
