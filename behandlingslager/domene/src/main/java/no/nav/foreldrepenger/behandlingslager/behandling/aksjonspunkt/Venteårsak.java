@@ -25,26 +25,28 @@ public enum Venteårsak implements Kodeverdi {
     UDEFINERT("-", "Ikke definert"),
 
     /*
-     * Disse er i bruk i koden i fpsak, frontend, eller kalkulus
+     * Disse er i bruk i koden i fpsak, frontend, eller kalkulus.
      */
     ANKE_OVERSENDT_TIL_TRYGDERETTEN("ANKE_OVERSENDT_TIL_TRYGDERETTEN", "Venter på at saken blir behandlet hos Trygderetten"), // Frontend
     ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER("ANKE_VENTER_PAA_MERKNADER_FRA_BRUKER", "Venter på merknader fra bruker"), // Frontend
     AVV_DOK("AVV_DOK", "Avventer dokumentasjon"), // Frontend
     AVV_FODSEL("AVV_FODSEL", "Avventer fødsel"), // Frontend
-    AVV_INNTEKTSMELDING("AVV_INNTEKTSMELDING", "Avventer inntektsmelding"),
     AVV_RESPONS_REVURDERING("AVV_RESPONS_REVURDERING", "Avventer respons på varsel om revurdering"), // Frontend
     FOR_TIDLIG_SOKNAD("FOR_TIDLIG_SOKNAD", "Venter pga for tidlig søknad"), // Frontend
     SCANN("SCANN", "Venter på scanning"),
     UTV_FRIST("UTV_FRIST", "Utvidet frist"), // Frontend
     VENT_INNTEKT_RAPPORTERINGSFRIST("VENT_INNTEKT_RAPPORTERINGSFRIST", "Inntekt rapporteringsfrist"), // Kalkulus
     VENT_MANGLENDE_SYKEMELDING("VENT_MANGLENDE_SYKEMELDING", "Venter på siste sykemelding for sykepenger basert på dagpenger"),
-    VENT_OPDT_INNTEKTSMELDING("VENT_OPDT_INNTEKTSMELDING", "Venter på oppdatert inntektsmelding"), // Frontend
+    VENT_OPDT_INNTEKTSMELDING("VENT_OPDT_INNTEKTSMELDING", "Venter på inntektsmelding"), // Frontend
     VENT_OPPTJENING_OPPLYSNINGER("VENT_OPPTJENING_OPPLYSNINGER", "Venter på opptjeningsopplysninger"), // Frontend
     VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT("VENT_PÅ_SISTE_AAP_MELDEKORT", "Venter på siste meldekort for AAP eller dagpenger før første uttaksdag."), // Kalkulus + Frontend
     VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev venter søknad."),
-    VENT_TIDLIGERE_BEHANDLING("VENT_TIDLIGERE_BEHANDLING", "Venter på iverksettelse av en tidligere behandling i denne saken"),
     VENT_ÅPEN_BEHANDLING("VENT_ÅPEN_BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
 
+    /*
+     * Disse er i bruk i koden til interne formål rundt historikkinnslag, brukes ikke for aksjosnpunkt - men finnes i gamle aksjonspunkt.
+     */
+    VENT_TIDLIGERE_BEHANDLING("VENT_TIDLIGERE_BEHANDLING", "Venter på iverksettelse av en tidligere behandling i denne saken"),
 
     /*
      * Disse er ikke lenger i bruk i kode, men må beholdes pga innhold i database

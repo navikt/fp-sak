@@ -107,7 +107,7 @@ public class KompletthetsjekkerFelles {
         if (!manglendeInntektsmeldinger.isEmpty()) {
             loggManglendeInntektsmeldinger(ref.getBehandlingId(), manglendeInntektsmeldinger);
             var resultat = finnVentefristTilManglendeInntektsmelding(ref)
-                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_INNTEKTSMELDING))
+                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
                 .orElse(KompletthetResultat.fristUtløpt());
             return Optional.of(resultat);
         }
@@ -126,7 +126,7 @@ public class KompletthetsjekkerFelles {
             loggManglendeInntektsmeldinger(behandlingId, manglendeInntektsmeldinger);
             var ventefristManglendeIM = vurderSkalInntektsmeldingEtterlyses(ref, manglendeInntektsmeldinger);
             return ventefristManglendeIM
-                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.AVV_INNTEKTSMELDING))
+                .map(frist -> KompletthetResultat.ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING))
                 .orElse(KompletthetResultat.oppfylt()); // Konvensjon for å sikre framdrift i prosessen
         }
         return KompletthetResultat.oppfylt();
