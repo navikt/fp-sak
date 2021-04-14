@@ -1,6 +1,10 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
@@ -10,6 +14,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
@@ -101,6 +106,13 @@ public class BehandleØkonomioppdragKvittering {
         if (oppdrag110Liste.isEmpty()) {
             throw new IllegalStateException("Det forventes at oppdrag110 finnes.");
         }
-        return oppdrag110Liste.stream().allMatch(OppdragKvitteringTjeneste::harPositivKvittering);
+        var grupperteOppdrag = oppdrag110Liste.stream().collect(Collectors.groupingBy(Oppdrag110::getFagsystemId));
+        for (Map.Entry<Long, List<Oppdrag110>> entry : grupperteOppdrag.entrySet()) {
+            var sisteOppdrag = entry.getValue().stream().max(Comparator.comparing(Oppdrag110::getOpprettetTidspunkt)).orElseThrow();
+            if (!OppdragKvitteringTjeneste.harPositivKvittering(sisteOppdrag)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
