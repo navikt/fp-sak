@@ -52,23 +52,9 @@ public class OppdragskontrollTjenesteImpl implements OppdragskontrollTjeneste {
     }
 
     private Optional<Oppdragskontroll> opprettOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
-        var oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt);
-        if (oppdragskontroll != null) {
-            var oppdragKontroll = brukOppdragFraFørOmFinnes(input, oppdragskontroll);
-            OppdragskontrollPostConditionCheck.valider(oppdragKontroll);
-            return Optional.of(oppdragKontroll);
-        }
-        return Optional.empty();
-    }
-
-    private Oppdragskontroll brukOppdragFraFørOmFinnes(final OppdragInput input, final Oppdragskontroll oppdragskontroll) {
         var oppdragFraFør = økonomioppdragRepository.finnOppdragForBehandling(input.getBehandlingId());
-        if (oppdragFraFør.isPresent()) {
-            var tidligereOppdrag = oppdragFraFør.get();
-            tidligereOppdrag.setVenterKvittering(Boolean.FALSE);
-            tidligereOppdrag.getOppdrag110Liste().addAll(oppdragskontroll.getOppdrag110Liste());
-            return tidligereOppdrag;
-        }
+        var oppdragskontroll = lagOppdragTjeneste.lagOppdrag(input, brukFellesEndringstidspunkt, oppdragFraFør.orElse(null));
+        oppdragskontroll.ifPresent(OppdragskontrollPostConditionCheck::valider);
         return oppdragskontroll;
     }
 }

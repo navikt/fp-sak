@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.ny.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.Dependent;
 
@@ -14,7 +15,7 @@ public class LagOppdragTjeneste {
 
     public LagOppdragTjeneste() { }
 
-    public Oppdragskontroll lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt) {
+    public Optional<Oppdragskontroll> lagOppdrag(OppdragInput input, boolean brukFellesEndringstidspunkt, final Oppdragskontroll eksisterendeOppdragskontroll) {
         var målbilde = input.getTilkjentYtelse();
         var tidligereOppdrag = input.getTidligereOppdrag();
 
@@ -25,23 +26,21 @@ public class LagOppdragTjeneste {
         }
         var oppdragene = oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
         if (oppdragene.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        var oppdragskontroll = LagOppdragskontrollTjeneste.lagOppdragskontroll(input);
+        var oppdragskontroll = LagOppdragskontrollTjeneste.hentEllerOpprettOppdragskontroll(input, eksisterendeOppdragskontroll);
         var oppdragMapper = new OppdragMapper(input.getBrukerFnr(), tidligereOppdrag, input);
         for (var oppdrag : oppdragene) {
             oppdragMapper.mapTilOppdrag110(oppdrag, oppdragskontroll);
         }
-        return oppdragskontroll;
+        return Optional.of(oppdragskontroll);
     }
 
-    public static List<Oppdrag> lagOppdrag(OppdragInput input) {
+    static List<Oppdrag> lagOppdrag(OppdragInput input) {
         var målbilde = input.getTilkjentYtelse();
         var tidligereOppdrag = input.getTidligereOppdrag();
 
         var oppdragFactory = new OppdragFactory(FagområdeMapper::tilFagområde, input.getYtelseType(), input.getSaksnummer());
         return oppdragFactory.lagOppdrag(tidligereOppdrag, målbilde);
     }
-
-
 }
