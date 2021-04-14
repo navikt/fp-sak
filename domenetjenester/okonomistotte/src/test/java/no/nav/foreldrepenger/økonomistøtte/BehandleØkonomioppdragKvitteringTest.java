@@ -9,9 +9,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -164,9 +171,10 @@ public class BehandleØkonomioppdragKvitteringTest {
         var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
 
         var oppdrag110 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        oppdrag110.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
         OppdragKvittering.builder().medAlvorlighetsgrad(KVITTERING_OK).medOppdrag110(oppdrag110).build();
         var oppdragBruker2 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
-
+        oppdragBruker2.setOpprettetTidspunkt(LocalDateTime.now());
         when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragBruker2);
         var kvittering_1 = opprettKvittering(KVITTERING_OK, null, KVITTERING_MELDING_OK, FAGSYSTEMID_BRUKER, true);
 
@@ -223,6 +231,49 @@ public class BehandleØkonomioppdragKvitteringTest {
         verify(hendelsesmottak, never()).mottaHendelse(any(), any());
         verify(økonomioppdragRepository, times(2)).lagre(any(OppdragKvittering.class));
         verify(behandleHendelseØkonomioppdrag).nullstilleØkonomioppdragTask(any());
+    }
+
+    @Test
+    void testEttersendingAvOppdragSomHarFåttNegativKvittering_ok() {
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragNegativ = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
+        OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
+        var oppdragPositiv = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        oppdragPositiv.setOpprettetTidspunkt(LocalDateTime.now());
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragPositiv);
+        var kvittering_2 = opprettKvittering(KVITTERING_OK, null, null, FAGSYSTEMID_BRUKER, true);
+
+        // Act
+        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2);
+
+        // Assert
+        assertThat(oppdrag.getVenterKvittering()).isFalse();
+        verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
+        verify(hendelsesmottak).mottaHendelse(any(), any());
+    }
+
+    @Test
+    void testEttersendingAvOppdragSomHarFåttNegativKvittering_nok() {
+        var oppdrag = OppdragTestDataHelper.buildOppdragskontroll(new Saksnummer("35"), BEHANDLINGID_FP, PROSESSTASKID);
+        var oppdragNegativ = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        oppdragNegativ.setOpprettetTidspunkt(LocalDateTime.now().minusDays(1));
+        OppdragKvittering.builder().medOppdrag110(oppdragNegativ).medBeskrMelding(KVITTERING_MELDING_FEIL).medAlvorlighetsgrad(KVITTERING_FEIL).build();
+        var oppdragNegativ2 = OppdragTestDataHelper.buildOppdrag110FPBruker(oppdrag, FAGSYSTEMID_BRUKER);
+        oppdragNegativ2.setOpprettetTidspunkt(LocalDateTime.now());
+
+        when(økonomioppdragRepository.hentOppdragUtenKvittering(FAGSYSTEMID_BRUKER, BEHANDLINGID_FP)).thenReturn(oppdragNegativ2);
+        var kvittering_2 = opprettKvittering(KVITTERING_FEIL, KVITTERING_MELDINGKODE_FEIL, KVITTERING_MELDINGKODE_FEIL, FAGSYSTEMID_BRUKER, true);
+
+        // Act
+        behandleØkonomioppdragKvittering.behandleKvittering(kvittering_2);
+
+        // Assert
+        assertThat(oppdrag.getVenterKvittering()).isFalse();
+        verify(økonomioppdragRepository, times(1)).lagre(oppdrag);
+        verify(økonomioppdragRepository, times(1)).lagre(any(OppdragKvittering.class));
+        verify(hendelsesmottak, never()).mottaHendelse(any(), any());
     }
 
     @Test
