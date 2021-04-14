@@ -140,8 +140,8 @@ public class OppdragMapper {
 
     private LocalDate finnDatoOmposterFom(Oppdrag oppdrag) {
         LocalDate endringsdato = oppdrag.getEndringsdato();
-        LocalDate korrigeringsdato = hentFørsteUtbetalingsdato(oppdrag);
-        return korrigeringsdato.isAfter(endringsdato)
+        LocalDate korrigeringsdato = hentFørsteUtbetalingsdatoFraForrige(oppdrag);
+        return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato)
             ? korrigeringsdato
             : endringsdato;
     }
@@ -149,11 +149,16 @@ public class OppdragMapper {
     private LocalDate hentFørsteUtbetalingsdato(Oppdrag nyttOppdrag) {
         MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
         MottakerOppdragKjedeOversikt utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
+        LocalDate førsteUtbetalingsdato = hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
         if (førsteUtbetalingsdato != null) {
             return førsteUtbetalingsdato;
         }
-        return hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
+        return hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
+    }
+
+    private LocalDate hentFørsteUtbetalingsdatoFraForrige(Oppdrag nyttOppdrag) {
+        MottakerOppdragKjedeOversikt tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
+        return hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
     }
 
     private LocalDate hentFørsteUtbetalingsdato(MottakerOppdragKjedeOversikt oppdrag) {
@@ -183,7 +188,6 @@ public class OppdragMapper {
         if (sisteUtbetalingsdato != null) {
             return sisteUtbetalingsdato;
         }
-        //usikker på hvorfor... men ved opphør brukes siste utbetalingsdato for forrige oppdrag
         return hentSisteUtbetalingsdato(tidligerOppdragForMottaker);
     }
 
