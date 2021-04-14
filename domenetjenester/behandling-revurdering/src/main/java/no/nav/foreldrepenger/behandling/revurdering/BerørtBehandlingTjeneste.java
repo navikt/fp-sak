@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBegrunnelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -182,27 +180,5 @@ public class BerørtBehandlingTjeneste {
         historiebygger.build(revurderingsInnslag);
 
         historikkRepository.lagre(revurderingsInnslag);
-    }
-
-    public void opprettHistorikkinnslagForVenteFristRelaterteInnslag(Behandling behandling,
-                                                                     HistorikkinnslagType historikkinnslagType,
-                                                                     LocalDateTime frist,
-                                                                     Venteårsak venteårsak) {
-        var builder = new HistorikkInnslagTekstBuilder();
-        if (frist != null) {
-            builder.medHendelse(historikkinnslagType, frist.toLocalDate());
-        } else {
-            builder.medHendelse(historikkinnslagType);
-        }
-        if (!Venteårsak.UDEFINERT.equals(venteårsak)) {
-            builder.medÅrsak(venteårsak);
-        }
-        var historikkinnslag = new Historikkinnslag();
-        historikkinnslag.setAktør(HistorikkAktør.VEDTAKSLØSNINGEN);
-        historikkinnslag.setType(historikkinnslagType);
-        historikkinnslag.setBehandlingId(behandling.getId());
-        historikkinnslag.setFagsakId(behandling.getFagsakId());
-        builder.build(historikkinnslag);
-        historikkRepository.lagre(historikkinnslag);
     }
 }

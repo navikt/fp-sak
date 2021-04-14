@@ -63,7 +63,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
         }
         // Vent på registrering - vurder om det er riktig for FP
         if (harSøkerOppgittFødselISøknad(familieHendelseGrunnlag) == JA) {
-            return singletonList(opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.UDEFINERT, utledVentefrist(familieHendelseGrunnlag)));
+            return singletonList(opprettForAksjonspunktMedFrist(AUTO_VENT_PÅ_FØDSELREGISTRERING, Venteårsak.AVV_FODSEL, utledVentefrist(familieHendelseGrunnlag)));
         }
         // Vurder tilbakemeldinger her (skrivefeil etc)
         if (finnesOverstyrtTermin(familieHendelseGrunnlag) == JA) {

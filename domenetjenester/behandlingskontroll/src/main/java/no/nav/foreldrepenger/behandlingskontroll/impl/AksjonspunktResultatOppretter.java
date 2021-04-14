@@ -78,7 +78,7 @@ class AksjonspunktResultatOppretter {
         if (oppdatert.erUtført() || oppdatert.erAvbrutt()) {
             aksjonspunktKontrollRepository.setReåpnet(oppdatert);
         }
-        if (resultat.getFrist() != null) {
+        if (resultat.getFrist() != null || resultat.getVenteårsak() != null) {
             aksjonspunktKontrollRepository.setFrist(oppdatert, resultat.getFrist(), resultat.getVenteårsak());
         }
         return oppdatert;
