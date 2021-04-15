@@ -218,7 +218,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
             return finnStartpunktForGRegulering(revurdering);
         }
 
-        var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getFørsteUttaksdato());
+        var grunnbeløp = beregningsgrunnlagKopierOgLagreTjeneste.finnEksaktSats(BeregningSatsType.GRUNNBELØP, ref.getSkjæringstidspunkt().getGrunnbeløpdato());
         long satsIBeregning = forrigeBeregning.map(BeregningsgrunnlagEntitet::getGrunnbeløp).map(Beløp::getVerdi).map(BigDecimal::longValue)
                 .orElse(0L);
 

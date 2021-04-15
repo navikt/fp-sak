@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.registerinnhenting.observer;
 
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -54,8 +55,7 @@ public class BekreftetFødselEventObserver {
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
         if (FamiliehendelseEvent.EventType.TERMIN_TIL_FØDSEL.equals(event.getEventType()) &&
             FagsakYtelseType.FORELDREPENGER.equals(event.getYtelseType()) &&
-            event.getSisteBekreftetDato() != null &&
-            (event.getForrigeBekreftetDato() == null || event.getSisteBekreftetDato().isBefore(event.getForrigeBekreftetDato()))) {
+            event.getSisteBekreftetDato() != null) {
             var brukFødselsdato = VirkedagUtil.fomVirkedag(event.getSisteBekreftetDato());
             vurderNyStartdato(behandlingRepository.hentBehandling(event.getBehandlingId()), brukFødselsdato);
         }
@@ -63,31 +63,29 @@ public class BekreftetFødselEventObserver {
 
     private void vurderNyStartdato(Behandling behandling, LocalDate gjeldendeFødselsdato) {
         if (RelasjonsRolleType.MORA.equals(behandling.getFagsak().getRelasjonsRolleType())) {
-            var startDato = getNåværendeStartdato(behandling);
-            if (gjeldendeFødselsdato.isBefore(startDato)) {
-                LOG.info("Fødselshendelse behandlingId {}: Bekreftet fødsel er før startdato {}, setter avklart dato {}",
-                    behandling.getId(), startDato, gjeldendeFødselsdato);
-                settNyStartdatoOgOpprettHistorikkInnslag(behandling, gjeldendeFødselsdato);
-            }
+            getNåværendeAvklartStartdato(behandling)
+                .filter(gjeldendeFødselsdato::isBefore)
+                .ifPresent(avklartStartdato -> {
+                    LOG.info("Fødselshendelse behandlingId {}: Bekreftet fødsel {} er før avklart startdato {}, nullstiller avklart startdato",
+                        behandling.getId(), gjeldendeFødselsdato, avklartStartdato);
+                    nullstillStartdatoOgOpprettHistorikkInnslag(behandling, avklartStartdato, gjeldendeFødselsdato);
+            });
         }
     }
 
-    private LocalDate getNåværendeStartdato(Behandling behandling) {
+    private Optional<LocalDate> getNåværendeAvklartStartdato(Behandling behandling) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId())
             .flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
-            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
-            .orElseGet(() -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getFørsteUttaksdato());
+            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
     }
 
-    private void settNyStartdatoOgOpprettHistorikkInnslag(Behandling behandling, LocalDate nyBekreftetFødselsdato) {
+    private void nullstillStartdatoOgOpprettHistorikkInnslag(Behandling behandling, LocalDate gammelStartdato, LocalDate nyBekreftetFødselsdato) {
         var avklarteDatoer = ytelsesFordelingRepository.hentAggregat(behandling.getId()).getAvklarteDatoer();
-        var gammelStartdato = avklarteDatoer.map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato).orElse(null);
-        var entitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
-            .medFørsteUttaksdato(nyBekreftetFødselsdato)
-            .build();
+
+        var entitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer).medFørsteUttaksdato(null);
 
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medAvklarteDatoer(entitet);
+            .medAvklarteDatoer(entitet.build());
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
         historikkinnslagTjeneste.opprettHistorikkinnslagForEndretStartdatoEtterFødselshendelse(behandling, gammelStartdato, nyBekreftetFødselsdato);

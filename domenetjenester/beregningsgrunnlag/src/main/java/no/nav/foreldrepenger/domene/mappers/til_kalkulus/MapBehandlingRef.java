@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
-import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
+import no.nav.folketrygdloven.kalkulus.typer.AktørId;
 
 //TODO(OJR) skal fjernes
 public class MapBehandlingRef {
@@ -21,7 +21,7 @@ public class MapBehandlingRef {
         return Skjæringstidspunkt.builder()
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt.getSkjæringstidspunktOpptjening())
             .medSkjæringstidspunktBeregning(skjæringstidspunkt.getSkjæringstidspunktBeregningForKopieringTilKalkulus())
-            .medFørsteUttaksdato(skjæringstidspunkt.getFørsteUttaksdato())
+            .medFørsteUttaksdato(skjæringstidspunkt.getGrunnbeløpdato())
             .build();
     }
 }

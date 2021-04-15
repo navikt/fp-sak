@@ -14,6 +14,7 @@ public class Skjæringstidspunkt {
     private LocalDate skjæringstidspunktOpptjening;
     private LocalDate skjæringstidspunktBeregning;
     private LocalDate førsteUttaksdato;
+    private LocalDate grunnbeløpdato;
     private LocalDateInterval utledetMedlemsintervall;
 
     private Skjæringstidspunkt() {
@@ -25,6 +26,7 @@ public class Skjæringstidspunkt {
         this.skjæringstidspunktOpptjening = other.skjæringstidspunktOpptjening;
         this.skjæringstidspunktBeregning = other.skjæringstidspunktBeregning;
         this.førsteUttaksdato = other.førsteUttaksdato;
+        this.grunnbeløpdato = other.grunnbeløpdato;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
@@ -38,10 +40,6 @@ public class Skjæringstidspunkt {
     public LocalDate getUtledetSkjæringstidspunkt() {
         Objects.requireNonNull(utledetSkjæringstidspunkt,
                 "Utvikler-feil: utledetSkjæringstidspunkt er ikke satt. Sørg for at det er satt ifht. anvendelse");
-        return utledetSkjæringstidspunkt;
-    }
-
-    public LocalDate getUtledetSkjæringstidspunktForKopieringTilKalkulus() {
         return utledetSkjæringstidspunkt;
     }
 
@@ -73,8 +71,14 @@ public class Skjæringstidspunkt {
         return skjæringstidspunktBeregning;
     }
 
-    /** Første uttaksdato er første dag bruker får utbetalt ytelse. */
+    /** Første uttaksdato er første dag stønadsperioden løper - dvs min(innvilget eller avslag søknadsfrist). */
     public LocalDate getFørsteUttaksdato() {
+        Objects.requireNonNull(førsteUttaksdato, "Utvikler-feil: førsteUttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
+        return førsteUttaksdato;
+    }
+
+    /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
+    public LocalDate getGrunnbeløpdato() {
         Objects.requireNonNull(førsteUttaksdato, "Utvikler-feil: førsteUttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdato;
     }
@@ -145,6 +149,11 @@ public class Skjæringstidspunkt {
 
         public Builder medFørsteUttaksdato(LocalDate dato) {
             kladd.førsteUttaksdato = dato;
+            return this;
+        }
+
+        public Builder medGrunnbeløpdato(LocalDate dato) {
+            kladd.grunnbeløpdato = dato;
             return this;
         }
 
