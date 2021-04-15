@@ -55,7 +55,7 @@ public class AksjonspunktutlederForMedlemskapSkjæringstidspunkt implements Aksj
             throw new IllegalStateException("Utvikler-feil: Mangler mapping til aksjonspunktDefinisjon for  " + mr.name()); //$NON-NLS-1$
         }
         if (AksjonspunktDefinisjon.VENT_PÅ_FØDSEL.equals(aksjonspunktDefinisjon)) {
-            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(aksjonspunktDefinisjon, Venteårsak.UDEFINERT,
+            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(aksjonspunktDefinisjon, Venteårsak.AVV_FODSEL,
                 tjeneste.beregnVentPåFødselFristTid(ref).atStartOfDay());
         }
         return AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon);
