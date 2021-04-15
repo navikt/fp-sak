@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -319,6 +320,12 @@ public class BehandlingRestTjeneste {
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
             var behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
+            if (BehandlingÅrsakType.REBEREGN_FERIEPENGER.equals(behandlingÅrsakType) && FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
+                if (!kanOppretteFeriepengerReberegning()) throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
+                var behandling = behandlingsoppretterTjeneste.opprettFeriepengeReberegningForeldrepenger(fagsak);
+                var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
+                return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
+            }
             var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
@@ -341,6 +348,10 @@ public class BehandlingRestTjeneste {
         }
         throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
 
+    }
+
+    private boolean kanOppretteFeriepengerReberegning() {
+        return Set.of("N149162", "N122778", "O118026", "L130928", "R107539", "H112041", "T109534", "L149167", "H103118").contains(SubjectHandler.getSubjectHandler().getUid());
     }
 
     private Response notFound(Saksnummer saksnummer) {

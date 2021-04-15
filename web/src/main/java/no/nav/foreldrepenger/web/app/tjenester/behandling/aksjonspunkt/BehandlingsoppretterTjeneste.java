@@ -149,6 +149,16 @@ public class BehandlingsoppretterTjeneste {
         return revurderingTjeneste.opprettManuellRevurdering(fagsak, behandlingÅrsakType, enhet);
     }
 
+    public Behandling opprettFeriepengeReberegningForeldrepenger(Fagsak fagsak) {
+        return opprettRevurderingMultiÅrsak(fagsak,
+            List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
+    }
+
+    private Behandling opprettRevurderingMultiÅrsak(Fagsak fagsak, List<BehandlingÅrsakType> revurderingsÅrsaker) {
+        var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();
+        return revurderingTjeneste.opprettAutomatiskRevurderingMultiÅrsak(fagsak, revurderingsÅrsaker, behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
+    }
+
     private boolean kanOppretteRevurdering(Long fagsakId) {
         var finnesÅpneBehandlingerAvType = behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsakId)
             .stream()
