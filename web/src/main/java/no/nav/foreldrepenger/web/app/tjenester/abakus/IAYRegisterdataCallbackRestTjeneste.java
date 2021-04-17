@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -25,7 +26,6 @@ import no.nav.abakus.callback.registerdata.CallbackDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
-import no.nav.foreldrepenger.domene.arbeidsforhold.impl.IAYRegisterdataTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -45,7 +45,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
 
     @Inject
     public IAYRegisterdataCallbackRestTjeneste(IAYRegisterdataTjeneste iayTjeneste,
-            BehandlingLåsRepository låsRepository) {
+                                               BehandlingLåsRepository låsRepository) {
         this.iayTjeneste = iayTjeneste;
         this.låsRepository = låsRepository;
     }
@@ -53,18 +53,18 @@ public class IAYRegisterdataCallbackRestTjeneste {
     @POST
     @Path("/iay/callback")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Callback når registerinnhenting av IAY har blitt fullført i Abakus", tags = "registerdata")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.APPLIKASJON)
-    public Response callback(
-            @Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
+    public Response callback(@Parameter(description = "callbackDto") @Valid @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) CallbackDto dto) {
         if (Objects.equals(IAY, dto.getGrunnlagType())) {
             // Ta lås
             var behandlingLås = låsRepository.taLås(dto.getAvsenderRef().getReferanse());
             // Oppdaterer grunnlag med ny referanse
             var registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
-                    dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
-                    dto.getOppdatertGrunnlagRef().getReferanse(),
-                    dto.getOpprettetTidspunkt());
+                dto.getOpprinneligGrunnlagRef() != null ? dto.getOpprinneligGrunnlagRef().getReferanse() : null,
+                dto.getOppdatertGrunnlagRef().getReferanse(),
+                dto.getOpprettetTidspunkt());
 
             iayTjeneste.håndterCallback(registerdataCallback);
         } else {

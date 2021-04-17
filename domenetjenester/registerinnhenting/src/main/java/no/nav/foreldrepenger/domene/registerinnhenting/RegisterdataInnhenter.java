@@ -24,7 +24,6 @@ import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
 import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -183,18 +182,18 @@ public class RegisterdataInnhenter {
 
     private void doInnhentIAYIAbakus(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {
         LOG.info("Trigger innhenting i abakus for behandling med id={} og uuid={}", behandling.getId(), behandling.getUuid());
+        final var behandlingUuid = behandling.getUuid();
+        final var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        final var ytelseType =  KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType);
         final var opplysningsperiode = opplysningsPeriodeTjeneste.beregn(behandling.getId(), fagsakYtelseType);
+        final var periode = new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato());
+        final var aktør = new AktørIdPersonident(behandling.getAktørId().getId());
         var informasjonsElementer = utledBasertPå(behandlingType, fagsakYtelseType);
-        final var innhentRegisterdataRequest = new InnhentRegisterdataRequest(behandling.getFagsak().getSaksnummer().getVerdi(),
-            behandling.getUuid(),
-            KodeverkMapper.fraFagsakYtelseType(fagsakYtelseType),
-            new Periode(opplysningsperiode.getFomDato(), opplysningsperiode.getTomDato()),
-            new AktørIdPersonident(behandling.getAktørId().getId()),
-            informasjonsElementer);
 
-        final var uuidDto = abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
-        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", behandling.getUuid(), uuidDto.toUuidReferanse());
-        loggRepository.lagre(new AbakusInnhentingGrunnlagLogg(behandling.getId(), uuidDto.toUuidReferanse()));
+        final var innhentRegisterdataRequest = new InnhentRegisterdataRequest(saksnummer, behandlingUuid, ytelseType, periode, aktør, informasjonsElementer);
+        innhentRegisterdataRequest.setCallbackUrl(abakusTjeneste.getCallbackUrl());
+
+        abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
     }
 
     private Set<RegisterdataType> utledBasertPå(BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {

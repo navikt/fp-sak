@@ -54,6 +54,7 @@
     "MQGATEWAY02_PORT": "1413",
     "FPRISK_RISIKOKLASSIFISERING_HENT_URL": "http://fprisk/fprisk/api/risikovurdering/hent",
     "FPABAKUS_URL": "http://fpabakus.default/fpabakus",
+    "ABAKUS_CALLBACK_URL": "http://fpsak.teamforeldrepenger/fpsak/api/registerdata/iay/callback",
     "FPFORDEL_BASE_URL": "http://fpfordel/fpfordel",
     "FPOPPDRAG_OVERRIDE_DIREKTE_URL": "http://fpoppdrag/fpoppdrag/api",
     "FPTILBAKE_OVERRIDE_DIREKTE_URL": "http://fptilbake/fptilbake/api",

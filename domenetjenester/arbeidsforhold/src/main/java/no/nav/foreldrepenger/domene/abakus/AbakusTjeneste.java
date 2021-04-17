@@ -60,6 +60,7 @@ public class AbakusTjeneste {
     private URI innhentRegisterdata;
     private OidcRestClient oidcRestClient;
     private URI abakusEndpoint;
+    private URI callbackUrl;
     private URI endpointArbeidsforholdIPeriode;
     private URI endpointGrunnlag;
     private URI endpointMottaInntektsmeldinger;
@@ -77,16 +78,18 @@ public class AbakusTjeneste {
 
     @Inject
     public AbakusTjeneste(OidcRestClient oidcRestClient,
-            @KonfigVerdi(value = "fpabakus.url") URI endpoint) {
+                          @KonfigVerdi(value = "fpabakus.url") URI endpoint,
+                          @KonfigVerdi(value = "abakus.callback.url") URI callbackUrl) {
         this.oidcRestClient = oidcRestClient;
         this.abakusEndpoint = endpoint;
+        this.callbackUrl = callbackUrl;
         this.endpointArbeidsforholdIPeriode = toUri("/api/arbeidsforhold/v1/arbeidstaker");
         this.endpointGrunnlag = toUri("/api/iay/grunnlag/v1/");
         this.endpointMottaInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/motta");
         this.endpointMottaOppgittOpptjening = toUri("/api/iay/oppgitt/v1/motta");
         this.endpointGrunnlagSnapshot = toUri("/api/iay/grunnlag/v1/snapshot");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
-        this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/sync");
+        this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
@@ -116,6 +119,10 @@ public class AbakusTjeneste {
         } catch (IOException e) {
             throw feilVedKallTilAbakus(e.getMessage());
         }
+    }
+
+    public String getCallbackUrl() {
+        return callbackUrl.toString();
     }
 
     public InntektArbeidYtelseGrunnlagDto hentGrunnlag(InntektArbeidYtelseGrunnlagRequest request) throws IOException {
@@ -203,13 +210,16 @@ public class AbakusTjeneste {
 
         try (var httpResponse = oidcRestClient.execute(httpPost)) {
             var responseCode = httpResponse.getStatusLine().getStatusCode();
-            if (responseCode == HttpStatus.SC_OK) {
+            if (responseCode == HttpStatus.SC_OK || responseCode == HttpStatus.SC_CREATED) {
                 return responseHandler.handleResponse(httpResponse);
             }
             if (responseCode == HttpStatus.SC_NOT_MODIFIED) {
                 return null;
             }
             if (responseCode == HttpStatus.SC_NO_CONTENT) {
+                return null;
+            }
+            if (responseCode == HttpStatus.SC_ACCEPTED) {
                 return null;
             }
             var responseBody = EntityUtils.toString(httpResponse.getEntity());
@@ -220,7 +230,7 @@ public class AbakusTjeneste {
             }
             throw feilVedKallTilAbakus(feilmelding);
         } catch (RuntimeException re) {
-            LOG.warn("Feil ved henting av data fra abakus: endpoint=" + endpoint, re);
+            LOG.warn("Feil ved henting av data fra abakus: endpoint={}", endpoint, re);
             throw re;
         }
     }
