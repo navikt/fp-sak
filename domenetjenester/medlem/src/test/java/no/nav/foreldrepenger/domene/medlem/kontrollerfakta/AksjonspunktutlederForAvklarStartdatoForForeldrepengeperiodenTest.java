@@ -62,7 +62,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperiodenTest e
     }
 
     private Skjæringstidspunkt lagSkjæringstidspunkt(LocalDate dato) {
-        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).medFørsteUttaksdato(dato).build();
+        return Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).medFørsteUttaksdato(dato).medFørsteUttaksdatoFødseljustert(dato).build();
     }
 
     @Test

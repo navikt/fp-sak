@@ -87,7 +87,7 @@ public class Skjæringstidspunkt {
 
     /** Første uttaksdato er første dag stønadsperioden løper - før evaluering av opptjeningsperiode. */
     public LocalDate getFørsteUttaksdatoFødseljustert() {
-        Objects.requireNonNull(førsteUttaksdatoFødseljustert, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
+        Objects.requireNonNull(førsteUttaksdatoFødseljustert, "Utvikler-feil: fødselsjustert uttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdatoFødseljustert;
     }
 
