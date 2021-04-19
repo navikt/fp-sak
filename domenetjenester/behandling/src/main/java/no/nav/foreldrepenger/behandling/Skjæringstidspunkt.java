@@ -14,7 +14,8 @@ public class Skjæringstidspunkt {
     private LocalDate skjæringstidspunktOpptjening;
     private LocalDate skjæringstidspunktBeregning;
     private LocalDate førsteUttaksdato;
-    private LocalDate grunnbeløpdato;
+    private LocalDate førsteUttaksdatoGrunnbeløp;
+    private LocalDate førsteUttaksdatoFødseljustert;
     private LocalDateInterval utledetMedlemsintervall;
 
     private Skjæringstidspunkt() {
@@ -26,7 +27,8 @@ public class Skjæringstidspunkt {
         this.skjæringstidspunktOpptjening = other.skjæringstidspunktOpptjening;
         this.skjæringstidspunktBeregning = other.skjæringstidspunktBeregning;
         this.førsteUttaksdato = other.førsteUttaksdato;
-        this.grunnbeløpdato = other.grunnbeløpdato;
+        this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
+        this.førsteUttaksdatoFødseljustert = other.førsteUttaksdatoFødseljustert;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
@@ -71,16 +73,22 @@ public class Skjæringstidspunkt {
         return skjæringstidspunktBeregning;
     }
 
-    /** Første uttaksdato er første dag stønadsperioden løper - dvs min(innvilget eller avslag søknadsfrist). */
+    /** Første uttaksdato er første dag stønadsperioden løper - dvs min(innvilget eller avslag søknadsfrist). Uten hensyn til tidlig fødsel */
     public LocalDate getFørsteUttaksdato() {
         Objects.requireNonNull(førsteUttaksdato, "Utvikler-feil: førsteUttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdato;
     }
 
     /** Grunnbeløpdato er første dag med innvilget uttak/utsettelse/overføring. */
-    public LocalDate getGrunnbeløpdato() {
-        Objects.requireNonNull(førsteUttaksdato, "Utvikler-feil: førsteUttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
-        return førsteUttaksdato;
+    public LocalDate getFørsteUttaksdatoGrunnbeløp() {
+        Objects.requireNonNull(førsteUttaksdatoGrunnbeløp, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
+        return førsteUttaksdatoGrunnbeløp;
+    }
+
+    /** Første uttaksdato er første dag stønadsperioden løper - før evaluering av opptjeningsperiode. */
+    public LocalDate getFørsteUttaksdatoFødseljustert() {
+        Objects.requireNonNull(førsteUttaksdatoFødseljustert, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
+        return førsteUttaksdatoFødseljustert;
     }
 
     @Override
@@ -152,8 +160,13 @@ public class Skjæringstidspunkt {
             return this;
         }
 
-        public Builder medGrunnbeløpdato(LocalDate dato) {
-            kladd.grunnbeløpdato = dato;
+        public Builder medFørsteUttaksdatoGrunnbeløp(LocalDate dato) {
+            kladd.førsteUttaksdatoGrunnbeløp = dato;
+            return this;
+        }
+
+        public Builder medFørsteUttaksdatoFødseljustert(LocalDate dato) {
+            kladd.førsteUttaksdatoFødseljustert = dato;
             return this;
         }
 

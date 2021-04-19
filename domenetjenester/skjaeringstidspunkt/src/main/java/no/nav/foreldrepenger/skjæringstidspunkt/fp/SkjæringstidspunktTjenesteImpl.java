@@ -84,12 +84,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        var førsteUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdag(behandling));
+        var førsteUttaksdato = førsteUttaksdag(behandling);
         var førsteInnvilgetUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteInnvilgetUttaksdag(behandling));
 
         var builder = Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(førsteUttaksdato)
-            .medGrunnbeløpdato(førsteInnvilgetUttaksdato);
+            .medFørsteUttaksdatoFødseljustert(førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato))
+            .medFørsteUttaksdatoGrunnbeløp(førsteInnvilgetUttaksdato);
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {

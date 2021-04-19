@@ -21,7 +21,7 @@ public class MapBehandlingRef {
         return Skjæringstidspunkt.builder()
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt.getSkjæringstidspunktOpptjening())
             .medSkjæringstidspunktBeregning(skjæringstidspunkt.getSkjæringstidspunktBeregningForKopieringTilKalkulus())
-            .medFørsteUttaksdato(skjæringstidspunkt.getGrunnbeløpdato())
+            .medFørsteUttaksdato(skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp())
             .build();
     }
 }

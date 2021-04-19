@@ -50,7 +50,7 @@ public class AvklarStartdatoForPeriodenOppdaterer implements AksjonspunktOppdate
         avbrytOverflødigOverstyrAksjonpunkt(behandling)
             .ifPresent(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
         var skjæringstidspunkt = param.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        var førsteUttakDato = param.getSkjæringstidspunkt().getFørsteUttaksdato();
+        var førsteUttakDato = param.getSkjæringstidspunkt().getFørsteUttaksdatoFødseljustert();
         var startdatoFraSoknad = dto.getStartdatoFraSoknad();
         if (!startdatoFraSoknad.equals(førsteUttakDato) || harValgtStartdatoSomErSenereEnnDatoFraInntektsmelding(param.getRef(), startdatoFraSoknad, skjæringstidspunkt)) {
 

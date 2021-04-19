@@ -65,7 +65,7 @@ public class AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden imple
             return INGEN_AKSJONSPUNKTER;
         }
 
-        var skjæringstidspunkt = param.getSkjæringstidspunkt().getFørsteUttaksdato();
+        var skjæringstidspunkt = param.getSkjæringstidspunkt().getFørsteUttaksdatoFødseljustert();
 
         var filter = new YrkesaktivitetFilter(inntektArbeidYtelseGrunnlag.getArbeidsforholdInformasjon(), inntektArbeidYtelseGrunnlag.getAktørArbeidFraRegister(param.getAktørId()))
             .før(skjæringstidspunkt);

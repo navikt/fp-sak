@@ -38,7 +38,7 @@ public class KopierForeldrepengerUttaktjeneste {
 
     public void kopierUttaksgrunnlagSøknadsfristResultatFraOriginalBehandling(BehandlingReferanse ref) {
         LOG.info("Kopierer yfgrunnlag fra behandling {}, til behandling {}", ref.getOriginalBehandlingId(), ref.getBehandlingId());
-        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(ref.getOriginalBehandlingId().orElseThrow(), ref.getBehandlingId());
+        ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandlingForOverhoppUttak(ref.getOriginalBehandlingId().orElseThrow(), ref.getBehandlingId());
     }
 
     public void kopierUttaksresultatFraOriginalBehandling(BehandlingReferanse referanse) {

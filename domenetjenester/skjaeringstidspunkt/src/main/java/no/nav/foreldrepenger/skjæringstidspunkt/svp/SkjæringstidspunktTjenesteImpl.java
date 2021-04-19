@@ -57,7 +57,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var skjæringstidspunkt = utledSkjæringstidspunkt(behandlingId);
         return Skjæringstidspunkt.builder()
             .medFørsteUttaksdato(skjæringstidspunkt)
-            .medGrunnbeløpdato(skjæringstidspunkt)
+            .medFørsteUttaksdatoGrunnbeløp(skjæringstidspunkt)
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, skjæringstidspunkt))
