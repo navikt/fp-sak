@@ -20,12 +20,12 @@ jobs:
           echo "CACHE_KEY=$(expr $(date +%V) - 1 + 1)" >> $GITHUB_ENV
           echo "PREVIOUS_CACHE_KEY=$(expr $(date +%V) - 1)" >> $GITHUB_ENV
 
-      - name: Henter maven avhengigheter som er cachet
-        uses: actions/cache@v2.1.4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
-          restore-keys: ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
+#      - name: Henter maven avhengigheter som er cachet
+#        uses: actions/cache@v2.1.4
+#        with:
+#          path: ~/.m2
+#          key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
+#          restore-keys: ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
 
       - uses: actions/setup-java@v2
         with:
@@ -49,10 +49,16 @@ jobs:
         run: |
           echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
+      - uses: navikt/github-app-token-generator@v1
+        id: get-token
+        with:
+          private-key: ${{ secrets.FP_PRIVATE_KEY }}
+          app-id: ${{ secrets.FP_APP_ID }}
+
       - name: Build
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
+          GITHUB_PASSWORD: ${{ steps.get-token.outputs.token }}
         run: |
           echo "Building $BUILD_VERSION"
           mvn package --quiet --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION}
