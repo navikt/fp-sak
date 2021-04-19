@@ -13,11 +13,11 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringEntitet;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.RisikoklassifiseringRepository;
+import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.FaresignalWrapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 
@@ -60,6 +60,12 @@ public class RisikovurderingTjeneste {
                 lagre(resultatWrapper, beh);
                 if (Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && behandlingHarPassertVurderFaresignaler(beh)) {
                     LOG.info("Kontrollresultat HØY motatt for behandling med id {}. Behandlingens status var {}", beh.getId(), beh.getStatus().getKode());
+                }
+            } else {
+                var eksisterende = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(beh.getId())
+                    .map(RisikoklassifiseringEntitet::getKontrollresultat).orElse(Kontrollresultat.HØY);
+                if (Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && !Kontrollresultat.HØY.equals(eksisterende)) {
+                    LOG.info("Oppdatert Kontrollresultat HØY motatt for sak {}", beh.getFagsak().getSaksnummer().getVerdi());
                 }
             }
         });
