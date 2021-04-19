@@ -194,6 +194,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
         return BehandlingReferanse.fra(behandling)
             .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
                 .medFørsteUttaksdato(SKJÆRINGSTIDSPUNKT)
+                .medFørsteUttaksdatoGrunnbeløp(SKJÆRINGSTIDSPUNKT)
                 .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT)
                 .medSkjæringstidspunktBeregning(SKJÆRINGSTIDSPUNKT)
                 .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)

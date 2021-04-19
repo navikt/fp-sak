@@ -137,6 +137,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
                 .medSkjæringstidspunkt(Skjæringstidspunkt.builder()
                         .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT_OPPTJENING)
                         .medFørsteUttaksdato(FØRSTE_UTTAKSDAG)
+                        .medFørsteUttaksdatoGrunnbeløp(FØRSTE_UTTAKSDAG)
                         .medSkjæringstidspunktOpptjening(SKJÆRINGSTIDSPUNKT_OPPTJENING)
                         .build());
     }

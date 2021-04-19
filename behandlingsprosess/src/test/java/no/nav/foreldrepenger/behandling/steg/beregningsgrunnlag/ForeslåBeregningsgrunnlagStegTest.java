@@ -69,6 +69,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
         behandling = scenario.lagMocked();
         var stp = Skjæringstidspunkt.builder()
                 .medFørsteUttaksdato(LocalDate.now())
+                .medFørsteUttaksdatoGrunnbeløp(LocalDate.now())
                 .medSkjæringstidspunktOpptjening(LocalDate.now());
         var ref = BehandlingReferanse.fra(behandling, stp.build());
         var foreldrepengerGrunnlag = new ForeldrepengerGrunnlag(100, false, AktivitetGradering.INGEN_GRADERING);
