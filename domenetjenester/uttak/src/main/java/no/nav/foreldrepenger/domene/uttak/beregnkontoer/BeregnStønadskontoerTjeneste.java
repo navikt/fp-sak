@@ -37,7 +37,7 @@ public class BeregnStønadskontoerTjeneste {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
-        this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter(repositoryProvider);
+        this.stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
         this.uttakTjeneste = uttakTjeneste;
     }
 

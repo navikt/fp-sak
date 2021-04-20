@@ -5,16 +5,13 @@ import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoRegelOrkestrering;
 import no.nav.foreldrepenger.regler.uttak.beregnkontoer.StønadskontoResultat;
@@ -24,17 +21,6 @@ public class StønadskontoRegelAdapter {
 
     private final StønadskontoRegelOrkestrering stønadskontoRegel = new StønadskontoRegelOrkestrering();
     private final StønadskontoRegelOversetter stønadskontoRegelOversetter = new StønadskontoRegelOversetter();
-
-    private BehandlingsresultatRepository behandlingsresultatRepository;
-
-    @Inject
-    public StønadskontoRegelAdapter(UttakRepositoryProvider uttakRepositoryProvider) {
-        this.behandlingsresultatRepository = uttakRepositoryProvider.getBehandlingsresultatRepository();
-    }
-
-    StønadskontoRegelAdapter() {
-        //CDI
-    }
 
     public Stønadskontoberegning beregnKontoer(BehandlingReferanse ref,
                                                YtelseFordelingAggregat ytelseFordelingAggregat,
@@ -51,12 +37,8 @@ public class StønadskontoRegelAdapter {
                                                          FagsakRelasjon fagsakRelasjon,
                                                          Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
-        var harSøkerRett = !behandlingsresultatRepository.hentHvisEksisterer(ref.getBehandlingId())
-            .orElseThrow()
-            .isVilkårAvslått();
-
         var grunnlag = stønadskontoRegelOversetter.tilRegelmodell(ref.getRelasjonsRolleType(), ytelseFordelingAggregat,
-            harSøkerRett, fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
+            fagsakRelasjon, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag);
 
         return stønadskontoRegel.beregnKontoer(grunnlag);
     }
