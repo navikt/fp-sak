@@ -201,15 +201,41 @@ public class YtelsesFordelingRepository {
     }
 
     /**
-     * Kopierer grunnlag fra en tidligere behandling. Endrer ikke aggregater, en
-     * skaper nye referanser til disse.
+     * Kopierer grunnlag fra en tidligere behandling. Nullstiller avklarte datoer.
+     * Brukes ifm oppretting av revurdering
+     * TODO: Rydde i KOFAK-REVURDERING-FP når alle i kompletthet har passert KOFAK (2-4 uker). Behold oppgitte for endringssøknad
+     * Flytt innhold her + KOFAK-revurdering til RevurderingTjeneste der man fikser på akt.krav (tilpass for KøKontroller)
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
         var origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
         origAggregat.ifPresent(ytelseFordelingAggregat -> {
-            lagreOgFlush(nyBehandlingId, ytelseFordelingAggregat);
+            var yfBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(ytelseFordelingAggregat))
+                .medAvklarteDatoer(null)
+                .medJustertFordeling(null)
+                .medPerioderUttakDokumentasjon(null)
+                .medOverstyrtFordeling(null);
+            lagreOgFlush(nyBehandlingId, yfBuilder.build());
         });
     }
+
+    /**
+     * Kopierer grunnlag fra en tidligere behandling. Nullstiller avklarte datoer.
+     * Brukes ifm overhopp av uttak
+     */
+    public void kopierGrunnlagFraEksisterendeBehandlingForOverhoppUttak(Long gammelBehandlingId, Long nyBehandlingId) {
+        var origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
+        origAggregat.ifPresent(ytelseFordelingAggregat -> {
+            var avklarteDatoer = ytelseFordelingAggregat.getAvklarteDatoer();
+
+            var avklarteUttakDatoerEntitet = new AvklarteUttakDatoerEntitet.Builder(avklarteDatoer)
+                .medFørsteUttaksdato(null)
+                .build();
+            var yfBuilder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(ytelseFordelingAggregat))
+                .medAvklarteDatoer(avklarteUttakDatoerEntitet);
+            lagreOgFlush(nyBehandlingId, yfBuilder.build());
+        });
+    }
+
 
     public Optional<Long> hentIdPåAktivYtelsesFordeling(Long behandlingId) {
         return hentAktivtGrunnlag(behandlingId).map(YtelseFordelingGrunnlagEntitet::getId);

@@ -179,24 +179,6 @@ public class BehandlingReferanse {
         return skjæringstidspunkt;
     }
 
-    public LocalDate getSkjæringstidspunktBeregning() {
-        // precondition
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getSkjæringstidspunktBeregning();
-    }
-
-    public LocalDate getSkjæringstidspunktOpptjening() {
-        // precondition
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getSkjæringstidspunktOpptjening();
-    }
-
-    public LocalDate getFørsteUttaksdato() {
-        // precondition
-        sjekkSkjæringstidspunkt();
-        return skjæringstidspunkt.getFørsteUttaksdato();
-    }
-
     public RelasjonsRolleType getRelasjonsRolleType() {
         return relasjonRolle;
     }

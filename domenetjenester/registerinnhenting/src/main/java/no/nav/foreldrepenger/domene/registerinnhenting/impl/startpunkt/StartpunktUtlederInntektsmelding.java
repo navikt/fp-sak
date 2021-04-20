@@ -152,7 +152,7 @@ class StartpunktUtlederInntektsmelding {
 
     private boolean erStartdatoUlikFørsteUttaksdato(BehandlingReferanse ref, Inntektsmelding nyIm) {
         // Samme logikk som 5045 AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden
-        var førsteUttaksDato = endreDatoHvisLørdagEllerSøndag(ref.getFørsteUttaksdato());
+        var førsteUttaksDato = endreDatoHvisLørdagEllerSøndag(ref.getSkjæringstidspunkt().getFørsteUttaksdato());
         var startDatoIm = endreDatoHvisLørdagEllerSøndag(nyIm.getStartDatoPermisjon().orElse(Tid.TIDENES_BEGYNNELSE));
         return !førsteUttaksDato.equals(startDatoIm);
     }
