@@ -91,7 +91,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         var uttakRepositoryProvider = new UttakRepositoryProvider(entityManager);
         stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(uttakRepositoryProvider);
         fpUttakRepository = new FpUttakRepository(entityManager);
-        stønadskontoRegelAdapter = new StønadskontoRegelAdapter(uttakRepositoryProvider);
+        stønadskontoRegelAdapter = new StønadskontoRegelAdapter();
         tapteDagerFpffTjeneste = new TapteDagerFpffTjeneste(uttakRepositoryProvider,
             new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager)));
         uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);

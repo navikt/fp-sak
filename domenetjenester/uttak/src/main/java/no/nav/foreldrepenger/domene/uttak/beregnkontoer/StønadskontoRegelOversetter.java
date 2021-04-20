@@ -17,7 +17,6 @@ public class StønadskontoRegelOversetter {
 
     public BeregnKontoerGrunnlag tilRegelmodell(RelasjonsRolleType relasjonsRolleType,
                                                 YtelseFordelingAggregat ytelseFordelingAggregat,
-                                                boolean harSøkerRett,
                                                 FagsakRelasjon fagsakRelasjon,
                                                 Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                 ForeldrepengerGrunnlag fpGrunnlag) {
@@ -35,12 +34,13 @@ public class StønadskontoRegelOversetter {
 
         var aleneomsorg = UttakOmsorgUtil.harAleneomsorg(ytelseFordelingAggregat);
         if (relasjonsRolleType.equals(RelasjonsRolleType.MORA)) {
-            return grunnlagBuilder.morRett(harSøkerRett)
+            return grunnlagBuilder
+                .morRett(true)
                 .farRett(annenForeldreHarRett)
                 .morAleneomsorg(aleneomsorg)
                 .build();
         }
-        return grunnlagBuilder.morRett(annenForeldreHarRett).farRett(harSøkerRett).farAleneomsorg(aleneomsorg).build();
+        return grunnlagBuilder.morRett(annenForeldreHarRett).farRett(true).farAleneomsorg(aleneomsorg).build();
     }
 
     private void leggTilFamileHendelseDatoer(BeregnKontoerGrunnlag.Builder grunnlagBuilder,
