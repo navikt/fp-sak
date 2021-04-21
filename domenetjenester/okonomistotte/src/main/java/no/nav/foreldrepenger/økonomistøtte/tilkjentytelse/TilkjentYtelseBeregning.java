@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.tilkjentytelse;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,13 +59,6 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
             uttakResultatEntitet.getGjeldendePerioder().stream()
                 .anyMatch(ForeldrepengerUttakPeriode::isInnvilget))
             .orElse(false);
-    }
-
-    @Override
-    public LocalDate hentEndringstidspunkt(Long behandlingId) {
-        return hentResultatFP(behandlingId)
-            .flatMap(BeregningsresultatEntitet::getEndringsdato)
-            .orElse(null);
     }
 
     private Optional<BeregningsresultatEntitet> hentResultatFP(Long behandlingId) {

@@ -13,12 +13,10 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 
 /**
  * Felles steg for å beregne tilkjent ytelse for foreldrepenger og
@@ -35,7 +33,6 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
-    private Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste;
     private BeregnYtelseTjeneste beregnYtelseTjeneste;
 
     protected BeregneYtelseStegImpl() {
@@ -46,11 +43,9 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
     public BeregneYtelseStegImpl(BehandlingRepository behandlingRepository,
             BeregningsresultatRepository beregningsresultatRepository,
             @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste,
-            @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjeneste,
             BeregnYtelseTjeneste beregnYtelseTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
-        this.finnEndringsdatoBeregningsresultatTjeneste = finnEndringsdatoBeregningsresultatTjeneste;
         this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
         this.beregnYtelseTjeneste = beregnYtelseTjeneste;
     }
@@ -67,15 +62,6 @@ public class BeregneYtelseStegImpl implements BeregneYtelseSteg {
         // Beregn feriepenger
         var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, ref.getFagsakYtelseType()).orElseThrow();
         feriepengerTjeneste.beregnFeriepenger(behandling, beregningsresultat);
-
-        // Sett endringsdato
-        if (behandling.erRevurdering()) {
-            var endringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup
-                    .find(finnEndringsdatoBeregningsresultatTjeneste, ref.getFagsakYtelseType())
-                    .orElseThrow();
-            var endringsDato = endringsdatoBeregningsresultatTjeneste.finnEndringsdato(behandling, beregningsresultat);
-            endringsDato.ifPresent(endringsdato -> BeregningsresultatEntitet.builder(beregningsresultat).medEndringsdato(endringsdato));
-        }
 
         // Lagre beregningsresultat
         beregningsresultatRepository.lagre(behandling, beregningsresultat);

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjene
     @Test
     public void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
 
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
