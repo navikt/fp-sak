@@ -61,9 +61,12 @@ import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.RelatertYtelseType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori;
+import no.nav.folketrygdloven.kalkulus.kodeverk.UtbetaltYtelseFraOffentligeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
@@ -351,13 +354,29 @@ class MapTilKalkulatorInput {
     }
 
     private static UtbetalingsPostDto mapPost(InntektspostDto inntektspostDto) {
-        return inntektspostDto == null ? null
-            : new UtbetalingsPostDto(
-                mapPeriode(inntektspostDto.getPeriode()),
-                inntektspostDto.getInntektspostType() == null
-                    ? InntektspostType.fraKode(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType.UDEFINERT.getKode())
-                    : InntektspostType.fraKode(inntektspostDto.getInntektspostType().getKode()),
-                inntektspostDto.getBeløp() == null ? null : inntektspostDto.getBeløp().getVerdi());
+        if (inntektspostDto == null) {
+            return null;
+        }
+        var utbetaling = new UtbetalingsPostDto(
+            mapPeriode(inntektspostDto.getPeriode()),
+            inntektspostDto.getInntektspostType() == null
+                ? InntektspostType.fraKode(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType.UDEFINERT.getKode())
+                : InntektspostType.fraKode(inntektspostDto.getInntektspostType().getKode()),
+            inntektspostDto.getBeløp() == null ? null : inntektspostDto.getBeløp().getVerdi());
+        SkatteOgAvgiftsregelType skatteOgAvgiftsregelType = inntektspostDto.getSkatteOgAvgiftsregelType() != null
+            ? SkatteOgAvgiftsregelType.fraKode(inntektspostDto.getSkatteOgAvgiftsregelType().getKode())
+            : null;
+        UtbetaltYtelseFraOffentligeType utbetaltYtelseFraOffentligeType = mapYtelsetype(inntektspostDto.getYtelseType());
+        utbetaling.setSkattAvgiftType(skatteOgAvgiftsregelType);
+        utbetaling.setUtbetaltYtelseType(utbetaltYtelseFraOffentligeType);
+        return utbetaling;
+    }
+
+    private static UtbetaltYtelseFraOffentligeType mapYtelsetype(YtelseType type) {
+        if (type == null) {
+            return new UtbetaltYtelseFraOffentligeType("-");
+        }
+        return new UtbetaltYtelseFraOffentligeType(type.getKode());
     }
 
     private static Periode mapPeriode(Intervall periode) {
