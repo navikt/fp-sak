@@ -59,9 +59,4 @@ public class TilkjentYtelseBeregning implements YtelseTypeTilkjentYtelseTjeneste
     public Boolean erOpphørEtterSkjæringstidspunkt(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         return null; //ikke aktuelt for ES //NOSONAR
     }
-
-    @Override
-    public LocalDate hentEndringstidspunkt(Long behandlingId) {
-        return null; //alltid null for ES
-    }
 }

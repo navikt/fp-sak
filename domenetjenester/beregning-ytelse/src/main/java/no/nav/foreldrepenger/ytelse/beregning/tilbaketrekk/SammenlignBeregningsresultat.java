@@ -11,9 +11,6 @@ public class SammenlignBeregningsresultat {
         if (!perioderErlike(res1.getBeregningsresultatPerioder(), res2.getBeregningsresultatPerioder())) {
             return false;
         }
-        if (!res1.getEndringsdato().equals(res2.getEndringsdato())) {
-            return false;
-        }
         return true;
     }
 

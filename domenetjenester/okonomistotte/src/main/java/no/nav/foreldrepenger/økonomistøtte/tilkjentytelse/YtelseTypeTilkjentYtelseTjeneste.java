@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.tilkjentytelse;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -14,6 +13,4 @@ public interface YtelseTypeTilkjentYtelseTjeneste {
     boolean erOpphør(Behandlingsresultat behandlingsresultat);
 
     Boolean erOpphørEtterSkjæringstidspunkt(Behandling behandling, Behandlingsresultat behandlingsresultat);
-
-    LocalDate hentEndringstidspunkt(Long behandlingId);
 }

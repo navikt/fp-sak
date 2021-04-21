@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -302,7 +301,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBruker() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
@@ -337,7 +336,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilPrivatArbeidsgiver() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), null);
@@ -370,7 +369,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdHosPrivatPersonOgUtbetalingGårTilBådePrivatArbeidsgiverOgBruker() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), null);
@@ -403,7 +402,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBruker() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
@@ -440,7 +439,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilBeggeToArbeidsgivere() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 0, BigDecimal.valueOf(100L), virksomhet);
@@ -490,7 +489,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragHvorBrukerHarArbeidsforholdBådeHosEnPrivatArbeidsgiverOgEnOrganisasjonOgUtbetalingGårTilAlle() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), virksomhet);
@@ -540,7 +539,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skalSendeFørstegangsoppdragForAdopsjonMedTilsvarendeKlassekode() {
         // Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         buildBeregningsresultatAndel(brPeriode_1, true, 500, BigDecimal.valueOf(100L), null);
         buildBeregningsresultatAndel(brPeriode_1, false, 500, BigDecimal.valueOf(100L), virksomhet);
@@ -569,7 +568,7 @@ public class NyOppdragskontrollTjenesteImplTest extends NyOppdragskontrollTjenes
     @Test
     public void skal_sende_oppdrag_for_svangerskapspenger() {
         //Arrange
-        var beregningsresultat = buildBeregningsresultatFP(Optional.empty());
+        var beregningsresultat = buildEmptyBeregningsresultatFP();
         var brPeriode_1 = buildBeregningsresultatPeriode(beregningsresultat, 1, 10);
         var andelBruker_1 = buildBeregningsresultatAndel(brPeriode_1, true, 1000, BigDecimal.valueOf(100L), virksomhet);
         var andelArbeidsgiver_1 = buildBeregningsresultatAndel(brPeriode_1, false, 1000, BigDecimal.valueOf(100L), virksomhet);

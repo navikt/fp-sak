@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,13 +52,9 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     @Column(name = "regel_sporing", nullable = false)
     private String regelSporing;
 
-    @Column(name = "endringsdato")
-    private LocalDate endringsdato;
-
     public BeregningsresultatEntitet(BeregningsresultatEntitet kopi) {
         this.regelInput = kopi.regelInput;
         this.regelSporing = kopi.regelSporing;
-        this.endringsdato = kopi.endringsdato;
         kopi.getBeregningsresultatPerioder().forEach(periodeKopi -> {
             this.beregningsresultatPerioder.add(new BeregningsresultatPeriode(periodeKopi));
         });
@@ -78,10 +73,6 @@ public class BeregningsresultatEntitet extends BaseEntitet {
 
     public String getRegelSporing() {
         return regelSporing;
-    }
-
-    public Optional<LocalDate> getEndringsdato(){
-        return Optional.ofNullable(endringsdato);
     }
 
     public List<BeregningsresultatPeriode> getBeregningsresultatPerioder() {
@@ -159,11 +150,6 @@ public class BeregningsresultatEntitet extends BaseEntitet {
         public Builder medBeregningsresultatFeriepenger(BeregningsresultatFeriepenger beregningsresultatFeriepenger) {
             beregningsresultatFPMal.beregningsresultatFeriepenger.clear();
             beregningsresultatFPMal.beregningsresultatFeriepenger.add(beregningsresultatFeriepenger);
-            return this;
-        }
-
-        public Builder medEndringsdato(LocalDate endringsdato){
-            beregningsresultatFPMal.endringsdato = endringsdato;
             return this;
         }
 

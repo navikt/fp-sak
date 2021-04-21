@@ -21,8 +21,7 @@ class SammenlignBeregningsresultatTest {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(stp);
+            .medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
         var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -41,8 +40,7 @@ class SammenlignBeregningsresultatTest {
 
         var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(LocalDate.now());
+            .medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -69,8 +67,7 @@ class SammenlignBeregningsresultatTest {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(stp);
+            .medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
         var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15)) // ulik
@@ -89,8 +86,7 @@ class SammenlignBeregningsresultatTest {
 
         var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(LocalDate.now());
+            .medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))
@@ -117,8 +113,7 @@ class SammenlignBeregningsresultatTest {
         var stp = LocalDate.now();
         var builder1 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(stp);
+            .medRegelSporing("clob2");
         var beregningsresultat1 = builder1.build();
         var brPeriode1 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(21), stp.minusDays(15))
@@ -137,8 +132,7 @@ class SammenlignBeregningsresultatTest {
 
         var builder2 = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(LocalDate.now());
+            .medRegelSporing("clob2");
         var beregningsresultat2 = builder2.build();
         var brPeriode2 = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(stp.minusDays(20), stp.minusDays(15))

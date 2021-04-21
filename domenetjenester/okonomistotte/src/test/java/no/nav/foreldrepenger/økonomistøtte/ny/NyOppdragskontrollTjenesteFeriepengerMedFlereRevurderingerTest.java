@@ -59,9 +59,7 @@ public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest exte
     private BeregningsresultatEntitet oppsettBeregningsresultatForFeriepenger(boolean erOpptjentOverFlereÅr,
                                                                               Long årsbeløp1,
                                                                               Long årsbeløp2) {
-        var endringsdato = DAGENS_DATO.plusDays(1);
-        var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(
-            Optional.of(endringsdato), erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
+        var beregningsresultatRevurderingFP = buildBeregningsresultatFPForVerifiseringAvOpp150MedFeriepenger(erOpptjentOverFlereÅr, årsbeløp1, årsbeløp2);
         return beregningsresultatRevurderingFP;
     }
 

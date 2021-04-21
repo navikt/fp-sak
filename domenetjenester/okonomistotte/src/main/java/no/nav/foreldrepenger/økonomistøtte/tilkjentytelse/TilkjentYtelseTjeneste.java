@@ -53,11 +53,9 @@ public class TilkjentYtelseTjeneste {
 
         var erOpphør = tjeneste.erOpphør(behandlingsresultat);
         var erOpphørEtterSkjæringstidspunktet = tjeneste.erOpphørEtterSkjæringstidspunkt(behandling, behandlingsresultat);
-        var endringsdato = tjeneste.hentEndringstidspunkt(behandlingId);
         return new TilkjentYtelseV1(behandlingsinfo, perioder)
             .setErOpphør(erOpphør)
-            .setErOpphørEtterSkjæringstidspunkt(erOpphørEtterSkjæringstidspunktet)
-            .setEndringsdato(endringsdato);
+            .setErOpphørEtterSkjæringstidspunkt(erOpphørEtterSkjæringstidspunktet);
     }
 
     private TilkjentYtelseBehandlingInfoV1 mapBehandlingsinfo(Behandling behandling, BehandlingVedtak vedtak) {

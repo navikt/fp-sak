@@ -187,7 +187,6 @@ public class BeregningsresultatRepositoryTest {
         assertThat(beregningsresultatFPLest.getBeregningsresultatPerioder()).hasSize(1);
         assertThat(beregningsresultatFPLest.getRegelInput()).isEqualTo(beregningsresultat.getRegelInput());
         assertThat(beregningsresultatFPLest.getRegelSporing()).isEqualTo(beregningsresultat.getRegelSporing());
-        assertThat(beregningsresultatFPLest.getEndringsdato()).isEqualTo(Optional.of(LocalDate.now()));
         assertBeregningsresultatPeriode(brPeriodeLest, brAndelLest, brPeriode);
     }
 
@@ -216,7 +215,6 @@ public class BeregningsresultatRepositoryTest {
         assertThat(beregningsresultatFPLest.getBeregningsresultatPerioder()).hasSize(1);
         assertThat(beregningsresultatFPLest.getRegelInput()).isEqualTo(beregningsresultat.getRegelInput());
         assertThat(beregningsresultatFPLest.getRegelSporing()).isEqualTo(beregningsresultat.getRegelSporing());
-        assertThat(beregningsresultatFPLest.getEndringsdato()).isEmpty();
         assertBeregningsresultatPeriode(brPeriodeLest, brAndelLest, brPeriode);
     }
 
@@ -365,8 +363,7 @@ public class BeregningsresultatRepositoryTest {
                                                                 LocalDate endringsdato) {
         var builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
-            .medRegelSporing("clob2")
-            .medEndringsdato(endringsdato);
+            .medRegelSporing("clob2");
         var beregningsresultat = builder.build();
         var brPeriode = buildBeregningsresultatPeriode(beregningsresultat);
         buildBeregningsresultatAndel(brPeriode, medPrivatpersonArbeidsgiver);

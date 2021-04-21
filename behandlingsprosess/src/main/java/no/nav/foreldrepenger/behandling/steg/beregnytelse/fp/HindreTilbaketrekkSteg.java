@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
-import no.nav.foreldrepenger.ytelse.beregning.FinnEndringsdatoBeregningsresultatTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.BeregningsresultatTidslinjetjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.tilbaketrekk.HindreTilbaketrekkNårAlleredeUtbetalt;
 
@@ -40,7 +38,6 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances;
     private Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste;
 
     HindreTilbaketrekkSteg() {
@@ -50,7 +47,6 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
     @Inject
     public HindreTilbaketrekkSteg(BehandlingRepositoryProvider repositoryProvider,
                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                  @Any Instance<FinnEndringsdatoBeregningsresultatTjeneste> finnEndringsdatoBeregningsresultatTjenesteInstances,
                                   BeregningsresultatTidslinjetjeneste beregningsresultatTidslinjetjeneste,
                                   InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                   @Any Instance<BeregnFeriepengerTjeneste> beregnFeriepengerTjeneste) {
@@ -58,7 +54,6 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.beregningsresultatTidslinjetjeneste = beregningsresultatTidslinjetjeneste;
-        this.finnEndringsdatoBeregningsresultatTjenesteInstances = finnEndringsdatoBeregningsresultatTjenesteInstances;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.beregnFeriepengerTjeneste = beregnFeriepengerTjeneste;
     }
@@ -90,15 +85,6 @@ public class HindreTilbaketrekkSteg implements BehandlingSteg {
             // Reberegn feriepenger
             var feriepengerTjeneste = FagsakYtelseTypeRef.Lookup.find(beregnFeriepengerTjeneste, behandlingReferanse.getFagsakYtelseType()).orElseThrow();
             feriepengerTjeneste.beregnFeriepenger(behandling, utbetBR);
-
-            var finnEndringsdatoBeregningsresultatTjeneste = FagsakYtelseTypeRef.Lookup
-                    .find(finnEndringsdatoBeregningsresultatTjenesteInstances, behandling.getFagsakYtelseType())
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Finner ikke implementasjon for FinnEndringsdatoBeregningsresultatTjeneste for behandling " + behandling.getId()));
-
-            var endringsDato = finnEndringsdatoBeregningsresultatTjeneste.finnEndringsdato(behandling, utbetBR);
-            endringsDato.ifPresent(endringsdato -> BeregningsresultatEntitet.builder(utbetBR).medEndringsdato(endringsdato));
-
             beregningsresultatRepository.lagreUtbetBeregningsresultat(behandling, utbetBR);
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();
