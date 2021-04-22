@@ -19,6 +19,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AUTO_VENT_ANKE_MERKNADER_FRA_BRUKER_KODE = "7032";
     public static final String AUTO_VENT_ANKE_OVERSENDT_TIL_TRYGDERETTEN_KODE = "7033";
     public static final String AUTO_VENT_PÅ_SYKEMELDING_KODE = "7037";
+    public static final String AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE = "7038";
 
 
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
@@ -97,6 +98,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS_KODE = "5038";
     public static final String FORDEL_BEREGNINGSGRUNNLAG_KODE = "5046";
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD_KODE = "5047";
+    public static final String KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE = "5048";
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET_KODE = "5049";
     public static final String VURDER_GRADERING_UTEN_BEREGNINGSGRUNNLAG_KODE = "5050";
     public static final String AVKLAR_AKTIVITETER_KODE = "5052";

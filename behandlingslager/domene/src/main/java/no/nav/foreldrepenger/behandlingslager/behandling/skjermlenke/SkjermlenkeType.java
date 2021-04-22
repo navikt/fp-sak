@@ -29,6 +29,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     ANKE_VURDERING("ANKE_VURDERING", "Anke vurdering"),
     BEREGNING_ENGANGSSTOENAD("BEREGNING_ENGANGSSTOENAD", "Beregning"),
     BEREGNING_FORELDREPENGER("BEREGNING_FORELDREPENGER", "Beregning"),
+    BESTEBEREGNING("BESTEBEREGNING", "Besteberegning"),
     FAKTA_FOR_OMSORG("FAKTA_FOR_OMSORG", "Fakta om omsorg"),
     FAKTA_FOR_OPPTJENING("FAKTA_FOR_OPPTJENING", "Fakta om opptjening"),
     FAKTA_OM_ADOPSJON("FAKTA_OM_ADOPSJON", "Fakta om adopsjon"),
