@@ -289,10 +289,14 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
+
+    // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
     KONTROLLER_AUTOMATISK_BESTEBEREGNING(
         AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
         BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
         ENTRINN, EnumSet.of(FP)),
+
+
     VURDER_TILBAKETREKK(AksjonspunktKodeDefinisjon.VURDER_TILBAKETREKK_KODE,
             AksjonspunktType.MANUELL, "Vurder tilbaketrekk", BehandlingStegType.VURDER_TILBAKETREKK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.TILKJENT_YTELSE, TOTRINN, EnumSet.of(FP)),
