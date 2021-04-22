@@ -94,8 +94,8 @@ public class FastsettePerioderTjeneste {
     private UttakResultatPeriodeEntitet map(UttakResultatPeriodeEntitet opprinneligPeriode,
                                             ForeldrepengerUttakPeriode nyPeriode) {
         var builder = new UttakResultatPeriodeEntitet.Builder(nyPeriode.getTidsperiode().getFomDato(),
-            nyPeriode.getTidsperiode().getTomDato()).medPeriodeSoknad(
-            opprinneligPeriode.getPeriodeSøknad().orElse(null))
+            nyPeriode.getTidsperiode().getTomDato())
+            .medPeriodeSoknad(opprinneligPeriode.getPeriodeSøknad().orElse(null))
             .medResultatType(nyPeriode.getResultatType(), nyPeriode.getResultatÅrsak())
             .medBegrunnelse(nyPeriode.getBegrunnelse())
             .medGraderingInnvilget(nyPeriode.isGraderingInnvilget())

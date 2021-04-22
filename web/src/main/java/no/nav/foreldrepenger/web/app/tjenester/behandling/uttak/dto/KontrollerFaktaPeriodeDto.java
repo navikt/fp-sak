@@ -61,6 +61,7 @@ public class KontrollerFaktaPeriodeDto {
     private FordelingPeriodeKilde periodeKilde;
 
     private LocalDate mottattDato;
+    private LocalDate tidligstMottattDato;
 
     public LocalDate getTom() {
         return tom;
@@ -100,6 +101,10 @@ public class KontrollerFaktaPeriodeDto {
 
     public LocalDate getMottattDato() {
         return mottattDato;
+    }
+
+    public LocalDate getTidligstMottattDato() {
+        return tidligstMottattDato;
     }
 
     public List<UttakDokumentasjonDto> getDokumentertePerioder() {
@@ -174,6 +179,7 @@ public class KontrollerFaktaPeriodeDto {
             medFlerbarnsdager(periode.getOppgittPeriode().isFlerbarnsdager());
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
             medMottattDato(periode.getOppgittPeriode().getMottattDato());
+            medTidligstMottattDato(periode.getOppgittPeriode().getTidligstMottattDato().orElse(null));
 
             if (periode.getOppgittPeriode().isUtsettelse()) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
@@ -286,6 +292,11 @@ public class KontrollerFaktaPeriodeDto {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
+            kladd.tidligstMottattDato = tidligstMottattDato;
             return this;
         }
 

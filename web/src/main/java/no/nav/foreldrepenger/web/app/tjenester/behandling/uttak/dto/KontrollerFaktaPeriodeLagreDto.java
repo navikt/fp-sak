@@ -94,6 +94,7 @@ public class KontrollerFaktaPeriodeLagreDto {
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;
 
     private LocalDate mottattDato;
+    private LocalDate tidligstMottattDato;
 
 
     KontrollerFaktaPeriodeLagreDto() {//NOSONAR
@@ -195,6 +196,10 @@ public class KontrollerFaktaPeriodeLagreDto {
         return mottattDato;
     }
 
+    public LocalDate getTidligstMottattDato() {
+        return tidligstMottattDato;
+    }
+
     @JsonIgnore
     public Optional<Årsak> getÅrsak() {
         if (!Objects.equals(UtsettelseÅrsak.UDEFINERT, utsettelseÅrsak)) {
@@ -208,7 +213,7 @@ public class KontrollerFaktaPeriodeLagreDto {
 
     public static class Builder {
 
-        private KontrollerFaktaPeriodeLagreDto kladd = new KontrollerFaktaPeriodeLagreDto();
+        private final KontrollerFaktaPeriodeLagreDto kladd = new KontrollerFaktaPeriodeLagreDto();
 
         public Builder() {
         }
@@ -229,6 +234,7 @@ public class KontrollerFaktaPeriodeLagreDto {
             medFlerbarnsdager(periode.getOppgittPeriode().isFlerbarnsdager());
             medPeriodeKilde(periode.getOppgittPeriode().getPeriodeKilde());
             medMottattDato(periode.getOppgittPeriode().getMottattDato());
+            medTidligstMottattDato(periode.getOppgittPeriode().getTidligstMottattDato().orElse(null));
 
             if (periode.getOppgittPeriode().isUtsettelse()) {
                 medUtsettelseÅrsak((UtsettelseÅrsak) periode.getOppgittPeriode().getÅrsak()); //NOSONAR
@@ -339,6 +345,11 @@ public class KontrollerFaktaPeriodeLagreDto {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
+            kladd.tidligstMottattDato = tidligstMottattDato;
             return this;
         }
 

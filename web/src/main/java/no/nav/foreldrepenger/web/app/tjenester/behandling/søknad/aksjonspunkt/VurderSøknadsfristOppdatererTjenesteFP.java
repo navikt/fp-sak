@@ -48,7 +48,7 @@ public class VurderSøknadsfristOppdatererTjenesteFP extends VurderSøknadsfrist
             .map(p -> {
                 var builder = OppgittPeriodeBuilder.fraEksisterende(p);
                 if (Objects.equals(p.getPeriodeKilde(), FordelingPeriodeKilde.SØKNAD)) {
-                    builder.medMottattDato(mottattDato);
+                    builder.medMottattDato(mottattDato).medTidligstMottattDato(mottattDato);
                 }
                 return builder.build();
             })

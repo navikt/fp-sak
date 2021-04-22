@@ -118,8 +118,12 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Convert(converter = FordelingPeriodeKilde.KodeverdiConverter.class)
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;
 
+    //Hvis bruker søker om en periode flere ganger så oppdateres mottattDato med ny dato, men tidligst mottatt dato settes til
+    //datoen bruker først søkte om perioden. Så tidligstMottattDato kan ligge før mottattDato ved flere søknader
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
+    @Column(name = "tidligst_mottatt_dato")
+    private LocalDate tidligstMottattDato;
 
     protected OppgittPeriodeEntitet() {
         // Hibernate
@@ -299,6 +303,14 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         this.mottattDato = mottattDato;
     }
 
+    public Optional<LocalDate> getTidligstMottattDato() {
+        return Optional.ofNullable(tidligstMottattDato);
+    }
+
+    public void setTidligstMottattDato(LocalDate tidligstMottattDato) {
+        this.tidligstMottattDato = tidligstMottattDato;
+    }
+
     /**
      * Kommer denne perioden fra uttaksresultatet til et tidligere vedtak
      */
@@ -311,10 +323,9 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof OppgittPeriodeEntitet)) {
+        if (!(o instanceof OppgittPeriodeEntitet that)) {
             return false;
         }
-        var that = (OppgittPeriodeEntitet) o;
         return Objects.equals(uttakPeriodeType, that.uttakPeriodeType) &&
                 Objects.equals(årsakType, that.årsakType) &&
                 Objects.equals(årsak, that.årsak) &&
@@ -326,13 +337,14 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
                 Objects.equals(samtidigUttak, that.samtidigUttak) &&
                 Objects.equals(periodeKilde, that.periodeKilde) &&
                 Objects.equals(mottattDato, that.mottattDato) &&
+                Objects.equals(tidligstMottattDato, that.tidligstMottattDato) &&
                 Objects.equals(samtidigUttaksprosent, that.samtidigUttaksprosent);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(uttakPeriodeType, årsakType, årsak, periode, arbeidsprosent, morsAktivitet, erArbeidstaker,
-            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato);
+            arbeidsgiver, periodeKilde, samtidigUttaksprosent, mottattDato, tidligstMottattDato);
     }
 
     @Override

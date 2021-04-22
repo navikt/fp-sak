@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -47,6 +48,9 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "mottatt_dato")
     private LocalDate mottattDato;
 
+    @Column(name = "tidligst_mottatt_dato")
+    private LocalDate tidligstMottattDato;
+
     @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
@@ -75,6 +79,10 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
         return mottattDato;
     }
 
+    public Optional<LocalDate> getTidligstMottattDato() {
+        return Optional.ofNullable(tidligstMottattDato);
+    }
+
     public MorsAktivitet getMorsAktivitet() {
         return morsAktivitet;
     }
@@ -89,13 +97,14 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
             ", samtidigUttak=" + samtidigUttak +
             ", samtidigUttaksprosent=" + samtidigUttaksprosent +
             ", mottattDato=" + mottattDato +
+            ", tidligstMottattDato=" + tidligstMottattDato +
             ", morsAktivitet=" + morsAktivitet +
             '}';
     }
 
     public static class Builder {
 
-        private UttakResultatPeriodeSøknadEntitet kladd = new UttakResultatPeriodeSøknadEntitet();
+        private final UttakResultatPeriodeSøknadEntitet kladd = new UttakResultatPeriodeSøknadEntitet();
 
         public Builder medUttakPeriodeType(UttakPeriodeType uttakPeriodeType) {
             kladd.uttakPeriodeType = uttakPeriodeType;
@@ -119,6 +128,11 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
+            return this;
+        }
+
+        public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
+            kladd.tidligstMottattDato = tidligstMottattDato;
             return this;
         }
 

@@ -93,6 +93,7 @@ class JusterFordelingTjeneste {
             Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
             Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
             Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
+            Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato()) &&
             Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
             Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent());
     }
@@ -361,10 +362,12 @@ class JusterFordelingTjeneste {
     private OppgittPeriodeEntitet lagEkstraPeriodeFraOpprinneligUttaksdato(List<OppgittPeriodeEntitet> oppgittePerioder,
                                                                            List<OppgittPeriodeEntitet> justertePerioder) {
         var uttakPeriodeType = finnUttakPeriodeType(justertePerioder);
+        var first = oppgittePerioder.get(0);
         return OppgittPeriodeBuilder.ny()
             .medPeriodeType(uttakPeriodeType)
-            .medPeriode(flyttFraHelgTilMandag(oppgittePerioder.get(0).getFom()), flyttFraHelgTilFredag(justertePerioder.get(0).getFom().minusDays(1)))
-            .medMottattDato(oppgittePerioder.get(0).getMottattDato())
+            .medPeriode(flyttFraHelgTilMandag(first.getFom()), flyttFraHelgTilFredag(justertePerioder.get(0).getFom().minusDays(1)))
+            .medMottattDato(first.getMottattDato())
+            .medTidligstMottattDato(first.getTidligstMottattDato().orElse(null))
             .build();
     }
 
