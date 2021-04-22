@@ -33,11 +33,6 @@ jobs:
         with:
           ref: ${{ env.TAG }}
 
-      - name: Vent på velykket deploy til dev
-        if: env.CLUSTER == 'prod-fss'
-        run: |
-          timeout 120 bash -c 'while [[ !"${{ github.event.issue.labels.*.name }}" =~ "dev-fss-teamforeldrepenger" ]]; do sleep 2; done' || false
-
       - name: Promoter til cluster og namespace
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -57,7 +52,6 @@ jobs:
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
             github.issues.createComment({...issue,
-                                    title: 'Deploy av ${{ env.TAG }}',
                                     body: 'promote til ${{ env.CLUSTER }} ${{ env.NAMESPACE }} feilet'})
 
       - name: Oppdater kommentar med deployment status
@@ -72,3 +66,102 @@ jobs:
             github.issues.createComment({...issue,
                                     body: 'promote til  ${{ env.CLUSTER }} ${{ env.NAMESPACE }} utført'})
             github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
+
+  promote_all:
+    if: contains(github.event.comment.html_url, '/issues/') && github.event.comment.body == '/promote'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acknowledge command
+        uses: actions/github-script@v3
+        with:
+          script: |
+            github.reactions.createForIssueComment({
+              comment_id: context.payload.comment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              content: '+1',
+            });
+
+      - name: Sett variabler for cluster og tag
+        run: |
+          echo "TAG=$(echo '${{ github.event.issue.title }}' | awk '{print $NF}' | awk -F- '{print $NF}')" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE_BASE:$(echo '${{  github.event.issue.title }}' | awk '{print $NF}')" >> $GITHUB_ENV
+          echo "CLUSTER_DEV=dev-fss" >> $GITHUB_ENV
+          echo "CLUSTER_PROD=prod-fss" >> $GITHUB_ENV
+
+      - name: Sjekk ut kode
+        uses: actions/checkout@v1
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Promoter til dev og namespace
+        id: deploy_dev
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ env.CLUSTER_DEV }}
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/${{ env.CLUSTER_DEV }}-${{ env.NAMESPACE }}.json
+
+      - name: Oppdater kommentar med deployment status ved feil
+        if: steps.deploy_dev.outcome == 'failure'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.issue.number }} }
+            github.issues.createComment({...issue,
+                                    body: 'promote til ${{ env.CLUSTER_DEV }} ${{ env.NAMESPACE }} feilet'})
+
+      - name: Oppdater kommentar med deployment status
+        if: steps.deploy_dev.outcome == 'success'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.issue.number }} }
+            github.issues.createComment({...issue,
+                                    body: 'promote til  ${{ env.CLUSTER_DEV }} ${{ env.NAMESPACE }} utført'})
+            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_DEV }}-${{ env.NAMESPACE }}']})
+
+
+      - name: Promoter til prod og namespace
+        if: steps.deploy_dev.outcome == 'success'
+        id: deploy_prod
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          PRINT_PAYLOAD: true
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: ${{ env.CLUSTER_PROD }}
+          RESOURCE: .deploy/naiserator.yaml
+          VARS: .deploy/${{ env.CLUSTER_PROD }}-${{ env.NAMESPACE }}.json
+
+      - name: Oppdater kommentar med deployment status ved feil
+        if: steps.deploy_prod.outcome == 'failure'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.issue.number }} }
+            github.issues.createComment({...issue,
+                                    body: 'promote til ${{ env.CLUSTER_PROD }} ${{ env.NAMESPACE }} feilet'})
+
+      - name: Oppdater kommentar med deployment status
+        if: steps.deploy_prod.outcome == 'success'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue = { owner: context.issue.owner,
+                            repo: context.issue.repo,
+                            issue_number: ${{ github.event.issue.number }} }
+            github.issues.createComment({...issue,
+                                    body: 'promote til  ${{ env.CLUSTER_PROD }} ${{ env.NAMESPACE }} utført'})
+            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_PROD }}-${{ env.NAMESPACE }}']})
