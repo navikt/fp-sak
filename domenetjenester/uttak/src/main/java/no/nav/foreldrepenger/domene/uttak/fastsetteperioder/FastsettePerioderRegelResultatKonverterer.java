@@ -337,10 +337,11 @@ public class FastsettePerioderRegelResultatKonverterer {
     }
 
     private PeriodeSøknad lagPeriodeSøknad(OppgittPeriodeEntitet oppgittPeriode) {
-        var builder = new UttakResultatPeriodeSøknadEntitet.Builder().medGraderingArbeidsprosent(
-            oppgittPeriode.getArbeidsprosent())
+        var builder = new UttakResultatPeriodeSøknadEntitet.Builder()
+            .medGraderingArbeidsprosent(oppgittPeriode.getArbeidsprosent())
             .medUttakPeriodeType(oppgittPeriode.getPeriodeType())
             .medMottattDato(oppgittPeriode.getMottattDato())
+            .medTidligstMottattDato(oppgittPeriode.getTidligstMottattDato().orElse(null))
             .medMorsAktivitet(oppgittPeriode.getMorsAktivitet())
             .medSamtidigUttak(oppgittPeriode.isSamtidigUttak())
             .medSamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent());
@@ -349,20 +350,11 @@ public class FastsettePerioderRegelResultatKonverterer {
         return new PeriodeSøknad(entitet, oppgittPeriode.getFom(), oppgittPeriode.getTom());
     }
 
-    private static class PeriodeSøknad {
-        private final UttakResultatPeriodeSøknadEntitet entitet;
-        private final LocalDate fom;
-        private final LocalDate tom;
-
-        private PeriodeSøknad(UttakResultatPeriodeSøknadEntitet entitet, LocalDate fom, LocalDate tom) {
-            this.entitet = entitet;
-            this.fom = fom;
-            this.tom = tom;
-        }
+    private static record PeriodeSøknad(UttakResultatPeriodeSøknadEntitet entitet, LocalDate fom, LocalDate tom) {
 
         boolean harUtledet(UttakPeriode uttakPeriode) {
             return (uttakPeriode.getFom().isEqual(fom) || uttakPeriode.getFom().isAfter(fom)) && (
-                uttakPeriode.getTom().isEqual(tom) || uttakPeriode.getTom().isBefore(tom));
+                    uttakPeriode.getTom().isEqual(tom) || uttakPeriode.getTom().isBefore(tom));
         }
     }
 }

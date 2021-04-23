@@ -49,6 +49,7 @@ public class ForeldrepengerUttakTjeneste {
         var aktiviteter = entitet.getAktiviteter().stream()
             .map(a -> map(a))
             .collect(Collectors.toList());
+        var mottattDato = entitet.getPeriodeSøknad().map(se -> se.getMottattDato()).orElse(null);
         var periodeBuilder = new ForeldrepengerUttakPeriode.Builder()
             .medTidsperiode(new LocalDateInterval(entitet.getFom(), entitet.getTom()))
             .medAktiviteter(aktiviteter)
@@ -65,7 +66,8 @@ public class ForeldrepengerUttakTjeneste {
             .medSamtidigUttaksprosent(entitet.getSamtidigUttaksprosent())
             .medManuellBehandlingÅrsak(entitet.getManuellBehandlingÅrsak())
             .medSøktKonto(entitet.getPeriodeSøknad().map(se -> se.getUttakPeriodeType()).orElse(null))
-            .medMottattDato(entitet.getPeriodeSøknad().map(se -> se.getMottattDato()).orElse(null))
+            .medMottattDato(mottattDato)
+            .medTidligstMottattDato(entitet.getPeriodeSøknad().map(se -> se.getTidligstMottattDato().orElse(mottattDato)).orElse(null))
             .medOpprinneligSendtTilManuellBehandling(entitet.opprinneligSendtTilManuellBehandling())
             .medManueltBehandlet(entitet.isManueltBehandlet());
         return periodeBuilder.build();

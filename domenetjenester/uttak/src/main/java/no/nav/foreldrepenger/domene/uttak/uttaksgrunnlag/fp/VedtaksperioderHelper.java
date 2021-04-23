@@ -133,6 +133,7 @@ public class VedtaksperioderHelper {
         finnOverføringÅrsak(up).ifPresent(builder::medÅrsak);
         finnSamtidigUttaksprosent(up).ifPresent(builder::medSamtidigUttaksprosent);
         builder.medMottattDato(up.getPeriodeSøknad().orElseThrow().getMottattDato());
+        builder.medTidligstMottattDato(up.getPeriodeSøknad().orElseThrow().getTidligstMottattDato().orElse(null));
 
         return builder.build();
     }

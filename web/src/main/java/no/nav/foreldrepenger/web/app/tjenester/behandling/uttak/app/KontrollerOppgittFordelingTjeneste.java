@@ -95,6 +95,7 @@ public class KontrollerOppgittFordelingTjeneste {
 
         var mottattDato = uttaksperiodegrenseRepository.hent(behandling.getId()).getMottattDato();
         oppgittPeriodeBuilder.medMottattDato(mottattDato);
+        oppgittPeriodeBuilder.medTidligstMottattDato(mottattDato);
     }
 
     private void valider(List<BekreftetOppgittPeriodeDto> bekreftedePerioder, Behandling behandling) {
@@ -169,6 +170,7 @@ public class KontrollerOppgittFordelingTjeneste {
 
         periodeBuilder.medPeriodeKilde(faktaPeriodeDto.getPeriodeKilde());
         periodeBuilder.medMottattDato(faktaPeriodeDto.getMottattDato());
+        periodeBuilder.medTidligstMottattDato(faktaPeriodeDto.getTidligstMottattDato());
 
         return periodeBuilder;
     }

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import static no.nav.foreldrepenger.domene.uttak.UttakEnumMapper.map;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,7 +106,12 @@ public class SøknadGrunnlagBygger {
         }
         return OppgittPeriode.forVanligPeriode(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(), map(oppgittPeriode.getPeriodeVurderingType()),
-            oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
+            oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode), map(oppgittPeriode.getMorsAktivitet()));
+    }
+
+    private static LocalDate tidligstMottattDato(OppgittPeriodeEntitet oppgittPeriode) {
+        //Historiske behandlinger har ikke satt tidligstMottattDato - 22.4.2021
+        return oppgittPeriode.getTidligstMottattDato().orElse(oppgittPeriode.getMottattDato());
     }
 
     private static SamtidigUttaksprosent samtidigUttaksprosent(OppgittPeriodeEntitet oppgittPeriode) {
@@ -130,7 +136,8 @@ public class SøknadGrunnlagBygger {
 
         return OppgittPeriode.forGradering(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
             oppgittPeriode.getArbeidsprosent(), samtidigUttaksprosent(oppgittPeriode), oppgittPeriode.isFlerbarnsdager(),
-            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
+            gradertAktivitet, periodeVurderingType, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
+            map(oppgittPeriode.getMorsAktivitet()));
     }
 
     private static Set<AktivitetIdentifikator> finnGraderteAktiviteter(OppgittPeriodeEntitet oppgittPeriode, Set<AktivitetIdentifikator> aktiviter) {
@@ -156,7 +163,7 @@ public class SøknadGrunnlagBygger {
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forOverføring(stønadskontotype, oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            periodeVurderingType, overføringÅrsak, oppgittPeriode.getMottattDato());
+            periodeVurderingType, overføringÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode));
     }
 
     private static OppgittPeriode byggUtsettelseperiode(OppgittPeriodeEntitet oppgittPeriode) {
@@ -164,7 +171,8 @@ public class SøknadGrunnlagBygger {
         var periodeVurderingType = map(oppgittPeriode.getPeriodeVurderingType());
 
         return OppgittPeriode.forUtsettelse(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato(), map(oppgittPeriode.getMorsAktivitet()));
+            periodeVurderingType, utsettelseÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode),
+            map(oppgittPeriode.getMorsAktivitet()));
     }
 
     private static OppgittPeriode byggTilOppholdPeriode(OppgittPeriodeEntitet oppgittPeriode) {
@@ -173,7 +181,7 @@ public class SøknadGrunnlagBygger {
             var oppholdÅrsak = (OppholdÅrsak) årsak;
             var mappedÅrsak = map(oppholdÅrsak);
             return OppgittPeriode.forOpphold(oppgittPeriode.getFom(), oppgittPeriode.getTom(),
-                mappedÅrsak, oppgittPeriode.getMottattDato());
+                mappedÅrsak, oppgittPeriode.getMottattDato(), tidligstMottattDato(oppgittPeriode));
         }
         throw new IllegalArgumentException("Ikke-støttet årsakstype: " + oppgittPeriode.getÅrsak());
     }

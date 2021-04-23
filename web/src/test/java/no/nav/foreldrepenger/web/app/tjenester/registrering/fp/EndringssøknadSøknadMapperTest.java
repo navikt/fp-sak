@@ -26,6 +26,8 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.impl.OppgittPeriodeTidligstMottattDatoTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWrapper;
@@ -58,8 +60,10 @@ public class EndringssøknadSøknadMapperTest {
         oppdaterDtoForFødsel(manuellRegistreringEndringsøknadDto, true, LocalDate.now(), 1);
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringEndringsøknadDto, navBruker);
 
+        var oppgittPeriodeMottattDatoTjeneste = new OppgittPeriodeTidligstMottattDatoTjeneste(
+            new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()));
         var oversetter = new SøknadOversetter(repositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste,
+            virksomhetTjeneste, iayTjeneste, personinfoAdapter, datavarehusTjeneste, oppgittPeriodeMottattDatoTjeneste,
             new AnnenPartOversetter(personinfoAdapter));
 
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
