@@ -42,7 +42,7 @@ public enum Venteårsak implements Kodeverdi {
     VENT_PÅ_SISTE_AAP_ELLER_DP_MELDEKORT("VENT_PÅ_SISTE_AAP_MELDEKORT", "Venter på siste meldekort for AAP eller dagpenger før første uttaksdag."), // Kalkulus + Frontend
     VENT_SØKNAD_SENDT_INFORMASJONSBREV("VENT_SØKNAD_SENDT_INFORMASJONSBREV", "Sendt informasjonsbrev venter søknad."),
     VENT_ÅPEN_BEHANDLING("VENT_ÅPEN_BEHANDLING", "Søker eller den andre forelderen har en åpen behandling"),
-
+    VENT_PÅ_KORRIGERT_BESTEBEREGNING("VENT_PÅ_KORRIGERT_BESTEBEREGNING", "Besteberegningen er feil. Feilen må meldes og korrigeres."),
     /*
      * Disse er i bruk i koden til interne formål rundt historikkinnslag, brukes ikke for aksjosnpunkt - men finnes i gamle aksjonspunkt.
      */

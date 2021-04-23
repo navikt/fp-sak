@@ -112,6 +112,7 @@ public enum HistorikkEndretFeltType implements Kodeverdi {
     ER_KLAGEN_SIGNERT("ER_KLAGEN_SIGNERT", "Er klagefrist overholdt"),
     PA_KLAGD_BEHANDLINGID("PA_KLAGD_BEHANDLINGID", "Påklagd behandlingId"),
     ANKE_RESULTAT("ANKE_RESULTAT", "Anke resultat"),
+    KONTROLL_AV_BESTEBEREGNING("KONTROLL_AV_BESTEBEREGNING", "Kontroll av besteberegning"),
     ANKE_OMGJØR_ÅRSAK("ANKE_OMGJØR_ÅRSAK", "Årsak til omgjøring"),
     ER_ANKER_IKKE_PART("ER_ANKER_IKKE_PART", "Angir om anker ikke er part i saken."),
     ER_ANKE_IKKE_KONKRET("ER_ANKE_IKKE_KONKRET", "Er anke ikke konkret."),

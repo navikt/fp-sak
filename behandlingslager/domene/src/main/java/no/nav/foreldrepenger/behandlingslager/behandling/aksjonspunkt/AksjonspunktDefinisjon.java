@@ -289,6 +289,14 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av opptjeningsvilkår",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
+
+    // Midlertidig aksjonspunkt i oppstart av automatisk besteberegning så saksbehandler kan kontrolere disse
+    KONTROLLER_AUTOMATISK_BESTEBEREGNING(
+        AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
+        BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
+        ENTRINN, EnumSet.of(FP)),
+
+
     VURDER_TILBAKETREKK(AksjonspunktKodeDefinisjon.VURDER_TILBAKETREKK_KODE,
             AksjonspunktType.MANUELL, "Vurder tilbaketrekk", BehandlingStegType.VURDER_TILBAKETREKK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.TILKJENT_YTELSE, TOTRINN, EnumSet.of(FP)),
@@ -409,6 +417,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             BehandlingStegType.ANKE_MERKNADER, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, "P2Y", EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_SYKEMELDING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_SYKEMELDING_KODE, AksjonspunktType.AUTOPUNKT,
         "Vent på siste sykemelding fra søker som mottar sykepenger basert på dagpenger", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT, UTEN_VILKÅR,
+        UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
+    AUTO_VENT_PÅ_KORRIGERT_BESTEBERERGNING(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KORRIGERT_BESTEBEREGNING_KODE, AksjonspunktType.AUTOPUNKT,
+        "Vent på korrigering / feilretting av besteberegningen", BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR,
         UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, EnumSet.of(FP)),
 
     UNDEFINED,

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -72,10 +74,15 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         if (skalBeregnesAutomatisk(ref, input)) {
             var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
             var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map).collect(Collectors.toList());
+            aksjonspunkter.add(opprettKontrollpunkt());
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
         }
 
         return BehandleStegResultat.utførtMedAksjonspunktResultater(Collections.emptyList());
+    }
+
+    private AksjonspunktResultat opprettKontrollpunkt() {
+        return AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING);
     }
 
     private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
