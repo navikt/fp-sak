@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 public class MedlemEndringIdentifisererTest {
 
@@ -22,9 +23,8 @@ public class MedlemEndringIdentifisererTest {
         builder.medPeriode(LocalDate.now().minusMonths(5), LocalDate.now().plusMonths(5));
         set.add(builder.build());
         var aggregat1 = new MedlemskapAggregat(null, set, null, null);
-        final var identifiserer = new MedlemEndringIdentifiserer();
 
-        assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isTrue();
+        assertThat(MedlemEndringIdentifiserer.erEndretForPeriode(aggregat, aggregat1, DatoIntervallEntitet.fraOgMed(LocalDate.now()))).isTrue();
     }
 
     @Test
@@ -35,9 +35,8 @@ public class MedlemEndringIdentifisererTest {
         builder.medPeriode(LocalDate.now().minusMonths(18), LocalDate.now().minusMonths(13));
         set.add(builder.build());
         var aggregat1 = new MedlemskapAggregat(null, set, null, null);
-        final var identifiserer = new MedlemEndringIdentifiserer();
 
-        assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isFalse();
+        assertThat(MedlemEndringIdentifiserer.erEndretForPeriode(aggregat, aggregat1, DatoIntervallEntitet.fraOgMed(LocalDate.now()))).isFalse();
     }
 
     @Test
@@ -53,8 +52,7 @@ public class MedlemEndringIdentifisererTest {
         setEtter.add(builder.build());
         setEtter.add(builder1.build());
         var aggregat1 = new MedlemskapAggregat(null, setEtter, null, null);
-        final var identifiserer = new MedlemEndringIdentifiserer();
 
-        assertThat(identifiserer.erEndretFørSkjæringstidspunkt(aggregat, aggregat1, LocalDate.now())).isFalse();
+        assertThat(MedlemEndringIdentifiserer.erEndretForPeriode(aggregat, aggregat1, DatoIntervallEntitet.fraOgMed(LocalDate.now()))).isTrue();
     }
 }

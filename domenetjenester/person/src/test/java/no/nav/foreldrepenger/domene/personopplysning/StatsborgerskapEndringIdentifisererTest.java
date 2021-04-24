@@ -30,72 +30,72 @@ public class StatsborgerskapEndringIdentifisererTest {
     @Test
     public void testStatsborgerskapUendret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.NOR, Region.NORDEN)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.NOR, Region.NORDEN)));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at statsborgerskap er uendret").isFalse();
     }
 
     @Test
     public void testStatsborgerskapUendret_flere_koder() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.POL, Region.EOS), new LandOgRegion(Landkoder.SWE, Region.NORDEN)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.NOR, Region.NORDEN), new LandOgRegion(Landkoder.SWE, Region.NORDEN)));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at statsborgerskap er uendret").isFalse();
     }
 
     @Test
     public void testStatsborgerskapUendret_men_rekkefølge_i_liste_endret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN), LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.NOR, Region.NORDEN), new LandOgRegion(Landkoder.SWE, Region.NORDEN)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlagMotstattRekkefølge(
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i rekkefølge ikke skal detektere endring.").isFalse();
     }
 
     @Test
     public void testStatsborgerskapEndret() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.POL, Region.EOS)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.NOR, Region.NORDEN)));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i statsborgerskap blir detektert.").isTrue();
     }
 
     @Test
     public void testStatsborgerskapEndret_endret_type() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.FRA, Region.EOS), new LandOgRegion(Landkoder.USA, Region.UDEFINERT)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.USA, Region.UDEFINERT)));
+                List.of(new LandOgRegion(Landkoder.SWE, Region.NORDEN), new LandOgRegion(Landkoder.USA, Region.UDEFINERT)));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i statsborgerskap blir detektert.").isTrue();
     }
 
     @Test
     public void testStatsborgerskapEndret_ekstra_statsborgerskap_lagt_til() {
         var personopplysningGrunnlag1 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.CHE, Region.TREDJELANDS_BORGER)));
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(
-                List.of(LandOgRegion.get(Landkoder.SWE, Region.NORDEN), LandOgRegion.get(Landkoder.NOR, Region.NORDEN)));
+                List.of(new LandOgRegion(Landkoder.CHE, Region.TREDJELANDS_BORGER), new LandOgRegion(Landkoder.NOR, Region.NORDEN)));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erStatsborgerskapEndretForSøkerFør(null);
+        var erEndret = differ.erRegionEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i statsborgerskap blir detektert.").isTrue();
     }
 
@@ -119,20 +119,10 @@ public class StatsborgerskapEndringIdentifisererTest {
         IntStream.range(0, statsborgerskap.size())
                 .forEach(i -> builder1
                         .leggTil(builder1.getStatsborgerskapBuilder(AKTØRID, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()),
-                                statsborgerskap.get(i).land, statsborgerskap.get(i).region)));
+                                statsborgerskap.get(i).land(), statsborgerskap.get(i).region())));
         return PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder1).build();
     }
 
-    private static class LandOgRegion {
-        private Landkoder land;
-        private Region region;
-
-        private static LandOgRegion get(Landkoder land, Region region) {
-            var landOgRegion = new LandOgRegion();
-            landOgRegion.land = land;
-            landOgRegion.region = region;
-            return landOgRegion;
-        }
-    }
+    private record LandOgRegion (Landkoder land, Region region) { }
 
 }

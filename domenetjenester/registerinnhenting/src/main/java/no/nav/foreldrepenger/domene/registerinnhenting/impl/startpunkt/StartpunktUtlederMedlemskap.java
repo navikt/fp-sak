@@ -9,18 +9,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.medlem.identifiserer.MedlemEndringIdentifiserer;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
 @GrunnlagRef("MedlemskapAggregat")
 class StartpunktUtlederMedlemskap implements StartpunktUtleder {
 
     private MedlemskapRepository medlemskapRepository;
-    private MedlemEndringIdentifiserer endringIdentifiserer;
 
     @Inject
-    StartpunktUtlederMedlemskap(MedlemskapRepository medlemskapRepository, MedlemEndringIdentifiserer endringIdentifiserer) {
+    StartpunktUtlederMedlemskap(MedlemskapRepository medlemskapRepository) {
         this.medlemskapRepository = medlemskapRepository;
-        this.endringIdentifiserer = endringIdentifiserer;
     }
 
     @Override
@@ -29,12 +28,14 @@ class StartpunktUtlederMedlemskap implements StartpunktUtleder {
         final var grunnlag2 = medlemskapRepository.hentMedlemskapPåId((Long)grunnlagId2);
 
         var skjæringstidspunkt = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        final var erEndretFørSkjæringstidspunkt = endringIdentifiserer.erEndretFørSkjæringstidspunkt(grunnlag1, grunnlag2, skjæringstidspunkt);
-        if (erEndretFørSkjæringstidspunkt) {
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
+        if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, periode)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "medlemskap medlemskapsvilkår", grunnlagId1, grunnlagId2);
             return StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
+        } else if (MedlemEndringIdentifiserer.erEndretForPeriode(grunnlag1, grunnlag2, DatoIntervallEntitet.fraOgMed(skjæringstidspunkt))) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "medlemskap uttak", grunnlagId1, grunnlagId2);
+            return StartpunktType.UTTAKSVILKÅR;
         }
-        FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "medlemskap uttak", grunnlagId1, grunnlagId2);
-        return StartpunktType.UTTAKSVILKÅR;
+        return StartpunktType.UDEFINERT;
     }
 }

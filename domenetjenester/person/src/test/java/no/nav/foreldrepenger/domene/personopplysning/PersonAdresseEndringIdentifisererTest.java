@@ -32,7 +32,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(postnummer));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
@@ -42,7 +42,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
@@ -53,7 +53,7 @@ public class PersonAdresseEndringIdentifisererTest {
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getAdresser).orElse(Collections.emptyList()));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at adresse er uendret").isFalse();
     }
 
@@ -63,7 +63,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
@@ -73,7 +73,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2050"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erSøkersAdresseEndretFør(LocalDate.now().plusDays(1));
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
@@ -83,7 +83,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2060"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 
@@ -93,7 +93,7 @@ public class PersonAdresseEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of("2040", "2050", "9046"));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erAdresserEndretFør(null);
+        var erEndret = differ.erAdresserEndretIPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i adresse blir detektert.").isTrue();
     }
 

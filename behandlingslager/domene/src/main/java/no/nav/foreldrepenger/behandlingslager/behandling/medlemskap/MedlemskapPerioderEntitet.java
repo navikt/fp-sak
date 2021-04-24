@@ -60,6 +60,7 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements Comparable
     @Column(name="studie_land", nullable = false)
     private Landkoder studieLand = Landkoder.UDEFINERT;
 
+    @ChangeTracked
     @Convert(converter = MedlemskapType.KodeverdiConverter.class)
     @Column(name="medlemskap_type", nullable = false)
     private MedlemskapType medlemskapType = MedlemskapType.UDEFINERT;

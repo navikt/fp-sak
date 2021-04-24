@@ -32,7 +32,7 @@ public class PersonstatusEndringIdentifisererTest {
         var personopplysningGrunnlag2 = opprettPersonopplysningGrunnlag(List.of(PersonstatusType.FOSV));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at personstatus er uendret").isFalse();
     }
 
@@ -44,7 +44,7 @@ public class PersonstatusEndringIdentifisererTest {
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at personstatus er uendret").isFalse();
     }
 
@@ -56,7 +56,7 @@ public class PersonstatusEndringIdentifisererTest {
                 List.of(PersonstatusType.FOSV, PersonstatusType.BOSA, PersonstatusType.UREG));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i personstatus blir detektert.").isTrue();
     }
 
@@ -68,7 +68,7 @@ public class PersonstatusEndringIdentifisererTest {
                 List.of(PersonstatusType.UREG, PersonstatusType.FOSV));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i personstatus blir detektert.").isTrue();
     }
 
@@ -80,7 +80,7 @@ public class PersonstatusEndringIdentifisererTest {
                 personopplysningGrunnlag1.getRegisterVersjon().map(PersonInformasjonEntitet::getPersonstatus).orElse(Collections.emptyList()));
         var differ = new PersonopplysningGrunnlagDiff(AKTØRID, personopplysningGrunnlag1, personopplysningGrunnlag2);
 
-        var erEndret = differ.erPersonstatusEndretForSøkerFør(null);
+        var erEndret = differ.erPersonstatusEndretForSøkerPeriode(DatoIntervallEntitet.fraOgMed(LocalDate.now()));
         assertThat(erEndret).as("Forventer at endring i rekkefølge ikke skal detektere endring.").isFalse();
     }
 

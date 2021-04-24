@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningGrunnlagDiff;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.familiehendelse.dødsfall.BarnBorteEndringIdentifiserer;
 
 @ApplicationScoped
@@ -39,10 +40,6 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     public StartpunktType utledStartpunkt(BehandlingReferanse ref, Object grunnlagId1, Object grunnlagId2) {
         var grunnlag1 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId1);
         var grunnlag2 = personopplysningRepository.hentGrunnlagPåId((Long)grunnlagId2);
-        return utled(ref, grunnlag1, grunnlag2);
-    }
-
-    private StartpunktType utled(BehandlingReferanse ref, PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
 
         return hentAlleStartpunktForPersonopplysninger(ref, grunnlag1, grunnlag2).stream()
             .min(Comparator.comparing(StartpunktType::getRangering))
@@ -50,14 +47,17 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
     }
 
     // Finn endringer per aggregat under grunnlaget og map dem mot startpunkt. Dekker bruker og TPS-relaterte personer (barn, ekte). Bør spisses der det er behov.
-    private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref, PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
+    private List<StartpunktType> hentAlleStartpunktForPersonopplysninger(BehandlingReferanse ref,
+                                                                         PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
         final var skjæringstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var aktørId = ref.getAktørId();
 
         var poDiff = new PersonopplysningGrunnlagDiff(aktørId, grunnlag1, grunnlag2);
+        var påSkjæringstidpunkt = DatoIntervallEntitet.fraOgMedTilOgMed(skjæringstidspunkt, skjæringstidspunkt);
+        var fraSkjæringstidpunkt = DatoIntervallEntitet.fraOgMed(skjæringstidspunkt);
         var forelderDødEndret = poDiff.erForeldreDødsdatoEndret();
-        var personstatusEndret = poDiff.erPersonstatusEndretForSøkerFør(null);
-        var personstatusUnntattDødEndret = personstatusUnntattDødEndret(personstatusEndret, forelderDødEndret);
+        var personstatusEndret = poDiff.erPersonstatusEndretForSøkerPeriode(fraSkjæringstidpunkt);
+        var personstatusUnntattDødEndret = personstatusEndret && !forelderDødEndret;
 
         List<StartpunktType> startpunkter = new ArrayList<>();
         if (forelderDødEndret) {
@@ -73,14 +73,15 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             startpunkter.add(StartpunktType.BEREGNING);
         }
         if (personstatusUnntattDødEndret) {
-            leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erPersonstatusEndretForSøkerFør(skjæringstidspunkt), "personstatus");
+            leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erPersonstatusEndretForSøkerPeriode(påSkjæringstidpunkt), "personstatus");
         }
-        if (poDiff.erAdresserEndretFør(null)) {
-            leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erSøkersAdresseLandEndretFør(skjæringstidspunkt), "adresse");
+        if (poDiff.erAdresserEndretIPeriode(fraSkjæringstidpunkt)) {
+            leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erAdresseLandEndretForSøkerPeriode(påSkjæringstidpunkt), "adresse");
         }
-        if (poDiff.erRegionEndretForBruker()) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP, "region", grunnlag1.getId(), grunnlag2.getId());
-            startpunkter.add(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP);
+        if (poDiff.erRegionEndretForSøkerPeriode(fraSkjæringstidpunkt)) {
+            var aktivtGrunnlag = personopplysningRepository.hentPersonopplysninger(ref.getBehandlingId());
+            var endretPåSTP = poDiff.erRegionEndretForSøkerPeriode(påSkjæringstidpunkt) && !poDiff.harRegionNorden(påSkjæringstidpunkt, aktivtGrunnlag);
+            leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, endretPåSTP, "region");
         }
         if (barnBorteEndringIdentifiserer.erEndret(ref)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "barn fjernet fra TPS", grunnlag1.getId(), grunnlag2.getId());
@@ -120,9 +121,11 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "personopplysning - barns relasjoner annet enn fødsel", g1Id, g2Id);
             startpunkter.add(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
         }
+        if (poDiff.erRelasjonerBostedEndretForSøkerUtenomNyeBarn()) {
+            // Endring i harsammebosted -> omsorgsvurdering - med mindre en av de nedenfor slår til
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "personopplysning - relasjoner bosted eller ektefelle", g1Id, g2Id);
+            startpunkter.add(StartpunktType.UTTAKSVILKÅR);
+        }
     }
 
-    private boolean personstatusUnntattDødEndret(boolean personstatusEndret, boolean søkerErDødEndret) {
-        return personstatusEndret && !søkerErDødEndret;
-    }
 }
