@@ -75,7 +75,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var revurdering2 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs)
                 .stream()
-                .map(longAktørIdTuple -> longAktørIdTuple.getElement1())
+                .map(longAktørIdTuple -> longAktørIdTuple.fagsakId())
                 .collect(Collectors.toSet());
         assertThat(kandidater).doesNotContain(revurdering1.getFagsakId(), revurdering2.getFagsakId());
     }
@@ -87,7 +87,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var kandidat3 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         var kandidat4 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs).stream()
-                .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.getElement1())
+                .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.fagsakId())
                 .collect(Collectors.toSet());
         assertThat(kandidater).contains(kandidat1.getFagsakId(), kandidat2.getFagsakId(), kandidat3.getFagsakId());
         assertThat(kandidater).doesNotContain(kandidat4.getFagsakId());

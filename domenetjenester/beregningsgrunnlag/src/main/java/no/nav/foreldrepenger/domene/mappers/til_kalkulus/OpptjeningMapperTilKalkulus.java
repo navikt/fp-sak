@@ -13,17 +13,17 @@ public class OpptjeningMapperTilKalkulus {
         return new OpptjeningAktiviteterDto(
             opptjeningAktiviteter.getOpptjeningPerioder().stream()
                 .map(opptjeningPeriode -> OpptjeningAktiviteterDto.nyPeriode(
-                    OpptjeningAktivitetType.fraKode(opptjeningPeriode.getOpptjeningAktivitetType().getKode()),
+                    OpptjeningAktivitetType.fraKode(opptjeningPeriode.opptjeningAktivitetType().getKode()),
                     mapPeriode(opptjeningPeriode),
-                    opptjeningPeriode.getArbeidsgiverOrgNummer(),
-                    opptjeningPeriode.getArbeidsgiverAktørId(),
-                    opptjeningPeriode.getArbeidsforholdId() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(opptjeningPeriode.getArbeidsforholdId()))).collect(Collectors.toList()));
+                    opptjeningPeriode.arbeidsgiverOrgNummer(),
+                    opptjeningPeriode.arbeidsgiverAktørId(),
+                    opptjeningPeriode.arbeidsforholdId() == null ? null : IAYMapperTilKalkulus.mapArbeidsforholdRef(opptjeningPeriode.arbeidsforholdId()))).collect(Collectors.toList()));
     }
 
     private static Intervall mapPeriode(OpptjeningAktiviteter.OpptjeningPeriode opptjeningPeriode) {
-        if (opptjeningPeriode.getPeriode().getTom() == null) {
-            return Intervall.fraOgMed(opptjeningPeriode.getPeriode().getFom());
+        if (opptjeningPeriode.periode().getTom() == null) {
+            return Intervall.fraOgMed(opptjeningPeriode.periode().getFom());
         }
-        return Intervall.fraOgMedTilOgMed(opptjeningPeriode.getPeriode().getFom(), opptjeningPeriode.getPeriode().getTom());
+        return Intervall.fraOgMedTilOgMed(opptjeningPeriode.periode().getFom(), opptjeningPeriode.periode().getTom());
     }
 }

@@ -70,39 +70,6 @@ public class SelftestResultat {
         return alle;
     }
 
-    public static class InternalResult {
-        private boolean ready = false;
-        private String description;
-        private String endpoint;
-
-        public InternalResult(boolean ready, String description, String endpoint) {
-            this.ready = ready;
-            this.description = description;
-            this.endpoint = endpoint;
-        }
-
-        public boolean isReady() {
-            return ready;
-        }
-
-        public void setReady(boolean ready) {
-            this.ready = ready;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getEndpoint() {
-            return endpoint;
-        }
-
-        public void setEndpoint(String endpoint) {
-            this.endpoint = endpoint;
-        }
+    public static record InternalResult(boolean isReady, String description, String endpoint) {
     }
 }

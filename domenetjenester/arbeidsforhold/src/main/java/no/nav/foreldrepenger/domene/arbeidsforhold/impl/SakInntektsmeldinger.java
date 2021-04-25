@@ -37,7 +37,7 @@ public class SakInntektsmeldinger {
 
     public Optional<UUID> getSisteGrunnlagReferanseDerInntektsmeldingerForskjelligFraNyeste(Long behandlingId) {
         var grunnlagDesc = data.keySet().stream()
-                .sorted(Comparator.comparing(Key::getOpprettetTidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .sorted(Comparator.comparing(Key::opprettetTidspunkt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .distinct()
                 .filter(k -> Objects.equals(k.behandlingId, behandlingId))
                 .collect(Collectors.toList());
@@ -92,39 +92,8 @@ public class SakInntektsmeldinger {
         return sorted;
     }
 
-    static class Key {
-        final Long behandlingId;
-        final UUID grunnlagEksternReferanse;
-        final LocalDateTime opprettetTidspunkt;
-
-        Key(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime opprettetTidspunkt) {
-            this.behandlingId = behandlingId;
-            this.grunnlagEksternReferanse = grunnlagEksternReferanse;
-            this.opprettetTidspunkt = opprettetTidspunkt;
-        }
-
-        LocalDateTime getOpprettetTidspunkt() {
-            return opprettetTidspunkt;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if ((o == null) || (getClass() != o.getClass())) {
-                return false;
-            }
-            var key = (Key) o;
-            return Objects.equals(behandlingId, key.behandlingId) &&
-                    Objects.equals(grunnlagEksternReferanse, key.grunnlagEksternReferanse) &&
-                    Objects.equals(opprettetTidspunkt, key.opprettetTidspunkt);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(behandlingId, grunnlagEksternReferanse, opprettetTidspunkt);
-        }
+    static record Key(Long behandlingId, UUID grunnlagEksternReferanse, LocalDateTime opprettetTidspunkt) {
+        
     }
 
 }

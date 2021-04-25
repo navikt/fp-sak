@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.vedtak.util.Tuple;
 
 public class OppdateringResultat {
 
@@ -29,7 +28,7 @@ public class OppdateringResultat {
     private boolean beholdAksjonspunktÅpent = false;
     private boolean totrinnsKontroll = false;
     private TransisjonIdentifikator transisjonId;
-    private List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> ekstraAksjonspunktResultat = new ArrayList<>();
+    private List<AksjonspunktResultatMedStatus> ekstraAksjonspunktResultat = new ArrayList<>();
 
     private OppdateringResultat(BehandlingStegType nesteSteg, OverhoppKontroll overhoppKontroll, TransisjonIdentifikator transisjonId,
             boolean totrinn) {
@@ -116,7 +115,7 @@ public class OppdateringResultat {
         return totrinnsKontroll;
     }
 
-    public List<Tuple<AksjonspunktResultat, AksjonspunktStatus>> getEkstraAksjonspunktResultat() {
+    public List<AksjonspunktResultatMedStatus> getEkstraAksjonspunktResultat() {
         return ekstraAksjonspunktResultat;
     }
 
@@ -231,7 +230,7 @@ public class OppdateringResultat {
          * fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(new Tuple<>(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon), nyStatus));
+            resultat.ekstraAksjonspunktResultat.add(new AksjonspunktResultatMedStatus(AksjonspunktResultat.opprettForAksjonspunkt(aksjonspunktDefinisjon), nyStatus));
             return this;
         }
 
@@ -240,7 +239,7 @@ public class OppdateringResultat {
          * finnes fra før. Bruk helst andre mekanismer.
          */
         public Builder medEkstraAksjonspunktResultat(AksjonspunktResultat aksjonspunktResultat, AksjonspunktStatus nyStatus) {
-            resultat.ekstraAksjonspunktResultat.add(new Tuple<>(aksjonspunktResultat, nyStatus));
+            resultat.ekstraAksjonspunktResultat.add(new AksjonspunktResultatMedStatus(aksjonspunktResultat, nyStatus));
             return this;
         }
 

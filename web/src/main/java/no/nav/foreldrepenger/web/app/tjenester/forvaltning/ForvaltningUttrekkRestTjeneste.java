@@ -95,19 +95,11 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
-        var autopunkt = new OpenAutopunkt();
-        autopunkt.aksjonspunktOpprettetDato = ((Timestamp) row[2]).toLocalDateTime().toLocalDate(); // NOSONAR
-        autopunkt.aksjonspunktFristDato = row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null; // NOSONAR
-        autopunkt.saksnummer = (String) row[0]; // NOSONAR
-        autopunkt.ytelseType = (String) row[1]; // NOSONAR
-        return autopunkt;
+        return new OpenAutopunkt((String) row[0], (String) row[1], ((Timestamp) row[2]).toLocalDateTime().toLocalDate(),
+            row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
     }
 
-    public static class OpenAutopunkt {
-        public String saksnummer; // NOSONAR
-        public String ytelseType; // NOSONAR
-        public LocalDate aksjonspunktOpprettetDato; // NOSONAR
-        public LocalDate aksjonspunktFristDato; // NOSONAR
+    public static record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
     }
 
     @GET

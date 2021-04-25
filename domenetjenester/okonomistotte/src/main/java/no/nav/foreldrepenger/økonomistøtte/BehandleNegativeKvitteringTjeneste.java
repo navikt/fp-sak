@@ -62,22 +62,6 @@ public class BehandleNegativeKvitteringTjeneste {
         }
     }
 
-    public static class NegativeKvitteringFeil {
-        private final String feilmelding;
-
-        NegativeKvitteringFeil(String feilmelding) {
-            this.feilmelding = feilmelding;
-        }
-
-        public String getFeilmelding() {
-            return feilmelding;
-        }
-
-        @Override
-        public String toString() {
-            return "NegativeKvitteringFeil{" +
-                "feilmelding='" + feilmelding + '\'' +
-                '}';
-        }
+    public static record NegativeKvitteringFeil(String feilmelding) {
     }
 }

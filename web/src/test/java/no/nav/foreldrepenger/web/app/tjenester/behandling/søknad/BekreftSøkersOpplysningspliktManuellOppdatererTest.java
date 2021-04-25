@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktResultatMedStatus;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSokersOpplysningspliktManuDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt.BekreftSøkersOpplysningspliktManuellOppdaterer;
-import no.nav.vedtak.util.Tuple;
 
 public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
 
@@ -65,7 +65,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(felt.getFraVerdi()).as("fraVerdi").isNull();
         assertThat(felt.getTilVerdi()).as("tilVerdi").isEqualTo(HistorikkEndretFeltVerdiType.VILKAR_OPPFYLT.getKode());
 
-        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(Tuple::getElement1)
+        var aksjonspunktSet = resultat.getEkstraAksjonspunktResultat().stream().map(AksjonspunktResultatMedStatus::aksjonspunktResultat)
                 .map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
 
         assertThat(aksjonspunktSet).isEmpty();

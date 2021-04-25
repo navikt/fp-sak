@@ -26,12 +26,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.rest.BeregningHåndterer;
 import no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBGTidsbegrensetArbeidsforholdHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.FastsettBeregningsgrunnlagATFLHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 
 @ExtendWith(MockitoExtension.class)
 public class FastsettBeregningsgrunnlagATFLOppdatererTest {
@@ -92,8 +92,8 @@ public class FastsettBeregningsgrunnlagATFLOppdatererTest {
 
         // Assert
         assertThat(resultat.getEkstraAksjonspunktResultat()).hasSize(1);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement1().getAksjonspunktDefinisjon())
+        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).aksjonspunktResultat().getAksjonspunktDefinisjon())
                 .isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD);
-        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).getElement2()).isEqualTo(AksjonspunktStatus.AVBRUTT);
+        assertThat(resultat.getEkstraAksjonspunktResultat().get(0).aksjonspunktStatus()).isEqualTo(AksjonspunktStatus.AVBRUTT);
     }
 }

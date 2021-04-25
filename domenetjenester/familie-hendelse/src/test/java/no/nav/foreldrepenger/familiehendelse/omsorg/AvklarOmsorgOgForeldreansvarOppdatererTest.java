@@ -168,11 +168,11 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
         var resultat = avklarOmsorgOgForeldreansvar(behandling, dto);
 
         // Assert
-        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getElement2())))
-            .anySatisfy(ear -> assertThat(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET).isEqualTo(ear.getElement1().getAksjonspunktDefinisjon()));
+        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.aksjonspunktStatus())))
+            .anySatisfy(ear -> assertThat(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET).isEqualTo(ear.aksjonspunktResultat().getAksjonspunktDefinisjon()));
 
-        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.getElement2())))
-            .allMatch(apr -> !Objects.equals(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, apr.getElement1().getAksjonspunktDefinisjon()));
+        assertThat(resultat.getEkstraAksjonspunktResultat().stream().filter(ear -> AksjonspunktStatus.AVBRUTT.equals(ear.aksjonspunktStatus())))
+            .allMatch(apr -> !Objects.equals(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, apr.aksjonspunktResultat().getAksjonspunktDefinisjon()));
 
     }
 

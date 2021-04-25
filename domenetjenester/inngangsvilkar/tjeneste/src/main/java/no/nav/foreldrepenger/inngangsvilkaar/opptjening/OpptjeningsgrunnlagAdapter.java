@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktivitetPeriode;
@@ -20,7 +22,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.Opptjenin
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.vedtak.util.Tuple;
 
 public class OpptjeningsgrunnlagAdapter {
     private LocalDate behandlingstidspunkt;
@@ -95,7 +96,7 @@ public class OpptjeningsgrunnlagAdapter {
             var dateInterval = new LocalDateInterval(opp.getPeriode().getFomDato(), opp.getPeriode().getTomDato());
             var opptjeningsnøkkel = opp.getOpptjeningsnøkkel();
             if (opptjeningsnøkkel != null) {
-                var identifikator = getIdentifikator(opp).getElement2();
+                var identifikator = getIdentifikator(opp).arbeidsgiver();
                 var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator, getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 opptjeningsGrunnlag.leggTil(aktivitetPeriode);
@@ -141,12 +142,12 @@ public class OpptjeningsgrunnlagAdapter {
         return resultat;
     }
 
-    private Tuple<String, String> getIdentifikator(OpptjeningAktivitetPeriode opp) {
-        var identifikator = opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER);
-        if (identifikator == null) {
-            identifikator = opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.AKTØR_ID);
-        }
-        return new Tuple<>(opp.getOpptjeningAktivitetType().getKode(), identifikator); // NOSONAR
+    private static record AktivitetGruppering(OpptjeningAktivitetType type, String arbeidsgiver) {}
+
+    private AktivitetGruppering getIdentifikator(OpptjeningAktivitetPeriode opp) {
+        var identifikator = Optional.ofNullable(opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.ORG_NUMMER))
+            .orElseGet(() -> opp.getOpptjeningsnøkkel().getForType(Opptjeningsnøkkel.Type.AKTØR_ID));
+        return new AktivitetGruppering(opp.getOpptjeningAktivitetType(), identifikator); // NOSONAR
     }
 
     private AktivitetPeriode.VurderingsStatus mapStatus(OpptjeningAktivitetPeriode periode) {

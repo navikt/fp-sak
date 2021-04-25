@@ -24,7 +24,6 @@ import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.vedtak.util.Tuple;
 
 class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecification<BeregningsresultatRegelmodellMellomregning> {
     public static final String ID = "FP_BR 20_1";
@@ -106,7 +105,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         //Gradering
         var dagsatser = kalkulerDagsatserForGradering(beregningsgrunnlagPrStatus.getRedusertBrukersAndelPrÅr(), BigDecimal.ZERO,
             uttakAktivitet, resultater, periodeNavn);
-        var dagsatsBruker = dagsatser.getElement1();
+        var dagsatsBruker = dagsatser.bruker();
 
         resultatPeriode.addBeregningsresultatAndel(
             BeregningsresultatAndel.builder()
@@ -147,8 +146,8 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         var dagsatser = kalkulerDagsatserForGradering(arbeidsforhold.getRedusertBrukersAndelPrÅr(), arbeidsforhold.getRedusertRefusjonPrÅr(),
             uttakAktivitet, resultater, periodeNavn);
 
-        var dagsatsBruker = dagsatser.getElement1();
-        var dagsatsArbeidsgiver = dagsatser.getElement2();
+        var dagsatsBruker = dagsatser.bruker();
+        var dagsatsArbeidsgiver = dagsatser.arbeidsgiver();
 
         resultatPeriode.addBeregningsresultatAndel(
             BeregningsresultatAndel.builder()
@@ -195,13 +194,15 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
     }
 
     /*
-    Returnerer en Tuple (Long dagsatsBruker, Long dagsatsArbeidsgiver) med dagsatser gradert for bruker og arbeidsgiver
+     * dagsatser gradert for bruker og arbeidsgiver
      */
-    private static Tuple<Long, Long> kalkulerDagsatserForGradering(BigDecimal redusertBrukersAndelPrÅr, BigDecimal redusertRefusjonPrÅr,
+    private static record DagsatsBrukerAG(Long bruker, Long arbeidsgiver) {}
+
+    private static DagsatsBrukerAG kalkulerDagsatserForGradering(BigDecimal redusertBrukersAndelPrÅr, BigDecimal redusertRefusjonPrÅr,
                                                                    UttakAktivitet uttakAktivitet, Map<String, Object> resultater, String periodenavn) {
         if (uttakAktivitet.getUtbetalingsgrad().compareTo(BigDecimal.ZERO) == 0) {
             resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
-            return new Tuple<>(0L, 0L);
+            return new DagsatsBrukerAG(0L, 0L);
         }
 
         var utbetalingsgrad = uttakAktivitet.getUtbetalingsgrad().scaleByPowerOfTen(-2);
@@ -222,7 +223,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
             resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
             resultater.put(periodenavn + ".stillingsprosent", uttakAktivitet.getStillingsgrad());
 
-            return new Tuple<>(dagsatsBruker, dagsatsArbeidsgiver);
+            return new DagsatsBrukerAG(dagsatsBruker, dagsatsArbeidsgiver);
         }
         var dagsatsArbeidsgiver = årsbeløpTilDagsats(redusertAndelArb);
         var dagsatsBruker = årsbeløpTilDagsats(redusertAndelBruker);
@@ -231,7 +232,7 @@ class FinnOverlappendeBeregningsgrunnlagOgUttaksPerioder extends LeafSpecificati
         resultater.put(periodenavn + ".utbetalingsgrad", uttakAktivitet.getUtbetalingsgrad());
         resultater.put(periodenavn + ".stillingsprosent", uttakAktivitet.getStillingsgrad());
 
-        return new Tuple<>(dagsatsBruker, dagsatsArbeidsgiver);
+        return new DagsatsBrukerAG(dagsatsBruker, dagsatsArbeidsgiver);
     }
 
     private static boolean skalGjøreOverkompensasjon(UttakAktivitet uttakAktivitet) {

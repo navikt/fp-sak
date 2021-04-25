@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeAndelDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.UttakDto;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class BeregningsresultatMedUttaksplanMapper {
@@ -109,7 +108,7 @@ public class BeregningsresultatMedUttaksplanMapper {
 
     List<BeregningsresultatPeriodeAndelDto> lagAndeler(BeregningsresultatPeriode beregningsresultatPeriode,
                                                        Optional<ForeldrepengerUttak> uttak,
-                                                       Map<Tuple<AktivitetStatus, Optional<String>>, Optional<LocalDate>> andelTilSisteUtbetalingsdatoMap,
+                                                       Map<AktivitetStatusMedIdentifikator, Optional<LocalDate>> andelTilSisteUtbetalingsdatoMap,
                                                        Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag) {
 
         var beregningsresultatAndelList = beregningsresultatPeriode.getBeregningsresultatAndelList();
@@ -118,8 +117,8 @@ public class BeregningsresultatMedUttaksplanMapper {
         var andelListe = genererAndelListe(beregningsresultatAndelList);
         return andelListe.stream()
             .map(andelPar -> {
-                var brukersAndel = andelPar.getElement1();
-                var arbeidsgiversAndel = andelPar.getElement2();
+                var brukersAndel = andelPar.bruker();
+                var arbeidsgiversAndel = andelPar.arbeidsgiver();
                 var arbeidsgiver = brukersAndel.getArbeidsgiver();
                 var dtoBuilder = BeregningsresultatPeriodeAndelDto.build()
                     .medRefusjon(arbeidsgiversAndel.map(BeregningsresultatAndel::getDagsats).orElse(0))
@@ -152,7 +151,9 @@ public class BeregningsresultatMedUttaksplanMapper {
         dtoBuilder.medArbeidsgiverReferanse(arb.getIdentifikator());
     }
 
-    private Map<Tuple<AktivitetStatus, Optional<String>>, Optional<LocalDate>> finnSisteUtbetalingdatoForAlleAndeler(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
+    private static record AktivitetStatusMedIdentifikator(AktivitetStatus aktivitetStatus, Optional<String> idenfifikator) {}
+
+    private Map<AktivitetStatusMedIdentifikator, Optional<LocalDate>> finnSisteUtbetalingdatoForAlleAndeler(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         Collector<BeregningsresultatAndel, ?, Optional<LocalDate>> maxTomDatoCollector = Collectors.mapping(andel -> andel.getBeregningsresultatPeriode().getBeregningsresultatPeriodeTom(),
             Collectors.maxBy(Comparator.naturalOrder()));
         return beregningsresultatPerioder.stream()
@@ -161,11 +162,13 @@ public class BeregningsresultatMedUttaksplanMapper {
             .collect(Collectors.groupingBy(this::genererAndelKey, maxTomDatoCollector));
     }
 
-    private Tuple<AktivitetStatus, Optional<String>> genererAndelKey(BeregningsresultatAndel andel) {
-        return new Tuple<>(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));
+    private AktivitetStatusMedIdentifikator genererAndelKey(BeregningsresultatAndel andel) {
+        return new AktivitetStatusMedIdentifikator(andel.getAktivitetStatus(), finnSekundærIdentifikator(andel));
     }
 
-    private List<Tuple<BeregningsresultatAndel, Optional<BeregningsresultatAndel>>> genererAndelListe(List<BeregningsresultatAndel> beregningsresultatAndelList) {
+    private static record AndelerBrukerAG(BeregningsresultatAndel bruker, Optional<BeregningsresultatAndel> arbeidsgiver) {}
+
+    private List<AndelerBrukerAG> genererAndelListe(List<BeregningsresultatAndel> beregningsresultatAndelList) {
         var collect = beregningsresultatAndelList.stream()
             .collect(Collectors.groupingBy(this::genererAndelKey));
 
@@ -179,7 +182,7 @@ public class BeregningsresultatMedUttaksplanMapper {
                 .filter(a -> !a.erBrukerMottaker())
                 .reduce(this::slåSammenAndeler);
 
-            return new Tuple<>(brukerAndel, arbeidsgiverAndel);
+            return new AndelerBrukerAG(brukerAndel, arbeidsgiverAndel);
         })
             .collect(Collectors.toList());
     }

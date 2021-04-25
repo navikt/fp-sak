@@ -56,7 +56,7 @@ public class GeneralRestExceptionMapperTest {
 
     @Test
     public void skalIkkeMappeManglerTilgangFeil() {
-        var manglerTilgangFeil = TestFeil.manglerTilgangFeil();
+        var manglerTilgangFeil = manglerTilgangFeil();
 
         var response = generalRestExceptionMapper.toResponse(new ApplicationException(manglerTilgangFeil));
 
@@ -71,7 +71,7 @@ public class GeneralRestExceptionMapperTest {
 
     @Test
     public void skalMappeFunksjonellFeil() {
-        var funksjonellFeil = TestFeil.funksjonellFeil();
+        var funksjonellFeil = funksjonellFeil();
 
         var response = generalRestExceptionMapper.toResponse(new ApplicationException(funksjonellFeil));
 
@@ -86,7 +86,7 @@ public class GeneralRestExceptionMapperTest {
 
     @Test
     public void skalMappeVLException() {
-        VLException vlException = TestFeil.tekniskFeil();
+        VLException vlException = tekniskFeil();
 
         var response = generalRestExceptionMapper.toResponse(new ApplicationException(vlException));
 
@@ -113,18 +113,16 @@ public class GeneralRestExceptionMapperTest {
         assertThat(logSniffer.search(feilmelding, Level.ERROR)).hasSize(1);
     }
 
-    private static class TestFeil {
-
-        static FunksjonellException funksjonellFeil() {
-            return new FunksjonellException("FUNK_FEIL", "en funksjonell feilmelding", "et løsningsforslag");
-        }
-
-        static TekniskException tekniskFeil() {
-            return new TekniskException("TEK_FEIL", "en teknisk feilmelding");
-        }
-
-        static ManglerTilgangException manglerTilgangFeil() {
-            return new ManglerTilgangException("MANGLER_TILGANG_FEIL","ManglerTilgangFeilmeldingKode");
-        }
+    private static FunksjonellException funksjonellFeil() {
+        return new FunksjonellException("FUNK_FEIL", "en funksjonell feilmelding", "et løsningsforslag");
     }
+
+    private static TekniskException tekniskFeil() {
+        return new TekniskException("TEK_FEIL", "en teknisk feilmelding");
+    }
+
+    private static ManglerTilgangException manglerTilgangFeil() {
+        return new ManglerTilgangException("MANGLER_TILGANG_FEIL","ManglerTilgangFeilmeldingKode");
+    }
+
 }

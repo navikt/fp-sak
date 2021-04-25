@@ -164,7 +164,7 @@ public class VedtaksHendelseHåndterer {
         // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på
         // dem.
         var ytelsesegments = ytelse.getAnvist().stream()
-                // .filter(p -> p.getUtbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >
+                // .filter(p -> p.utbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >
                 // 0)
                 .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
                 .collect(Collectors.toList());

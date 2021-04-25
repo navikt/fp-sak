@@ -199,8 +199,8 @@ public class TilbakehoppTest {
 
     private Aksjonspunkt utførTilbakehoppReturnerAksjonspunkt(StegPort fra, StegPort til, Aksjonspunkt ap) {
 
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.getSteg(), getBehandlingStegStatus(fra));
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.getSteg(), getBehandlingStegStatus(til));
+        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.steg(), getBehandlingStegStatus(fra));
+        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
         var event = new BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent(
@@ -214,8 +214,8 @@ public class TilbakehoppTest {
     }
 
     private Aksjonspunkt utførOverstyringTilbakehoppReturnerAksjonspunkt(StegPort fra, StegPort til, Aksjonspunkt ap) {
-        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.getSteg(), getBehandlingStegStatus(fra));
-        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.getSteg(), getBehandlingStegStatus(til));
+        var fraTilstand = new BehandlingStegTilstandSnapshot(1L, fra.steg(), getBehandlingStegStatus(fra));
+        var tilTilstand = new BehandlingStegTilstandSnapshot(2L, til.steg(), getBehandlingStegStatus(til));
 
         var fagsak = behandling.getFagsak();
         var kontekst = new BehandlingskontrollKontekst(fagsak.getId(), fagsak.getAktørId(), behandlingLås);
@@ -231,7 +231,7 @@ public class TilbakehoppTest {
 
     private BehandlingStegStatus getBehandlingStegStatus(StegPort fra) {
         BehandlingStegStatus fraStatus;
-        var fraPort = fra.getPort().getDbKode();
+        var fraPort = fra.port().getDbKode();
         if (fraPort.equals(VurderingspunktType.INN.getDbKode())) {
             fraStatus = BehandlingStegStatus.INNGANG;
         } else if (fraPort.equals(VurderingspunktType.UT.getDbKode())) {
@@ -279,7 +279,7 @@ public class TilbakehoppTest {
     }
 
     private AksjonspunktDefinisjon finnAksjonspunkt(StegPort port, boolean manueltOpprettet) {
-        var defs = AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(port.getSteg(), port.getPort());
+        var defs = AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(port.steg(), port.port());
         var filtered = defs.stream()
                 .filter(ad -> !manueltOpprettet || ad.getAksjonspunktType().erOverstyringpunkt())
                 .findFirst();
@@ -314,25 +314,7 @@ public class TilbakehoppTest {
         return status;
     }
 
-    static class StegPort {
-
-        private final BehandlingStegType steg;
-
-        private final VurderingspunktType port;
-
-        public StegPort(BehandlingStegType steg, VurderingspunktType port) {
-            this.steg = steg;
-            this.port = port;
-        }
-
-        public BehandlingStegType getSteg() {
-            return steg;
-        }
-
-        public VurderingspunktType getPort() {
-            return port;
-        }
-
+    private static record StegPort (BehandlingStegType steg, VurderingspunktType port) {
     }
 
 }

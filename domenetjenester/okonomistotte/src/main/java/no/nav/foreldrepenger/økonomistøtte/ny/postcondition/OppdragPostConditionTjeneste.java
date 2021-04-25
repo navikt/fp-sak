@@ -112,9 +112,9 @@ public class OppdragPostConditionTjeneste {
                     finnDifferanse(ytelse, effektAvOppdragskjede, betalingsmottaker).ifPresent(differanser::add);
                 }
             }
-            var førsteDatoForDifferanseSats = finnLaveste(differanser, TilkjentYtelseDifferanse::getFørsteDatoForDifferanseSats);
-            var førsteDatoForDifferanseUtbetalingsgrad = finnLaveste(differanser, TilkjentYtelseDifferanse::getFørsteDatoForDifferanseUtbetalingsgrad);
-            var sumForskjell = differanser.stream().mapToLong(TilkjentYtelseDifferanse::getDifferanseYtelse).sum();
+            var førsteDatoForDifferanseSats = finnLaveste(differanser, TilkjentYtelseDifferanse::førsteDatoForDifferanseSats);
+            var førsteDatoForDifferanseUtbetalingsgrad = finnLaveste(differanser, TilkjentYtelseDifferanse::førsteDatoForDifferanseUtbetalingsgrad);
+            var sumForskjell = differanser.stream().mapToLong(TilkjentYtelseDifferanse::differanseYtelse).sum();
             resultat.put(betalingsmottaker, new TilkjentYtelseDifferanse(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, sumForskjell));
         }
         return resultat;
@@ -125,9 +125,9 @@ public class OppdragPostConditionTjeneste {
         if (!differanse.harAvvik()) {
             return null;
         }
-        var datoEndringYtelse = differanse.getFørsteDatoForDifferanseSats();
-        var datoEndringUtbetalingsgrad = differanse.getFørsteDatoForDifferanseUtbetalingsgrad();
-        var sumForskjell = differanse.getDifferanseYtelse();
+        var datoEndringYtelse = differanse.førsteDatoForDifferanseSats();
+        var datoEndringUtbetalingsgrad = differanse.førsteDatoForDifferanseUtbetalingsgrad();
+        var sumForskjell = differanse.differanseYtelse();
 
         var message = "Sammenligning av effekt av oppdrag mot tilkjent ytelse viser avvik for " + saksnummer + ", behandling " + behandlingId + " til " + betalingsmottaker + ". Dette bør undersøkes og evt. patches. Det er ";
         if (Objects.equals(datoEndringYtelse, datoEndringUtbetalingsgrad)) {
@@ -172,55 +172,10 @@ public class OppdragPostConditionTjeneste {
             .orElse(null);
     }
 
-    static class TilkjentYtelseDifferanse {
-        private final LocalDate førsteDatoForDifferanseSats;
-        private final LocalDate førsteDatoForDifferanseUtbetalingsgrad;
-        private final long differanseYtelse;
-
-        public TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
-            this.førsteDatoForDifferanseSats = førsteDatoForDifferanseSats;
-            this.førsteDatoForDifferanseUtbetalingsgrad = førsteDatoForDifferanseUtbetalingsgrad;
-            this.differanseYtelse = differanseYtelse;
-        }
-
-        public LocalDate getFørsteDatoForDifferanseSats() {
-            return førsteDatoForDifferanseSats;
-        }
-
-        public LocalDate getFørsteDatoForDifferanseUtbetalingsgrad() {
-            return førsteDatoForDifferanseUtbetalingsgrad;
-        }
-
-        public long getDifferanseYtelse() {
-            return differanseYtelse;
-        }
+    static record TilkjentYtelseDifferanse(LocalDate førsteDatoForDifferanseSats, LocalDate førsteDatoForDifferanseUtbetalingsgrad, long differanseYtelse) {
 
         public boolean harAvvik() {
             return førsteDatoForDifferanseSats != null || førsteDatoForDifferanseUtbetalingsgrad != null || differanseYtelse != 0;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            var that = (TilkjentYtelseDifferanse) o;
-            return differanseYtelse == that.differanseYtelse &&
-                Objects.equals(førsteDatoForDifferanseSats, that.førsteDatoForDifferanseSats) &&
-                Objects.equals(førsteDatoForDifferanseUtbetalingsgrad, that.førsteDatoForDifferanseUtbetalingsgrad);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(førsteDatoForDifferanseSats, førsteDatoForDifferanseUtbetalingsgrad, differanseYtelse);
-        }
-
-        @Override
-        public String toString() {
-            return "TilkjentYtelseDifferanse{" +
-                "førsteDatoForDifferanseSats=" + førsteDatoForDifferanseSats +
-                ", førsteDatoForDifferanseUtbetalingsgrad=" + førsteDatoForDifferanseUtbetalingsgrad +
-                ", differanseYtelse=" + differanseYtelse +
-                '}';
         }
     }
 

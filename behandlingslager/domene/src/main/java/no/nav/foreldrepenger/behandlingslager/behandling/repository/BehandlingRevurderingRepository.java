@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class BehandlingRevurderingRepository {
@@ -220,7 +219,7 @@ public class BehandlingRevurderingRepository {
         "  and bglag.grunnbeloep=:gmlsats  ";
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<Tuple<Long, AktørId>> finnSakerMedBehovForGrunnbeløpRegulering(long forrigeSats, long forrigeAvkortingMultiplikator,
+    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(long forrigeSats, long forrigeAvkortingMultiplikator,
                                                                                LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
@@ -248,11 +247,11 @@ public class BehandlingRevurderingRepository {
         query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    public List<Tuple<Long, AktørId>> finnSakerMedBehovForMilSivRegulering(long gjeldendeSats, long forrigeSats, LocalDate gjeldendeFom) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivRegulering(long gjeldendeSats, long forrigeSats, LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
@@ -282,11 +281,11 @@ public class BehandlingRevurderingRepository {
         query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
-    public List<Tuple<Long, AktørId>> finnSakerMedBehovForNæringsdrivendeRegulering(long forrigeSats, LocalDate gjeldendeFom) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeRegulering(long forrigeSats, LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
@@ -309,11 +308,11 @@ public class BehandlingRevurderingRepository {
         query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
-    public List<Tuple<Long, AktørId>> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som er beregnet med AAP/DP og der FP-startdato overlapper inputIntervall
@@ -334,6 +333,8 @@ public class BehandlingRevurderingRepository {
         query.setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode()); //$NON-NLS-1$
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
+        return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
+
+    public static record FagsakIdAktørId(Long fagsakId, AktørId aktørId) { }
 }

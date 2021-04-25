@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.Tuple;
 
 @CdiDbAwareTest
 public class BeregneYtelseStegImplTest {
@@ -132,9 +131,8 @@ public class BeregneYtelseStegImplTest {
     public void skal_ved_tilbakehopp_fremover_rydde_avklarte_fakta() {
         // Arrange
         var antallBarn = 1;
-        var behandlingKontekst = byggGrunnlag(antallBarn, LocalDate.now());
-        var behandling = behandlingKontekst.getElement1();
-        var kontekst = behandlingKontekst.getElement2();
+        var behandling = byggGrunnlag(antallBarn, LocalDate.now());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now()))
                 .buildFor(behandling, getBehandlingsresultat(behandling));
@@ -153,9 +151,8 @@ public class BeregneYtelseStegImplTest {
     public void skal_ved_tilbakehopp_fremover_ikke_rydde_overstyrte_beregninger() {
         // Arrange
         var antallBarn = 1;
-        var behandlingKontekst = byggGrunnlag(antallBarn, LocalDate.now());
-        var behandling = behandlingKontekst.getElement1();
-        var kontekst = behandlingKontekst.getElement2();
+        var behandling = byggGrunnlag(antallBarn, LocalDate.now());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
                 .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
@@ -178,9 +175,8 @@ public class BeregneYtelseStegImplTest {
     public void skal_ved_fremhopp_rydde_avklarte_fakta_inkludert_overstyrte_beregninger() {
         // Arrange
         var antallBarn = 1;
-        var behandlingKontekst = byggGrunnlag(antallBarn, LocalDate.now());
-        var behandling = behandlingKontekst.getElement1();
-        var kontekst = behandlingKontekst.getElement2();
+        var behandling = byggGrunnlag(antallBarn, LocalDate.now());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         var beregningResultat = LegacyESBeregningsresultat.builder()
                 .medBeregning(new LegacyESBeregning(1000L, antallBarn, 1000L, LocalDateTime.now(), false, null))
                 .medBeregning(new LegacyESBeregning(500L, antallBarn, 1000L, LocalDateTime.now(), true, 1000L))
@@ -196,12 +192,11 @@ public class BeregneYtelseStegImplTest {
         assertThat(behandlingsresultat.getBeregningResultat().getSisteBeregning()).isEmpty();
     }
 
-    private Tuple<Behandling, BehandlingskontrollKontekst> byggGrunnlag(int antallBarn, LocalDate fødselsdato) {
+    private Behandling byggGrunnlag(int antallBarn, LocalDate fødselsdato) {
         var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = behandlingBuilder.build();
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         final var søknadVersjon = repositoryProvider.getFamilieHendelseRepository().opprettBuilderFor(behandling)
                 .medFødselsDato(fødselsdato, antallBarn)
                 .medAntallBarn(antallBarn);
@@ -215,12 +210,12 @@ public class BeregneYtelseStegImplTest {
                 .build();
         repositoryProvider.getSøknadRepository().lagreOgFlush(behandling, søknad);
 
-        return new Tuple<>(behandling, kontekst);
+        return behandling;
     }
 
     private BehandlingskontrollKontekst byggBehandlingsgrunnlagForFødsel(int antallBarn, LocalDate fødselsdato) {
-        var behandlingskontekst = byggGrunnlag(antallBarn, fødselsdato);
-        return behandlingskontekst.getElement2();
+        var behandling = byggGrunnlag(antallBarn, fødselsdato);
+        return behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
     }
 
 }

@@ -138,8 +138,8 @@ public class VedtattYtelseTjeneste {
         p.setFom(periode.getFom());
         p.setTom(periode.getTom());
         anvisning.setPeriode(p);
-        anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getValue().getDagsats())));
-        anvisning.setUtbetalingsgrad(new Desimaltall(new BigDecimal(periode.getValue().getUtbetalingsgrad())));
+        anvisning.setDagsats(new Desimaltall(new BigDecimal(periode.getValue().dagsats())));
+        anvisning.setUtbetalingsgrad(new Desimaltall(new BigDecimal(periode.getValue().utbetalingsgrad())));
         return anvisning;
     }
 
@@ -210,30 +210,6 @@ public class VedtattYtelseTjeneste {
         return typeKode;
     }
 
-    private static class DagsatsUtbgradSVP {
-        private long dagsats;
-        private long utbetalingsgrad;
-
-        DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
-            this.dagsats = dagsats;
-            this.utbetalingsgrad = utbetalingsgrad;
-        }
-
-        public long getDagsats() {
-            return dagsats;
-        }
-
-        public long getUtbetalingsgrad() {
-            return utbetalingsgrad;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            var that = (DagsatsUtbgradSVP) o;
-            return dagsats == that.dagsats &&
-                utbetalingsgrad == that.utbetalingsgrad;
-        }
+    static record DagsatsUtbgradSVP(long dagsats, long utbetalingsgrad) {
     }
 }

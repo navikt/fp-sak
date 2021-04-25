@@ -55,21 +55,6 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
         return new SaldoValideringResultat(true, false);
     }
 
-    public static class SaldoValideringResultat {
-        private final boolean gyldig;
-        private final boolean negativPgaSamtidigUttak;
-
-        private SaldoValideringResultat(boolean gyldig, boolean negativPgaSamtidigUttak) {
-            this.gyldig = gyldig;
-            this.negativPgaSamtidigUttak = negativPgaSamtidigUttak;
-        }
-
-        public boolean isGyldig() {
-            return gyldig;
-        }
-
-        public boolean isNegativPgaSamtidigUttak() {
-            return negativPgaSamtidigUttak;
-        }
+    public static record SaldoValideringResultat(boolean isGyldig, boolean isNegativPgaSamtidigUttak) {
     }
 }

@@ -218,25 +218,7 @@ public class BeregningUttakTjeneste {
         throw new IllegalStateException("Mangelfull søknad: Mangler informasjon om det er FL eller SN som graderes");
     }
 
-    public static class PeriodeMedGradering {
-
-        private final LocalDate fom;
-        private final LocalDate tom;
-        private final BigDecimal arbeidsprosent;
-        private final AktivitetStatus aktivitetStatus;
-        private final Arbeidsgiver arbeidsgiver;
-
-        PeriodeMedGradering(LocalDate fom,
-                LocalDate tom,
-                BigDecimal arbeidsprosent,
-                AktivitetStatus aktivitetStatus,
-                Arbeidsgiver arbeidsgiver) {
-
-            this.fom = fom;
-            this.tom = tom;
-            this.arbeidsprosent = arbeidsprosent;
-            this.aktivitetStatus = aktivitetStatus;
-            this.arbeidsgiver = arbeidsgiver;
-        }
+    public static record PeriodeMedGradering(LocalDate fom, LocalDate tom, BigDecimal arbeidsprosent,
+                AktivitetStatus aktivitetStatus, Arbeidsgiver arbeidsgiver) {
     }
 }

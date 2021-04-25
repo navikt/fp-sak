@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +19,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class FagsakRepository {
@@ -101,24 +99,6 @@ public class FagsakRepository {
 
     private TekniskException flereEnnEnFagsakFeil(Saksnummer saksnummer) {
         return new TekniskException("FP-429883", "Det var flere enn en Fagsak for saksnummer: " + saksnummer);
-    }
-
-    public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {
-        var query = entityManager.createNativeQuery("""
-                select f.id, bu.aktoer_id from fpsak.fagsak f join fpsak.bruker bu on f.bruker_id=bu.id join fpsak.fagsak_relasjon fr on f.id =fagsak_en_id
-                where fagsak_status<>'AVSLU' and aktiv='J'
-                  and fr.AVSLUTTNINGSDATO >= :fom
-                  and fr.AVSLUTTNINGSDATO < :tom
-                  and nvl(fr.endret_tid, fr.opprettet_tid) < :cutoff
-                  and f.id not in (select fagsak_id from fpsak.behandling where behandling_type in ('BT-002', 'BT-004') and behandling_status not in ('IVED', 'AVSLU'))
-                """); //$NON-NLS-1$
-        query.setParameter("fom", fom); //$NON-NLS-1$
-        query.setParameter("tom", tom); //$NON-NLS-1$
-        query.setParameter("cutoff", LocalDate.of(2020, 9, 1)); //$NON-NLS-1$
-        @SuppressWarnings("unchecked")
-        List<Object[]> resultatList = query.getResultList();
-        return resultatList.stream().map(row -> new Tuple<>(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1])))
-                .collect(Collectors.toList()); // NOSONAR
     }
 
     public Long opprettNy(Fagsak fagsak) {

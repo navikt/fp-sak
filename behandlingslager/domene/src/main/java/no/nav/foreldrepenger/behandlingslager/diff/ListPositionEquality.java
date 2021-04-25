@@ -10,24 +10,9 @@ class ListPositionEquality {
 
     int getKey(Node node, Object o) {
         var counter = equalsNodeCounter.computeIfAbsent(node, n -> new AtomicInteger());
-        return equalsMap.computeIfAbsent(o, v -> new NodeWrap(node, counter.getAndIncrement())).getPos();
+        return equalsMap.computeIfAbsent(o, v -> new NodeWrap(node, counter.getAndIncrement())).pos();
     }
 
-    static class NodeWrap {
-        private final Node root;
-        private final int pos;
-
-        NodeWrap(Node root, int pos) {
-            this.root = root;
-            this.pos = pos;
-        }
-
-        int getPos() {
-            return pos;
-        }
-
-        Node getRoot() {
-            return root;
-        }
+    static record NodeWrap(Node root, int pos) {
     }
 }

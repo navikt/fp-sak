@@ -148,7 +148,7 @@ public class FremoverhoppTest {
     private Aksjonspunkt utførFremoverhoppReturnerAksjonspunkt(StegPort fra, BehandlingStegType til, Aksjonspunkt ap) {
 
         BehandlingStegStatus fraStatus;
-        var fraPort = fra.getPort().getDbKode();
+        var fraPort = fra.port().getDbKode();
         if (fraPort.equals(VurderingspunktType.INN.getDbKode())) {
             fraStatus = BehandlingStegStatus.INNGANG;
         } else if (fraPort.equals(VurderingspunktType.UT.getDbKode())) {
@@ -157,7 +157,7 @@ public class FremoverhoppTest {
             throw new IllegalStateException("BehandlingStegStatus " + fraPort + " ikke støttet i testen");
         }
 
-        var fraTilstand = new BehandlingStegTilstand(behandling, fra.getSteg(), fraStatus);
+        var fraTilstand = new BehandlingStegTilstand(behandling, fra.steg(), fraStatus);
         // BehandlingStegTilstand tilTilstand = new BehandlingStegTilstand(behandling,
         // til, BehandlingStegStatus.VENTER);
         var fagsak = behandling.getFagsak();
@@ -233,25 +233,7 @@ public class FremoverhoppTest {
 
     }
 
-    static class StegPort {
-
-        private final BehandlingStegType steg;
-
-        private final VurderingspunktType port;
-
-        public StegPort(BehandlingStegType steg, VurderingspunktType port) {
-            this.steg = steg;
-            this.port = port;
-        }
-
-        public BehandlingStegType getSteg() {
-            return steg;
-        }
-
-        public VurderingspunktType getPort() {
-            return port;
-        }
-
+    private static record StegPort(BehandlingStegType steg, VurderingspunktType port) {
     }
 
 }

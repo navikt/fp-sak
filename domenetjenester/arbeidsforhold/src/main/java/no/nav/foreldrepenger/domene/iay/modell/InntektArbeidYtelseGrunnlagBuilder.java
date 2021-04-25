@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.util.Tuple;
 
 public class InntektArbeidYtelseGrunnlagBuilder {
 
@@ -111,15 +108,15 @@ public class InntektArbeidYtelseGrunnlagBuilder {
     }
 
     public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-            List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
+            List<ArbeidsforholdInformasjonBuilder.ArbeidsgiverForholdRefs> erstattArbeidsforhold) {
         final var registerFørVersjon = kladd.getRegisterVersjon();
         for (var tuple : erstattArbeidsforhold) {
             if (registerFørVersjon.isPresent()) {
                 // TODO: Vurder konsekvensen av dette.
                 final var builder = InntektArbeidYtelseAggregatBuilder.oppdatere(registerFørVersjon,
                         VersjonType.REGISTER);
-                builder.oppdaterArbeidsforholdReferanseEtterErstatting(søker, tuple.getElement1(), tuple.getElement2().getElement1(),
-                        tuple.getElement2().getElement2());
+                builder.oppdaterArbeidsforholdReferanseEtterErstatting(søker, tuple.arbeidsgiver(), tuple.ref1(),
+                        tuple.ref2());
                 medData(builder);
             }
         }

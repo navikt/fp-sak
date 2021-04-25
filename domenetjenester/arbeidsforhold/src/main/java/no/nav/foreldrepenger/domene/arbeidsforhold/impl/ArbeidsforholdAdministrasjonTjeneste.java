@@ -131,7 +131,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
         arbeidsforhold.addAll(utledArbeidsforholdFraArbeidsforholdInformasjon(filter,
                 overstyringer, alleYrkesaktiviteter, inntektsmeldingerForGrunnlag, skjæringstidspunkt));
 
-        sjekkHarAksjonspunktForVurderArbeidsforhold(ref, arbeidsforhold, iayGrunnlag, sakInntektsmeldinger, param.getVurderArbeidsforhold());
+        sjekkHarAksjonspunktForVurderArbeidsforhold(ref, arbeidsforhold, iayGrunnlag, sakInntektsmeldinger, param.isVurderArbeidsforhold());
 
         return arbeidsforhold;
     }
@@ -526,16 +526,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
      * Param klasse for å kunne ta inn parametere som styrer utleding av
      * arbeidsforhold.
      */
-    public static class UtledArbeidsforholdParametere {
-        private boolean vurderArbeidsforhold;
-
-        public UtledArbeidsforholdParametere(boolean vurderArbeidsforhold) {
-            this.vurderArbeidsforhold = vurderArbeidsforhold;
-        }
-
-        public boolean getVurderArbeidsforhold() {
-            return vurderArbeidsforhold;
-        }
+    public static record UtledArbeidsforholdParametere(boolean isVurderArbeidsforhold) {
     }
 
 }

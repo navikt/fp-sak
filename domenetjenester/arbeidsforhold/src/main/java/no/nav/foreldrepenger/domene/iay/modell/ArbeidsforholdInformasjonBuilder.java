@@ -10,13 +10,12 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.util.Tuple;
 
 public class ArbeidsforholdInformasjonBuilder {
 
     private final ArbeidsforholdInformasjon kladd;
-    private final List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold = new ArrayList<>();
-    private final List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> reverserteErstattninger = new ArrayList<>();
+    private final List<ArbeidsgiverForholdRefs> erstattArbeidsforhold = new ArrayList<>();
+    private final List<ArbeidsgiverForholdRefs> reverserteErstattninger = new ArrayList<>();
 
     private ArbeidsforholdInformasjonBuilder(ArbeidsforholdInformasjon kladd) {
         this.kladd = kladd;
@@ -39,7 +38,7 @@ public class ArbeidsforholdInformasjonBuilder {
             var arbeidsforholdRef = kladd.finnForEksternBeholdHistoriskReferanse(it.getArbeidsgiver(),
                     it.getEksternReferanse());
             if (arbeidsforholdRef.isPresent()) {
-                reverserteErstattninger.add(new Tuple<>(it.getArbeidsgiver(), new Tuple<>(it.getInternReferanse(), arbeidsforholdRef.get())));
+                reverserteErstattninger.add(new ArbeidsgiverForholdRefs(it.getArbeidsgiver(), it.getInternReferanse(), arbeidsforholdRef.get()));
             }
         });
         kladd.tilbakestillOverstyringer();
@@ -52,7 +51,7 @@ public class ArbeidsforholdInformasjonBuilder {
      *
      * @return Liste over Arbeidsgiver / ArbeidsforholdReferanser
      */
-    public List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> getErstattArbeidsforhold() {
+    public List<ArbeidsgiverForholdRefs> getErstattArbeidsforhold() {
         return Collections.unmodifiableList(erstattArbeidsforhold);
     }
 
@@ -62,7 +61,7 @@ public class ArbeidsforholdInformasjonBuilder {
      *
      * @return Liste over Arbeidsgiver / ArbeidsforholdReferanser
      */
-    public List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> getReverserteErstattArbeidsforhold() {
+    public List<ArbeidsgiverForholdRefs> getReverserteErstattArbeidsforhold() {
         return Collections.unmodifiableList(reverserteErstattninger);
     }
 
@@ -71,7 +70,7 @@ public class ArbeidsforholdInformasjonBuilder {
         // TODO: Sjekke om revertert allerede
         // Hvis eksisterer så reverter revertering og ikke legg inn erstattning og kall
         // på erstatt
-        erstattArbeidsforhold.add(new Tuple<>(arbeidsgiver, new Tuple<>(gammelRef, ref)));
+        erstattArbeidsforhold.add(new ArbeidsgiverForholdRefs(arbeidsgiver, gammelRef, ref));
         kladd.erstattArbeidsforhold(arbeidsgiver, gammelRef, ref);
         return this;
     }
@@ -117,4 +116,6 @@ public class ArbeidsforholdInformasjonBuilder {
         var arbeidInfo = arbeidsforholdInformasjon.map(ai -> new ArbeidsforholdInformasjon(ai)).orElseGet(() -> new ArbeidsforholdInformasjon());
         return new ArbeidsforholdInformasjonBuilder(arbeidInfo);
     }
+
+    public static record ArbeidsgiverForholdRefs(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref1, InternArbeidsforholdRef ref2) {}
 }

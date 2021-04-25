@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.util.Tuple;
 
 @CdiDbAwareTest
 public class MedlemTjenesteTest {
@@ -43,35 +42,6 @@ public class MedlemTjenesteTest {
     @Test
     public void skal_returnere_empty_når_vilkåret_er_overstyrt_til_godkjent() {
         // Arrange
-        var tuple = lagBehandling();
-        var now = LocalDate.now();
-        var behandling = tuple.getElement1();
-        var behandlingsresultat = tuple.getElement2();
-
-        var vilkår = VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat());
-        vilkår.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
-        vilkår.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null);
-
-        var vilkårResultat = vilkår.buildFor(behandling);
-        var lås = behandlingRepository.taSkriveLås(behandling);
-        behandlingRepository.lagre(vilkårResultat, lås);
-
-        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
-        var builder = grBuilder.getPeriodeBuilder();
-        var periode = builder.getBuilderForVurderingsdato(now);
-        periode.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT);
-        builder.leggTil(periode);
-        grBuilder.medMedlemskapsvilkårPeriode(builder);
-        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
-
-        // Act
-        var localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
-
-        // Assert
-        assertThat(localDate).isEmpty();
-    }
-
-    private Tuple<Behandling, Behandlingsresultat> lagBehandling() {
         final var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
         fagsakRepository.opprettNy(fagsak);
         final var builder = Behandling.forFørstegangssøknad(fagsak);
@@ -83,6 +53,30 @@ public class MedlemTjenesteTest {
         var behandlingsresultat = behandlingsresultatBuilder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
         behandlingRepository.lagre(behandling, lås);
-        return new Tuple<>(behandling, behandlingsresultat);
+
+        var now = LocalDate.now();
+
+        var vilkår = VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat());
+        vilkår.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkår.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, null);
+
+        var vilkårResultat = vilkår.buildFor(behandling);
+        behandlingRepository.lagre(vilkårResultat, lås);
+
+        var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
+        var mbuilder = grBuilder.getPeriodeBuilder();
+        var periode = mbuilder.getBuilderForVurderingsdato(now);
+        periode.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT);
+        mbuilder.leggTil(periode);
+        grBuilder.medMedlemskapsvilkårPeriode(mbuilder);
+        medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
+
+        // Act
+        var localDate = tjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId());
+
+        // Assert
+        assertThat(localDate).isEmpty();
     }
+
+
 }

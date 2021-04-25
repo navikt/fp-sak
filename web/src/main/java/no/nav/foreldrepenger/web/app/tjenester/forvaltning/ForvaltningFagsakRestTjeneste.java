@@ -2,9 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
-
-import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -44,20 +41,16 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
-import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.PeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningFagsak")
@@ -124,58 +117,6 @@ public class ForvaltningFagsakRestTjeneste {
         var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
                 .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
         oppdaterFagsakStatus.avsluttFagsakUtenAktiveBehandlinger(fagsak);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/revurderAvslutningForFagsakerITidsrom")
-    @Operation(description = "RevurderAvslutningForSakerITidsrom", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Revurderer avslutning av fagsaker.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response revurderAvslutningForFagsakerITidsrom(@NotNull @Valid PeriodeDto periode) {
-
-        var fagsaker = fagsakRepository.hentIkkeAvsluttedeFagsakerIPeriodeNaticve(periode.getPeriodeFom(),
-                periode.getPeriodeTom());
-        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
-
-        fagsaker.forEach(f -> opprettJusteringTask(f.getElement1(), f.getElement2(), callId));
-        return Response.ok(fagsaker.size()).build();
-    }
-
-    private void opprettJusteringTask(Long fagsakId, AktørId aktørId, String callId) {
-        var prosessTaskData = new ProsessTaskData(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE);
-        prosessTaskData.setFagsak(fagsakId, aktørId.getId());
-        prosessTaskData.setCallId(callId + fagsakId);
-        prosessTaskRepository.lagre(prosessTaskData);
-    }
-
-    @POST
-    @Path("/revurderAvslutningForFagsaker")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Revurder avslutningsdato for fagsaker", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Revurderer avslutning av fagsaker.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response revurderAvslutningForFagsaker(@NotNull @Valid List<SaksnummerDto> saksnumre) {
-
-        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId());
-
-        for (var abacSaksnummer : saksnumre) {
-            var saksnummer = new Saksnummer(abacSaksnummer.getVerdi());
-            var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer);
-            if (fagsak.isEmpty() || FagsakStatus.AVSLUTTET == fagsak.get().getStatus()) {
-                LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());;
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            opprettJusteringTask(fagsak.orElseThrow().getId(), fagsak.orElseThrow().getAktørId(), callId);
-
-        }
         return Response.ok().build();
     }
 

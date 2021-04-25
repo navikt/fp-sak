@@ -258,7 +258,7 @@ public class AksjonspunktTjeneste {
         });
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.getElement1(), res.getElement2(), true));
+        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.aksjonspunktResultat(), res.aksjonspunktStatus(), true));
 
         return overhoppResultat;
     }
@@ -349,7 +349,7 @@ public class AksjonspunktTjeneste {
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
         var totrinn = overhoppResultat.finnTotrinn();
-        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.getElement1(), res.getElement2(), false));
+        overhoppResultat.finnEkstraAksjonspunktResultat().forEach(res -> håndterEkstraAksjonspunktResultat(kontekst, behandling, totrinn, res.aksjonspunktResultat(), res.aksjonspunktStatus(), false));
 
         return overhoppResultat;
     }

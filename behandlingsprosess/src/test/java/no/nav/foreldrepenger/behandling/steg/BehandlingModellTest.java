@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.impl.BehandlingModellRepository
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Sjekk at alle konfigurasjoner fungerer og har definerte steg
@@ -27,9 +26,9 @@ public class BehandlingModellTest {
     @ParameterizedTest
     @MethodSource("parameters")
     public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(
-            Tuple<BehandlingType, FagsakYtelseType> tuple) {
-        var behandlingType = tuple.getElement1();
-        var ytelseType = tuple.getElement2();
+        BehandlingTypeYtelseType tuple) {
+        var behandlingType = tuple.behandlingType();
+        var ytelseType = tuple.ytelseType();
         var behandlingModellRepository = new BehandlingModellRepository();
         var modell = behandlingModellRepository.getModell(behandlingType, ytelseType);
         for (var stegType : modell.getAlleBehandlingStegTyper()) {
@@ -46,15 +45,17 @@ public class BehandlingModellTest {
         }
     }
 
-    public static Collection<Tuple<BehandlingType, FagsakYtelseType>> parameters() {
-        List<Tuple<BehandlingType, FagsakYtelseType>> params = new ArrayList<>();
+    private static record BehandlingTypeYtelseType(BehandlingType behandlingType, FagsakYtelseType ytelseType) {}
+
+    public static Collection<BehandlingTypeYtelseType> parameters() {
+        List<BehandlingTypeYtelseType> params = new ArrayList<>();
         var ytelseTyper = List.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.FORELDREPENGER,
                 FagsakYtelseType.SVANGERSKAPSPENGER);
         var behandlingTyper = List.of(BehandlingType.FØRSTEGANGSSØKNAD, BehandlingType.REVURDERING,
                 BehandlingType.KLAGE, BehandlingType.INNSYN, BehandlingType.ANKE);
         for (var a : ytelseTyper) {
             for (var b : behandlingTyper) {
-                params.add(new Tuple<>(b, a));
+                params.add(new BehandlingTypeYtelseType(b, a));
             }
         }
         return params;
