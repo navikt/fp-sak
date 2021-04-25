@@ -119,6 +119,17 @@ public class BerørtBehandlingKontroller {
     private void opprettBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
         // Hvis det nå allerede skulle være en åpen behandling (ikke i kø) så legg den i kø før oppretting av berørt.
+        var åpenBerørtBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakMedforelder.getId())
+            .filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING));
+        if (åpenBerørtBehandling.isPresent()) {
+            LOG.info("OPPRETT BERØRT finnes allerede åpen berørt for sak {}  behandling {}", fagsakMedforelder.getSaksnummer(), åpenBerørtBehandling.get().getId());
+            var origBehandlingId = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMedforelder.getId()).orElseThrow().getId();
+            if (åpenBerørtBehandling.flatMap(Behandling::getOriginalBehandlingId).filter(origBehandlingId::equals).isPresent()) {
+                // Allerede opprettet berørt med samme originalbehandling. Kafka-issue.
+                LOG.info("OPPRETT BERØRT oppretter ikke ny berørt for sak {}", fagsakMedforelder.getSaksnummer());
+                return;
+            }
+        }
         var åpenBehandling = behandlingRevurderingRepository.finnÅpenYtelsesbehandling(fagsakMedforelder.getId());
         var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker);
