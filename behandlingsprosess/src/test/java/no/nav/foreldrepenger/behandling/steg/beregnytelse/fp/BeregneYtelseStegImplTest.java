@@ -14,7 +14,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.steg.beregnytelse.BeregneYtelseStegImpl;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -47,7 +46,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnYtelseTjeneste;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
-import no.nav.vedtak.util.Tuple;
 
 @CdiDbAwareTest
 public class BeregneYtelseStegImplTest {
@@ -99,9 +97,8 @@ public class BeregneYtelseStegImplTest {
 
         when(beregnYtelseTjeneste.beregnYtelse(ArgumentMatchers.any())).thenReturn(opprettBeregningsresultat());
 
-        var behandlingKontekst = byggGrunnlag(true, true);
-        var behandling = behandlingKontekst.getElement1();
-        var kontekst = behandlingKontekst.getElement2();
+        var behandling = byggGrunnlag(true, true);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
 
         // Act
         var stegResultat = steg.utførSteg(kontekst);
@@ -120,9 +117,8 @@ public class BeregneYtelseStegImplTest {
     @Test
     public void skalSletteBeregningsresultatFPVedTilbakehopp() {
         // Arrange
-        var behandlingKontekst = byggGrunnlag(true, true);
-        var behandling = behandlingKontekst.getElement1();
-        var kontekst = behandlingKontekst.getElement2();
+        var behandling = byggGrunnlag(true, true);
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         beregningsresultatRepository.lagre(behandling, opprettBeregningsresultat());
 
         // Act
@@ -133,7 +129,7 @@ public class BeregneYtelseStegImplTest {
         assertThat(resultat).isNotPresent();
     }
 
-    private Tuple<Behandling, BehandlingskontrollKontekst> byggGrunnlag(boolean medBeregningsgrunnlag, boolean medUttaksPlanResultat) {
+    private Behandling byggGrunnlag(boolean medBeregningsgrunnlag, boolean medUttaksPlanResultat) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBruker(AKTØR_ID, NavBrukerKjønn.KVINNE);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
@@ -146,12 +142,11 @@ public class BeregneYtelseStegImplTest {
             medBeregningsgrunnlag(behandling);
         }
 
-        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-        behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
         if (medUttaksPlanResultat) {
             byggUttakPlanResultat(behandling);
         }
-        return new Tuple<>(behandling, kontekst);
+        return behandling;
     }
 
     private void medBeregningsgrunnlag(Behandling behandling) {

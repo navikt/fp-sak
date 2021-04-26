@@ -130,7 +130,7 @@ public class FaktaUttakOppdatererTest {
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         var ikkeFinnes = resultat.getEkstraAksjonspunktResultat().stream()
-                .noneMatch(aer -> aer.getElement1().equals(AKSJONSPUNKT_DEF) && !AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
+                .noneMatch(aer -> aer.aksjonspunktResultat().equals(AKSJONSPUNKT_DEF) && !AksjonspunktStatus.AVBRUTT.equals(aer.aksjonspunktStatus()));
 
         assertThat(ikkeFinnes).isTrue();
     }
@@ -154,8 +154,8 @@ public class FaktaUttakOppdatererTest {
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         var finnesAvbrutt = resultat.getEkstraAksjonspunktResultat().stream()
-                .anyMatch(aer -> aer.getElement1().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK)
-                        && AksjonspunktStatus.AVBRUTT.equals(aer.getElement2()));
+                .anyMatch(aer -> aer.aksjonspunktResultat().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_UTTAK)
+                        && AksjonspunktStatus.AVBRUTT.equals(aer.aksjonspunktStatus()));
 
         assertThat(finnesAvbrutt).isTrue();
     }

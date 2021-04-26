@@ -43,10 +43,8 @@ import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * In-memory - legger kun grunnlag i minne (lagrer ikke i noe lager). Brukes
@@ -475,7 +473,7 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
 
         @Override
         public void ryddOppErstattedeArbeidsforhold(AktørId søker,
-                List<Tuple<Arbeidsgiver, Tuple<InternArbeidsforholdRef, InternArbeidsforholdRef>>> erstattArbeidsforhold) {
+                List<ArbeidsforholdInformasjonBuilder.ArbeidsgiverForholdRefs> erstattArbeidsforhold) {
             super.ryddOppErstattedeArbeidsforhold(søker, erstattArbeidsforhold);
         }
 

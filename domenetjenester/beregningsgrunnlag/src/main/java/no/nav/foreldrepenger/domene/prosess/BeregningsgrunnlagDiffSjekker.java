@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.Sammenligningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
-import no.nav.vedtak.util.Tuple;
 
 class BeregningsgrunnlagDiffSjekker {
 
@@ -151,12 +150,14 @@ class BeregningsgrunnlagDiffSjekker {
                 .equals(forrigePeriode.getRegelInputForeslå())) {
                 return true;
             }
-            var resultat = finnAndeler(
-                aktivPeriode, forrigePeriode);
-            if (resultat.getElement1().size() != resultat.getElement2().size()) {
+            var aktiveAndeler = aktivPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
+            var forrigeAndeler = forrigePeriode.getBeregningsgrunnlagPrStatusOgAndelList().stream()
+                .filter(a -> !a.erLagtTilAvSaksbehandler())
+                .collect(Collectors.toList());
+            if (aktiveAndeler.size() != forrigeAndeler.size()) {
                 return true;
             }
-            if (sjekkAndeler(resultat.getElement1(), resultat.getElement2())) {
+            if (sjekkAndeler(aktiveAndeler, forrigeAndeler)) {
                 return true;
             }
         }
@@ -265,17 +266,6 @@ class BeregningsgrunnlagDiffSjekker {
             .stream()
             .map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus)
             .collect(Collectors.toList());
-    }
-
-    private static Tuple<List<BeregningsgrunnlagPrStatusOgAndel>, List<BeregningsgrunnlagPrStatusOgAndel>> finnAndeler(
-        BeregningsgrunnlagPeriode aktivPeriode,
-        BeregningsgrunnlagPeriode forrigePeriode) {
-        var aktiveAndeler = aktivPeriode.getBeregningsgrunnlagPrStatusOgAndelList();
-        var forrigeAndeler = forrigePeriode.getBeregningsgrunnlagPrStatusOgAndelList()
-            .stream()
-            .filter(a -> !a.erLagtTilAvSaksbehandler())
-            .collect(Collectors.toList());
-        return new Tuple<>(aktiveAndeler, forrigeAndeler);
     }
 
     private static boolean erLike(BigDecimal verdi1, BigDecimal verdi2) {

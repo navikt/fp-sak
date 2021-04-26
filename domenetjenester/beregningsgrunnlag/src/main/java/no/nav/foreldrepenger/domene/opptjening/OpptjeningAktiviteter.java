@@ -28,104 +28,25 @@ public class OpptjeningAktiviteter {
         return Collections.unmodifiableList(opptjeningPerioder);
     }
 
-    public static class OpptjeningPeriode {
-
-        private OpptjeningAktivitetType type;
-        private Periode periode;
-        private String arbeidsgiverOrgNummer;
-        private String arbeidsgiverAktørId;
-
-        /**
-         * For virksomheter så er internt arbeidsforhold ref generert unikt på bakgrunn av virksomhetens oppgitt eksterne arbeidsforhold ref.
-         * <p>
-         * For private personer som arbeidsgivere vil ArbeidsforholdRef være linket
-         * til ekstern arbeidsforhold ref som er syntetisk skapt (ved UUID#namedUUIDFromBytes). Så er altså ikke noe Altinn sender inn eller som på
-         * annet vis fås i inntetksmelding for private arbeidsgiver. Brukes kun til å skille ulike arbeidstyper for samme privat person internt.
-         */
-        private InternArbeidsforholdRef arbeidsforholdId;
-
-        OpptjeningPeriode() {
-        }
-
-        private OpptjeningPeriode(OpptjeningAktivitetType type,
+    public static record OpptjeningPeriode(OpptjeningAktivitetType opptjeningAktivitetType,
                                   Periode periode,
                                   String arbeidsgiverOrgNummer,
                                   String arbeidsgiverAktørId,
                                   InternArbeidsforholdRef arbeidsforholdId) {
-            this.type = Objects.requireNonNull(type, "type");
-            this.periode = Objects.requireNonNull(periode, "periode");
+        public OpptjeningPeriode {
+            Objects.requireNonNull(opptjeningAktivitetType, "type");
+            Objects.requireNonNull(periode, "periode");
 
             // sjekk preconditions
             if (arbeidsgiverAktørId != null) {
-                this.arbeidsgiverAktørId = arbeidsgiverAktørId;
                 if (arbeidsgiverOrgNummer != null) {
                     throw new IllegalArgumentException("Kan ikke ha orgnummer dersom personlig arbeidsgiver: " + this);
                 }
-            } else if (arbeidsgiverOrgNummer != null) {
-                this.arbeidsgiverOrgNummer = arbeidsgiverOrgNummer;
-                this.arbeidsforholdId = arbeidsforholdId;
-            } else {
+            } else if (arbeidsgiverOrgNummer == null) {
                 if (arbeidsforholdId != null) {
                     throw new IllegalArgumentException("Kan ikke ha arbeidsforholdId dersom ikke har arbeidsgiver: " + this);
                 }
             }
-
-        }
-
-        public OpptjeningAktivitetType getType() {
-            return type;
-        }
-
-        public OpptjeningAktivitetType getOpptjeningAktivitetType() {
-            return type;
-        }
-
-        public Periode getPeriode() {
-            return periode;
-        }
-
-        public String getArbeidsgiverOrgNummer() {
-            return arbeidsgiverOrgNummer;
-        }
-
-        public String getArbeidsgiverAktørId() {
-            return arbeidsgiverAktørId;
-        }
-
-        public InternArbeidsforholdRef getArbeidsforholdId() {
-            return arbeidsforholdId;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(type, periode, arbeidsgiverOrgNummer, arbeidsgiverAktørId, arbeidsforholdId);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || !obj.getClass().equals(this.getClass())) {
-                return false;
-            }
-            var other = (OpptjeningPeriode) obj;
-            return Objects.equals(this.arbeidsgiverOrgNummer, other.arbeidsgiverOrgNummer)
-                && Objects.equals(this.arbeidsgiverAktørId, other.arbeidsgiverAktørId)
-                && Objects.equals(this.periode, other.periode)
-                && Objects.equals(this.type, other.type)
-                && Objects.equals(this.arbeidsforholdId, other.arbeidsforholdId);
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName()
-                + "<type=" + type
-                + ", periode=" + periode
-                + (arbeidsgiverOrgNummer == null ? "" : ", arbeidsgiverOrgNummer=" + arbeidsgiverOrgNummer)
-                + (arbeidsgiverAktørId == null ? "" : ", arbeidsgiverAktørId=" + arbeidsgiverAktørId)
-                + (arbeidsforholdId == null ? "" : ", arbeidsforholdId=" + arbeidsforholdId)
-                + ">";
         }
 
     }

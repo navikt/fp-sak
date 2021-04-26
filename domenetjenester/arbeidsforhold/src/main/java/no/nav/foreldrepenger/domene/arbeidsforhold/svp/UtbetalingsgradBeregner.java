@@ -242,14 +242,6 @@ class UtbetalingsgradBeregner {
         return new LocalDateTimeline<>(segmenter).compress();
     }
 
-    private static class UtbetalingsgradBeregningProsent {
-        private final BigDecimal stillingsprosent;
-        private final BigDecimal overstyrtUtbetalingsgrad;
-
-        public UtbetalingsgradBeregningProsent(BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
-
-            this.stillingsprosent = stillingsprosent;
-            this.overstyrtUtbetalingsgrad = overstyrtUtbetalingsgrad;
-        }
+    private static record UtbetalingsgradBeregningProsent(BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
     }
 }

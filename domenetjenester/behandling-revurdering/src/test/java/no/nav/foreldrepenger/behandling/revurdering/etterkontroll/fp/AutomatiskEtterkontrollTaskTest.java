@@ -68,7 +68,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUt
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.Tuple;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -153,18 +152,16 @@ public class AutomatiskEtterkontrollTaskTest {
             StønadskontoType stønadskontoType,
             boolean samtidigUttak,
             boolean flerbarnsdager) {
-        lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager,
-                new Tuple<>(uttakAktivitet, Optional.empty()));
+        lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, samtidigUttak, flerbarnsdager, uttakAktivitet, Optional.empty());
     }
 
-    @SafeVarargs
     private void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
             LocalDate fom,
             LocalDate tom,
             StønadskontoType stønadskontoType,
             boolean samtidigUttak,
             boolean flerbarnsdager,
-            Tuple<UttakAktivitetEntitet, Optional<Trekkdager>>... aktiviteter) {
+            UttakAktivitetEntitet uttakAktivitetEntitet, Optional<Trekkdager> trekkdagerOptional) {
 
         var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
                 .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
@@ -173,27 +170,16 @@ public class AutomatiskEtterkontrollTaskTest {
                 .build();
         uttakResultatPerioder.leggTilPeriode(periode);
 
-        for (var aktivitetTuple : aktiviteter) {
-            Trekkdager trekkdager;
-            if (aktivitetTuple.getElement2().isPresent()) {
-                trekkdager = aktivitetTuple.getElement2().get();
-            } else {
-                trekkdager = new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(
-                        new Periode(periode.getFom(), periode.getTom()),
-                        false,
-                        BigDecimal.ZERO,
-                        null).decimalValue());
-            }
+        var trekkdager = trekkdagerOptional
+            .orElseGet(() -> new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()),
+                false, BigDecimal.ZERO, null).decimalValue()));
 
-            var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
-                    aktivitetTuple.getElement1())
-                            .medTrekkdager(trekkdager)
-                            .medTrekkonto(stønadskontoType)
-                            .medArbeidsprosent(BigDecimal.ZERO)
-                            .build();
-            periode.leggTilAktivitet(aktivitet);
-
-        }
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet)
+            .medTrekkdager(trekkdager)
+            .medTrekkonto(stønadskontoType)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        periode.leggTilAktivitet(aktivitet);
     }
 
     @Test

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.opptjening;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
@@ -73,7 +75,7 @@ public class OpptjeningInntektArbeidYtelseTjeneste {
         final var builder = OpptjeningAktivitetPeriode.Builder.ny();
         builder.medPeriode(periode.getPeriode())
                 .medOpptjeningAktivitetType(periode.getOpptjeningAktivitetType())
-                .medOrgnr(periode.getOrgnr())
+                .medOrgnr(Optional.ofNullable(periode.getArbeidsgiver()).map(Arbeidsgiver::getOrgnr).orElse(null))
                 .medOpptjeningsnøkkel(periode.getOpptjeningsnøkkel())
                 .medStillingsandel(periode.getStillingsprosent())
                 .medVurderingsStatus(periode.getVurderingsStatus())

@@ -39,7 +39,7 @@ public class IntegrasjonstatusTjeneste {
 
     private SystemNedeDto lagDto(String system, SelftestResultat.InternalResult  resultat) {
         var systemNavn = system;
-        var endepunkt = resultat.getEndpoint();
-        return new SystemNedeDto(systemNavn, endepunkt, null, resultat.getDescription(), null);
+        var endepunkt = resultat.endpoint();
+        return new SystemNedeDto(systemNavn, endepunkt, null, resultat.description(), null);
     }
 }

@@ -64,9 +64,9 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
         var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(),
                 avkortingAntallG, gjeldende.getPeriode().getFomDato());
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
-            tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
+            tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {
-            tilVurdering.forEach(sak -> LOG.info("Skal revurdere sak {}", sak.getElement1()));
+            tilVurdering.forEach(sak -> LOG.info("Skal revurdere sak {}", sak.fagsakId()));
         }
         return executionId + tilVurdering.size();
     }

@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.VirksomhetType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class VurderArbeidsforholdTjeneste {
@@ -227,7 +226,7 @@ public class VurderArbeidsforholdTjeneste {
         final var antallArbeidsforIArbeidsgiveren = antallArbeidsforHosArbeidsgiveren(behandlingReferanse, grunnlag,
                 inntektsmelding.getArbeidsgiver(),
                 inntektsmelding.getArbeidsforholdRef());
-        return (antallArbeidsforIArbeidsgiveren.getElement1() == 0) && (antallArbeidsforIArbeidsgiveren.getElement2() == 0);
+        return (antallArbeidsforIArbeidsgiveren.før() == 0) && (antallArbeidsforIArbeidsgiveren.etter() == 0);
     }
 
     /**
@@ -289,7 +288,9 @@ public class VurderArbeidsforholdTjeneste {
                         flatMapping(ya -> Stream.of(ya.getArbeidsforholdRef()), Collectors.toSet())));
     }
 
-    private Tuple<Long, Long> antallArbeidsforHosArbeidsgiveren(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
+    private static record AntallArbeidsforholdHosAG(Long før, Long etter) {}
+
+    private AntallArbeidsforholdHosAG antallArbeidsforHosArbeidsgiveren(BehandlingReferanse behandlingReferanse, InntektArbeidYtelseGrunnlag grunnlag,
             Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
         var skjæringstidspunkt = behandlingReferanse.getUtledetSkjæringstidspunkt();
 
@@ -299,7 +300,7 @@ public class VurderArbeidsforholdTjeneste {
         var antallFør = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.før(skjæringstidspunkt));
         var antallEtter = antallArbeidsfor(arbeidsgiver, arbeidsforholdRef, filter.etter(skjæringstidspunkt));
 
-        return new Tuple<>(antallFør, antallEtter);
+        return new AntallArbeidsforholdHosAG(antallFør, antallEtter);
     }
 
     private long antallArbeidsfor(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef, YrkesaktivitetFilter filter) {

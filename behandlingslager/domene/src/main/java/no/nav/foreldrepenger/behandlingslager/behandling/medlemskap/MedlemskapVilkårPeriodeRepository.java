@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Dette er et Repository for håndtering av alle persistente endringer i en søkers perioder for medlemskapvilkår
@@ -69,7 +68,9 @@ public class MedlemskapVilkårPeriodeRepository {
         lagreOgFlush(behandling, builder.build());
     }
 
-    public Tuple<VilkårUtfallType, VilkårUtfallMerknad> utledeVilkårStatus(Behandling behandling) {
+    public static record VilkårUtfallMedMerknad(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad) {}
+
+    public VilkårUtfallMedMerknad utledeVilkårStatus(Behandling behandling) {
         var medlemOpt = hentAktivtGrunnlag(behandling);
         if (medlemOpt.isPresent()) {
             var medlemskapsvilkårPeriode = medlemOpt.get().getMedlemskapsvilkårPeriode();
@@ -79,13 +80,13 @@ public class MedlemskapVilkårPeriodeRepository {
                     .filter(m -> VilkårUtfallType.IKKE_OPPFYLT.equals(m.getVilkårUtfall()))
                     .findFirst();
             if (periodeOpt.isPresent()) {
-                return new Tuple<>(VilkårUtfallType.IKKE_OPPFYLT, periodeOpt.get().getVilkårUtfallMerknad());
+                return new VilkårUtfallMedMerknad(VilkårUtfallType.IKKE_OPPFYLT, periodeOpt.get().getVilkårUtfallMerknad());
             }
             if (!perioder.isEmpty()) {
-                return new Tuple<>(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
+                return new VilkårUtfallMedMerknad(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
             }
         }
-        return new Tuple<>(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
+        return new VilkårUtfallMedMerknad(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
     }
 
     public Optional<LocalDate> hentOpphørsdatoHvisEksisterer(Behandling behandling) {

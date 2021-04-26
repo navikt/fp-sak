@@ -37,14 +37,6 @@ public class OpptjeningsperiodeForSaksbehandling {
         return grupperingNøkkel;
     }
 
-    /**
-     * Bruk {@link #getArbeidsgiver} i stedet.
-     */
-    @Deprecated(forRemoval = true)
-    public String getOrgnr() {
-        return arbeidsgiver == null ? null : arbeidsgiver.getOrgnr();
-    }
-
     public Stillingsprosent getStillingsprosent() {
         return stillingsprosent;
     }

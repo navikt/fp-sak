@@ -12,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.HentKodeverkHentKodeverkKodeverkIkkeFunnet;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.EnkeltKodeverk;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.informasjon.IdentifiserbarEntitet;
@@ -25,7 +26,6 @@ import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkRequest;
 import no.nav.tjeneste.virksomhet.kodeverk.v2.meldinger.HentKodeverkResponse;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.kodeverk.KodeverkConsumer;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class KodeverkTjeneste {
@@ -97,8 +97,8 @@ public class KodeverkTjeneste {
         return new KodeverkKode.Builder()
                 .medKode(kode.getNavn())
                 .medNavn(term.orElse(null))
-                .medGyldigFom(gyldighetsperiode.map(Tuple::getElement1).orElse(null))
-                .medGyldigTom(gyldighetsperiode.map(Tuple::getElement2).orElse(null))
+                .medGyldigFom(gyldighetsperiode.map(SimpleLocalDateInterval::getFomDato).orElse(null))
+                .medGyldigTom(gyldighetsperiode.map(SimpleLocalDateInterval::getTomDato).orElse(null))
                 .build();
     }
 
@@ -119,10 +119,10 @@ public class KodeverkTjeneste {
     /**
      * Finner nyeste gyldighetsperiode ut fra fom dato.
      */
-    private static Optional<Tuple<LocalDate, LocalDate>> finnGyldighetsperiode(List<Periode> periodeList) {
+    private static Optional<SimpleLocalDateInterval> finnGyldighetsperiode(List<Periode> periodeList) {
         Comparator<Periode> vedGyldigFom = (p1, p2) -> p1.getFom().compare(p2.getFom());
         var periodeOptional = periodeList.stream().max(vedGyldigFom);
-        return periodeOptional.map(periode -> new Tuple<>(convertToLocalDate(periode.getFom()),
+        return periodeOptional.map(periode -> SimpleLocalDateInterval.fraOgMedTomNotNull(convertToLocalDate(periode.getFom()),
                 convertToLocalDate(periode.getTom())));
     }
 

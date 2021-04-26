@@ -186,32 +186,11 @@ public class VilkårResultat extends BaseEntitet {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    static class VilkårUtfall {
-        VilkårUtfallType vilkårUtfallType;
-        VilkårUtfallMerknad vilkårUtfallMerknad;
-        Properties merknadParametere;
-        Avslagsårsak avslagsårsak;
-        boolean erManueltVurdert;
-        boolean erOverstyrt;
-        String regelEvaluering;
-        String regelInput;
-        VilkårUtfallType utfallManuelt;
-        VilkårUtfallType utfallOverstyrt;
 
-        VilkårUtfall(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere, // NOSONAR
-                     Avslagsårsak avslagsårsak, boolean erManueltVurdert, boolean erOverstyrt, RegelInputOgEvaluering inputOgEvaluering,
+
+    private static record VilkårUtfall(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere, // NOSONAR
+                     Avslagsårsak avslagsårsak, boolean erManueltVurdert, boolean erOverstyrt, String regelEvaluering, String regelInput,
                      VilkårUtfallType utfallManuelt, VilkårUtfallType utfallOverstyrt) {
-            this.vilkårUtfallType = vilkårUtfallType;
-            this.vilkårUtfallMerknad = vilkårUtfallMerknad;
-            this.merknadParametere = merknadParametere;
-            this.avslagsårsak = avslagsårsak;
-            this.erManueltVurdert = erManueltVurdert;
-            this.erOverstyrt = erOverstyrt;
-            this.regelEvaluering = inputOgEvaluering.getRegelEvaluering();
-            this.regelInput = inputOgEvaluering.getRegelInput();
-            this.utfallManuelt = utfallManuelt;
-            this.utfallOverstyrt = utfallOverstyrt;
-        }
     }
 
     /**
@@ -250,9 +229,16 @@ public class VilkårResultat extends BaseEntitet {
                                              VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere,
                                              Avslagsårsak avslagsårsak, boolean erManueltVurdert,
                                              boolean erOverstyrt, String regelEvaluering, String regelInput) {
+            return leggTilVilkårResultat(vilkårType, vilkårUtfall, vilkårUtfallMerknad, merknadParametere, avslagsårsak, erManueltVurdert,
+                erOverstyrt, regelEvaluering, regelInput, Optional.empty());
+        }
+
+        public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfall,
+                                             VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere,
+                                             Avslagsårsak avslagsårsak, boolean erManueltVurdert,
+                                             boolean erOverstyrt, String regelEvaluering, String regelInput, Optional<VilkårUtfallType> overstyrt) {
             this.modifisert = true;
             validerKanModifisere();
-            var inputOgEvaluering = new RegelInputOgEvaluering(regelEvaluering, regelInput);
             if (erManueltVurdert && utfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
                 utfallManuelt = vilkårUtfall;
             }
@@ -261,7 +247,7 @@ public class VilkårResultat extends BaseEntitet {
             }
 
             this.oppdaterteUtfall.put(vilkårType, new VilkårUtfall(vilkårUtfall, vilkårUtfallMerknad,
-                merknadParametere, avslagsårsak, erManueltVurdert, erOverstyrt, inputOgEvaluering, utfallManuelt, utfallOverstyrt));
+                merknadParametere, avslagsårsak, erManueltVurdert, erOverstyrt, regelEvaluering, regelInput, utfallManuelt, overstyrt.orElse(utfallOverstyrt)));
             return this;
         }
 
@@ -291,14 +277,8 @@ public class VilkårResultat extends BaseEntitet {
         }
 
         public Builder nullstillVilkår(VilkårType vilkårType, VilkårUtfallType utfallOverstyrt) {
-            var builder = leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, null,
-                Avslagsårsak.UDEFINERT, false, false, null, null);
-
-            // Overstyrt utfall må beholdes selv ved nullstilling
-            var vilkårUtfall = oppdaterteUtfall.get(vilkårType);
-            // TODO (essv) PKMANTIS-1988 finne bedre måte å sette overstyrt utfall
-            vilkårUtfall.utfallOverstyrt = utfallOverstyrt;
-            return builder;
+            return leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, null,
+                Avslagsårsak.UDEFINERT, false, false, null, null, Optional.of(utfallOverstyrt));
         }
 
         public Builder overstyrVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {

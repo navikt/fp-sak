@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Batchservice som finner alle behandlinger som skal gjenopptas, og lager en
@@ -57,14 +56,14 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
 
         final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
         if (batchArguments.getSkalRevurdere()) {
-            tilVurdering.forEach(sak -> opprettReguleringTask(sak.getElement1(), sak.getElement2(), callId));
+            tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {
-            tilVurdering.forEach(sak -> LOG.info("Skal revurdere sak {}", sak.getElement1()));
+            tilVurdering.forEach(sak -> LOG.info("Skal revurdere sak {}", sak.fagsakId()));
         }
         return executionId + tilVurdering.size();
     }
 
-    List<Tuple<Long, AktørId>> hentKandidater(AutomatiskArenaReguleringBatchArguments batchArguments) {
+    List<BehandlingRevurderingRepository.FagsakIdAktørId> hentKandidater(AutomatiskArenaReguleringBatchArguments batchArguments) {
         return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(DATO, batchArguments.getSatsDato());
     }
 

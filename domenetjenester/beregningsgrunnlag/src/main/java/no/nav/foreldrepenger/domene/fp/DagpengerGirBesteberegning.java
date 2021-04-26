@@ -51,11 +51,11 @@ public class DagpengerGirBesteberegning {
                                                                          LocalDate dato) {
         return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
-            .filter(opptjeningPeriode -> opptjeningPeriode.getPeriode().getFom().isBefore(dato) && (
-                opptjeningPeriode.getPeriode().getTom() == null || !opptjeningPeriode.getPeriode()
+            .filter(opptjeningPeriode -> opptjeningPeriode.periode().getFom().isBefore(dato) && (
+                opptjeningPeriode.periode().getTom() == null || !opptjeningPeriode.periode()
                     .getTom()
                     .isBefore(dato)))
-            .anyMatch(aktivitet -> aktivitet.getOpptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER));
+            .anyMatch(aktivitet -> aktivitet.opptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER));
     }
 
     private static LocalDate finnDatoSomSkalSjekkesForDPEllerSP(LocalDate skjæringstidspunkt) {

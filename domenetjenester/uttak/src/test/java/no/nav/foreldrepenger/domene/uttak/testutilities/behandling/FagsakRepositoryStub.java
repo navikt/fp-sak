@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.testutilities.behandling;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Journalpost;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.util.Tuple;
 
 class FagsakRepositoryStub extends FagsakRepository {
 
@@ -56,11 +54,6 @@ class FagsakRepositoryStub extends FagsakRepository {
 
     @Override
     public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer) {
-        throw new IkkeImplementertForTestException();
-    }
-
-    @Override
-    public List<Tuple<Long, AktørId>> hentIkkeAvsluttedeFagsakerIPeriodeNaticve(LocalDate fom, LocalDate tom) {
         throw new IkkeImplementertForTestException();
     }
 

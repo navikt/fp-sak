@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -29,7 +30,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.Tuple;
 
 public class MapYtelseperioderTjeneste {
 
@@ -155,8 +155,10 @@ public class MapYtelseperioderTjeneste {
                 .build());
     }
 
-    private Tuple<OpptjeningAktivitetType, String> finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
-        var retOrgnr = ytelse.getOrgnr() != null ? ytelse.getOrgnr() : UTEN_ORGNR;
-        return new Tuple<>(ytelse.getOpptjeningAktivitetType(), retOrgnr);
+    private static record YtelseGruppering(OpptjeningAktivitetType type, String orgNummer) {}
+
+    private YtelseGruppering finnYtelseDiskriminator(OpptjeningsperiodeForSaksbehandling ytelse) {
+        var retOrgnr = Optional.ofNullable(ytelse.getArbeidsgiver()).map(Arbeidsgiver::getOrgnr).orElse(UTEN_ORGNR);
+        return new YtelseGruppering(ytelse.getOpptjeningAktivitetType(), retOrgnr);
     }
 }

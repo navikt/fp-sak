@@ -18,14 +18,14 @@ public class ManuellRegistreringValidatorUtil {
     }
 
     static boolean perioderOverlapper(Periode p1, Periode p2) {
-        if (p2.getStart() == null || p2.getSlutt() == null || p1.getStart() == null || p1.getSlutt() == null ) {
+        if (p2.start() == null || p2.slutt() == null || p1.start() == null || p1.slutt() == null ) {
             return false;
         }
         p2.begynnerFør(p1);
         var p1BegynnerFørst = p1.begynnerFør(p2);
         var begynnerFørst = p1BegynnerFørst ? p1 : p2;
         var begynnerSist = p1BegynnerFørst ? p2 : p1;
-        return begynnerFørst.getSlutt().isAfter(begynnerSist.getStart());
+        return begynnerFørst.slutt().isAfter(begynnerSist.start());
     }
 
     public static List<String> overlappendePerioder(List<Periode> perioder) {
@@ -49,7 +49,7 @@ public class ManuellRegistreringValidatorUtil {
     public static List<String> datoIkkeNull(List<Periode> perioder) {
         List<String> feil = new ArrayList<>();
         for (var periode: perioder) {
-            if (periode.getStart() == null || periode.getSlutt() == null) {
+            if (periode.start() == null || periode.slutt() == null) {
                 feil.add(PAAKREVD_FELT);
             }
         }
@@ -64,23 +64,7 @@ public class ManuellRegistreringValidatorUtil {
         return perioder.stream().filter(p -> !p.erFørDagensDato()).map(p -> TIDLIGERE_DATO).collect(Collectors.toList());
     }
 
-    public static class Periode {
-        private LocalDate start;
-        private LocalDate slutt;
-
-        public Periode(LocalDate start, LocalDate slutt) {
-            this.start = start;
-            this.slutt = slutt;
-        }
-
-        public LocalDate getStart() {
-            return start;
-        }
-
-        public LocalDate getSlutt() {
-            return slutt;
-        }
-
+    public static record Periode(LocalDate start, LocalDate slutt) {
         boolean begynnerFør(Periode otherPeriode) {
             return start.isBefore(otherPeriode.start);
         }
@@ -91,7 +75,6 @@ public class ManuellRegistreringValidatorUtil {
             }
             return start.isBefore(slutt) || start.isEqual(slutt);
         }
-
         boolean erFørDagensDato() {
             var now = LocalDate.now();
             return !(start.isAfter(now) || start.isEqual(now) || slutt.isAfter(now));

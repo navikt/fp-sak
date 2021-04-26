@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.Tuple;
 
 @ApplicationScoped
 public class PersonopplysningInnhenter {
@@ -252,10 +250,9 @@ public class PersonopplysningInnhenter {
     private Set<PersonIdent> finnBarnRelatertTil(Personinfo personinfo, List<LocalDateInterval> fødselsintervall) {
         return personinfo.getFamilierelasjoner().stream()
             .filter(r -> r.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(rel -> personinfoAdapter.hentFødselsdato(rel.getPersonIdent()).map(f -> new Tuple<>(rel.getPersonIdent(), f)).orElse(null))
-            .filter(Objects::nonNull)
-            .filter(t -> fødselsintervall.stream().anyMatch(i -> i.encloses(t.getElement2())))
-            .map(Tuple::getElement1)
+            .map(FamilierelasjonVL::getPersonIdent)
+            .filter(personIdent -> personinfoAdapter.hentFødselsdato(personIdent)
+                .filter(f -> fødselsintervall.stream().anyMatch(i -> i.encloses(f))).isPresent())
             .collect(Collectors.toSet());
     }
 

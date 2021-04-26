@@ -14,7 +14,6 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.pdp.XacmlRequestBuilderTjeneste;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
-import no.nav.vedtak.util.Tuple;
 
 @Dependent
 @Alternative
@@ -47,7 +46,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         return xacmlBuilder;
     }
 
-    private static void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, Tuple<String, String> ident) {
+    private static void populerResources(XacmlRequestBuilder xacmlBuilder, PdpRequest pdpRequest, IdentKey ident) {
         var aksjonspunktTyper = pdpRequest.getListOfString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE);
         if (aksjonspunktTyper.isEmpty()) {
             xacmlBuilder.addResourceAttributeSet(byggRessursAttributter(pdpRequest, ident, null));
@@ -58,7 +57,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         }
     }
 
-    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, Tuple<String, String> ident, String aksjonsounktType) {
+    private static XacmlAttributeSet byggRessursAttributter(PdpRequest pdpRequest, IdentKey ident, String aksjonsounktType) {
         var resourceAttributeSet = new XacmlAttributeSet();
         resourceAttributeSet.addAttribute(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE,
                 pdpRequest.getString(NavAbacCommonAttributter.RESOURCE_FELLES_DOMENE));
@@ -68,7 +67,7 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, AbacAttributter.RESOURCE_FORELDREPENGER_SAK_BEHANDLINGSSTATUS);
         setOptionalValueinAttributeSet(resourceAttributeSet, pdpRequest, AbacAttributter.RESOURCE_FORELDREPENGER_SAK_ANSVARLIG_SAKSBEHANDLER);
         if (ident != null) {
-            resourceAttributeSet.addAttribute(ident.getElement1(), ident.getElement2());
+            resourceAttributeSet.addAttribute(ident.key(), ident.ident());
         }
         if (aksjonsounktType != null) {
             resourceAttributeSet.addAttribute(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE, aksjonsounktType);
@@ -81,11 +80,13 @@ public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTj
         pdpRequest.getOptional(key).ifPresent(s -> resourceAttributeSet.addAttribute(key, s));
     }
 
-    private static List<Tuple<String, String>> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
-        List<Tuple<String, String>> identer = new ArrayList<>();
+    private static List<IdentKey> hentIdenter(PdpRequest pdpRequest, String... identNøkler) {
+        List<IdentKey> identer = new ArrayList<>();
         for (var key : identNøkler) {
-            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new Tuple<>(key, it)).collect(Collectors.toList()));
+            identer.addAll(pdpRequest.getListOfString(key).stream().map(it -> new IdentKey(key, it)).collect(Collectors.toList()));
         }
         return identer;
     }
+
+    private static record IdentKey(String key, String ident) {}
 }

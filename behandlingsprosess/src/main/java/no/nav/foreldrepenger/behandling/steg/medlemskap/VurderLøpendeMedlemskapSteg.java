@@ -72,10 +72,10 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 var vilkårBuilder = VilkårResultat
                         .builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
                 Avslagsårsak avslagsårsak = null;
-                if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.getElement1())) {
-                    avslagsårsak = Avslagsårsak.fraKode(resultat.getElement2().getKode());
+                if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.vilkårUtfallType())) {
+                    avslagsårsak = Avslagsårsak.fraKode(resultat.vilkårUtfallMerknad().getKode());
                 }
-                vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat.getElement1(), resultat.getElement2(), null,
+                vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat.vilkårUtfallType(), resultat.vilkårUtfallMerknad(), null,
                         avslagsårsak, false, false, null, null);
 
                 var lås = kontekst.getSkriveLås();
