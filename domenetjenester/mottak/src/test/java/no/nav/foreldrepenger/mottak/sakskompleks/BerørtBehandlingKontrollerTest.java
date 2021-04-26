@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -347,15 +348,28 @@ public class BerørtBehandlingKontrollerTest {
         // Arrange
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
-        when(
-            berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(
-            true);
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
         // Act
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert opprett berørt (for medforelder)
         verify(behandlingsoppretter).opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.BERØRT_BEHANDLING);
         verify(behandlingProsesseringTjeneste).opprettTasksForStartBehandling(any());
     }
+
+    @Test
+    public void ingenKøFinnesBerørtSkalIkkeOppretteBerørt() {
+        // Arrange
+        settOppAvsluttetBehandlingBruker();
+        settOppAvsluttetBehandlingAnnenpart();
+        when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(true);
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(berørt));
+        // Act
+        berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandlingMedforelder.getId());
+        // Assert opprett berørt (for medforelder)
+        verifyNoInteractions(behandlingsoppretter);
+        verifyNoInteractions(behandlingProsesseringTjeneste);
+    }
+
 
     @Test
     public void ingenKøSkalOppretteFerieBerørt() {
