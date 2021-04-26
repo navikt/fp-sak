@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -165,7 +167,9 @@ public class PersonopplysningGrunnlagDiff {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()).stream()
             .filter(stb -> person.equals(stb.getAktørId()))
             .filter(stb -> stb.getPeriode().overlapper(periode))
-            .map(StatsborgerskapEntitet::getRegion)
+            .map(StatsborgerskapEntitet::getStatsborgerskap)
+            .map(Landkoder::getKode)
+            .map(MapRegionLandkoder::mapLandkode)
             .min(Comparator.comparing(Region::getRank)).orElse(Region.UDEFINERT);
     }
 
