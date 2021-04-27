@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
@@ -96,6 +97,10 @@ public class UttakYrkesaktiviteter {
         var sum = BigDecimal.ZERO;
         for (var ya : filter.getAlleYrkesaktiviteter()) {
             var aktivitetsAvtaler = filter.getAktivitetsAvtalerForArbeid(ya);
+            if (ArbeidType.FORENKLET_OPPGJØRSORDNING.equals(ya.getArbeidType()) && aktivitetsAvtaler.isEmpty()) {
+                // Forekommer i halvparten av tilfellene pga rapportertingsmåte. Antar 0% i disse tilfellene.
+                continue;
+            }
             if (aktivitetsAvtaler.isEmpty()) {
                 var melding = "Forventer minst en aktivitetsavtale ved dato " + dato.toString() + " i yrkesaktivitet"
                     + ya.toString() + " med ansettelsesperioder " + filter.getAnsettelsesPerioder(ya).toString()
