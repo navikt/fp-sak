@@ -137,6 +137,10 @@ public class BehandlingslagerTilKalkulusMapper {
 
     public static Optional<FaktaAggregatDto> mapFaktaAggregat(BeregningsgrunnlagEntitet beregningsgrunnlagEntitet) {
         // I fakta om beregning settes alle faktaavklaringer på første periode og vi kan derfor bruke denne til å hente ut avklart fakta
+        // Enkelte eldre grunnlag har ikke perioder (f.eks i OPPRETTET tilstand)
+        if (beregningsgrunnlagEntitet.getBeregningsgrunnlagPerioder().isEmpty()) {
+            return Optional.empty();
+        }
         var førstePeriode = beregningsgrunnlagEntitet.getBeregningsgrunnlagPerioder().get(0);
         var andeler = førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList();
         var faktaAggregatBuilder = FaktaAggregatDto.builder();
