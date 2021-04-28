@@ -60,6 +60,8 @@ public class UttakResultatPeriodeLagreDto {
     @ValidKodeverk
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
 
+    private LocalDate mottattDato;
+
     UttakResultatPeriodeLagreDto() { //NOSONAR
         //for jackson
     }
@@ -116,6 +118,10 @@ public class UttakResultatPeriodeLagreDto {
 
     public boolean isGraderingInnvilget() {
         return graderingInnvilget;
+    }
+
+    public LocalDate getMottattDato() {
+        return mottattDato;
     }
 
     public static class Builder {
@@ -176,8 +182,14 @@ public class UttakResultatPeriodeLagreDto {
             kladd.flerbarnsdager = flerbarnsdager;
             return this;
         }
+
         public Builder medGraderingInnvilget(boolean innvilget) {
             kladd.graderingInnvilget = innvilget;
+            return this;
+        }
+
+        public Builder medMottattDato(LocalDate mottattDato) {
+            kladd.mottattDato = mottattDato;
             return this;
         }
 

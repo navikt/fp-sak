@@ -57,7 +57,7 @@ public class AnnenForelderIkkeRettOgLøpendeVedtakAksjonspunktUtleder implements
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsGjeldendeUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         if (fpGrunnlag.getAnnenpart().isPresent()) {
-            var gjeldendeVedtakBehandlingId = fpGrunnlag.getAnnenpart().get().getGjeldendeVedtakBehandlingId();
+            var gjeldendeVedtakBehandlingId = fpGrunnlag.getAnnenpart().get().gjeldendeVedtakBehandlingId();
             return uttakTjeneste.hentUttakHvisEksisterer(gjeldendeVedtakBehandlingId);
         }
         return Optional.empty();

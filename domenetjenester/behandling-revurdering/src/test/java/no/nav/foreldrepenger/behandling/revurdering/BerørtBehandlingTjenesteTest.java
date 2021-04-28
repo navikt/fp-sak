@@ -69,14 +69,14 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    public void tapende_behandling_skal_ikke_opprette_berørt() {
+    public void berørt_behandling_skal_ikke_opprette_berørt() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var scenarioAnnenpart = ScenarioFarSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingAnnenpart = scenarioAnnenpart.lagre(repositoryProvider);
 
         var uttakInput = new UttakInput(BehandlingReferanse.fra(behandling), null,
-            new ForeldrepengerGrunnlag().medErTapendeBehandling(true));
+            new ForeldrepengerGrunnlag().medErBerørtBehandling(true));
         when(uttakInputTjeneste.lagInput(behandling.getId())).thenReturn(uttakInput);
 
         var resultat = skalBerørtOpprettes(behandling, behandlingAnnenpart);

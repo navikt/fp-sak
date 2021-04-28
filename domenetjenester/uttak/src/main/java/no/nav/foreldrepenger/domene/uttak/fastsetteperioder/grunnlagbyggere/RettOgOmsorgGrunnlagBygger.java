@@ -53,7 +53,7 @@ public class RettOgOmsorgGrunnlagBygger {
         if (annenpart.isEmpty()) {
             return Optional.empty();
         }
-        return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+        return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
     }
 
     private boolean aleneomsorg(YtelseFordelingAggregat ytelseFordelingAggregat) {

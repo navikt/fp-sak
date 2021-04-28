@@ -77,6 +77,7 @@ public class RevurderingGrunnlagBygger {
             .medTidsperiode(periode.getFom(), periode.getTom())
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .medMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();
     }
 

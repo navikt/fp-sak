@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +132,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-                .medAnnenpart(new Annenpart(false, førsteBehandling.getId()));
+                .medAnnenpart(new Annenpart(false, førsteBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(revurdering), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 
@@ -154,7 +155,7 @@ public class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAware
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(morBehandling.getFagsak(), farBehandling.getFagsak(), morBehandling);
 
         var ytelsespesifiktGrunnlag = familieHendelser(FamilieHendelse.forFødsel(null, LocalDate.now(), List.of(), 1))
-                .medAnnenpart(new Annenpart(false, morBehandling.getId()));
+                .medAnnenpart(new Annenpart(false, morBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(BehandlingReferanse.fra(farBehandling), null, ytelsespesifiktGrunnlag);
         var resultat = tjeneste.beregnStønadskontoer(input);
 

@@ -119,7 +119,7 @@ public class KontrollerAktivitetskravDtoTjeneste {
     private boolean harAnnenForelderRett(YtelseFordelingAggregat ytelseFordelingAggregat,
                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         var annenpartUttak = ytelsespesifiktGrunnlag.getAnnenpart()
-            .map(Annenpart::getGjeldendeVedtakBehandlingId)
+            .map(Annenpart::gjeldendeVedtakBehandlingId)
             .flatMap(foreldrepengerUttakTjeneste::hentUttakHvisEksisterer);
         return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat, annenpartUttak);
     }

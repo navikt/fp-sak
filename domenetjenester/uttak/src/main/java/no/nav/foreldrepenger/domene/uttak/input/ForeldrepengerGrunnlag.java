@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
-    private boolean tapendeBehandling;
+    private boolean berørtBehandling;
     private FamilieHendelser familieHendelser;
     private OriginalBehandling originalBehandling;
     private Annenpart annenpart;
@@ -14,14 +14,14 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     }
 
     public ForeldrepengerGrunnlag(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
-        tapendeBehandling = foreldrepengerGrunnlag.tapendeBehandling;
+        berørtBehandling = foreldrepengerGrunnlag.berørtBehandling;
         familieHendelser = foreldrepengerGrunnlag.familieHendelser;
         originalBehandling = foreldrepengerGrunnlag.originalBehandling;
         annenpart = foreldrepengerGrunnlag.annenpart;
     }
 
-    public boolean isTapendeBehandling() {
-        return tapendeBehandling;
+    public boolean isBerørtBehandling() {
+        return berørtBehandling;
     }
 
     public FamilieHendelser getFamilieHendelser() {
@@ -36,9 +36,9 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         return Optional.ofNullable(annenpart);
     }
 
-    public ForeldrepengerGrunnlag medErTapendeBehandling(boolean tapendeBehandling) {
+    public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
-        nyttGrunnlag.tapendeBehandling = tapendeBehandling;
+        nyttGrunnlag.berørtBehandling = berørtBehandling;
         return nyttGrunnlag;
     }
 
