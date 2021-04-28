@@ -176,6 +176,6 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
         var annenpart = ytelsespesifiktGrunnlag.getAnnenpart();
         return UttakOmsorgUtil.harAnnenForelderRett(ytelseFordelingAggregat,
             annenpart.isEmpty() ? Optional.empty() : foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(
-                annenpart.get().getGjeldendeVedtakBehandlingId()));
+                annenpart.get().gjeldendeVedtakBehandlingId()));
     }
 }

@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.saldo.SaldoUtregning;
 public class SaldoValideringTest {
 
     @Test
-    public void annenpart_ikke_tapende_skal_ikke_godkjennes_hvis_negativ_saldo_og_ikke_nok_dager_å_frigi() {
+    public void annenpart_ikke_berørt_skal_ikke_godkjennes_hvis_negativ_saldo_og_ikke_nok_dager_å_frigi() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.nokDagerÅFrigiPåAnnenpart(FELLESPERIODE)).thenReturn(false);
@@ -23,7 +23,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void annenpart_ikke_tapende_skal_godkjennes_hvis_negativ_saldo_og_nok_dager_å_frigi() {
+    public void annenpart_ikke_berørt_skal_godkjennes_hvis_negativ_saldo_og_nok_dager_å_frigi() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.nokDagerÅFrigiPåAnnenpart(FELLESPERIODE)).thenReturn(true);
@@ -33,7 +33,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void tapende_skal_godkjennes_hvis_ikke_negativ_saldo() {
+    public void berørt_skal_godkjennes_hvis_ikke_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(false);
         var validering = new SaldoValidering(saldoUtregning, true, true);
@@ -42,7 +42,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void tapende_skal_ikke_godkjennes_hvis_negativ_saldo() {
+    public void berørt_skal_ikke_godkjennes_hvis_negativ_saldo() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         var validering = new SaldoValidering(saldoUtregning, true, true);
@@ -69,7 +69,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void skal_kunne_gå_negativ_hvis_samtidig_uttak_ikke_tapende() {
+    public void skal_kunne_gå_negativ_hvis_samtidig_uttak_ikke_berørt() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.søktSamtidigUttak(FELLESPERIODE)).thenReturn(true);
@@ -91,7 +91,7 @@ public class SaldoValideringTest {
     }
 
     @Test
-    public void skal_ikke_kunne_gå_negativ_hvis_samtidig_uttak_tapende() {
+    public void skal_ikke_kunne_gå_negativ_hvis_samtidig_uttak_berørt() {
         var saldoUtregning = mock(SaldoUtregning.class);
         when(saldoUtregning.negativSaldo(FELLESPERIODE)).thenReturn(true);
         when(saldoUtregning.søktSamtidigUttak(FELLESPERIODE)).thenReturn(true);

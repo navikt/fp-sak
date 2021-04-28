@@ -432,7 +432,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fbDto = saldoer.getStonadskontoer().get(StønadskontoType.FLERBARNSDAGER.getKode());
@@ -557,7 +557,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -612,7 +612,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -710,7 +710,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());
@@ -767,7 +767,7 @@ public class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
 
         // Act
         var saldoer = tjeneste.lagStønadskontoerDto(
-            input(behandlingFar, new Annenpart(false, behandlingMor.getId()), fødseldato));
+            input(behandlingFar, new Annenpart(false, behandlingMor.getId(), fødseldato.atStartOfDay()), fødseldato));
 
         // Assert
         var fpffDto = saldoer.getStonadskontoer().get(StønadskontoType.FORELDREPENGER_FØR_FØDSEL.getKode());

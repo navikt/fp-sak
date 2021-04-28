@@ -54,23 +54,28 @@ public class StønadskontoSaldoTjeneste {
 
     public SaldoUtregning finnSaldoUtregning(UttakInput uttakInput, List<FastsattUttakPeriode> perioderSøker) {
         var ref = uttakInput.getBehandlingReferanse();
-        ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var stønadskontoer = stønadskontoer(ref);
-        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, foreldrepengerGrunnlag, stønadskontoer);
+        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, stønadskontoer);
         return SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
     }
 
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
-                                                          ForeldrepengerGrunnlag foreldrepengerGrunnlag,
+                                                          UttakInput uttakInput,
                                                           Optional<Set<Stønadskonto>> stønadskontoer) {
+        ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
+        var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
+        var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
+            .map(ap -> ap.søknadOpprettetTidspunkt())
+            .orElse(null);
         if (stønadskontoer.isPresent() && perioderSøker.size() > 0) {
-            var perioderAnnenpart = perioderAnnenpart(foreldrepengerGrunnlag);
+            var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
             var kontoer = lagKontoer(stønadskontoer.get());
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
-                foreldrepengerGrunnlag.isTapendeBehandling(), perioderAnnenpart, kontoer);
+                fpGrunnlag.isBerørtBehandling(), perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
+                sisteSøknadOpprettetTidspunktAnnenpart);
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), foreldrepengerGrunnlag.isTapendeBehandling(),
-            List.of(), new Kontoer.Builder().build());
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), fpGrunnlag.isBerørtBehandling(),
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart);
     }
 
     private Kontoer lagKontoer(Set<Stønadskonto> stønadskontoer) {
@@ -92,21 +97,18 @@ public class StønadskontoSaldoTjeneste {
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var opt = annenPartUttak(foreldrepengerGrunnlag);
-        if (opt.isPresent()) {
-            return opt.get()
-                .getGjeldendePerioder()
-                .getPerioder()
-                .stream()
-                .map(AnnenPartGrunnlagBygger::map)
-                .collect(Collectors.toList());
-        }
-        return List.of();
+        return opt.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder()
+            .getPerioder()
+            .stream()
+            .map(AnnenPartGrunnlagBygger::map)
+            .collect(Collectors.toList()))
+            .orElseGet(List::of);
     }
 
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }
@@ -140,12 +142,14 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
-        return new FastsattUttakPeriode.Builder().medTidsperiode(periode.getFom(), periode.getTom())
+        return new FastsattUttakPeriode.Builder()
+            .medTidsperiode(periode.getFom(), periode.getTom())
             .medAktiviteter(mapTilRegelPeriodeAktiviteter(periode.getAktiviteter()))
             .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
             .medSamtidigUttak(periode.isSamtidigUttak())
             .medFlerbarnsdager(periode.isFlerbarnsdager())
             .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .medMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();
     }
 

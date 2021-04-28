@@ -63,7 +63,8 @@ public class SøknadGrunnlagBygger {
         return new Søknad.Builder()
             .medType(type(input.getYtelsespesifiktGrunnlag()))
             .medDokumentasjon(dokumentasjon(ytelseFordelingAggregat))
-            .medOppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat));
+            .medOppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat))
+            .medMottattTidspunkt(input.getSøknadOpprettetTidspunkt());
     }
 
     private List<OppgittPeriode> oppgittePerioder(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {

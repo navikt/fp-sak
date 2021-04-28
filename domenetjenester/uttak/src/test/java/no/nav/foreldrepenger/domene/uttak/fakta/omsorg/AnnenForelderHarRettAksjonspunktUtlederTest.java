@@ -111,7 +111,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
             .medBekreftetHendelse(familieHendelse);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser, new Annenpart(true, morEngang.getId())));
+            lagInput(behandling, familieHendelser, new Annenpart(true, morEngang.getId(), fødselsdato.atStartOfDay())));
 
         // Assert
         assertThat(aksjonspunktResultater).isEmpty();
@@ -135,7 +135,7 @@ public class AnnenForelderHarRettAksjonspunktUtlederTest {
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(familieHendelse)
             .medBekreftetHendelse(familieHendelse);
         var aksjonspunktResultater = aksjonspunktUtleder.utledAksjonspunkterFor(
-            lagInput(behandling, familieHendelser, new Annenpart(false, morEngang.getId())));
+            lagInput(behandling, familieHendelser, new Annenpart(false, morEngang.getId(), fødselsdato.atStartOfDay())));
 
         // Assert
         assertThat(aksjonspunktResultater).containsExactly(AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);

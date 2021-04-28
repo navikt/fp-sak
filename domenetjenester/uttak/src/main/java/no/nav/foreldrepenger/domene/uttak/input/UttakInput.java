@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.input;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class UttakInput {
     private final YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag;
     private Set<BeregningsgrunnlagStatus> beregningsgrunnlagStatuser = Set.of();
     private LocalDate søknadMottattDato;
+    private LocalDateTime søknadOpprettetTidspunkt;
     private LocalDate medlemskapOpphørsdato;
     private Set<BehandlingÅrsakType> behandlingÅrsaker = Set.of();
     private boolean behandlingManueltOpprettet;
@@ -36,6 +38,7 @@ public class UttakInput {
         this(input.getBehandlingReferanse(), input.getIayGrunnlag(), input.getYtelsespesifiktGrunnlag());
         this.beregningsgrunnlagStatuser = Set.copyOf(input.beregningsgrunnlagStatuser);
         this.søknadMottattDato = input.søknadMottattDato;
+        this.søknadOpprettetTidspunkt = input.søknadOpprettetTidspunkt;
         this.medlemskapOpphørsdato = input.medlemskapOpphørsdato;
         this.behandlingÅrsaker = input.behandlingÅrsaker;
         this.behandlingManueltOpprettet = input.behandlingManueltOpprettet;
@@ -93,6 +96,10 @@ public class UttakInput {
         return opplysningerOmDødEndret;
     }
 
+    public LocalDateTime getSøknadOpprettetTidspunkt() {
+        return søknadOpprettetTidspunkt;
+    }
+
     public boolean finnesAndelerMedGraderingUtenBeregningsgrunnlag() {
         return finnesAndelerMedGraderingUtenBeregningsgrunnlag;
     }
@@ -110,6 +117,12 @@ public class UttakInput {
     public UttakInput medSøknadMottattDato(LocalDate mottattDato) {
         var newInput = new UttakInput(this);
         newInput.søknadMottattDato = mottattDato;
+        return newInput;
+    }
+
+    public UttakInput medSøknadOpprettetTidspunkt(LocalDateTime tidspunkt) {
+        var newInput = new UttakInput(this);
+        newInput.søknadOpprettetTidspunkt = tidspunkt;
         return newInput;
     }
 

@@ -73,7 +73,7 @@ public class BerørtBehandlingTjeneste {
         }
         var uttakInput = uttakInputTjeneste.lagInput(brukersGjeldendeBehandlingsresultat.getBehandlingId());
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        if (foreldrepengerGrunnlag.isTapendeBehandling()) {
+        if (foreldrepengerGrunnlag.isBerørtBehandling()) {
             return false;
         }
 

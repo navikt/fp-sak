@@ -329,10 +329,10 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(
             FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1));
-        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(true)
+        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medOriginalBehandling(new OriginalBehandling(behandling.getId(), familieHendelser))
             .medFamilieHendelser(familieHendelser)
-            .medAnnenpart(new Annenpart(false, behandlingFar.getId()));
+            .medAnnenpart(new Annenpart(false, behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
             fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));
@@ -364,10 +364,10 @@ public class EndringsdatoRevurderingUtlederImplTest {
 
         var familieHendelser = new FamilieHendelser().medSøknadHendelse(
             FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1));
-        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(true)
+        YtelsespesifiktGrunnlag fpGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medOriginalBehandling(new OriginalBehandling(behandling.getId(), familieHendelser))
             .medFamilieHendelser(familieHendelser)
-            .medAnnenpart(new Annenpart(false, behandlingFar.getId()));
+            .medAnnenpart(new Annenpart(false, behandlingFar.getId(), FØDSELSDATO.atStartOfDay()));
         var iayGrunnlag = iayTjeneste.hentGrunnlag(revurderingBerørtSak.getId());
         var input = new UttakInput(BehandlingReferanse.fra(revurderingBerørtSak), iayGrunnlag,
             fpGrunnlag).medBehandlingÅrsaker(Set.of(BERØRT_BEHANDLING));

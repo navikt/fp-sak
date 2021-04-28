@@ -19,7 +19,7 @@ public class BehandlingGrunnlagBygger {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         return new Behandling.Builder()
-            .medErTapende(fpGrunnlag.isTapendeBehandling())
+            .medErBerørtBehandling(fpGrunnlag.isBerørtBehandling())
             .medSøkerErMor(søkerErMor(ref));
     }
 

@@ -269,13 +269,15 @@ public class FastsettePerioderRegelAdapterTest {
 
     private UttakInput lagInput(Behandling behandling,
                                 UttakBeregningsandelTjenesteTestUtil beregningsandelTjeneste,
-                                boolean tapendeBehandling,
+                                boolean berørtBehandling,
                                 FamilieHendelser familieHendelser) {
         var ref = BehandlingReferanse.fra(behandling, førsteLovligeUttaksdato);
         var originalBehandling = behandling.getOriginalBehandlingId().isPresent() ? new OriginalBehandling(
             behandling.getOriginalBehandlingId().get(), null) : null;
-        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(
-            tapendeBehandling).medFamilieHendelser(familieHendelser).medOriginalBehandling(originalBehandling);
+        YtelsespesifiktGrunnlag ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag()
+            .medErBerørtBehandling(berørtBehandling)
+            .medFamilieHendelser(familieHendelser)
+            .medOriginalBehandling(originalBehandling);
         return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
             ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
             .medSøknadMottattDato(
@@ -784,14 +786,13 @@ public class FastsettePerioderRegelAdapterTest {
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(new Barn()), 1);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var ref = BehandlingReferanse.fra(morBehandlingRevurdering, førsteLovligeUttaksdato);
-        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErTapendeBehandling(true)
+        var ytelsespesifiktGrunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(true)
             .medFamilieHendelser(familieHendelser)
-            .medAnnenpart(new Annenpart(false, farBehandling.getId()))
+            .medAnnenpart(new Annenpart(false, farBehandling.getId(), fødselsdato.atStartOfDay()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
         var input = new UttakInput(ref, null, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
             andelTjeneste.hentStatuser())
-            .medSøknadMottattDato(
-                familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
+            .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
         var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
 
         assertThat(resultat.getPerioder()).hasSize(1);
