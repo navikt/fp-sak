@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -397,7 +398,7 @@ public class FastsettePerioderRegelGrunnlagByggerTest {
             List.of(new Barn()), 1);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(
             new FamilieHendelser().medBekreftetHendelse(bekreftetFamilieHendelse))
-            .medAnnenpart(new Annenpart(false, morsBehandling.getId()));
+            .medAnnenpart(new Annenpart(false, morsBehandling.getId(), LocalDateTime.now()));
         var input = new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
             beregningsandelTjeneste.hentStatuser());
         var grunnlag = grunnlagBygger.byggGrunnlag(input);

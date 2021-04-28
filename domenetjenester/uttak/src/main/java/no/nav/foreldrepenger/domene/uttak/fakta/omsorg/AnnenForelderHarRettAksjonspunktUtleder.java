@@ -65,7 +65,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
             !annenForelderHarUttakMedUtbetaling(annenpartsGjeldendeUttaksplan)) {
             ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
             if (fpGrunnlag.getAnnenpart().isPresent()) {
-                var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().get().harInnvilgetES();
+                var harAnnennartInnvilgetES = fpGrunnlag.getAnnenpart().get().innvilgetES();
                 return harAnnennartInnvilgetES ? List.of() : aksjonspunkt();
             }
             return aksjonspunkt();
@@ -88,7 +88,7 @@ public class AnnenForelderHarRettAksjonspunktUtleder implements FaktaUttakAksjon
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(ForeldrepengerGrunnlag fpGrunnlag) {
         var annenpart = fpGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }

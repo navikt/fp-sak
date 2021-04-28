@@ -91,7 +91,8 @@ public class UttakStegBeregnStønadskontoTjeneste {
         }
 
         if (foreldrepengerGrunnlag.getAnnenpart().isPresent()) {
-            var annenpartGjeldendeVedtakBehandlingId = foreldrepengerGrunnlag.getAnnenpart().get().getGjeldendeVedtakBehandlingId();
+            var annenpartGjeldendeVedtakBehandlingId = foreldrepengerGrunnlag.getAnnenpart().get()
+                .gjeldendeVedtakBehandlingId();
             return erLøpendeInnvilgetFP(annenpartGjeldendeVedtakBehandlingId);
         }
         return false;

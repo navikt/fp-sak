@@ -69,7 +69,7 @@ public class MaksDatoUttakTjenesteImpl implements MaksDatoUttakTjeneste {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
 
         if (annenpart.isPresent()) {
-            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }

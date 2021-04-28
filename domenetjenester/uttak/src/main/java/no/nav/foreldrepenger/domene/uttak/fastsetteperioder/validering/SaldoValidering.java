@@ -15,15 +15,15 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
 
     private final SaldoUtregning saldoUtregning;
     private final boolean harAnnenpart;
-    private final boolean erTapendeBehandling;
+    private final boolean berørtBehandling;
 
 
     public SaldoValidering(SaldoUtregning saldoUtregning,
                            boolean harAnnenpart,
-                           boolean erTapendeBehandling) {
+                           boolean berørtBehandling) {
         this.saldoUtregning = saldoUtregning;
         this.harAnnenpart = harAnnenpart;
-        this.erTapendeBehandling = erTapendeBehandling;
+        this.berørtBehandling = berørtBehandling;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SaldoValidering implements OverstyrUttakPerioderValidering {
     }
 
     public SaldoValideringResultat valider(Stønadskontotype stønadskontoType) {
-        if (erTapendeBehandling || !harAnnenpart) {
+        if (berørtBehandling || !harAnnenpart) {
             return new SaldoValideringResultat(!saldoUtregning.negativSaldo(stønadskontoType), false);
         }
         if (saldoUtregning.negativSaldo(stønadskontoType)) {

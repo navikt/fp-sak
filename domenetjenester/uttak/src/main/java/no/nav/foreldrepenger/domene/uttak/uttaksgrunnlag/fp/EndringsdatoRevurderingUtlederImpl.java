@@ -323,7 +323,7 @@ public class EndringsdatoRevurderingUtlederImpl implements EndringsdatoRevurderi
         var annenpartBehandling = fpGrunnlag.getAnnenpart()
             .orElseThrow(() -> new IllegalStateException(
                 "Utviklerfeil: Berørt behandling uten innvilget vedtak annen forelders behandling - skal ikke skje"))
-            .getGjeldendeVedtakBehandlingId();
+            .gjeldendeVedtakBehandlingId();
         var annenpartsFørsteUttaksdato = finnFørsteUttaksdato(annenpartBehandling);
         var førsteUttaksdatoGjeldendeVedtak = finnFørsteUttaksdato(finnForrigeBehandling(ref));
 

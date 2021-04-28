@@ -95,7 +95,7 @@ public class SaldoerDtoTjeneste {
                 aktivitetSaldoListe.add(new AktivitetSaldoDto(aktivitetIdentifikatorDto, saldo));
             }
             var saldoValidering = new SaldoValidering(saldoUtregning, annenpart.isPresent(),
-                fpGrunnlag.isTapendeBehandling());
+                fpGrunnlag.isBerørtBehandling());
             var kontoUtvidelser = finnKontoUtvidelser(ref, stønadskontotype, annenpart, fpGrunnlag);
             var saldoValideringResultat = saldoValidering.valider(stønadskontotype);
             stønadskontoMap.put(stønadskontotype.name(),
@@ -114,7 +114,7 @@ public class SaldoerDtoTjeneste {
     private Optional<ForeldrepengerUttak> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
         var annenpart = foreldrepengerGrunnlag.getAnnenpart();
         if (annenpart.isPresent()) {
-            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().getGjeldendeVedtakBehandlingId());
+            return uttakTjeneste.hentUttakHvisEksisterer(annenpart.get().gjeldendeVedtakBehandlingId());
         }
         return Optional.empty();
     }

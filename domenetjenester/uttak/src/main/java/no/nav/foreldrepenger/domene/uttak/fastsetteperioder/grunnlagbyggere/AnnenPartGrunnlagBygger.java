@@ -41,11 +41,13 @@ public class AnnenPartGrunnlagBygger {
         }
         var annenpart = fpGrunnlag.getAnnenpart().get();
 
-        var annenpartUttak = fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.getGjeldendeVedtakBehandlingId());
+        var annenpartUttak =
+            fpUttakRepository.hentUttakResultatHvisEksisterer(annenpart.gjeldendeVedtakBehandlingId());
         if (annenpartUttak.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new AnnenPart.Builder()
+            .medSisteSøknadMottattTidspunkt(fpGrunnlag.getAnnenpart().get().søknadOpprettetTidspunkt())
             .medUttaksperioder(uttaksperioder(annenpartUttak.get())));
     }
 
