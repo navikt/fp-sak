@@ -85,6 +85,10 @@ public class Endringskontroller {
         }
 
         if (startpunkt.equals(StartpunktType.UDEFINERT)) {
+            if (harUtførtKontrollerFakta(behandling) && STARTPUNKT_STEG_INNGANG_VILKÅR.contains(behandling.getAktivtBehandlingSteg())) {
+                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
+                utledAksjonspunkterTilHøyreForStartpunkt(kontekst, behandling.getAktivtBehandlingSteg(), ref, behandling);
+            }
             return; // Ingen detekterte endringer - ingen tilbakespoling
         }
 
