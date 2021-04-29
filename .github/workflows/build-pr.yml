@@ -1,9 +1,13 @@
 name: Bygg pull request
 
 on:
-  pull_request:
-    branches:
-      - master    # Push events on master branch
+  pull_request_target:
+    paths-ignore:
+      - '**.md'
+      - '**.MD'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
 
 env:
   TZ: "Europe/Oslo"
