@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   oracle:
-    image: ghcr.io/navikt/oracle-foreldrepenger:11
+    image: ghcr.io/navikt/oracle-foreldrepenger:18-migrert
     container_name: oracle
     shm_size: 2gb
     ports:
