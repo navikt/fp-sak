@@ -6,5 +6,3 @@ services:
     shm_size: 2gb
     ports:
       - 1521:1521
-    volumes:
-      - ./init.d/:/docker-entrypoint-initdb.d/
