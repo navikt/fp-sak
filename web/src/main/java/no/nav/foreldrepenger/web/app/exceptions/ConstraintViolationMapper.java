@@ -45,7 +45,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var msg = "Det oppstod en valideringsfeil: Aksjonspunkt {} {}";
         // TFP-4261. Spesialbehandling for fakta om uttak. Dette kommer av en bug som vi ikke finner ut av.
         // Fakta om uttak skal skrives om så vi vil ikke bruke mer tid på denne. Endrer til loglevel info
-        if (constraints.contains("SlettetUttakPeriodeDto.begrunnelse - must not be null")) {
+        if (constraints.stream().allMatch(c -> c.contains("SlettetUttakPeriodeDto.begrunnelse - must not be null"))) {
             LOG.info(msg, aksjonspunktKoder, constraints);
         } else {
             LOG.warn(msg, aksjonspunktKoder, constraints);
