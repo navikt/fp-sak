@@ -131,14 +131,15 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
             .lagre(repositoryProvider);
         var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
         behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidligere behandlingen er avsluttet
+        behandling.avsluttBehandling();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
             .lagre(repositoryProvider);
         when(behandlingsoppretter.opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).thenReturn(revurdering);
 
-        // simulere at den tidligere behandlingen er avsluttet
-        behandling.avsluttBehandling();
         var fagsakId = behandling.getFagsakId();
         var dokumentTypeEndringssøknad = DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
 
@@ -159,6 +160,9 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
             .lagre(repositoryProvider);
         var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
         behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidligere behandlingen er avsluttet
+        behandling.avsluttBehandling();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -166,9 +170,6 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
             .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagre(repositoryProvider);
-
-        // simulere at den tidligere behandlingen er avsluttet
-        behandling.avsluttBehandling();
 
         var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
@@ -179,6 +180,52 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         //Assert
+        verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(revurdering, mottattDokument, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurdering, mottattDokument);
+        verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument);
+    }
+
+    @Test
+    public void skal_oppdatere_behandling_med_endringssøknad_dersom_siste_behandling_er_åpen_og_berørt_i_mellomtiden() {
+        //Arrange
+        var behandling = ScenarioMorSøkerEngangsstønad
+            .forFødselUtenSøknad()
+            .lagre(repositoryProvider);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidligere behandlingen er avsluttet
+        behandling.avsluttBehandling();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+        var revurdering = ScenarioMorSøkerEngangsstønad
+            .forFødselUtenSøknad()
+            .medFagsakId(behandling.getFagsakId())
+            .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .lagre(repositoryProvider);
+
+        var berørt = ScenarioMorSøkerEngangsstønad
+            .forFødselUtenSøknad()
+            .medFagsakId(behandling.getFagsakId())
+            .medOriginalBehandling(behandling, BehandlingÅrsakType.BERØRT_BEHANDLING)
+            .medBehandlingType(BehandlingType.REVURDERING)
+            .lagre(repositoryProvider);
+        var vedtakBerørt = DokumentmottakTestUtil.oppdaterVedtaksresultat(berørt, VedtakResultatType.INNVILGET);
+        behandlingsresultatRepository.lagre(vedtakBerørt.getBehandlingsresultat().getBehandlingId(), vedtakBerørt.getBehandlingsresultat());
+        // simulere at den tidligere behandlingen er avsluttet
+        berørt.avsluttBehandling();
+        behandlingRepository.lagre(berørt, behandlingRepository.taSkriveLås(berørt));
+
+
+        var fagsakId = behandling.getFagsakId();
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+
+        //Act
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+
+        //Assert - litt fake - skulle vært oppdatereViaHenleggelse (mottattDokumentTjeneste -> true)
         verify(dokumentmottaker).oppdaterÅpenBehandlingMedDokument(revurdering, mottattDokument, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
         verify(kompletthetskontroller).persisterDokumentOgVurderKompletthet(revurdering, mottattDokument);
         verify(dokumentmottakerFelles).opprettHistorikk(revurdering, mottattDokument);
@@ -336,6 +383,9 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
             .lagre(repositoryProvider);
         var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
         behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidligere behandlingen er avsluttet
+        behandling.avsluttBehandling();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
         var revurdering = ScenarioMorSøkerEngangsstønad
             .forFødselUtenSøknad()
@@ -343,9 +393,6 @@ public class DokumentmottakerEndringssøknadTest extends EntityManagerAwareTest 
             .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medBehandlingType(BehandlingType.REVURDERING)
             .lagre(repositoryProvider);
-
-        // simulere at den tidligere behandlingen er avsluttet
-        behandling.avsluttBehandling();
 
         var fagsakId = behandling.getFagsakId();
         var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;

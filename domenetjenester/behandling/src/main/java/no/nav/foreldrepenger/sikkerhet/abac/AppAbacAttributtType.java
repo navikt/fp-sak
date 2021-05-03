@@ -15,6 +15,7 @@ public enum AppAbacAttributtType implements AbacAttributtType {
      */
     OPPGAVE_ID("oppgaveId"),
     SAKER_MED_FNR("fnrSok"),
+    SAKER_FOR_AKTØR("aktoridSok"),
     ABAC_ANSVALIG_SAKSBEHANDLER("ansvarlig_saksbehandler"),
     ABAC_BEHANDLING_STATUS("behandling_status"),
     ABAC_SAK_STATUS("sak_status"),

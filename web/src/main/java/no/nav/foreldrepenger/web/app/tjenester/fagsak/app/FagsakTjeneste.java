@@ -101,6 +101,9 @@ public class FagsakTjeneste {
         if (PersonIdent.erGyldigFnr(søkestreng)) {
             return hentFagsakDtoForFnr(new PersonIdent(søkestreng));
         }
+        if (AktørId.erGyldigAktørId(søkestreng)) {
+            return hentFagsakDtoForAktørId(new AktørId(søkestreng));
+        }
 
         try {
             return lagFagsakDtoForSaksnummer(new Saksnummer(søkestreng)).stream().collect(Collectors.toList());
@@ -111,8 +114,12 @@ public class FagsakTjeneste {
 
     private List<FagsakDto> hentFagsakDtoForFnr(PersonIdent fnr) {
         return personinfoAdapter.hentAktørForFnr(fnr)
-            .map(a -> fagsakRepository.hentForBruker(a)).orElse(List.of()).stream()
-            .map(fagsak -> mapFraFagsakTilFagsakDto(fagsak))
+            .map(this::hentFagsakDtoForAktørId).orElse(List.of());
+    }
+
+    private List<FagsakDto> hentFagsakDtoForAktørId(AktørId aktørId) {
+        return fagsakRepository.hentForBruker(aktørId).stream()
+            .map(this::mapFraFagsakTilFagsakDto)
             .collect(Collectors.toList());
     }
 

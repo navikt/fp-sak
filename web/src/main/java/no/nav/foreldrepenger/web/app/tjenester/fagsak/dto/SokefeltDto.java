@@ -34,9 +34,11 @@ public class SokefeltDto implements AbacDto {
     public AbacDataAttributter abacAttributter() {
         var attributter = AbacDataAttributter.opprett();
         if (searchString.length() == 11 /* guess - fødselsnummer */) {
-            attributter
-                    .leggTil(AppAbacAttributtType.FNR, searchString)
-                    .leggTil(AppAbacAttributtType.SAKER_MED_FNR, searchString);
+            attributter.leggTil(AppAbacAttributtType.FNR, searchString)
+                .leggTil(AppAbacAttributtType.SAKER_MED_FNR, searchString);
+        } else if (searchString.length() == 13 /* guess - aktørId */) {
+            attributter.leggTil(AppAbacAttributtType.AKTØR_ID, searchString)
+                .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, searchString);
         } else {
             attributter.leggTil(AppAbacAttributtType.SAKSNUMMER, searchString);
         }
