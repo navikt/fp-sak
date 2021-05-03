@@ -111,8 +111,7 @@ public class ForretningshendelseMottak {
         var håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());
 
         // Hent siste ytelsebehandling
-        var sisteYtelsebehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId())
-            .orElse(null);
+        var sisteYtelsebehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsakId).orElse(null);
 
         // Case 1: Ingen ytelsesbehandling er opprettet på fagsak - hendelse skal ikke opprette noen behandling
         if (sisteYtelsebehandling == null) {

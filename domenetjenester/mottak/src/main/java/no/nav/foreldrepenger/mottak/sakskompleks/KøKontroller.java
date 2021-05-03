@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -9,12 +8,14 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -71,12 +72,13 @@ public class KøKontroller {
     public void dekøFørsteBehandlingISakskompleks(Behandling behandling) {
         var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(behandling.getFagsak());
         var medforelderEndringsSøknad = køetBehandlingMedforelder.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)).isPresent();
-        if (medforelderEndringsSøknad) {
-
+        if (medforelderEndringsSøknad && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(køetBehandlingMedforelder.get());
+            opprettTaskForÅStarteBehandling(behandling);
+        } else if (medforelderEndringsSøknad) {
             // Legger nyopprettet behandling i kø, siden denne ikke skal behandles nå
             enkøBehandling(behandling);
             oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(køetBehandlingMedforelder.get());
-
         } else {
             opprettTaskForÅStarteBehandling(behandling);
         }
@@ -96,8 +98,8 @@ public class KøKontroller {
     public void håndterSakskompleks(Fagsak fagsak) {
         var køetBehandling = behandlingRevurderingRepository.finnKøetYtelsesbehandling(fagsak.getId());
         var køetBehandlingMedforelder = behandlingRevurderingRepository.finnKøetBehandlingMedforelder(fagsak);
-        var nesteBehandling = finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
-            .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder, b -> true));
+        var nesteBehandling = finnTidligsteSøknad(køetBehandling, køetBehandlingMedforelder)
+            .or(() -> finnTidligstOpprettet(køetBehandling, køetBehandlingMedforelder));
         nesteBehandling.ifPresent(b -> {
             if (skalOppdatereKøetBehandling(b)) {
                 lagreOppdaterKøetProsesstask(b);
@@ -107,9 +109,24 @@ public class KøKontroller {
         });
     }
 
-    private Optional<Behandling> finnTidligstOpprettet(Optional<Behandling> behandling1, Optional<Behandling> behandling2, Predicate<Behandling> filtrert) {
-        var ts1 = behandling1.filter(filtrert).map(Behandling::getOpprettetTidspunkt);
-        var ts2 = behandling2.filter(filtrert).map(Behandling::getOpprettetTidspunkt);
+    private Optional<Behandling> finnTidligsteSøknad(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
+        var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);
+        var ts2 = behandling2.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
+            .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);
+        if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
+        if (ts1.isPresent() && ts2.isPresent()) {
+            if (ts1.get().equals(ts2.get())) {
+                return behandling1.get().getOpprettetTidspunkt().isBefore(behandling2.get().getOpprettetTidspunkt()) ? behandling1 : behandling2;
+            }
+            return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
+        }
+        return ts1.isPresent() ? behandling1 : behandling2;
+    }
+
+    private Optional<Behandling> finnTidligstOpprettet(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
+        var ts1 = behandling1.map(Behandling::getOpprettetTidspunkt);
+        var ts2 = behandling2.map(Behandling::getOpprettetTidspunkt);
         if (ts1.isEmpty() && ts2.isEmpty()) return Optional.empty();
         if (ts1.isPresent() && ts2.isPresent()) return ts1.get().isBefore(ts2.get()) ? behandling1 : behandling2;
         return ts1.isPresent() ? behandling1 : behandling2;

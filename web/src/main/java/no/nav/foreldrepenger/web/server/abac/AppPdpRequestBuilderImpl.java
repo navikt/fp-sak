@@ -149,6 +149,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         //
         fagsakIder.addAll(pipRepository.fagsakIderForSøker(tilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_MED_FNR))));
+        fagsakIder.addAll(pipRepository.fagsakIderForSøker(attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR)));
 
         // fra saksnummer
         Set<String> saksnummere = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);

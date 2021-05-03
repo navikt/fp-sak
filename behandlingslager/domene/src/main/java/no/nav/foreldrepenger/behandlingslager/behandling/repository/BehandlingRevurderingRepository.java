@@ -81,7 +81,15 @@ public class BehandlingRevurderingRepository {
         return Collections.emptyList();
     }
 
-    public Optional<Behandling> hentSisteYtelsesbehandling(Long fagsakId) {
+    public Optional<Behandling> hentAktivIkkeBerørtEllerSisteYtelsesbehandling(Long fagsakId) {
+        // Det kan ligge avsluttet berørt opprettet senere enn åpen behandling
+        return finnÅpenogKøetYtelsebehandling(fagsakId).stream()
+            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .findFirst()
+            .or(() -> hentSisteYtelsesbehandling(fagsakId));
+    }
+
+    private Optional<Behandling> hentSisteYtelsesbehandling(Long fagsakId) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
     }
 

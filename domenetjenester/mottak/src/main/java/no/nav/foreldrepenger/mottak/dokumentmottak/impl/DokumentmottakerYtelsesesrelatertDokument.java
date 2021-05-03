@@ -5,7 +5,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -66,7 +65,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
 
     @Override
     public final void mottaDokument(MottattDokument mottattDokument, Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType) {
-        var sisteYtelsesbehandling = revurderingRepository.hentSisteYtelsesbehandling(fagsak.getId());
+        var sisteYtelsesbehandling = revurderingRepository.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId());
 
         if (sisteYtelsesbehandling.isEmpty()) {
             håndterIngenTidligereBehandling(fagsak, mottattDokument, behandlingÅrsakType);
@@ -74,9 +73,9 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         }
 
         var behandling = sisteYtelsesbehandling.get();
-        boolean sisteYtelseErFerdigbehandlet = sisteYtelsesbehandling.map(Behandling::erSaksbehandlingAvsluttet).orElse(Boolean.FALSE);
+        boolean sisteYtelseErFerdigbehandlet = behandling.erSaksbehandlingAvsluttet();
         LOG.info("DYD mottatt dokument {} for fagsak {} sistebehandling {} ferdig {}", mottattDokument.getId(), fagsak.getId(),
-            sisteYtelsesbehandling.map(Behandling::getId).orElse(0L), sisteYtelsesbehandling.map(Behandling::getStatus).orElse(BehandlingStatus.OPPRETTET).getKode());
+            behandling.getId(), behandling.getStatus().getKode());
         if (sisteYtelseErFerdigbehandlet) {
             var sisteAvsluttetBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId());
             behandling = sisteAvsluttetBehandling.orElse(behandling);
