@@ -72,7 +72,7 @@ public class BesteberegningYtelsegrunnlagMapper {
     }
 
     private static Ytelseandel mapAndel(BeregningsresultatAndel a) {
-        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()), a.getId());
+        return new Ytelseandel(AktivitetStatus.fraKode(a.getAktivitetStatus().getKode()), Long.valueOf(a.getDagsats()));
     }
 
 
