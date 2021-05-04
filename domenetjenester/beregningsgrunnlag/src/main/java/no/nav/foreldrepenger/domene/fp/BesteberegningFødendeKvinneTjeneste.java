@@ -1,22 +1,38 @@
 package no.nav.foreldrepenger.domene.fp;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
@@ -27,6 +43,10 @@ public class BesteberegningFødendeKvinneTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private FagsakRepository fagsakRepository;
 
     public BesteberegningFødendeKvinneTjeneste() {
         // CDI
@@ -35,10 +55,18 @@ public class BesteberegningFødendeKvinneTjeneste {
     @Inject
     public BesteberegningFødendeKvinneTjeneste(FamilieHendelseRepository familieHendelseRepository,
                                                OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste,
-                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                               InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                               BeregningsgrunnlagRepository beregningsgrunnlagRepository,
+                                               BehandlingRepository behandlingRepository,
+                                               BeregningsresultatRepository beregningsresultatRepository,
+                                               FagsakRepository fagsakRepository) {
         this.familieHendelseRepository = familieHendelseRepository;
         this.opptjeningForBeregningTjeneste = opptjeningForBeregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
+        this.behandlingRepository = behandlingRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
+        this.fagsakRepository = fagsakRepository;
     }
 
     public boolean brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(BehandlingReferanse behandlingReferanse) {
@@ -65,6 +93,53 @@ public class BesteberegningFødendeKvinneTjeneste {
         return erFødendeKvinne(behandlingReferanse.getRelasjonsRolleType(), familiehendelseType);
     }
 
+    public boolean kvalifisererTilAutomatiskBesteberegning(BehandlingReferanse behandlingReferanse) {
+        if (!brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse)) {
+            return false;
+        }
+        if (erBesteberegningManueltVurdert(behandlingReferanse)) {
+            return false;
+        }
+        return kanBehandlesAutomatisk(behandlingReferanse);
+    }
+
+    public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
+        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
+        YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.getAktørId()));
+        LocalDate førsteMuligeDatoForYtelseIBBGrunnlag = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktBeregning().minusMonths(12);
+        List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
+        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(førsteMuligeDatoForYtelseIBBGrunnlag, ytelseFilter)
+            .ifPresent(grunnlag::add);
+        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(førsteMuligeDatoForYtelseIBBGrunnlag, ytelseFilter);
+        grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
+        return grunnlag;
+    }
+
+    private List<Ytelsegrunnlag> hentOgMapFpsakYtelser(List<Saksnummer> saksnummer) {
+        List<Ytelsegrunnlag> resultater = new ArrayList<>();
+        saksnummer.forEach(sak -> {
+            Optional<Fagsak> fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
+            fagsak.flatMap(fag -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fag.getId()))
+                .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
+                .flatMap(br -> BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(br, fagsak.get().getYtelseType()))
+                .ifPresent(resultater::add);
+        });
+        return resultater;
+    }
+
+    private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
+        var beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.getBehandlingId());
+        return beregningsgrunnlagEntitet.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
+            .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
+    }
+
+    private boolean kanBehandlesAutomatisk(BehandlingReferanse ref) {
+        InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
+        var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
+        var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
+        return opptjeningAktiviteter.stream().allMatch(a -> a.opptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER)
+            || a.opptjeningAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
+    }
 
     private static boolean gjelderForeldrepenger(BehandlingReferanse behandlingReferanse) {
         return FagsakYtelseType.FORELDREPENGER.equals(behandlingReferanse.getFagsakYtelseType());
