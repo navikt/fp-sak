@@ -106,11 +106,14 @@ public class BesteberegningFødendeKvinneTjeneste {
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
         InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
         YtelseFilter ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.getAktørId()));
-        LocalDate førsteMuligeDatoForYtelseIBBGrunnlag = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktBeregning().minusMonths(12);
+        Optional<LocalDate> førsteMuligeDatoForYtelseIBBGrunnlag = behandlingReferanse.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().map(stp -> stp.minusMonths(12));
+        if (førsteMuligeDatoForYtelseIBBGrunnlag.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
-        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(førsteMuligeDatoForYtelseIBBGrunnlag, ytelseFilter)
+        BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(førsteMuligeDatoForYtelseIBBGrunnlag.get(), ytelseFilter)
             .ifPresent(grunnlag::add);
-        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(førsteMuligeDatoForYtelseIBBGrunnlag, ytelseFilter);
+        List<Saksnummer> saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(førsteMuligeDatoForYtelseIBBGrunnlag.get(), ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
         return grunnlag;
     }
