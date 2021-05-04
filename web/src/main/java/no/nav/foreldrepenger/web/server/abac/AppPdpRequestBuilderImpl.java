@@ -64,9 +64,8 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         Optional<PipBehandlingsData> behandlingData = behandlingIder.isPresent()
                 ? pipRepository.hentDataForBehandling(behandlingIder.get())
                 : Optional.empty();
-        var fagsakIder = behandlingData.isPresent()
-                ? utledFagsakIder(attributter, behandlingData.get())
-                : utledFagsakIder(attributter);
+        var fagsakIder = behandlingData.map(behandlingsData -> utledFagsakIder(attributter, behandlingsData))
+            .orElseGet(() -> utledFagsakIder(attributter));
 
         behandlingData.ifPresent(
                 pipBehandlingsData -> validerSamsvarBehandlingOgFagsak(behandlingIder.get(), pipBehandlingsData.getFagsakId(), fagsakIder));
@@ -148,8 +147,8 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         fagsakIder.addAll(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
 
         //
-        fagsakIder.addAll(pipRepository.fagsakIderForSøker(tilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_MED_FNR))));
-        fagsakIder.addAll(pipRepository.fagsakIderForSøker(attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR)));
+        fagsakIder.addAll(pipRepository.fagsakIderForSøker(fnrTilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_MED_FNR))));
+        fagsakIder.addAll(pipRepository.fagsakIderForSøker(aktørIdStringTilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR))));
 
         // fra saksnummer
         Set<String> saksnummere = attributter.getVerdier(AppAbacAttributtType.SAKSNUMMER);
@@ -176,11 +175,18 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         return aktørIder;
     }
 
-    private Collection<AktørId> tilAktørId(Set<String> fnr) {
+    private Collection<AktørId> fnrTilAktørId(Set<String> fnr) {
         if (fnr == null || fnr.isEmpty()) {
             return Collections.emptySet();
         }
         return fnr.stream().flatMap(f -> aktørConsumer.hentAktørIdForPersonIdent(new PersonIdent(f)).stream()).collect(Collectors.toSet());
+    }
+
+    private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {
+        if (aktørId == null || aktørId.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return aktørId.stream().map(AktørId::new).collect(Collectors.toSet());
     }
 
 }

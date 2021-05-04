@@ -123,6 +123,26 @@ public class PdpRequestBuilderTest {
     }
 
     @Test
+    public void skal_hente_fnr_fra_alle_tilknyttede_saker_når_det_kommer_inn_søk_etter_saker_for_aktørid() {
+        var attributter = byggAbacAttributtSamling();
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, AKTØR_0.getId()));
+
+        Set<Long> fagsakIder = new HashSet<>();
+        fagsakIder.add(FAGSAK_ID);
+        fagsakIder.add(FAGSAK_ID_2);
+        lenient().when(pipRepository.fagsakIderForSøker(Collections.singleton(AKTØR_0))).thenReturn(fagsakIder);
+        Set<AktørId> aktører = new HashSet<>();
+        aktører.add(AKTØR_0);
+        aktører.add(AKTØR_1);
+        aktører.add(AKTØR_2);
+        lenient().when(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder)).thenReturn(aktører);
+
+        var request = requestBuilder.lagPdpRequest(attributter);
+        assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_0.getId(),
+            AKTØR_1.getId(), AKTØR_2.getId());
+    }
+
+    @Test
     public void skal_bare_sende_fnr_vider_til_pdp() {
         var attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, PERSON_0));
