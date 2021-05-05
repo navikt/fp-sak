@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.kontrakt;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -36,13 +34,7 @@ public class SimulerOppdragDto {
     public List<String> getOppdragPrMottakerDecoded() {
         return oppdragPrMottaker.stream()
             .filter(Objects::nonNull)
-            .map(str -> {
-                try {
-                    return new String(Base64.getDecoder().decode(str.getBytes(Charset.forName("UTF-8"))), "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException("Klarte ikke finne tegnestt (skal ikke kunne skje)", e);
-                }
-            })
+            .map(str -> new String(Base64.getDecoder().decode(str.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8))
             .collect(Collectors.toList());
     }
 
