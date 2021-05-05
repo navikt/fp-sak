@@ -51,7 +51,10 @@ public class OppdragMapper {
             .medSaksbehId(ansvarligSaksbehandler)
             .medAvstemming(Avstemming.ny());
 
-        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER && !oppdragErTilNyMottaker(oppdrag) && !erOpphørForMottaker(oppdrag)) {
+        if (oppdrag.getBetalingsmottaker() == Betalingsmottaker.BRUKER
+            && !oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())
+            && harHattUtbetalingTidligere(oppdrag.getBetalingsmottaker())
+            && !erOpphørForMottaker(oppdrag)) {
             builder.medOmpostering116(opprettOmpostering116(oppdrag, input.brukInntrekk()));
         }
 
@@ -80,12 +83,12 @@ public class OppdragMapper {
         return Optional.ofNullable(refusjonsinfoBuilder);
     }
 
-    private boolean oppdragErTilNyMottaker(Oppdrag oppdrag) {
-        return !tidligereOppdrag.getBetalingsmottakere().contains(oppdrag.getBetalingsmottaker());
+    private boolean oppdragErTilNyMottaker(Betalingsmottaker mottaker) {
+        return !tidligereOppdrag.getBetalingsmottakere().contains(mottaker);
     }
 
     public KodeEndring utledKodeEndring(Oppdrag oppdrag) {
-        if (oppdragErTilNyMottaker(oppdrag)) {
+        if (oppdragErTilNyMottaker(oppdrag.getBetalingsmottaker())) {
             return KodeEndring.NY;
         }
         return KodeEndring.ENDRING;
@@ -211,6 +214,16 @@ public class OppdragMapper {
         var inklNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
         for (var kjede : inklNyttOppdrag.getKjeder().values()) {
             if (!kjede.tilYtelse().getPerioder().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean harHattUtbetalingTidligere(Betalingsmottaker mottaker) {
+        var tidligerOppdragForMottaker = tidligereOppdrag.filter(mottaker);
+        for (var kjede : tidligerOppdragForMottaker.getKjeder().values()) {
+            if (kjede.tilYtelse().getPerioder().isEmpty()) {
                 return false;
             }
         }
