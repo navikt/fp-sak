@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
-import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapsTjenesteFeil.*;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapsTjenesteFeil.kanIkkeFinneSvangerskapspengerGrunnlagForBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapsTjenesteFeil.kanIkkeFinneTerminbekreftelsePåSvangerskapspengerSøknad;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -326,7 +327,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             final var oppdatertOverstyrtHendelse = familieHendelseRepository.opprettBuilderFor(behandling);
             oppdatertOverstyrtHendelse.tilbakestillBarn();
             if (dto.getFødselsdato() != null) {
-                oppdatertOverstyrtHendelse.medFødselsDato(dto.getFødselsdato());
+                oppdatertOverstyrtHendelse.medFødselsDato(dto.getFødselsdato()).medAntallBarn(1);
             }
 
             familieHendelseRepository.lagreOverstyrtHendelse(behandling, oppdatertOverstyrtHendelse);
