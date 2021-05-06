@@ -11,6 +11,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -56,10 +59,16 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private Behandling behandling;
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
+    private FagsakRepository fagsakRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
 
     public BesteberegningFødendeKvinneTjenesteTest(EntityManager em) {
         repositoryProvider = new RepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
+        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(em);
+        fagsakRepository = new FagsakRepository(em);
+        beregningsresultatRepository = new BeregningsresultatRepository(em);
     }
 
     @BeforeEach
@@ -71,7 +80,8 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.getBehandlingId(),
                 InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         besteberegningFødendeKvinneTjeneste = new BesteberegningFødendeKvinneTjeneste(familieHendelseRepository,
-                opptjeningForBeregningTjeneste, inntektArbeidYtelseTjeneste);
+                opptjeningForBeregningTjeneste, inntektArbeidYtelseTjeneste, beregningsgrunnlagRepository, behandlingRepository,
+            beregningsresultatRepository, fagsakRepository);
     }
 
     @Test

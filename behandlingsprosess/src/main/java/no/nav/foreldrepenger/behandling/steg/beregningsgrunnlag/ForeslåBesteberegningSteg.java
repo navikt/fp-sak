@@ -39,9 +39,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
-    private OpptjeningRepository opptjeningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     protected ForeslåBesteberegningSteg() {
@@ -53,16 +51,12 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
                                      BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                      BeregningsgrunnlagInputProvider inputTjenesteProvider,
                                      BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
-                                     OpptjeningRepository opptjeningRepository,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                     BeregningsgrunnlagRepository beregningsgrunnlagRepository) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
-        this.opptjeningRepository = opptjeningRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
     }
 
     @Override
@@ -86,27 +80,8 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
     }
 
     private boolean skalBeregnesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
-        var kvalifisererTilBesteberegning = besteberegningFødendeKvinneTjeneste.brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(ref);
-        if (!kvalifisererTilBesteberegning) {
-            return false;
-        }
-        var kanBehandlesAutomatisk = kanBehandlesAutomatisk(ref, input);
-        var erManueltVurdert = erBesteberegningManueltVurdert(ref);
-        return kanBehandlesAutomatisk && !erManueltVurdert;
-    }
-
-    private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
-        var beregningsgrunnlagEntitet = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(ref.getBehandlingId());
-        return beregningsgrunnlagEntitet.map(BeregningsgrunnlagEntitet::getFaktaOmBeregningTilfeller)
-            .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
-    }
-
-    private boolean kanBehandlesAutomatisk(BehandlingReferanse ref, BeregningsgrunnlagInput input) {
-        var opptjening = opptjeningRepository.finnOpptjening(ref.getBehandlingId());
-        var opptjeningAktiviteter = opptjening.map(Opptjening::getOpptjeningAktivitet).orElse(Collections.emptyList());
-        var harKunDpEllerArbeidIOpptjeningsperioden = opptjeningAktiviteter.stream().allMatch(a -> a.getAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER) || a.getAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
-        return input.isEnabled("automatisk-besteberegning", false) &&
-            harKunDpEllerArbeidIOpptjeningsperioden;
+        boolean kanBehandlesAutomatisk = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
+        return kanBehandlesAutomatisk && input.isEnabled("automatisk-besteberegning", false);
     }
 
     @Override
