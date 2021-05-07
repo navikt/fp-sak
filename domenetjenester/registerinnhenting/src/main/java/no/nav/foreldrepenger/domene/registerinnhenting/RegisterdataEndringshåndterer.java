@@ -151,7 +151,7 @@ public class RegisterdataEndringshåndterer {
 
         registerdataInnhenter.innhentPersonopplysninger(behandling);
         registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
-        registerdataInnhenter.innhentIAYIAbakus(behandling);
+        registerdataInnhenter.innhentIAYIAbakusSync(behandling);
 
         // oppdater alltid tidspunktet grunnlagene ble oppdater eller forsøkt oppdatert!
         behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now());
