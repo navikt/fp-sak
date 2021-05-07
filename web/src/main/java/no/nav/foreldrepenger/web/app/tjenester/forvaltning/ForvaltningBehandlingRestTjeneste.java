@@ -136,7 +136,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.LØPENDE.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus()) ||
                 FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            LOG.warn("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent, ikke under behandling, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var behandling = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsak.getId(),
@@ -146,7 +146,7 @@ public class ForvaltningBehandlingRestTjeneste {
             behandlingsoppretterTjeneste.henleggÅpenFørstegangsbehandlingOgOpprettNy(fagsak.getId(), saksnummer);
             return Response.ok().build();
         }
-        LOG.warn("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
+        LOG.info("Fant ingen åpen førstegangsbehandling for fagsak med saksnummer: {}", saksnummer.getVerdi()); // NOSONAR
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
@@ -165,7 +165,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var saksnummer = new Saksnummer(dto.getSaksnummer());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
-            LOG.warn("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent, eller engangsstønad", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var fagsakId = fagsak.getId();
@@ -202,7 +202,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
-            LOG.warn("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
+            LOG.info("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         berørtBehandlingTjeneste.opprettNyBerørtBehandling(fagsak);
@@ -223,20 +223,20 @@ public class ForvaltningBehandlingRestTjeneste {
             @NotNull @QueryParam("migrertFraInfotrygd") @Valid Boolean migrertFraInfotrygd) {
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
         if (behandling == null) {
-            LOG.warn("Oppgitt behandling {} er ukjent", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er ukjent", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.INFOTRYGD) && migrertFraInfotrygd) {
-            LOG.warn("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
 
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.UDEFINERT) && !migrertFraInfotrygd) {
-            LOG.warn("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.erAvsluttet()) {
-            LOG.warn("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto.getBehandlingId()); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (migrertFraInfotrygd) {
