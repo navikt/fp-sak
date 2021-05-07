@@ -138,6 +138,7 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .build();
 
         lenient().when(abakusTjeneste.innhentRegisterdata(any())).thenReturn(new UuidDto(UUID.randomUUID()));
+        lenient().when(abakusTjeneste.innhentRegisterdataSync(any())).thenReturn(new UuidDto(UUID.randomUUID()));
         lenient().when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(virksomhet);
 
         familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
