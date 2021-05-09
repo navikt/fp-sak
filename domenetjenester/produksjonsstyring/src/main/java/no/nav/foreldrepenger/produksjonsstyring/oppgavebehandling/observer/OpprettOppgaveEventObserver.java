@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Observerer behandlinger med åpne aksjonspunkter og oppretter deretter oppgave i Gsak.
@@ -65,6 +66,9 @@ public class OpprettOppgaveEventObserver {
         var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
         //TODO(OJR) kunne informasjonen om hvilken oppgaveårsak som skal opprettes i GSAK være knyttet til AksjonspunktDef?
         if (!åpneAksjonspunkt.isEmpty()) {
+            if (MDCOperations.getCallId() == null) {
+                MDCOperations.putCallId(MDCOperations.generateCallId());
+            }
             if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD) ||
                 harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER) ||
                 harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER) ||

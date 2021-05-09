@@ -206,7 +206,7 @@ public class VedtaksHendelseHåndterer {
     void lagreProsesstaskFor(Behandling behandling, String taskType, int delaysecs) {
         var data = new ProsessTaskData(taskType);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        data.setCallIdFraEksisterende();
+        data.setCallId(behandling.getUuid().toString());
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
         prosessTaskRepository.lagre(data);
     }

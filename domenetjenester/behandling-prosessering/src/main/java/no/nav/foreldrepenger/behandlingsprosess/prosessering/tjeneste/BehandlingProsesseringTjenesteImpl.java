@@ -3,10 +3,14 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -25,6 +29,8 @@ import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTas
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentMedlemskapOpplysningerTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentPersonopplysningerTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.SettRegisterdataInnhentetTidspunktTask;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -44,6 +50,8 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  **/
 @ApplicationScoped
 public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesseringTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingProsesseringTjenesteImpl.class);
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterdataEndringshåndterer registerdataEndringshåndterer;
@@ -202,7 +210,12 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private ProsessTaskData lagTaskData(String tasktype, Behandling behandling, String callId, LocalDateTime nesteKjøringEtter) {
         var taskdata = new ProsessTaskData(tasktype);
         taskdata.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskdata.setCallId(callId);
+        try {
+            if (callId == null) throw new TekniskException("FP-332266", "hvor er vi nå");
+        } catch (VLException e) {
+            LOG.warn("Oppretter prosesstask uten callId", e);
+        }
+        taskdata.setCallId(Objects.requireNonNullElseGet(callId, MDCOperations::generateCallId));
         if (nesteKjøringEtter != null) {
             taskdata.setNesteKjøringEtter(nesteKjøringEtter);
         }
