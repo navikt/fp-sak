@@ -13,7 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -28,7 +29,7 @@ public class AvsluttBehandling {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
     private BehandlingVedtakRepository behandlingVedtakRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
 
     public AvsluttBehandling() {
@@ -40,13 +41,13 @@ public class AvsluttBehandling {
                              BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                              BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer,
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
-                             ProsessTaskRepository prosessTaskRepository) {
+                             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingVedtakEventPubliserer = behandlingVedtakEventPubliserer;
         this.vurderBehandlingerUnderIverksettelse = vurderBehandlingerUnderIverksettelse;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     void avsluttBehandling(Long behandlingId) {
@@ -68,14 +69,7 @@ public class AvsluttBehandling {
         var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
         ventendeBehandlingOpt.ifPresent(ventendeBehandling -> {
             LOG.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
-            opprettTaskForProsesserBehandling(ventendeBehandling);
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
-    }
-
-    private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
     }
 }

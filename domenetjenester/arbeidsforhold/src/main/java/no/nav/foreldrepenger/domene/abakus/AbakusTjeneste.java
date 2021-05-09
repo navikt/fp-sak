@@ -58,7 +58,6 @@ public class AbakusTjeneste {
     private final ObjectReader inntektsmeldingerReader = iayMapper.readerFor(InntektsmeldingerDto.class);
     private final ObjectReader refusjonskravDatoerReader = iayMapper.readerFor(RefusjonskravDatoerDto.class);
     private URI innhentRegisterdata;
-    private URI innhentRegisterdataSync;
     private OidcRestClient oidcRestClient;
     private URI abakusEndpoint;
     private URI callbackUrl;
@@ -91,7 +90,6 @@ public class AbakusTjeneste {
         this.endpointGrunnlagSnapshot = toUri("/api/iay/grunnlag/v1/snapshot");
         this.endpointKopierGrunnlag = toUri("/api/iay/grunnlag/v1/kopier");
         this.innhentRegisterdata = toUri("/api/registerdata/v1/innhent/async");
-        this.innhentRegisterdataSync = toUri("/api/registerdata/v1/innhent/sync");
         this.endpointInntektsmeldinger = toUri("/api/iay/inntektsmeldinger/v1/hentAlle");
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
@@ -105,21 +103,6 @@ public class AbakusTjeneste {
             return new URI(uri);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Ugyldig uri: " + uri, e);
-        }
-    }
-
-    public UuidDto innhentRegisterdataSync(InnhentRegisterdataRequest request) {
-        var endpoint = innhentRegisterdataSync;
-
-        var responseHandler = new ObjectReaderResponseHandler<UuidDto>(endpoint, uuidReader);
-        try {
-            var json = iayJsonWriter.writeValueAsString(request);
-
-            return hentFraAbakus(endpoint, responseHandler, json);
-        } catch (JsonProcessingException e) {
-            throw feilVedJsonParsing(e.getMessage());
-        } catch (IOException e) {
-            throw feilVedKallTilAbakus(e.getMessage());
         }
     }
 

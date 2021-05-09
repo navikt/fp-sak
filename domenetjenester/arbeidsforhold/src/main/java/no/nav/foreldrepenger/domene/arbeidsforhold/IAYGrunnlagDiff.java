@@ -38,7 +38,7 @@ public class IAYGrunnlagDiff {
         if (eksisterende.isPresent() != nye.isPresent()) {
             return true;
         }
-        if (!eksisterende.isPresent() && !nye.isPresent()) {
+        if (eksisterende.isEmpty()) {
             return false;
         }
         if (eksisterende.get().getAlleInntektsmeldinger().size() != nye.get().getAlleInntektsmeldinger().size()) {
@@ -56,7 +56,7 @@ public class IAYGrunnlagDiff {
         if (eksisterendeAktørArbeid.isPresent() != nyAktørArbeid.isPresent()) {
             return true;
         }
-        if (!eksisterendeAktørArbeid.isPresent() && !nyAktørArbeid.isPresent()) {
+        if (eksisterendeAktørArbeid.isEmpty()) {
             return false;
         }
         var eksisterendeFilter = new YrkesaktivitetFilter(null, eksisterendeAktørArbeid).før(skjæringstidspunkt);
@@ -80,7 +80,7 @@ public class IAYGrunnlagDiff {
         if (eksisterende.isPresent() != nye.isPresent()) {
             return true;
         }
-        if (!eksisterende.isPresent() && !nye.isPresent()) {
+        if (eksisterende.isEmpty()) {
             return false;
         }
         var eksisterendeInntektFilter = new InntektFilter(eksisterende).før(skjæringstidspunkt);

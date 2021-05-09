@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.vedtak.intern;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -16,7 +17,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,11 +38,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.BehandlingVedtakEventPubliserer;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class AvsluttBehandlingTest {
@@ -54,7 +52,7 @@ public class AvsluttBehandlingTest {
     private BehandlingVedtakEventPubliserer behandlingVedtakEventPubliserer;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
@@ -73,7 +71,7 @@ public class AvsluttBehandlingTest {
                 repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste,
-                behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, prosessTaskRepository);
+                behandlingVedtakEventPubliserer, vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.anyLong())).thenAnswer(invocation -> {
             Long behId = invocation.getArgument(0);
@@ -123,7 +121,7 @@ public class AvsluttBehandlingTest {
 
         verifiserIverksatt(behandling);
         verifiserKallTilProsesserBehandling(behandling);
-        verify(prosessTaskRepository, never()).lagre(any(ProsessTaskData.class));
+        verifyNoInteractions(behandlingProsesseringTjeneste);
     }
 
     @Test
@@ -162,7 +160,7 @@ public class AvsluttBehandlingTest {
 
         verifiserIverksatt(behandling);
         verifiserKallTilProsesserBehandling(behandling);
-        verify(prosessTaskRepository, never()).lagre(any(ProsessTaskData.class));
+        verifyNoInteractions(behandlingProsesseringTjeneste);
     }
 
     @Test
@@ -192,29 +190,14 @@ public class AvsluttBehandlingTest {
     }
 
     private void verifiserKallTilFortsettBehandling(Behandling behandling) {
-        var prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository).lagre(prosessTaskCaptor.capture());
-        var arguments = prosessTaskCaptor.getAllValues();
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(eq(behandling));
 
-        assertThat(inneholderFortsettBehandlingTaskForBehandling(arguments, behandling)).isTrue();
     }
 
     private void verifiserIkkeKallTilFortsettBehandling(Behandling behandling) {
-        var prosessTaskCaptor = ArgumentCaptor.forClass(ProsessTaskData.class);
-        verify(prosessTaskRepository).lagre(prosessTaskCaptor.capture());
-        var arguments = prosessTaskCaptor.getAllValues();
-
-        assertThat(inneholderFortsettBehandlingTaskForBehandling(arguments, behandling)).isFalse();
+        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(eq(behandling));;
     }
 
-    private boolean inneholderFortsettBehandlingTaskForBehandling(List<ProsessTaskData> arguments,
-            Behandling behandling) {
-        return arguments.stream()
-                .anyMatch(argument -> argument.getTaskType()
-                        .equals(FortsettBehandlingTaskProperties.TASKTYPE)
-                        && argument.getBehandlingId()
-                                .equals(behandling.getId().toString()));
-    }
 
     @Test
     public void testAvsluttBehandlingMedToAndreBehandlingerSomVenterEldsteSist() {

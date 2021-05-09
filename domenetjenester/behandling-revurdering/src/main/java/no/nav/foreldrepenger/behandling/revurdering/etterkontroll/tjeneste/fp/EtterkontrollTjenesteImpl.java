@@ -27,18 +27,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(EtterkontrollTjenesteImpl.class);
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private RevurderingHistorikk revurderingHistorikk;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -56,8 +54,8 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
-            ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.revurderingTjeneste = revurderingTjeneste;
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
@@ -90,14 +88,14 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
             var denneStarterUttakFørst = denneForelderHarTidligstUttak(behandling, behandlingMedforelder.get());
 
             if (denneStarterUttakFørst) {
-                opprettTaskForProsesserBehandling(revurdering);
+                behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
             } else {
                 enkøBehandling(revurdering);
                 revurderingHistorikk.opprettHistorikkinnslagForVenteFristRelaterteInnslag(revurdering.getId(), fagsak.getId(),
                         HistorikkinnslagType.BEH_KØET, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
             }
         } else {
-            opprettTaskForProsesserBehandling(revurdering);
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         }
     }
 
@@ -142,13 +140,6 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
         return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling).map(ForeldrepengerUttak::finnFørsteUttaksdato);
-    }
-
-    private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
     }
 
     public void enkøBehandling(Behandling behandling) {

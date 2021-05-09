@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingsprosess.hjelpemetoder;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,9 +11,7 @@ import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -29,18 +28,18 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
     private static final String BATCHNAME = "BVL033";
 
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
     public RekjørKompletthetssjekkForEndringssøknadBatch(BehandlingKandidaterRepository behandlingKandidaterRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+                                                         BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @Override
     public String launch(BatchArguments arguments) {
-        var behandlinger = behandlingKandidaterRepository.finnRevurderingerPåVentIKompletthet();
+        var behandlinger = new ArrayList<Behandling>();  // Lag passenede query
 
         var callId = MDCOperations.getCallId();
         callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
@@ -53,14 +52,8 @@ class RekjørKompletthetssjekkForEndringssøknadBatch implements BatchTjeneste {
     }
 
     private void opprettRekjøringsTask(Behandling behandling, String callId) {
-        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-
-        // unik per task da det er ulike tasks for hver behandling
-        var nyCallId = callId + behandling.getId();
-        prosessTaskData.setCallId(nyCallId);
-
-        prosessTaskRepository.lagre(prosessTaskData);
+        // Bruk prosesseringtjeneste til passende videre prosess
+        return;
     }
 
     @Override

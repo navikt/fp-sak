@@ -4,14 +4,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
-import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -28,8 +24,6 @@ public class GjenopptaBehandlingTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-    private RegisterdataEndringshåndterer registerdataOppdaterer;
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     GjenopptaBehandlingTask() {
         // for CDI proxy
@@ -38,14 +32,10 @@ public class GjenopptaBehandlingTask extends BehandlingProsessTask {
     @Inject
     public GjenopptaBehandlingTask(BehandlingRepository behandlingRepository,
             BehandlingLåsRepository låsRepository,
-            BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-            RegisterdataEndringshåndterer registerdataOppdaterer,
-            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+            BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         super(låsRepository);
         this.behandlingRepository = behandlingRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
-        this.registerdataOppdaterer = registerdataOppdaterer;
-        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
     @Override
@@ -57,16 +47,6 @@ public class GjenopptaBehandlingTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-
-        if (behandling.erYtelseBehandling()
-                && behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)
-                && registerdataOppdaterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
-            registerdataOppdaterer.oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
-            behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
-                    .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, ""));
-        }
-
-        behandlingskontrollTjeneste.prosesserBehandling(kontekst);
     }
 
 }

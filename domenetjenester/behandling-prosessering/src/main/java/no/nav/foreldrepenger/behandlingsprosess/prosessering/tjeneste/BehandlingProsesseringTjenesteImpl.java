@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 
-import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties.GJENOPPTA_STEG;
+import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -11,12 +11,11 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
@@ -26,9 +25,11 @@ import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTas
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentMedlemskapOpplysningerTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentPersonopplysningerTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.SettRegisterdataInnhentetTidspunktTask;
+import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak,
@@ -97,22 +98,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         return endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
     }
 
-    // Returnerer snapshot av grunnlag før registerinnhentingen. Forutsetter at
-    // behandling ikke er på vent.
     @Override
-    public EndringsresultatSnapshot oppdaterRegisterdata(Behandling behandling) {
-        return null; // TODO: trengs denne?
-    }
-
-    // Returnerer endringer i grunnlag mellom snapshot og nåtilstand
-    @Override
-    public EndringsresultatDiff finnGrunnlagsEndring(Behandling behandling, EndringsresultatSnapshot før) {
-        return endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), før);
-    }
-
-    @Override
-    public void reposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff grunnlagDiff) {
-        registerdataEndringshåndterer.reposisjonerBehandlingVedEndringer(behandling, grunnlagDiff);
+    public void utledDiffOgReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatSnapshot snapshot) {
+        registerdataEndringshåndterer.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, snapshot, false);
     }
 
     @Override
@@ -124,132 +112,105 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public void oppdaterRegisterdataReposisjonerVedEndringer(Behandling behandling) {
-        registerdataEndringshåndterer.oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
-    }
-
-    @Override
     public ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling) {
-        var gruppe = new ProsessTaskGruppe();
-        if (behandling.erYtelseBehandling()) {
-            var registerdataOppdatererTask = new ProsessTaskData(RegisterdataOppdatererTask.TASKTYPE);
-            registerdataOppdatererTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-            registerdataOppdatererTask.setCallIdFraEksisterende();
-            gruppe.addNesteSekvensiell(registerdataOppdatererTask);
-        }
-        var fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        fortsettBehandlingTask.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
-        fortsettBehandlingTask.setCallIdFraEksisterende();
-        gruppe.addNesteSekvensiell(fortsettBehandlingTask);
-        return gruppe;
+        return lagTasksForOppdatering(behandling, MDCOperations.getCallId(), LocalDateTime.now());
     }
 
     // Til bruk ved første prosessering av nyopprettet behandling
     @Override
     public String opprettTasksForStartBehandling(Behandling behandling) {
-        var taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        return lagreMedCallId(taskData);
+        var taskData = lagTaskData(StartBehandlingTask.TASKTYPE, behandling, MDCOperations.getCallId(), LocalDateTime.now());
+        return lagreEnkeltTask(taskData);
     }
 
     // Til bruk ved gjenopptak fra vent (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
     public String opprettTasksForFortsettBehandling(Behandling behandling) {
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
-        return lagreMedCallId(taskData);
+        var taskData = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, MDCOperations.getCallId(), LocalDateTime.now());
+        taskData.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
+        return lagreEnkeltTask(taskData);
     }
 
     @Override
     public String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autopunktUtført) {
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        autopunktUtført.ifPresent(apu -> {
-            taskData.setProperty(FortsettBehandlingTaskProperties.UTFORT_AUTOPUNKT, apu.getKode());
-        });
-        return lagreMedCallId(taskData);
+        var taskData = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, MDCOperations.getCallId(), LocalDateTime.now());
+        autopunktUtført.ifPresent(apu -> taskData.setProperty(FortsettBehandlingTask.UTFORT_AUTOPUNKT, apu.getKode()));
+        return lagreEnkeltTask(taskData);
     }
 
     @Override
-    public String opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
-            LocalDateTime nesteKjøringEtter) {
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setProperty(FortsettBehandlingTaskProperties.GJENOPPTA_STEG, behandlingStegType.getKode());
-        if (nesteKjøringEtter != null) {
-            taskData.setNesteKjøringEtter(nesteKjøringEtter);
-        }
-        return lagreMedCallId(taskData);
-    }
-
-    // Til bruk ved gjenopptak fra vent (Hendelse: Manuell input, Frist utløpt, mv)
-    @Override
-    public String opprettTasksForOppdaterFortsett(Behandling behandling) {
-        return prosessTaskRepository.lagre(lagOppdaterFortsettTasksForPolling(behandling));
-    }
-
-    // Til bruk ved gjenopptak fra vent (Hendelse: Manuell input, Frist utløpt, mv)
-    @Override
-    public String opprettTasksForGjenopptaFortsett(Behandling behandling) {
-        // TODO: trengs denne? Evt må den over ha manuell fortsettelse false
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
-        return lagreMedCallId(taskData);
+    public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType behandlingStegType,
+                                                                          LocalDateTime nesteKjøringEtter) {
+        var taskData = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, MDCOperations.getCallId(), nesteKjøringEtter);
+        taskData.setProperty(FortsettBehandlingTask.GJENOPPTA_STEG, behandlingStegType.getKode());
+        return lagreEnkeltTask(taskData);
     }
 
     // Robust task til bruk ved gjenopptak fra vent (eller annen tilstand)
     // (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
-    public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling) {
-        var taskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        return lagreMedCallId(taskData);
+    public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, String callId, LocalDateTime nesteKjøringEtter) {
+        var gruppe = lagTasksForOppdatering(behandling, callId, nesteKjøringEtter);
+        return prosessTaskRepository.lagre(gruppe);
     }
 
     @Override
     public String opprettTasksForInitiellRegisterInnhenting(Behandling behandling) {
         var gruppe = new ProsessTaskGruppe();
 
-        var innhentPersonopplysniger = new ProsessTaskData(InnhentPersonopplysningerTask.TASKTYPE);
-        innhentPersonopplysniger.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        innhentPersonopplysniger.setCallIdFraEksisterende();
-        innhentPersonopplysniger.setPrioritet(50);
-        var innhentMedlemskapOpplysniger = new ProsessTaskData(InnhentMedlemskapOpplysningerTask.TASKTYPE);
-        innhentMedlemskapOpplysniger.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        innhentMedlemskapOpplysniger.setCallIdFraEksisterende();
-        innhentMedlemskapOpplysniger.setPrioritet(50);
+        leggTilTasksForRegisterinnhenting(behandling, gruppe, MDCOperations.getCallId(), LocalDateTime.now());
 
-        var abakusRegisterInnheting = new ProsessTaskData(InnhentIAYIAbakusTask.TASKTYPE);
-        abakusRegisterInnheting.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        abakusRegisterInnheting.setCallIdFraEksisterende();
-        abakusRegisterInnheting.setPrioritet(50);
+        var fortsettBehandlingTask = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, MDCOperations.getCallId(), LocalDateTime.now());
 
-        gruppe.addNesteParallell(innhentPersonopplysniger, innhentMedlemskapOpplysniger, abakusRegisterInnheting);
-
-        var oppdaterInnhentTidspunkt = new ProsessTaskData(SettRegisterdataInnhentetTidspunktTask.TASKTYPE);
-        oppdaterInnhentTidspunkt.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        oppdaterInnhentTidspunkt.setCallIdFraEksisterende();
-        oppdaterInnhentTidspunkt.setPrioritet(50);
-        gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
-
-        // Starter opp prosessen igjen fra steget hvor den var satt på vent
-        var fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        // NB: Viktig
+        // NB: Viktig Starter opp prosessen igjen fra steget hvor den var satt på vent
         fortsettBehandlingTask.setProperty(GJENOPPTA_STEG, BehandlingStegType.INNHENT_REGISTEROPP.getKode());
-        fortsettBehandlingTask.setProperty(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE, String.valueOf(true));
-        fortsettBehandlingTask.setPrioritet(50);
-        fortsettBehandlingTask.setCallIdFraEksisterende();
+        fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
         return prosessTaskRepository.lagre(gruppe);
     }
 
-    private String lagreMedCallId(ProsessTaskData prosessTaskData) {
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskData.setPrioritet(50);
+    private ProsessTaskGruppe lagTasksForOppdatering(Behandling behandling, String callId, LocalDateTime nesteKjøringEtter) {
+        var gruppe = new ProsessTaskGruppe();
+        var gjenopptaTask = lagTaskData(GjenopptaBehandlingTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+        gruppe.addNesteSekvensiell(gjenopptaTask);
+
+        if (behandling.erYtelseBehandling() && registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
+            leggTilTasksForRegisterinnhenting(behandling, gruppe, callId, nesteKjøringEtter);
+            var registerdataOppdatererTask = lagTaskData(RegisterdataOppdatererTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+            var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
+            registerdataOppdatererTask.setPayload(DefaultJsonMapper.toJson(snapshot));
+            gruppe.addNesteSekvensiell(registerdataOppdatererTask);
+        }
+        var fortsettBehandlingTask = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+        fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
+        gruppe.addNesteSekvensiell(fortsettBehandlingTask);
+        return gruppe;
+    }
+
+    private void leggTilTasksForRegisterinnhenting(Behandling behandling, ProsessTaskGruppe gruppe, String callId, LocalDateTime nesteKjøringEtter) {
+
+        var innhentPersonopplysniger = lagTaskData(InnhentPersonopplysningerTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+        var innhentMedlemskapOpplysniger = lagTaskData(InnhentMedlemskapOpplysningerTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+        var abakusRegisterInnheting = lagTaskData(InnhentIAYIAbakusTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+
+        gruppe.addNesteParallell(innhentPersonopplysniger, innhentMedlemskapOpplysniger, abakusRegisterInnheting);
+
+        var oppdaterInnhentTidspunkt = lagTaskData(SettRegisterdataInnhentetTidspunktTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
+        gruppe.addNesteSekvensiell(oppdaterInnhentTidspunkt);
+    }
+
+    private ProsessTaskData lagTaskData(String tasktype, Behandling behandling, String callId, LocalDateTime nesteKjøringEtter) {
+        var taskdata = new ProsessTaskData(tasktype);
+        taskdata.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        taskdata.setCallId(callId);
+        if (nesteKjøringEtter != null) {
+            taskdata.setNesteKjøringEtter(nesteKjøringEtter);
+        }
+        taskdata.setPrioritet(50);
+        return taskdata;
+    }
+
+    private String lagreEnkeltTask(ProsessTaskData prosessTaskData) {
         return prosessTaskRepository.lagre(prosessTaskData);
     }
 }

@@ -24,8 +24,6 @@ import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLogg;
-import no.nav.foreldrepenger.behandlingslager.abakus.logg.AbakusInnhentingGrunnlagLoggRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -85,7 +83,6 @@ public class RegisterdataInnhenter {
     private MedlemskapRepository medlemskapRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private AbakusTjeneste abakusTjeneste;
-    private AbakusInnhentingGrunnlagLoggRepository loggRepository;
 
     RegisterdataInnhenter() {
         // for CDI proxy
@@ -98,8 +95,7 @@ public class RegisterdataInnhenter {
                                  FamilieHendelseTjeneste familieHendelseTjeneste,
                                  MedlemskapRepository medlemskapRepository,
                                  OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
-                                 AbakusTjeneste abakusTjeneste,
-                                 AbakusInnhentingGrunnlagLoggRepository loggRepository) {
+                                 AbakusTjeneste abakusTjeneste) {
         this.personopplysningInnhenter = personopplysningInnhenter;
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
@@ -108,7 +104,6 @@ public class RegisterdataInnhenter {
         this.medlemskapRepository = medlemskapRepository;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
-        this.loggRepository = loggRepository;
     }
 
     private Optional<AktørId> finnAnnenPart(Long behandlingId) {
@@ -186,15 +181,6 @@ public class RegisterdataInnhenter {
         innhentRegisterdataRequest.setCallbackUrl(abakusTjeneste.getCallbackUrl());
 
         abakusTjeneste.innhentRegisterdata(innhentRegisterdataRequest);
-    }
-
-    public void innhentIAYIAbakusSync(Behandling behandling) {
-        final var innhentRegisterdataRequest = lagInnhentIAYRequest(behandling, behandling.getType(), behandling.getFagsakYtelseType());
-
-        final var uuidDto = abakusTjeneste.innhentRegisterdataSync(innhentRegisterdataRequest);
-        LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", behandling.getUuid(), uuidDto.toUuidReferanse());
-        // TODO: Fjerne repo og entitet. Drop orm + indexes + table.
-        loggRepository.lagre(new AbakusInnhentingGrunnlagLogg(behandling.getId(), uuidDto.toUuidReferanse()));
     }
 
     private InnhentRegisterdataRequest lagInnhentIAYRequest(Behandling behandling, BehandlingType behandlingType, FagsakYtelseType fagsakYtelseType) {

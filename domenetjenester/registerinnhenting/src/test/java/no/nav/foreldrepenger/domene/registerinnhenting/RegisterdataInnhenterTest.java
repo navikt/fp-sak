@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
+import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
@@ -142,8 +145,9 @@ public class RegisterdataInnhenterTest {
 
     private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                                     String durationInstance, RegisterdataInnhenter innhenter) {
-
-        var oppdaterer = new RegisterdataEndringshåndterer(repositoryProvider, innhenter, durationInstance, null, null, null, null);
+        var endringskontroller = mock(Endringskontroller.class);
+        when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
+        var oppdaterer = new RegisterdataEndringshåndterer(repositoryProvider, innhenter, durationInstance, endringskontroller, null, null, null);
         return oppdaterer;
     }
 
@@ -155,11 +159,7 @@ public class RegisterdataInnhenterTest {
         var personinfoAdapter = mock(PersoninfoAdapter.class);
         var medlemTjeneste = mock(MedlemTjeneste.class);
 
-        return new RegisterdataInnhenter(new PersonopplysningInnhenter(personinfoAdapter),
-            medlemTjeneste,
-            repositoryProvider,
-                null, null, opplysningsPeriodeTjeneste,
-            null,
-            null);
+        return new RegisterdataInnhenter(new PersonopplysningInnhenter(personinfoAdapter), medlemTjeneste, repositoryProvider,
+                null, null, opplysningsPeriodeTjeneste, null);
     }
 }

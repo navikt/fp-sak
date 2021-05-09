@@ -11,17 +11,15 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ApplicationScoped
 public class ProsesseringAsynkTjeneste {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste prosesseringTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
 
     ProsesseringAsynkTjeneste() {
@@ -29,8 +27,8 @@ public class ProsesseringAsynkTjeneste {
     }
 
     @Inject
-    public ProsesseringAsynkTjeneste(ProsessTaskRepository prosessTaskRepository, FagsakProsessTaskRepository fagsakProsessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+    public ProsesseringAsynkTjeneste(BehandlingProsesseringTjeneste prosesseringTjeneste, FagsakProsessTaskRepository fagsakProsessTaskRepository) {
+        this.prosesseringTjeneste = prosesseringTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
@@ -107,10 +105,7 @@ public class ProsesseringAsynkTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkStartBehandlingProsess(Behandling behandling) {
-        var taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setCallIdFraEksisterende();
-        return prosessTaskRepository.lagre(taskData);
+        return prosesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
     /**
@@ -119,10 +114,7 @@ public class ProsesseringAsynkTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkProsesserBehandling(Behandling behandling) {
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setCallIdFraEksisterende();
-        return prosessTaskRepository.lagre(taskData);
+        return prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 
     /**
@@ -132,7 +124,7 @@ public class ProsesseringAsynkTjeneste {
      */
     public String asynkProsesserBehandlingMergeGruppe(Behandling behandling) {
         var gruppe = new ProsessTaskGruppe();
-        var taskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
+        var taskData = new ProsessTaskData(FortsettBehandlingTask.TASKTYPE);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(taskData);

@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
@@ -31,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -38,20 +41,23 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class AutomatiskGrunnbelopReguleringTaskTest {
 
-    private final BehandlingFlytkontroll flytkontroll = mock(BehandlingFlytkontroll.class);
-    private final BehandlendeEnhetTjeneste enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
+    @Mock
+    private BehandlingFlytkontroll flytkontroll;
+    @Mock
+    private BehandlendeEnhetTjeneste enhetsTjeneste;
+    @Mock
+    private BehandlingProsesseringTjeneste prosesseringTjeneste;
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
     }
 
     @Test
@@ -89,14 +95,13 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
         return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
-                prosessTaskRepository, enhetsTjeneste, flytkontroll);
+            prosesseringTjeneste, enhetsTjeneste, flytkontroll);
 
     }
 
     @Test
     public void skal_ikke_opprette_revurdering_dersom_åpen_behandling_på_fagsak() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.UTREDES);
-        when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
 
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());

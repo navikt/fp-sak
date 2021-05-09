@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårJsonObjectMapper;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vilkaar;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.ObjectFactory;
@@ -23,7 +22,6 @@ import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
 public abstract class VilkårsgrunnlagXmlTjeneste {
 
     private ObjectFactory vilkårObjectFactory = new ObjectFactory();
-    private VilkårJsonObjectMapper objectMapper = new VilkårJsonObjectMapper();
     private SøknadRepository søknadRepository;
     protected FamilieHendelseRepository familieHendelseRepository;
     private KompletthetsjekkerProvider kompletthetsjekkerProvider;
@@ -36,10 +34,6 @@ public abstract class VilkårsgrunnlagXmlTjeneste {
         this.kompletthetsjekkerProvider = kompletthetsjekkerProvider;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-    }
-
-    protected VilkårJsonObjectMapper getObjectMapper() {
-        return objectMapper;
     }
 
 

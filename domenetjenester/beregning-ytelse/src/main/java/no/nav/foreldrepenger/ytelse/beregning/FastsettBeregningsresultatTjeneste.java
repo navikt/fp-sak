@@ -5,16 +5,15 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.beregningsgrunnlag.RegelmodellOversetter;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.RegelFastsettBeregningsresultat;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class FastsettBeregningsresultatTjeneste {
 
-    private final JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
     private MapBeregningsresultatFraRegelTilVL mapBeregningsresultatFraRegelTilVL;
 
     FastsettBeregningsresultatTjeneste() {
@@ -44,6 +43,6 @@ public class FastsettBeregningsresultatTjeneste {
     }
 
     private String toJson(BeregningsresultatRegelmodell grunnlag) {
-        return jacksonJsonConfig.toJson(grunnlag, e -> new TekniskException("FP-563791", "JSON mapping feilet", e));
+        return StandardJsonConfig.toJson(grunnlag);
     }
 }

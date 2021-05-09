@@ -12,15 +12,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.SammenlignBeregningsresultatFeriepengerMedRegelResultat;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 import no.nav.foreldrepenger.ytelse.beregning.regler.feriepenger.RegelBeregnFeriepenger;
-import no.nav.vedtak.exception.TekniskException;
 
 public abstract class BeregnFeriepengerTjeneste {
 
-    private final JacksonJsonConfig jacksonJsonConfig = new JacksonJsonConfig();
     private FagsakRelasjonRepository fagsakRelasjonRepository;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -93,7 +92,6 @@ public abstract class BeregnFeriepengerTjeneste {
     }
 
     private String toJson(BeregningsresultatFeriepengerRegelModell grunnlag) {
-        return this.jacksonJsonConfig.toJson(grunnlag,
-            e -> new TekniskException("FP-985762", "JSON mapping feilet", e));
+        return StandardJsonConfig.toJson(grunnlag);
     }
 }
