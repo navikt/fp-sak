@@ -211,11 +211,15 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         var taskdata = new ProsessTaskData(tasktype);
         taskdata.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         try {
-            if (callId == null) throw new TekniskException("FP-332266", "hvor er vi nå");
+            if (callId == null || callId.isBlank()) {
+                throw new TekniskException("FP-332266", "hvor er vi nå");
+            } else {
+                taskdata.setCallId(callId);
+            }
         } catch (VLException e) {
-            LOG.warn("Oppretter prosesstask uten callId", e);
+            taskdata.setCallId(MDCOperations.generateCallId());
+            LOG.warn("Oppretter prosesstask uten callId her i koden", e);
         }
-        taskdata.setCallId(Objects.requireNonNullElseGet(callId, MDCOperations::generateCallId));
         if (nesteKjøringEtter != null) {
             taskdata.setNesteKjøringEtter(nesteKjøringEtter);
         }
