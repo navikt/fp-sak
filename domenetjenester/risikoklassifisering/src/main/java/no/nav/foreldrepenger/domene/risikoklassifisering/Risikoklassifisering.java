@@ -97,7 +97,7 @@ public class Risikoklassifisering {
         var requestWrapper = new RequestWrapper(callId, risikovurderingRequest);
         taskData.setProperty(RisikoklassifiseringUtførTask.KONSUMENT_ID,
             risikovurderingRequest.getKonsumentId().toString());
-        taskData.setProperty(RisikoklassifiseringUtførTask.RISIKOKLASSIFISERING_JSON, getJson(requestWrapper));
+        taskData.setPayload(getJson(requestWrapper));
         return taskData;
     }
 
