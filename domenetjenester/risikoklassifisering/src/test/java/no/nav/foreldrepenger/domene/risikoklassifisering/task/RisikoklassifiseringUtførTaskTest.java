@@ -21,7 +21,6 @@ public class RisikoklassifiseringUtførTaskTest {
 
     private static final String KONSUMENT_ID = "konsumentId";
 
-    private static final String RISIKOKLASSIFISERING_JSON = "risikoklassifisering.request.json";
 
     @Mock
     private RisikoklassifiseringKafkaProducer kafkaProducer;
@@ -38,7 +37,7 @@ public class RisikoklassifiseringUtførTaskTest {
     @Test
     public void skal_produsere_melding_til_kafka(){
         var prosessTaskData = new ProsessTaskData(TASKTYPE);
-        prosessTaskData.setProperty(RISIKOKLASSIFISERING_JSON, "json");
+        prosessTaskData.setPayload("json");
 
         var konsumentId = UUID.randomUUID().toString();
         prosessTaskData.setProperty(KONSUMENT_ID, konsumentId);
