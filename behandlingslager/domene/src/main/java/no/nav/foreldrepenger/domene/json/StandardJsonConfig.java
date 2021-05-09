@@ -25,7 +25,7 @@ public final class StandardJsonConfig {
         OM.registerModule(new JavaTimeModule());
         OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // OM.setSerializationInclusion(JsonInclude.Include.NON_EMPTY); TODO: finn ut om skal med. Kan gi feil hos konsumenter
+        OM.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
         OM.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);

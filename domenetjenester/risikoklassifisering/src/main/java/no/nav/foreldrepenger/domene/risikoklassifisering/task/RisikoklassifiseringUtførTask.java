@@ -25,8 +25,6 @@ public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
 
     public static final String KONSUMENT_ID = "konsumentId";
 
-    public static final String RISIKOKLASSIFISERING_JSON = "risikoklassifisering.request.json";
-
     private RisikoklassifiseringKafkaProducer kafkaProducer;
 
     RisikoklassifiseringUtførTask() {
@@ -40,7 +38,7 @@ public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
 
     private void prosesser(ProsessTaskData prosessTaskData) {
         try {
-            var eventJson = prosessTaskData.getPropertyValue(RISIKOKLASSIFISERING_JSON);
+            var eventJson = prosessTaskData.getPayloadAsString();
             var konsumentId = prosessTaskData.getPropertyValue(KONSUMENT_ID);
             kafkaProducer.publiserEvent(konsumentId, eventJson);
             LOG.info("Publiser risikoklassifisering på kafka slik at fprisk kan klassifisere behandlingen. konsumentId :{} BehandlingsId: {}",
