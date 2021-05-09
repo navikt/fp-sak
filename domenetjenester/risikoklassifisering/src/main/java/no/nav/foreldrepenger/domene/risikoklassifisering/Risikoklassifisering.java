@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.kafka.AktoerIdDto;
@@ -133,6 +134,6 @@ public class Risikoklassifisering {
     }
 
     private String getJson(RequestWrapper risikovurderingRequest) throws IOException {
-        return JsonObjectMapper.getJson(risikovurderingRequest);
+        return StandardJsonConfig.toJson(risikovurderingRequest);
     }
 }

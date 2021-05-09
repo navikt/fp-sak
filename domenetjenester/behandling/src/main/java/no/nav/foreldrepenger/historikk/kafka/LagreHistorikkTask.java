@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.historikk.kafka.json.SerialiseringUtil;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.historikk.v1.HistorikkInnslagV1;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -34,7 +34,7 @@ public class LagreHistorikkTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var payload = prosessTaskData.getPayloadAsString();
-        var jsonHistorikk = SerialiseringUtil.deserialiser(payload, HistorikkInnslagV1.class);
+        var jsonHistorikk = StandardJsonConfig.fromJson(payload, HistorikkInnslagV1.class);
         opprettOgLagreHistorikkInnslag(jsonHistorikk);
     }
 

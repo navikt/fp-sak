@@ -102,7 +102,7 @@ public class KompletthetskontrollerTest {
 
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
-        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling));
+        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any(), any());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class KompletthetskontrollerTest {
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
         // Assert
-        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling));
+        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any(), any());
 
         // Arrange 2
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any())).thenReturn(KompletthetResultat.oppfylt());
@@ -165,8 +165,7 @@ public class KompletthetskontrollerTest {
 
         kompletthetskontroller.vurderNyForretningshendelse(behandling);
 
-        verify(behandlingProsesseringTjeneste).finnGrunnlagsEndring(behandling, endringsresultatSnapshot);
-        verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(behandling);
+        verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any(), any());
     }
 
     @Test
@@ -179,15 +178,13 @@ public class KompletthetskontrollerTest {
         when(behandlingProsesseringTjeneste.taSnapshotAvBehandlingsgrunnlag(behandling)).thenReturn(endringsresultatSnapshot);
 
         var endringsresultat = EndringsresultatDiff.opprett();
-        endringsresultat.leggTilIdDiff(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, endringsresultatSnapshot.getGrunnlagId(), 1L));
-        when(behandlingProsesseringTjeneste.finnGrunnlagsEndring(behandling, endringsresultatSnapshot)).thenReturn(endringsresultat);
+        endringsresultat.leggTilIdDiff(EndringsresultatDiff.medDiff(PersonInformasjonEntitet.class, endringsresultatSnapshot.getGrunnlagRef(), 1L));
 
         // Act - send inntektsmelding
         kompletthetskontroller.persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
 
         // Assert
-        verify(behandlingProsesseringTjeneste).finnGrunnlagsEndring(behandling, endringsresultatSnapshot);
-        verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(behandling);
+        verify(behandlingProsesseringTjeneste).opprettTasksForGjenopptaOppdaterFortsett(eq(behandling), any(), any());
     }
 
     @Test

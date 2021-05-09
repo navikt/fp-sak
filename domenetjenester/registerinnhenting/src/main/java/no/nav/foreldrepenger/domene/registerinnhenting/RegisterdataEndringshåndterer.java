@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatDiff;
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -74,7 +75,8 @@ public class RegisterdataEndringshåndterer {
     }
 
     public boolean skalInnhenteRegisteropplysningerPåNytt(Behandling behandling) {
-        if (erAvslag(behandling) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
+        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)
+            || behandling.erSaksbehandlingAvsluttet() || behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING)) {
             return false;
         }
         var midnatt = LocalDate.now().atStartOfDay();
@@ -102,13 +104,6 @@ public class RegisterdataEndringshåndterer {
         return opplysningerOppdatertTidspunkt.isPresent() && opplysningerOppdatertTidspunkt.get().isBefore(nårOppdatereRegisterdata);
     }
 
-    public void reposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat) {
-        if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
-            return;
-        }
-        doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, false);
-    }
-
     private void doReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatDiff endringsresultat, boolean utledÅrsaker) {
         var gåttOverTerminDatoOgIngenFødselsdato = isGåttOverTerminDatoOgIngenFødselsdato(behandling.getId());
         if (gåttOverTerminDatoOgIngenFødselsdato || endringsresultat.erSporedeFeltEndret()) {
@@ -129,35 +124,19 @@ public class RegisterdataEndringshåndterer {
         return gåttOverTerminDatoOgIngenFødselsdato ? StartpunktType.SØKERS_RELASJON_TIL_BARNET : StartpunktType.UDEFINERT;
     }
 
-    public void oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(Behandling behandling) {
-        if (!endringskontroller.erRegisterinnhentingPassert(behandling) || erAvslag(behandling)) {
+    public void utledDiffOgReposisjonerBehandlingVedEndringer(Behandling behandling, EndringsresultatSnapshot grunnlagSnapshot, boolean utledÅrsaker) {
+        if (!endringskontroller.erRegisterinnhentingPassert(behandling)) {
             return;
         }
-        var skalOppdatereRegisterdata = skalInnhenteRegisteropplysningerPåNytt(behandling);
+        var endringsresultat = grunnlagSnapshot != null ?
+            endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot) : opprettDiffUtenEndring();
 
-        // Utled diff hvis registerdata skal oppdateres
-        var endringsresultat = skalOppdatereRegisterdata ? oppdaterRegisteropplysninger(behandling) : opprettDiffUtenEndring();
-
-        doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, true);
+        doReposisjonerBehandlingVedEndringer(behandling, endringsresultat, utledÅrsaker);
     }
 
     private boolean isGåttOverTerminDatoOgIngenFødselsdato(Long behandlingId) {
         var fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandlingId);
         return fhGrunnlag.isEmpty() || familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(fhGrunnlag.get());
-    }
-
-    private EndringsresultatDiff oppdaterRegisteropplysninger(Behandling behandling) {
-        var grunnlagSnapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
-
-        registerdataInnhenter.innhentPersonopplysninger(behandling);
-        registerdataInnhenter.innhentMedlemskapsOpplysning(behandling);
-        registerdataInnhenter.innhentIAYIAbakusSync(behandling);
-
-        // oppdater alltid tidspunktet grunnlagene ble oppdater eller forsøkt oppdatert!
-        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now());
-        // Finn alle endringer som registerinnhenting har gjort på behandlingsgrunnlaget
-        var endringsresultat = endringsresultatSjekker.finnSporedeEndringerPåBehandlingsgrunnlag(behandling.getId(), grunnlagSnapshot);
-        return endringsresultat;
     }
 
     private EndringsresultatDiff opprettDiffUtenEndring() {

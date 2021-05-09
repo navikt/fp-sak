@@ -23,11 +23,11 @@ import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
-import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -103,7 +103,7 @@ public class HendelserRestTjeneste {
 
         hendelsemottakRepository.registrerMottattHendelse(hendelse.getId());
         var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
-        taskData.setPayload(JsonMapper.toJson(hendelse));
+        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());
         taskData.setCallIdFraEksisterende();

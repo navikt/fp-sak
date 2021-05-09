@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.jsonfeed;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,13 +32,13 @@ import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.HendelseCriteria;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerOpphoert;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
-import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -82,7 +81,7 @@ public class HendelsePublisererTjenesteTest {
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        var opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
+        var opphørt = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
@@ -113,7 +112,7 @@ public class HendelsePublisererTjenesteTest {
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_INNVILGET.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        var innvilget = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
+        var innvilget = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerInnvilget.class);
         assertThat(innvilget.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(innvilget.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(innvilget.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);
@@ -152,7 +151,7 @@ public class HendelsePublisererTjenesteTest {
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_ENDRET.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        var endret = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerEndret.class);
+        var endret = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerEndret.class);
         assertThat(endret.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(endret.getFoersteStoenadsdag()).isEqualTo(NY_PERIODE_FØRSTE_DAG);
         assertThat(endret.getSisteStoenadsdag()).isEqualTo(NY_PERIODE_SISTE_DAG);
@@ -176,7 +175,7 @@ public class HendelsePublisererTjenesteTest {
         assertThat(alle).hasSize(1);
         assertThat(alle.get(0).getType()).isEqualTo(Meldingstype.FORELDREPENGER_OPPHOERT.getType());
         assertThat(alle.get(0).getKildeId()).isEqualTo(VEDTAK_PREFIX + vedtak.getId().toString());
-        var opphørt = JsonMapper.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
+        var opphørt = StandardJsonConfig.fromJson(alle.get(0).getPayload(), ForeldrepengerOpphoert.class);
         assertThat(opphørt.getAktoerId()).isEqualTo(alle.get(0).getAktørId()).isNotNull();
         assertThat(opphørt.getFoersteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_FØRSTE_DAG);
         assertThat(opphørt.getSisteStoenadsdag()).isEqualTo(INNVILGET_PERIODE_SISTE_DAG);

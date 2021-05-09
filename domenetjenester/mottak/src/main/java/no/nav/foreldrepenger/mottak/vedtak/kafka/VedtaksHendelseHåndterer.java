@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.kafka;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -14,13 +13,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
@@ -33,15 +28,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.mottak.json.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
+import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
@@ -53,7 +49,6 @@ import no.nav.vedtak.log.util.LoggerUtils;
 public class VedtaksHendelseHåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
-    private static final ObjectMapper OBJECT_MAPPER = JacksonJsonConfig.getMapper();
 
     private static final Map<YtelseType, FagsakYtelseType> YTELSE_TYPE_MAP = Map.of(
             YtelseType.ENGANGSTØNAD, FagsakYtelseType.ENGANGSTØNAD,
@@ -66,7 +61,6 @@ public class VedtaksHendelseHåndterer {
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
-    private Validator validator;
     private ProsessTaskRepository prosessTaskRepository;
 
     public VedtaksHendelseHåndterer() {
@@ -82,25 +76,15 @@ public class VedtaksHendelseHåndterer {
         this.behandlingRepository = behandlingRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
         this.prosessTaskRepository = prosessTaskRepository;
-        @SuppressWarnings("resource") var factory = Validation.buildDefaultValidatorFactory();
-        // hibernate validator implementations er thread-safe, trenger ikke close
-        validator = factory.getValidator();
     }
 
     void handleMessage(String key, String payload) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka
         // gir opp og dør på seg.
         try {
-            var mottattVedtak = OBJECT_MAPPER.readValue(payload, Ytelse.class);
-            var violations = validator.validate(mottattVedtak);
-            if (!violations.isEmpty()) {
-                // Har feilet validering
-                var allErrors = violations.stream().map(String::valueOf).collect(Collectors.joining("\\n"));
-                LOG.warn("Vedtatt-Ytelse valideringsfeil :: \n {}", allErrors);
-                return;
-            }
+            var mottattVedtak = StandardJsonConfig.fromJson(payload, Ytelse.class);
             handleMessageIntern(mottattVedtak);
-        } catch (IOException e) {
+        } catch (VLException e) {
             LOG.warn("FP-328773 Vedtatt-Ytelse Feil under parsing av vedtak. key={} payload={}", key, payload, e);
         } catch (Exception e) {
             LOG.warn("Vedtatt-Ytelse exception ved håndtering av vedtaksmelding, ignorerer key={}", LoggerUtils.removeLineBreaks(payload), e);

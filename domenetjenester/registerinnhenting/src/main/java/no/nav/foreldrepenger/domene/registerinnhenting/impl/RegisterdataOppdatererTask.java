@@ -7,12 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -30,6 +33,7 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterdataEndringshåndterer registerdataOppdaterer;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
 
     RegisterdataOppdatererTask() {
@@ -37,13 +41,16 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public RegisterdataOppdatererTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
+    public RegisterdataOppdatererTask(BehandlingRepository behandlingRepository,
+                                      BehandlingLåsRepository låsRepository,
                                       BehandlingskontrollTjeneste behandlingskontrollTjeneste,
+                                      BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                       RegisterdataEndringshåndterer registerdataOppdaterer) {
-        super(behandlingRepositoryProvider.getBehandlingLåsRepository());
+        super(låsRepository);
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.registerdataOppdaterer = registerdataOppdaterer;
-        this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
+        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -52,24 +59,21 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
 
-        // sjekk forhåndsbetingelser for å innhente registerdata
-        if (behandling.erSaksbehandlingAvsluttet() || !behandling.erYtelseBehandling()) {
-            LOG.info("Behandling er avsluttet eller feil type, kan ikke innhente registerdata: behandlingId={} status={}", behandlingsId, behandling.getStatus());
-            return;
-        }
-
-        if (!behandlingskontrollTjeneste.erStegPassert(behandling, BehandlingStegType.INNHENT_REGISTEROPP)) {
-            LOG.info("Behandling har ikke etablert grunnlag, skal ikke innhente registerdata: behandlingId={}", behandlingsId);
-            return;
-        }
-
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
-        registerdataOppdaterer.oppdaterRegisteropplysningerOgReposisjonerBehandlingVedEndringer(behandling);
+        registerdataOppdaterer.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, hentUtSnapshotFraPayload(prosessTaskData), true);
         // I tilfelle tilbakehopp reåpner aksjonspunkt
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
         }
+        behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandling)
+            .ifPresent(enhet -> behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, HistorikkAktør.VEDTAKSLØSNINGEN, ""));
+    }
+
+    EndringsresultatSnapshot hentUtSnapshotFraPayload(ProsessTaskData prosessTaskData) {
+        var payloadAsString = prosessTaskData.getPayloadAsString();
+        if (payloadAsString == null) return null;
+        return StandardJsonConfig.fromJson(payloadAsString, EndringsresultatSnapshot.class);
     }
 }

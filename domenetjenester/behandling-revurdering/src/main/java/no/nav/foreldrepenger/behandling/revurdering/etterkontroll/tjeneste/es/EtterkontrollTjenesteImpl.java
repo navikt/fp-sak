@@ -21,9 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTaskProperties;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
@@ -35,7 +33,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private LegacyESBeregningRepository esBeregningRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     EtterkontrollTjenesteImpl() {
     }
@@ -43,14 +41,14 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     @Inject
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
             LegacyESBeregningRepository esBeregningRepository,
-            ProsessTaskRepository prosessTaskRepository,
+            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
             @FagsakYtelseTypeRef("ES") RevurderingTjeneste revurderingTjeneste,
             @KonfigVerdi(value = "etterkontroll.tpsregistrering.periode", defaultVerdi = "P11W") Period tpsRegistreringsTidsrom) {
         this.tpsRegistreringsTidsrom = tpsRegistreringsTidsrom;
         this.behandlingVedtakRepository = vedtakRepository;
         this.revurderingTjeneste = revurderingTjeneste;
         this.esBeregningRepository = esBeregningRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @Override
@@ -70,7 +68,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     @Override
     public void opprettRevurdering(Behandling behandling, BehandlingÅrsakType årsak, OrganisasjonsEnhet enhetForRevurdering) {
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(behandling.getFagsak(), årsak, enhetForRevurdering);
-        opprettTaskForProsesserBehandling(revurdering);
+        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
     }
 
     private Optional<BehandlingÅrsakType> utledRevurderingsÅrsak(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag,
@@ -113,13 +111,6 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     private int finnAntallOverstyrtManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
         return grunnlag.getOverstyrtVersjon().filter(fh -> FamilieHendelseType.FØDSEL.equals(fh.getType())).map(FamilieHendelseEntitet::getAntallBarn)
                 .orElse(0);
-    }
-
-    private void opprettTaskForProsesserBehandling(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(FortsettBehandlingTaskProperties.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
     }
 
 }

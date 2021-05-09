@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_KOMPLETT_OPPDATERING;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Denne klassen evaluerer hvilken effekt en ekstern hendelse (dokument, forretningshendelse) har på en åpen behandlings
@@ -73,7 +75,7 @@ public class Kompletthetskontroller {
             || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
             spolKomplettBehandlingTilStartpunkt(behandling, grunnlagSnapshot);
             if (kompletthetModell.erKompletthetssjekkPassert(behandlingId)) {
-                behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling);
+                behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, MDCOperations.getCallId(), LocalDateTime.now());
             } else {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
             }
@@ -121,7 +123,7 @@ public class Kompletthetskontroller {
 
     public void vurderNyForretningshendelse(Behandling behandling) {
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
-            behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling);
+            behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, MDCOperations.getCallId(), LocalDateTime.now());
         }
     }
 
@@ -132,8 +134,7 @@ public class Kompletthetskontroller {
         }
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
             // Reposisjoner basert på grunnlagsendring i nylig mottatt dokument. Videre reposisjonering gjøres i task etter registeroppdatering
-            var diff = behandlingProsesseringTjeneste.finnGrunnlagsEndring(behandling, grunnlagSnapshot);
-            behandlingProsesseringTjeneste.reposisjonerBehandlingVedEndringer(behandling, diff);
+            behandlingProsesseringTjeneste.utledDiffOgReposisjonerBehandlingVedEndringer(behandling, grunnlagSnapshot);
         }
     }
 

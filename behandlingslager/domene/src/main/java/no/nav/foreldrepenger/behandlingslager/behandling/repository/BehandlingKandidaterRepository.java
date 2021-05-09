@@ -121,23 +121,6 @@ public class BehandlingKandidaterRepository {
         return query.getResultList();
     }
 
-    public List<Behandling> finnRevurderingerPåVentIKompletthet() {
-
-        var query = entityManager.createQuery(
-            "SELECT behandling FROM Behandling behandling " +
-                "INNER JOIN Aksjonspunkt ap on ap.behandling.id=behandling.id " +
-                " WHERE ap.status IN :aapneAksjonspunktKoder " +
-                "   AND ap.aksjonspunktDefinisjon = :aksjonspunkt " +
-                "   AND behandling.behandlingType = :behandlingType",
-            Behandling.class);
-        query.setHint(QueryHints.HINT_READONLY, "true");
-        query.setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
-        query.setParameter("aksjonspunkt", AksjonspunktDefinisjon.AUTO_VENTER_PÅ_KOMPLETT_SØKNAD);
-        query.setParameter("behandlingType", BehandlingType.REVURDERING);
-
-        return query.getResultList();
-    }
-
     public List<Behandling> finnBehandlingerIkkeAvsluttetPåAngittEnhet(String enhetId) {
 
         var query = entityManager.createQuery(

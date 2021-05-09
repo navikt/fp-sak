@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -55,7 +55,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var value = captorVal.getValue();
-        var roundtrip = JsonObjectMapper.fromJson(value, BehandlingOpprettet.class);
+        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingOpprettet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
     }
 
@@ -79,7 +79,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         verify(producer).sendJsonMedNøkkel(captorKey.capture(), captorVal.capture());
         var key = captorKey.getValue();
         var value = captorVal.getValue();
-        var roundtrip = JsonObjectMapper.fromJson(value, BehandlingAvsluttet.class);
+        var roundtrip = StandardJsonConfig.fromJson(value, BehandlingAvsluttet.class);
         assertThat(roundtrip.getBehandlingsID()).isEqualToIgnoringCase(Fagsystem.FPSAK.getOffisiellKode() + "_" + behandling.getId());
         assertThat(roundtrip.getAvslutningsstatus().getValue()).isEqualTo("ok");
     }

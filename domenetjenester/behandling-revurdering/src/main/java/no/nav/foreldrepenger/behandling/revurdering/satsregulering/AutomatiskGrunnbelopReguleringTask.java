@@ -15,11 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
 @ProsessTask(AutomatiskGrunnbelopReguleringTask.TASKTYPE)
@@ -28,7 +27,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
     public static final String TASKTYPE = "behandlingsprosess.satsregulering";
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private FagsakRepository fagsakRepository;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private BehandlingFlytkontroll flytkontroll;
@@ -39,12 +38,12 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     @Inject
     public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository,
+                                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
             BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
@@ -71,10 +70,7 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
         if (skalKøes) {
             flytkontroll.settNyRevurderingPåVent(revurdering);
         } else {
-            var fortsettTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
-            fortsettTaskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
-            fortsettTaskData.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(fortsettTaskData);
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         }
     }
 }

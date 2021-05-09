@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårJsonObjectMapper;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.VilkårUtfallOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjening;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
@@ -24,10 +24,8 @@ public class InngangsvilkårOpptjeningTest {
 
     @Test
     public void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case1() throws Exception {
-        var jsonMapper = new VilkårJsonObjectMapper();
-
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
-        var grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
@@ -50,10 +48,8 @@ public class InngangsvilkårOpptjeningTest {
 
     @Test
     public void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() throws Exception {
-        var jsonMapper = new VilkårJsonObjectMapper();
-
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
-        var grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
@@ -76,10 +72,8 @@ public class InngangsvilkårOpptjeningTest {
 
     @Test
     public void test_beregn_opptjening_fra_periode_over_mndskifte_avslag_case2() throws Exception {
-        var jsonMapper = new VilkårJsonObjectMapper();
-
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
-        var grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
@@ -102,10 +96,8 @@ public class InngangsvilkårOpptjeningTest {
 
     @Test
     public void test_aktivitet_første_og_siste() throws Exception {
-        var jsonMapper = new VilkårJsonObjectMapper();
-
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
-        var grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);
@@ -130,10 +122,8 @@ public class InngangsvilkårOpptjeningTest {
 
     @Test
     public void test_beregn_opptjening_nok_aktivitet() throws Exception {
-        var jsonMapper = new VilkårJsonObjectMapper();
-
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
-        var grunnlag = jsonMapper.readValue(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         grunnlag.setMinsteAntallDagerGodkjent(28);
         grunnlag.setMinsteAntallMånederGodkjent(0);

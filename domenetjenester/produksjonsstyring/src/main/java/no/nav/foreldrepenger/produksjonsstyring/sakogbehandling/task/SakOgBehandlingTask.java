@@ -28,10 +28,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.BehandlingStatusDto;
-import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.JsonObjectMapper;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehandlingHendelseProducer;
-import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
@@ -132,7 +131,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
     }
 
     private String generatePayload(contract.sob.dto.BehandlingStatus hendelse) {
-        return JsonObjectMapper.toJson(hendelse, e -> new TekniskException("FP-190497", "Kunne ikke serialisere til json."));
+        return StandardJsonConfig.toJson(hendelse);
     }
 
 }

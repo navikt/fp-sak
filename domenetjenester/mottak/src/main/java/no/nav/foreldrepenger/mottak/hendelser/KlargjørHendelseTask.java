@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -33,7 +34,7 @@ public class KlargjørHendelseTask implements ProsessTaskHandler {
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
         var hendelseType = ForretningshendelseType.fraKode(prosessTaskData.getPropertyValue(PROPERTY_HENDELSE_TYPE));
-        var hendelse = JsonMapper.fromJson(prosessTaskData.getPayloadAsString(), HendelseDto.class);
+        var hendelse = StandardJsonConfig.fromJson(prosessTaskData.getPayloadAsString(), HendelseDto.class);
         forretningshendelseMottak.mottaForretningshendelse(hendelseType, hendelse);
     }
 }

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.feed.FeedRepository;
 import no.nav.foreldrepenger.domene.feed.FpVedtakUtgåendeHendelse;
 import no.nav.foreldrepenger.domene.feed.SvpVedtakUtgåendeHendelse;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.ForeldrepengerInnvilget;
@@ -31,7 +32,6 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.Meldingstype;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerEndret;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerInnvilget;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.SvangerskapspengerOpphoert;
-import no.nav.foreldrepenger.mottak.hendelser.JsonMapper;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 @ApplicationScoped
@@ -103,7 +103,7 @@ public class HendelsePublisererTjeneste {
 
         var innhold = mapVedtakTilInnholdFp(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        var payloadJason = JsonMapper.toJson(innhold);
+        var payloadJason = StandardJsonConfig.toJson(innhold);
         fpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(fpVedtakUtgåendeHendelseBuilder.build());
@@ -126,7 +126,7 @@ public class HendelsePublisererTjeneste {
 
         var innhold = mapVedtakTilInnholdSVP(behandling, meldingstype, innvilgetPeriode.orElseGet(orginalPeriode::get));
 
-        var payloadJason = JsonMapper.toJson(innhold);
+        var payloadJason = StandardJsonConfig.toJson(innhold);
         svpVedtakUtgåendeHendelseBuilder.payload(payloadJason);
 
         feedRepository.lagre(svpVedtakUtgåendeHendelseBuilder.build());

@@ -1,10 +1,11 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.konsument;
+
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollSerialiseringUtil;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -35,7 +36,7 @@ public class LesKontrollresultatTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var payload = prosessTaskData.getPayloadAsString();
         try {
-            var kontraktResultat = KontrollSerialiseringUtil.deserialiser(payload, KontrollResultatV1.class);
+            var kontraktResultat = StandardJsonConfig.fromJson(payload, KontrollResultatV1.class);
             evaluerKontrollresultat(kontraktResultat);
         } catch (Exception e) {
             LOG.warn("Klarte ikke behandle risikoklassifiseringresultat", e);

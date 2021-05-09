@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.dokumentbestiller.BrevHistorikkinnslag;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
@@ -74,7 +75,7 @@ public class DokumentKafkaBestillerTest {
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isNull();
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
-            assertThat(JsonMapper.fromJson(taskData.getPayloadAsString(), String.class)).isNull();
+            assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isNull();
         });
         verify(dokumentBehandlingTjeneste, times(1)).loggDokumentBestilt(eq(behandling), eq(innhentDok));
     }
@@ -92,7 +93,7 @@ public class DokumentKafkaBestillerTest {
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isEqualTo(årsak.getKode());
             assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
-            assertThat(JsonMapper.fromJson(taskData.getPayloadAsString(), String.class)).isEqualTo(fritekst);
+            assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isEqualTo(fritekst);
         });
     }
 

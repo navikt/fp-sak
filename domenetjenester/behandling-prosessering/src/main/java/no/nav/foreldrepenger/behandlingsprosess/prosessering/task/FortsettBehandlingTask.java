@@ -22,9 +22,14 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  * Kjører behandlingskontroll automatisk fra der prosessen står.
  */
 @ApplicationScoped
-@ProsessTask(FortsettBehandlingTaskProperties.TASKTYPE)
+@ProsessTask(FortsettBehandlingTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class FortsettBehandlingTask implements ProsessTaskHandler {
+
+    public static final String TASKTYPE = "behandlingskontroll.fortsettBehandling";
+    public static final String MANUELL_FORTSETTELSE = "manuellFortsettelse";
+    public static final String UTFORT_AUTOPUNKT = "autopunktUtfort";
+    public static final String GJENOPPTA_STEG = "gjenopptaSteg";
 
     private BehandlingRepository behandlingRepository;
 
@@ -49,10 +54,10 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             var behandlingId = getBehandlingId(data);
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
             var behandling = behandlingRepository.hentBehandling(behandlingId);
-            var manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(FortsettBehandlingTaskProperties.MANUELL_FORTSETTELSE))
+            var manuellFortsettelse = Optional.ofNullable(data.getPropertyValue(MANUELL_FORTSETTELSE))
                     .map(Boolean::valueOf)
                     .orElse(Boolean.FALSE);
-            var gjenoppta = data.getPropertyValue(FortsettBehandlingTaskProperties.GJENOPPTA_STEG);
+            var gjenoppta = data.getPropertyValue(GJENOPPTA_STEG);
 
             var stegtype = getBehandlingStegType(gjenoppta);
             if ((gjenoppta != null) || manuellFortsettelse) {
@@ -60,7 +65,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);
                 }
             } else {
-                var utført = data.getPropertyValue(FortsettBehandlingTaskProperties.UTFORT_AUTOPUNKT);
+                var utført = data.getPropertyValue(UTFORT_AUTOPUNKT);
                 if (utført != null) {
                     var aksjonspunkt = AksjonspunktDefinisjon.fraKode(utført);
                     behandlingskontrollTjeneste.settAutopunktTilUtført(behandling, aksjonspunkt, kontekst);

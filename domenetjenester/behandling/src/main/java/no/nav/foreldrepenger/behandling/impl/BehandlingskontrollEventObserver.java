@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandling.impl;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +13,12 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.foreldrepenger.behandlingskontroll.events.AksjonspunktStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingskontrollEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.integrasjon.kafka.BehandlingProsessEventDto;
 import no.nav.vedtak.felles.integrasjon.kafka.EventHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -34,7 +31,6 @@ public class BehandlingskontrollEventObserver {
 
     private ProsessTaskRepository prosessTaskRepository;
     private BehandlingRepository behandlingRepository;
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     public BehandlingskontrollEventObserver() {
     }
@@ -94,17 +90,10 @@ public class BehandlingskontrollEventObserver {
 
         var behandlingProsessEventDto = getProduksjonstyringEventDto(eventHendelse, behandling.get());
 
-        var json = getJson(behandlingProsessEventDto);
+        var json = StandardJsonConfig.toJson(behandlingProsessEventDto);
         taskData.setProperty(PubliserEventTask.PROPERTY_EVENT, json);
         taskData.setProperty(PubliserEventTask.PROPERTY_KEY, behandlingId.toString());
         return taskData;
-    }
-
-    private String getJson(BehandlingProsessEventDto produksjonstyringEventDto) throws IOException {
-        Writer jsonWriter = new StringWriter();
-        objectMapper.writeValue(jsonWriter, produksjonstyringEventDto);
-        jsonWriter.flush();
-        return jsonWriter.toString();
     }
 
     private BehandlingProsessEventDto getProduksjonstyringEventDto(EventHendelse eventHendelse, Behandling behandling) {

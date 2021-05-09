@@ -20,13 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -34,16 +30,8 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 @ApplicationScoped
 public class TilkjentYtelseMeldingProducer {
 
-    private static final ObjectMapper OM;
-
     private static final Logger LOG = LoggerFactory.getLogger(TilkjentYtelseMeldingProducer.class);
 
-    static {
-        OM = new ObjectMapper();
-        OM.registerModule(new JavaTimeModule());
-        OM.registerModule(new Jdk8Module());
-        OM.registerModule(new SimpleModule());
-    }
 
     private Producer<String, String> producer;
     private String topic;
@@ -131,12 +119,8 @@ public class TilkjentYtelseMeldingProducer {
     public void sendTilkjentYtelse(String fagsakYtelseTypeKode, Saksnummer saksnummer, AktørId aktørId, long behandlingId, UUID behandlingUuid) {
         var verdi = new TilkjentYtelseMelding(fagsakYtelseTypeKode, saksnummer.getVerdi(), aktørId.getId(), behandlingId, behandlingUuid);
 
-        try {
-            var verdiSomJson = OM.writeValueAsString(verdi);
-            sendJsonMedNøkkel(aktørId.getId(), verdiSomJson);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Kunne ikke konvertere til json for behandling " + behandlingId, e);
-        }
+        var verdiSomJson = StandardJsonConfig.toJson(verdi);
+        sendJsonMedNøkkel(aktørId.getId(), verdiSomJson);
     }
 
     public static class TilkjentYtelseMelding {

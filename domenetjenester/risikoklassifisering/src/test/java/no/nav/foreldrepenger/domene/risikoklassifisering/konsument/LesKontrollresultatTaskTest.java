@@ -11,9 +11,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.risikoklassifisering.JsonObjectMapper;
-import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.Kontrollresultat;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.risikoklassifisering.json.KontrollresultatMapper;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.dto.KontrollresultatWrapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -40,7 +40,7 @@ public class LesKontrollresultatTaskTest {
         var uuid = UUID.randomUUID();
         var resultatV1 = builder.medBehandlingUuid(uuid).medResultatkode(KontrollResultatkode.HØY).build();
         var prosessTaskData = new ProsessTaskData(LesKontrollresultatTask.TASKTYPE);
-        prosessTaskData.setPayload(JsonObjectMapper.getJson(resultatV1));
+        prosessTaskData.setPayload(StandardJsonConfig.toJson(resultatV1));
         var wrapper = new KontrollresultatWrapper(uuid, Kontrollresultat.HØY);
         when(kontrollresultatMapper.fraKontrakt(any(KontrollResultatV1.class))).thenReturn(wrapper);
 

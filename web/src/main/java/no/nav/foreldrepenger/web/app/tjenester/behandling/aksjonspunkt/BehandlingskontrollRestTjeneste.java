@@ -91,7 +91,7 @@ public class BehandlingskontrollRestTjeneste {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
         } else if (BehandlingStegType.IVERKSETT_VEDTAK.equals(tilstand.get().getBehandlingSteg())
                 && BehandlingStegStatus.VENTER.equals(tilstand.get().getBehandlingStegStatus())) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingGjenopptaStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(),
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingResumeStegNesteKjøring(behandling, tilstand.get().getBehandlingSteg(),
                     LocalDateTime.now());
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
