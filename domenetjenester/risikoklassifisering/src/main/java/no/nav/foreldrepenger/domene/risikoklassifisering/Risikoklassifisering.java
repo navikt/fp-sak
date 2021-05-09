@@ -89,10 +89,12 @@ public class Risikoklassifisering {
     private ProsessTaskData opprettTaskForRequest(BehandlingReferanse ref,
                                                   Long behandlingId,
                                                   RisikovurderingRequest risikovurderingRequest) throws IOException {
+        var callId = MDCOperations.getCallId();
+        if (callId == null || callId.isBlank()) callId = MDCOperations.generateCallId();
         var taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
         taskData.setBehandling(ref.getFagsakId(), behandlingId, ref.getAktørId().getId());
-        taskData.setCallIdFraEksisterende();
-        var requestWrapper = new RequestWrapper(MDCOperations.getCallId(), risikovurderingRequest);
+        taskData.setCallId(callId);
+        var requestWrapper = new RequestWrapper(callId, risikovurderingRequest);
         taskData.setProperty(RisikoklassifiseringUtførTask.KONSUMENT_ID,
             risikovurderingRequest.getKonsumentId().toString());
         taskData.setProperty(RisikoklassifiseringUtførTask.RISIKOKLASSIFISERING_JSON, getJson(requestWrapper));
