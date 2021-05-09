@@ -129,7 +129,7 @@ public class RisikoklassifiseringTest {
     }
 
     private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) throws IOException {
-        var objectNode = OM.readValue(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON),
+        var objectNode = OM.readValue(prosessTaskData.getPayloadAsString(),
             ObjectNode.class);
         assertThat(objectNode.get("callId").asText()).isEqualTo("callId");
         var request = objectNode.get("request");
@@ -149,7 +149,7 @@ public class RisikoklassifiseringTest {
     private void verifyProcessTask(ProsessTaskData prosessTaskData) {
         assertThat(prosessTaskData.getTaskType()).isEqualTo(TASKTYPE);
         assertThat(prosessTaskData.getProperties().getProperty(KONSUMENT_ID)).isNotBlank();
-        assertThat(prosessTaskData.getProperties().getProperty(RISIKOKLASSIFISERING_JSON)).isNotEmpty();
+        assertThat(prosessTaskData.getPayloadAsString()).isNotBlank();
     }
 
     private void forberedelse(BehandlingReferanse behandling, boolean annenPart) {
