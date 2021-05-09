@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -100,13 +101,18 @@ public class HendelserRestTjeneste {
             LOG.warn("Kan ikke håndtere {}", beskrivelse);
             return new EnkelRespons("Ukjent hendelse");
         }
+        var callId = MDCOperations.getCallId();
+        if (callId == null || callId.isBlank()) {
+            callId = MDCOperations.generateCallId();
+            MDCOperations.putCallId(callId);
+        }
 
         hendelsemottakRepository.registrerMottattHendelse(hendelse.getId());
         var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
         taskData.setPayload(StandardJsonConfig.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());
-        taskData.setCallIdFraEksisterende();
+        taskData.setCallId(callId);
         prosessTaskRepository.lagre(taskData);
         return new EnkelRespons("OK");
     }

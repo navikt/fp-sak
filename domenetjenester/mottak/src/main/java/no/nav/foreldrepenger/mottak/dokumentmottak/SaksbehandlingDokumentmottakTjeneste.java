@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class SaksbehandlingDokumentmottakTjeneste {
@@ -39,7 +40,12 @@ public class SaksbehandlingDokumentmottakTjeneste {
         prosessTaskData.setFagsakId(mottattDokument.getFagsakId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokumentId.toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
-        prosessTaskData.setCallIdFraEksisterende();
+        var callId = MDCOperations.getCallId();
+        if (callId == null || callId.isBlank()) {
+            callId = MDCOperations.generateCallId();
+            MDCOperations.putCallId(callId);
+        }
+        prosessTaskData.setCallId(callId);
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
