@@ -66,7 +66,7 @@ public class OpprettOppgaveEventObserver {
         var totrinnsvurderings = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
         //TODO(OJR) kunne informasjonen om hvilken oppgaveårsak som skal opprettes i GSAK være knyttet til AksjonspunktDef?
         if (!åpneAksjonspunkt.isEmpty()) {
-            if (MDCOperations.getCallId() == null) {
+            if (MDCOperations.getCallId() == null || MDCOperations.getCallId().isBlank()) {
                 MDCOperations.putCallId(MDCOperations.generateCallId());
             }
             if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD) ||
