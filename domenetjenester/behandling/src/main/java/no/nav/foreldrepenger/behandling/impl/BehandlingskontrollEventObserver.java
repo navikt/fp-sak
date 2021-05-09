@@ -97,7 +97,7 @@ public class BehandlingskontrollEventObserver {
         var behandlingProsessEventDto = getProduksjonstyringEventDto(eventHendelse, behandling.get());
 
         var json = StandardJsonConfig.toJson(behandlingProsessEventDto);
-        taskData.setProperty(PubliserEventTask.PROPERTY_EVENT, json);
+        taskData.setPayload(json);
         taskData.setProperty(PubliserEventTask.PROPERTY_KEY, behandlingId.toString());
         return taskData;
     }

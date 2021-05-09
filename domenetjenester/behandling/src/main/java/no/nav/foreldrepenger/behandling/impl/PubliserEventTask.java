@@ -17,7 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class PubliserEventTask implements ProsessTaskHandler {
     public static final String TASKTYPE = "oppgavebehandling.PubliserEvent";
-    public static final String PROPERTY_EVENT = "event";
     public static final String PROPERTY_KEY = "topicKey";
 
     private static final Logger LOG = LoggerFactory.getLogger(PubliserEventTask.class);
@@ -34,7 +33,7 @@ class PubliserEventTask implements ProsessTaskHandler {
     }
 
     protected void prosesser(ProsessTaskData prosessTaskData) {
-        var eventJson = prosessTaskData.getPropertyValue(PROPERTY_EVENT);
+        var eventJson = prosessTaskData.getPayloadAsString();
         var key = prosessTaskData.getPropertyValue(PROPERTY_KEY);
         kafkaProducer.sendJsonMedNøkkel(key, eventJson);
         LOG.info("Publiser aksjonspunktevent på kafka slik at f.eks fplos kan fordele oppgaven for videre behandling. BehandlingsId: {}", key);
