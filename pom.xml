@@ -33,7 +33,7 @@
     <properties>
         <java.version>16</java.version>
         <!-- default argLine for surefire-plugin -->
-        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding} --illegal-access=permit</argLine>
+        <argLine>-Xms256m -Dlog.level.no.nav=WARN -Dfile.encoding=${project.build.sourceEncoding}</argLine>
         <jacoco.skip>true</jacoco.skip> <!-- default skip coverage -->
 
         <revision>4.0.0</revision>
@@ -44,8 +44,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fp-uttak.version>9.1.0</fp-uttak.version>
         <svp-uttak.version>2.1.1</svp-uttak.version>
-        <felles.version>3.1.11</felles.version>
-        <prosesstask.version>2.5.16</prosesstask.version>
+        <felles.version>3.2.41</felles.version>
+        <prosesstask.version>2.5.18</prosesstask.version>
         <ukelonn.felles.version>1.0.8</ukelonn.felles.version>
 
         <fp-kontrakter.version>5.2.3</fp-kontrakter.version>
@@ -781,7 +781,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>0.8.7</version>
                 </plugin>
 
                 <plugin>

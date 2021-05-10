@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import java.util.UUID;
 
@@ -6,11 +6,7 @@ import javax.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-public class UuidDto implements AbacDto {
+public class UuidDto {
 
     public static final String NAME = "uuid";
 
@@ -34,11 +30,6 @@ public class UuidDto implements AbacDto {
     @JsonProperty(NAME)
     public UUID getBehandlingUuid() {
         return behandlingUuid;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
     }
 
 }

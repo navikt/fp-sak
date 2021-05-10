@@ -69,7 +69,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
 
         for (var entry : gruppe.getTasks()) {
 
-            var task = entry.getTask();
+            var task = entry.task();
             if (task.getFagsakId() == null) {
                 // ikke interessant her, move along
                 continue;

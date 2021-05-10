@@ -5,6 +5,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -22,12 +23,13 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerAktivitetskravDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.KontrollerFaktaPeriodeTjeneste;
@@ -43,7 +45,10 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakPeriodegrenseDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(UttakRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -105,7 +110,8 @@ public class UttakRestTjeneste {
     @Path(STONADSKONTOER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SaldoerDto getStonadskontoer(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public SaldoerDto getStonadskontoer(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
@@ -119,7 +125,7 @@ public class UttakRestTjeneste {
     @Path(STONADSKONTOER_GITT_UTTAKSPERIODER_PART_PATH)
     @Operation(description = "Hent informasjon om stønadskontoer for behandling gitt uttaksperioder", summary = "Returnerer stønadskontoer for behandling", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SaldoerDto getStonadskontoerGittUttaksperioder(
+    public SaldoerDto getStonadskontoerGittUttaksperioder(@TilpassetAbacAttributt(supplierClass = BehandlingMedUttakAbacSupplier.class)
             @NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
         var behandlingIdDto = dto.getBehandlingId();
         var behandling = hentBehandling(behandlingIdDto);
@@ -138,7 +144,7 @@ public class UttakRestTjeneste {
     @Path(KONTROLLER_AKTIVTETSKRAV_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere aktivitetskrav", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(
+    public List<KontrollerAktivitetskravPeriodeDto> hentKontrollerAktivitetskrav(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return kontrollerAktivitetskravDtoTjeneste.lagDtos(uuidDto);
     }
@@ -147,7 +153,7 @@ public class UttakRestTjeneste {
     @Path(KONTROLLER_FAKTA_PERIODER_PART_PATH)
     @Operation(description = "Hent perioder for å kontrollere fakta ifbm uttak", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(
+    public KontrollerFaktaDataDto hentKontrollerFaktaPerioder(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         return kontrollerFaktaPeriodeTjeneste.hentKontrollerFaktaPerioder(behandling.getId());
@@ -157,7 +163,7 @@ public class UttakRestTjeneste {
     @Path(RESULTAT_PERIODER_PART_PATH)
     @Operation(description = "Henter uttaksresultatperioder", summary = "Returnerer uttaksresultatperioder", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public UttakResultatPerioderDto hentUttakResultatPerioder(
+    public UttakResultatPerioderDto hentUttakResultatPerioder(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         return uttakResultatPerioderDtoTjeneste.mapFra(behandling).orElse(null);
@@ -167,7 +173,7 @@ public class UttakRestTjeneste {
     @Path(PERIODE_GRENSE_PART_PATH)
     @Operation(description = "Henter uttakperiodegrense", summary = "Returnerer uttakperiodegrense", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public UttakPeriodegrenseDto hentUttakPeriodegrense(
+    public UttakPeriodegrenseDto hentUttakPeriodegrense(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
@@ -178,7 +184,7 @@ public class UttakRestTjeneste {
     @Path(FAKTA_ARBEIDSFORHOLD_PART_PATH)
     @Operation(description = "Henter arbeidsforhold som er relevant for fakta uttak", summary = "Henter arbeidsforhold som er relevant for fakta uttak", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public List<ArbeidsforholdDto> hentArbeidsforhold(
+    public List<ArbeidsforholdDto> hentArbeidsforhold(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         var input = uttakInputTjeneste.lagInput(behandling);
@@ -189,7 +195,7 @@ public class UttakRestTjeneste {
     @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
     @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(
+    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = hentBehandling(uuidDto);
         return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
@@ -204,5 +210,21 @@ public class UttakRestTjeneste {
 
     private Behandling hentBehandling(UuidDto uuidDto) {
         return behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+    }
+
+    public static class BehandlingMedUttakAbacSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (BehandlingMedUttaksperioderDto) obj;
+            var abac = AbacDataAttributter.opprett();
+
+            if(req.getBehandlingId().getBehandlingId()!=null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
+            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            }
+            return abac;
+        }
     }
 }

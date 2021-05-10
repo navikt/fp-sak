@@ -19,8 +19,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -28,7 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.familiehendelse.rest.FamilieHendelseGrunnlagDto;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDataDtoTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(FamiliehendelseRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -65,7 +67,7 @@ public class FamiliehendelseRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer info om familiehendelse, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamiliehendelseDto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public FamiliehendelseDto getAvklartFamiliehendelseDto(
+    public FamiliehendelseDto getAvklartFamiliehendelseDto(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var input = new BehandlingIdDto(uuidDto);
         var behandlingId = input.getBehandlingId();
@@ -85,7 +87,7 @@ public class FamiliehendelseRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer hele FamilieHendelse grunnlaget", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(
+    public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var input = new BehandlingIdDto(uuidDto);
         var behandlingId = input.getBehandlingId();

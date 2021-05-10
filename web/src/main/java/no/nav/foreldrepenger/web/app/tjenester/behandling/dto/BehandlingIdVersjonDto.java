@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

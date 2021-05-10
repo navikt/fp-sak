@@ -31,12 +31,12 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
+import no.nav.foreldrepenger.xmlutils.XmlUtils;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.PersonopplysningerEngangsstoenad;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.fp.v2.PersonopplysningerForeldrepenger;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
-import no.nav.vedtak.xmlutils.JaxbHelper;
-import no.nav.vedtak.xmlutils.XmlUtils;
 
 public class VedtakXMLTilHTMLTransformator {
 

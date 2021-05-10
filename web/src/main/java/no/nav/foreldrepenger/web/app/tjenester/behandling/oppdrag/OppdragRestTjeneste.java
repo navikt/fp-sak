@@ -17,11 +17,13 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(OppdragRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,7 +53,8 @@ public class OppdragRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
     @Deprecated
-    public OppdragDto hentOppdrag(@Valid @NotNull BehandlingIdDto behandlingIdDto) {
+    public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @Valid @NotNull BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
         return oppdragskontroll
@@ -63,7 +66,8 @@ public class OppdragRestTjeneste {
     @Operation(description = "Hent oppdrags-info for behandlingen", tags = "oppdrag")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Path(OPPDRAGINFO_PART_PATH)
-    public OppdragDto hentOppdrag(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId());
         return oppdragskontroll

@@ -37,10 +37,10 @@ import no.nav.foreldrepenger.mottak.registrerer.DokumentRegistrererTjeneste;
 import no.nav.foreldrepenger.mottak.registrerer.ManuellRegistreringAksjonspunktDto;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.svp.ManuellRegistreringSvangerskapspengerDto;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = ManuellRegistreringDto.class, adapter = AksjonspunktOppdaterer.class)

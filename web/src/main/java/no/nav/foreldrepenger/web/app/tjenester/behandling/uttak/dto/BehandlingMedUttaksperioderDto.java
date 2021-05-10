@@ -6,12 +6,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 
-public class BehandlingMedUttaksperioderDto implements AbacDto {
+public class BehandlingMedUttaksperioderDto {
 
     @Valid
     private BehandlingIdDto behandlingId;
@@ -35,17 +32,5 @@ public class BehandlingMedUttaksperioderDto implements AbacDto {
 
     public void setPerioder(List<UttakResultatPeriodeLagreDto> perioder) {
         this.perioder = perioder;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
-
-        if(getBehandlingId().getBehandlingId()!=null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId().getBehandlingId());
-        } else if (getBehandlingId().getBehandlingUuid() != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingId().getBehandlingUuid());
-        }
-        return abac;
     }
 }

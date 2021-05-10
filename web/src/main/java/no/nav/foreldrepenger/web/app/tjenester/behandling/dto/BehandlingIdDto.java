@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.behandling;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -10,16 +10,12 @@ import javax.validation.constraints.Min;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
 /**
  * Referanse til en behandling. Enten {@link #behandlingId} eller
  * {@link #behandlingUuid} vil være satt.
  */
 @JsonInclude(Include.NON_NULL)
-public class BehandlingIdDto implements AbacDto {
+public class BehandlingIdDto  {
 
     @Min(0)
     @Max(Long.MAX_VALUE)
@@ -82,19 +78,6 @@ public class BehandlingIdDto implements AbacDto {
         return saksnummer;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
-        if (behandlingId != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
-        } else if (behandlingUuid != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
-        } else {
-            throw new IllegalArgumentException("Må ha en av behandlingId/behandlingUuid spesifisert");
-        }
-
-        return abac;
-    }
 
     @Override
     public String toString() {

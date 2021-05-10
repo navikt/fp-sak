@@ -12,9 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeType;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_VERGE_KODE)
@@ -84,15 +82,6 @@ public class AvklarVergeDto extends BekreftetAksjonspunktDto {
 
     public String getOrganisasjonsnummer() {
         return organisasjonsnummer;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        var abacDataAttributter = AbacDataAttributter.opprett();
-        if (fnr != null) {
-            abacDataAttributter.leggTil(AppAbacAttributtType.FNR, fnr);
-        }
-        return abacDataAttributter;
     }
 
 }

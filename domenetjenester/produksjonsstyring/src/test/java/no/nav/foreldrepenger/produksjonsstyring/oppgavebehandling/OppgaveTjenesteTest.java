@@ -189,14 +189,14 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         verify(prosessTaskRepository).lagre(captor.capture());
         assertThat(captor.getAllValues()).hasSize(1);
         var tasks = captor.getValue().getTasks();
-        assertThat(tasks.get(0).getTask().getTaskType()).isEqualTo(AvsluttOppgaveTask.TASKTYPE);
-        assertThat(tasks.get(0).getTask().getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(tasks.get(0).getTask().getBehandlingId()).isEqualTo(behandling.getId().toString());
-        assertThat(String.valueOf(tasks.get(0).getTask().getAktørId())).isEqualTo(behandling.getAktørId().getId());
-        assertThat(tasks.get(1).getTask().getTaskType()).isEqualTo(OpprettOppgaveGodkjennVedtakTask.TASKTYPE);
-        assertThat(tasks.get(1).getTask().getFagsakId()).isEqualTo(behandling.getFagsakId());
-        assertThat(tasks.get(1).getTask().getBehandlingId()).isEqualTo(behandling.getId().toString());
-        assertThat(String.valueOf(tasks.get(1).getTask().getAktørId())).isEqualTo(behandling.getAktørId().getId());
+        assertThat(tasks.get(0).task().getTaskType()).isEqualTo(AvsluttOppgaveTask.TASKTYPE);
+        assertThat(tasks.get(0).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
+        assertThat(tasks.get(0).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
+        assertThat(String.valueOf(tasks.get(0).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());
+        assertThat(tasks.get(1).task().getTaskType()).isEqualTo(OpprettOppgaveGodkjennVedtakTask.TASKTYPE);
+        assertThat(tasks.get(1).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
+        assertThat(tasks.get(1).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
+        assertThat(String.valueOf(tasks.get(1).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());
     }
 
     @Test

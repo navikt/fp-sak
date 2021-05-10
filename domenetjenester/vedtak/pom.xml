@@ -84,8 +84,8 @@
 		</dependency>
 
 		<dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>felles-integrasjon-webservice</artifactId>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-xmlutils</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>

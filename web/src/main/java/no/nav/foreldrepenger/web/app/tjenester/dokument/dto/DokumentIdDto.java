@@ -2,11 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.dokument.dto;
 
 import javax.validation.constraints.Digits;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-public class DokumentIdDto implements AbacDto {
+public class DokumentIdDto {
     @Digits(integer = 18, fraction = 0)
     private String dokumentId;
 
@@ -18,8 +14,5 @@ public class DokumentIdDto implements AbacDto {
         return dokumentId;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.DOKUMENT_ID, dokumentId);
-    }
+
 }

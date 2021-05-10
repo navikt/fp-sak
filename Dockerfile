@@ -19,4 +19,4 @@ COPY web/target/lib/*.jar /app/lib/
 # Export vault properties
 COPY export-vault.sh /init-scripts/export-vault.sh
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo -Dapplication.name=fpsak --illegal-access=permit "
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom -Duser.timezone=Europe/Oslo -Dapplication.name=fpsak "

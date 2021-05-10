@@ -7,6 +7,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,10 +35,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.steg.iverksettevedtak.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -56,22 +55,30 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.DtoMedBehandlingId;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.NyBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped
@@ -153,7 +160,8 @@ public class BehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    public Response hentBehandling(@NotNull @Valid BehandlingIdDto behandlingIdDto) {
+    public Response hentBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
@@ -175,8 +183,9 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBehandlingMidlertidigStatus(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
-            @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
+    public Response hentBehandlingMidlertidigStatus(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
+            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
@@ -193,7 +202,8 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBehandlingResultat(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+    public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
@@ -209,7 +219,8 @@ public class BehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Setter behandling på vent", tags = "behandlinger")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public void settBehandlingPaVent(@Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
+    public void settBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
         behandlingsutredningTjeneste.settBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
     }
@@ -219,7 +230,7 @@ public class BehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Endrer ventefrist for behandling på vent", tags = "behandlinger")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.VENTEFRIST)
-    public void endreFristForBehandlingPaVent(
+    public void endreFristForBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
         behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
         behandlingsutredningTjeneste.endreBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
@@ -231,7 +242,8 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Henlegger behandling", tags = "behandlinger")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
-    public void henleggBehandling(@Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
+    public void henleggBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
         var behandlingId = dto.getBehandlingId();
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, dto.getBehandlingVersjon());
         var årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
@@ -245,8 +257,7 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Gjenoppta behandling påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-
-    public Response gjenopptaBehandling(
+    public Response gjenopptaBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto) {
         var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
@@ -266,8 +277,8 @@ public class BehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Bytte behandlende enhet", tags = "behandlinger")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-
-    public void byttBehandlendeEnhet(@Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
+    public void byttBehandlendeEnhet(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
         var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
         behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
@@ -286,8 +297,7 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "202", description = "Opprett ny behandling pågår", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-
-    public Response opprettNyBehandling(
+    public Response opprettNyBehandling(@TilpassetAbacAttributt(supplierClass = NyBehandlingAbacDataSupplier.class)
             @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto) {
         var saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
         var funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
@@ -371,7 +381,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Henter alle behandlinger basert på saksnummer", summary = ("Returnerer alle behandlinger som er tilknyttet saksnummer."), tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
-    public List<BehandlingDto> hentBehandlinger(
+    public List<BehandlingDto> hentBehandlinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
         var behandlinger = behandlingsutredningTjeneste.hentBehandlingerForSaksnummer(saksnummer);
@@ -386,7 +396,7 @@ public class BehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
-    public Response åpneBehandlingForEndringer(
+    public Response åpneBehandlingForEndringer(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto) {
         var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
@@ -412,7 +422,7 @@ public class BehandlingRestTjeneste {
     @Operation(description = "Henter annen parts behandling basert på saksnummer", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
-    public Response hentAnnenPartsGjeldendeBehandling(
+    public Response hentAnnenPartsGjeldendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
             @NotNull @QueryParam("saksnummer") @Parameter(description = "Saksnummer må være et eksisterende saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
 
@@ -425,12 +435,30 @@ public class BehandlingRestTjeneste {
     @Path(RETTIGHETER_PART_PATH)
     @Operation(description = "Henter rettigheter for menyvalg", tags = "behandlinger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public BehandlingOperasjonerDto hentMenyOpsjoner(
+    public BehandlingOperasjonerDto hentMenyOpsjoner(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
 
         return lovligeOperasjoner(behandling);
+    }
+
+    public static class LocalBehandlingIdAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (DtoMedBehandlingId) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+        }
+    }
+
+    public static class NyBehandlingAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (NyBehandlingDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
+        }
     }
 
     private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {

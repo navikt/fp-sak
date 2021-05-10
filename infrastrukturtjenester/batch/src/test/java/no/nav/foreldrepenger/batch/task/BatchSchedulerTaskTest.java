@@ -54,7 +54,7 @@ public class BatchSchedulerTaskTest {
 
         @Override
         public void opprettScheduledTasks(ProsessTaskGruppe gruppe) {
-            gruppe.getTasks().stream().map(ProsessTaskGruppe.Entry::getTask).map(ProsessTaskData::getProperties).forEach(taskDataList::add);
+            gruppe.getTasks().stream().map(ProsessTaskGruppe.Entry::task).map(ProsessTaskData::getProperties).forEach(taskDataList::add);
         }
 
         List<Properties> getTaskDataList() {

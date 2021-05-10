@@ -6,10 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-public class FeatureToggleNavnListeDto implements AbacDto {
+public class FeatureToggleNavnListeDto {
 
     @Valid
     @NotNull
@@ -28,8 +25,4 @@ public class FeatureToggleNavnListeDto implements AbacDto {
         return toggles;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett();
-    }
 }

@@ -10,12 +10,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
-public class SaksnummerDto implements AbacDto {
+public class SaksnummerDto {
 
     @JsonProperty("saksnummer")
     @NotNull
@@ -55,8 +52,4 @@ public class SaksnummerDto implements AbacDto {
             '}';
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, getVerdi());
-    }
 }

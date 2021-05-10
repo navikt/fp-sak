@@ -21,7 +21,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.xmlutils.DateUtil;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.FinnSakListeSikkerhetsbegrensning;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.binding.ForeldrepengesakV1;
 import no.nav.tjeneste.virksomhet.foreldrepengesak.v1.informasjon.Behandlingstema;
@@ -35,7 +36,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import no.nav.vedtak.xmlutils.DateUtil;
 
 /**
  * Webservice for å finne relevante fagsaker i VL.

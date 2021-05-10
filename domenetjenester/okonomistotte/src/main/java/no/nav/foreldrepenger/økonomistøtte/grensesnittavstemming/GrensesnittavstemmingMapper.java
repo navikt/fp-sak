@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.K
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Periodedata;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.Totaldata;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public class GrensesnittavstemmingMapper {
     private ObjectFactory objectFactory;

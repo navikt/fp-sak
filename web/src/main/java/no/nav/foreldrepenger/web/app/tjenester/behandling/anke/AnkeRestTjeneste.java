@@ -6,6 +6,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDAT
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -28,8 +29,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -37,7 +36,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntite
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(AnkeRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -73,7 +78,8 @@ public class AnkeRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAnkeVurdering(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+    public Response getAnkeVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
@@ -93,7 +99,8 @@ public class AnkeRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAnkeVurdering(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getAnkeVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAnkeVurdering(new BehandlingIdDto(uuidDto));
     }
 
@@ -110,7 +117,7 @@ public class AnkeRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Mellomlagring av vurderingstekst for ankebehandling", tags = "anke")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response mellomlagreAnke(
+    public Response mellomlagreAnke(@TilpassetAbacAttributt(supplierClass = MellomlagreAbacDataSupplier.class)
             @Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
@@ -122,6 +129,15 @@ public class AnkeRestTjeneste {
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder);
         }
         return Response.ok().build();
+    }
+
+    public static class MellomlagreAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (AnkeVurderingResultatAksjonspunktMellomlagringDto) obj;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+        }
     }
 
     private AnkeVurderingResultatEntitet.Builder mapMellomlagreVurdering(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto,

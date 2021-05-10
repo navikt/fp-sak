@@ -15,21 +15,15 @@
     <name>FPSAK :: Web - Webapp</name>
     <properties>
         <simpleclient.version>0.10.0</simpleclient.version>
-        <swagger-ui.version>3.47.1</swagger-ui.version>
+        <swagger-ui.version>3.48.0</swagger-ui.version>
         <resteasy.version>4.6.0.Final</resteasy.version>
     </properties>
     <dependencies>
 
         <!-- UNLEASH: DENNE SKAL FJERNES -->
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
-            <artifactId>unleash-klient</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>no.finn.unleash</groupId>
+            <artifactId>unleash-client-java</artifactId>
         </dependency>
 
         <!-- Database håndtering -->
@@ -77,6 +71,14 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>fordel-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-abac-legacy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-xmlutils</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>

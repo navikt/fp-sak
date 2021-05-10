@@ -18,12 +18,15 @@ import javax.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
@@ -50,7 +53,8 @@ public class PipRestTjeneste {
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter aktørId'er tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
-    public Set<AktørId> hentAktørIdListeTilknyttetSak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var aktører = pipRepository.hentAktørIdKnyttetTilSaksnummer(saksnummerDto.getVerdi());
         return aktører;
     }
@@ -59,7 +63,8 @@ public class PipRestTjeneste {
     @Path(PIPDATA_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
-    public PipDto hentAktørIdListeTilknyttetBehandling(@NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
+    public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
         var pipData = pipRepository.hentDataForBehandlingUuid(behandlingIdDto.getBehandlingUuid());
         var pipDto = new PipDto();
         pipData.ifPresent(pip -> {

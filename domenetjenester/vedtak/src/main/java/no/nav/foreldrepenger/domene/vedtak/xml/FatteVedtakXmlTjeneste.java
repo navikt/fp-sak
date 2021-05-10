@@ -14,9 +14,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class FatteVedtakXmlTjeneste {

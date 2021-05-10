@@ -7,12 +7,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class DokumentProdusertDto implements AbacDto {
+public class DokumentProdusertDto {
 
     @Valid
     @NotNull
@@ -43,9 +40,4 @@ public class DokumentProdusertDto implements AbacDto {
         this.dokumentMal = dokumentMal;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
-        return abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
-    }
 }

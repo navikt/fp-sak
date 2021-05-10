@@ -19,9 +19,9 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlFeil;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.felles.xml.vedtak.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class DvhVedtakXmlTjeneste {

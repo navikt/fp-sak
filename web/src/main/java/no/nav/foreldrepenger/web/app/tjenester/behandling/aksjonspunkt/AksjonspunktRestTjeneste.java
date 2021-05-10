@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -30,18 +31,24 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @ApplicationScoped
 @Transactional
@@ -89,7 +96,8 @@ public class AksjonspunktRestTjeneste {
             @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAksjonspunkter(@NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
+    public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
@@ -110,7 +118,8 @@ public class AksjonspunktRestTjeneste {
             @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAksjonspunkter(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return getAksjonspunkter(new BehandlingIdDto(uuidDto));
     }
 
@@ -121,7 +130,8 @@ public class AksjonspunktRestTjeneste {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = AksjonspunktDto.class), mediaType = MediaType.APPLICATION_JSON))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getRisikoAksjonspunkt(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response getRisikoAksjonspunkt(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
                 .stream()
@@ -143,7 +153,7 @@ public class AksjonspunktRestTjeneste {
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Boolean.class), mediaType = MediaType.APPLICATION_JSON))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response erKontrollerRevurderingAksjonspunktÅpent(
+    public Response erKontrollerRevurderingAksjonspunktÅpent(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var harÅpentAksjonspunkt = behandling
@@ -169,7 +179,7 @@ public class AksjonspunktRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response bekreft(
+    public Response bekreft(@TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
             @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
             throws URISyntaxException { // NOSONAR
 
@@ -201,7 +211,8 @@ public class AksjonspunktRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response overstyr(@Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
+    public Response overstyr(@TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
+        @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
         var behandlingIdDto = apDto.getBehandlingId();
         var behandlingId = behandlingIdDto.getBehandlingId();
@@ -232,5 +243,48 @@ public class AksjonspunktRestTjeneste {
     private static boolean erFatteVedtakAkpt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
         return aksjonspunktDtoer.size() == 1 &&
                 aksjonspunktDtoer.iterator().next().getKode().equals(AksjonspunktDefinisjon.FATTER_VEDTAK.getKode());
+    }
+
+    public static class BekreftetAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (BekreftedeAksjonspunkterDto) obj;
+            var abac = AbacDataAttributter.opprett();
+
+            if(req.getBehandlingId().getBehandlingId()!=null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
+            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            }
+
+            req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> {
+                abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode());
+                if (apDto instanceof AvklarVergeDto avklarVergeDto && avklarVergeDto.getFnr() != null) {
+                    abac.leggTil(AppAbacAttributtType.FNR, avklarVergeDto.getFnr());
+                }
+                if (apDto instanceof ManuellRegistreringDto manuellRegistreringDto && manuellRegistreringDto.getAnnenForelder() != null && manuellRegistreringDto.getAnnenForelder().getFoedselsnummer() != null) {
+                    abac.leggTil(AppAbacAttributtType.FNR, manuellRegistreringDto.getAnnenForelder().getFoedselsnummer());
+                }
+            });
+            return abac;
+        }
+    }
+
+    public static class OverstyrtAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (BekreftedeAksjonspunkterDto) obj;
+            var abac = AbacDataAttributter.opprett();
+
+            if (req.getBehandlingId().getBehandlingId() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
+            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            }
+            req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode()));
+            return abac;
+        }
     }
 }

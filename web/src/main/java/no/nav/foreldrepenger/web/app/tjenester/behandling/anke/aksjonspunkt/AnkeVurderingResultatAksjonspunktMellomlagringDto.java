@@ -11,14 +11,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDto {
+public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
 
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     @JsonProperty("kode")
@@ -158,10 +155,4 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto implements AbacDt
         return påAnketBehandlingId;
     }
 
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
-    }
 }

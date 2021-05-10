@@ -3,10 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-public class ArbeidsgiverOpplysningerDto implements AbacDto {
+public class ArbeidsgiverOpplysningerDto {
 
     private final String referanse;
     private final String identifikator;
@@ -60,11 +57,6 @@ public class ArbeidsgiverOpplysningerDto implements AbacDto {
     @Override
     public int hashCode() {
         return Objects.hash(referanse);
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett(); // tom, i praksis rollebasert tilgang på JSON-feed
     }
 
 }

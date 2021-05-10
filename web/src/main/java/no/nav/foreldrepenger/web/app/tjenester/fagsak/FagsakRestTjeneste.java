@@ -4,6 +4,7 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOpprettingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SakRettigheterDto;
@@ -41,10 +43,14 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Prosess
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakPersonerDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(FagsakRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -85,8 +91,8 @@ public class FagsakRestTjeneste {
             @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentFagsakMidlertidigStatus(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto idDto,
-            @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
+    public Response hentFagsakMidlertidigStatus(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto idDto,
+                                                @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
         var saksnummer = new Saksnummer(idDto.getVerdi());
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = fagsakTjeneste.sjekkProsessTaskPågår(saksnummer, gruppe);
@@ -100,7 +106,8 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "404", description = "Person ikke tilgjengelig")
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentPersonerForFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentPersonerForFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
         return fagsakTjeneste.lagSakPersonerDto(saksnummer).map(b -> Response.ok(b).build())
             .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
@@ -114,7 +121,8 @@ public class FagsakRestTjeneste {
             @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentFagsak(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
 
         var saksnummer = new Saksnummer(s.getVerdi());
         return fagsakTjeneste.hentFagsakDtoForSaksnummer(saksnummer)
@@ -129,7 +137,7 @@ public class FagsakRestTjeneste {
         +
         "Oversikt over saker knyttet til en bruker kan søkes via fødselsnummer eller d-nummer."))
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public List<FagsakDto> søkFagsaker(
+    public List<FagsakDto> søkFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
         return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString());
     }
@@ -142,7 +150,8 @@ public class FagsakRestTjeneste {
         @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentRettigheter(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
+    public Response hentRettigheter(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
         var saksnummer = new Saksnummer(s.getVerdi());
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(saksnummer);
         if (fagsak.isEmpty()) {
@@ -155,6 +164,22 @@ public class FagsakRestTjeneste {
 
         var dto = new SakRettigheterDto(fagsak.map(Fagsak::getSkalTilInfotrygd).orElse(false), oppretting, List.of());
         return Response.ok(dto).build();
+    }
+
+    public static class SøkeFeltAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (SokefeltDto) obj;
+            var attributter = AbacDataAttributter.opprett();
+            if (req.getSearchString().length() == 13 /* guess - aktørId */) {
+                attributter.leggTil(AppAbacAttributtType.AKTØR_ID, req.getSearchString())
+                    .leggTil(AppAbacAttributtType.SAKER_FOR_AKTØR, req.getSearchString());
+            } else {
+                attributter.leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSearchString());
+            }
+            return attributter;
+        }
     }
 
 }
