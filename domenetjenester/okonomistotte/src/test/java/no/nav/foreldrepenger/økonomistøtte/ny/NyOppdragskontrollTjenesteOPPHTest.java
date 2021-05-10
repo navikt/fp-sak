@@ -391,13 +391,13 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var oppdragslinje150 = oppdragslinje150Opphørt.get();
         var refusjonsinfo156 = oppdragslinje150.getRefusjonsinfo156();
         assertThat(oppdragslinje150.getVedtakId()).isEqualTo(VEDTAKSDATO.toString());
+        assertThat(refusjonsinfo156.getDatoFom()).isEqualTo(VEDTAKSDATO);
         assertThat(refusjonsinfo156.getMaksDato()).isEqualTo(sisteOppdragsDatoTom.get());
-        assertThat(refusjonsinfo156.getDatoFom()).isEqualTo(førsteOppdragsDatoFom.get());
 
         var feriepengerFom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 1);
         var feriepengerTom = LocalDate.of(stønadsdatoFom.plusYears(1).getYear(), 5, 31);
         var oppdragslinje150Ferie = oppdragslinje150Feriepenger.get();
-        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getDatoFom()).isEqualTo(feriepengerFom);
+        assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getDatoFom()).isEqualTo(VEDTAKSDATO);
         assertThat(oppdragslinje150Ferie.getRefusjonsinfo156().getMaksDato()).isEqualTo(feriepengerTom);
         assertThat(oppdragslinje150Ferie.getDatoVedtakFom()).isEqualTo(feriepengerFom);
         assertThat(oppdragslinje150Ferie.getDatoVedtakTom()).isEqualTo(feriepengerTom);
