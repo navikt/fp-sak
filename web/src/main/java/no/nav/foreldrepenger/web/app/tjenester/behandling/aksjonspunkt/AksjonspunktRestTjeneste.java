@@ -275,7 +275,7 @@ public class AksjonspunktRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var req = (BekreftedeAksjonspunkterDto) obj;
+            var req = (OverstyrteAksjonspunkterDto) obj;
             var abac = AbacDataAttributter.opprett();
 
             if (req.getBehandlingId().getBehandlingId() != null) {
@@ -283,7 +283,7 @@ public class AksjonspunktRestTjeneste {
             } else if (req.getBehandlingId().getBehandlingUuid() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
             }
-            req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode()));
+            req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode()));
             return abac;
         }
     }

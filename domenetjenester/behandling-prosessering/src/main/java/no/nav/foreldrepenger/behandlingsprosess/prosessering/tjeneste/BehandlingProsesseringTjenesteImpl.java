@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.Fortset
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,6 +35,7 @@ import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -119,6 +121,11 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
+    public Optional<String> finnesTasksForPolling(Behandling behandling) {
+        return erAlleredeOpprettetOppdateringFor(behandling);
+    }
+
+    @Override
     public ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling) {
         return lagTasksForOppdatering(behandling, MDCOperations.getCallId(), LocalDateTime.now());
     }
@@ -157,8 +164,11 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     // (Hendelse: Manuell input, Frist utløpt, mv)
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, String callId, LocalDateTime nesteKjøringEtter) {
-        var gruppe = lagTasksForOppdatering(behandling, callId, nesteKjøringEtter);
-        return prosessTaskRepository.lagre(gruppe);
+        return erAlleredeOpprettetOppdateringFor(behandling)
+            .orElseGet(() -> {
+                var gruppe = lagTasksForOppdatering(behandling, callId, nesteKjøringEtter);
+                return prosessTaskRepository.lagre(gruppe);
+            });
     }
 
     @Override
@@ -228,5 +238,13 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private String lagreEnkeltTask(ProsessTaskData prosessTaskData) {
         return prosessTaskRepository.lagre(prosessTaskData);
+    }
+
+    private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
+        return prosessTaskRepository.finnUferdigeBatchTasks(InnhentIAYIAbakusTask.TASKTYPE).stream()
+            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
+            .filter(it -> ProsessTaskStatus.VENTER_SVAR.equals(it.getStatus()) || ProsessTaskStatus.KLAR.equals(it.getStatus()))
+            .map(ProsessTaskData::getGruppe)
+            .findFirst();
     }
 }

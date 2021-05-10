@@ -1,11 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -34,6 +38,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -42,6 +49,8 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningUttrekk")
@@ -53,6 +62,7 @@ public class ForvaltningUttrekkRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private OverlappVedtakRepository overlappRepository;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     public ForvaltningUttrekkRestTjeneste() {
         // For CDI
@@ -61,12 +71,14 @@ public class ForvaltningUttrekkRestTjeneste {
     @Inject
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
             FagsakRepository fagsakRepository,
+            InntektArbeidYtelseTjeneste tjeneste,
             ProsessTaskRepository prosessTaskRepository,
             OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
         this.prosessTaskRepository = prosessTaskRepository;
         this.overlappRepository = overlappRepository;
+        this.inntektArbeidYtelseTjeneste = tjeneste;
     }
 
     @POST
@@ -172,6 +184,32 @@ public class ForvaltningUttrekkRestTjeneste {
                 .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
                 .collect(Collectors.toList());
         return Response.ok(resultat).build();
+    }
+
+
+    @POST
+    @Path("/sett-abakus-videre")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
+        @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
+        @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response settAbakusVidere() {
+        prosessTaskRepository.finnUferdigeBatchTasks(InnhentIAYIAbakusTask.TASKTYPE).stream()
+            .filter(t -> t.getStatus().equals(ProsessTaskStatus.VENTER_SVAR))
+            .forEach(task -> {
+                var grunnlagref = inntektArbeidYtelseTjeneste.finnGrunnlag(Long.valueOf(task.getBehandlingId()))
+                    .map(InntektArbeidYtelseGrunnlag::getEksternReferanse)
+                    .map(UUID::toString).orElse(null);
+                task.setStatus(ProsessTaskStatus.KLAR);
+                task.setNesteKjøringEtter(LocalDateTime.now());
+                task.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, grunnlagref);
+                prosessTaskRepository.lagre(task);
+            });
+        return Response.ok().build();
     }
 
 }
