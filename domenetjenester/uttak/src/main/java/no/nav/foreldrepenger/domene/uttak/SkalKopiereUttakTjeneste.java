@@ -34,6 +34,9 @@ public class SkalKopiereUttakTjeneste {
         if (arbeidEndret) {
             return false;
         }
+        if (uttakInput.isOpplysningerOmDødEndret() || uttakInput.harBehandlingÅrsakRelatertTilDød()) {
+            return false;
+        }
         var årsaker = uttakInput.getBehandlingÅrsaker();
         return årsaker.stream()
             .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(
