@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.uttak;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_DØD_BARN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_SATS_REGULERING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +39,16 @@ class SkalKopiereUttakTjenesteTest {
     }
 
     @Test
+    public void endret_inntektsmelding_men_årsak_om_død_skal_ikke_kopiere() {
+        assertThat(skalKopiereStegResultat(Set.of(RE_HENDELSE_DØD_BARN), false, true)).isFalse();
+    }
+
+    @Test
+    public void endret_inntektsmelding_men_opplysninger_om_død_endret_skal_ikke_kopiere() {
+        assertThat(skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING), false, true, true)).isFalse();
+    }
+
+    @Test
     public void endret_inntektsmelding_og_g_reg_skal_kopiere() {
         assertThat(
             skalKopiereStegResultat(Set.of(RE_ENDRET_INNTEKTSMELDING, RE_SATS_REGULERING), false, true)).isTrue();
@@ -56,6 +67,13 @@ class SkalKopiereUttakTjenesteTest {
     private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
                                             boolean arbeidEndret,
                                             boolean erRevurdering) {
+        return skalKopiereStegResultat(årsaker, arbeidEndret, erRevurdering, false);
+    }
+
+    private boolean skalKopiereStegResultat(Set<BehandlingÅrsakType> årsaker,
+                                            boolean arbeidEndret,
+                                            boolean erRevurdering,
+                                            boolean opplysningerOmDødEndret) {
         var repoProvider = new UttakRepositoryStubProvider();
         var relevanteArbeidsforholdTjeneste = mock(RelevanteArbeidsforholdTjeneste.class);
         when(relevanteArbeidsforholdTjeneste.arbeidsforholdRelevantForUttakErEndretSidenForrigeBehandling(
@@ -66,7 +84,9 @@ class SkalKopiereUttakTjenesteTest {
             scenario.medOriginalBehandling(ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repoProvider), årsaker);
         }
         var behandling = scenario .lagre(repoProvider);
-        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null).medBehandlingÅrsaker(årsaker);
+        var input = new UttakInput(BehandlingReferanse.fra(behandling), null, null)
+            .medErOpplysningerOmDødEndret(opplysningerOmDødEndret)
+            .medBehandlingÅrsaker(årsaker);
         return tjeneste.skalKopiereStegResultat(input);
     }
 }
