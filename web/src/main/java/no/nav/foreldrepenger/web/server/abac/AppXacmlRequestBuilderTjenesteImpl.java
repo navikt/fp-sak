@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
-import javax.interceptor.Interceptor;
 
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
@@ -16,8 +13,6 @@ import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlAttributeSet;
 import no.nav.vedtak.sikkerhet.pdp.xacml.XacmlRequestBuilder;
 
 @Dependent
-@Alternative
-@Priority(Interceptor.Priority.APPLICATION + 2)
 public class AppXacmlRequestBuilderTjenesteImpl implements XacmlRequestBuilderTjeneste {
 
     public AppXacmlRequestBuilderTjenesteImpl() {

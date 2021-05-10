@@ -10,18 +10,13 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.Priority;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
@@ -32,21 +27,17 @@ import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 
 @Dependent
-@Alternative
-@Priority(2)
 public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
     public static final String ABAC_DOMAIN = "foreldrepenger";
     private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess"); //$NON-NLS-1$
     private PipRepository pipRepository;
-    private AktørTjeneste aktørConsumer;
 
     public AppPdpRequestBuilderImpl() {
     }
 
     @Inject
-    public AppPdpRequestBuilderImpl(PipRepository pipRepository, AktørTjeneste aktørConsumer) {
+    public AppPdpRequestBuilderImpl(PipRepository pipRepository) {
         this.pipRepository = pipRepository;
-        this.aktørConsumer = aktørConsumer;
     }
 
     private static void validerSamsvarBehandlingOgFagsak(Long behandlingId, Long fagsakId, Set<Long> fagsakIder) {
@@ -147,7 +138,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         fagsakIder.addAll(attributter.getVerdier(AppAbacAttributtType.FAGSAK_ID));
 
         //
-        fagsakIder.addAll(pipRepository.fagsakIderForSøker(fnrTilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_MED_FNR))));
         fagsakIder.addAll(pipRepository.fagsakIderForSøker(aktørIdStringTilAktørId(attributter.getVerdier(AppAbacAttributtType.SAKER_FOR_AKTØR))));
 
         // fra saksnummer
@@ -173,13 +163,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         aktørIder.addAll(aktørIdVerdier.stream().map(AktørId::new).collect(Collectors.toSet()));
         aktørIder.addAll(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder));
         return aktørIder;
-    }
-
-    private Collection<AktørId> fnrTilAktørId(Set<String> fnr) {
-        if (fnr == null || fnr.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return fnr.stream().flatMap(f -> aktørConsumer.hentAktørIdForPersonIdent(new PersonIdent(f)).stream()).collect(Collectors.toSet());
     }
 
     private Collection<AktørId> aktørIdStringTilAktørId(Set<String> aktørId) {

@@ -59,6 +59,10 @@
 			<artifactId>grensesnittavstemming-v1</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-xmlutils</artifactId>
+        </dependency>
 		<dependency>
             <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
             <artifactId>felles-integrasjon-jms</artifactId>

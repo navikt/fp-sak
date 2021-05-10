@@ -3,10 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-public class ProsessTaskGruppeIdDto implements AbacDto {
+public class ProsessTaskGruppeIdDto {
 
     @Size(min = 1, max = 250)
     @Pattern(regexp = "[a-zA-Z0-9-.]+")
@@ -22,11 +19,6 @@ public class ProsessTaskGruppeIdDto implements AbacDto {
 
     public String getGruppe() {
         return gruppe;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett(); // Har ikke noe å bidra med her
     }
 
     @Override

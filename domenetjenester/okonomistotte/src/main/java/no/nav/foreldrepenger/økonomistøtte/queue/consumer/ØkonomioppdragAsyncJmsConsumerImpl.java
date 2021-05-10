@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
@@ -25,7 +26,6 @@ import no.nav.vedtak.felles.integrasjon.jms.InternalQueueConsumer;
 import no.nav.vedtak.felles.integrasjon.jms.JmsKonfig;
 import no.nav.vedtak.felles.integrasjon.jms.precond.DefaultDatabaseOppePreconditionChecker;
 import no.nav.vedtak.felles.integrasjon.jms.precond.PreconditionChecker;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 @ApplicationScoped
 public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer implements ØkonomioppdragAsyncJmsConsumer {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,6 +21,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.RegisterdataOppdatererTask;
@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentPersonopplysn
 import no.nav.foreldrepenger.domene.registerinnhenting.task.SettRegisterdataInnhentetTidspunktTask;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.felles.integrasjon.rest.DefaultJsonMapper;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -186,7 +185,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             leggTilTasksForRegisterinnhenting(behandling, gruppe, callId, nesteKjøringEtter);
             var registerdataOppdatererTask = lagTaskData(RegisterdataOppdatererTask.TASKTYPE, behandling, callId, nesteKjøringEtter);
             var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
-            registerdataOppdatererTask.setPayload(DefaultJsonMapper.toJson(snapshot));
+            registerdataOppdatererTask.setPayload(StandardJsonConfig.toJson(snapshot));
             gruppe.addNesteSekvensiell(registerdataOppdatererTask);
         }
         var fortsettBehandlingTask = lagTaskData(FortsettBehandlingTask.TASKTYPE, behandling, callId, nesteKjøringEtter);

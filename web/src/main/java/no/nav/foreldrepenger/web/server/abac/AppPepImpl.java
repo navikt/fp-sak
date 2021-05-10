@@ -6,8 +6,9 @@ import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.interceptor.Interceptor;
 
+import no.nav.foreldrepenger.sikkerhet.abac.LegacyTokenProvider;
 import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.sikkerhet.abac.AbacSporingslogg;
+import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
@@ -23,9 +24,9 @@ public class AppPepImpl extends no.nav.vedtak.sikkerhet.abac.PepImpl {
     @Inject
     public AppPepImpl(PdpKlient pdpKlient,
                    PdpRequestBuilder pdpRequestBuilder,
-                   AbacSporingslogg sporingslogg,
+                   AbacAuditlogger sporingslogg,
                    @KonfigVerdi(value = "pip.users", required = false) String pipUsers) {
-        super(pdpKlient, pdpRequestBuilder, sporingslogg, pipUsers);
+        super(pdpKlient, new LegacyTokenProvider() ,pdpRequestBuilder, sporingslogg, pipUsers);
     }
 
     /** Ta hensyn til at flere aksjonspunker kan vurderes per request. */

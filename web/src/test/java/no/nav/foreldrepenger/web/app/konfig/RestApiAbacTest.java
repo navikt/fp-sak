@@ -53,6 +53,7 @@ public class RestApiAbacTest {
         var feilmeldinger = new StringBuilder();
 
         for (var restMethode : RestApiTester.finnAlleRestMetoder()) {
+            int i = 0;
             for (var parameter : restMethode.getParameters()) {
                 var parameterType = parameter.getType();
                 var parameterAnnotations = restMethode.getParameterAnnotations();
@@ -65,11 +66,12 @@ public class RestApiAbacTest {
                                 aClass.getSimpleName()));
                     }
                 } else {
-                    if (!harAbacKonfigurasjon(parameterAnnotations[0], parameterType)) {
+                    if (!harAbacKonfigurasjon(parameterAnnotations[i], parameterType)) {
                         feilmeldinger.append(String.format(feilmelding, restMethode.getDeclaringClass().getSimpleName(), restMethode.getName(),
                                 parameterType.getSimpleName()));
                     }
                 }
+                i++;
             }
         }
         if (feilmeldinger.length() > 0) {

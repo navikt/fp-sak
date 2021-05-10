@@ -12,14 +12,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageMedholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmgjør;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
-public class KlageVurderingResultatAksjonspunktMellomlagringDto implements AbacDto {
+public class KlageVurderingResultatAksjonspunktMellomlagringDto {
 
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     @JsonProperty("kode")
@@ -103,9 +100,4 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto implements AbacD
         return behandlingId;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-            .leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
-    }
 }

@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
+import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.xmlutils.JaxbHelper;
 
 public final class MottattDokumentXmlParser {
 

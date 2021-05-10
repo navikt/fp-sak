@@ -7,12 +7,9 @@ import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-public class NyBehandlingDto implements AbacDto {
+public class NyBehandlingDto {
     @NotNull
     @Min(0)
     @Max(Long.MAX_VALUE)
@@ -56,8 +53,4 @@ public class NyBehandlingDto implements AbacDto {
 		return behandlingArsakType;
 	}
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, Long.toString(saksnummer));
-    }
 }

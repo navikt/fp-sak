@@ -6,12 +6,9 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class AktoerIdDto implements AbacDto {
+public class AktoerIdDto {
 
     @Size(min = 0, max = 20)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -30,10 +27,5 @@ public class AktoerIdDto implements AbacDto {
 
     public String getAktoerId() {
         return aktoerId;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, aktoerId);
     }
 }

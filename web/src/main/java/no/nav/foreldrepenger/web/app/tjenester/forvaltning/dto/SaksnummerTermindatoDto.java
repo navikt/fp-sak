@@ -8,7 +8,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;

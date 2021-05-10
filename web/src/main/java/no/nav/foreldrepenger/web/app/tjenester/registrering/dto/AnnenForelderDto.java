@@ -6,12 +6,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class AnnenForelderDto implements AbacDto {
+public class AnnenForelderDto {
     @Size(max = 11, min = 11)
     @Digits(integer = 11, fraction = 0)
     private String foedselsnummer;
@@ -61,14 +58,6 @@ public class AnnenForelderDto implements AbacDto {
 
     public void setDenAndreForelderenHarRettPaForeldrepenger(Boolean denAndreForelderenHarRettPaForeldrepenger) {
         this.denAndreForelderenHarRettPaForeldrepenger = denAndreForelderenHarRettPaForeldrepenger;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        //fødselsnummer kan være null når forelder ikke kan oppgis
-        return foedselsnummer == null
-            ? AbacDataAttributter.opprett()
-            : AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, foedselsnummer);
     }
 
     public static class KanIkkeOppgiBegrunnelse {

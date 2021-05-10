@@ -18,14 +18,16 @@ import javax.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.BehandlingIdDto;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 /**
  * Tester Behandlingskontroll synkront.
@@ -59,7 +61,7 @@ public class BehandlingskontrollRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "KUN FOR TEST!!!: Kjører behandlingskontroll på en behandling.", summary = ("Kjører behandlingskontroll fra gjeldende steg frem til så langt behandlingen lar seg kjøre automatisk. Først og fremst for synkron/automatisering av behandlingsprosessen."), tags = "behandlingskontroll")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public BehandlingskontrollDto kjørBehandling(
+    public BehandlingskontrollDto kjørBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
         var behandlingId = behandlingIdDto.getBehandlingId();
@@ -78,7 +80,7 @@ public class BehandlingskontrollRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = ("Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving."), tags = "behandlingskontroll")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response lagFortsettBehandling(
+    public Response lagFortsettBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId må referere en allerede opprettet behandling") @Valid BehandlingIdDto behandlingIdDto) {
 
         var behandlingId = behandlingIdDto.getBehandlingId();

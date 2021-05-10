@@ -16,9 +16,11 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandling.UuidDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
 @Path(SvangerskapspengerRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,7 +50,8 @@ public class SvangerskapspengerRestTjeneste {
     @Path(TILRETTELEGGING_V2_PART_PATH)
     @Operation(description = "Hent informasjon om tilretteleggingbehov ved svangerskapspenger", summary = ("Returnerer termindato og liste med tilretteleggingsinfo pr. arbeidsforhold ved svangerskapspenger"), tags = "svangerskapspenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public SvpTilretteleggingDto tilrettelegging(@NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public SvpTilretteleggingDto tilrettelegging(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return svangerskapspengerTjeneste.hentTilrettelegging(behandling);
     }

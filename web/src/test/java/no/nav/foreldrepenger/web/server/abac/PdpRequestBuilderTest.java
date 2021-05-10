@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.server.abac;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -24,13 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
-import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtSamling;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacIdToken;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 import no.nav.vedtak.sikkerhet.abac.NavAbacCommonAttributter;
 
@@ -54,14 +52,12 @@ public class PdpRequestBuilderTest {
 
     @Mock
     private PipRepository pipRepository;
-    @Mock
-    private AktørTjeneste aktørConsumer;
 
     private AppPdpRequestBuilderImpl requestBuilder;
 
     @BeforeEach
     public void beforeEach() {
-        requestBuilder = new AppPdpRequestBuilderImpl(pipRepository, aktørConsumer);
+        requestBuilder = new AppPdpRequestBuilderImpl(pipRepository);
 
     }
 
@@ -98,28 +94,6 @@ public class PdpRequestBuilderTest {
 
         var request = requestBuilder.lagPdpRequest(attributter);
         assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_1.getId());
-    }
-
-    @Test
-    public void skal_hente_fnr_fra_alle_tilknyttede_saker_når_det_kommer_inn_søk_etter_saker_for_fnr() {
-        var attributter = byggAbacAttributtSamling();
-        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKER_MED_FNR, PERSON_0));
-
-        when(aktørConsumer.hentAktørIdForPersonIdent(any())).thenReturn(Optional.of(AKTØR_0));
-
-        Set<Long> fagsakIder = new HashSet<>();
-        fagsakIder.add(FAGSAK_ID);
-        fagsakIder.add(FAGSAK_ID_2);
-        when(pipRepository.fagsakIderForSøker(Collections.singleton(AKTØR_0))).thenReturn(fagsakIder);
-        Set<AktørId> aktører = new HashSet<>();
-        aktører.add(AKTØR_0);
-        aktører.add(AKTØR_1);
-        aktører.add(AKTØR_2);
-        when(pipRepository.hentAktørIdKnyttetTilFagsaker(fagsakIder)).thenReturn(aktører);
-
-        var request = requestBuilder.lagPdpRequest(attributter);
-        assertThat(request.getListOfString(NavAbacCommonAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE)).containsOnly(AKTØR_0.getId(),
-                AKTØR_1.getId(), AKTØR_2.getId());
     }
 
     @Test
@@ -195,7 +169,7 @@ public class PdpRequestBuilderTest {
     }
 
     private AbacAttributtSamling byggAbacAttributtSamling() {
-        var attributtSamling = AbacAttributtSamling.medJwtToken(DUMMY_ID_TOKEN);
+        var attributtSamling = AbacAttributtSamling.medJwtToken(DUMMY_ID_TOKEN, AbacIdToken.TokenType.OIDC);
         attributtSamling.setActionType(BeskyttetRessursActionAttributt.READ);
         attributtSamling.setResource(FPSakBeskyttetRessursAttributt.FAGSAK);
         return attributtSamling;

@@ -7,17 +7,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
-public class SettBehandlingPaVentDto implements AbacDto {
-    @NotNull
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?
-    private Long behandlingId;
+public class SettBehandlingPaVentDto extends DtoMedBehandlingId  {
 
     @NotNull
     @Min(0)
@@ -25,17 +17,10 @@ public class SettBehandlingPaVentDto implements AbacDto {
     private Long behandlingVersjon;
 
     private LocalDate frist;
-    
+
     @ValidKodeverk
     private Venteårsak ventearsak;
 
-    public Long getBehandlingId() {
-        return behandlingId;
-    }
-
-    public void setBehandlingId(Long behandlingId) {
-        this.behandlingId = behandlingId;
-    }
 
     public Long getBehandlingVersjon() {
         return behandlingVersjon;
@@ -61,9 +46,5 @@ public class SettBehandlingPaVentDto implements AbacDto {
         this.ventearsak = ventearsak;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
-    }
 
 }

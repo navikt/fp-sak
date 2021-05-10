@@ -10,15 +10,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, AbacDto, OverstyringAksjonspunkt {
+public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, OverstyringAksjonspunkt {
 
     @JsonProperty("begrunnelse")
     @Size(max = 4000)
@@ -36,12 +33,6 @@ public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, Ab
     @Override
     public String getBegrunnelse() {
         return begrunnelse;
-    }
-
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, getKode());
     }
 
     @Override

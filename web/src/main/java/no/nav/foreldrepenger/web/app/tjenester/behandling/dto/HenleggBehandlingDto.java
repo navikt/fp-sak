@@ -6,17 +6,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import no.nav.foreldrepenger.sikkerhet.abac.AppAbacAttributtType;
-import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
-import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
 
-public class HenleggBehandlingDto implements AbacDto {
-    @NotNull
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?
-    private Long behandlingId;
+public class HenleggBehandlingDto extends DtoMedBehandlingId  {
+
 
     @NotNull
     @Size(min = 1, max = 100)
@@ -30,14 +23,6 @@ public class HenleggBehandlingDto implements AbacDto {
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingVersjon;
-
-    public Long getBehandlingId() {
-        return behandlingId;
-    }
-
-    public void setBehandlingId(Long behandlingId) {
-        this.behandlingId = behandlingId;
-    }
 
     public String getÅrsakKode() {
         return årsakKode;
@@ -63,9 +48,5 @@ public class HenleggBehandlingDto implements AbacDto {
         this.behandlingVersjon = behandlingVersjon;
     }
 
-    @Override
-    public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
-    }
 
 }

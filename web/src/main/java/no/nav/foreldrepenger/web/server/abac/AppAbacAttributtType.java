@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.sikkerhet.abac;
+package no.nav.foreldrepenger.web.server.abac;
 
 import no.nav.vedtak.sikkerhet.abac.AbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
@@ -14,7 +14,6 @@ public enum AppAbacAttributtType implements AbacAttributtType {
      * egen-definert oppgaveId i Gsak.
      */
     OPPGAVE_ID("oppgaveId"),
-    SAKER_MED_FNR("fnrSok"),
     SAKER_FOR_AKTØR("aktoridSok"),
     ABAC_ANSVALIG_SAKSBEHANDLER("ansvarlig_saksbehandler"),
     ABAC_BEHANDLING_STATUS("behandling_status"),
@@ -58,10 +57,5 @@ public enum AppAbacAttributtType implements AbacAttributtType {
     @Override
     public boolean getMaskerOutput() {
         return maskerOutput;
-    }
-
-    @Override
-    public String getSporingsloggKode() {
-        return sporingsloggEksternKode;
     }
 }

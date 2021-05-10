@@ -34,12 +34,14 @@ import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.Informasj
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeReberegnTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.feriepengeavstemming.Feriepengeavstemmer;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
+import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFeriepenger")
@@ -125,7 +127,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(description = "Reberegner feriepenger for angitt sak", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response reberegnFeriepenger(@NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
+    public Response reberegnFeriepenger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getVerdi()), true).orElseThrow();
         var sisteAvsluttet = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
