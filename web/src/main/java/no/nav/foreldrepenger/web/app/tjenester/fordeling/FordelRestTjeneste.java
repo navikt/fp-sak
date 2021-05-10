@@ -50,6 +50,7 @@ import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakOrchestrator;
 import no.nav.foreldrepenger.web.app.soap.sak.tjeneste.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -110,6 +111,7 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BehandlendeFagsystemDto vurderFagsystem(
             @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+        ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
         return map(behandlendeFagsystem);
@@ -123,6 +125,7 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FagsakInfomasjonDto fagsak(
             @Parameter(description = "Saksnummeret det skal hentes saksinformasjon om") @Valid AbacSaksnummerDto saksnummerDto) {
+        ensureCallId();
         var optFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerDto.getSaksnummer()), false);
         if (optFagsak.isEmpty() || optFagsak.get().getSkalTilInfotrygd()) {
             return null;
@@ -147,6 +150,7 @@ public class FordelRestTjeneste {
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
+        ensureCallId();
         var journalpostId = opprettSakDto.getJournalpostId();
         var behandlingTema = BehandlingTema.finnForKodeverkEiersKode(opprettSakDto.getBehandlingstemaOffisiellKode());
 
@@ -169,6 +173,7 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void knyttSakOgJournalpost(
             @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
+        ensureCallId();
         opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()),
                 new JournalpostId(journalpostKnytningDto.getJournalpostId()));
     }
@@ -186,8 +191,16 @@ public class FordelRestTjeneste {
         if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
             return;
         }
+        ensureCallId();
         var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId);
         dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
+    }
+
+    private void ensureCallId() {
+        var callId = MDCOperations.getCallId();
+        if (callId == null || callId.isBlank()) {
+            MDCOperations.putCallId();
+        }
     }
 
     private VurderFagsystem map(VurderFagsystemDto dto) {
