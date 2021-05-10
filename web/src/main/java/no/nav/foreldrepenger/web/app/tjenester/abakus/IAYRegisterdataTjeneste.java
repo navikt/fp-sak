@@ -53,6 +53,11 @@ public class IAYRegisterdataTjeneste {
             .filter(it -> ProsessTaskStatus.VENTER_SVAR.equals(it.getStatus()))
             .collect(Collectors.toList());
 
+        if (tasksSomVenterPåSvar.isEmpty()) {
+            LOG.info("Mottatt callback hvor ingen task venter på svar... {}", callback);
+        }
+        tasksSomVenterPåSvar.forEach(t -> mottaHendelse(t, callback.getOppdatertGrunnlagRef()));
+        /*
         if (tasksSomVenterPåSvar.size() == 1) {
             mottaHendelse(tasksSomVenterPåSvar.get(0), callback.getOppdatertGrunnlagRef());
         } else if (tasksSomVenterPåSvar.isEmpty()) {
@@ -60,6 +65,8 @@ public class IAYRegisterdataTjeneste {
         } else {
             LOG.info("Mottatt callback som svarer til flere tasks som venter. callback={}, tasks={}", callback, tasksSomVenterPåSvar);
         }
+        */
+
     }
 
     private void mottaHendelse(ProsessTaskData task, UUID oppdatertGrunnlagRef) {

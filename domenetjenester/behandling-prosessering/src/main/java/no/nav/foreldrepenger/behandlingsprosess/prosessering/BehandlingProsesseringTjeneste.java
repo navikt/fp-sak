@@ -50,6 +50,7 @@ public interface BehandlingProsesseringTjeneste {
      * Returnerer tasks for oppdatering/fortsett for bruk med
      * BehandlingskontrollAsynkTjeneste. Blir ikke lagret her
      */
+    Optional<String> finnesTasksForPolling(Behandling behandling);
     ProsessTaskGruppe lagOppdaterFortsettTasksForPolling(Behandling behandling);
 
     // Til bruk ved første prosessering av nyopprettet behandling. Lagrer tasks. Returnerer gruppe-handle
