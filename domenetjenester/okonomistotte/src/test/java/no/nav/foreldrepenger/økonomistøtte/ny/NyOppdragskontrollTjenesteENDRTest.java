@@ -1232,10 +1232,10 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
         var opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
-        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(16));
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
-        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(16));
     }
 
@@ -1296,10 +1296,10 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
         var opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
-        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(25));
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
-        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(1));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(25));
     }
 
@@ -1357,10 +1357,10 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
         var opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
-        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(-5));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
-        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(-5));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
     }
 
@@ -1380,7 +1380,6 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
         var originaltOppdrag110Liste = originaltOppdrag.getOppdrag110Liste();
 
-        var sistePeriodeTom = beregningsresultat.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom();
         var beregningsresultatRevurderingFP = buildEmptyBeregningsresultatFP();
         var brPeriodeRevurdering_1 = buildBeregningsresultatPeriode(beregningsresultatRevurderingFP, 5, 10);
         buildBeregningsresultatAndel(brPeriodeRevurdering_1, false, 500, BigDecimal.valueOf(100), virksomhet);
@@ -1419,10 +1418,10 @@ public class NyOppdragskontrollTjenesteENDRTest extends NyOppdragskontrollTjenes
         var opp150ForVirksomhet1 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet);
         var opp150ForVirksomhet2 = OppdragskontrollTestVerktøy.getOpp150ForEnVirksomhet(revurderingOpp150Liste, virksomhet2);
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet));
-        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet1.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getRefunderesId()).isEqualTo(endreTilElleveSiffer(virksomhet2));
-        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now().plusDays(5));
+        assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getDatoFom()).isEqualTo(LocalDate.now());
         assertThat(opp150ForVirksomhet2.getRefusjonsinfo156().getMaksDato()).isEqualTo(LocalDate.now().plusDays(20));
     }
 

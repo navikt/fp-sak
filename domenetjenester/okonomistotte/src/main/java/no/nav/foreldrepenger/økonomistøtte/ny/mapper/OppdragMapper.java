@@ -62,7 +62,7 @@ public class OppdragMapper {
 
         for (var entry : oppdrag.getKjeder().entrySet()) {
             var kjedeNøkkel = entry.getKey();
-            var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel);
+            var refusjonsinfoBuilder = byggRefusjonsinfoBuilderFor(oppdrag, kjedeNøkkel, input.getVedtaksdato());
             for (var oppdragLinje : entry.getValue().getOppdragslinjer()) {
                 var oppdragslinje150 = mapTilOppdragslinje150(oppdrag110, kjedeNøkkel, oppdragLinje, input.getVedtaksdato());
                 refusjonsinfoBuilder.map(o156Builder -> o156Builder.medOppdragslinje150(oppdragslinje150).build());
@@ -70,13 +70,13 @@ public class OppdragMapper {
         }
     }
 
-    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel) {
+    private Optional<Refusjonsinfo156.Builder> byggRefusjonsinfoBuilderFor(final Oppdrag oppdrag, final KjedeNøkkel kjedeNøkkel, LocalDate vedtaksdato) {
         Refusjonsinfo156.Builder refusjonsinfoBuilder = null;
         if (kjedeNøkkel.getBetalingsmottaker().erArbeidsgiver()) {
             var mottaker = (Betalingsmottaker.ArbeidsgiverOrgnr) kjedeNøkkel.getBetalingsmottaker();
             var gjelderFeriepenger = kjedeNøkkel.getKlassekode().gjelderFeriepenger();
             refusjonsinfoBuilder = Refusjonsinfo156.builder()
-                .medDatoFom(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 1) : hentFørsteUtbetalingsdato(oppdrag))
+                .medDatoFom(vedtaksdato)
                 .medMaksDato(gjelderFeriepenger ? LocalDate.of(kjedeNøkkel.getFeriepengeÅr() + 1, 5, 31) : hentSisteUtbetalingsdato(oppdrag))
                 .medRefunderesId(OppdragOrgnrUtil.endreTilElleveSiffer(mottaker.getOrgnr()));
         }
@@ -142,16 +142,6 @@ public class OppdragMapper {
         return korrigeringsdato != null && endringsdato.isBefore(korrigeringsdato)
             ? korrigeringsdato
             : endringsdato;
-    }
-
-    private LocalDate hentFørsteUtbetalingsdato(Oppdrag nyttOppdrag) {
-        var tidligerOppdragForMottaker = tidligereOppdrag.filter(nyttOppdrag.getBetalingsmottaker());
-        var utvidetMedNyttOppdrag = tidligerOppdragForMottaker.utvidMed(nyttOppdrag);
-        var førsteUtbetalingsdato = hentFørsteUtbetalingsdato(utvidetMedNyttOppdrag);
-        if (førsteUtbetalingsdato != null) {
-            return førsteUtbetalingsdato;
-        }
-        return hentFørsteUtbetalingsdato(tidligerOppdragForMottaker);
     }
 
     private LocalDate hentFørsteUtbetalingsdatoFraForrige(Oppdrag nyttOppdrag) {
