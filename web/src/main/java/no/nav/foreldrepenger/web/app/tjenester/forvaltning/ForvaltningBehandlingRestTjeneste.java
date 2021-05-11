@@ -226,32 +226,40 @@ public class ForvaltningBehandlingRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response oppdaterMigrertFraInfotrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
             @NotNull @QueryParam("migrertFraInfotrygd") @Valid Boolean migrertFraInfotrygd) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var behandling = getBehandling(dto);
         if (behandling == null) {
-            LOG.info("Oppgitt behandling {} er ukjent", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er ukjent", dto);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.INFOTRYGD) && migrertFraInfotrygd) {
-            LOG.info("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er allerede satt til migrert fra Infotrygd", dto);
             return Response.status(Response.Status.BAD_REQUEST).build();
 
         }
         if (behandling.getMigrertKilde().equals(Fagsystem.UDEFINERT) && !migrertFraInfotrygd) {
-            LOG.info("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Oppgitt behandling {} er ikke satt til migrert fra Infotrygd", dto);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (behandling.erAvsluttet()) {
-            LOG.info("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto.getBehandlingId()); // NOSONAR
+            LOG.info("Behandling {} er avsluttet og kan derfor ikke oppdateres", dto);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         if (migrertFraInfotrygd) {
             behandling.setMigrertKilde(Fagsystem.INFOTRYGD);
-            lagHistorikkInnslag(dto.getBehandlingId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD);
+            lagHistorikkInnslag(behandling.getId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD);
         } else {
             behandling.setMigrertKilde(Fagsystem.UDEFINERT);
-            lagHistorikkInnslag(dto.getBehandlingId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD_FJERNET);
+            lagHistorikkInnslag(behandling.getId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD_FJERNET);
         }
         return Response.ok().build();
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        if (behandlingId == null) {
+            return behandlingRepository.hentBehandling(dto.getBehandlingUUID());
+        }
+        return behandlingRepository.hentBehandling(behandlingId);
     }
 
     private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -172,7 +171,6 @@ public class AksjonspunktRestTjeneste {
      * behanlding, steg eller knytning til spesifikke aksjonspunkter idenne
      * tjenesten.
      *
-     * @throws URISyntaxException
      */
     @POST
     @Path(AKSJONSPUNKT_PART_PATH)
@@ -180,17 +178,16 @@ public class AksjonspunktRestTjeneste {
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response bekreft(@TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
-            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
-            throws URISyntaxException { // NOSONAR
+            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto) { // NOSONAR
 
-        var behandlingId = apDto.getBehandlingId().getBehandlingId();
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
+        var behandlingId = apDto.getBehandlingId().getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(apDto.getBehandlingId().getBehandlingUuid());
 
-        behandlingutredningTjeneste.kanEndreBehandling(behandling.getId(), apDto.getBehandlingVersjon());
+        behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
 
         validerBetingelserForAksjonspunkt(behandling, apDto.getBekreftedeAksjonspunktDtoer());
 
@@ -215,12 +212,13 @@ public class AksjonspunktRestTjeneste {
         @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
         var behandlingIdDto = apDto.getBehandlingId();
+
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
 
-        behandlingutredningTjeneste.kanEndreBehandling(behandling.getId(), apDto.getBehandlingVersjon());
+        behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
 
         validerBetingelserForAksjonspunkt(behandling, apDto.getOverstyrteAksjonspunktDtoer());
 
@@ -252,7 +250,7 @@ public class AksjonspunktRestTjeneste {
             var req = (BekreftedeAksjonspunkterDto) obj;
             var abac = AbacDataAttributter.opprett();
 
-            if(req.getBehandlingId().getBehandlingId()!=null) {
+            if(req.getBehandlingId().getBehandlingId() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
             } else if (req.getBehandlingId().getBehandlingUuid() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());

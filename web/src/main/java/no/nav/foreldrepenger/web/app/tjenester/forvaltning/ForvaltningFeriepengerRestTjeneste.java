@@ -20,9 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
@@ -48,8 +45,6 @@ import no.nav.vedtak.util.Tuple;
 @ApplicationScoped
 @Transactional
 public class ForvaltningFeriepengerRestTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningFeriepengerRestTjeneste.class);
 
     private FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste;
     private InformasjonssakRepository repository;
@@ -86,10 +81,17 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Reberegner feriepenger og sammenligner resultatet mot aktivt feriepengegrunnlag på behandlingen", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response kontrollerFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        long behandlingId = dto.getBehandlingId();
-        var avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(behandlingId);
+        var internBehandlingId = finnInternBehandlingId(dto);
+        var avvikITilkjentYtelse = feriepengeRegeregnTjeneste.harDiffUtenomPeriode(internBehandlingId);
         var melding = "Finnes avvik i reberegnet feriepengegrunnlag: " + avvikITilkjentYtelse;
         return Response.ok(melding).build();
+    }
+
+    private Long finnInternBehandlingId(ForvaltningBehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingId == null ? behandlingRepository.hentBehandling(
+            dto.getBehandlingUUID()) : behandlingRepository.hentBehandling(behandlingId);
+        return behandling.getId();
     }
 
     @POST
@@ -98,8 +100,8 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Sammenligner feriepenger som er beregnet i tilkjent ytelse mot gjeldende økonomioppdrag for en behandling", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response avstemFeriepenger(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        long behandlingId = dto.getBehandlingId();
-        var avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(behandlingId, true);
+        var internBehandlingId = finnInternBehandlingId(dto);
+        var avvikMellomTilkjentYtelseOgOppdrag = feriepengeavstemmer.avstem(internBehandlingId, true);
         var melding = "Finnes avvik mellom feriepengegrunnlag og oppdrag: " + avvikMellomTilkjentYtelseOgOppdrag;
         return Response.ok(melding).build();
     }
@@ -133,7 +135,8 @@ public class ForvaltningFeriepengerRestTjeneste {
         var sisteAvsluttet = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
         if (!åpneBehandlinger.isEmpty()) return Response.ok("Det finnes åpne behandlinger på saken").build();
-        if (feriepengeRegeregnTjeneste.skalReberegneFeriepenger(sisteAvsluttet.getId()) || feriepengeavstemmer.avstem(sisteAvsluttet.getId(), false)) {
+        if (feriepengeRegeregnTjeneste.skalReberegneFeriepenger(sisteAvsluttet.getId())
+            || feriepengeavstemmer.avstem(sisteAvsluttet.getId(), false)) {
             var revurdering = behandlingsoppretter.opprettRevurderingMultiÅrsak(fagsak,
                 List.of(BehandlingÅrsakType.BERØRT_BEHANDLING, BehandlingÅrsakType.REBEREGN_FERIEPENGER));
             prosesseringTjeneste.opprettTasksForStartBehandling(revurdering);

@@ -159,7 +159,9 @@ public class KlageRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingIdDto.getBehandlingId());
+        var behandlingId = behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId()
+            : behandlingIdDto.getBehandlingId();
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingId);
         var mottattDokument = mottatteDokumenter.stream()
             .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
             .min(Comparator.comparing(MottattDokument::getMottattDato));

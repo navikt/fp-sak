@@ -8,12 +8,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -74,7 +72,7 @@ public class VergeRestTjeneste {
         var behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
-        behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(behandling);
 
@@ -95,7 +93,7 @@ public class VergeRestTjeneste {
         var behandlingVersjon = dto.getBehandlingVersjon();
 
         // Precondition - sjekk behandling versjon/lås
-        behandlingsutredningTjeneste.kanEndreBehandling(behandling.getId(), behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
@@ -103,7 +101,7 @@ public class VergeRestTjeneste {
         return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.empty());
     }
 
-    private Behandling getBehandling(@QueryParam("behandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
+    private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
         return behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)

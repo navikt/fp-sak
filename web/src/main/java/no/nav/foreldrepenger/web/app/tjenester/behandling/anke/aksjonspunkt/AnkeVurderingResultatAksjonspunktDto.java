@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
+import java.util.UUID;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -46,8 +48,10 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     private boolean erGodkjentAvMedunderskriver;
 
     @JsonProperty("vedtak")
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påAnketBehandlingId;
+
+    @JsonProperty("vedtakBehandlingUuid")
+    private UUID vedtakBehandlingUuid;
 
     @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
@@ -73,6 +77,7 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  AnkeVurderingOmgjør ankeVurderingOmgjoer,
                                                  boolean erSubsidiartRealitetsbehandles,
                                                  Long påAnketBehandlingId,
+                                                 UUID vedtakBehandlingUuid,
                                                  boolean erIkkeAnkerPart,
                                                  boolean erFristIkkeOverholdt,
                                                  boolean erIkkeKonkret,
@@ -85,6 +90,7 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
         this.påAnketBehandlingId = påAnketBehandlingId;
+        this.vedtakBehandlingUuid = vedtakBehandlingUuid;
         this.erAnkerIkkePart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
         this.erIkkeKonkret = erIkkeKonkret;
@@ -116,8 +122,12 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         return erGodkjentAvMedunderskriver;
     }
 
-    public Long hentPåAnketBehandlingId() {
+    public Long getPåAnketBehandlingId() {
         return påAnketBehandlingId;
+    }
+
+    public UUID getVedtakBehandlingUuid() {
+        return vedtakBehandlingUuid;
     }
 
     public boolean erAnkerIkkePart() {

@@ -105,8 +105,8 @@ public class BehandlingsutredningTjeneste {
         behandlendeEnhetTjeneste.oppdaterBehandlendeEnhet(behandling, enhet, aktør, begrunnelse);
     }
 
-    public void kanEndreBehandling(Long behandlingId, Long versjon) {
-        var kanEndreBehandling = behandlingRepository.erVersjonUendret(behandlingId, versjon);
+    public void kanEndreBehandling(Behandling behandling, Long versjon) {
+        var kanEndreBehandling = behandlingRepository.erVersjonUendret(behandling.getId(), versjon);
         if (!kanEndreBehandling) {
             throw new FunksjonellException("FP-837578", "Behandlingen er endret av en annen saksbehandler, eller har blitt oppdatert med ny informasjon av systemet.",
                 "Last inn behandlingen på nytt.");

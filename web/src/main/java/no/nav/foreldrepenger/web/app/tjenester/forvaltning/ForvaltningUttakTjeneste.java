@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbygge
 import static no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.InngangsvilkårGrunnlagBygger.opptjeningsvilkåretOppfylt;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -82,14 +83,14 @@ public class ForvaltningUttakTjeneste {
         //CDI
     }
 
-    boolean erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(long behandlingId) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
+    boolean erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(UUID behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
         return behandling.getStatus().erFerdigbehandletStatus() && FagsakYtelseType.FORELDREPENGER.equals(
             behandling.getFagsakYtelseType()) && behandlingsresultat.orElseThrow().isBehandlingsresultatOpphørt();
     }
 
-    void lagOpphørtUttaksresultat(long behandlingId) {
+    void lagOpphørtUttaksresultat(UUID behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         kopierBeregningsgrunnlag(behandling);
 
@@ -99,7 +100,7 @@ public class ForvaltningUttakTjeneste {
             perioder.leggTilPeriode(opphørPeriode(behandling, uttaksperiode));
         }
 
-        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandlingId, perioder);
+        fpUttakRepository.lagreOpprinneligUttakResultatPerioder(behandling.getId(), perioder);
     }
 
     private void kopierBeregningsgrunnlag(Behandling behandling) {
@@ -163,14 +164,16 @@ public class ForvaltningUttakTjeneste {
         return fpUttakRepository.hentUttakResultat(originalBehandlingId);
     }
 
-    public void beregnKontoer(long behandlingId) {
-        var input = uttakInputTjeneste.lagInput(behandlingId);
+    public void beregnKontoer(UUID behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var input = uttakInputTjeneste.lagInput(behandling);
         var fagsak = fagsakRepository.finnEksaktFagsak(input.getBehandlingReferanse().getFagsakId());
         fagsakRelasjonRepository.nullstillOverstyrtStønadskontoberegning(fagsak);
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
     }
 
-    public void endreAnnenForelderHarRett(long behandlingId, boolean harRett) {
+    public void endreAnnenForelderHarRett(UUID behandlingUUID, boolean harRett) {
+        var behandlingId = behandlingRepository.hentBehandling(behandlingUUID).getId();
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(behandlingId);
         if (ytelseFordelingAggregat.getPerioderAnnenforelderHarRett().isEmpty()) {
             throw new ForvaltningException("Kan ikke endre ettersom annen forelder har rett ikke er avklart");

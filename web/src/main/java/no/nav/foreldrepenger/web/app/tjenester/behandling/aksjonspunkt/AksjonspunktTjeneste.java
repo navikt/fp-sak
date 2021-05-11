@@ -354,7 +354,8 @@ public class AksjonspunktTjeneste {
         return overhoppResultat;
     }
 
-    private void bekreftAksjonspunkt(BehandlingskontrollKontekst kontekst, Behandling behandling,
+    private void bekreftAksjonspunkt(BehandlingskontrollKontekst kontekst,
+                                     Behandling behandling,
                                      Skjæringstidspunkt skjæringstidspunkter,
                                      Builder vilkårBuilder,
                                      OverhoppResultat overhoppResultat,

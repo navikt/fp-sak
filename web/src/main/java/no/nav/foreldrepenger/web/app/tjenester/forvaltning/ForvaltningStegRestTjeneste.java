@@ -83,13 +83,18 @@ public class ForvaltningStegRestTjeneste {
     @Path("/generell")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbake(@BeanParam @Valid HoppTilbakeDto dto) {
-        var behandlingId = dto.getBehandlingId();
         var behandlingStegTypeStr = dto.getBehandlingStegType();
         var tilSteg = BehandlingStegType.fraKode(behandlingStegTypeStr);
 
-        hoppTilbake(behandlingId, tilSteg);
+        hoppTilbake(dto, tilSteg);
 
         return Response.ok().build();
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        return behandlingId == null ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUUID())
+            : behandlingsprosessTjeneste.hentBehandling(behandlingId);
     }
 
     @POST
@@ -98,9 +103,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/5080")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-
-        hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+        hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
 
         return Response.ok().build();
     }
@@ -111,8 +114,7 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjern-opptjening-extra-aktivitet")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjerneAlleNyeAktiviteterFraOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-
+        var behandlingId = getBehandling(dto).getId();
         arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandlerOpptjening(behandlingId);
 
         return Response.ok().build();
@@ -124,8 +126,9 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjern-opptjeningsvilkåret")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgFjernOverstyringAvOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandling = getBehandling(dto);
 
+        var behandlingId = behandling.getId();
         var vilkårResultatOpt = vilkårResultatRepository.hentHvisEksisterer(behandlingId);
 
         if (vilkårResultatOpt.isPresent()) {
@@ -143,11 +146,10 @@ public class ForvaltningStegRestTjeneste {
                 var nyttVilkårResulatat = builder.build();
                 vilkårResultatRepository.lagre(behandlingId, nyttVilkårResulatat);
 
-                var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
                 if (behandling.erRevurdering()) {
-                    hoppTilbake(behandlingId, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+                    hoppTilbake(dto, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
                 } else if (behandling.getType() == FØRSTEGANGSSØKNAD) {
-                    hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+                    hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
                 }
             }
         }
@@ -160,12 +162,12 @@ public class ForvaltningStegRestTjeneste {
     @Path("/inntektsmelding")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hoppTilbakeTil5080OgSlettInntektsmelding(@BeanParam @Valid HoppTilbakeTil5080OgSlettInntektsmeldingDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = getBehandling(dto).getId();
         var journalpostId = new JournalpostId(Long.parseLong(dto.getJournalpostId().trim()));
         var inntektsmelding = inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, journalpostId);
         if (inntektsmelding.isPresent()) {
             inntektsmeldingTjeneste.fjernInntektsmelding(behandlingId, Set.of(journalpostId));
-            hoppTilbake(behandlingId, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
+            hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
             return Response.ok().build();
         }
         return Response.noContent().build();
@@ -177,12 +179,11 @@ public class ForvaltningStegRestTjeneste {
     @Path("/fjernFHValgHoppTilbake")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response fjernOverstyrtFH(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+        var behandling = getBehandling(dto);
+        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
         if (grunnlag.getOverstyrtVersjon().isPresent()) {
-            var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
             var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
-            familieHendelseRepository.slettAvklarteData(behandlingId, kontekst.getSkriveLås());
+            familieHendelseRepository.slettAvklarteData(behandling.getId(), kontekst.getSkriveLås());
             doHoppTilSteg(behandling, kontekst, KONTROLLER_FAKTA);
             behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
             return Response.ok().build();
@@ -190,8 +191,8 @@ public class ForvaltningStegRestTjeneste {
         return Response.noContent().build();
     }
 
-    private void hoppTilbake(Long behandlingId, BehandlingStegType tilSteg) {
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+    private void hoppTilbake(ForvaltningBehandlingIdDto dto, BehandlingStegType tilSteg) {
+        var behandling = getBehandling(dto);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         if (KONTROLLER_FAKTA_ARBEIDSFORHOLD.equals(tilSteg)) {
             arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(behandling.getId(), behandling.getAktørId());

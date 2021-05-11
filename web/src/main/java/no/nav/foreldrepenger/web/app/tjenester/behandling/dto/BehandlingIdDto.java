@@ -19,10 +19,6 @@ public class BehandlingIdDto  {
 
     @Min(0)
     @Max(Long.MAX_VALUE)
-    private Long saksnummer;
-
-    @Min(0)
-    @Max(Long.MAX_VALUE)
     private Long behandlingId;
 
     /**
@@ -52,8 +48,7 @@ public class BehandlingIdDto  {
         this.behandlingUuid = uuidDto.getBehandlingUuid();
     }
 
-    public BehandlingIdDto(Long saksnummer, Long behandlingId, UUID behandlingUuid) {
-        this.saksnummer = saksnummer;
+    public BehandlingIdDto(Long behandlingId, UUID behandlingUuid) {
         this.behandlingId = behandlingId;
         this.behandlingUuid = behandlingUuid;
     }
@@ -74,15 +69,9 @@ public class BehandlingIdDto  {
         return behandlingUuid;
     }
 
-    public Long getSaksnummer() {
-        return saksnummer;
-    }
-
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + '<' +
-                (saksnummer == null ? "" : "saksnummer=" + saksnummer + ", ") +
                 (behandlingId != null ? "behandlingId=" + behandlingId : "") +
                 ((behandlingId != null) && (behandlingUuid != null) ? ", " : "") +
                 (behandlingUuid != null ? "behandlingUuid=" + behandlingUuid : "") +

@@ -210,8 +210,8 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
                 klageTilbakekrevingDto.getTilbakekrevingVedtakDato(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true, null, "test", false,
-                null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true, null,
+            null, "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter
@@ -253,8 +253,8 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
 
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(new TilbakekrevingVedtakDto(1L,
                 klageTilbakekrevingDto.getTilbakekrevingVedtakDato(), klageTilbakekrevingDto.getTilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true, behandling.getId(),
-                "test", false, null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true,
+            true, null, behandling.getUuid(), "test", false, null);
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikkInnslager = historikkTjenesteAdapter
@@ -299,8 +299,8 @@ public class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private KlageFormkravAksjonspunktDto lagKlageAksjonspunktDto(boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        return new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true, behandling.getId(), "test", erTilbakekreving,
-                klageTilbakekrevingDto);
+        return new KlageFormkravAksjonspunktDto.KlageFormkravNfpAksjonspunktDto(true, true, true, true,
+            null, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto);
     }
 
 }

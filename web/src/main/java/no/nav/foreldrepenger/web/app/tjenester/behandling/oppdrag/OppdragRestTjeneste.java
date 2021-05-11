@@ -55,7 +55,8 @@ public class OppdragRestTjeneste {
     @Deprecated
     public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @Valid @NotNull BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
+        var behandlingId = behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId()
+            : behandlingIdDto.getBehandlingId();
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
         return oppdragskontroll
                 .map(OppdragDto::fraDomene)
