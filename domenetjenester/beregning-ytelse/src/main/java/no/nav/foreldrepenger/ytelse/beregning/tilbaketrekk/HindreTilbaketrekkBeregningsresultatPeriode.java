@@ -50,7 +50,6 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
 
             bgAndeler.stream()
                 .map(Kopimaskin::deepCopy)
-                .filter(resultatAndel -> erBrukersAndelEllerArbeidsgiversAndelUlikNull(alleEndringer, resultatAndel))
                 .map(resultatAndel -> lagResultatBuilder(alleEndringer, resultatAndel))
                 .forEach(builder -> builder.build(beregningsresultatPeriode));
 
@@ -60,10 +59,6 @@ class HindreTilbaketrekkBeregningsresultatPeriode {
             }
         }
         return beregningsresultatPeriode;
-    }
-
-    private static boolean erBrukersAndelEllerArbeidsgiversAndelUlikNull(List<EndringIBeregningsresultat> alleEndringer, BeregningsresultatAndel resultatAndel) {
-        return resultatAndel.erBrukerMottaker() || finnEndringForResultatAndel(alleEndringer, resultatAndel).map(e -> e.getDagsats() > 0).orElse(true);
     }
 
     private static BeregningsresultatAndel.Builder lagResultatBuilder(List<EndringIBeregningsresultat> alleEndringer, BeregningsresultatAndel resultatAndel) {

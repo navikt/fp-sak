@@ -96,7 +96,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         var p0 = beregningsresultatPerioder.get(0);
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(PERIODE_FOM);
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(4);
+        assertThat(p0andeler).hasSize(5);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getAktivitetStatus()).isEqualByComparingTo(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
@@ -109,8 +109,15 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1400);
+        });
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(TILKOMMET1);
@@ -160,11 +167,18 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(2);
+        assertThat(p0andeler).hasSize(3);
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+        });
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER2);
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(1500);
         });
         assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.getArbeidsgiver().orElse(null)).isSameAs(ARBEIDSGIVER1);
@@ -209,10 +223,16 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p0.getBeregningsresultatPeriodeFom()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(p0.getBeregningsresultatPeriodeTom()).isEqualTo(LocalDate.of(2019, Month.JANUARY, 31));
         var p0andeler = p0.getBeregningsresultatAndelList();
-        assertThat(p0andeler).hasSize(1);
-        assertThat(p0andeler.get(0)).satisfies(andel -> {
+        assertThat(p0andeler).hasSize(2);
+        assertThat(p0andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
+        });
+        assertThat(p0andeler).anySatisfy(andel -> {
+            assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
+            assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
         });
 
         var p1 = beregningsresultatPerioder.get(1);
@@ -223,10 +243,12 @@ public class HindreTilbaketrekkNårAlleredeUtbetaltTest {
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isTrue();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(0);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(0);
         });
         assertThat(p1andeler).anySatisfy(andel -> {
             assertThat(andel.erBrukerMottaker()).as("erBrukerMottaker").isFalse();
             assertThat(andel.getDagsats()).as("dagsats").isEqualTo(forventetDagsats);
+            assertThat(andel.getDagsatsFraBg()).as("dagsatsBG").isEqualTo(forventetDagsats);
         });
     }
 
