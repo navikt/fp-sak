@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
+import no.nav.foreldrepenger.dokumentbestiller.vedtak.InnvilgelseFpLanseringTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentBestillerTjenesteTest {
@@ -27,6 +28,9 @@ public class DokumentBestillerTjenesteTest {
 
     @Mock
     private DokumentKafkaBestiller dokumentKafkaBestiller;
+
+    @Mock
+    private InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste;
 
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -43,7 +47,8 @@ public class DokumentBestillerTjenesteTest {
                 null,
                 null,
                 brevHistorikkinnslag,
-                dokumentKafkaBestiller);
+                dokumentKafkaBestiller,
+                innvilgelseFpLanseringTjeneste);
     }
 
     @Test

@@ -18,10 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.util.env.Environment;
 
 public class VedtaksbrevUtleder {
-    private static final Environment ENV = Environment.current();
 
     private VedtaksbrevUtleder() {
     }
@@ -47,10 +45,12 @@ public class VedtaksbrevUtleder {
         return Vedtaksbrev.FRITEKST.equals(behandlingsresultat.getVedtaksbrev());
     }
 
-    public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling, Behandlingsresultat behandlingsresultat,
+    public static DokumentMalType velgDokumentMalForVedtak(Behandling behandling,
+                                                           Behandlingsresultat behandlingsresultat,
                                                            BehandlingVedtak behandlingVedtak,
                                                            KlageRepository klageRepository,
-                                                           AnkeRepository ankeRepository) {
+                                                           AnkeRepository ankeRepository,
+                                                           InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
@@ -62,7 +62,7 @@ public class VedtaksbrevUtleder {
         } else if (erAnkeBehandling(behandlingVedtak)) {
             dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
-            dokumentMal = velgPositivtVedtaksmal(behandling);
+            dokumentMal = velgPositivtVedtaksmal(behandling, innvilgelseFpLanseringTjeneste);
         } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
             dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
         }
@@ -93,11 +93,11 @@ public class VedtaksbrevUtleder {
         return null;
     }
 
-    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
+    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
         var ytelse = behandling.getFagsakYtelseType();
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
-            DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
+            innvilgelseFpLanseringTjeneste.velgFpInnvilgelsesmal(behandling) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_ENGANGSSTØNAD : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }

@@ -193,6 +193,10 @@ public class ForeldrepengerUttakPeriode {
         return getOverføringÅrsak() != null;
     }
 
+    public boolean erSøktGradering() {
+        return getAktiviteter().stream().anyMatch(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode);
+    }
+
     @Override
     public String toString() {
         return "ForeldrepengerUttakPeriode{" +
