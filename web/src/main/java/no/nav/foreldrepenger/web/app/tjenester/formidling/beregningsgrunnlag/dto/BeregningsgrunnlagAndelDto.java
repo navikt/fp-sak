@@ -69,6 +69,10 @@ public class BeregningsgrunnlagAndelDto {
     @Valid
     private BgAndelArbeidsforholdDto arbeidsforhold;
 
+    @JsonProperty(value = "erTilkommetAndel")
+    @Valid
+    private Boolean erTilkommetAndel;
+
     public BeregningsgrunnlagAndelDto(@Valid @Digits(integer = 8, fraction = 2) @DecimalMin("0.00") @DecimalMax("10000.00") Long dagsats,
                                       @Valid @NotNull AktivitetStatus aktivitetStatus,
                                       @Valid @Digits(integer = 8, fraction = 2) @DecimalMin("0.00") @DecimalMax("10000000.00") BigDecimal bruttoPrÅr,
@@ -77,7 +81,8 @@ public class BeregningsgrunnlagAndelDto {
                                       @Valid @NotNull OpptjeningAktivitetType arbeidsforholdType,
                                       @Valid LocalDate beregningsperiodeFom,
                                       @Valid LocalDate beregningsperiodeTom,
-                                      @Valid BgAndelArbeidsforholdDto arbeidsforhold) {
+                                      @Valid BgAndelArbeidsforholdDto arbeidsforhold,
+                                      @Valid Boolean erTilkommetAndel) {
         this.dagsats = dagsats;
         this.aktivitetStatus = aktivitetStatus;
         this.bruttoPrÅr = bruttoPrÅr;
@@ -87,6 +92,7 @@ public class BeregningsgrunnlagAndelDto {
         this.beregningsperiodeFom = beregningsperiodeFom;
         this.beregningsperiodeTom = beregningsperiodeTom;
         this.arbeidsforhold = arbeidsforhold;
+        this.erTilkommetAndel = erTilkommetAndel;
     }
 
     public Long getDagsats() {
@@ -124,4 +130,6 @@ public class BeregningsgrunnlagAndelDto {
     public BgAndelArbeidsforholdDto getArbeidsforhold() {
         return arbeidsforhold;
     }
+
+    public boolean getErTilkommetAndel() { return  erTilkommetAndel; }
 }

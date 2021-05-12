@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -66,6 +67,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getArbeidsforhold().getArbeidsgiverIdent()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getArbeidsforholdOrgnr());
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getArbeidsforhold().getNaturalytelseBortfaltPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseBortfaltPrÅr().orElse(BigDecimal.ZERO));
         assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getArbeidsforhold().getNaturalytelseTilkommetPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseTilkommetPrÅr().orElse(BigDecimal.ZERO));
+        assertThat(dto.getBeregningsgrunnlagperioder().get(0).getBeregningsgrunnlagandeler().get(0).getErTilkommetAndel()).isFalse();
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(BeregningsgrunnlagEntitet beregningsgrunnlag) {
@@ -95,6 +97,7 @@ class BeregningsgrunnlagFormidlingDtoTjenesteTest {
             .medOverstyrtPrÅr(BRUTTO)
             .medAvkortetPrÅr(BigDecimal.valueOf(423.23))
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
+            .medKilde(AndelKilde.PROSESS_START)
             .build(beregningsgrunnlagPeriode);
     }
 

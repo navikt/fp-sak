@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
 
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -61,7 +62,7 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
     }
 
     private List<AktivitetStatus> mapAktivitetstatuser(List<BeregningsgrunnlagAktivitetStatus> aktivitetStatuser) {
-        return aktivitetStatuser.stream().map(as -> as.getAktivitetStatus()).collect(Collectors.toList());
+        return aktivitetStatuser.stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus).collect(Collectors.toList());
     }
 
     private BeregningsgrunnlagPeriodeDto mapPeriode(BeregningsgrunnlagPeriode bgPeriode) {
@@ -102,7 +103,8 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
             andel.getArbeidsforholdType(),
             andel.getBeregningsperiodeFom(),
             andel.getBeregningsperiodeTom(),
-            arbeidsforholdDto.orElse(null));
+            arbeidsforholdDto.orElse(null),
+            erTilkommetAndel(andel.getKilde()));
     }
 
     private BgAndelArbeidsforholdDto mapArbeidsforhold(BGAndelArbeidsforhold bga) {
@@ -111,6 +113,10 @@ public class BeregningsgrunnlagFormidlingDtoTjeneste {
             bga.getArbeidsforholdRef().getReferanse(),
             bga.getNaturalytelseBortfaltPrÅr().orElse(null),
             bga.getNaturalytelseTilkommetPrÅr().orElse(null));
+    }
+
+    private boolean erTilkommetAndel(AndelKilde kilde) {
+        return !kilde.equals(AndelKilde.PROSESS_START);
     }
 
 }
