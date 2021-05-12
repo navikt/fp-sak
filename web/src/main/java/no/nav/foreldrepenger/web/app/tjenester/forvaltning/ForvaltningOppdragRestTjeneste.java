@@ -43,7 +43,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningOppdrag")
@@ -200,7 +199,7 @@ public class ForvaltningOppdragRestTjeneste {
     private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
         var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
-        sendØkonomiOppdrag.setCallId(MDCOperations.getCallId());
+        sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
                 Long.valueOf(hovedProsessTask.getBehandlingId()),

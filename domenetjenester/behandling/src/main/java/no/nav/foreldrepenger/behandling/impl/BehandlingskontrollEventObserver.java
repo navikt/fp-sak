@@ -23,7 +23,6 @@ import no.nav.vedtak.felles.integrasjon.kafka.BehandlingProsessEventDto;
 import no.nav.vedtak.felles.integrasjon.kafka.EventHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class BehandlingskontrollEventObserver {
@@ -83,13 +82,8 @@ public class BehandlingskontrollEventObserver {
     }
 
     private ProsessTaskData opprettProsessTask(Long behandlingId, EventHendelse eventHendelse) throws IOException {
-        var callId = MDCOperations.getCallId();
-        if (callId == null || callId.isBlank()) {
-            callId = MDCOperations.generateCallId();
-            MDCOperations.putCallId(callId);
-        }
         var taskData = new ProsessTaskData(PubliserEventTask.TASKTYPE);
-        taskData.setCallId(callId);
+        taskData.setCallIdFraEksisterende();
         taskData.setPrioritet(90);
 
         var behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(behandlingId);

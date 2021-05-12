@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.util.LdapUtil;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -68,8 +69,10 @@ public class BehandlingsprosessTjeneste {
      *
      * @return Prosess Task gruppenavn som kan brukes til å sjekke fremdrift
      */
-    public String asynkKjørProsess(Behandling behandling) {
-        return prosesseringAsynkTjeneste.asynkProsesserBehandlingMergeGruppe(behandling);
+    public void asynkKjørProsess(Behandling behandling) {
+        if (behandlingProsesseringTjeneste.kanOppretteTasksForFortsettBehandling(behandling)) {
+            prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
+        }
     }
 
     /**
@@ -168,21 +171,25 @@ public class BehandlingsprosessTjeneste {
      *
      * @return ProsessTask gruppe
      */
-    public String asynkTilbakestillOgÅpneBehandlingForEndringer(Long behandlingsId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingsId);
+    public String asynkTilbakestillOgÅpneBehandlingForEndringer(Behandling behandling) {
+        if (!behandlingProsesseringTjeneste.kanOppretteTasksForFortsettBehandling(behandling)) {
+            throw new FunksjonellException("FP-572345", "Finnes aktive tasks", "Vent til registeroppdatering er ferdig");
+        }
         var gruppe = new ProsessTaskGruppe();
 
         var åpneBehandlingForEndringerTask = new ProsessTaskData(ÅpneBehandlingForEndringerTask.TASKTYPE);
-        åpneBehandlingForEndringerTask.setBehandling(behandling.getFagsakId(), behandlingsId, behandling.getAktørId().getId());
+        åpneBehandlingForEndringerTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
+        åpneBehandlingForEndringerTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(åpneBehandlingForEndringerTask);
         var fortsettBehandlingTask = new ProsessTaskData(FortsettBehandlingTask.TASKTYPE);
         fortsettBehandlingTask.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
+        fortsettBehandlingTask.setCallIdFraEksisterende();
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
 
         opprettHistorikkinnslagForBehandlingStartetPåNytt(behandling);
 
-        return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandlingsId, gruppe);
+        return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(), gruppe);
     }
 
     /**

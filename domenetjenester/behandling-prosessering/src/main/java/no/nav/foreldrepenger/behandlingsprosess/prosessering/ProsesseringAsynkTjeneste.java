@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -115,21 +114,6 @@ public class ProsesseringAsynkTjeneste {
      */
     public String asynkProsesserBehandling(Behandling behandling) {
         return prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-    }
-
-    /**
-     * Kjør prosess asynkront (i egen prosess task) videre.
-     *
-     * @return gruppe assignet til prosess task
-     */
-    public String asynkProsesserBehandlingMergeGruppe(Behandling behandling) {
-        var gruppe = new ProsessTaskGruppe();
-        var taskData = new ProsessTaskData(FortsettBehandlingTask.TASKTYPE);
-        taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setCallIdFraEksisterende();
-        gruppe.addNesteSekvensiell(taskData);
-        return fagsakProsessTaskRepository.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
-                gruppe);
     }
 
 }

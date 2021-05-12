@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -48,7 +49,9 @@ public class VurderProsessTaskStatusForPollingApi {
         var gruppe = task.getGruppe();
         var callId = task.getPropertyValue("callId");
         var taskStatus = task.getStatus();
-        if (ProsessTaskStatus.KLAR.equals(taskStatus)) {
+        if (ProsessTaskStatus.KLAR.equals(taskStatus) ||
+            (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus) && InnhentIAYIAbakusTask.TASKTYPE.equals(task.getTaskType()) &&
+                task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring))) {
             return ventPåKlar(gruppe, maksTidFørNesteKjøring, task, callId);
         }
         if (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus)) {

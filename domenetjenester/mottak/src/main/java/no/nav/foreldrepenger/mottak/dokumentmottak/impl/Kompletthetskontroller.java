@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.kompletthettjeneste.KompletthetModell;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Denne klassen evaluerer hvilken effekt en ekstern hendelse (dokument, forretningshendelse) har på en åpen behandlings
@@ -75,7 +74,7 @@ public class Kompletthetskontroller {
             || mottattDokument.getDokumentType().erSøknadType() || mottattDokument.getDokumentType().erEndringsSøknadType()) {
             spolKomplettBehandlingTilStartpunkt(behandling, grunnlagSnapshot);
             if (kompletthetModell.erKompletthetssjekkPassert(behandlingId)) {
-                behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, MDCOperations.getCallId(), LocalDateTime.now());
+                behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
             } else {
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
             }
@@ -123,7 +122,7 @@ public class Kompletthetskontroller {
 
     public void vurderNyForretningshendelse(Behandling behandling) {
         if (kompletthetModell.erKompletthetssjekkPassert(behandling.getId())) {
-            behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, MDCOperations.getCallId(), LocalDateTime.now());
+            behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         }
     }
 

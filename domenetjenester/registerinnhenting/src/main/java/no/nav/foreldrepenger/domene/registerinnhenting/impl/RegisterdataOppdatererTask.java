@@ -58,6 +58,7 @@ public class RegisterdataOppdatererTask extends BehandlingProsessTask {
         // NB lås før hent behandling
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingsId);
         var behandling = behandlingRepository.hentBehandling(behandlingsId);
+        if (behandling.erSaksbehandlingAvsluttet()) return;
 
         if (behandling.isBehandlingPåVent()) {
             behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(behandling, kontekst);

@@ -418,7 +418,7 @@ public class BehandlingRestTjeneste {
             throw new FunksjonellException("FP-722321", "Behandling er berørt må gjennomføres. BehandlingId=" + behandlingId,
                 "Behandle ferdig berørt og opprett revurdering");
         }
-        behandlingsprosessTjeneste.asynkTilbakestillOgÅpneBehandlingForEndringer(behandlingId);
+        behandlingsprosessTjeneste.asynkTilbakestillOgÅpneBehandlingForEndringer(behandling);
         behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.empty());
     }
