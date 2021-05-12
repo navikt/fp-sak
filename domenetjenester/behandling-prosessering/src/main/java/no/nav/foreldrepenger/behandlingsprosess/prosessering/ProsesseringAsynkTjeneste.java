@@ -11,7 +11,6 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
