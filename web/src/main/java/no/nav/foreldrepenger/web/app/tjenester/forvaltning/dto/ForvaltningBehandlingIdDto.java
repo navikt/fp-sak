@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
-import java.util.Objects;
+import java.util.UUID;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -17,30 +19,37 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
  */
 public class ForvaltningBehandlingIdDto implements AbacDto {
 
+    //TODO palfi bare UUID
     @NotNull
     @QueryParam("behandlingId")
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private Long behandlingId;
+    @Pattern(regexp = "^[a-fA-F0-9-]+$")
+    @JsonProperty
+    private String behandlingId;
 
-    public ForvaltningBehandlingIdDto() {
-    }
-
-    public ForvaltningBehandlingIdDto(@NotNull String behandlingId) {
-        Objects.requireNonNull(behandlingId, "behandlingId");
-        this.behandlingId = Long.valueOf(behandlingId);
-    }
-
+    @JsonIgnore
     public Long getBehandlingId() {
-        return behandlingId;
+        return behandlingId != null && getBehandlingUUID() == null ? Long.valueOf(behandlingId) : null;
+    }
+
+    @JsonIgnore
+    public UUID getBehandlingUUID() {
+        return behandlingId != null && behandlingId.contains("-") ? UUID.fromString(behandlingId) : null;
     }
 
     @Override
     public AbacDataAttributter abacAttributter() {
         var abac = AbacDataAttributter.opprett();
-        if (behandlingId != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
+        if (getBehandlingId() != null) {
+            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId());
+        }
+        if (getBehandlingUUID() != null) {
+            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUUID());
         }
         return abac;
+    }
+
+    @Override
+    public String toString() {
+        return behandlingId;
     }
 }

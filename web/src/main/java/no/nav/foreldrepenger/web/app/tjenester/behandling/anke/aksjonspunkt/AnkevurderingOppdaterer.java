@@ -65,14 +65,18 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         var ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
 
         var builder = mapDto(dto, behandling);
-        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, dto.hentPåAnketBehandlingId());
+        var påanketBehandlingId =
+            dto.getPåAnketBehandlingId() == null ? behandlingRepository.hentBehandling(dto.getVedtakBehandlingUuid())
+                .getId() : dto.getPåAnketBehandlingId();
+        ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, påanketBehandlingId);
 
         opprettHistorikkinnslag(behandling, dto, ankeVurderingResultatHaddeVerdiFørHåndtering);
 
         return OppdateringResultat.utenOveropp();
     }
 
-    private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto, Behandling behandling) {
+    private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto,
+                                                        Behandling behandling) {
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         resetVurderingsSpesifikkeValg(builder);
         if (AnkeVurdering.ANKE_AVVIS.equals(apDto.getAnkeVurdering())) {
@@ -81,14 +85,15 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                 .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
                 .medErIkkeKonkret(apDto.erIkkeKonkret())
                 .medErIkkeSignert(apDto.erIkkeSignert());
-        } else if (Set.of(AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV).contains(apDto.getAnkeVurdering())) {
+        } else if (Set.of(AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE,
+            AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV).contains(apDto.getAnkeVurdering())) {
             builder.medAnkeOmgjørÅrsak(apDto.getAnkeOmgjoerArsak())
                 .medAnkeVurderingOmgjør(apDto.getAnkeVurderingOmgjoer());
         }
         return builder.medAnkeVurdering(apDto.getAnkeVurdering())
             .medBegrunnelse(apDto.getBegrunnelse())
             .medFritekstTilBrev(apDto.getFritekstTilBrev())
-            .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null);
+            .medGjelderVedtak(apDto.getPåAnketBehandlingId() != null || apDto.getVedtakBehandlingUuid() != null);
     }
 
     private void resetVurderingsSpesifikkeValg(AnkeVurderingResultatEntitet.Builder builder) {
@@ -101,22 +106,26 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
             .medErIkkeSignert(false);
     }
 
-    private void opprettHistorikkinnslag(Behandling behandling, AnkeVurderingResultatAksjonspunktDto dto,boolean endreAnke) {
+    private void opprettHistorikkinnslag(Behandling behandling,
+                                         AnkeVurderingResultatAksjonspunktDto dto,
+                                         boolean endreAnke) {
         var ankeVurderingResultat = ankeRepository.hentAnkeVurderingResultat(behandling.getId());
         var ankeResultat = ankeRepository.hentEllerOpprettAnkeResultat(behandling.getId());
         var ankeVurdering = AnkeVurdering.fraKode(dto.getAnkeVurdering().getKode());
-        var ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null
-            ? AnkeVurderingOmgjør.fraKode(dto.getAnkeVurderingOmgjoer().getKode()) : null;
+        var ankeVurderingOmgjør = dto.getAnkeVurderingOmgjoer() != null ? AnkeVurderingOmgjør.fraKode(
+            dto.getAnkeVurderingOmgjoer().getKode()) : null;
         var omgjørÅrsak = dto.getAnkeOmgjoerArsak() != null ? dto.getAnkeOmgjoerArsak() : null;
 
         var resultat = konverterAnkeVurderingTilResultatType(ankeVurdering, ankeVurderingOmgjør);
         var historiebygger = new HistorikkInnslagTekstBuilder();
 
         if (!endreAnke) {
-            historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null, resultat != null ? resultat.getNavn() : null);
+            historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, null,
+                resultat != null ? resultat.getNavn() : null);
             if (dto.getAnkeOmgjoerArsak() != null && omgjørÅrsak != null) {
                 historiebygger.medEndretFelt(HistorikkEndretFeltType.ANKE_OMGJØR_ÅRSAK, null, omgjørÅrsak.getNavn());
-            } else if (dto.erAnkerIkkePart() || dto.erFristIkkeOverholdt() || dto.erIkkeKonkret() || dto.erIkkeSignert()) {
+            } else if (dto.erAnkerIkkePart() || dto.erFristIkkeOverholdt() || dto.erIkkeKonkret()
+                || dto.erIkkeSignert()) {
                 historiebygger
                     .medEndretFelt(HistorikkEndretFeltType.ER_ANKER_IKKE_PART, null, dto.erAnkerIkkePart())
                     .medEndretFelt(HistorikkEndretFeltType.ER_ANKEFRIST_IKKE_OVERHOLDT, null, dto.erFristIkkeOverholdt())
@@ -124,7 +133,8 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
                     .medEndretFelt(HistorikkEndretFeltType.ER_ANKEN_IKKE_SIGNERT, null, dto.erIkkeSignert());
             }
         } else {
-            finnOgSettOppEndredeHistorikkFelter(ankeVurderingResultat.get(), historiebygger, dto, ankeResultat, omgjørÅrsak, resultat);
+            finnOgSettOppEndredeHistorikkFelter(ankeVurderingResultat.get(), historiebygger, dto, ankeResultat,
+                omgjørÅrsak, resultat);
         }
         historiebygger.medBegrunnelse(dto.getBegrunnelse());
         historiebygger.medSkjermlenke(SkjermlenkeType.ANKE_VURDERING);
@@ -138,7 +148,8 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         historikkTjenesteAdapter.lagInnslag(innslag);
     }
 
-    private HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering, AnkeVurderingOmgjør ankeVurderingOmgjør) {
+    private HistorikkResultatType konverterAnkeVurderingTilResultatType(AnkeVurdering vurdering,
+                                                                        AnkeVurderingOmgjør ankeVurderingOmgjør) {
         if (AnkeVurdering.ANKE_AVVIS.equals(vurdering)) {
             return HistorikkResultatType.ANKE_AVVIS;
         }
@@ -166,31 +177,48 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         return null;
     }
 
-    private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat, HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder, AnkeVurderingResultatAksjonspunktDto dto, AnkeResultatEntitet ankeResultat, BasisKodeverdi årsakFraDto, HistorikkResultatType resultat) {
+    private void finnOgSettOppEndredeHistorikkFelter(AnkeVurderingResultatEntitet ankeVurderingResultat,
+                                                     HistorikkInnslagTekstBuilder historikkInnslagTekstBuilder,
+                                                     AnkeVurderingResultatAksjonspunktDto dto,
+                                                     AnkeResultatEntitet ankeResultat,
+                                                     BasisKodeverdi årsakFraDto,
+                                                     HistorikkResultatType resultat) {
         if (erVedtakOppdatert(ankeResultat, dto)) {
+            final Long påAnketBehandlingId;
+            if (dto.getPåAnketBehandlingId() == null && dto.getVedtakBehandlingUuid() == null) {
+                påAnketBehandlingId = null;
+            } else if (dto.getPåAnketBehandlingId() == null) {
+                påAnketBehandlingId = behandlingRepository.hentBehandling(dto.getVedtakBehandlingUuid()).getId();
+            } else {
+                påAnketBehandlingId = dto.getPåAnketBehandlingId();
+            }
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_ANKET_BEHANDLINGID,
                 hentPåanketBehandlingTekst(ankeResultat.getPåAnketBehandlingId().orElse(null)),
-                hentPåanketBehandlingTekst(dto.hentPåAnketBehandlingId()));
+                hentPåanketBehandlingTekst(påAnketBehandlingId));
         }
         if (erAnkeVurderingEndret(ankeVurderingResultat, dto)) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT, ankeVurderingResultat.getAnkeVurdering().getNavn(), resultat.getNavn());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ANKE_RESULTAT,
+                ankeVurderingResultat.getAnkeVurdering().getNavn(), resultat.getNavn());
         }
         if (erAnkeOmgjørÅrsakEndret(ankeVurderingResultat, dto, årsakFraDto)) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ANKE_OMGJØR_ÅRSAK,
                 ankeVurderingResultat.getAnkeOmgjørÅrsak().getNavn(), dto.getAnkeOmgjoerArsak().getNavn());
         }
         if (ankeVurderingResultat.erAnkerIkkePart() != dto.erAnkerIkkePart()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKER_IKKE_PART, ankeVurderingResultat.erAnkerIkkePart(), dto.erAnkerIkkePart());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKER_IKKE_PART,
+                ankeVurderingResultat.erAnkerIkkePart(), dto.erAnkerIkkePart());
         }
         if (ankeVurderingResultat.erFristIkkeOverholdt() != dto.erFristIkkeOverholdt()) {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKEFRIST_IKKE_OVERHOLDT,
                 ankeVurderingResultat.erAnkerIkkePart(), dto.erFristIkkeOverholdt());
         }
         if (ankeVurderingResultat.erIkkeKonkret() != dto.erIkkeKonkret()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKE_IKKE_KONKRET, ankeVurderingResultat.erIkkeKonkret(), dto.erIkkeKonkret());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKE_IKKE_KONKRET,
+                ankeVurderingResultat.erIkkeKonkret(), dto.erIkkeKonkret());
         }
         if (ankeVurderingResultat.erIkkeSignert() != dto.erIkkeSignert()) {
-            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKEN_IKKE_SIGNERT, ankeVurderingResultat.erIkkeSignert(), dto.erIkkeSignert());
+            historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.ER_ANKEN_IKKE_SIGNERT,
+                ankeVurderingResultat.erIkkeSignert(), dto.erIkkeSignert());
         }
     }
 
@@ -199,15 +227,15 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
             return "Ikke påanket et vedtak";
         }
         var påAnketBehandling = behandlingRepository.hentBehandling(behandlingId);
-        var vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId).map(it -> it.getVedtaksdato());
-        return påAnketBehandling.getType().getNavn() + " " +
-            vedtaksDatoPåanketBehandling
-                .map(dato -> dato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-                .orElse("");
+        var vedtaksDatoPåanketBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
+            .map(it -> it.getVedtaksdato());
+        return påAnketBehandling.getType().getNavn() + " " + vedtaksDatoPåanketBehandling.map(
+            dato -> dato.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))).orElse("");
     }
 
     private boolean erVedtakOppdatert(AnkeResultatEntitet ankeResultat, AnkeVurderingResultatAksjonspunktDto dto) {
-        var nyPåAnketBehandling = dto.hentPåAnketBehandlingId();
+        var nyPåAnketBehandling = dto.getPåAnketBehandlingId() == null ? behandlingRepository.hentBehandling(dto.getVedtakBehandlingUuid())
+            : dto.getPåAnketBehandlingId();
         var harLagretPåAnketBehandling = ankeResultat.getPåAnketBehandlingId().isPresent();
 
         if (!harLagretPåAnketBehandling && nyPåAnketBehandling == null) {
@@ -219,12 +247,16 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         return !ankeResultat.getPåAnketBehandlingId().get().equals(nyPåAnketBehandling);
     }
 
-    private boolean erAnkeVurderingEndret(AnkeVurderingResultatEntitet ankeVurderingResultat, AnkeVurderingResultatAksjonspunktDto dto) {
-        return ankeVurderingResultat.getAnkeVurdering() != null && !ankeVurderingResultat.getAnkeVurdering().equals(dto.getAnkeVurdering());
+    private boolean erAnkeVurderingEndret(AnkeVurderingResultatEntitet ankeVurderingResultat,
+                                          AnkeVurderingResultatAksjonspunktDto dto) {
+        return ankeVurderingResultat.getAnkeVurdering() != null && !ankeVurderingResultat.getAnkeVurdering()
+            .equals(dto.getAnkeVurdering());
     }
 
-    private boolean erAnkeOmgjørÅrsakEndret(AnkeVurderingResultatEntitet ankeVurderingResultat, AnkeVurderingResultatAksjonspunktDto dto, BasisKodeverdi årsakFraDto) {
-        return ankeVurderingResultat.getAnkeOmgjørÅrsak() != null && dto.getAnkeOmgjoerArsak() != null && årsakFraDto != null
-            && !ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(dto.getAnkeOmgjoerArsak());
+    private boolean erAnkeOmgjørÅrsakEndret(AnkeVurderingResultatEntitet ankeVurderingResultat,
+                                            AnkeVurderingResultatAksjonspunktDto dto,
+                                            BasisKodeverdi årsakFraDto) {
+        return ankeVurderingResultat.getAnkeOmgjørÅrsak() != null && dto.getAnkeOmgjoerArsak() != null
+            && årsakFraDto != null && !ankeVurderingResultat.getAnkeOmgjørÅrsak().equals(dto.getAnkeOmgjoerArsak());
     }
 }

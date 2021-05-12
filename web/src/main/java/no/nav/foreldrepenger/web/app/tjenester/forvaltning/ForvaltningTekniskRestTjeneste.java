@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -110,12 +111,18 @@ public class ForvaltningTekniskRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
             @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
         try {
-            oppgaveTjeneste.ferdigstillOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
+            var behandlingId = getBehandlingId(behandlingIdDto);
+            oppgaveTjeneste.ferdigstillOppgaveForForvaltning(behandlingId, oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
             LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
+    }
+
+    private Long getBehandlingId(ForvaltningBehandlingIdDto behandlingIdDto) {
+        return behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUUID()).getId()
+            : behandlingIdDto.getBehandlingId();
     }
 
     @POST
@@ -132,7 +139,7 @@ public class ForvaltningTekniskRestTjeneste {
             @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class) @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto,
             @BeanParam @Valid ForvaltningBehandlingIdDto behandlingIdDto) {
         try {
-            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(behandlingIdDto.getBehandlingId(), oppgaveIdDto.getProsessTaskId().toString());
+            oppgaveTjeneste.feilregistrerOppgaveForForvaltning(getBehandlingId(behandlingIdDto), oppgaveIdDto.getProsessTaskId().toString());
         } catch (Exception e) {
             LOG.info("Feil fra Gosys ved ferdigstillelse", e);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -216,14 +223,18 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingEntrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        LOG.info("Setter behandling={} til entrinn", behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = getBehandling(dto);
+        LOG.info("Setter behandling={} til entrinn", behandling.getId());
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
         behandling.nullstillToTrinnsBehandling();
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        return dto.getBehandlingId() == null ? behandlingRepository.hentBehandling(dto.getBehandlingUUID())
+            : behandlingRepository.hentBehandling(dto.getBehandlingId());
     }
 
     @POST
@@ -236,9 +247,8 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setBehandlingTotrinn(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        LOG.info("Setter behandling={} til totrinn", behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = getBehandling(dto);
+        LOG.info("Setter behandling={} til totrinn", behandling.getId());
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
 
         behandling.setToTrinnsBehandling();
@@ -253,8 +263,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response byttPapirSøknadTilEndring(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
         // fjern alle overstyringer gjort av saksbehandler
-        var behandlingId = dto.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = getBehandling(dto);
 
         var lås = behandlingRepository.taSkriveLås(behandling);
 
@@ -317,7 +326,7 @@ public class ForvaltningTekniskRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response runOncePopulerAnkeDvhMedTR(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var b = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var b = getBehandling(dto);
         if (BehandlingType.ANKE.equals(b.getType()) && b.erSaksbehandlingAvsluttet()) {
             datavarehusTjeneste.oppdaterHvisKlageEllerAnke(b.getId(), b.getAksjonspunkter());
         } else if (BehandlingType.ANKE.equals(b.getType()) && !b.erSaksbehandlingAvsluttet()) {

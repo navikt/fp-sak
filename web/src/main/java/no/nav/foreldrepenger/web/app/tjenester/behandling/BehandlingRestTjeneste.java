@@ -162,10 +162,7 @@ public class BehandlingRestTjeneste {
     @Deprecated
     public Response hentBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = getBehandling(behandlingIdDto);
 
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
@@ -186,13 +183,16 @@ public class BehandlingRestTjeneste {
     public Response hentBehandlingMidlertidigStatus(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
             @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = getBehandling(behandlingIdDto);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
         return Redirect.tilBehandlingEllerPollStatus(behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
+    }
+
+    private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
+        return behandlingIdDto.getBehandlingId() != null
+                ? behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingId())
+                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
     }
 
     @GET
@@ -204,10 +204,7 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = getBehandling(behandlingIdDto);
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);
         var responseBuilder = Response.ok().entity(dto);
@@ -221,8 +218,10 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void settBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
-        behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
-        behandlingsutredningTjeneste.settBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
+        var behandling = getBehandling(dto);
+
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
+        behandlingsutredningTjeneste.settBehandlingPaVent(behandling.getId(), dto.getFrist(), dto.getVentearsak());
     }
 
     @POST
@@ -232,8 +231,9 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.VENTEFRIST)
     public void endreFristForBehandlingPaVent(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "Frist for behandling på vent") @Valid SettBehandlingPaVentDto dto) {
-        behandlingsutredningTjeneste.kanEndreBehandling(dto.getBehandlingId(), dto.getBehandlingVersjon());
-        behandlingsutredningTjeneste.endreBehandlingPaVent(dto.getBehandlingId(), dto.getFrist(), dto.getVentearsak());
+        var behandling = getBehandling(dto);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
+        behandlingsutredningTjeneste.endreBehandlingPaVent(behandling.getId(), dto.getFrist(), dto.getVentearsak());
     }
 
     @POST
@@ -244,10 +244,16 @@ public class BehandlingRestTjeneste {
 
     public void henleggBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Henleggelsesårsak") @Valid HenleggBehandlingDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, dto.getBehandlingVersjon());
+        var behandling = getBehandling(dto);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         var årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
-        henleggBehandlingTjeneste.henleggBehandling(behandlingId, årsakKode, dto.getBegrunnelse());
+        henleggBehandlingTjeneste.henleggBehandling(behandling.getId(), årsakKode, dto.getBegrunnelse());
+    }
+
+    private Behandling getBehandling(DtoMedBehandlingId dto) {
+        return dto.getBehandlingId() != null
+            ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingId())
+            : behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST
@@ -259,15 +265,14 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response gjenopptaBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto) {
-        var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
+        var behandling = getBehandling(dto);
 
         // precondition - sjekk behandling versjon/lås
-        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
         // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status
         // url under )
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
         var gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
         return Redirect.tilBehandlingPollStatus(behandling.getUuid(), gruppeOpt);
     }
@@ -279,14 +284,14 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void byttBehandlendeEnhet(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
         @Parameter(description = "Ny enhet som skal byttes") @Valid ByttBehandlendeEnhetDto dto) {
-        var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
-        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
+        var behandling = getBehandling(dto);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
 
         var enhetId = dto.getEnhetId();
         var enhetNavn = dto.getEnhetNavn();
         var begrunnelse = dto.getBegrunnelse();
-        behandlingsutredningTjeneste.byttBehandlendeEnhet(behandlingId, new OrganisasjonsEnhet(enhetId, enhetNavn), begrunnelse,
+        behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(), new OrganisasjonsEnhet(enhetId, enhetNavn), begrunnelse,
                 HistorikkAktør.SAKSBEHANDLER);
     }
 
@@ -398,12 +403,13 @@ public class BehandlingRestTjeneste {
 
     public Response åpneBehandlingForEndringer(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
             @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto) {
-        var behandlingId = dto.getBehandlingId();
         var behandlingVersjon = dto.getBehandlingVersjon();
 
+        var behandling = getBehandling(dto);
+        var behandlingId = behandling.getId();
+
         // precondition - sjekk behandling versjon/lås
-        behandlingsutredningTjeneste.kanEndreBehandling(behandlingId, behandlingVersjon);
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        behandlingsutredningTjeneste.kanEndreBehandling(behandling, behandlingVersjon);
         if (behandling.isBehandlingPåVent()) {
             throw new FunksjonellException("FP-722320", "Behandling må tas av vent før den kan åpnes",
                 "Ta behandling av vent");
@@ -448,7 +454,14 @@ public class BehandlingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DtoMedBehandlingId) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            var attributter = AbacDataAttributter.opprett();
+            if (req.getBehandlingId() != null) {
+                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            }
+            if (req.getBehandlingUuid() != null) {
+                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            }
+            return attributter;
         }
     }
 

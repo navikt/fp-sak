@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.abakus.iaygrunnlag.oppgittopptjening.v1.OppgittOpptjeningDto;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
@@ -146,17 +147,22 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Tvinger full registeroppdatering av IAY på åpen behandling", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response reInnhentAlleIAYRegisterData(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        var behandling = getBehandling(dto);
         if (behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var prosessTaskData = new ProsessTaskData(InnhentIAYIAbakusTask.TASKTYPE);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandlingId, behandling.getAktørId().getId());
+        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(InnhentIAYIAbakusTask.OVERSTYR_KEY, InnhentIAYIAbakusTask.OVERSTYR_VALUE);
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
         return Response.noContent().build();
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        return behandlingId == null ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUUID()) :
+            behandlingsprosessTjeneste.hentBehandling(behandlingId);
     }
 
     @GET
@@ -166,9 +172,8 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Hent oppgitt opptjening for behandling", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public OppgittOpptjeningDto hentOppgittOpptjening(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId);
+        var behandling = getBehandling(dto);
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
         return new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
                 iayGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(iayGrunnlag)
                         .getOppgittOpptjening();

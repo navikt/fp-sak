@@ -154,11 +154,18 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter iayGrunnlag", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentIAYGrunnlag(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
-        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(dto.getBehandlingId());
-        var inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+        var behandling = getBehandling(dto);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
+        var inntektArbeidYtelseGrunnlagDto = new IAYTilDtoMapper(behandling.getAktørId(),
+            KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
             inntektArbeidYtelseGrunnlag.getEksternReferanse(), behandling.getUuid()).mapTilDto(inntektArbeidYtelseGrunnlag);
         return Response.ok(inntektArbeidYtelseGrunnlagDto).build();
+    }
+
+    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        return behandlingId == null ? behandlingRepository.hentBehandling(dto.getBehandlingUUID())
+            : behandlingRepository.hentBehandling(behandlingId);
     }
 
     @POST
@@ -168,7 +175,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response hentBeregningsgrunnlagInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var behandling = getBehandling(dto);
         var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
         var beregningsgrunnlagInput = inputTjeneste.lagInput(behandling.getId());
         var kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
@@ -262,7 +269,7 @@ public class ForvaltningBeregningRestTjeneste {
     @Operation(description = "Rull sak tilbake til beregning", tags = "FORVALTNING-beregning")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response tilbakerullEnSakBeregning(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
+        var behandling = getBehandling(dto);
         opprettTilbakerullingBeregningTask(behandling);
         return Response.ok().build();
     }
