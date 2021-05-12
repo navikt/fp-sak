@@ -55,6 +55,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
+    private Utsettelse2021 utsettelse2021;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -63,7 +64,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
-                                          SkjæringstidspunktUtils utlederUtils) {
+                                          SkjæringstidspunktUtils utlederUtils,
+                                          Utsettelse2021 utsettelse2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
@@ -72,6 +74,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.utlederUtils = utlederUtils;
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
+        this.utsettelse2021 = utsettelse2021;
     }
 
     @Override
@@ -271,6 +274,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private boolean skalBehandlesEtterNyeReglerUttak(Behandling behandling) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .map(Utsettelse2021::skalBehandlesEtterNyeReglerUttak).orElse(false);
+            .map(utsettelse2021::skalBehandlesEtterNyeReglerUttak).orElse(false);
     }
 }

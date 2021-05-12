@@ -1,37 +1,45 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
 import java.time.LocalDate;
-import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.vedtak.util.env.Cluster;
+import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.env.Environment;
 
 /*
  * Klasse for styring av ikrafttredelese nytt regelverk for uttak
  * Metode for å gi ikrafttredelsesdato avhengig av miljø
  * Metode for å vurdere om en Familiehendelse skal vurderes etter nye eller gamle regler. Vil bli oppdatert
+ * TODO: Etter dato passert og overgang -> flytt til sentral konfigklasse - skal ikke lenger ha miljøavvik
  */
+@ApplicationScoped
 public class Utsettelse2021 {
 
-    private static final Cluster CURRENT_CLUSTER = Environment.current().getCluster();
+    private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
+    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2999,12,31); // LA STÅ. Ikke endre før vi er klare
 
-    private static final Map<Cluster, LocalDate> DATO_MAP = Map.of(
-        Cluster.PROD_FSS, LocalDate.of(2999,12,31),  // Nei, ikke endre denne før vi er klare
-        Cluster.DEV_FSS, LocalDate.of(2021, 10, 1), // Ja, denne kan tilpasses til testbehov
-        Cluster.LOCAL, LocalDate.of(2025,10,1) // Ja, endre denne når testklare
-    );
+    private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
 
-    private static LocalDate DATO_LOKAL_TEST;
-
-    public static LocalDate ikrafttredelseDato() {
-        if (Cluster.LOCAL.equals(CURRENT_CLUSTER) && DATO_LOKAL_TEST != null) return DATO_LOKAL_TEST;
-        return DATO_MAP.get(CURRENT_CLUSTER);
+    Utsettelse2021() {
+        // CDI
     }
 
-    public static boolean skalBehandlesEtterNyeReglerUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    @Inject
+    public Utsettelse2021(@KonfigVerdi(value = PROP_NAME_DATO) LocalDate ikrafttredelse) {
+        // Pass på å ikke endre dato som skal brukes i produksjon før ting er vedtatt ...
+        this.ikrafttredelseDato = (Environment.current().isProd() || ikrafttredelse == null) ? DATO_FOR_PROD : ikrafttredelse;
+    }
+
+    public LocalDate ikrafttredelseDato() {
+        return this.ikrafttredelseDato;
+    }
+
+    public boolean skalBehandlesEtterNyeReglerUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag == null) return false;
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
@@ -40,13 +48,9 @@ public class Utsettelse2021 {
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (gjeldendeFH == null) return false;
-        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(Utsettelse2021.ikrafttredelseDato())) return false;
+        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato())) return false;
         if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isAfter(ikrafttredelseDato());
         return LocalDate.now().isAfter(ikrafttredelseDato().plusWeeks(2)); // Frist for registrering av fødsel i FREG
-    }
-
-    public static void setIkrafttredelseDatoEnhetstest(LocalDate testdato) {
-        DATO_LOKAL_TEST = testdato;
     }
 
 }

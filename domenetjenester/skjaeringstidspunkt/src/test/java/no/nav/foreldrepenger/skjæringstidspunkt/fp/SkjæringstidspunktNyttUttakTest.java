@@ -15,9 +15,7 @@ public class SkjæringstidspunktNyttUttakTest {
     @Test
     public void skal_returnere_ikke_kvalifisert_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.of(2021, 10, 1);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -25,20 +23,17 @@ public class SkjæringstidspunktNyttUttakTest {
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse().medFødselsDato(bekreftetfødselsdato);
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
     }
 
     @Test
     public void skal_returnere_kvalifisert_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.of(2021, 10, 1);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -46,22 +41,18 @@ public class SkjæringstidspunktNyttUttakTest {
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medBekreftetHendelse()
             .medAdopsjon(førstegangScenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(bekreftetfødselsdato));
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
     }
 
     @Test
     public void skal_returnere_kvalifisert_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.now().minusDays(20);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.now().minusDays(20);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -70,22 +61,18 @@ public class SkjæringstidspunktNyttUttakTest {
         førstegangScenario.medBekreftetHendelse()
             .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(bekreftetfødselsdato));
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
     }
 
     @Test
     public void skal_returnere_ikke_kvalifisert_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.now().minusDays(2);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -94,22 +81,18 @@ public class SkjæringstidspunktNyttUttakTest {
         førstegangScenario.medBekreftetHendelse()
             .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(bekreftetfødselsdato));
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
     }
 
     @Test
     public void skal_returnere_kvalifisert_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.now().minusDays(2);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -118,22 +101,18 @@ public class SkjæringstidspunktNyttUttakTest {
         førstegangScenario.medSøknadHendelse()
             .medAdopsjon(førstegangScenario.medSøknadHendelse().getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(bekreftetfødselsdato));
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
     }
 
     @Test
     public void skal_returnere_ikke_kvalifisert_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.now().minusDays(10);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.now().minusDays(10);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -141,22 +120,18 @@ public class SkjæringstidspunktNyttUttakTest {
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         førstegangScenario.medSøknadHendelse()
             .medFødselsDato(bekreftetfødselsdato);
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
     }
 
     @Test
     public void skal_returnere_kvalifisert_hvis_søkt_termin_30_dager_etter() {
         // Arrange
-        LocalDate ikraftredelse = LocalDate.now().minusDays(30);
-        Utsettelse2021.setIkrafttredelseDatoEnhetstest(ikraftredelse);
-
+        var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -165,14 +140,11 @@ public class SkjæringstidspunktNyttUttakTest {
         førstegangScenario.medSøknadHendelse()
             .medTerminbekreftelse(førstegangScenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                 .medTermindato(bekreftetfødselsdato));
-
         var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
-
         var behandling = førstegangScenario.lagMocked();
-
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(Utsettelse2021.skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
     }
 
 }
