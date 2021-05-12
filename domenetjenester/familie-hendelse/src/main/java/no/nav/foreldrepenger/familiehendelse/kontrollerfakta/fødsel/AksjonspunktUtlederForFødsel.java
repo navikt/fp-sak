@@ -83,7 +83,7 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
     }
 
     Utfall erFristForRegistreringAvFødselPassert(FamilieHendelseGrunnlagEntitet grunnlag) {
-        return familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlag) ? JA : NEI;
+        return FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlag) ? JA : NEI;
     }
 
     LocalDateTime utledVentefrist(FamilieHendelseGrunnlagEntitet grunnlag) {

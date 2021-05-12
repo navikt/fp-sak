@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.Utsettelse2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -88,6 +89,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteInnvilgetUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteInnvilgetUttaksdag(behandling));
 
         var builder = Skjæringstidspunkt.builder()
+            .medKvalifisertFriUtsettelse(skalBehandlesEtterNyeReglerUttak(behandling))
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoFødseljustert(førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato))
             .medFørsteUttaksdatoGrunnbeløp(førsteInnvilgetUttaksdato);
@@ -265,5 +267,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         } else {
             return førsteUttaksdato;
         }
+    }
+
+    private boolean skalBehandlesEtterNyeReglerUttak(Behandling behandling) {
+        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(Utsettelse2021::skalBehandlesEtterNyeReglerUttak).orElse(false);
     }
 }

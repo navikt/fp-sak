@@ -108,7 +108,7 @@ public class BekreftTerminbekreftelseOppdaterer implements AksjonspunktOppdatere
         if (skalReinnhente) {
             builder.medOppdaterGrunnlag();
         }
-        if (familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(oppdatertGrunnlag)) {
+        if (FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(oppdatertGrunnlag)) {
             // Må kontrollere fakta på nytt for å sjekke om fødsel skulle ha inntruffet.
             // TODO: Vurder å fjerne denne (var tilbakehopp til kofak). APutleder/StpUtl tar hensyn til utløpt frist. Oppdateres når tas opp i gui.
             builder.medOppdaterGrunnlag();

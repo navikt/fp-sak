@@ -247,7 +247,7 @@ public class FamilieHendelseTjeneste {
     }
 
 
-    public boolean getManglerFødselsRegistreringFristUtløpt(FamilieHendelseGrunnlagEntitet grunnlag) {
+    public static boolean getManglerFødselsRegistreringFristUtløpt(FamilieHendelseGrunnlagEntitet grunnlag) {
         if (!grunnlag.getGjeldendeVersjon().getGjelderFødsel() || grunnlag.getBekreftetVersjon().isPresent() ||
             grunnlag.getOverstyrtVersjon().map(fh -> FØDSEL.equals(fh.getType()) && !fh.getBarna().isEmpty()).orElse(Boolean.FALSE)) {
             return false;
