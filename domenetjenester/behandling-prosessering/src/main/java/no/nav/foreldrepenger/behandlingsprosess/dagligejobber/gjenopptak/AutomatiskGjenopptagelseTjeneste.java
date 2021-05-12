@@ -48,20 +48,25 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     public String gjenopptaBehandlinger() {
         var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
-        var callId = MDCOperations.getCallId();
-        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
         var baseline = LocalTime.now();
 
         for (var behandling : behandlingListe) {
-            opprettProsessTasks(behandling, callId, baseline, 1439);
+            opprettProsessTasks(behandling, baseline, 1439);
         }
 
         return  "-" + behandlingListe.size();
     }
 
-    private void opprettProsessTasks(Behandling behandling, String callId, LocalTime baseline, int spread) {
+    private void opprettProsessTasks(Behandling behandling, LocalTime baseline, int spread) {
+        var callId = MDCOperations.getCallId();
+        if (callId == null) {
+            MDCOperations.putCallId();
+            callId = MDCOperations.getCallId();
+        }
+        MDCOperations.putCallId(callId + "_" + behandling.getId());
         var nesteKjøring = LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
-        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, callId + behandling.getId(), nesteKjøring);
+        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, nesteKjøring);
+        MDCOperations.putCallId(callId);
     }
 
 
@@ -69,14 +74,12 @@ public class AutomatiskGjenopptagelseTjeneste {
         var tom = LocalDate.now().minusDays(1);
         var fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
         var oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
-        var callId = MDCOperations.getCallId();
-        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
         var baseline = LocalTime.now();
 
         for (var oppgave : oppgaveListe) {
             var behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
-                opprettProsessTasks(behandling, callId, baseline, 1439);
+                opprettProsessTasks(behandling, baseline, 1439);
             }
         }
 
@@ -85,12 +88,10 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     public String gjenopplivBehandlinger() {
         var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
-        var callId = MDCOperations.getCallId();
-        callId = (callId == null ? MDCOperations.generateCallId() : callId) + "_";
         var baseline = LocalTime.now();
 
         for (var behandling : sovende) {
-            opprettProsessTasks(behandling, callId, baseline, 101);
+            opprettProsessTasks(behandling, baseline, 101);
         }
 
         return "-" + sovende.size();

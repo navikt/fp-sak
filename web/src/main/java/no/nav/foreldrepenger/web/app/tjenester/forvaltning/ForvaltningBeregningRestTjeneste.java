@@ -41,27 +41,24 @@ import no.nav.folketrygdloven.kalkulator.modell.iay.YtelseFilterDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.task.TilbakerullingBeregningTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
+import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.IAYMapperTilKalkulus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
-import no.nav.foreldrepenger.domene.abakus.mapping.IAYTilDtoMapper;
-import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerEnhetDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningBeregning")
@@ -73,7 +70,6 @@ public class ForvaltningBeregningRestTjeneste {
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -81,12 +77,11 @@ public class ForvaltningBeregningRestTjeneste {
     @Inject
     public ForvaltningBeregningRestTjeneste(
             BeregningsgrunnlagRepository beregningsgrunnlagRepository, BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository, InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+            InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
     }
@@ -253,36 +248,5 @@ public class ForvaltningBeregningRestTjeneste {
         return tilfeller.contains(FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE);
     }
 
-    @POST
-    @Path("/tilbakerullingAlleSakerBeregning")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Rull saker tilbake til beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response tilbakerullAlleSakerBeregning() {
-        beregningsgrunnlagRepository.opprettProsesstaskForTilbakerullingAvSakerBeregning();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/tilbakerullingBeregning")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Rull sak tilbake til beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response tilbakerullEnSakBeregning(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        opprettTilbakerullingBeregningTask(behandling);
-        return Response.ok().build();
-    }
-
-    private void opprettTilbakerullingBeregningTask(Behandling behandling) {
-        opprettTask(behandling, TilbakerullingBeregningTask.TASKNAME);
-    }
-
-    private void opprettTask(Behandling behandling, String taskname) {
-        var prosessTaskData = new ProsessTaskData(taskname);
-        prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
-    }
 
 }

@@ -166,32 +166,6 @@ public class BeregningsgrunnlagRepository {
         return query.getResultList();
     }
 
-
-    /**
-     * @deprecated Fjernes etter kjøring er ferdig
-     *
-     * Oppretter prosesstask for tilbakerulling av saker grunnet splitting av sammenligningsgrunnlag
-     */
-    @Deprecated
-    public void opprettProsesstaskForTilbakerullingAvSakerBeregning() {
-        var query = entityManager.createNativeQuery(
-            "INSERT INTO PROSESS_TASK (ID, TASK_TYPE, TASK_PARAMETERE) " +
-                "select seq_prosess_task.nextval, 'beregning.tilbakerullingAvSaker', 'behandlingId=' || BEH.ID from FPSAK.BEHANDLING BEH " +
-                "WHERE BEH.id in (" +
-                "SELECT DISTINCT behid.id from FPSAK.BEHANDLING behid " +
-                "INNER JOIN FPSAK.BEHANDLING_STEG_TILSTAND STEG ON STEG.BEHANDLING_ID = behid.ID " +
-                "WHERE STEG.BEHANDLING_STEG = 'FORS_BERGRUNN' " +
-                "AND STEG.BEHANDLING_STEG_STATUS = 'UTFØRT' " +
-                "AND BEH.BEHANDLING_STATUS != 'AVSLU' " +
-                "AND BEH.ID IN (" +
-                "SELECT GR.BEHANDLING_ID FROM FPSAK.GR_BEREGNINGSGRUNNLAG GR " +
-                "INNER JOIN FPSAK.BEREGNINGSGRUNNLAG BG ON GR.BEREGNINGSGRUNNLAG_ID = BG.ID " +
-                "INNER JOIN FPSAK.BG_AKTIVITET_STATUS AKS ON AKS.BEREGNINGSGRUNNLAG_ID = BG.ID " +
-                "WHERE GR.AKTIV='J' AND  (AKS.AKTIVITET_STATUS = 'AT' OR AKS.AKTIVITET_STATUS = 'FL' OR AKS.AKTIVITET_STATUS = 'AT_FL')))"); //$NON-NLS-1$
-        query.executeUpdate();
-        entityManager.flush();
-    }
-
     public BeregningSats finnEksaktSats(BeregningSatsType satsType, LocalDate dato) {
         var query = entityManager.createQuery("from BeregningSats where satsType=:satsType" + //$NON-NLS-1$
                 " and periode.fomDato<=:dato" + //$NON-NLS-1$
