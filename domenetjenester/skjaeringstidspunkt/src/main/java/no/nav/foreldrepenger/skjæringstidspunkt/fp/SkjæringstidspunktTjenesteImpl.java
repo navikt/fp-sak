@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.Utsettelse2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -54,6 +55,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
+    private Utsettelse2021 utsettelse2021;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -62,7 +64,8 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     @Inject
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
-                                          SkjæringstidspunktUtils utlederUtils) {
+                                          SkjæringstidspunktUtils utlederUtils,
+                                          Utsettelse2021 utsettelse2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
@@ -71,6 +74,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.utlederUtils = utlederUtils;
         this.ytelseMaksdatoTjeneste = ytelseMaksdatoTjeneste;
+        this.utsettelse2021 = utsettelse2021;
     }
 
     @Override
@@ -88,6 +92,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var førsteInnvilgetUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteInnvilgetUttaksdag(behandling));
 
         var builder = Skjæringstidspunkt.builder()
+            .medKvalifisertFriUtsettelse(skalBehandlesEtterNyeReglerUttak(behandling))
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoFødseljustert(førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato))
             .medFørsteUttaksdatoGrunnbeløp(førsteInnvilgetUttaksdato);
@@ -265,5 +270,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         } else {
             return førsteUttaksdato;
         }
+    }
+
+    private boolean skalBehandlesEtterNyeReglerUttak(Behandling behandling) {
+        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .map(utsettelse2021::skalBehandlesEtterNyeReglerUttak).orElse(false);
     }
 }

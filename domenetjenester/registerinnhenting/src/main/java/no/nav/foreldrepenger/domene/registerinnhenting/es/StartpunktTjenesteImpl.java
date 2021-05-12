@@ -101,7 +101,7 @@ public class StartpunktTjenesteImpl implements StartpunktTjeneste {
     }
 
     private boolean skalSjekkeForManglendeFødsel(FamilieHendelseGrunnlagEntitet grunnlagForBehandling) {
-        return familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlagForBehandling);
+        return FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(grunnlagForBehandling);
     }
 
 }

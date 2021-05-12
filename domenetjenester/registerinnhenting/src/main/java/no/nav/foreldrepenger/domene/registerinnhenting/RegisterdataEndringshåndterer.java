@@ -136,7 +136,7 @@ public class RegisterdataEndringshåndterer {
 
     private boolean isGåttOverTerminDatoOgIngenFødselsdato(Long behandlingId) {
         var fhGrunnlag = familieHendelseTjeneste.finnAggregat(behandlingId);
-        return fhGrunnlag.isEmpty() || familieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(fhGrunnlag.get());
+        return fhGrunnlag.isEmpty() || FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(fhGrunnlag.get());
     }
 
     private EndringsresultatDiff opprettDiffUtenEndring() {

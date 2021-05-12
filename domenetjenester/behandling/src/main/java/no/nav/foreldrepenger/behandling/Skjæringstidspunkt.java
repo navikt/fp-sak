@@ -17,6 +17,7 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdatoGrunnbeløp;
     private LocalDate førsteUttaksdatoFødseljustert;
     private LocalDateInterval utledetMedlemsintervall;
+    private boolean kvalifisertFriUtsettelse = false;
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -29,6 +30,7 @@ public class Skjæringstidspunkt {
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
         this.førsteUttaksdatoFødseljustert = other.førsteUttaksdatoFødseljustert;
+        this.kvalifisertFriUtsettelse = other.kvalifisertFriUtsettelse;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
@@ -89,6 +91,11 @@ public class Skjæringstidspunkt {
     public LocalDate getFørsteUttaksdatoFødseljustert() {
         Objects.requireNonNull(førsteUttaksdatoFødseljustert, "Utvikler-feil: fødselsjustert uttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdatoFødseljustert;
+    }
+
+    /** Skal behandles etter nytt regelverk for uttak anno 2021. */
+    public boolean isKvalifisertFriUtsettelse() {
+        return kvalifisertFriUtsettelse;
     }
 
     @Override
@@ -167,6 +174,11 @@ public class Skjæringstidspunkt {
 
         public Builder medFørsteUttaksdatoFødseljustert(LocalDate dato) {
             kladd.førsteUttaksdatoFødseljustert = dato;
+            return this;
+        }
+
+        public Builder medKvalifisertFriUtsettelse(boolean erKvalifisert) {
+            kladd.kvalifisertFriUtsettelse = erKvalifisert;
             return this;
         }
 
