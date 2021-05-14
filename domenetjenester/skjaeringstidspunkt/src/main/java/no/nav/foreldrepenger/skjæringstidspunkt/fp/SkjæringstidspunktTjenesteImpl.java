@@ -147,6 +147,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
                 var ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return finnFørsteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling))
+                    .or(() -> finnFørsteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)))
                     .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
             }
             final var skjæringstidspunkt = utledTidligste(førsteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_ENDE),
@@ -185,6 +186,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             if (sisteUttaksdagIForrigeVedtak.isEmpty() && sisteØnskedeUttaksdagIBehandling.isEmpty()) {
                 var ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return finnSisteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling))
+                    .or(() -> finnSisteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getGjeldendeSøknadsperioder)))
                     .orElse(skjæringsTidspunkt);
             }
             final var sistedato = utledSeneste(sisteØnskedeUttaksdagIBehandling.orElse(Tid.TIDENES_BEGYNNELSE),

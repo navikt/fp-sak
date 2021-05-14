@@ -323,14 +323,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- test-jars for å omgå MQ lokalt -->
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
-            <artifactId>felles-integrasjon-jms</artifactId>
-            <scope>test</scope>
-            <type>test-jar</type>
-        </dependency>
-
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>stax2-api</artifactId>
