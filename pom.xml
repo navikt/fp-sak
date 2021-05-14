@@ -42,16 +42,17 @@
         <jupiter.version>5.7.1</jupiter.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <fp-uttak.version>9.1.0</fp-uttak.version>
-        <svp-uttak.version>2.1.1</svp-uttak.version>
+        <fp-uttak.version>9.1.1</fp-uttak.version>
+        <svp-uttak.version>2.1.2</svp-uttak.version>
         <felles.version>3.2.41</felles.version>
         <prosesstask.version>2.5.18</prosesstask.version>
-        <ukelonn.felles.version>1.0.8</ukelonn.felles.version>
+        <ukelonn.felles.version>2.0.21</ukelonn.felles.version>
 
-        <fp-kontrakter.version>5.2.3</fp-kontrakter.version>
-        <tidsserie.version>2.5.5</tidsserie.version>
-        <kalkulus.version>1.2.38</kalkulus.version>
-        <abakus-kontrakt.version>1.3.2</abakus-kontrakt.version>
+        <fp-kontrakter.version>5.2.5</fp-kontrakter.version>
+        <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
+        <fp-nare.version>2.1.5</fp-nare.version>
+        <kalkulus.version>1.2.41</kalkulus.version>
+        <abakus-kontrakt.version>1.3.11</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.9</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
@@ -95,8 +96,8 @@
             </dependency>
 
             <dependency>
-                <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
-                <artifactId>felles-integrasjon-jms</artifactId>
+                <groupId>no.nav.vedtak.felles.familie-jms-integrasjon</groupId>
+                <artifactId>jms-integrasjon</artifactId>
                 <version>${ukelonn.felles.version}</version>
             </dependency>
 
@@ -241,13 +242,6 @@
             </dependency>
 
             <!-- test-jar for å omgå MQ i lokal utvikling -->
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles.ukelonn.integrasjon</groupId>
-                <artifactId>felles-integrasjon-jms</artifactId>
-                <version>${ukelonn.felles.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
                 <artifactId>migreringer</artifactId>
@@ -406,12 +400,12 @@
             <dependency>
                 <groupId>no.nav.fpsak.tidsserie</groupId>
                 <artifactId>fpsak-tidsserie</artifactId>
-                <version>${tidsserie.version}</version>
+                <version>${fp-tidsserie.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.fpsak.nare</groupId>
                 <artifactId>fpsak-nare-core</artifactId>
-                <version>2.0_20191116160206_e67afc2</version>
+                <version>${fp-nare.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger</groupId>
@@ -599,12 +593,12 @@
             <dependency>
                 <groupId>org.jboss.classfilewriter</groupId>
                 <artifactId>jboss-classfilewriter</artifactId>
-                <version>1.2.4.Final</version>
+                <version>1.2.5.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.27.0-GA</version>
+                <version>3.28.0-GA</version>
             </dependency>
 
 

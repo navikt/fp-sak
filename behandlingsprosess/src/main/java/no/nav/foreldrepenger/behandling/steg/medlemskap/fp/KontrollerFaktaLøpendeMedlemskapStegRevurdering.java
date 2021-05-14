@@ -102,7 +102,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
             }
         }
         var uttakInput = uttakInputTjeneste.lagInput(behandlingId);
-        if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput)) {
+        var overstyrtStartdato = behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO);
+        if (skalKopiereUttakTjeneste.skalKopiereStegResultat(uttakInput) && !overstyrtStartdato) {
             return BehandleStegResultat.fremoverførtMedAksjonspunktResultater(FellesTransisjoner.FREMHOPP_TIL_BEREGN_YTELSE, aksjonspunkter);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
