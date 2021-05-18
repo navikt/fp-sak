@@ -39,6 +39,7 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
     private Long påKlagdBehandlingId;
 
     @JsonProperty("vedtakBehandlingUuid")
+    @Valid
     private UUID påKlagdBehandlingUuid;
 
 

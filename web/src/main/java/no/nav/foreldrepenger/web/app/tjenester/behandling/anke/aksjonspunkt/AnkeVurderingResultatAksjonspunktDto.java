@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -51,6 +52,7 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     private Long påAnketBehandlingId;
 
     @JsonProperty("vedtakBehandlingUuid")
+    @Valid
     private UUID vedtakBehandlingUuid;
 
     @JsonProperty("erAnkerIkkePart")

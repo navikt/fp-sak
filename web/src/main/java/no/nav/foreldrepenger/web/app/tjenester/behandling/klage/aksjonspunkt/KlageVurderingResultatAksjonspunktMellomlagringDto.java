@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -25,8 +28,11 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
     @Min(0)
     @Max(Long.MAX_VALUE)
     @JsonProperty("behandlingId")
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?
     private Long behandlingId;
+
+    @Valid
+    @JsonProperty("behandlingUuid")
+    private UUID behandlingUuid;
 
     @ValidKodeverk
     @JsonProperty("klageVurdering")
@@ -50,13 +56,14 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
     @JsonProperty("klageVurderingOmgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjoer;
 
-    public KlageVurderingResultatAksjonspunktMellomlagringDto() { // NOSONAR
+    public KlageVurderingResultatAksjonspunktMellomlagringDto() {
         // For Jackson
     }
 
-    public KlageVurderingResultatAksjonspunktMellomlagringDto( // NOSONAR
+    public KlageVurderingResultatAksjonspunktMellomlagringDto(
                                                                String kode,
                                                                Long behandlingId,
+                                                               UUID behandlingUuid,
                                                                String begrunnelse,
                                                                KlageVurdering klageVurdering,
                                                                KlageMedholdÅrsak klageMedholdArsak,
@@ -64,6 +71,7 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
                                                                KlageVurderingOmgjør klageVurderingOmgjoer) {
         this.kode = kode;
         this.behandlingId = behandlingId;
+        this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.klageVurdering = klageVurdering;
         this.begrunnelse = begrunnelse;
@@ -100,4 +108,7 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto {
         return behandlingId;
     }
 
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
+    }
 }

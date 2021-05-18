@@ -9,7 +9,6 @@ public class AnnenPartBehandlingDto {
 
     private Saksnummer saksnr;
 
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?
     private Long behandlingId;
     private UUID behandlingUuid;
 
