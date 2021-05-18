@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -34,7 +33,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatEngangsstønadDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.økonomistøtte.tilkjentytelse.TilkjentYtelseTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -76,22 +74,6 @@ public class BeregningsresultatRestTjeneste {
         this.tilkjentYtelseTjeneste = tilkjentYtelseTjeneste;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(ENGANGSTONAD_PART_PATH)
-    @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest ES kall med behandlingId");
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
-    }
-
     @GET
     @Path(ENGANGSTONAD_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for engangsstønad behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
@@ -102,23 +84,6 @@ public class BeregningsresultatRestTjeneste {
         return beregningsresultatTjeneste.lagBeregningsresultatEnkel(behandling.getId()).orElse(null);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(FORELDREPENGER_PART_PATH)
-    @Operation(description = "Hent beregningsresultat med uttaksplan for foreldrepenger behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest FP kall med behandlingId");
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling)
-                .orElse(null);
-    }
-
     @GET
     @Path(FORELDREPENGER_PART_PATH)
     @Operation(description = "Hent beregningsresultat med uttaksplan for foreldrepenger behandling", summary = ("Returnerer beregningsresultat med uttaksplan for behandling."), tags = "beregningsresultat")
@@ -127,22 +92,6 @@ public class BeregningsresultatRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(behandling).orElse(null);
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(TILKJENTYTELSE_PART_PATH)
-    @Operation(description = "Hent beregningsresultat", summary = ("Brukes av fpoppdrag."), tags = "beregningsresultat")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Deprecated
-    public TilkjentYtelse hentTilkjentYtelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest TY kall med behandlingId");
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        return tilkjentYtelseTjeneste.hentilkjentYtelse(behandling.getId());
     }
 
     @GET
