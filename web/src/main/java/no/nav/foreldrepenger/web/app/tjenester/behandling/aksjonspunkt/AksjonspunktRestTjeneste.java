@@ -23,6 +23,9 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
@@ -54,6 +56,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Path(AksjonspunktRestTjeneste.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class AksjonspunktRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktRestTjeneste.class);
 
     static final String BASE_PATH = "/behandling";
     private static final String AKSJONSPUNKT_OVERSTYR_PART_PATH = "/aksjonspunkt/overstyr";
@@ -89,28 +93,6 @@ public class AksjonspunktRestTjeneste {
     }
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path(AKSJONSPUNKT_PART_PATH)
-    @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(array = @ArraySchema(uniqueItems = true, arraySchema = @Schema(implementation = Set.class), schema = @Schema(implementation = AksjonspunktDto.class)), mediaType = MediaType.APPLICATION_JSON))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) { // NOSONAR
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
-        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
-        var cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        return Response.ok(dto).cacheControl(cc).build();
-    }
-
-    @GET
     @Path(AKSJONSPUNKT_V2_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Hent aksjonspunter for en behandling", tags = "aksjonspunkt", responses = {
@@ -119,7 +101,14 @@ public class AksjonspunktRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAksjonspunkter(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getAksjonspunkter(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling);
+        var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, ttVurderinger);
+        var cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMaxAge(0);
+        return Response.ok(dto).cacheControl(cc).build();
     }
 
     @GET

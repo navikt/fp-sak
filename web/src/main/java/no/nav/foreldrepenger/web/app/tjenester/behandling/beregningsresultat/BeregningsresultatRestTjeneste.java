@@ -15,6 +15,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
@@ -42,6 +45,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @ApplicationScoped
 @Transactional
 public class BeregningsresultatRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningsresultatRestTjeneste.class);
 
     static final String BASE_PATH = "/behandling/beregningsresultat";
     private static final String ENGANGSTONAD_PART_PATH = "/engangsstonad";
@@ -80,6 +85,7 @@ public class BeregningsresultatRestTjeneste {
     public BeregningsresultatEngangsstønadDto hentBeregningsresultatEngangsstønad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
         var behandlingId = behandlingIdDto.getBehandlingId();
+        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest ES kall med behandlingId");
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
                 : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
@@ -104,6 +110,7 @@ public class BeregningsresultatRestTjeneste {
     @Deprecated
     public BeregningsresultatMedUttaksplanDto hentBeregningsresultatForeldrepenger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest FP kall med behandlingId");
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
@@ -130,6 +137,7 @@ public class BeregningsresultatRestTjeneste {
     @Deprecated
     public TilkjentYtelse hentTilkjentYtelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @Parameter(description = "BehandlingId for aktuell behandling") @Valid BehandlingIdDto behandlingIdDto) {
+        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Beregningrest TY kall med behandlingId");
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)

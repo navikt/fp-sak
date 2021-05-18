@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.repo.LagretVedtakRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -125,15 +125,12 @@ public class DatavarehusAdminRestTjeneste {
     @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
     @Path("/regenerer_vedtaksdokument")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response regenererVedtaksXml(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
+    public Response regenererVedtaksXml(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+            @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 
-        LOG.info("Skal generere vedtakXML for behandlingid {} ", behandlingIdDto);
+        LOG.info("Skal generere vedtakXML for behandlingid {} ", uuidDto);
 
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
 
         var lagretVedtak = vedtakTjeneste.hentLagreteVedtak(behandling.getId());
 
@@ -143,7 +140,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
         } else {
-            LOG.warn("Oppgitt behandling {} er ukjent", behandlingIdDto); // NOSONAR
+            LOG.warn("Oppgitt behandling {} er ukjent", uuidDto); // NOSONAR
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
@@ -154,15 +151,12 @@ public class DatavarehusAdminRestTjeneste {
     @POST
     @Operation(description = "Generer opp vedtaks xml til datavarehus på nytt for gitt behandlingid", tags = "datavarehus")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response regenererVedtaksXmlDvh(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-            @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid BehandlingIdDto behandlingIdDto) {
+    public Response regenererVedtaksXmlDvh(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+            @Parameter(description = "Behandlingid") @QueryParam("BehandlingId") @NotNull @Valid UuidDto uuidDto) {
 
-        LOG.info("Skal generere vedtakXML_DVH for behandlingid {} ", behandlingIdDto);
+        LOG.info("Skal generere vedtakXML_DVH for behandlingid {} ", uuidDto);
 
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
 
         var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(behandling.getId());
 
@@ -172,7 +166,7 @@ public class DatavarehusAdminRestTjeneste {
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
-            LOG.info("Har opprettet  prosesstask for å regenrere dvh vedtaksxml for {} behandling", behandlingIdDto);
+            LOG.info("Har opprettet  prosesstask for å regenrere dvh vedtaksxml for {} behandling", uuidDto);
         });
 
         return Response.ok().build();

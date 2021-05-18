@@ -12,45 +12,44 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.env.Environment;
 
 /*
+ * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av P127L20/21
  * Klasse for styring av ikrafttredelese nytt regelverk for uttak
  * Metode for å gi ikrafttredelsesdato avhengig av miljø
  * Metode for å vurdere om en Familiehendelse skal vurderes etter nye eller gamle regler. Vil bli oppdatert
  * TODO: Etter dato passert og overgang -> flytt til sentral konfigklasse - skal ikke lenger ha miljøavvik
  */
 @ApplicationScoped
-public class Utsettelse2021 {
+public class UtsettelseCore2021 {
+
+    public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = true;
 
     private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
     private static final LocalDate DATO_FOR_PROD = LocalDate.of(2999,12,31); // LA STÅ. Ikke endre før vi er klare
 
     private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
 
-    Utsettelse2021() {
+    UtsettelseCore2021() {
         // CDI
     }
 
     @Inject
-    public Utsettelse2021(@KonfigVerdi(value = PROP_NAME_DATO, required = false) LocalDate ikrafttredelse) {
+    public UtsettelseCore2021(@KonfigVerdi(value = PROP_NAME_DATO, required = false) LocalDate ikrafttredelse) {
         // Pass på å ikke endre dato som skal brukes i produksjon før ting er vedtatt ...
         this.ikrafttredelseDato = (Environment.current().isProd() || ikrafttredelse == null) ? DATO_FOR_PROD : ikrafttredelse;
     }
 
-    public LocalDate ikrafttredelseDato() {
-        return this.ikrafttredelseDato;
-    }
-
-    public boolean skalBehandlesEtterNyeReglerUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
-        if (familieHendelseGrunnlag == null) return false;
+    public boolean kreverSammenhengendeUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+        if (familieHendelseGrunnlag == null) return true;
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
         if (bekreftetFamilieHendelse.isPresent()) {
-            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(t -> !t.isBefore(ikrafttredelseDato())).isPresent();
+            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
-        if (gjeldendeFH == null) return false;
-        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato())) return false;
-        if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isAfter(ikrafttredelseDato());
-        return LocalDate.now().isAfter(ikrafttredelseDato().plusWeeks(2)); // Frist for registrering av fødsel i FREG
+        if (gjeldendeFH == null) return true;
+        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
+        if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isBefore(ikrafttredelseDato);
+        return LocalDate.now().isBefore(ikrafttredelseDato.plusWeeks(2)); // Frist for registrering av fødsel i FREG
     }
 
 }

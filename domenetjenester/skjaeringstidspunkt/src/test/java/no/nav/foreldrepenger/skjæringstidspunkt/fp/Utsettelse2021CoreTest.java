@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.skjæringstidspunkt.Utsettelse2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 
-public class SkjæringstidspunktNyttUttakTest {
+public class Utsettelse2021CoreTest {
 
     @Test
-    public void skal_returnere_ikke_kvalifisert_hvis_bekreftet_hendelse_før_dato() {
+    public void skal_returnere_sammenhengende_uttak_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse.minusWeeks(4);
@@ -27,11 +27,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
     }
 
     @Test
-    public void skal_returnere_kvalifisert_hvis_bekreftet_hendelse_etter_dato() {
+    public void skal_returnere_fritt_uttak_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
         var ikraftredelse = LocalDate.of(2021, 10, 1);
         var skjæringsdato = ikraftredelse;
@@ -46,11 +46,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
-    public void skal_returnere_kvalifisert_hvis_bekreftet_termin_20_dager_etter() {
+    public void skal_returnere_fritt_uttak_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(20);
         var skjæringsdato = ikraftredelse;
@@ -66,11 +66,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
-    public void skal_returnere_ikke_kvalifisert_hvis_bekreftet_termin_2_dager_etter() {
+    public void skal_returnere_sammenhengende_uttak_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -86,11 +86,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
     }
 
     @Test
-    public void skal_returnere_kvalifisert_hvis_søkt_adopsjon_2_dager_etter() {
+    public void skal_returnere_fritt_uttak_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -106,11 +106,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
-    public void skal_returnere_ikke_kvalifisert_hvis_søkt_fødsel_10_dager_etter() {
+    public void skal_returnere_sammenhengende_uttak_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(10);
         var skjæringsdato = ikraftredelse;
@@ -125,11 +125,11 @@ public class SkjæringstidspunktNyttUttakTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isFalse();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
     }
 
     @Test
-    public void skal_returnere_kvalifisert_hvis_søkt_termin_30_dager_etter() {
+    public void skal_returnere_fritt_uttak_hvis_søkt_termin_30_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(30);
         var skjæringsdato = ikraftredelse;
@@ -144,7 +144,7 @@ public class SkjæringstidspunktNyttUttakTest {
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new Utsettelse2021(ikraftredelse).skalBehandlesEtterNyeReglerUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
 }
