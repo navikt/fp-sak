@@ -4,16 +4,21 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
 public class SkalKopiereUttakTjeneste {
 
     private RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
-    public SkalKopiereUttakTjeneste(RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste) {
+    public SkalKopiereUttakTjeneste(RelevanteArbeidsforholdTjeneste relevanteArbeidsforholdTjeneste,
+                                    YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.relevanteArbeidsforholdTjeneste = relevanteArbeidsforholdTjeneste;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     SkalKopiereUttakTjeneste() {
@@ -37,10 +42,20 @@ public class SkalKopiereUttakTjeneste {
         if (uttakInput.isOpplysningerOmDødEndret() || uttakInput.harBehandlingÅrsakRelatertTilDød()) {
             return false;
         }
+        if (saksbehandlerHarManueltAvklartStartdato(uttakInput)) {
+            return false;
+        }
         var årsaker = uttakInput.getBehandlingÅrsaker();
         return årsaker.stream()
             .allMatch(å -> å.equals(BehandlingÅrsakType.RE_SATS_REGULERING) || å.equals(
                 BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING));
+    }
+
+    private boolean saksbehandlerHarManueltAvklartStartdato(UttakInput uttakInput) {
+        var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregatHvisEksisterer(
+            uttakInput.getBehandlingReferanse().getBehandlingId());
+        var avklarteDatoer = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer);
+        return avklarteDatoer.map(ad -> ad.getFørsteUttaksdato()).orElse(null) != null;
     }
 
 }
