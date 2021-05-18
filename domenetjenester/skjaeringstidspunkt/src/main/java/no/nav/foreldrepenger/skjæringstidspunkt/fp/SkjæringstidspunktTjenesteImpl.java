@@ -11,6 +11,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -30,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseF
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -38,14 +42,18 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.Utsettelse2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
+import no.nav.vedtak.util.env.Environment;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste , SkjæringstidspunktRegisterinnhentingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
+    private static final boolean ER_PROD = Environment.current().isProd();
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private SkjæringstidspunktUtils utlederUtils;
@@ -54,8 +62,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private OpptjeningRepository opptjeningRepository;
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
-    private Utsettelse2021 utsettelse2021;
+    private UtsettelseCore2021 utsettelse2021;
 
     SkjæringstidspunktTjenesteImpl() {
         // CDI
@@ -65,8 +74,9 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     public SkjæringstidspunktTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
                                           YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste,
                                           SkjæringstidspunktUtils utlederUtils,
-                                          Utsettelse2021 utsettelse2021) {
+                                          UtsettelseCore2021 utsettelse2021) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.opptjeningRepository = repositoryProvider.getOpptjeningRepository();
@@ -90,9 +100,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
         var førsteUttaksdato = førsteUttaksdag(behandling);
         var førsteInnvilgetUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteInnvilgetUttaksdag(behandling));
+        var sammenhengendeUttak = kreverSammenhengendeUttak(behandling);
 
         var builder = Skjæringstidspunkt.builder()
-            .medKvalifisertFriUtsettelse(skalBehandlesEtterNyeReglerUttak(behandling))
+            .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medFørsteUttaksdato(førsteUttaksdato)
             .medFørsteUttaksdatoFødseljustert(førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato))
             .medFørsteUttaksdatoGrunnbeløp(førsteInnvilgetUttaksdato);
@@ -274,8 +285,22 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         }
     }
 
-    private boolean skalBehandlesEtterNyeReglerUttak(Behandling behandling) {
-        return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .map(utsettelse2021::skalBehandlesEtterNyeReglerUttak).orElse(false);
+    private boolean kreverSammenhengendeUttak(Behandling behandling) {
+        var sammenhengendeUttak = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .or(() -> finnFHSistVedtatteBehandlingKobletFagsak(behandling))
+            .map(utsettelse2021::kreverSammenhengendeUttak).orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
+        if (!sammenhengendeUttak && ER_PROD) {
+            LOG.error("Prod uten krav om sammenhengende periode - sjekk om korrekt, saksnummer {}", behandling.getFagsak().getSaksnummer());
+        } else if (!sammenhengendeUttak) {
+            LOG.info("Non-prod uten krav om sammenhengende periode, saksnummer {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
+        }
+        return sammenhengendeUttak;
+    }
+
+    private Optional<FamilieHendelseGrunnlagEntitet> finnFHSistVedtatteBehandlingKobletFagsak(Behandling behandling) {
+        return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+            .flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
+            .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()))
+            .flatMap(b -> familieGrunnlagRepository.hentAggregatHvisEksisterer(b.getId()));
     }
 }

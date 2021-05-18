@@ -157,6 +157,7 @@ public class VedtakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentVedtaksdokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
             @NotNull @QueryParam("behandlingId") @Parameter(description = "BehandlingId for vedtaksdokument") @Valid BehandlingIdDto behandlingIdDto) {
+        if (behandlingIdDto.getBehandlingId() != null) LOG.info("VedtakRest hentDok / innsyn kall med behandlingId");
         var behandlingId = behandlingIdDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingsprosessTjeneste.hentBehandling(behandlingId)

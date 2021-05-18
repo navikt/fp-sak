@@ -57,14 +57,10 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class KlageRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
-    private static final String KLAGE_PART_PATH = "/klage";
-    public static final String KLAGE_PATH = BASE_PATH + KLAGE_PART_PATH; // NOSONAR TFP-2234
     private static final String KLAGE_V2_PART_PATH = "/klage-v2";
     public static final String KLAGE_V2_PATH = BASE_PATH + KLAGE_V2_PART_PATH;
     private static final String MELLOMLAGRE_PART_PATH = "/klage/mellomlagre-klage";
     public static final String MELLOMLAGRE_PATH = BASE_PATH + MELLOMLAGRE_PART_PATH;
-    private static final String MOTTATT_KLAGEDOKUMENT_PART_PATH = "/klage/mottatt-klagedokument";
-    public static final String MOTTATT_KLAGEDOKUMENT_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_PART_PATH; // NOSONAR TFP-2234
     private static final String MOTTATT_KLAGEDOKUMENT_V2_PART_PATH = "/klage/mottatt-klagedokument-v2";
     public static final String MOTTATT_KLAGEDOKUMENT_V2_PATH = BASE_PATH + MOTTATT_KLAGEDOKUMENT_V2_PART_PATH;
 
@@ -89,27 +85,6 @@ public class KlageRestTjeneste {
     }
 
     @GET
-    @Path(KLAGE_PART_PATH)
-    @Operation(description = "Hent informasjon om klagevurdering for en klagebehandling", tags = "klage", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en klage fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getKlageVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-
-        var dto = mapFra(behandling);
-        var cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        return Response.ok(dto).cacheControl(cc).build();
-    }
-
-    @GET
     @Path(KLAGE_V2_PART_PATH)
     @Operation(description = "Hent informasjon om klagevurdering for en klagebehandling", tags = "klage", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en klage fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
@@ -117,7 +92,14 @@ public class KlageRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getKlageVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getKlageVurdering(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+
+        var dto = mapFra(behandling);
+        var cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMaxAge(0);
+        return Response.ok(dto).cacheControl(cc).build();
     }
 
     @POST
@@ -152,24 +134,6 @@ public class KlageRestTjeneste {
     }
 
     @GET
-    @Path(MOTTATT_KLAGEDOKUMENT_PART_PATH)
-    @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId()
-            : behandlingIdDto.getBehandlingId();
-        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandlingId);
-        var mottattDokument = mottatteDokumenter.stream()
-            .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
-            .min(Comparator.comparing(MottattDokument::getMottattDato));
-
-        return mapMottattKlagedokumentDto(mottattDokument);
-    }
-
-    @GET
     @Path(MOTTATT_KLAGEDOKUMENT_V2_PART_PATH)
     @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = KlagebehandlingDto.class)))
@@ -178,7 +142,12 @@ public class KlageRestTjeneste {
     public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return getMottattKlagedokument(new BehandlingIdDto(behandling.getId()));
+        var mottatteDokumenter = mottatteDokumentRepository.hentMottatteDokument(behandling.getId());
+        var mottattDokument = mottatteDokumenter.stream()
+            .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
+            .min(Comparator.comparing(MottattDokument::getMottattDato));
+
+        return mapMottattKlagedokumentDto(mottattDokument);
     }
 
     private static MottattKlagedokumentDto mapMottattKlagedokumentDto(Optional<MottattDokument> mottattDokument) {

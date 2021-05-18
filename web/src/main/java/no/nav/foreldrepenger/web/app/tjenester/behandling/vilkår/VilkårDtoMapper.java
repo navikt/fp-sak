@@ -17,7 +17,7 @@ class VilkårDtoMapper {
         // SONAR - Utility classes should not have public constructors
     }
 
-    static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat, boolean medVilkårkjøring) {
+    static List<VilkårDto> lagVilkarDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat != null) {
             var vilkårResultat = behandlingsresultat.getVilkårResultat();
             if (vilkårResultat != null) {
@@ -29,11 +29,6 @@ class VilkårDtoMapper {
                     dto.setVilkarStatus(vilkår.getGjeldendeVilkårUtfall());
                     dto.setMerknadParametere(vilkår.getMerknadParametere());
                     dto.setOverstyrbar(erOverstyrbar(vilkår, behandling));
-
-                    if (medVilkårkjøring) {
-                        dto.setInput(vilkår.getRegelInput());
-                        dto.setEvaluering(vilkår.getRegelEvaluering());
-                    }
 
                     return dto;
                 }).collect(Collectors.toList());

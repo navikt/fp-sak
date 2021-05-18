@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptje
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.Utsettelse2021;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 
@@ -54,7 +54,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, mock(Utsettelse2021.class));
+            stputil, mock(UtsettelseCore2021.class));
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));

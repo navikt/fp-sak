@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -63,9 +63,9 @@ public class PipRestTjeneste {
     @Path(PIPDATA_FOR_BEHANDLING)
     @Operation(description = "Henter aktørIder, fagsak- og behandlingstatus tilknyttet til en behandling", tags = "pip")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.PIP)
-    public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto behandlingIdDto) {
-        var pipData = pipRepository.hentDataForBehandlingUuid(behandlingIdDto.getBehandlingUuid());
+    public PipDto hentAktørIdListeTilknyttetBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+        @NotNull @QueryParam("behandlingUuid") @Valid UuidDto uuidDto) {
+        var pipData = pipRepository.hentDataForBehandlingUuid(uuidDto.getBehandlingUuid());
         var pipDto = new PipDto();
         pipData.ifPresent(pip -> {
             pipDto.setAktørIder(hentAktørIder(pip));

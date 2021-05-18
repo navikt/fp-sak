@@ -70,7 +70,16 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo, Behandling behandlingEn) {
-        throw new UnsupportedOperationException(IKKE_STOTTET);
+        var eksisterendeEn = finnRelasjonFor(fagsakEn).getDekningsgrad();
+        var fagsakRelasjon = mock(FagsakRelasjon.class);
+        when(fagsakRelasjon.getFagsakNrEn()).thenReturn(fagsakEn);
+        when(fagsakRelasjon.getFagsakNrTo()).thenReturn(Optional.of(fagsakTo));
+        when(fagsakRelasjon.getRelatertFagsak(fagsakEn)).thenReturn(Optional.of(fagsakTo));
+        when(fagsakRelasjon.getRelatertFagsak(fagsakTo)).thenReturn(Optional.of(fagsakEn));
+        when(fagsakRelasjon.getGjeldendeDekningsgrad()).thenReturn(eksisterendeEn);
+        map.put(fagsakEn.getSaksnummer(), fagsakRelasjon);
+        map.put(fagsakTo.getSaksnummer(), fagsakRelasjon);
+        return Optional.of(fagsakRelasjon);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Skjæringstidspunkt {
     private LocalDate førsteUttaksdatoGrunnbeløp;
     private LocalDate førsteUttaksdatoFødseljustert;
     private LocalDateInterval utledetMedlemsintervall;
-    private boolean kvalifisertFriUtsettelse = false;
+    private boolean kreverSammenhengendeUttak = true; // Beholdes inntil lovendring avklart
 
     private Skjæringstidspunkt() {
         // hide constructor
@@ -30,7 +30,7 @@ public class Skjæringstidspunkt {
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
         this.førsteUttaksdatoFødseljustert = other.førsteUttaksdatoFødseljustert;
-        this.kvalifisertFriUtsettelse = other.kvalifisertFriUtsettelse;
+        this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
     }
 
     public Optional<LocalDate> getSkjæringstidspunktHvisUtledet() {
@@ -94,8 +94,8 @@ public class Skjæringstidspunkt {
     }
 
     /** Skal behandles etter nytt regelverk for uttak anno 2021. */
-    public boolean isKvalifisertFriUtsettelse() {
-        return kvalifisertFriUtsettelse;
+    public boolean kreverSammenhengendeUttak() {
+        return this.kreverSammenhengendeUttak;
     }
 
     @Override
@@ -177,8 +177,8 @@ public class Skjæringstidspunkt {
             return this;
         }
 
-        public Builder medKvalifisertFriUtsettelse(boolean erKvalifisert) {
-            kladd.kvalifisertFriUtsettelse = erKvalifisert;
+        public Builder medKreverSammenhengendeUttak(boolean sammenhengendeUttak) {
+            kladd.kreverSammenhengendeUttak = sammenhengendeUttak;
             return this;
         }
 

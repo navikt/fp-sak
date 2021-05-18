@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.familiehendelse.rest.FamilieHendelseGrunnlagDto;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDataDtoTjeneste;
 import no.nav.foreldrepenger.familiehendelse.rest.FamiliehendelseDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -69,11 +68,7 @@ public class FamiliehendelseRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FamiliehendelseDto getAvklartFamiliehendelseDto(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var input = new BehandlingIdDto(uuidDto);
-        var behandlingId = input.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(input.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato);
@@ -89,11 +84,7 @@ public class FamiliehendelseRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FamilieHendelseGrunnlagDto getFamiliehendelseGrunnlagDto(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var input = new BehandlingIdDto(uuidDto);
-        var behandlingId = input.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(input.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .map(BehandlingVedtak::getVedtaksdato);

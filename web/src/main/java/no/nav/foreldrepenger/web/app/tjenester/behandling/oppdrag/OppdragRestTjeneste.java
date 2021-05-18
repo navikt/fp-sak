@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -19,7 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -46,21 +44,6 @@ public class OppdragRestTjeneste {
     public OppdragRestTjeneste(ØkonomioppdragRepository økonomioppdragRepository, BehandlingRepository behandlingRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
-    }
-
-    @POST
-    @Operation(description = "Hent oppdrags-info for behandlingen", tags = "oppdrag")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    @Path(OPPDRAGINFO_PART_PATH)
-    @Deprecated
-    public OppdragDto hentOppdrag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @Valid @NotNull BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId()
-            : behandlingIdDto.getBehandlingId();
-        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId);
-        return oppdragskontroll
-                .map(OppdragDto::fraDomene)
-                .orElse(null);
     }
 
     @GET

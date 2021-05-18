@@ -14,10 +14,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderBekreftetOpptjening;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
@@ -30,6 +34,8 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 @Transactional
 // Tilbyr data til fp-formidling, formidlingsløsning ut mot søker.
 public class FormidlingRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FormidlingRestTjeneste.class);
 
     public static final String BASE_PATH = "/formidling";
     public static final String RESSURSER_PART_PATH = "/ressurser";
@@ -61,6 +67,7 @@ public class FormidlingRestTjeneste {
             var responseBuilder = Response.ok().entity(dto);
             return responseBuilder.build();
         }
+        LOG.info("Formidlingrest kall med behandlingId");
         var behandling = behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingId());
         var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForFormidling(behandling) : null;
         var responseBuilder = Response.ok().entity(dto);

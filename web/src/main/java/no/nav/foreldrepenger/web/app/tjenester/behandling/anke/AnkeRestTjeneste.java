@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingResul
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt.AnkeVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -51,8 +50,6 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 public class AnkeRestTjeneste {
 
     static final String BASE_PATH = "/behandling/anke";
-    private static final String ANKEVURDERING_PART_PATH = "/anke-vurdering";
-    public static final String ANKEVURDERING_PATH = BASE_PATH + ANKEVURDERING_PART_PATH; // NOSONAR TFP-2234
     private static final String ANKEVURDERING_V2_PART_PATH = "/anke-vurdering-v2";
     public static final String ANKEVURDERING_V2_PATH = BASE_PATH + ANKEVURDERING_V2_PART_PATH;
     private static final String MELLOMLAGRE_ANKE_PART_PATH = "/mellomlagre-anke";
@@ -73,27 +70,6 @@ public class AnkeRestTjeneste {
     }
 
     @GET
-    @Path(ANKEVURDERING_PART_PATH)
-    @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling", tags = "anke", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
-    })
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response getAnkeVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
-
-        var dto = mapFra(behandling);
-        var cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        return Response.ok(dto).cacheControl(cc).build();
-    }
-
-    @GET
     @Path(ANKEVURDERING_V2_PART_PATH)
     @Operation(description = "Hent informasjon om ankevurdering for en ankebehandling", tags = "anke", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer vurdering av en anke fra ulike instanser", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AnkebehandlingDto.class)))
@@ -101,7 +77,14 @@ public class AnkeRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response getAnkeVurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return getAnkeVurdering(new BehandlingIdDto(uuidDto));
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+
+        var dto = mapFra(behandling);
+        var cc = new CacheControl();
+        cc.setNoCache(true);
+        cc.setNoStore(true);
+        cc.setMaxAge(0);
+        return Response.ok(dto).cacheControl(cc).build();
     }
 
     private AnkebehandlingDto mapFra(Behandling behandling) {
