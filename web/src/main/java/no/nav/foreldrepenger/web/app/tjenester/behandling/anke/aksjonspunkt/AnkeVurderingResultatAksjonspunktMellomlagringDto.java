@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke.aksjonspunkt;
 
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -27,6 +30,10 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
     @JsonProperty("behandlingId")
     private Long behandlingId;
 
+    @Valid
+    @JsonProperty("behandlingUuid")
+    private UUID behandlingUuid;
+
     @ValidKodeverk
     @JsonProperty("ankeVurdering")
     private AnkeVurdering ankeVurdering;
@@ -52,8 +59,11 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
     @Min(0)
     @Max(Long.MAX_VALUE)
     @JsonProperty("vedtak")
-    // TODO (BehandlingIdDto): bør kunne støtte behandlingUuid også?  Hvorfor heter property "vedtak"?
     private Long påAnketBehandlingId;
+
+    @JsonProperty("vedtakBehandlingUuid")
+    @Valid
+    private UUID påAnketBehandlingUuid;
 
     @JsonProperty("erIkkeAnkerPart")
     private boolean erIkkeAnkerPart;
@@ -77,6 +87,7 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
     public AnkeVurderingResultatAksjonspunktMellomlagringDto( // NOSONAR
                                                               String kode,
                                                               Long behandlingId,
+                                                              UUID behandlingUuid,
                                                               String begrunnelse,
                                                               AnkeVurdering ankeVurdering,
                                                               AnkeOmgjørÅrsak ankeOmgjoerArsak,
@@ -84,12 +95,14 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
                                                               AnkeVurderingOmgjør ankeVurderingOmgjoer,
                                                               boolean erSubsidiartRealitetsbehandles,
                                                               Long påAnketBehandlingId,
+                                                              UUID påAnketBehandlingUuid,
                                                               boolean erIkkeAnkerPart,
                                                               boolean erFristIkkeOverholdt,
                                                               boolean erIkkeKonkret,
                                                               boolean erIkkeSignert) {
         this.kode = kode;
         this.behandlingId = behandlingId;
+        this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.ankeVurdering = ankeVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
@@ -97,6 +110,7 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
         this.påAnketBehandlingId = påAnketBehandlingId;
+        this.påAnketBehandlingUuid = påAnketBehandlingUuid;
         this.erIkkeAnkerPart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
         this.erIkkeKonkret = erIkkeKonkret;
@@ -151,8 +165,15 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         return behandlingId;
     }
 
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
+    }
+
     public Long hentPåAnketBehandlingId() {
         return påAnketBehandlingId;
     }
 
+    public UUID hentPåAnketBehandlingUuid() {
+        return påAnketBehandlingUuid;
+    }
 }

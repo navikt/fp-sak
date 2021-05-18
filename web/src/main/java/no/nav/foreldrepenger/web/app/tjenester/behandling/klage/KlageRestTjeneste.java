@@ -112,7 +112,8 @@ public class KlageRestTjeneste {
 
         var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
                 : KlageVurdertAv.NK;
-        var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingId());
+        var behandling = apDto.getBehandlingId() != null ? behandlingRepository.hentBehandling(apDto.getBehandlingId())
+            : behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
         if ((KlageVurdertAv.NK.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK)) ||
@@ -223,7 +224,14 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            var attributter = AbacDataAttributter.opprett();
+            if (req.getBehandlingUuid() != null) {
+                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            }
+            if (req.getBehandlingId() != null) {
+                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            }
+            return attributter;
         }
     }
 
