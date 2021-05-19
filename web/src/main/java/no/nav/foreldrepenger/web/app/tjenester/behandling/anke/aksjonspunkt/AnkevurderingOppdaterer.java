@@ -65,9 +65,10 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
         var ankeVurderingResultatHaddeVerdiFørHåndtering = ankeVurderingResultat.isPresent();
 
         var builder = mapDto(dto, behandling);
-        var påanketBehandlingId =
-            dto.getPåAnketBehandlingId() == null ? behandlingRepository.hentBehandling(dto.getVedtakBehandlingUuid())
-                .getId() : dto.getPåAnketBehandlingId();
+        var påanketBehandlingId = dto.getPåAnketBehandlingId();
+        if (påanketBehandlingId == null && dto.getVedtakBehandlingUuid() != null) {
+            påanketBehandlingId = behandlingRepository.hentBehandling(dto.getVedtakBehandlingUuid()).getId();
+        }
         ankeVurderingTjeneste.oppdaterBekreftetVurderingAksjonspunkt(behandling, builder, påanketBehandlingId);
 
         opprettHistorikkinnslag(behandling, dto, ankeVurderingResultatHaddeVerdiFørHåndtering);
