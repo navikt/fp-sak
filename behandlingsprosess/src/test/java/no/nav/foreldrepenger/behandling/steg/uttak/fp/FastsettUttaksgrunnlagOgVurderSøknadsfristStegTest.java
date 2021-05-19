@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoFørstegangsbehandlingUtleder;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurderingUtlederImpl;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.FastsettUttaksgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
@@ -99,10 +100,12 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
             relevanteArbeidsforholdTjeneste);
         var fastsettUttaksgrunnlagTjeneste = new FastsettUttaksgrunnlagTjeneste(uttakRepositoryProvider, endringsdatoFørstegangsbehandlingUtleder,
                 endringsdatoRevurderingUtleder);
+        var ytelseFordelingTjeneste = new YtelseFordelingTjeneste(ytelsesFordelingRepository);
+        var skalKopiereUttakTjeneste = new SkalKopiereUttakTjeneste(relevanteArbeidsforholdTjeneste,
+            ytelseFordelingTjeneste);
         fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new FastsettUttaksgrunnlagOgVurderSøknadsfristSteg(
                 uttakInputTjeneste, ytelsesFordelingRepository, vurderSøknadsfristTjeneste, fastsettUttaksgrunnlagTjeneste, behandlingRepository,
-                new SkalKopiereUttakTjeneste(
-                    relevanteArbeidsforholdTjeneste), new KopierForeldrepengerUttaktjeneste(fpUttakRepository, ytelsesFordelingRepository));
+            skalKopiereUttakTjeneste, new KopierForeldrepengerUttaktjeneste(fpUttakRepository, ytelsesFordelingRepository));
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
     }
 
