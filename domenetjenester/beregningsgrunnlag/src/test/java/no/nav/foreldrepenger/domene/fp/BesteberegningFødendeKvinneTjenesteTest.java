@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,18 +56,18 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     private final BehandlingRepository behandlingRepository;
     @Mock
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
+    @Mock
+    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private Behandling behandling;
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
-    private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private FagsakRepository fagsakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     public BesteberegningFødendeKvinneTjenesteTest(EntityManager em) {
         repositoryProvider = new RepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(em);
         fagsakRepository = new FagsakRepository(em);
         beregningsresultatRepository = new BeregningsresultatRepository(em);
     }
@@ -169,6 +170,29 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         // Assert
         assertThat(resultat).isFalse();
     }
+
+    @Test
+    public void overstyrtBGSkalIkkeGiAutomatiskBesteberegning() {
+        lagreFamilihendelseFødsel();
+        var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
+        var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
+            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
+        BeregningsgrunnlagEntitet overstyrtBG = BeregningsgrunnlagEntitet.ny()
+            .medOverstyring(true)
+            .medSkjæringstidspunkt(LocalDate.now())
+            .build();
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
+            .thenReturn(Optional.of(opptjeningAktiviteter));
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(any()))
+            .thenReturn(Optional.of(overstyrtBG));
+
+        // Act
+        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
 
     private void lagreFamilihendelseFødsel() {
         var familieHendelseBuilder = familieHendelseRepository.opprettBuilderFor(behandling)
