@@ -107,8 +107,10 @@ public class AnkeRestTjeneste {
             : behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             var builder = mapMellomlagreVurdering(apDto, behandling);
-            var påanketBehandlingId = apDto.hentPåAnketBehandlingId() == null ?
-                behandlingRepository.hentBehandling(apDto.hentPåAnketBehandlingUuid()).getId() : apDto.hentPåAnketBehandlingId();
+            var påanketBehandlingId = apDto.hentPåAnketBehandlingId();
+            if (påanketBehandlingId == null && apDto.hentPåAnketBehandlingUuid() != null) {
+                påanketBehandlingId = behandlingRepository.hentBehandling(apDto.hentPåAnketBehandlingUuid()).getId();
+            }
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, påanketBehandlingId);
         } else {
             var builder = mapMellomlagreTekst(apDto, behandling);
