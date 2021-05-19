@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack2;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.anke.AnkeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
@@ -40,6 +39,7 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFeriepengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
@@ -70,7 +70,7 @@ public class RestImplementationClasses {
         classes.add(AksjonspunktRestTjeneste.class);
         classes.add(DokumentRestTjeneste.class);
         classes.add(HistorikkRestTjeneste.class);
-        classes.add(BehandlingskontrollRestTjeneste.class);
+        classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
         classes.add(ProsessTaskRestTjeneste.class);
