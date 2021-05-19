@@ -100,7 +100,15 @@ public class BesteberegningFødendeKvinneTjeneste {
         if (erBesteberegningManueltVurdert(behandlingReferanse)) {
             return false;
         }
+        if (beregningsgrunnlagErOverstyrt(behandlingReferanse)) {
+            return false;
+        }
         return kanBehandlesAutomatisk(behandlingReferanse);
+    }
+
+    private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
+        Optional<BeregningsgrunnlagEntitet> bg = beregningsgrunnlagRepository.hentBeregningsgrunnlagForBehandling(behandlingReferanse.getBehandlingId());
+        return bg.map(BeregningsgrunnlagEntitet::isOverstyrt).orElse(false);
     }
 
     public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse) {
