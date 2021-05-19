@@ -5,10 +5,9 @@ import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 public abstract class DtoMedBehandlingId {
-    @NotNull
+
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingId;

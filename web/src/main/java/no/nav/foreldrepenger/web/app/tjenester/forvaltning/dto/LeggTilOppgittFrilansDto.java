@@ -19,6 +19,7 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
 
     private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 
+    //TODO palfi
     @NotNull
     @QueryParam("behandlingId")
     @DefaultValue("0")
