@@ -26,9 +26,9 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  * et åpent aksjonspunkt som er et autopunkt og har en frist som er passert.
  */
 @ApplicationScoped
-public class AutomatiskMilSivReguleringBatchTjeneste implements BatchTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskMilSivReguleringBatchTjeneste.class);
-    static final String BATCHNAME = "BVL073";
+public class AutomatiskMilSivReguleringSVPBatchTjeneste implements BatchTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskMilSivReguleringSVPBatchTjeneste.class);
+    static final String BATCHNAME = "BVL076";
     private static final String EXECUTION_ID_SEPARATOR = "-";
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -36,9 +36,9 @@ public class AutomatiskMilSivReguleringBatchTjeneste implements BatchTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public AutomatiskMilSivReguleringBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
-            BeregningsresultatRepository beregningsresultatRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+    public AutomatiskMilSivReguleringSVPBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
+                                                      BeregningsresultatRepository beregningsresultatRepository,
+                                                      ProsessTaskRepository prosessTaskRepository) {
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.prosessTaskRepository = prosessTaskRepository;

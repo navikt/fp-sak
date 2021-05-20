@@ -53,7 +53,8 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
     public String launch(BatchArguments arguments) {
         var opprettRevurdering = (AutomatiskGrunnbelopReguleringBatchArguments) arguments;
         var executionId = BATCHNAME + EXECUTION_ID_SEPARATOR;
-        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        final var callId = MDCOperations.getCallId() + "_";
         var gjeldende = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now());
         var forrige = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP,
                 gjeldende.getPeriode().getFomDato().minusDays(1));

@@ -26,9 +26,9 @@ import no.nav.vedtak.log.mdc.MDCOperations;
  * et åpent aksjonspunkt som er et autopunkt og har en frist som er passert.
  */
 @ApplicationScoped
-public class AutomatiskMilSivReguleringBatchTjeneste implements BatchTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskMilSivReguleringBatchTjeneste.class);
-    static final String BATCHNAME = "BVL073";
+public class AutomatiskGrunnbelopReguleringSVPBatchTjeneste implements BatchTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.class);
+    static final String BATCHNAME = "BVL075";
     private static final String EXECUTION_ID_SEPARATOR = "-";
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
@@ -36,9 +36,9 @@ public class AutomatiskMilSivReguleringBatchTjeneste implements BatchTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public AutomatiskMilSivReguleringBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
-            BeregningsresultatRepository beregningsresultatRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+    public AutomatiskGrunnbelopReguleringSVPBatchTjeneste(BehandlingRevurderingRepository behandlingRevurderingRepository,
+                                                          BeregningsresultatRepository beregningsresultatRepository,
+                                                          ProsessTaskRepository prosessTaskRepository) {
         this.behandlingRevurderingRepository = behandlingRevurderingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.prosessTaskRepository = prosessTaskRepository;
@@ -61,8 +61,9 @@ public class AutomatiskMilSivReguleringBatchTjeneste implements BatchTjeneste {
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForMilSivRegulering(gjeldende.getVerdi(),
-                forrige.getVerdi(), gjeldende.getPeriode().getFomDato());
+        var avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
+        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(),
+                avkortingAntallG, gjeldende.getPeriode().getFomDato());
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {
