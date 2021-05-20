@@ -46,7 +46,7 @@ public class UtsettelseCore2021 {
             return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
-        if (gjeldendeFH == null) return true;
+        if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
         if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
         if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isBefore(ikrafttredelseDato);
         return LocalDate.now().isBefore(ikrafttredelseDato.plusWeeks(2)); // Frist for registrering av fødsel i FREG
