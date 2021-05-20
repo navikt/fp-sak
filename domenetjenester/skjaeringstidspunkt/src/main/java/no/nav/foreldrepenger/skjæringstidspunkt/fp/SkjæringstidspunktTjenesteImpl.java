@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -99,14 +100,14 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var førsteUttaksdato = førsteUttaksdag(behandling);
-        var førsteInnvilgetUttaksdato = førsteDatoHensyntattTidligFødsel(behandling, førsteInnvilgetUttaksdag(behandling));
+        var førsteUttaksdatoFødselsjustert = førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato);
         var sammenhengendeUttak = kreverSammenhengendeUttak(behandling);
 
         var builder = Skjæringstidspunkt.builder()
             .medKreverSammenhengendeUttak(sammenhengendeUttak)
             .medFørsteUttaksdato(førsteUttaksdato)
-            .medFørsteUttaksdatoFødseljustert(førsteDatoHensyntattTidligFødsel(behandling, førsteUttaksdato))
-            .medFørsteUttaksdatoGrunnbeløp(førsteInnvilgetUttaksdato);
+            .medFørsteUttaksdatoFødseljustert(førsteUttaksdatoFødselsjustert)
+            .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert);
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
         if (opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
@@ -132,29 +133,20 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         final var avklartStartDato = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
 
-        return avklartStartDato.orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat, true));
-    }
-
-    private LocalDate førsteInnvilgetUttaksdag(Behandling behandling) {
-        final var ytelseFordelingAggregat = hentYtelseFordelingAggregatFor(behandling);
-
-        final var avklartStartDato = ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
-            .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato);
-
-        return avklartStartDato.orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat, false));
+        return avklartStartDato.orElseGet(() -> førsteØnskedeUttaksdag(behandling, ytelseFordelingAggregat));
     }
 
     private Optional<YtelseFordelingAggregat> hentYtelseFordelingAggregatFor(Behandling behandling) {
         return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
     }
 
-    private LocalDate førsteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat, boolean medAvslåttSøknadsfrist) {
+    private LocalDate førsteØnskedeUttaksdag(Behandling behandling, Optional<YtelseFordelingAggregat> ytelseFordelingAggregat) {
         var oppgittFordeling = ytelseFordelingAggregat.map(YtelseFordelingAggregat::getOppgittFordeling);
 
         final var førsteØnskedeUttaksdagIBehandling = finnFørsteØnskedeUttaksdagFor(oppgittFordeling);
 
         if (behandling.erRevurdering()) {
-            final var førsteUttaksdagIForrigeVedtak = finnFørsteDatoIUttakResultat(behandling, medAvslåttSøknadsfrist);
+            final var førsteUttaksdagIForrigeVedtak = finnFørsteDatoIUttakResultat(behandling);
             if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteØnskedeUttaksdagIBehandling.isEmpty()) {
                 var ytelseFordelingForOriginalBehandling = hentYtelseFordelingAggregatFor(originalBehandling(behandling));
                 return finnFørsteØnskedeUttaksdagFor(ytelseFordelingForOriginalBehandling.map(YtelseFordelingAggregat::getOppgittFordeling))
@@ -208,7 +200,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private boolean manglerSøknadIFørstegangsbehandling(Behandling behandling) {
-        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && !søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
+        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isEmpty();
     }
 
     private Optional<LocalDate> finnFørsteØnskedeUttaksdagFor(Optional<OppgittFordelingEntitet> oppgittFordeling) {
@@ -237,7 +229,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return behandlingRepository.hentBehandling(originalBehandlingId);
     }
 
-    private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling, boolean medAvslåttSøknadsfrist) {
+    private Optional<LocalDate> finnFørsteDatoIUttakResultat(Behandling behandling) {
         var uttakResultatPerioder = fpUttakRepository.hentUttakResultatHvisEksisterer(originalBehandling(behandling).getId())
             .map(UttakResultatEntitet::getGjeldendePerioder)
             .map(UttakResultatPerioderEntitet::getPerioder)
@@ -250,7 +242,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         }
         return uttakResultatPerioder
             .stream()
-            .filter(it -> it.isInnvilget() || (medAvslåttSøknadsfrist && SØKNADSFRIST.equals(it.getResultatÅrsak())))
+            .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
             .map(UttakResultatPeriodeEntitet::getFom)
             .min(Comparator.naturalOrder());
     }
@@ -273,8 +265,11 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     private LocalDate førsteDatoHensyntattTidligFødsel(Behandling behandling, LocalDate førsteUttaksdato) {
         // FAR/MEDMOR skal ikke vurderes
-        if (RelasjonsRolleType.MORA.equals(behandling.getFagsak().getRelasjonsRolleType())) {
+        var fødselsHendelse = behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_FØDSEL) || behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL);
+        var førstegangssøknad = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType());
+        if (RelasjonsRolleType.MORA.equals(behandling.getFagsak().getRelasjonsRolleType()) && (fødselsHendelse || førstegangssøknad)) {
             // Uttak begynner virkedag på/etter fødsel dersom fødsel inntreffer før søkt uttak.
+            // Normale revurderinger skal ha tatt hensyn til tidlig fødsel i forrige uttaksresultat (inkl IkkeOppfylt=4077)
             var registrertFødselsDato = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId())
                 .flatMap(FamilieHendelseGrunnlagEntitet::getGjeldendeBekreftetVersjon)
                 .flatMap(FamilieHendelseEntitet::getFødselsdato)

@@ -42,7 +42,7 @@ public class UtsettelseCore2021 {
         if (familieHendelseGrunnlag == null) return true;
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
-        if (bekreftetFamilieHendelse.isPresent()) {
+        if (bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).isPresent()) {
             return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();

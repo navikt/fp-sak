@@ -54,7 +54,8 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
 
         var tilVurdering = hentKandidater(batchArguments);
 
-        final var callId = (MDCOperations.getCallId() == null ? MDCOperations.generateCallId() : MDCOperations.getCallId()) + "_";
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        final var callId = MDCOperations.getCallId() + "_";
         if (batchArguments.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {

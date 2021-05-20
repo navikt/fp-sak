@@ -4,27 +4,36 @@ import static no.nav.foreldrepenger.skjæringstidspunkt.svp.BeregnTilrettlegging
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.konfig.Tid;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -33,6 +42,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     private static final int MAX_SVANGERSKAP_UKER = 42;
 
     private SvangerskapspengerRepository svangerskapspengerRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningRepository opptjeningRepository;
     private BehandlingRepository behandlingRepository;
@@ -43,10 +53,12 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Inject
     public SkjæringstidspunktTjenesteImpl(SvangerskapspengerRepository svangerskapspengerRepository,
+                                          BeregningsresultatRepository beregningsresultatRepository,
                                           FamilieHendelseRepository familieHendelseRepository,
                                           OpptjeningRepository opptjeningRepository,
                                           BehandlingRepository behandlingRepository) {
         this.svangerskapspengerRepository = svangerskapspengerRepository;
+        this.beregningsresultatRepository = beregningsresultatRepository;
         this.familieHendelseRepository = familieHendelseRepository;
         this.opptjeningRepository = opptjeningRepository;
         this.behandlingRepository = behandlingRepository;
@@ -54,13 +66,16 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
-        var skjæringstidspunkt = utledSkjæringstidspunkt(behandlingId);
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var førsteUttakSøknad = førsteØnskedeUttaksdag(behandling);
+        var skjæringstidspunkt = opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)).orElse(førsteUttakSøknad);
+
         return Skjæringstidspunkt.builder()
-            .medFørsteUttaksdato(skjæringstidspunkt)
-            .medFørsteUttaksdatoGrunnbeløp(skjæringstidspunkt)
+            .medFørsteUttaksdato(førsteUttakSøknad)
+            .medFørsteUttaksdatoGrunnbeløp(førsteUttakSøknad)
             .medUtledetSkjæringstidspunkt(skjæringstidspunkt)
             .medSkjæringstidspunktOpptjening(skjæringstidspunkt)
-            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, skjæringstidspunkt))
+            .medUtledetMedlemsintervall(utledYtelseintervall(behandlingId, førsteUttakSøknad))
             .build();
     }
 
@@ -69,19 +84,35 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return utledSkjæringstidspunktRegisterinnhenting(behandlingId);
     }
 
-    private LocalDate utledSkjæringstidspunkt(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
+    private LocalDate førsteØnskedeUttaksdag(Behandling behandling) {
+        var førsteUttakSøknad = svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+            .map(this::utledBasertPåGrunnlag);
 
-        // Ved revurderinger beregner vi alltid skjæringstidspunkt på nytt
-        if (opptjeningOpt.isPresent() && !behandling.erRevurdering()) {
-            return opptjeningOpt.get().getTom().plusDays(1);
+        if (behandling.erRevurdering()) {
+            final var førsteUttaksdagIForrigeVedtak = finnFørsteDatoMedUttak(behandling);
+            if (førsteUttaksdagIForrigeVedtak.isEmpty() && førsteUttakSøknad.isEmpty()) {
+                return svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling))
+                    .map(this::utledBasertPåGrunnlag)
+                    .orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
+            }
+            final var skjæringstidspunkt = utledTidligste(førsteUttakSøknad.orElse(Tid.TIDENES_ENDE),
+                førsteUttaksdagIForrigeVedtak.orElse(Tid.TIDENES_ENDE));
+            if (skjæringstidspunkt.equals(Tid.TIDENES_ENDE)) {
+                // Fant da ikke noe skjæringstidspunkt i tidligere vedtak heller.
+                throw finnerIkkeStpException(behandling.getId());
+            }
+            return skjæringstidspunkt;
         }
+        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
+            // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
+            return førsteUttakSøknad.orElse(LocalDate.now());
+        }
+        return førsteUttakSøknad.orElseThrow(() -> finnerIkkeStpException(behandling.getId()));
+    }
 
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
-        //TODO(OJR) en svakhet?
-        // Dagens dato blir gitt når grunnlag ikke finnes for at DTOer skal fungere.
-        return svpGrunnlagOpt.map(this::utledBasertPåGrunnlag).orElse(LocalDate.now());
+    private TekniskException finnerIkkeStpException(Long behandlingId) {
+        return new TekniskException("FP-931233",
+            "Finner ikke skjæringstidspunkt for svangerskapspenger som forventet for behandling=" + behandlingId);
     }
 
     LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
@@ -104,27 +135,48 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return tidligsteTilretteleggingsDatoOpt.orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
     }
 
+    private Optional<LocalDate> finnFørsteDatoMedUttak(Behandling behandling) {
+        var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of());
+        if (!finnesPerioderMedUtbetaling(perioder)) {
+            return perioder.stream()
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+                .min(Comparator.naturalOrder());
+        }
+        return perioder.stream()
+            .filter(it -> it.getDagsats() > 0)
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeFom)
+            .min(Comparator.naturalOrder());
+    }
+
+    private Long originalBehandling(Behandling behandling) {
+        return behandling.getOriginalBehandlingId()
+            .orElseThrow(() -> new IllegalArgumentException("Revurdering må ha original behandling"));
+    }
+
+    private boolean finnesPerioderMedUtbetaling(List<BeregningsresultatPeriode> perioder) {
+        return perioder.stream().anyMatch(p -> p.getDagsats() > 0);
+    }
+
+    private LocalDate utledTidligste(LocalDate første, LocalDate andre) {
+        return første.isBefore(andre) ? første :  andre;
+    }
+
     private LocalDate utledSkjæringstidspunktRegisterinnhenting(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId);
-        if (svpGrunnlagOpt.isPresent()) {
-            var grunnlag = svpGrunnlagOpt.get();
-            // Bruk "jordmordato" som stabil referanse
-            var tidligsteTilretteleggingsDatoOpt = new TilretteleggingFilter(grunnlag)
-                .getAktuelleTilretteleggingerFiltrert().stream()
-                .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
-                .min(Comparator.naturalOrder());
-            if (tidligsteTilretteleggingsDatoOpt.isPresent()) {
-                return tidligsteTilretteleggingsDatoOpt.get();
-            }
-        }
-        var opptjeningOpt = opptjeningRepository.finnOpptjening(behandlingId);
-        if (!behandling.erRevurdering() && opptjeningOpt.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
-            return opptjeningOpt.get().getTom().plusDays(1);
-        }
-        //TODO(OJR) en svakhet?
-        // Har ikke grunnlag for å avgjøre skjæringstidspunkt enda så gir midlertidig dagens dato. for at DTOer skal fungere.
-        return LocalDate.now();
+        var svpGrunnlagOpt = svangerskapspengerRepository.hentGrunnlag(behandlingId)
+            .or(() -> BehandlingType.REVURDERING.equals(behandling.getType()) ?
+                svangerskapspengerRepository.hentGrunnlag(originalBehandling(behandling)) : Optional.empty());
+
+        var tidligsteTilretteleggingsDatoOpt = svpGrunnlagOpt
+            .map(SvpGrunnlagEntitet::getOpprinneligeTilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
+            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
+            .min(Comparator.naturalOrder());
+
+        return tidligsteTilretteleggingsDatoOpt
+            .or(() -> opptjeningRepository.finnOpptjening(behandlingId).map(o -> o.getTom().plusDays(1)))
+            .orElseGet(LocalDate::now);
     }
 
     private LocalDateInterval utledYtelseintervall(Long behandlingId, LocalDate skjæringstidspunkt) {
