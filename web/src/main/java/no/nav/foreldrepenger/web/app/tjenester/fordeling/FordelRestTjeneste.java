@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -65,8 +66,6 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt;
 @Transactional
 public class FordelRestTjeneste {
 
-    private static final String JSON_UTF8 = "application/json; charset=UTF-8";
-
     static final String BASE_PATH = "/fordel";
     private static final String INFORMASJON_PART_PATH = "/fagsak/informasjon";
     public static final String INFORMASJON_PATH = BASE_PATH + INFORMASJON_PART_PATH; // NOSONAR TFP-2234
@@ -106,7 +105,7 @@ public class FordelRestTjeneste {
     @POST
     @Path(VURDER_FAGSYSTEM_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(JSON_UTF8)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public BehandlendeFagsystemDto vurderFagsystem(
@@ -120,7 +119,7 @@ public class FordelRestTjeneste {
     @POST
     @Path(INFORMASJON_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(JSON_UTF8)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Informasjon om en fagsak", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public FagsakInfomasjonDto fagsak(
@@ -146,7 +145,7 @@ public class FordelRestTjeneste {
     @POST
     @Path(OPPRETT_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(JSON_UTF8)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaksnummerDto opprettSak(@Parameter(description = "Oppretter fagsak") @Valid AbacOpprettSakDto opprettSakDto) {
@@ -168,32 +167,34 @@ public class FordelRestTjeneste {
     @POST
     @Path(KNYTT_JOURNALPOST_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(JSON_UTF8)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Knytt journalpost til fagsak.", summary = ("Før en journalpost journalføres på en fagsak skal fagsaken oppdateres med journalposten."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public void knyttSakOgJournalpost(
+    public Response knyttSakOgJournalpost(
             @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid AbacJournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
         opprettSakTjeneste.knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.getSaksnummer()),
                 new JournalpostId(journalpostKnytningDto.getJournalpostId()));
+        return Response.ok().build();
     }
 
     @POST
     @Path(JOURNALPOST_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(JSON_UTF8)
+    @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Ny journalpost skal behandles.", summary = ("Varsel om en ny journalpost som skal behandles i systemet."), tags = "fordel")
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public void mottaJournalpost(
+    public Response mottaJournalpost(
             @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid AbacJournalpostMottakDto mottattJournalpost) {
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode).orElse(DokumentTypeId.UDEFINERT);
         if (DokumentTypeId.TILBAKE_UTTALSELSE.equals(dokumentTypeId)) {
-            return;
+            return Response.ok().build();
         }
         ensureCallId();
         var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId);
         dokumentmottakTjeneste.dokumentAnkommet(dokument, null);
+        return Response.ok().build();
     }
 
     private void ensureCallId() {
