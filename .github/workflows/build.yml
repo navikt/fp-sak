@@ -45,8 +45,8 @@ jobs:
         uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ env.GITHUB_USERNAME }}
+          password: ${{ env.GITHUB_PASSWORD }}
 
       - name: Hent og start Oracle image
         id: oracle
@@ -66,9 +66,6 @@ jobs:
           mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings .github/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
           echo "Build artifacts"
           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-        env:
-          username: ${{ env.GITHUB_USERNAME }}
-          password: ${{ env.GITHUB_PASSWORD }}
 
       - name: Stopper og fjerner oracle image/container
         if: success()
