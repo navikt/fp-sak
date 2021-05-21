@@ -12,8 +12,10 @@ on:
       - 'CODEOWNERS'
 
 env:
-  IMAGE_BASE: ghcr.io/${{ github.repository }}
   TZ: "Europe/Oslo"
+  IMAGE_BASE: ghcr.io/${{ github.repository }}
+  GITHUB_USERNAME: ${{ github.actor }}
+  GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -39,12 +41,15 @@ jobs:
           distribution: 'adopt'
           java-version: 16
 
-      - name: Log into ghcr registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Hent og start Oracle image
         id: oracle
-        shell: bash
         run: |
           echo "Henter og starter Oracle image"
           cd .oracle
@@ -56,15 +61,14 @@ jobs:
           echo "BUILD_VERSION=$(date +%Y.%m.%d.%H%M%S)-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Build artifacts & deploy
-        env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha denne fordi vi henter artifakt fra private repo.
-        shell: bash
         run: |
           echo "Building artifacts $BUILD_VERSION"
-          mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings ./.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
+          mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings .github/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
           echo "Build artifacts"
-          echo "TAG=$(mvn help:evaluate --batch-mode --settings ./.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        env:
+          username: ${{ env.GITHUB_USERNAME }}
+          password: ${{ env.GITHUB_PASSWORD }}
 
       - name: Stopper og fjerner oracle image/container
         if: success()
