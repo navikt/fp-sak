@@ -14,8 +14,6 @@ on:
 env:
   TZ: "Europe/Oslo"
   IMAGE_BASE: ghcr.io/${{ github.repository }}
-  GITHUB_USERNAME: ${{ github.actor }}
-  GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
@@ -28,13 +26,13 @@ jobs:
           echo "CACHE_KEY=$(expr $(date +%V) - 1 + 1)" >> $GITHUB_ENV
           echo "PREVIOUS_CACHE_KEY=$(expr $(date +%V) - 1)" >> $GITHUB_ENV
 
-#       - name: Henter maven avhengigheter som er cachet
-#         uses: actions/cache@v2.1.5
-#         with:
-#           path: ~/.m2
-#           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
-#           restore-keys: |
-#             ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
+       - name: Henter maven avhengigheter som er cachet
+         uses: actions/cache@v2.1.5
+         with:
+           path: ~/.m2
+           key: ${{ runner.os }}-maven-${{ env.CACHE_KEY }}
+           restore-keys: |
+             ${{ runner.os }}-maven-${{ env.PREVIOUS_CACHE_KEY }}
 
       - uses: actions/setup-java@v2
         with:
@@ -45,8 +43,8 @@ jobs:
         uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
         with:
           registry: ghcr.io
-          username: ${{ env.GITHUB_USERNAME }}
-          password: ${{ env.GITHUB_PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Hent og start Oracle image
         id: oracle
@@ -66,6 +64,9 @@ jobs:
           mvn jacoco:prepare-agent install --quiet -e --batch-mode --settings .github/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION} -Dfile.encoding=UTF-8 -Djacoco.destFile=$(pwd)/target/jacoco.exec -Pgithub
           echo "Build artifacts"
           echo "TAG=$(mvn help:evaluate --batch-mode --settings .github/.m2/settings.xml --file .flattened -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }}
 
       - name: Stopper og fjerner oracle image/container
         if: success()
