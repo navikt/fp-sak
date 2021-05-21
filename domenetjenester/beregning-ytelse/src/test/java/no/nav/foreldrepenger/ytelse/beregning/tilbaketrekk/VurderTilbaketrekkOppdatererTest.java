@@ -40,7 +40,8 @@ public class VurderTilbaketrekkOppdatererTest {
     @BeforeEach
     public void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), null);
+        var historikkAdapter = new HistorikkTjenesteAdapter(new HistorikkRepository(entityManager), null,
+                repositoryProvider.getBehandlingRepository());
         vurderTilbaketrekkOppdaterer = new VurderTilbaketrekkOppdaterer(repositoryProvider, historikkAdapter);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
     }

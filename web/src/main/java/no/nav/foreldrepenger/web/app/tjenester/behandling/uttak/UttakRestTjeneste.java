@@ -127,8 +127,8 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public SaldoerDto getStonadskontoerGittUttaksperioder(@TilpassetAbacAttributt(supplierClass = BehandlingMedUttakAbacSupplier.class)
             @NotNull @Parameter(description = "Behandling og liste med uttaksperioder") @Valid BehandlingMedUttaksperioderDto dto) {
-        var behandlingIdDto = dto.getBehandlingId();
-        var behandling = hentBehandling(behandlingIdDto);
+        var behandling = dto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(dto.getBehandlingId())
+            : behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             return saldoerDtoTjeneste.lagStønadskontoerDto(uttakInput, dto.getPerioder());
@@ -219,10 +219,11 @@ public class UttakRestTjeneste {
             var req = (BehandlingMedUttaksperioderDto) obj;
             var abac = AbacDataAttributter.opprett();
 
-            if(req.getBehandlingId().getBehandlingId()!=null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
-            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            if (req.getBehandlingId() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            }
+            if (req.getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             }
             return abac;
         }

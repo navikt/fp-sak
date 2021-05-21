@@ -147,7 +147,7 @@ public class KlageVurderingTjeneste {
         if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
                 && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
 
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
+            var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);
             oppdaterBehandlingMedNyFrist(behandling);
         }

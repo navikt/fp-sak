@@ -98,7 +98,7 @@ public class DokumentKafkaBestillerTest {
     }
 
     private BestillBrevDto lagBestillBrevDto(DokumentMalType dokumentMalType, String arsakskode, String fritekst) {
-        return new BestillBrevDto(behandling.getId(), dokumentMalType, fritekst, arsakskode);
+        return new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalType, fritekst, arsakskode);
     }
 
 }

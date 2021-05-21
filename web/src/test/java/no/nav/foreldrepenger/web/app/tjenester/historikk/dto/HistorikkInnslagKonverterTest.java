@@ -21,7 +21,8 @@ public class HistorikkInnslagKonverterTest {
         lenke.setJournalpostId(journalpostId);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setDokumentLinker(Collections.singletonList(lenke));
-        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.emptyList());
+        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.emptyList(),
+            null);
         assertThat(resultat.getDokumentLinks().get(0).isUtgått()).isTrue();
     }
 
@@ -32,7 +33,8 @@ public class HistorikkInnslagKonverterTest {
         lenke.setJournalpostId(journalpostId);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setDokumentLinker(Collections.singletonList(lenke));
-        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.singletonList(new JournalpostId(2L)));
+        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.singletonList(new JournalpostId(2L)),
+            null);
         assertThat(resultat.getDokumentLinks().get(0).isUtgått()).isTrue();
     }
 
@@ -44,7 +46,8 @@ public class HistorikkInnslagKonverterTest {
         lenke.setJournalpostId(journalpostId);
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setDokumentLinker(Collections.singletonList(lenke));
-        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.singletonList(journalpostId));
+        var resultat = HistorikkInnslagKonverter.mapFra(historikkinnslag, Collections.singletonList(journalpostId),
+            null);
         assertThat(resultat.getDokumentLinks().get(0).isUtgått()).isFalse();
     }
 }
