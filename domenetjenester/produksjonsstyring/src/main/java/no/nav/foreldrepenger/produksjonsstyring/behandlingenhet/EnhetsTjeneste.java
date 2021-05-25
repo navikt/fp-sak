@@ -140,7 +140,7 @@ public class EnhetsTjeneste {
             restenhet = norgRest.finnEnhet(request);
         }
         return restenhet.stream()
-            .map(r -> new OrganisasjonsEnhet(r.enhetNr(), r.enhetNavn()))
+            .map(r -> new OrganisasjonsEnhet(r.getEnhetNr(), r.getEnhetNavn()))
             .collect(Collectors.toList());
     }
 
