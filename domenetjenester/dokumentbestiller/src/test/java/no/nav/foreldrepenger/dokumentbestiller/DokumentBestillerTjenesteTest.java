@@ -54,7 +54,7 @@ public class DokumentBestillerTjenesteTest {
 
         var dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
+        var bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
 
         // Act
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, false);
@@ -71,7 +71,7 @@ public class DokumentBestillerTjenesteTest {
 
         var dokumentMalTypeInput = DokumentMalType.INNHENT_DOK;
         var historikkAktør = HistorikkAktør.SAKSBEHANDLER;
-        var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), dokumentMalTypeInput, "fritekst");
+        var bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalTypeInput, "fritekst");
 
         // Act
         tjeneste.bestillDokument(bestillBrevDto, historikkAktør, true);

@@ -43,7 +43,7 @@ public class BrevRestTjenesteTest {
     public void bestillerDokument() {
         // Arrange
         var behandlingId = 2L;
-        var bestillBrevDto = new BestillBrevDto(behandlingId, UUID.randomUUID(), INNHENT_DOK, "Dette er en fritekst");
+        var bestillBrevDto = new BestillBrevDto(behandlingId, INNHENT_DOK, "Dette er en fritekst");
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);

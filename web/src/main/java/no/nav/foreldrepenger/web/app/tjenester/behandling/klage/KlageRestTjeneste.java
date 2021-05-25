@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -199,12 +200,10 @@ public class KlageRestTjeneste {
             var tilbakekrevingVedtakDto = hentPåklagdBehandlingIdForEksternApplikasjon(paKlagdEksternBehandlingUuid.get(), fptilbakeRestKlient);
             if (tilbakekrevingVedtakDto.isPresent()) {
                 dto.setPaKlagdBehandlingId(tilbakekrevingVedtakDto.get().getId());
-                dto.setPaKlagdBehandlingUuid(tilbakekrevingVedtakDto.get().getUuid());
                 dto.setPaklagdBehandlingType(tilbakekrevingVedtakDto.get().getType());
             }
         } else {
             dto.setPaKlagdBehandlingId(påklagdBehandling.map(Behandling::getId).orElse(null));
-            dto.setPaKlagdBehandlingUuid(påklagdBehandling.map(Behandling::getUuid).orElse(null));
             dto.setPaklagdBehandlingType(påklagdBehandling.map(Behandling::getType).orElse(null));
         }
         dto.setBegrunnelse(klageFormkrav.hentBegrunnelse());

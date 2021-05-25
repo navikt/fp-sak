@@ -48,6 +48,7 @@ public class BrevRestTjeneste {
 
     static final String BASE_PATH = "/brev";
     private static final String DOKUMENT_SENDT_PART_PATH = "/dokument-sendt";
+    public static final String DOKUMENT_SENDT_PATH = BASE_PATH + DOKUMENT_SENDT_PART_PATH; // NOSONAR TFP-2234
     private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
     public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
@@ -77,11 +78,11 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public void bestillDokument(@TilpassetAbacAttributt(supplierClass = BestillBrevAbacDataSupplier.class)
                                     @Parameter(description = "Inneholder kode til brevmal og data som skal flettes inn i brevet") @Valid BestillBrevDto bestillBrevDto) { // NOSONAR
-        var behandlingId = bestillBrevDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid()).getId()
-            : bestillBrevDto.getBehandlingId();
-        LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), behandlingId);
+        // FIXME: behandlingUuid brukes mot fp-formidling og kan derfor også brukes mot
+        // fpsak-frontend her
+        LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.getBrevmalkode(), bestillBrevDto.getBehandlingId());
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, true);
-        oppdaterBehandlingBasertPåManueltBrev(DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), behandlingId);
+        oppdaterBehandlingBasertPåManueltBrev(DokumentMalType.fraKode(bestillBrevDto.getBrevmalkode()), bestillBrevDto.getBehandlingId());
     }
 
     private void oppdaterBehandlingBasertPåManueltBrev(DokumentMalType brevmalkode, Long behandlingId) {
@@ -127,14 +128,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BestillBrevDto) obj;
-            var attributter = AbacDataAttributter.opprett();
-            if (req.getBehandlingUuid() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-            }
-            if (req.getBehandlingId() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
         }
     }
 

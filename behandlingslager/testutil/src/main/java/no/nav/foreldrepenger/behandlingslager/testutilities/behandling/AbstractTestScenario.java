@@ -531,10 +531,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
             Long id = a.getArgument(0);
             return behandlingMap.getOrDefault(id, null);
         });
-        lenient().when(behandlingRepository.hentBehandling(Mockito.any(UUID.class))).thenAnswer(a -> behandlingMap.entrySet().stream().filter(e -> {
-            UUID uuid = a.getArgument(0);
-            return Objects.equals(e.getValue().getUuid(), uuid);
-        }).findFirst().map(e -> e.getValue()).orElseThrow());
+        lenient().when(behandlingRepository.hentBehandling(Mockito.any(UUID.class))).thenAnswer(a -> {
+            throw new UnsupportedOperationException("Ikke implementert for AbstractTestScenario");
+        });
         lenient().when(behandlingRepository.hentAbsoluttAlleBehandlingerForSaksnummer(Mockito.any())).thenAnswer(a -> {
             return List.copyOf(behandlingMap.values());
         });

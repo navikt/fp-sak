@@ -73,7 +73,7 @@ public class BekreftSvangerskapspengerOppdatererTest {
     public void beforeEach(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var historikkAdapter = new HistorikkTjenesteAdapter(
-            repositoryProvider.getHistorikkRepository(), null, repositoryProvider.getBehandlingRepository());
+            repositoryProvider.getHistorikkRepository(), null);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(historikkAdapter, repositoryProvider,
             tilgangerTjenesteMock, inntektArbeidYtelseTjeneste);
     }
