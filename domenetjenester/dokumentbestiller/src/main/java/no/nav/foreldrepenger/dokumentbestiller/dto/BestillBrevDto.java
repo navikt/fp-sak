@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.dokumentbestiller.dto;
 
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -10,10 +13,13 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class BestillBrevDto {
-    @NotNull
+
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingId;
+
+    @Valid
+    private UUID behandlingUuid;
 
     @NotNull
     @Pattern(regexp = InputValideringRegex.NAVN)
@@ -36,24 +42,29 @@ public class BestillBrevDto {
     public BestillBrevDto() { // NOSONAR
     }
 
-    public BestillBrevDto(long behandlingId, DokumentMalType dokumentMalType, String fritekst, String arsakskode) { // NOSONAR
+    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst, String arsakskode) { // NOSONAR
         this.behandlingId = behandlingId;
+        this.behandlingUuid = behandlingUuid;
         this.brevmalkode = dokumentMalType == null ? null : dokumentMalType.getKode();
         this.fritekst = fritekst;
         this.mottaker = "Søker";
         this.arsakskode = arsakskode;
     }
 
-    public BestillBrevDto(long behandlingId, DokumentMalType dokumentMalType) {
-        this(behandlingId, dokumentMalType, null, null);
+    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType) {
+        this(behandlingId, behandlingUuid, dokumentMalType, null, null);
     }
 
-    public BestillBrevDto(long behandlingId, DokumentMalType dokumentMalType, String fritekst) {
-        this(behandlingId, dokumentMalType, fritekst, null);
+    public BestillBrevDto(long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String fritekst) {
+        this(behandlingId, behandlingUuid, dokumentMalType, fritekst, null);
     }
 
     public Long getBehandlingId() {
         return behandlingId;
+    }
+
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     public String getÅrsakskode() {

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -147,7 +148,7 @@ public class KompletthetsjekkerFelles {
                 if (skalIkkeSendeBrev) {
                     LOG.info("Sender ikke etterlys inntektsmelding brev for sak som er migrert fra Infotrygd. Gjelder behandlingId {}", ref.getBehandlingId());
                 } else {
-                    sendBrev(ref.getBehandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK, null);
+                    sendBrev(ref.getBehandlingId(), ref.getBehandlingUuid(), DokumentMalType.ETTERLYS_INNTEKTSMELDING_DOK, null);
                 }
             }
             return ventefristEtterlysning;
@@ -207,9 +208,9 @@ public class KompletthetsjekkerFelles {
         LOG.info("Behandling {} er ikke komplett - mangler IM fra arbeidsgivere: {}", behandlingId, arbgivere); // NOSONAR //$NON-NLS-1$
     }
 
-    private void sendBrev(Long behandlingId, DokumentMalType dokumentMalType, String årsakskode) {
+    private void sendBrev(Long behandlingId, UUID behandlingUuid, DokumentMalType dokumentMalType, String årsakskode) {
         if (!erSendtBrev(behandlingId, dokumentMalType)) {
-            var bestillBrevDto = new BestillBrevDto(behandlingId, dokumentMalType, null, årsakskode);
+            var bestillBrevDto = new BestillBrevDto(behandlingId,behandlingUuid, dokumentMalType, null, årsakskode);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
