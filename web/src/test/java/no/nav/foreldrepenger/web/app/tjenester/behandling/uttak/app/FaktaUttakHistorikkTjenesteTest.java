@@ -37,7 +37,7 @@ public class FaktaUttakHistorikkTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         ytelseFordelingTjeneste = new YtelseFordelingTjeneste(new YtelsesFordelingRepository(entityManager));
         historikkApplikasjonTjeneste = new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-            mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository());
+            mock(DokumentArkivTjeneste.class));
     }
 
     @Test

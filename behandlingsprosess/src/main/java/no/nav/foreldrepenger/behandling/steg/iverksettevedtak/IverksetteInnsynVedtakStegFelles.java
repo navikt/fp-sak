@@ -48,12 +48,11 @@ public class IverksetteInnsynVedtakStegFelles implements IverksetteVedtakSteg {
     }
 
     private BestillBrevDto brevDto(BehandlingskontrollKontekst kontekst) {
-        var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
-        var ap = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
+        var ap = behandlingRepository.hentBehandling(kontekst.getBehandlingId()).getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK);
         var begrunnelse = ap.getBegrunnelse();
         var fritekst = nullOrEmpty(begrunnelse) ? " " : begrunnelse;
 
-        return new BestillBrevDto(kontekst.getBehandlingId(), behandling.getUuid(), DokumentMalType.INNSYN_SVAR, fritekst);
+        return new BestillBrevDto(kontekst.getBehandlingId(), DokumentMalType.INNSYN_SVAR, fritekst);
     }
 
     private boolean nullOrEmpty(String begrunnelse) {

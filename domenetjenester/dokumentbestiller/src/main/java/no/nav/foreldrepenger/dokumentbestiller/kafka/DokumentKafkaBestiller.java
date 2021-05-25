@@ -44,8 +44,7 @@ public class DokumentKafkaBestiller {
         if (bestillBrevDto.getÅrsakskode() != null && !bestillBrevDto.getÅrsakskode().isEmpty()) {
             årsak = RevurderingVarslingÅrsak.fraKode(bestillBrevDto.getÅrsakskode());
         }
-        var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
-            : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
         bestillBrev(behandling, bestillBrevDto.getBrevmalkode(), bestillBrevDto.getFritekst(), årsak, aktør);
     }
 

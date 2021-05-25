@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 public class DokumentDto {
     private JournalpostId journalpostId;
     private String dokumentId;
-    //TODO palfi
     private List<Long> behandlinger;
     private LocalDateTime tidspunkt;
     private String tittel;

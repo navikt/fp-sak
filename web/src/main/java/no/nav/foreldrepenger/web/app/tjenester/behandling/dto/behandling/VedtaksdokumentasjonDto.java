@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public class VedtaksdokumentasjonDto {
 
     // dokumentId er egentlig id for behandlingen vedtaket tilhører
-    //TODO palfi
 	private String dokumentId;
 	private String tittel;
 	private LocalDate opprettetDato;

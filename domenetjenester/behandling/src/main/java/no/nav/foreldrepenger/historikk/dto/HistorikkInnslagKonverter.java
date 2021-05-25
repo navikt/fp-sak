@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public final class HistorikkInnslagKonverter {
@@ -15,15 +14,9 @@ public final class HistorikkInnslagKonverter {
     private HistorikkInnslagKonverter() {
     }
 
-    public static HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag,
-                                             List<JournalpostId> journalPosterForSak,
-                                             BehandlingRepository behandlingRepository) {
+    public static HistorikkinnslagDto mapFra(Historikkinnslag historikkinnslag, List<JournalpostId> journalPosterForSak) {
         var dto = new HistorikkinnslagDto();
-        if (historikkinnslag.getBehandlingId() != null) {
-            dto.setBehandlingId(historikkinnslag.getBehandlingId());
-            var behandling = behandlingRepository.hentBehandling(historikkinnslag.getBehandlingId());
-            dto.setBehandlingUuid(behandling.getUuid());
-        }
+        dto.setBehandlingId(historikkinnslag.getBehandlingId());
         var historikkinnslagDeler = HistorikkinnslagDelDto.mapFra(historikkinnslag.getHistorikkinnslagDeler());
         dto.setHistorikkinnslagDeler(historikkinnslagDeler);
         var dokumentLinks = mapLenker(historikkinnslag.getDokumentLinker(), journalPosterForSak);

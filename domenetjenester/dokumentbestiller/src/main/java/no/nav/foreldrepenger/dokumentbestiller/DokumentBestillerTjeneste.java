@@ -60,8 +60,7 @@ public class DokumentBestillerTjeneste {
 
     public void bestillDokument(BestillBrevDto bestillBrevDto, HistorikkAktør aktør, boolean manueltBrev) {
         if (manueltBrev) {
-            var behandling = bestillBrevDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId())
-                : behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingUuid());
+            final var behandling = behandlingRepository.hentBehandling(bestillBrevDto.getBehandlingId());
             brevHistorikkinnslag.opprettHistorikkinnslagForManueltBestiltBrev(aktør, behandling,
                 bestillBrevDto.getBrevmalkode());
         }

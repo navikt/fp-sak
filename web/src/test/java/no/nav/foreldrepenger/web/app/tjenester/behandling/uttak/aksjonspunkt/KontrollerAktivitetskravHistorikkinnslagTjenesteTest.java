@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -29,7 +28,7 @@ class KontrollerAktivitetskravHistorikkinnslagTjenesteTest {
     @Test
     public void oppretterHistorikkinnslag(EntityManager entityManager) {
         var repository = new HistorikkRepository(entityManager);
-        var adapter = new HistorikkTjenesteAdapter(repository, null, new BehandlingRepository(entityManager));
+        var adapter = new HistorikkTjenesteAdapter(repository, null);
         var tjeneste = new KontrollerAktivitetskravHistorikkinnslagTjeneste(adapter);
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .lagre(new BehandlingRepositoryProvider(entityManager));
@@ -69,7 +68,7 @@ class KontrollerAktivitetskravHistorikkinnslagTjenesteTest {
     @Test
     public void ikkeOppretterHistorikkinnslagHvisIngenEndring(EntityManager entityManager) {
         var repository = new HistorikkRepository(entityManager);
-        var adapter = new HistorikkTjenesteAdapter(repository, null, new BehandlingRepository(entityManager));
+        var adapter = new HistorikkTjenesteAdapter(repository, null);
         var tjeneste = new KontrollerAktivitetskravHistorikkinnslagTjeneste(adapter);
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .lagre(new BehandlingRepositoryProvider(entityManager));
@@ -93,7 +92,7 @@ class KontrollerAktivitetskravHistorikkinnslagTjenesteTest {
     @Test
     public void oppretteHistorikkinnslagHvisBareBegrunnelseErEndret(EntityManager entityManager) {
         var repository = new HistorikkRepository(entityManager);
-        var adapter = new HistorikkTjenesteAdapter(repository, null, new BehandlingRepository(entityManager));
+        var adapter = new HistorikkTjenesteAdapter(repository, null);
         var tjeneste = new KontrollerAktivitetskravHistorikkinnslagTjeneste(adapter);
         var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
             .lagre(new BehandlingRepositoryProvider(entityManager));

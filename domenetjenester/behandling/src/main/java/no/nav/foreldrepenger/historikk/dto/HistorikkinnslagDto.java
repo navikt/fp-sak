@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.historikk.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -11,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 
 public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
     private Long behandlingId;
-    private UUID behandlingUuid;
     private HistorikkinnslagType type;
     private HistorikkAktør aktoer;
     private NavBrukerKjønn kjoenn;
@@ -26,14 +24,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
 
     public void setBehandlingId(Long behandlingId) {
         this.behandlingId = behandlingId;
-    }
-
-    public UUID getBehandlingUuid() {
-        return behandlingUuid;
-    }
-
-    public void setBehandlingUuid(UUID behandlingUuid) {
-        this.behandlingUuid = behandlingUuid;
     }
 
     public List<HistorikkInnslagDokumentLinkDto> getDokumentLinks() {
@@ -106,11 +96,11 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof HistorikkinnslagDto that)) {
+        if (!(o instanceof HistorikkinnslagDto)) {
             return false;
         }
+        var that = (HistorikkinnslagDto) o;
         return Objects.equals(getBehandlingId(), that.getBehandlingId()) &&
-                Objects.equals(getBehandlingUuid(), that.getBehandlingUuid()) &&
                 Objects.equals(getType(), that.getType()) &&
                 Objects.equals(getAktoer(), that.getAktoer()) &&
                 Objects.equals(getKjoenn(), that.getKjoenn()) &&
@@ -121,7 +111,6 @@ public class HistorikkinnslagDto implements Comparable<HistorikkinnslagDto> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBehandlingId(), getBehandlingUuid(), getType(), getAktoer(),
-            getKjoenn(), getOpprettetAv(), getOpprettetTidspunkt(), getDokumentLinks());
+        return Objects.hash(getBehandlingId(), getType(), getAktoer(), getKjoenn(), getOpprettetAv(), getOpprettetTidspunkt(), getDokumentLinks());
     }
 }
