@@ -37,7 +37,8 @@ public class VurderFaresignalerOppdatererUtvidetTest extends EntityManagerAwareT
     public void setup() {
         var entityManager = getEntityManager();
         var behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null);
+        historikkAdapter = new HistorikkTjenesteAdapter(behandlingRepositoryProvider.getHistorikkRepository(), null,
+                behandlingRepositoryProvider.getBehandlingRepository());
         var behandlingRepository = new BehandlingRepository(entityManager);
         risikoklassifiseringRepository = new RisikoklassifiseringRepository(entityManager);
         var risikovurderingTjeneste = new RisikovurderingTjeneste(risikoklassifiseringRepository, behandlingRepository,

@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -25,17 +26,20 @@ public class HistorikkTjenesteAdapter {
     private HistorikkRepository historikkRepository;
     private HistorikkInnslagTekstBuilder builder;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
-
-    HistorikkTjenesteAdapter() {
-        // for CDI proxy
-    }
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public HistorikkTjenesteAdapter(HistorikkRepository historikkRepository,
-            DokumentArkivTjeneste dokumentArkivTjeneste) {
+                                    DokumentArkivTjeneste dokumentArkivTjeneste,
+                                    BehandlingRepository behandlingRepository) {
         this.historikkRepository = historikkRepository;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
+        this.behandlingRepository = behandlingRepository;
         this.builder = new HistorikkInnslagTekstBuilder();
+    }
+
+    HistorikkTjenesteAdapter() {
+        // for CDI proxy
     }
 
     public List<HistorikkinnslagDto> hentAlleHistorikkInnslagForSak(Saksnummer saksnummer) {
@@ -44,7 +48,7 @@ public class HistorikkTjenesteAdapter {
                 .map(ArkivJournalPost::getJournalpostId)
                 .collect(Collectors.toList());
         return historikkinnslagList.stream()
-                .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak))
+                .map(historikkinnslag -> HistorikkInnslagKonverter.mapFra(historikkinnslag, journalPosterForSak, behandlingRepository))
                 .sorted()
                 .collect(Collectors.toList());
     }

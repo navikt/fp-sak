@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.iverksettevedtak;
 
+import java.util.UUID;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -72,7 +74,7 @@ public class HenleggBehandlingTjeneste {
         if (BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_KLAGE_TRUKKET.equals(årsakKode)
                 || BehandlingResultatType.HENLAGT_INNSYN_TRUKKET.equals(årsakKode)) {
-            sendHenleggelsesbrev(behandlingId, HistorikkAktør.VEDTAKSLØSNINGEN);
+            sendHenleggelsesbrev(behandling.getId(), behandling.getUuid(), HistorikkAktør.VEDTAKSLØSNINGEN);
         } else if (BehandlingResultatType.MANGLER_BEREGNINGSREGLER.equals(årsakKode)) {
             fagsakRepository.fagsakSkalBehandlesAvInfotrygd(behandling.getFagsakId());
             opprettOppgaveTilInfotrygd(behandling);
@@ -115,8 +117,8 @@ public class HenleggBehandlingTjeneste {
         prosessTaskRepository.lagre(taskData);
     }
 
-    private void sendHenleggelsesbrev(long behandlingId, HistorikkAktør aktør) {
-        var bestillBrevDto = new BestillBrevDto(behandlingId, DokumentMalType.INFO_OM_HENLEGGELSE);
+    private void sendHenleggelsesbrev(long behandlingId, UUID behandlingUuid, HistorikkAktør aktør) {
+        var bestillBrevDto = new BestillBrevDto(behandlingId, behandlingUuid, DokumentMalType.INFO_OM_HENLEGGELSE);
         dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, aktør, false);
     }
 

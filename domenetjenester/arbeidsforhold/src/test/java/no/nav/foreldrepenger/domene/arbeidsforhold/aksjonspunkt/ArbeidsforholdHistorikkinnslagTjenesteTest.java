@@ -51,7 +51,8 @@ public class ArbeidsforholdHistorikkinnslagTjenesteTest {
     void setup(EntityManager entityManager) {
         provider = new IAYRepositoryProvider(entityManager);
         var historikkRepository = new HistorikkRepository(entityManager);
-        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class));
+        historikkAdapter = new HistorikkTjenesteAdapter(historikkRepository, mock(DokumentArkivTjeneste.class),
+                provider.getBehandlingRepository());
         arbeidsforholdHistorikkinnslagTjeneste = new ArbeidsforholdHistorikkinnslagTjeneste(historikkAdapter, arbeidsgiverHistorikkinnslagTjeneste);
         behandling = opprettBehandling();
 
