@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +14,8 @@ public class KlageFormkravResultatDto {
 
     @JsonProperty("paKlagdBehandlingId")
     private Long paKlagdBehandlingId;
+    @JsonProperty("paKlagdBehandlingUuid")
+    private UUID paKlagdBehandlingUuid;
     @JsonProperty("paklagdBehandlingType")
     private BehandlingType paklagdBehandlingType;
     @JsonProperty("begrunnelse")
@@ -46,6 +49,14 @@ public class KlageFormkravResultatDto {
 
     void setPaKlagdBehandlingId(Long paKlagdBehandlingId) {
         this.paKlagdBehandlingId = paKlagdBehandlingId;
+    }
+
+    public UUID getPaKlagdBehandlingUuid() {
+        return paKlagdBehandlingUuid;
+    }
+
+    public void setPaKlagdBehandlingUuid(UUID paKlagdBehandlingUuid) {
+        this.paKlagdBehandlingUuid = paKlagdBehandlingUuid;
     }
 
     public BehandlingType getPaklagdBehandlingType() {

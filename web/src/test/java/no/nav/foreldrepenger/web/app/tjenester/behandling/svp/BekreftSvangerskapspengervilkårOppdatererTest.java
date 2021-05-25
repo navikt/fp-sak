@@ -112,7 +112,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
     private BekreftSvangerskapspengervilkårOppdaterer oppdaterer() {
         return new BekreftSvangerskapspengervilkårOppdaterer(
             new HistorikkTjenesteAdapter(repositoryProvider.getHistorikkRepository(),
-                mock(DokumentArkivTjeneste.class)));
+                mock(DokumentArkivTjeneste.class), repositoryProvider.getBehandlingRepository()));
     }
 
 }

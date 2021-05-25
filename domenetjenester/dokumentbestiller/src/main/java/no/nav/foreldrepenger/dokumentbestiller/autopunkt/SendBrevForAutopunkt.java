@@ -50,7 +50,7 @@ public class SendBrevForAutopunkt {
         if ((DokumentMalType.IKKE_SØKT.equals(dokumentMalType) && !harSendtBrevForMal(behandling.getId(), dokumentMalType) && !harSendtBrevForMal(behandling.getId(), DokumentMalType.INNTEKTSMELDING_FOR_TIDLIG_DOK))
             || (DokumentMalType.INFO_TIL_ANNEN_FORELDER.equals(dokumentMalType) && !harSendtBrevForMal(behandling.getId(), dokumentMalType) && !harSendtBrevForMal(behandling.getId(), DokumentMalType.INFO_TIL_ANNEN_FORELDER_DOK ))) {
             // TODO(JEJ/AGA): Gjøre enkel !harSendtBrevForMal(behandling.getId(), dokumentMalType) igjen når det har gått litt tid siden begge ble lansert, inntil det bør begge sjekkes for å unngå dobbeltbrev til bruker...
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), dokumentMalType);
+            var bestillBrevDto = opprettBestillBrevDto(behandling, dokumentMalType);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
     }
@@ -59,10 +59,15 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_TIDLIG_SOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG)
             && erSøktPåPapir(behandling)) {
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
+            var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_TIDLIG);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
+    }
+
+    private BestillBrevDto opprettBestillBrevDto(Behandling behandling,
+                                                 DokumentMalType forlengetSaksbehandlingstidTidlig) {
+        return new BestillBrevDto(behandling.getId(), behandling.getUuid(), forlengetSaksbehandlingstidTidlig);
     }
 
     public void sendBrevForVenterPåFødsel(Behandling behandling, Aksjonspunkt ap) {
@@ -70,7 +75,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_MEDL_DOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL)
             && frist.isAfter(LocalDate.now().plusDays(1))) {
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
+            var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.FORLENGET_SAKSBEHANDLINGSTID_MEDL);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
         oppdaterBehandlingMedNyFrist(behandling.getId(), beregnBehandlingstidsfrist(ap, behandling));
@@ -84,7 +89,7 @@ public class SendBrevForAutopunkt {
         if (!harSendtBrevForMal(behandling.getId(), DokumentMalType.REVURDERING_DOK)
             && !harSendtBrevForMal(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING)) {
 
-            var bestillBrevDto = new BestillBrevDto(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+            var bestillBrevDto = opprettBestillBrevDto(behandling, DokumentMalType.VARSEL_OM_REVURDERING);
             bestillBrevDto.setÅrsakskode(RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER.getKode());
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.VEDTAKSLØSNINGEN, false);
         }
