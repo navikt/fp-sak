@@ -222,6 +222,12 @@ public class DokumentRestTjeneste {
                     .map(MottattDokument::getBehandlingId)
                     .collect(Collectors.toList());
             dto.setBehandlinger(behandlinger);
+            var behandlingUuidList = mottatteIMDokument.get(dto.getJournalpostId()).stream()
+                .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
+                .map(MottattDokument::getBehandlingId)
+                .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId).getUuid())
+                .collect(Collectors.toList());
+            dto.setBehandlingUuidList(behandlingUuidList);
 
             var navn = inntektsMeldinger.getOrDefault(dto.getJournalpostId(), Collections.emptyList())
                     .stream()
