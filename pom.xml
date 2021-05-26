@@ -44,7 +44,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <fp-uttak.version>9.1.1</fp-uttak.version>
         <svp-uttak.version>2.1.2</svp-uttak.version>
-        <felles.version>3.2.41</felles.version>
+        <felles.version>3.2.71</felles.version>
         <prosesstask.version>2.5.18</prosesstask.version>
         <ukelonn.felles.version>2.0.21</ukelonn.felles.version>
 
