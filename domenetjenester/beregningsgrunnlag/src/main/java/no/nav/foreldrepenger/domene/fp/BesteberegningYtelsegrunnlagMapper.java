@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import java.time.LocalDate;
@@ -49,7 +50,7 @@ public class BesteberegningYtelsegrunnlagMapper {
             .map(BesteberegningYtelsegrunnlagMapper::mapTilYtelsegrunnlag)
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
-        return sykepengegrunnlag.isEmpty()
+        return sykepengeperioder.isEmpty()
             ? Optional.empty()
             : Optional.of(new Ytelsegrunnlag(FagsakYtelseType.SYKEPENGER, sykepengeperioder));
     }
@@ -79,11 +80,16 @@ public class BesteberegningYtelsegrunnlagMapper {
     private static Optional<Ytelseperiode> mapTilYtelsegrunnlag(Ytelse sp) {
         Optional<Arbeidskategori> arbeidskategori = sp.getYtelseGrunnlag()
             .flatMap(YtelseGrunnlag::getArbeidskategori);
-        return arbeidskategori.map(ak -> {
-            Ytelseandel andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(ak.getKode()), null);
-            return new Ytelseperiode(Intervall.fraOgMedTilOgMed(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
-                Collections.singletonList(andel));
-        });
+        if (arbeidskategori.isEmpty() || harUgyldigTilstandForBesteberegning(arbeidskategori.get(), sp.getStatus())) {
+            return Optional.empty();
+        }
+        Ytelseandel andel = new Ytelseandel(no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
+            null);
+        return Optional.of(new Ytelseperiode(Intervall.fraOgMedTilOgMed(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
+            Collections.singletonList(andel)));
     }
 
+    private static boolean harUgyldigTilstandForBesteberegning(Arbeidskategori kategori, RelatertYtelseTilstand sp) {
+        return Arbeidskategori.UGYLDIG.equals(kategori) && RelatertYtelseTilstand.ÅPEN.equals(sp);
+    }
 }
