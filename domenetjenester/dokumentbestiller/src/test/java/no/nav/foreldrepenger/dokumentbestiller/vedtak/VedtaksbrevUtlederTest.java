@@ -54,6 +54,7 @@ public class VedtaksbrevUtlederTest {
         lenient().doReturn(false).when(behandlingVedtakMock).isBeslutningsvedtak();
         lenient().doReturn(VedtakResultatType.INNVILGET).when(behandlingVedtakMock).getVedtakResultatType();
         lenient().doReturn(FagsakYtelseType.ENGANGSTØNAD).when(behandling).getFagsakYtelseType();
+        lenient().doReturn(DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK).when(innvilgelseFpLanseringTjeneste).velgFpInnvilgelsesmal(behandling);
     }
 
     @Test
