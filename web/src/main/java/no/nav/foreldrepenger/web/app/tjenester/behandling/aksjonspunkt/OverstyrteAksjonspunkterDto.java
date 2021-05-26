@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -16,6 +17,9 @@ public class OverstyrteAksjonspunkterDto {
     @Valid
     private BehandlingIdDto behandlingId;
 
+    @Valid
+    private UUID behandlingUuid;
+
     @NotNull
     @Min(0)
     @Max(Long.MAX_VALUE)
@@ -25,17 +29,15 @@ public class OverstyrteAksjonspunkterDto {
     @Size(min = 1, max = 10)
     private Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer;
 
-    public static OverstyrteAksjonspunkterDto lagDto(Long behandlingId, Long behandlingVersjon,
-                                                     Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer) {
-        var dto = new OverstyrteAksjonspunkterDto();
-        dto.behandlingId = new BehandlingIdDto(behandlingId);
-        dto.behandlingVersjon = behandlingVersjon;
-        dto.overstyrteAksjonspunktDtoer = overstyrteAksjonspunktDtoer;
-        return dto;
+    public Long getBehandlingId() {
+        return behandlingId == null ? null : behandlingId.getBehandlingId();
     }
 
-    public BehandlingIdDto getBehandlingId() {
-        return behandlingId;
+    public UUID getBehandlingUuid() {
+        if (behandlingUuid != null) {
+            return behandlingUuid;
+        }
+        return behandlingId != null ? behandlingId.getBehandlingUuid() : null;
     }
 
     public Long getBehandlingVersjon() {

@@ -36,6 +36,7 @@ public class AksjonspunktRestTjenesteTest {
     // skal_håndtere_overlappende_perioder data
     private static final LocalDate now = LocalDate.now();
     private static final long behandlingId = 1L;
+    private static final UUID behandlingUuid = UUID.randomUUID();
     private static final Long behandlingVersjon = 2L;
     private static final String begrunnelse = "skal_håndtere_overlappende_perioder";
     private static final LocalDate fødselsdato = now.plusDays(40);
@@ -62,7 +63,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_terminbekreftelse() throws URISyntaxException {
+    public void skal_bekrefte_terminbekreftelse() {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new BekreftTerminbekreftelseAksjonspunktDto(
@@ -71,13 +72,13 @@ public class AksjonspunktRestTjenesteTest {
                         utstedtdato,
                         antallBarn));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
-    public void skal_bekrefte_fødsel() throws URISyntaxException {
+    public void skal_bekrefte_fødsel() {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
         aksjonspunkt.add(
@@ -87,13 +88,13 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         List.of(uidentifiserteBarn)));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
-    public void skal_bekrefte_antall_barn() throws URISyntaxException {
+    public void skal_bekrefte_antall_barn() {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new SjekkManglendeFodselDto(
@@ -102,14 +103,14 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
     }
 
     @Test
-    public void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() throws URISyntaxException {
+    public void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
@@ -120,13 +121,13 @@ public class AksjonspunktRestTjenesteTest {
                         begrunnelse,
                         aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
-    public void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() throws URISyntaxException {
+    public void skal_ikke_kunne_bekrefte_andre_aksjonspunkt_ved_status_fatter_vedtak() {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
@@ -136,7 +137,7 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
         assertThrows(FunksjonellException.class,
-                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingVersjon, aksjonspunkt)));
+                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt)));
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {

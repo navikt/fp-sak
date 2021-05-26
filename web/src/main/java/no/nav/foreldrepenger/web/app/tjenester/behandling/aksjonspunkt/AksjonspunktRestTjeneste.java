@@ -171,10 +171,10 @@ public class AksjonspunktRestTjeneste {
 
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
-        var behandlingId = apDto.getBehandlingId().getBehandlingId();
+        var behandlingId = apDto.getBehandlingId();
         var behandling = behandlingId != null
                 ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(apDto.getBehandlingId().getBehandlingUuid());
+                : behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
 
@@ -200,12 +200,7 @@ public class AksjonspunktRestTjeneste {
     public Response overstyr(@TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
         @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
 
-        var behandlingIdDto = apDto.getBehandlingId();
-
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        var behandling = behandlingId != null
-                ? behandlingRepository.hentBehandling(behandlingId)
-                : behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        var behandling = finnBehandling(apDto);
 
         behandlingutredningTjeneste.kanEndreBehandling(behandling, apDto.getBehandlingVersjon());
 
@@ -214,6 +209,11 @@ public class AksjonspunktRestTjeneste {
         applikasjonstjeneste.overstyrAksjonspunkter(apDto.getOverstyrteAksjonspunktDtoer(), behandling.getId());
 
         return Redirect.tilBehandlingPollStatus(behandling.getUuid());
+    }
+
+    private Behandling finnBehandling(OverstyrteAksjonspunkterDto apDto) {
+        return apDto.getBehandlingUuid() != null ? behandlingRepository.hentBehandling(
+            apDto.getBehandlingUuid()) : behandlingRepository.hentBehandling(apDto.getBehandlingId());
     }
 
     private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
@@ -239,10 +239,10 @@ public class AksjonspunktRestTjeneste {
             var req = (BekreftedeAksjonspunkterDto) obj;
             var abac = AbacDataAttributter.opprett();
 
-            if(req.getBehandlingId().getBehandlingId() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
-            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            if (req.getBehandlingId() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            } else if (req.getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             }
 
             req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> {
@@ -265,10 +265,10 @@ public class AksjonspunktRestTjeneste {
             var req = (OverstyrteAksjonspunkterDto) obj;
             var abac = AbacDataAttributter.opprett();
 
-            if (req.getBehandlingId().getBehandlingId() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId().getBehandlingId());
-            } else if (req.getBehandlingId().getBehandlingUuid() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingId().getBehandlingUuid());
+            if (req.getBehandlingId() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
+            } else if (req.getBehandlingUuid() != null) {
+                abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             }
             req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode()));
             return abac;
