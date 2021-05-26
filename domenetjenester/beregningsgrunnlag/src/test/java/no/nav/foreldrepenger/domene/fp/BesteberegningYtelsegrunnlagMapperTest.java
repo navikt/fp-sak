@@ -50,6 +50,15 @@ class BesteberegningYtelsegrunnlagMapperTest {
     }
 
     @Test
+    public void skal_ikke_mappe_ubehandlede_ytelser_med_ugyldig_kategori() {
+        YtelseBuilder sykeBuilder = lagSykepenger(DatoIntervallEntitet.fraOgMedTilOgMed(månederFørStp(15), månederFørStp(6)), RelatertYtelseTilstand.ÅPEN);
+        lagYtelseGrunnlag(sykeBuilder, Arbeidskategori.UGYLDIG);
+        YtelseFilter filter = new YtelseFilter(Collections.singletonList(sykeBuilder.build()));
+        Optional<Ytelsegrunnlag> mappetGrunnlag = BesteberegningYtelsegrunnlagMapper.mapSykepengerTilYtelegrunnlag(STP.minusMonths(12), filter);
+        assertThat(mappetGrunnlag).isEmpty();
+    }
+
+    @Test
     public void skal_mappe_foreldrepenger() {
         var brres = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
@@ -90,10 +99,14 @@ class BesteberegningYtelsegrunnlagMapperTest {
     }
 
     private YtelseBuilder lagSykepenger(DatoIntervallEntitet periode) {
+        return lagSykepenger(periode, RelatertYtelseTilstand.AVSLUTTET);
+    }
+
+    private YtelseBuilder lagSykepenger(DatoIntervallEntitet periode, RelatertYtelseTilstand tilstand) {
         return YtelseBuilder.oppdatere(Optional.empty())
             .medPeriode(periode)
             .medYtelseType(RelatertYtelseType.SYKEPENGER)
-            .medStatus(RelatertYtelseTilstand.AVSLUTTET)
+            .medStatus(tilstand)
             .medKilde(Fagsystem.INFOTRYGD)
             .medSaksnummer(new Saksnummer("333"));
     }
