@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
@@ -13,8 +14,8 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 public class DokumentDto {
     private JournalpostId journalpostId;
     private String dokumentId;
-    //TODO palfi
     private List<Long> behandlinger;
+    private List<UUID> behandlingUuidList;
     private LocalDateTime tidspunkt;
     private String tittel;
     private Kommunikasjonsretning kommunikasjonsretning;
@@ -31,6 +32,7 @@ public class DokumentDto {
         this.tittel = arkivDokument.getTittel();
         this.kommunikasjonsretning = arkivJournalPost.getKommunikasjonsretning();
         this.behandlinger = new ArrayList<>();
+        this.behandlingUuidList = new ArrayList<>();
         this.tidspunkt = arkivJournalPost.getTidspunkt();
     }
 
@@ -80,6 +82,14 @@ public class DokumentDto {
 
     public void setBehandlinger(List<Long> behandlinger) {
         this.behandlinger = behandlinger;
+    }
+
+    public List<UUID> getBehandlingUuidList() {
+        return behandlingUuidList;
+    }
+
+    public void setBehandlingUuidList(List<UUID> behandlingUuidList) {
+        this.behandlingUuidList = behandlingUuidList;
     }
 
     public String getGjelderFor() {
