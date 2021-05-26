@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.dokument;
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -65,14 +68,14 @@ public class DokumentRestTjenesteTest {
     }
 
     @Test
-    public void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() throws Exception {
+    public void skal_gi_tom_liste_ved_ikkeeksisterende_saksnummer() {
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.empty());
         final var response = tjeneste.hentAlleDokumenterForSak(new SaksnummerDto("123456"));
         assertThat(response).isEmpty();
     }
 
     @Test
-    public void skal_returnere_to_dokument() throws Exception {
+    public void skal_returnere_to_dokument() {
         Long fagsakId = 5L;
         Long behandlingId = 150L;
         var aktørId = AktørId.dummy();
@@ -82,8 +85,8 @@ public class DokumentRestTjenesteTest {
                 .medSaksnummer(new Saksnummer("123456"))
                 .build();
         fagsak.setId(fagsakId);
-        // Whitebox.setInternalState(fagsak, "id", fagsakId);
         when(fagsakRepository.hentSakGittSaksnummer(any())).thenReturn(Optional.of(fagsak));
+        when(behandlingRepository.hentBehandling(behandlingId)).thenReturn(mock(Behandling.class));
 
         var søknad = ArkivDokument.Builder.ny()
             .medTittel("Søknad")
