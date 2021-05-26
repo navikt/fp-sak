@@ -15,7 +15,7 @@ public class ToggleJms implements no.nav.vedtak.felles.integrasjon.jms.ToggleJms
     private final boolean enabled;
 
     public ToggleJms() {
-        var clusterDefault = !Cluster.LOCAL.equals(ENV.getCluster());
+        var clusterDefault = !ENV.isLocal();
         var jmsEnabled = ENV.getProperty(TOGGLE_JMS, Boolean.toString(clusterDefault));
         this.enabled = Boolean.parseBoolean(jmsEnabled);
     }
