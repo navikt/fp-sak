@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;

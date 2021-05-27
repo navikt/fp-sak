@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,7 +23,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")
