@@ -11,7 +11,7 @@ public class SjekkAdopsjon extends LeafSpecification<OpptjeningsperiodeGrunnlag>
 
     static final String ID = "FP_VK 21.10";
     static final String BESKRIVELSE = "Gjelder det adopsjon?";
-o
+
     SjekkAdopsjon() {
         super(ID, BESKRIVELSE);
     }
