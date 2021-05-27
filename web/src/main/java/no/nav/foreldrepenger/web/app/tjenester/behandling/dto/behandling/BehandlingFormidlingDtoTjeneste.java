@@ -53,6 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 
 /**
@@ -229,6 +230,8 @@ public class BehandlingFormidlingDtoTjeneste {
                     // FIXME: Bør ikke ha ytelsesspesifikk url her. Bør kun være beregningsresultat
                     dto.leggTil(get(BeregningsresultatRestTjeneste.FORELDREPENGER_PATH, "beregningsresultat-foreldrepenger", uuidDto));
                 }
+
+                dto.leggTil(get(FormidlingRestTjeneste.DOKMAL_INNVFP_PATH, "dokmal-innvfp", uuidDto));
             }
         }
 

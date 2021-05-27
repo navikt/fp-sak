@@ -21,9 +21,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.opptjening.aksjonspunkt.AksjonspunktutlederForVurderBekreftetOpptjening;
+import no.nav.foreldrepenger.dokumentbestiller.vedtak.InnvilgelseFpLanseringTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingFormidlingDtoTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -40,15 +41,20 @@ public class FormidlingRestTjeneste {
     public static final String BASE_PATH = "/formidling";
     public static final String RESSURSER_PART_PATH = "/ressurser";
     public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
+    public static final String DOKMAL_INNVFP_PART_PATH = "/dokumentmal/innvfp";
+    public static final String DOKMAL_INNVFP_PATH = BASE_PATH + DOKMAL_INNVFP_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
+    private InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste;
 
     @Inject
     public FormidlingRestTjeneste(BehandlingRepository behandlingRepository,
-                                  BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste) {
+                                  BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste,
+                                  InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingFormidlingDtoTjeneste = behandlingFormidlingDtoTjeneste;
+        this.innvilgelseFpLanseringTjeneste = innvilgelseFpLanseringTjeneste;
     }
 
     public FormidlingRestTjeneste() {
@@ -72,6 +78,22 @@ public class FormidlingRestTjeneste {
         var dto = behandling != null ? behandlingFormidlingDtoTjeneste.lagDtoForFormidling(behandling) : null;
         var responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();
+    }
+
+    @GET
+    @Path(DOKMAL_INNVFP_PART_PATH)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Operation(description = "Returnerer om gammel eller ny dokumentmal for innvilgelse foreldrepenger skal brukes. Tjenesten er midlertidig for å kunne gjøre gradvis lansering av det nye brevet.", tags = "formidling")
+    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public Response bestemInnvilgelseForeldrepengerDokumentmal(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                                               @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        if (uuidDto.getBehandlingUuid() != null) {
+            var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
+            var dto = new DokumentMalTypeDto(behandling.map(value -> innvilgelseFpLanseringTjeneste.velgFpInnvilgelsesmal(value).getKode()).orElse(null));
+            var responseBuilder = Response.ok().entity(dto);
+            return responseBuilder.build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
 }
