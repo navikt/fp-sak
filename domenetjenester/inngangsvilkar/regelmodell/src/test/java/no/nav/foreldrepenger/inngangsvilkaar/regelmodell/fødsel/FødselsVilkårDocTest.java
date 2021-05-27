@@ -42,7 +42,7 @@ public class FødselsVilkårDocTest {
     @Test
     public void kanDeserialisereGammeltFormat() throws JsonProcessingException {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.KVINNE, null, LocalDate.of(2021,4,22),
-            null, LocalDate.of(2021,5,20), null, 1,
+            null, LocalDate.of(2021,5,20), 1,
             false, false, true,
             false, true);
         var grunnlag = deserialiser(gammelJson);
@@ -52,7 +52,7 @@ public class FødselsVilkårDocTest {
     @Test
     public void kanSerialisereDeserialisereNyttFormat() throws JsonProcessingException {
         var gsource = new FødselsvilkårGrunnlag(RegelKjønn.MANN, RegelSøkerRolle.FARA, LocalDate.now().minusWeeks(1),
-            null, LocalDate.now().plusMonths(1), LocalDate.now().minusMonths(1), 1,
+            null, LocalDate.now().plusMonths(1), 1,
             false, false, true,
             true, true);
         var serialisert = DefaultJsonMapper.toJson(gsource);

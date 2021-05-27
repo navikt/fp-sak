@@ -110,7 +110,7 @@ public class InngangsvilkårOversetter {
         var terminbekreftelseUtstedtEtterTidligsteDato = erTerminbekreftelseUtstedtEtterTidligsteDato(gjeldendeTermindato, gjeldendeUtstedtDato);
 
         var grunnlag = new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(),
-            bekreftetFødselsDato, gjeldendeTermindato, gjeldendeUtstedtDato,
+            bekreftetFødselsDato, gjeldendeTermindato,
             antallbarn,
             fristRegistreringUtløpt,
             morForSykVedFødsel, søktOmTermin,
