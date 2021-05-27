@@ -9,6 +9,7 @@ import java.util.NavigableSet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -36,7 +37,7 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
     @Override
     public Evaluation evaluate(OpptjeningsvilkårMellomregning data) {
 
-        var mellomliggende = new SjekkMellomliggende(data.getGrunnlag());
+        var mellomliggende = new SjekkMellomliggende(data.getGrunnlag(), data.getRegelParametre());
         data.getAktivitetTidslinjer(true, true)
                 .entrySet().stream()
                 .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()))
@@ -55,9 +56,11 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
 
         private final Map<Aktivitet, LocalDateTimeline<Boolean>> akseptertMellomliggendePerioder = new HashMap<>();
         private Opptjeningsgrunnlag grunnlag;
+        private OpptjeningsvilkårParametre parametre;
 
-        SjekkMellomliggende(Opptjeningsgrunnlag grunnlag) {
+        SjekkMellomliggende(Opptjeningsgrunnlag grunnlag, OpptjeningsvilkårParametre parametre) {
             this.grunnlag = grunnlag;
+            this.parametre = parametre;
         }
 
         Map<Aktivitet, LocalDateTimeline<Boolean>> getAkseptertMellomliggendePerioder() {
@@ -93,9 +96,9 @@ public class SjekkMellomliggendePerioderForArbeid extends LeafSpecification<Oppt
             // Mellomliggende perioder må være <=14 dager og tilknyttende foregående periode med registrert arbeid
             // minst 4 uker for å tas i betraktning.
             var mellomliggendeSammenlignet = mellomliggendeVarighet
-                    .minus(grunnlag.getMaksMellomliggendePeriodeForArbeidsforhold());
+                    .minus(parametre.maksMellomliggendePeriodeForArbeidsforhold());
             var foregåendeSammenlignet = foregåendeVarighet
-                    .minus(grunnlag.getMinForegåendeForMellomliggendePeriodeForArbeidsforhold());
+                    .minus(parametre.minForegåendeForMellomliggendePeriodeForArbeidsforhold());
 
             return Boolean.TRUE.equals(foregående.getValue())
                     && !foregåendeSammenlignet.isNegative()

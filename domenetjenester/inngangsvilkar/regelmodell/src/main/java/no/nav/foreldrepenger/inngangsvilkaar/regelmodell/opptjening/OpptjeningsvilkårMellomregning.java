@@ -39,8 +39,14 @@ public class OpptjeningsvilkårMellomregning {
      */
     private Opptjeningsgrunnlag grunnlag;
 
-    public OpptjeningsvilkårMellomregning(Opptjeningsgrunnlag grunnlag) {
+    /**
+     * Parametre gitt av ytelse.
+     */
+    private OpptjeningsvilkårParametre regelParametre;
+
+    public OpptjeningsvilkårMellomregning(Opptjeningsgrunnlag grunnlag, OpptjeningsvilkårParametre regelParametre) {
         this.grunnlag = grunnlag;
+        this.regelParametre = regelParametre;
         var maxIntervall = grunnlag.getOpptjeningPeriode();
 
         // grupper aktivitet perioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
@@ -88,8 +94,8 @@ public class OpptjeningsvilkårMellomregning {
         var aktiviteter = grunnlag.getAktivitetPerioder().stream()
             .filter(filter)
             .collect(
-                Collectors.groupingBy(AktivitetPeriode::getOpptjeningAktivitet,
-                    Collectors.mapping(a -> new LocalDateSegment<>(a.getDatoInterval(), Boolean.TRUE), Collectors.toSet())));
+                Collectors.groupingBy(AktivitetPeriode::getAktivitet,
+                    Collectors.mapping(a -> new LocalDateSegment<>(a.getDatoIntervall(), Boolean.TRUE), Collectors.toSet())));
 
         LocalDateSegmentCombinator<Boolean, Boolean, Boolean> aktivitetOverlappDuplikatCombinator = StandardCombinators::alwaysTrueForMatch;
 
@@ -168,6 +174,10 @@ public class OpptjeningsvilkårMellomregning {
         return grunnlag;
     }
 
+    public OpptjeningsvilkårParametre getRegelParametre() {
+        return regelParametre;
+    }
+
     Map<Aktivitet, LocalDateTimeline<Long>> getInntektTidslinjer() {
         return getMellomregningTidslinje(AktivitetMellomregning::getInntektTidslinjer);
     }
@@ -223,8 +233,8 @@ public class OpptjeningsvilkårMellomregning {
      * Sjekker om opptjening er nok ifht. konfigurert minste periode.
      */
     boolean sjekkErInnenforMinstePeriodeGodkjent(Period opptjeningPeriode) {
-        var minsteAntallMåneder = grunnlag.getMinsteAntallMånederGodkjent();
-        var minsteAntallDager = grunnlag.getMinsteAntallDagerGodkjent();
+        var minsteAntallMåneder = regelParametre.minsteAntallMånederGodkjent();
+        var minsteAntallDager = regelParametre.minsteAntallDagerGodkjent();
         return sjekkErErOverAntallPåkrevd(opptjeningPeriode, minsteAntallMåneder, minsteAntallDager);
     }
 

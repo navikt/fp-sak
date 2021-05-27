@@ -35,18 +35,13 @@ public class Aktivitet {
 
     public Aktivitet(String aktivitetType, String aktivitetReferanse, ReferanseType referanseType) {
         Objects.requireNonNull(aktivitetType, "aktivitetType må være satt");
-        Objects.requireNonNull(aktivitetReferanse, "aktivitetReferanse må være satt");
-        Objects.requireNonNull(referanseType, "referanseType må være satt");
+        if (ARBEID.equals(aktivitetType) || FRILANSREG.equals(aktivitetType) || LØNN.equals(aktivitetType)) {
+            Objects.requireNonNull(aktivitetReferanse, "aktivitetReferanse må være satt");
+            Objects.requireNonNull(referanseType, "referanseType må være satt");
+        }
         this.aktivitetType = aktivitetType;
         this.aktivitetReferanse = aktivitetReferanse;
         this.referanseType = referanseType;
-    }
-
-    public Aktivitet(String aktivitetType) {
-        if (ARBEID.equals(aktivitetType) || FRILANSREG.equals(aktivitetType) || LØNN.equals(aktivitetType)) {
-            throw new IllegalArgumentException("Utvikler-feil: aktivitet ARBEID/FRILOPP/LØNN må ha referanse");
-        }
-        this.aktivitetType = aktivitetType;
     }
 
     public ReferanseType getReferanseType() {

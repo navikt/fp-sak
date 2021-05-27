@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
 public class RegelFastsettOpptjeningsperiodeTest {
@@ -25,10 +23,10 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
-
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(uttaksDato);
+        assertSkjæringsdato(resultat, uttaksDato);
     }
 
     @Test
@@ -39,11 +37,11 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
-
-        // Assert
         var tidligsteLovligeUttaksdato = terminDato.minusWeeks(12);
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(tidligsteLovligeUttaksdato);
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
+        // Assert
+        assertSkjæringsdato(resultat, tidligsteLovligeUttaksdato);
     }
 
     @Test
@@ -54,11 +52,10 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
-
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(terminDato.minusWeeks(3));
-        //assertThat(evaluation.getEvaluationProperties()).isNotEmpty();
+        assertSkjæringsdato(resultat, terminDato.minusWeeks(3));
     }
 
     @Test
@@ -69,10 +66,10 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var regelmodell = opprettOpptjeningsperiodeGrunnlagForMorFødsel(terminDato, terminDato, uttaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(uttaksDato);
+        assertSkjæringsdato(resultat, uttaksDato);
     }
 
     @Test
@@ -81,14 +78,13 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
-            uttaksDato, omsorgsDato, null);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
+            uttaksDato, omsorgsDato, null, null);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
-
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(uttaksDato);
+        assertSkjæringsdato(resultat, uttaksDato);
     }
 
     @Test
@@ -97,13 +93,13 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
-            uttaksDato, omsorgsDato, null);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
+            uttaksDato, omsorgsDato, null, null);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(omsorgsDato);
+        assertSkjæringsdato(resultat, omsorgsDato);
     }
 
     @Test
@@ -113,14 +109,13 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.minusDays(2);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
-        regelmodell.setMorsMaksdato(morsMaksDato);
+            uttaksDato, fødselsdato, fødselsdato, morsMaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(morsMaksDato.plusDays(1));
+        assertSkjæringsdato(resultat, morsMaksDato.plusDays(1));
     }
 
     @Test
@@ -130,14 +125,13 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.plusWeeks(7);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
-        regelmodell.setMorsMaksdato(morsMaksDato);
+            uttaksDato, fødselsdato, fødselsdato, morsMaksDato);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(uttaksDato);
+        assertSkjæringsdato(resultat, uttaksDato);
     }
 
     @Test
@@ -146,21 +140,25 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = fødselsdato.minusDays(1);
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
-            uttaksDato, fødselsdato, fødselsdato);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
+            uttaksDato, fødselsdato, fødselsdato, null);
 
         // Act
-        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, new OpptjeningsPeriode());
+        var resultat = new OpptjeningsPeriode();
+        new RegelFastsettOpptjeningsperiode().evaluer(regelmodell, resultat);
         // Assert
-        assertThat(regelmodell.getSkjæringsdatoOpptjening()).isEqualTo(fødselsdato);
+        assertSkjæringsdato(resultat, fødselsdato);
+    }
+
+    private void assertSkjæringsdato(OpptjeningsPeriode resultat, LocalDate expectedSTP) {
+        var tomfraregel = resultat.getOpptjeningsperiodeTom();
+        var stpfraregel = tomfraregel.plusDays(1);
+        assertThat(stpfraregel).isEqualTo(expectedSTP);
     }
 
 
     private OpptjeningsperiodeGrunnlag opprettOpptjeningsperiodeGrunnlagForMorFødsel(LocalDate terminDato, LocalDate hendelsesDato, LocalDate uttaksDato) {
         var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.MORA,
-            uttaksDato, hendelsesDato, terminDato);
-        regelmodell.setPeriodeLengde(Period.parse("P10M"));
-        regelmodell.setTidligsteUttakFørFødselPeriode(Period.parse("P12W"));
+            uttaksDato, hendelsesDato, terminDato, null);
         return regelmodell;
     }
 }

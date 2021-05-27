@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(FastsettSkjæringsdatoAnnenAdopsjon.ID)
-public class FastsettSkjæringsdatoAnnenAdopsjon extends LeafSpecification<OpptjeningsperiodeGrunnlag> {
+public class FastsettSkjæringsdatoAnnenAdopsjon extends LeafSpecification<OpptjeningsperiodeMellomregning> {
 
     static final String ID = "FP_VK 21.8";
     static final String BESKRIVELSE = "Første uttaksdag, men aldri senere enn dagen for ankomst Norge ved adopsjon fra utlandet";
@@ -19,10 +19,10 @@ public class FastsettSkjæringsdatoAnnenAdopsjon extends LeafSpecification<Opptj
     }
 
     @Override
-    public Evaluation evaluate(OpptjeningsperiodeGrunnlag regelmodell) {
-        var skjæringsdatoOpptjening = regelmodell.getFørsteUttaksDato();
+    public Evaluation evaluate(OpptjeningsperiodeMellomregning regelmodell) {
+        var skjæringsdatoOpptjening = regelmodell.getGrunnlag().førsteUttaksDato();
 
-        var hendelsesDato = regelmodell.getHendelsesDato();
+        var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
         if(skjæringsdatoOpptjening.isBefore(hendelsesDato)) {
             skjæringsdatoOpptjening = hendelsesDato;
         }

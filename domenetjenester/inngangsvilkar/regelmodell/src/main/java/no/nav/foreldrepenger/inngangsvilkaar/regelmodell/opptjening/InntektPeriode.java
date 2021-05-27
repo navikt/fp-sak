@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.util.Currency;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -9,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class InntektPeriode {
-
-    private static final Currency CURRENCY_NOK = Currency.getInstance("NOK");
 
     @JsonProperty("datoIntervall")
     private LocalDateInterval datoIntervall;
@@ -21,18 +18,15 @@ public class InntektPeriode {
     @JsonProperty("inntektBelop")
     private Long inntektBeløp;
 
-    @JsonProperty("inntektValuta")
-    private Currency inntektValuta = CURRENCY_NOK;
-
     @JsonCreator
     InntektPeriode() {
         // for JSON
     }
 
-    public InntektPeriode(LocalDateInterval datoInterval, Aktivitet aktivitet, Long kronerInntekt) {
-        this.datoIntervall = datoInterval;
+    public InntektPeriode(LocalDateInterval datoIntervall, Aktivitet aktivitet, Long inntektBeløp) {
+        this.datoIntervall = datoIntervall;
         this.aktivitet = aktivitet;
-        this.inntektBeløp = kronerInntekt;
+        this.inntektBeløp = inntektBeløp;
     }
 
     public LocalDateInterval getDatoInterval() {
@@ -41,10 +35,6 @@ public class InntektPeriode {
 
     public Long getInntektBeløp() {
         return inntektBeløp;
-    }
-
-    public Currency getInntektValuta() {
-        return inntektValuta;
     }
 
     public Aktivitet getAktivitet() {

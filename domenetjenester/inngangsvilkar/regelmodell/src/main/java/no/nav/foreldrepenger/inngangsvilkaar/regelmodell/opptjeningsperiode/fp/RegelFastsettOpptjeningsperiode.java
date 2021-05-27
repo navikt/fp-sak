@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FastsettOpptjeningsperiode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodevilkårParametre;
 import no.nav.fpsak.nare.RuleService;
 import no.nav.fpsak.nare.Ruleset;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -24,22 +26,23 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
 
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
-        var evaluation = getSpecification().evaluate(input);
+        var mellomregning = new OpptjeningsperiodeMellomregning(input, OpptjeningsperiodevilkårParametre.vilkårparametreForeldrepenger());
+        var evaluation = getSpecification().evaluate(mellomregning);
 
-        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(input.getOpptjeningsperiodeFom());
-        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(input.getOpptjeningsperiodeTom());
+        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(mellomregning.getOpptjeningsperiodeFom());
+        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(mellomregning.getOpptjeningsperiodeTom());
 
         return evaluation;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Specification<OpptjeningsperiodeGrunnlag> getSpecification() {
+    public Specification<OpptjeningsperiodeMellomregning> getSpecification() {
 
-        var rs = new Ruleset<OpptjeningsperiodeGrunnlag>();
+        var rs = new Ruleset<OpptjeningsperiodeMellomregning>();
 
         // FP_VK_21.9
-        Specification<OpptjeningsperiodeGrunnlag> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
+        Specification<OpptjeningsperiodeMellomregning> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
 
         // FP_VK_21.5 + FP_VK_21.9
         var fastsettMorFødsel =
@@ -62,27 +65,27 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
                 new FastsettSkjæringsdatoAnnenAdopsjon(), fastsettOpptjeningsperiode);
 
         // FP_VK_21.4
-        Specification<OpptjeningsperiodeGrunnlag> adopsjonAnnenNode =
+        Specification<OpptjeningsperiodeMellomregning> adopsjonAnnenNode =
             rs.hvisRegel(SjekkAnnenAdopsjon.ID, SjekkAnnenAdopsjon.BESKRIVELSE).hvis(new SjekkAnnenAdopsjon(), fastsettAnnenAdopsjon).ellers(fastsettAnnenFødsel);
 
         // FP_VK_21.11
-        Specification<OpptjeningsperiodeGrunnlag> omsorgNode =
+        Specification<OpptjeningsperiodeMellomregning> omsorgNode =
             rs.hvisRegel(SjekkOmsorg.ID, SjekkOmsorg.BESKRIVELSE).hvis(new SjekkOmsorg(), fastsettMorAdopsjon).ellers(new IkkeGyldigUtgang());
 
         // FP_VK_21.3
-        Specification<OpptjeningsperiodeGrunnlag> adopsjonNode =
+        Specification<OpptjeningsperiodeMellomregning> adopsjonNode =
             rs.hvisRegel(SjekkMorAdopsjon.ID, SjekkMorAdopsjon.BESKRIVELSE).hvis(new SjekkMorAdopsjon(), fastsettMorAdopsjon).ellers(adopsjonAnnenNode);
 
         // FP_VK_21.10
-        Specification<OpptjeningsperiodeGrunnlag> adopsjonOmsorgNode =
+        Specification<OpptjeningsperiodeMellomregning> adopsjonOmsorgNode =
             rs.hvisRegel(SjekkAdopsjon.ID, SjekkAdopsjon.BESKRIVELSE).hvis(new SjekkAdopsjon(), adopsjonNode).ellers(omsorgNode);
 
         // FP_VK_21.2
-        Specification<OpptjeningsperiodeGrunnlag> fødselsNode =
+        Specification<OpptjeningsperiodeMellomregning> fødselsNode =
             rs.hvisRegel(SjekkMorFødsel.ID, SjekkMorFødsel.BESKRIVELSE).hvis(new SjekkMorFødsel(), fastsettMorFødsel).ellers(fastsettAnnenFødsel);
 
         // FP_VK_21.1
-        Specification<OpptjeningsperiodeGrunnlag> omhandlerFødselNode =
+        Specification<OpptjeningsperiodeMellomregning> omhandlerFødselNode =
             rs.hvisRegel(SjekkFødsel.ID, SjekkFødsel.BESKRIVELSE).hvis(new SjekkFødsel(), fødselsNode).ellers(adopsjonOmsorgNode);
 
         // FP_VK_21: Start

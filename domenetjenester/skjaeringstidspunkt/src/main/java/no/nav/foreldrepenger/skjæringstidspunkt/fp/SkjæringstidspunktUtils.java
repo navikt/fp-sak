@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -30,29 +30,20 @@ public class SkjæringstidspunktUtils {
 
     private final Period grenseverdiFør;
     private final Period grenseverdiEtter;
-    private final Period opptjeningsperiode;
-    private final Period tidligsteUttakFørFødselPeriode;
 
     /**
-     *
-     * @param opptjeningsperiode - Opptjeningsperiode lengde før skjæringstidspunkt
-     * @param tidligsteUttakFørFødselPeriode -
-     * @param grenseverdiAvvikFør - Maks avvik før/etter STP for registerinnhenting før justering av perioden
+     *  @param grenseverdiAvvikFør - Maks avvik før/etter STP for registerinnhenting før justering av perioden
      * @param grenseverdiAvvikEtter
      */
     @Inject
-    public SkjæringstidspunktUtils(@KonfigVerdi(value = "fp.opptjeningsperiode.lengde", defaultVerdi = "P10M") Period opptjeningsperiode,
-                                   @KonfigVerdi(value = "fp.uttak.tidligst.før.fødsel", defaultVerdi = "P12W") Period tidligsteUttakFørFødselPeriode,
-                                   @KonfigVerdi(value = "fp.registerinnhenting.avvik.periode.før", defaultVerdi = "P4M") Period grenseverdiAvvikFør,
+    public SkjæringstidspunktUtils(@KonfigVerdi(value = "fp.registerinnhenting.avvik.periode.før", defaultVerdi = "P4M") Period grenseverdiAvvikFør,
                                    @KonfigVerdi(value = "fp.registerinnhenting.avvik.periode.etter", defaultVerdi = "P1Y") Period grenseverdiAvvikEtter) {
         this.grenseverdiFør = grenseverdiAvvikFør;
         this.grenseverdiEtter = grenseverdiAvvikEtter;
-        this.opptjeningsperiode = opptjeningsperiode;
-        this.tidligsteUttakFørFødselPeriode = tidligsteUttakFørFødselPeriode;
     }
 
     public SkjæringstidspunktUtils() {
-        this(Period.ofMonths(10), Period.ofWeeks(12), Period.ofMonths(4), Period.ofYears(1));
+        this(Period.ofMonths(4), Period.ofYears(1));
     }
 
     LocalDate utledSkjæringstidspunktRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseAggregat) {
@@ -105,33 +96,28 @@ public class SkjæringstidspunktUtils {
 
     private LocalDate evaluerSkjæringstidspunktOpptjening(Behandling behandling, LocalDate førsteUttaksDato,
                                                           FamilieHendelseGrunnlagEntitet fhGrunnlag, Optional<LocalDate> morsMaksDato) {
-        var grunnlag = new OpptjeningsperiodeGrunnlag();
-
         final var gjeldendeHendelseDato = fhGrunnlag.getGjeldendeVersjon().getGjelderFødsel() ? fhGrunnlag.finnGjeldendeFødselsdato()
             : fhGrunnlag.getGjeldendeVersjon().getSkjæringstidspunkt();
+        final var gjeldendeTermindato = fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
-
-        grunnlag.setFagsakÅrsak(finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon()));
-        grunnlag.setSøkerRolle(finnFagsakSøkerRolle(behandling));
-        if (grunnlag.getFagsakÅrsak() == null || grunnlag.getSøkerRolle() == null) {
-            throw new IllegalArgumentException(
-                "Utvikler-feil: Finner ikke årsak(" + grunnlag.getFagsakÅrsak() + ")/rolle(" + grunnlag.getSøkerRolle() + ") for behandling:" + behandling.getId());
+        var fagsakÅrsak = finnFagsakÅrsak(fhGrunnlag.getGjeldendeVersjon());
+        var søkerRolle =  finnFagsakSøkerRolle(behandling);
+        if (fagsakÅrsak == null || søkerRolle == null) {
+            throw new IllegalArgumentException("Utvikler-feil: Finner ikke årsak/rolle for behandling:" + behandling.getId());
         }
 
-        grunnlag.setHendelsesDato(gjeldendeHendelseDato);
-        fhGrunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).ifPresent(grunnlag::setTerminDato);
+        LocalDate hendelsedato = Optional.ofNullable(gjeldendeHendelseDato)
+            .or(() -> gjeldendeTermindato)
+            .orElseThrow(() -> new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandling.getId()));
 
-        if (grunnlag.getHendelsesDato() == null) {
-            grunnlag.setHendelsesDato(grunnlag.getTerminDato());
-            if (grunnlag.getHendelsesDato() == null) {
-                throw new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandling.getId());
-            }
-        }
-
-        grunnlag.setTidligsteUttakFørFødselPeriode(tidligsteUttakFørFødselPeriode);
-        grunnlag.setPeriodeLengde(opptjeningsperiode);
-        grunnlag.setFørsteUttaksDato(førsteUttaksDato);
-        morsMaksDato.ifPresent(grunnlag::setMorsMaksdato);
+        var grunnlag = new OpptjeningsperiodeGrunnlag(
+            fagsakÅrsak,
+            søkerRolle,
+            førsteUttaksDato,
+            hendelsedato,
+            gjeldendeTermindato.orElse(null),
+            morsMaksDato.orElse(null)
+        );
 
         final var fastsettPeriode = new RegelFastsettOpptjeningsperiode();
         final var periode = new OpptjeningsPeriode();

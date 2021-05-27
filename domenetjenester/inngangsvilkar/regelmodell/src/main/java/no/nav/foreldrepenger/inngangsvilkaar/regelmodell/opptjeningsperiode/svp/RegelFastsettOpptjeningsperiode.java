@@ -1,8 +1,10 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.FastsettOpptjeningsperiode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodevilkårParametre;
 import no.nav.fpsak.nare.RuleService;
 import no.nav.fpsak.nare.Ruleset;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
@@ -24,20 +26,21 @@ public class RegelFastsettOpptjeningsperiode implements RuleService<Opptjeningsp
 
     @Override
     public Evaluation evaluer(OpptjeningsperiodeGrunnlag input, Object outputContainer) {
-        var evaluation = getSpecification().evaluate(input);
+        var mellomregning = new OpptjeningsperiodeMellomregning(input, OpptjeningsperiodevilkårParametre.vilkårparametreSvangerskapspenger());
+        var evaluation = getSpecification().evaluate(mellomregning);
 
-        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(input.getOpptjeningsperiodeFom());
-        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(input.getOpptjeningsperiodeTom());
+        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeFom(mellomregning.getOpptjeningsperiodeFom());
+        ((OpptjeningsPeriode) outputContainer).setOpptjeningsperiodeTom(mellomregning.getOpptjeningsperiodeTom());
 
         return evaluation;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Specification<OpptjeningsperiodeGrunnlag> getSpecification() {
+    public Specification<OpptjeningsperiodeMellomregning> getSpecification() {
 
-        var rs = new Ruleset<OpptjeningsperiodeGrunnlag>();
-        Specification<OpptjeningsperiodeGrunnlag> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
+        var rs = new Ruleset<OpptjeningsperiodeMellomregning>();
+        Specification<OpptjeningsperiodeMellomregning> fastsettOpptjeningsperiode = new FastsettOpptjeningsperiode();
 
         var fastsettSkjæringsdatoSvp =
             rs.beregningsRegel("FP_VK 21.1", "Fastsett periode: Svangerskap",

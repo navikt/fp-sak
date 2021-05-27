@@ -139,7 +139,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
     }
 
     private boolean evaluerEvtUnderkjennUtlandskeAktiviteteter(OpptjeningsvilkårMellomregning data) {
-        var utlandsFilter = new Aktivitet(UTLAND);
+        var utlandsFilter = new Aktivitet(UTLAND, null, null);
 
         var tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
 

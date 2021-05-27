@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,8 +21,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 import no.nav.vedtak.konfig.KonfigVerdi;
 
@@ -30,8 +31,6 @@ import no.nav.vedtak.konfig.KonfigVerdi;
 public class OpptjeningsperiodeVilkårTjenesteImpl implements OpptjeningsperiodeVilkårTjeneste {
 
     private InngangsvilkårOversetter inngangsvilkårOversetter;
-    private Period antallMånederOpptjeningsperiode;
-    private Period tidligsteUttakFørFødselPeriode;
     private FamilieHendelseRepository familieHendelseRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
 
@@ -40,19 +39,11 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         // for CDI proxy
     }
 
-    /**
-     * @param opptjeningsPeriode - Opptjeningsperiode før skjæringstidspunkt
-     * @param tidligsteUttakFørFødselPeriode - Tidligste lovlige oppstart av uttak av foreldrepenger før fødsel.
-     */
     @Inject
     public OpptjeningsperiodeVilkårTjenesteImpl(InngangsvilkårOversetter inngangsvilkårOversetter,
                                                 FamilieHendelseRepository familieHendelseRepository,
-                                                YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste,
-                                                @KonfigVerdi(value = "fp.opptjeningsperiode.lengde", defaultVerdi = "P10M") Period opptjeningsPeriode,
-                                                @KonfigVerdi(value = "fp.uttak.tidligst.før.fødsel", defaultVerdi = "P12W") Period tidligsteUttakFørFødselPeriode) {
+                                                YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste) {
         this.inngangsvilkårOversetter = inngangsvilkårOversetter;
-        this.antallMånederOpptjeningsperiode = opptjeningsPeriode;
-        this.tidligsteUttakFørFødselPeriode = tidligsteUttakFørFødselPeriode;
         this.familieHendelseRepository = familieHendelseRepository;
         this.ytelseMaksdatoTjeneste = beregnMorsMaksdatoTjeneste;
     }
@@ -61,8 +52,6 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
 
         var grunnlag = opprettGrunnlag(behandlingReferanse, førsteUttaksdato);
-        grunnlag.setPeriodeLengde(antallMånederOpptjeningsperiode);
-        grunnlag.setTidligsteUttakFørFødselPeriode(tidligsteUttakFørFødselPeriode);
 
         final var data = new OpptjeningsPeriode();
         var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
@@ -74,32 +63,38 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
 
     private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref, LocalDate førsteUttaksdato) {
 
-        var grunnlag = new OpptjeningsperiodeGrunnlag();
-
         var behandlingId = ref.getBehandlingId();
         final var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
         final var hendelse = hendelseAggregat.getGjeldendeVersjon();
 
-        grunnlag.setFagsakÅrsak(finnFagsakÅrsak(hendelse));
-        grunnlag.setSøkerRolle(finnFagsakSøkerRolle(ref));
-        if (grunnlag.getFagsakÅrsak() == null || grunnlag.getSøkerRolle() == null) {
+        var fagsakÅrsak = finnFagsakÅrsak(hendelse);
+        var søkerRolle =  finnFagsakSøkerRolle(ref);
+        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.getSaksnummer(), ref.getRelasjonsRolleType());
+        Optional<LocalDate> termindato;
+        LocalDate hendelsedato;
+        if (FagsakÅrsak.FØDSEL.equals(fagsakÅrsak)) {
+            termindato = hendelseAggregat.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
+            hendelsedato = hendelseAggregat.finnGjeldendeFødselsdato();
+        } else {
+            termindato = Optional.empty();
+            hendelsedato = hendelse.getSkjæringstidspunkt();
+        }
+
+        if (fagsakÅrsak == null || søkerRolle == null) {
             throw new IllegalArgumentException("Utvikler-feil: Finner ikke årsak/rolle for behandling:" + behandlingId);
         }
-
-        ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.getSaksnummer(), ref.getRelasjonsRolleType()).ifPresent(grunnlag::setMorsMaksdato);
-        if (grunnlag.getFagsakÅrsak().equals(FagsakÅrsak.FØDSEL)) {
-            hendelseAggregat.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).ifPresent(grunnlag::setTerminDato);
-            grunnlag.setHendelsesDato(hendelseAggregat.finnGjeldendeFødselsdato());
-        } else {
-            grunnlag.setHendelsesDato(hendelse.getSkjæringstidspunkt());
-
-        }
-        if (grunnlag.getHendelsesDato() == null) {
+        if (hendelsedato == null) {
             throw new IllegalArgumentException("Utvikler-feil: Finner ikke hendelsesdato for behandling:" + behandlingId);
         }
 
-        grunnlag.setFørsteUttaksDato(førsteUttaksdato);
-
+        var grunnlag = new OpptjeningsperiodeGrunnlag(
+            fagsakÅrsak,
+            søkerRolle,
+            førsteUttaksdato,
+            hendelsedato,
+            termindato.orElse(null),
+            morsMaksdato.orElse(null)
+        );
         return grunnlag;
     }
 

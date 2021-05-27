@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(SjekkFødsel.ID)
-public class SjekkFødsel extends LeafSpecification<OpptjeningsperiodeGrunnlag> {
+public class SjekkFødsel extends LeafSpecification<OpptjeningsperiodeMellomregning> {
 
     static final String ID = "FP_VK 21.1";
     static final String BESKRIVELSE = "Gjelder det fødsel?";
@@ -17,7 +17,7 @@ public class SjekkFødsel extends LeafSpecification<OpptjeningsperiodeGrunnlag> 
     }
 
     @Override
-    public Evaluation evaluate(OpptjeningsperiodeGrunnlag regelmodell) {
-        return FagsakÅrsak.FØDSEL.equals(regelmodell.getFagsakÅrsak()) ? ja() : nei();
+    public Evaluation evaluate(OpptjeningsperiodeMellomregning regelmodell) {
+        return FagsakÅrsak.FØDSEL.equals(regelmodell.getGrunnlag().fagsakÅrsak()) ? ja() : nei();
     }
 }

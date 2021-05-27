@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjeningsperiode;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
@@ -49,7 +49,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        var stputil = new SkjæringstidspunktUtils(Period.parse("P10M"), Period.parse("P6M"),
+        var stputil = new SkjæringstidspunktUtils(
             Period.parse("P1Y"), Period.parse("P6M"));
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
@@ -61,8 +61,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
             beregnMorsMaksdatoTjeneste, iayTjeneste, null);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(oversetter,
-            repositoryProvider.getFamilieHendelseRepository(), beregnMorsMaksdatoTjeneste, Period.parse("P10M"),
-            Period.parse("P12W"));
+            repositoryProvider.getFamilieHendelseRepository(), beregnMorsMaksdatoTjeneste);
     }
 
     @Test

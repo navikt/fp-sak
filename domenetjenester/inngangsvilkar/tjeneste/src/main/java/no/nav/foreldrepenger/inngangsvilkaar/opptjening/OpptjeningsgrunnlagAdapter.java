@@ -101,7 +101,7 @@ public class OpptjeningsgrunnlagAdapter {
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 opptjeningsGrunnlag.leggTil(aktivitetPeriode);
             } else {
-                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode());
+                var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), null, null);
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
                 opptjeningsGrunnlag.leggTil(aktivitetPeriode);
             }

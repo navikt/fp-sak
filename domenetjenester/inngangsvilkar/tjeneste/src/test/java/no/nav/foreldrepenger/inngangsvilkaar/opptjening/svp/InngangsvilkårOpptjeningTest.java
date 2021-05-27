@@ -27,10 +27,6 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
-
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
@@ -50,10 +46,6 @@ public class InngangsvilkårOpptjeningTest {
     public void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() throws Exception {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
-
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
@@ -75,10 +67,6 @@ public class InngangsvilkårOpptjeningTest {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
-
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
@@ -98,10 +86,6 @@ public class InngangsvilkårOpptjeningTest {
     public void test_aktivitet_første_og_siste() throws Exception {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
-
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
@@ -124,10 +108,6 @@ public class InngangsvilkårOpptjeningTest {
     public void test_beregn_opptjening_nok_aktivitet() throws Exception {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
-
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
 
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);

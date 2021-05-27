@@ -47,7 +47,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         }
 
         //TODO(OJR) burde kanskje lage et egen regelsett for SVP, da det er store forskjeller
-        if ((data.getGrunnlag().getSkalGodkjenneBasertPåAntatt())) {
+        if ((data.getRegelParametre().skalGodkjenneBasertPåAntatt())) {
             // SVP godkjenner basert på antatt opptjening hvis behandling er før frist for inntektsrapportering.
             var fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
             var skalKreveRapportertInntekt = data.getGrunnlag().getBehandlingsTidspunkt().isAfter(fristForInntektsrapportering);
