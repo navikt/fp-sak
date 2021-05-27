@@ -125,19 +125,27 @@ public class VurderLøpendeMedlemskap {
         for (var vurderingsdato : vurderingsdatoerListe) {
             var vurdertOpt = Optional.ofNullable(map.get(vurderingsdato));
             var aggregatOptional = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref.getBehandlingId(), ref.getAktørId(), vurderingsdato);
-            var grunnlag = new MedlemskapsvilkårGrunnlag(
-                brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, aggregatOptional.get(), vurderingsdato), // FP VK 2.13
-                tilPersonStatusType(aggregatOptional),
-                brukerNorskNordisk(aggregatOptional),
-                vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true)
-            );
 
-            grunnlag.setHarSøkerArbeidsforholdOgInntekt(finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato));
-            grunnlag.setBrukerAvklartLovligOppholdINorge(vurdertOpt.map(v -> defaultValueTrue(v.getLovligOppholdVurdering())).orElse(true));
-            grunnlag.setBrukerAvklartBosatt(vurdertOpt.map(v -> defaultValueTrue(v.getBosattVurdering())).orElse(true));
-            grunnlag.setBrukerAvklartOppholdsrett(vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true));
-            grunnlag.setBrukerAvklartPliktigEllerFrivillig(erAvklartSomPliktigEllerFrivillingMedlem(vurdertOpt, medlemskap, vurderingsdato));
-            grunnlag.setBrukerHarOppholdstillatelse(harOppholdstillatelsePåDato(ref, vurderingsdato));
+            // // FP VK 2.13
+            var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, aggregatOptional.get(), vurderingsdato);
+            // FP VK 2.2 Er bruker avklart som pliktig eller frivillig medlem?
+            var avklartPliktigEllerFrivillig = erAvklartSomPliktigEllerFrivillingMedlem(vurdertOpt, medlemskap, vurderingsdato);
+            // defaulter uavklarte fakta til true
+            var vurdertBosatt = vurdertOpt.map(v -> defaultValueTrue(v.getBosattVurdering())).orElse(true);
+            var vurdertLovligOpphold = vurdertOpt.map(v -> defaultValueTrue(v.getLovligOppholdVurdering())).orElse(true);
+            var vurdertOppholdsrett = vurdertOpt.map(v -> defaultValueTrue(v.getOppholdsrettVurdering())).orElse(true);
+
+            var grunnlag = new MedlemskapsvilkårGrunnlag(
+                tilPersonStatusType(aggregatOptional), // FP VK 2.1
+                brukerNorskNordisk(aggregatOptional), // FP VK 2.11
+                vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true), // FP VIK 2.12
+                harOppholdstillatelsePåDato(ref, vurderingsdato),
+                finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato),
+                vurdertErMedlem,
+                avklartPliktigEllerFrivillig,
+                vurdertBosatt,
+                vurdertLovligOpphold,
+                vurdertOppholdsrett);
 
             resulatat.put(vurderingsdato, grunnlag);
         }

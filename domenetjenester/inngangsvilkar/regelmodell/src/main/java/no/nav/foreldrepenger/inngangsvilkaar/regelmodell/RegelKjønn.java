@@ -1,18 +1,18 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
-public enum Kjoenn {
+public enum RegelKjønn {
     KVINNE("K"), MANN("M");
 
     private String kode;
 
-    Kjoenn(String kode) {
+    RegelKjønn(String kode) {
         this.kode = kode;
     }
 
-    public static Kjoenn hentKjoenn(String kode) {
-        for (var kjoenn : values()) {
-            if (kjoenn.kode.equals(kode)) {
-                return kjoenn;
+    public static RegelKjønn hentKjønn(String kode) {
+        for (var kjønn : values()) {
+            if (kjønn.kode.equals(kode)) {
+                return kjønn;
             }
         }
         return null;

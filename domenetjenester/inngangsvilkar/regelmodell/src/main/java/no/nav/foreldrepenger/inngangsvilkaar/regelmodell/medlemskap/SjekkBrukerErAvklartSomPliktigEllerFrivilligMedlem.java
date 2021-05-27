@@ -17,7 +17,7 @@ public class SjekkBrukerErAvklartSomPliktigEllerFrivilligMedlem extends LeafSpec
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
 
-        if (grunnlag.isBrukerAvklartPliktigEllerFrivillig()) {
+        if (grunnlag.brukerAvklartPliktigEllerFrivillig()) {
             return ja();
         }
         return nei();

@@ -20,7 +20,7 @@ public class SjekkBrukerErAvklartSomIkkeBosatt extends LeafSpecification<Medlems
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (!grunnlag.isBrukerAvklartBosatt()) {
+        if (!grunnlag.brukerAvklartBosatt()) {
             return ja(IKKE_OPPFYLT_BRUKER_ER_AVKLART_SOM_IKKE_BOSATT);
         }
         return nei();

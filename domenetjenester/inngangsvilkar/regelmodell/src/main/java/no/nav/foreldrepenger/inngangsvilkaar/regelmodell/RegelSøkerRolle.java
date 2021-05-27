@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
-public enum SoekerRolle {
+public enum RegelSøkerRolle {
     MORA("Mor til"),
     MEDMOR("Medmor til"),
     FARA("Far til");
 
     private String kode;
 
-    SoekerRolle(String kode) {
+    RegelSøkerRolle(String kode) {
         this.kode = kode;
     }
 

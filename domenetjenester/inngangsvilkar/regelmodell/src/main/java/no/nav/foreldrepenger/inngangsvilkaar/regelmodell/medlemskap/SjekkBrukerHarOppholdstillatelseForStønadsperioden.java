@@ -15,7 +15,7 @@ public class SjekkBrukerHarOppholdstillatelseForStønadsperioden extends LeafSpe
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isBrukerHarOppholdstillatelse()) {
+        if (grunnlag.brukerHarOppholdstillatelse()) {
             return ja();
         }
         return nei();

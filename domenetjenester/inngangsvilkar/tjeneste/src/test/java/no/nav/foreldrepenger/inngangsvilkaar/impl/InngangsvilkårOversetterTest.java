@@ -47,8 +47,8 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.RegisterInnhentingIntervall;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
@@ -93,13 +93,13 @@ public class InngangsvilkårOversetterTest {
         var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
         // Assert
-        assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.KVINNE);
-        assertThat(grunnlag.getBekreftetFoedselsdato()).isEqualTo(fødselFødselsdato);
-        assertThat(grunnlag.getAntallBarn()).isEqualTo(1);
-        assertThat(grunnlag.getBekreftetTermindato()).isNull();
-        assertThat(grunnlag.getSoekerRolle()).isEqualTo(SoekerRolle.MORA);
-        assertThat(grunnlag.getDagensdato()).isEqualTo(søknadsdato);
-        assertThat(grunnlag.isErSøktOmTermin()).isFalse();
+        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE);
+        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
+        assertThat(grunnlag.antallBarn()).isEqualTo(1);
+        assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
+        assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.MORA);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
+        assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 
     @Test
@@ -112,12 +112,12 @@ public class InngangsvilkårOversetterTest {
         var grunnlag = oversetter.oversettTilRegelModellFødsel(lagRef(behandling));
 
         // Assert
-        assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.KVINNE); // snodig, men søker er kvinne her med rolle FARA
-        assertThat(grunnlag.getBekreftetFoedselsdato()).isEqualTo(fødselFødselsdato);
-        assertThat(grunnlag.getBekreftetTermindato()).isNull();
-        assertThat(grunnlag.getSoekerRolle()).isEqualTo(SoekerRolle.FARA);
-        assertThat(grunnlag.getDagensdato()).isEqualTo(søknadsdato);
-        assertThat(grunnlag.isErSøktOmTermin()).isFalse();
+        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.KVINNE); // snodig, men søker er kvinne her med rolle FARA
+        assertThat(grunnlag.bekreftetFødselsdato()).isEqualTo(fødselFødselsdato);
+        assertThat(grunnlag.terminbekreftelseTermindato()).isNull();
+        assertThat(grunnlag.søkerRolle()).isEqualTo(RegelSøkerRolle.FARA);
+        assertThat(grunnlag.behandlingsdato()).isEqualTo(søknadsdato);
+        assertThat(grunnlag.erSøktOmTermin()).isFalse();
     }
 
     private Behandling opprettBehandlingForFødsel(LocalDate now, LocalDate søknadsdato, LocalDate fødselFødselsdato,
@@ -195,11 +195,11 @@ public class InngangsvilkårOversetterTest {
         var grunnlag = oversetter.oversettTilRegelModellAdopsjon(lagRef(behandling));
 
         // Assert
-        assertThat(grunnlag.getSoekersKjonn()).isEqualTo(Kjoenn.MANN);
-        assertThat(grunnlag.getBekreftetAdopsjonBarn().get(0).getFoedselsdato()).isEqualTo(map.get(1));
-        assertThat(grunnlag.isEktefellesBarn()).isTrue();
-        assertThat(grunnlag.isMannAdoptererAlene()).isTrue();
-        assertThat(grunnlag.getOmsorgsovertakelsesdato()).isEqualTo(fødselAdopsjonsdatoFraSøknad);
+        assertThat(grunnlag.søkersKjønn()).isEqualTo(RegelKjønn.MANN);
+        assertThat(grunnlag.bekreftetAdopsjonBarn().get(0).fødselsdato()).isEqualTo(map.get(1));
+        assertThat(grunnlag.ektefellesBarn()).isTrue();
+        assertThat(grunnlag.mannAdoptererAlene()).isTrue();
+        assertThat(grunnlag.omsorgsovertakelsesdato()).isEqualTo(fødselAdopsjonsdatoFraSøknad);
     }
 
     @Test
@@ -226,12 +226,12 @@ public class InngangsvilkårOversetterTest {
         var grunnlag = oversetter.oversettTilRegelModellMedlemskap(lagRef(behandling));
 
         // Assert
-        assertThat(grunnlag.isBrukerAvklartBosatt()).isTrue();
-        assertThat(grunnlag.isBrukerAvklartLovligOppholdINorge()).isTrue();
-        assertThat(grunnlag.isBrukerAvklartOppholdsrett()).isTrue();
-        assertThat(grunnlag.isBrukerAvklartPliktigEllerFrivillig()).isTrue();
-        assertThat(grunnlag.isBrukerNorskNordisk()).isTrue();
-        assertThat(grunnlag.isBrukerBorgerAvEUEOS()).isFalse();
+        assertThat(grunnlag.brukerAvklartBosatt()).isTrue();
+        assertThat(grunnlag.brukerAvklartLovligOppholdINorge()).isTrue();
+        assertThat(grunnlag.brukerAvklartOppholdsrett()).isTrue();
+        assertThat(grunnlag.brukerAvklartPliktigEllerFrivillig()).isTrue();
+        assertThat(grunnlag.brukerNorskNordisk()).isTrue();
+        assertThat(grunnlag.brukerBorgerAvEUEOS()).isFalse();
         assertThat(grunnlag.harSøkerArbeidsforholdOgInntekt()).isTrue();
     }
 

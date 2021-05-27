@@ -15,7 +15,7 @@ public class SjekkBrukerErAvklartSomNordiskStatsborger extends LeafSpecification
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isBrukerNorskNordisk()) {
+        if (grunnlag.brukerNorskNordisk()) {
             return ja();
         }
         return nei();

@@ -18,7 +18,7 @@ class SjekkOmStønadsperiodeForAnnenForelderErBruktOpp extends LeafSpecification
 
     @Override
     public Evaluation evaluate(AdopsjonsvilkårGrunnlag grunnlag) {
-        if (grunnlag.getErStønadsperiodeBruktOpp()) {
+        if (grunnlag.erStønadsperiodeBruktOpp()) {
             return ja();
         }
         // hvis stønadsperioden ikke er brukt opp = det er flere dager igjen

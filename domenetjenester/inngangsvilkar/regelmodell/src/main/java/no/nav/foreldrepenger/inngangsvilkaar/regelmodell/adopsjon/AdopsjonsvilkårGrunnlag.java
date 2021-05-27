@@ -1,86 +1,30 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public class AdopsjonsvilkårGrunnlag implements VilkårGrunnlag {
+public record AdopsjonsvilkårGrunnlag (List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn,
+                                       boolean ektefellesBarn,
+                                       @JsonProperty("soekersKjonn") RegelKjønn søkersKjønn,
+                                       boolean mannAdoptererAlene,
+                                       LocalDate omsorgsovertakelsesdato,
+                                       boolean erStønadsperiodeBruktOpp) implements VilkårGrunnlag {
+    public AdopsjonsvilkårGrunnlag {
+        Objects.requireNonNull(bekreftetAdopsjonBarn);
+    }
 
-    /**
-     * Fødselsdato for adoptert barn
+    /*
+     * Jepp det er ikke norske bokstaver - lot det ligge i denne omgangen pga vedtakxml-mapping (den bør også oppdateres)
+     * For å fornorske: Lag en legacy-variant så LagretVedtakXML kan hente fra gammel/ny json
+     * Men helst finn på noe smartere ifm vedtakslagring - deretter full historisk regenerering av alle saker
      */
-    private List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn = new ArrayList<>();
-    /**
-     * Om det er ektefelles barn
-     */
-    private boolean ektefellesBarn;
-    /**
-     * Søkers kjønn
-     */
-    private Kjoenn soekersKjonn;
-    /**
-     * Om mann adopterer alene
-     */
-    private boolean mannAdoptererAlene;
-    /**
-     * Dato for omsorgsovertakelse
-     */
-    private LocalDate omsorgsovertakelsesdato;
 
-    /**
-     * Om stønadsperioden for annen forelder er brukt opp
-     */
-    private boolean erStønadsperiodeBruktOpp;
-
-
-    public AdopsjonsvilkårGrunnlag(List<BekreftetAdopsjonBarn> bekreftetAdopsjonBarn, boolean ektefellesBarn, Kjoenn soekersKjonn,
-                                   boolean mannAdoptererAlene, LocalDate omsorgsovertakelsesdato, boolean erStønadsperiodeBruktOpp) {
-
-        this.ektefellesBarn = ektefellesBarn;
-        this.soekersKjonn = soekersKjonn;
-        this.mannAdoptererAlene = mannAdoptererAlene;
-        this.omsorgsovertakelsesdato = omsorgsovertakelsesdato;
-        this.erStønadsperiodeBruktOpp = erStønadsperiodeBruktOpp;
-        if (bekreftetAdopsjonBarn != null) {
-            for (var bab : bekreftetAdopsjonBarn) {
-                leggTilBekreftetAdopsjonBarn(bab);
-            }
-        }
-    }
-
-    public AdopsjonsvilkårGrunnlag() {
-    }
-
-    public boolean isEktefellesBarn() {
-        return ektefellesBarn;
-    }
-
-    public Kjoenn getSoekersKjonn() {
-        return soekersKjonn;
-    }
-
-    public boolean isMannAdoptererAlene() {
-        return mannAdoptererAlene;
-    }
-
-    public LocalDate getOmsorgsovertakelsesdato() {
-        return omsorgsovertakelsesdato;
-    }
-
-    public List<BekreftetAdopsjonBarn> getBekreftetAdopsjonBarn() {
-        return bekreftetAdopsjonBarn;
-    }
-
-    public boolean getErStønadsperiodeBruktOpp() {
-        return erStønadsperiodeBruktOpp;
-    }
-
-    public final void leggTilBekreftetAdopsjonBarn(BekreftetAdopsjonBarn bekreftetAdopsjonBarn) {
-        getBekreftetAdopsjonBarn().add(bekreftetAdopsjonBarn);
-    }
 }

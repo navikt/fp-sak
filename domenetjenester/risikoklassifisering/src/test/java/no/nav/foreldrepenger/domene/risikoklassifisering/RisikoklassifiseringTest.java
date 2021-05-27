@@ -15,15 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
@@ -34,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Hendels
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -79,20 +71,6 @@ public class RisikoklassifiseringTest {
 
     private static final String RISIKOKLASSIFISERING_JSON = "risikoklassifisering.request.json";
 
-    private static final ObjectMapper OM;
-
-    static {
-        OM = new ObjectMapper();
-        OM.registerModule(new JavaTimeModule());
-        OM.registerModule(new Jdk8Module());
-        OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
-    }
-
     @BeforeEach
     void setUp() {
         risikoklassifisering = new Risikoklassifisering(prosessTaskRepository, skjæringstidspunktTjeneste,
@@ -129,8 +107,7 @@ public class RisikoklassifiseringTest {
     }
 
     private void verifyRequestData(ProsessTaskData prosessTaskData, boolean annenPart) throws IOException {
-        var objectNode = OM.readValue(prosessTaskData.getPayloadAsString(),
-            ObjectNode.class);
+        var objectNode = StandardJsonConfig.fromJsonAsTree(prosessTaskData.getPayloadAsString());
         assertThat(objectNode.get("callId").asText()).isEqualTo("callId");
         var request = objectNode.get("request");
 

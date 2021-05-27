@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
@@ -141,15 +141,15 @@ public class SkjæringstidspunktUtils {
     }
 
     // TODO(Termitt): Håndtere MMOR, SAMB mm.
-    private SoekerRolle finnFagsakSøkerRolle(Behandling behandling) {
+    private RegelSøkerRolle finnFagsakSøkerRolle(Behandling behandling) {
         var relasjonsRolleType = behandling.getRelasjonsRolleType();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
-            return SoekerRolle.MORA;
+            return RegelSøkerRolle.MORA;
         }
         if (RelasjonsRolleType.UDEFINERT.equals(relasjonsRolleType) || RelasjonsRolleType.BARN.equals(relasjonsRolleType)) {
             return null;
         }
-        return SoekerRolle.FARA;
+        return RegelSøkerRolle.FARA;
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet gjeldendeVersjon) {

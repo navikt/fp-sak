@@ -26,7 +26,7 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
         @RuleOutcomeDocumentation(code = SjekkFristForSøknad.ÅRSAKKODE_5007, result = Resultat.IKKE_VURDERT, description = "Søknadsdato har passert frist. Output variabel: '"
                 + SjekkFristForSøknad.DAGER_FOR_SENT_PROPERTY + "'")
 })
-public class SjekkFristForSøknad extends LeafSpecification<SoeknadsfristvilkarGrunnlag> {
+public class SjekkFristForSøknad extends LeafSpecification<SøknadsfristvilkårGrunnlag> {
     static final String ÅRSAKKODE_5007 = "5007";
 
     static final String DAGER_FOR_SENT_PROPERTY = "antallDagerSoeknadLevertForSent";
@@ -49,9 +49,9 @@ public class SjekkFristForSøknad extends LeafSpecification<SoeknadsfristvilkarG
     }
 
     @Override
-    public Evaluation evaluate(SoeknadsfristvilkarGrunnlag t) {
-        var skjæringstidspunktDato = t.getSkjaeringstidspunkt();
-        var søknadsDato = t.getSoeknadMottatDato();
+    public Evaluation evaluate(SøknadsfristvilkårGrunnlag t) {
+        var skjæringstidspunktDato = t.skjaeringstidspunkt();
+        var søknadsDato = t.soeknadMottatDato();
 
         if (skjæringstidspunktDato == null) {
             throw new IllegalArgumentException("Mangler skjæringstidspunktDato i :" + t);

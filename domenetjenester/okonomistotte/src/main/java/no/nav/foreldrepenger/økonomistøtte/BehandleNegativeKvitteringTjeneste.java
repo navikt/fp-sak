@@ -6,21 +6,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ApplicationScoped
 public class BehandleNegativeKvitteringTjeneste {
-
-    private static final ObjectMapper OBJECT_MAPPER;
-
-    static {
-        OBJECT_MAPPER = new ObjectMapper();
-    }
 
     private ProsessTaskRepository repository;
 
@@ -49,11 +41,8 @@ public class BehandleNegativeKvitteringTjeneste {
                 prosessTaskData.setStatus(ProsessTaskStatus.FEILET);
 
                 var feil = new NegativeKvitteringFeil("Det finnes negativ kvittering for minst en av oppdragsmottakerne.");
-                try {
-                    prosessTaskData.setSisteFeil(OBJECT_MAPPER.writeValueAsString(feil));
-                } catch (JsonProcessingException jpe) {
-                    throw new IllegalArgumentException(String.format("Kunne ikke serialiseres til json: %s", feil), jpe);
-                }
+
+                prosessTaskData.setSisteFeil(StandardJsonConfig.toJson(feil));
 
                 repository.lagre(prosessTaskData);
             }

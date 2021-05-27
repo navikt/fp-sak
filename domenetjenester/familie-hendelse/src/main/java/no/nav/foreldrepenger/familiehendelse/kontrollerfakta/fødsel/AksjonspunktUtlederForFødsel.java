@@ -88,10 +88,10 @@ abstract class AksjonspunktUtlederForFødsel implements AksjonspunktUtleder {
 
     LocalDateTime utledVentefrist(FamilieHendelseGrunnlagEntitet grunnlag) {
         var venteFrist = grunnlag.getSøknadVersjon().getBarna().stream()
-            .map(barn -> barn.getFødselsdato().plusDays(14))
+            .map(barn -> barn.getFødselsdato().plus(FamilieHendelseTjeneste.VENT_FØDSELSREGISTRERING_AUTOPUNKT))
             .findFirst()
             .orElse(LocalDate.now());
-        return LocalDateTime.of(venteFrist, LocalDateTime.now().toLocalTime());
+        return LocalDateTime.of(venteFrist, LocalDate.now().atStartOfDay().plusHours(3).toLocalTime());
     }
 
     Utfall harSøkerOppgittFødselISøknad(FamilieHendelseGrunnlagEntitet grunnlag) {

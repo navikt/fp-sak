@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
-import java.util.Objects;
-
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -19,11 +17,11 @@ public class SjekkSøkerErKvinne extends LeafSpecification<FødselsvilkårGrunnl
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        var erKvinne = Objects.equals(Kjoenn.KVINNE, t.getSoekersKjonn());
+        var erKvinne = RegelKjønn.KVINNE.equals(t.søkersKjønn());
         if (erKvinne) {
             return ja();
         }
-        return nei(IKKE_OPPFYLT_SØKER_ER_KVINNE, Kjoenn.KVINNE, t.getSoekersKjonn());
+        return nei(IKKE_OPPFYLT_SØKER_ER_KVINNE, RegelKjønn.KVINNE, t.søkersKjønn());
     }
 
 }

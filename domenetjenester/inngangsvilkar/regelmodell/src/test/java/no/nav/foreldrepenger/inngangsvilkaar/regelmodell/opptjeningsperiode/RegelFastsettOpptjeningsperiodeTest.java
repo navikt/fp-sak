@@ -8,7 +8,7 @@ import java.time.Period;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
@@ -80,7 +80,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         // Arrange
         var omsorgsDato = LocalDate.of(2018, Month.JANUARY, 15);
         var uttaksDato = LocalDate.of(2018, Month.FEBRUARY, 1);
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
             uttaksDato, omsorgsDato, null);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -96,7 +96,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         // Arrange
         var omsorgsDato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.JANUARY, 15);
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, SoekerRolle.FARA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.ADOPSJON, RegelSøkerRolle.FARA,
             uttaksDato, omsorgsDato, null);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -112,7 +112,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.minusDays(2);
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setMorsMaksdato(morsMaksDato);
@@ -129,7 +129,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = LocalDate.of(2018, Month.DECEMBER, 15);
         var morsMaksDato = uttaksDato.plusWeeks(7);
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setMorsMaksdato(morsMaksDato);
@@ -145,7 +145,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
         // Arrange
         var fødselsdato = LocalDate.of(2018, Month.FEBRUARY, 1);
         var uttaksDato = fødselsdato.minusDays(1);
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.FARA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.FARA,
             uttaksDato, fødselsdato, fødselsdato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
 
@@ -157,7 +157,7 @@ public class RegelFastsettOpptjeningsperiodeTest {
 
 
     private OpptjeningsperiodeGrunnlag opprettOpptjeningsperiodeGrunnlagForMorFødsel(LocalDate terminDato, LocalDate hendelsesDato, LocalDate uttaksDato) {
-        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, SoekerRolle.MORA,
+        var regelmodell = new OpptjeningsperiodeGrunnlag(FagsakÅrsak.FØDSEL, RegelSøkerRolle.MORA,
             uttaksDato, hendelsesDato, terminDato);
         regelmodell.setPeriodeLengde(Period.parse("P10M"));
         regelmodell.setTidligsteUttakFørFødselPeriode(Period.parse("P12W"));

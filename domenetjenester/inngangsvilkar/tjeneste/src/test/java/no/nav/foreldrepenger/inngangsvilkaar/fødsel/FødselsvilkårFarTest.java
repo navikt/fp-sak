@@ -10,8 +10,6 @@ import java.time.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -69,8 +68,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
@@ -92,8 +90,7 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert

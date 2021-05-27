@@ -11,8 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -88,8 +87,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
         var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
@@ -116,8 +114,7 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
         var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
         assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);

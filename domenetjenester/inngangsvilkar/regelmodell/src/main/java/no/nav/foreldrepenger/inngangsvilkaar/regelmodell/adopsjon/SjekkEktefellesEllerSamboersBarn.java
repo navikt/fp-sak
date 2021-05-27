@@ -18,7 +18,7 @@ class SjekkEktefellesEllerSamboersBarn extends LeafSpecification<Adopsjonsvilkå
 
     @Override
     public Evaluation evaluate(AdopsjonsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isEktefellesBarn()) {
+        if (grunnlag.ektefellesBarn()) {
             return ja();
         }
         return nei();
