@@ -39,19 +39,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SøknadGrunnlagManglerDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -66,8 +61,7 @@ public class ForvaltningTekniskRestTjeneste {
     private static final String MANGLER_AP = "Utvikler-feil: Har ikke aksjonspunkt av type: ";
 
     private BehandlingRepository behandlingRepository;
-    private SøknadRepository søknadRepository;
-    private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
+    private final AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private PoststedKodeverkRepository postnummerKodeverkRepository;
@@ -88,7 +82,6 @@ public class ForvaltningTekniskRestTjeneste {
             AnkeVurderingTjeneste ankeVurderingTjeneste,
             BehandlingskontrollTjeneste behandlingskontrollTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerKodeverkRepository = postnummerKodeverkRepository;
@@ -280,36 +273,6 @@ public class ForvaltningTekniskRestTjeneste {
         return Response.ok().build();
     }
 
-    @POST
-    @Path("/soknad-grunnlag-mangler")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Lagrer søknadsgrunnlag for gammelt format", tags = "FORVALTNING-teknisk", responses = {
-            @ApiResponse(responseCode = "200", description = "Utført."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response leggtilManglendeSøknadsGrunnlag(@BeanParam @Valid SøknadGrunnlagManglerDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        LOG.info("Setter behandling={} til totrinn", behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (behandling == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        var relrolletype = "FARA".equals(dto.getRolle()) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
-        var søknadBuilder = new SøknadEntitet.Builder()
-                .medSøknadsdato(dto.getSøknadDato())
-                .medMottattDato(dto.getMottattDato())
-                .medElektroniskRegistrert(true)
-                .medErEndringssøknad(false)
-                .medSpråkkode(Språkkode.NB)
-                .medRelasjonsRolleType(relrolletype)
-                .medTilleggsopplysninger(dto.getTillegg())
-                .medBegrunnelseForSenInnsending(dto.getForsent());
-        søknadRepository.lagreOgFlush(behandling, søknadBuilder.build());
-        return Response.ok().build();
-    }
 
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override

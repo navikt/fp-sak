@@ -2,13 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -19,13 +20,11 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
 
     private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 
-    //TODO palfi
     @NotNull
     @QueryParam("behandlingId")
-    @DefaultValue("0")
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private Long behandlingId;
+    @Pattern(regexp = "^[a-fA-F0-9-]+$")
+    @JsonProperty
+    private String behandlingId;
 
     @NotNull
     @Parameter(description = "YYYY-MM-DD")
@@ -44,7 +43,7 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
     @Pattern(regexp = DATO_PATTERN)
     private String stpOpptjening;
 
-    public LeggTilOppgittFrilansDto(@NotNull Long behandlingId, @NotNull String frilansFom, String frilansTom, @NotNull String stpOpptjening) {
+    public LeggTilOppgittFrilansDto(@NotNull String behandlingId, @NotNull String frilansFom, String frilansTom, @NotNull String stpOpptjening) {
         this.behandlingId = behandlingId;
         this.frilansFom = frilansFom;
         this.frilansTom = frilansTom;
@@ -63,8 +62,14 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
         return abac;
     }
 
+    @JsonIgnore
     public Long getBehandlingId() {
-        return behandlingId;
+        return behandlingId != null && getBehandlingUUID() == null ? Long.valueOf(behandlingId) : null;
+    }
+
+    @JsonIgnore
+    public UUID getBehandlingUUID() {
+        return behandlingId != null && behandlingId.contains("-") ? UUID.fromString(behandlingId) : null;
     }
 
     public LocalDate getFrilansFom() {
