@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -225,6 +226,7 @@ public class DokumentRestTjeneste {
             var behandlingUuidList = mottatteIMDokument.get(dto.getJournalpostId()).stream()
                 .filter(imdok -> inntektsMeldinger.containsKey(dto.getJournalpostId()))
                 .map(MottattDokument::getBehandlingId)
+                .filter(Objects::nonNull)
                 .map(behandlingId -> behandlingRepository.hentBehandling(behandlingId).getUuid())
                 .collect(Collectors.toList());
             dto.setBehandlingUuidList(behandlingUuidList);
