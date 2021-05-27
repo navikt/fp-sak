@@ -368,8 +368,16 @@ public class InngangsvilkårOversetter {
             .map(barn -> new BekreftetAdopsjonBarn(barn.getFødselsdato()))
             .collect(toList());
         var bekreftetAdopsjon = new BekreftetAdopsjon(adopsjon.getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn,
-            adopsjon.getErEktefellesBarn(), adopsjon.getAdoptererAlene());
+            getBooleanOrDefaultFalse(adopsjon.getErEktefellesBarn()),
+            getBooleanOrDefaultFalse(adopsjon.getAdoptererAlene()));
         return bekreftetAdopsjon;
+    }
+
+    private boolean getBooleanOrDefaultFalse(Boolean bool) {
+        if (bool == null) {
+            return false;
+        }
+        return bool;
     }
 
     private RegelKjønn tilSøkerKjøenn(NavBrukerKjønn søkerKjønn) {
