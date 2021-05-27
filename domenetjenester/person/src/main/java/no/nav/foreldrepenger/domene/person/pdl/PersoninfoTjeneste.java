@@ -46,14 +46,14 @@ import no.nav.pdl.Bostedsadresse;
 import no.nav.pdl.BostedsadresseResponseProjection;
 import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Familierelasjon;
-import no.nav.pdl.FamilierelasjonResponseProjection;
-import no.nav.pdl.Familierelasjonsrolle;
 import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
 import no.nav.pdl.FolkeregistermetadataResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjon;
+import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjonRolle;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
@@ -119,11 +119,11 @@ public class PersoninfoTjeneste {
             Map.entry(Sivilstandstype.SKILT_PARTNER, SivilstandType.SKILT_PARTNER),
             Map.entry(Sivilstandstype.GJENLEVENDE_PARTNER, SivilstandType.GJENLEVENDE_PARTNER));
 
-    private static final Map<Familierelasjonsrolle, RelasjonsRolleType> ROLLE_FRA_FREG_ROLLE = Map.ofEntries(
-            Map.entry(Familierelasjonsrolle.BARN, RelasjonsRolleType.BARN),
-            Map.entry(Familierelasjonsrolle.MOR, RelasjonsRolleType.MORA),
-            Map.entry(Familierelasjonsrolle.FAR, RelasjonsRolleType.FARA),
-            Map.entry(Familierelasjonsrolle.MEDMOR, RelasjonsRolleType.MEDMOR));
+    private static final Map<ForelderBarnRelasjonRolle, RelasjonsRolleType> ROLLE_FRA_FREG_ROLLE = Map.ofEntries(
+            Map.entry(ForelderBarnRelasjonRolle.BARN, RelasjonsRolleType.BARN),
+            Map.entry(ForelderBarnRelasjonRolle.MOR, RelasjonsRolleType.MORA),
+            Map.entry(ForelderBarnRelasjonRolle.FAR, RelasjonsRolleType.FARA),
+            Map.entry(ForelderBarnRelasjonRolle.MEDMOR, RelasjonsRolleType.MEDMOR));
 
     private static final Map<Sivilstandstype, RelasjonsRolleType> ROLLE_FRA_FREG_STAND = Map.ofEntries(
             Map.entry(Sivilstandstype.GIFT, RelasjonsRolleType.EKTE),
@@ -161,7 +161,7 @@ public class PersoninfoTjeneste {
                 .kjoenn(new KjoennResponseProjection().kjoenn())
                 .sivilstand(new SivilstandResponseProjection().relatertVedSivilstand().type())
                 .statsborgerskap(new StatsborgerskapResponseProjection().land())
-                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsRolle().relatertPersonsIdent().minRolleForPerson())
+                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsRolle().relatertPersonsIdent().minRolleForPerson())
                 .bostedsadresse(new BostedsadresseResponseProjection().gyldigFraOgMed().angittFlyttedato()
                         .vegadresse(new VegadresseResponseProjection().matrikkelId().adressenavn().husnummer().husbokstav().postnummer())
                         .matrikkeladresse(new MatrikkeladresseResponseProjection().matrikkelId().bruksenhetsnummer().tilleggsnavn().postnummer())
@@ -201,7 +201,7 @@ public class PersoninfoTjeneste {
                 .findFirst()
                 .map(st -> SIVSTAND_FRA_FREG.getOrDefault(st, SivilstandType.UOPPGITT)).orElse(SivilstandType.UOPPGITT);
         var statsborgerskap = mapStatsborgerskap(person.getStatsborgerskap());
-        var familierelasjoner = mapFamilierelasjoner(person.getFamilierelasjoner(), person.getSivilstand());
+        var familierelasjoner = mapFamilierelasjoner(person.getForelderBarnRelasjon(), person.getSivilstand());
         var adresser = mapAdresser(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
 
         return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
@@ -370,7 +370,7 @@ public class PersoninfoTjeneste {
         return alleLand.stream().anyMatch(Landkoder.NOR::equals) ? Landkoder.NOR : MapRegionLandkoder.finnRangertLandkode(alleLand);
     }
 
-    private static Set<FamilierelasjonVL> mapFamilierelasjoner(List<Familierelasjon> familierelasjoner, List<Sivilstand> sivilstandliste) {
+    private static Set<FamilierelasjonVL> mapFamilierelasjoner(List<ForelderBarnRelasjon> familierelasjoner, List<Sivilstand> sivilstandliste) {
         Set<FamilierelasjonVL> relasjoner = new HashSet<>();
 
         familierelasjoner.stream()
@@ -384,7 +384,7 @@ public class PersoninfoTjeneste {
         return relasjoner;
     }
 
-    private static RelasjonsRolleType mapRelasjonsrolle(Familierelasjonsrolle type) {
+    private static RelasjonsRolleType mapRelasjonsrolle(ForelderBarnRelasjonRolle type) {
         return ROLLE_FRA_FREG_ROLLE.getOrDefault(type, RelasjonsRolleType.UDEFINERT);
     }
 

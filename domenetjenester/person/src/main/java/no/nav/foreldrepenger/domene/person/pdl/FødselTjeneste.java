@@ -21,11 +21,11 @@ import no.nav.pdl.DoedfoedtBarn;
 import no.nav.pdl.DoedfoedtBarnResponseProjection;
 import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Familierelasjon;
-import no.nav.pdl.FamilierelasjonResponseProjection;
-import no.nav.pdl.Familierelasjonsrolle;
 import no.nav.pdl.Foedsel;
 import no.nav.pdl.FoedselResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjon;
+import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
+import no.nav.pdl.ForelderBarnRelasjonRolle;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
 
@@ -50,7 +50,7 @@ public class FødselTjeneste {
         request.setIdent(bruker.getId());
         var projection = new PersonResponseProjection()
                 .doedfoedtBarn(new DoedfoedtBarnResponseProjection().dato())
-                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
         var person = pdlKlient.hentPerson(request, projection);
 
@@ -61,11 +61,11 @@ public class FødselTjeneste {
                 .forEach(alleBarn::add);
         if (!alleBarn.isEmpty())
             LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
-        person.getFamilierelasjoner().stream()
-                .filter(b -> Familierelasjonsrolle.BARN.equals(b.getRelatertPersonsRolle()))
-                .map(Familierelasjon::getRelatertPersonsIdent)
-                .map(this::fraIdent)
-                .forEach(alleBarn::add);
+        person.getForelderBarnRelasjon().stream()
+            .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
+            .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
+            .map(this::fraIdent)
+            .forEach(alleBarn::add);
 
         return alleBarn.stream()
                 .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.getFødselsdato())))
@@ -76,13 +76,13 @@ public class FødselTjeneste {
         var request = new HentPersonQueryRequest();
         request.setIdent(barn.getIdent());
         var projection = new PersonResponseProjection()
-                .familierelasjoner(new FamilierelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
+                .forelderBarnRelasjon(new ForelderBarnRelasjonResponseProjection().relatertPersonsIdent().relatertPersonsRolle());
 
         var person = pdlKlient.hentPerson(request, projection);
 
-        return person.getFamilierelasjoner().stream()
-                .filter(f -> !Familierelasjonsrolle.BARN.equals(f.getRelatertPersonsRolle()))
-                .map(Familierelasjon::getRelatertPersonsIdent)
+        return person.getForelderBarnRelasjon().stream()
+                .filter(f -> !ForelderBarnRelasjonRolle.BARN.equals(f.getRelatertPersonsRolle()))
+                .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
                 .map(PersonIdent::fra)
                 .collect(Collectors.toList());
     }
