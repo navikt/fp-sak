@@ -13,7 +13,7 @@ public class SjekkFødselErRegistrert extends LeafSpecification<FødselsvilkårG
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        var fødselRegistrert = t.getBekreftetFoedselsdato() != null && t.getAntallBarn() > 0;
+        var fødselRegistrert = t.bekreftetFødselsdato() != null && t.antallBarn() > 0;
         if (fødselRegistrert) {
             return ja();
         }

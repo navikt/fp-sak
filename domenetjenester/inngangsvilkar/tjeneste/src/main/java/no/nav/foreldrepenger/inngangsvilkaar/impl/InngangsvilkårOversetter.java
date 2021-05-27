@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -40,9 +41,10 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemskapPerioderTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdopsjon;
@@ -50,7 +52,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdops
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SoeknadsfristvilkarGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.KonfigVerdi;
@@ -93,29 +95,48 @@ public class InngangsvilkårOversetter {
 
     public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref) {
         final var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregat(ref.getId());
-        var familieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
-        var grunnlag = new FødselsvilkårGrunnlag(
-            tilSoekerKjoenn(getSøkersKjønn(ref)),
-            finnSoekerRolle(ref),
-            LocalDate.now(),
-            familieHendelse.map(FamilieHendelseEntitet::erMorForSykVedFødsel).orElse(false),
-            erSøktOmTermin(familieHendelseGrunnlag.getSøknadVersjon()),
-            erTerminBekreftelseUtstedtEtterXUker(familieHendelse.orElse(null)));
-        final var fødselsDato = familieHendelse.flatMap(FamilieHendelseEntitet::getFødselsdato);
-        fødselsDato.ifPresent(grunnlag::setBekreftetFoedselsdato);
+        var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
+        var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
+        var kjønn = tilSøkerKjøenn(getSøkersKjønn(ref));
+        var rolle = finnSoekerRolle(ref);
+        var bekreftetFødselsDato = bekreftetFamilieHendelse.flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
+        var gjeldendeTermindato = gjeldendeTerminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null);
+        var gjeldendeUtstedtDato = gjeldendeTerminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null);
+        var antallbarn = bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
+        var fristRegistreringUtløpt = FamilieHendelseTjeneste.getManglerFødselsRegistreringFristUtløpt(familieHendelseGrunnlag);
+        var morForSykVedFødsel = bekreftetFamilieHendelse.map(FamilieHendelseEntitet::erMorForSykVedFødsel).orElse(false);
+        var søktOmTermin = erSøktOmTermin(familieHendelseGrunnlag.getSøknadVersjon());
+        var behandlingsdatoEtterTidligsteDato = erBehandlingsdatoEtterTidligsteDato(gjeldendeTermindato);
+        var terminbekreftelseUtstedtEtterTidligsteDato = erTerminbekreftelseUtstedtEtterTidligsteDato(gjeldendeTermindato, gjeldendeUtstedtDato);
 
-        grunnlag.setAntallBarn(familieHendelse.map(FamilieHendelseEntitet::getAntallBarn).orElse(0));
-
-        final var terminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
-        terminbekreftelse.ifPresent(terminbekreftelse1 -> grunnlag.setBekreftetTermindato(terminbekreftelse1.getTermindato()));
+        var grunnlag = new FødselsvilkårGrunnlag(kjønn, rolle, LocalDate.now(),
+            bekreftetFødselsDato, gjeldendeTermindato, gjeldendeUtstedtDato,
+            antallbarn,
+            fristRegistreringUtløpt,
+            morForSykVedFødsel, søktOmTermin,
+            behandlingsdatoEtterTidligsteDato,
+            terminbekreftelseUtstedtEtterTidligsteDato);
         return grunnlag;
     }
 
-    private boolean erTerminBekreftelseUtstedtEtterXUker(FamilieHendelseEntitet familieHendelse) {
-        if (familieHendelse == null || !familieHendelse.getTerminbekreftelse().isPresent()) {
+    /**
+     * Presisering fra fag: Fra og med man er i svangerskapsuke 22 kan man søke og få innvilget ES/FP.
+     * Dette er tolket som FOMdato = termindato - 18uker - 3dager
+     */
+    private boolean erTerminbekreftelseUtstedtEtterTidligsteDato(LocalDate termindato, LocalDate utstedtDato) {
+        if (termindato == null || utstedtDato == null) {
             return true;
         }
-        return familieHendelse.getTerminbekreftelse().filter(this::validerUtstedtdato).isPresent();
+        var tidligstedatoMinusDag = termindato.minus(tidligstUtstedelseFørTermin).minusDays(1);
+        return utstedtDato.isAfter(tidligstedatoMinusDag);
+    }
+
+    private boolean erBehandlingsdatoEtterTidligsteDato(LocalDate termindato) {
+        if (termindato == null) {
+            return true;
+        }
+        var tidligstedatoMinusDag = termindato.minus(tidligstUtstedelseFørTermin).minusDays(1);
+        return LocalDate.now().isAfter(tidligstedatoMinusDag);
     }
 
     private boolean erSøktOmTermin(FamilieHendelseEntitet familieHendelse) {
@@ -129,16 +150,16 @@ public class InngangsvilkårOversetter {
             .map(PersonopplysningEntitet::getKjønn).orElse(NavBrukerKjønn.UDEFINERT);
     }
 
-    private SoekerRolle finnSoekerRolle(BehandlingReferanse ref) {
+    private RegelSøkerRolle finnSoekerRolle(BehandlingReferanse ref) {
         var relasjonsRolleType = finnRelasjonRolle(ref);
         if (Objects.equals(RelasjonsRolleType.MORA, relasjonsRolleType)) {
-            return SoekerRolle.MORA;
+            return RegelSøkerRolle.MORA;
         }
         if (Objects.equals(RelasjonsRolleType.FARA, relasjonsRolleType)) {
-            return SoekerRolle.FARA;
+            return RegelSøkerRolle.FARA;
         }
         if (Objects.equals(RelasjonsRolleType.MEDMOR, relasjonsRolleType)) {
-            return SoekerRolle.MEDMOR;
+            return RegelSøkerRolle.MEDMOR;
         }
         return null;
     }
@@ -146,7 +167,7 @@ public class InngangsvilkårOversetter {
     private RelasjonsRolleType finnRelasjonRolle(BehandlingReferanse ref) {
         var behandlingId = ref.getBehandlingId();
         final var hendelseGrunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
-        if (!hendelseGrunnlag.getGjeldendeBekreftetVersjon().isPresent()) {
+        if (hendelseGrunnlag.getGjeldendeBekreftetVersjon().isEmpty()) {
             // Kan ikke finne relasjonsrolle dersom fødsel ikke er bekreftet.
             return null;
         }
@@ -165,7 +186,7 @@ public class InngangsvilkårOversetter {
         var søkerPersonopplysning = personopplysninger.getSøker();
         var søkersAktørId = søkerPersonopplysning.getAktørId();
 
-        if (alleBarnPåFødselsdato.size() > 0) {
+        if (!alleBarnPåFødselsdato.isEmpty()) {
             // Forutsetter at barn som er født er tvillinger, og sjekker derfor bare første barn.
             final var personRelasjon = personopplysninger.getRelasjoner()
                 .stream()
@@ -183,10 +204,10 @@ public class InngangsvilkårOversetter {
         return SimpleLocalDateInterval.fraOgMedTomNotNull(fomDato, tomDato);
     }
 
-    public SoeknadsfristvilkarGrunnlag oversettTilRegelModellSøknad(BehandlingReferanse ref) {
+    public SøknadsfristvilkårGrunnlag oversettTilRegelModellSøknad(BehandlingReferanse ref) {
         final var søknad = søknadRepository.hentSøknad(ref.getBehandlingId());
         var skjæringsdato = ref.getSkjæringstidspunkt().getUtledetSkjæringstidspunkt();
-        return new SoeknadsfristvilkarGrunnlag(
+        return new SøknadsfristvilkårGrunnlag(
             søknad.getElektroniskRegistrert(),
             skjæringsdato,
             søknad.getMottattDato());
@@ -194,13 +215,13 @@ public class InngangsvilkårOversetter {
 
     public AdopsjonsvilkårGrunnlag oversettTilRegelModellAdopsjon(BehandlingReferanse ref) {
         var bekreftetAdopsjon = byggBekreftetAdopsjon(ref);
-        var adopsjonBarn = bekreftetAdopsjon.getAdopsjonBarn();
+        var adopsjonBarn = bekreftetAdopsjon.adopsjonBarn();
         return new AdopsjonsvilkårGrunnlag(
             adopsjonBarn,
-            bekreftetAdopsjon.isEktefellesBarn(),
-            tilSoekerKjoenn(getSøkersKjønn(ref)),
-            bekreftetAdopsjon.isAdoptererAlene(),
-            bekreftetAdopsjon.getOmsorgsovertakelseDato(),
+            bekreftetAdopsjon.ektefellesBarn(),
+            tilSøkerKjøenn(getSøkersKjønn(ref)),
+            bekreftetAdopsjon.adoptererAlene(),
+            bekreftetAdopsjon.omsorgsovertakelseDato(),
             erStønadperiodeBruktOpp(ref));
     }
 
@@ -215,7 +236,7 @@ public class InngangsvilkårOversetter {
             var omsorgsovertakelseDato = familieHendelse.getAdopsjon().get().getOmsorgsovertakelseDato();
             var maksdatoForeldrepenger = ytelseMaksdatoTjeneste.beregnMaksdatoForeldrepenger(ref);
 
-            if (!maksdatoForeldrepenger.isPresent() || omsorgsovertakelseDato.isBefore(maksdatoForeldrepenger.get())) {
+            if (maksdatoForeldrepenger.isEmpty() || omsorgsovertakelseDato.isBefore(maksdatoForeldrepenger.get())) {
                 return false; // stønadsperioden er ikke brukt opp av annen forelder
             }
         }
@@ -225,31 +246,35 @@ public class InngangsvilkårOversetter {
     public MedlemskapsvilkårGrunnlag oversettTilRegelModellMedlemskap(BehandlingReferanse ref) {
         var behandlingId = ref.getBehandlingId();
         var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+        var iayOpt = iayTjeneste.finnGrunnlag(behandlingId);
 
         var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
 
         var vurdertMedlemskap = medlemskap.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
+
+        // // FP VK 2.13
+        var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, personopplysninger, ref.getSkjæringstidspunkt());
+        // FP VK 2.2 Er bruker avklart som pliktig eller frivillig medlem?
+        var avklartPliktigEllerFrivillig = erAvklartSomPliktigEllerFrivillingMedlem(medlemskap, ref.getSkjæringstidspunkt());
+        // defaulter uavklarte fakta til true
+        var vurdertBosatt = vurdertMedlemskap.map(VurdertMedlemskap::getBosattVurdering).orElse(true);
+        var vurdertLovligOpphold = vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(true);
+        var vurdertOppholdsrett = vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(true);
+
+        var harOppholdstillatelse = personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall());
+        var harArbeidInntekt = FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.getAktørId());
+
         var grunnlag = new MedlemskapsvilkårGrunnlag(
-            brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, personopplysninger, ref.getSkjæringstidspunkt()), // FP VK 2.13
             tilPersonStatusType(personopplysninger), // FP VK 2.1
             brukerNorskNordisk(personopplysninger), // FP VK 2.11
-            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger)); // FP VIK 2.12
-
-        var iayOpt = iayTjeneste.finnGrunnlag(behandlingId);
-        grunnlag.setHarSøkerArbeidsforholdOgInntekt(FinnOmSøkerHarArbeidsforholdOgInntekt.finn(iayOpt, ref.getUtledetSkjæringstidspunkt(), ref.getAktørId()));
-
-        grunnlag.setBrukerHarOppholdstillatelse(personopplysningTjeneste.harOppholdstillatelseForPeriode(ref.getBehandlingId(), ref.getUtledetMedlemsintervall()));
-
-        // defaulter uavklarte fakta til true
-        grunnlag.setBrukerAvklartLovligOppholdINorge(
-            vurdertMedlemskap.map(VurdertMedlemskap::getLovligOppholdVurdering).orElse(true));
-        grunnlag.setBrukerAvklartBosatt(
-            vurdertMedlemskap.map(VurdertMedlemskap::getBosattVurdering).orElse(true));
-        grunnlag.setBrukerAvklartOppholdsrett(
-            vurdertMedlemskap.map(VurdertMedlemskap::getOppholdsrettVurdering).orElse(true));
-
-        // FP VK 2.2 Er bruker avklart som pliktig eller frivillig medlem?
-        grunnlag.setBrukerAvklartPliktigEllerFrivillig(erAvklartSomPliktigEllerFrivillingMedlem(medlemskap, ref.getSkjæringstidspunkt()));
+            brukerBorgerAvEOS(vurdertMedlemskap, personopplysninger), // FP VIK 2.12
+            harOppholdstillatelse,
+            harArbeidInntekt,
+            vurdertErMedlem,
+            avklartPliktigEllerFrivillig,
+            vurdertBosatt,
+            vurdertLovligOpphold,
+            vurdertOppholdsrett);
 
         return grunnlag;
     }
@@ -276,13 +301,6 @@ public class InngangsvilkårOversetter {
                 skjæringstidspunkter.getUtledetSkjæringstidspunkt());
         }
         return false;
-    }
-
-    private boolean validerUtstedtdato(TerminbekreftelseEntitet terminbekreftelse) {
-        var utstedtdato = terminbekreftelse.getUtstedtdato();
-        var termindato = terminbekreftelse.getTermindato();
-        return Objects.isNull(termindato) || Objects.isNull(utstedtdato) ||
-            utstedtdato.isAfter(termindato.minus(tidligstUtstedelseFørTermin).minusDays(1));
     }
 
     /**
@@ -342,31 +360,20 @@ public class InngangsvilkårOversetter {
     private BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref) {
         var behandlingId = ref.getBehandlingId();
         final var bekreftetVersjon = familieGrunnlagRepository.hentAggregat(behandlingId).getGjeldendeBekreftetVersjon();
-        final var adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon);
+        final var adopsjon = bekreftetVersjon.flatMap(FamilieHendelseEntitet::getAdopsjon)
+            .orElseThrow(() -> new TekniskException("FP-384255",
+                String.format("Ikke mulig å oversette adopsjonsgrunnlag til regelmotor for behandlingId %s", behandlingId)));
 
-        if (adopsjon.isEmpty()) {
-            throw new TekniskException("FP-384255", "Ikke mulig å oversette adopsjonsgrunnlag"
-                + " til regelmotor for behandlingId " + behandlingId);
-        }
-
-        var bekreftetAdopsjonBarn = bekreftetVersjon.get().getBarna().stream()
+        var bekreftetAdopsjonBarn = bekreftetVersjon.map(FamilieHendelseEntitet::getBarna).orElse(List.of()).stream()
             .map(barn -> new BekreftetAdopsjonBarn(barn.getFødselsdato()))
             .collect(toList());
-        var bekreftetAdopsjon = new BekreftetAdopsjon(adopsjon.get().getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn);
-        bekreftetAdopsjon.setAdoptererAlene(getBooleanOrDefaultFalse(adopsjon.get().getAdoptererAlene()));
-        bekreftetAdopsjon.setEktefellesBarn(getBooleanOrDefaultFalse(adopsjon.get().getErEktefellesBarn()));
+        var bekreftetAdopsjon = new BekreftetAdopsjon(adopsjon.getOmsorgsovertakelseDato(), bekreftetAdopsjonBarn,
+            adopsjon.getErEktefellesBarn(), adopsjon.getAdoptererAlene());
         return bekreftetAdopsjon;
     }
 
-    private boolean getBooleanOrDefaultFalse(Boolean bool) {
-        if (bool == null) {
-            return false;
-        }
-        return bool;
-    }
-
-    private Kjoenn tilSoekerKjoenn(NavBrukerKjønn søkerKjønn) {
-        var kjoenn = Kjoenn.hentKjoenn(søkerKjønn.getKode());
+    private RegelKjønn tilSøkerKjøenn(NavBrukerKjønn søkerKjønn) {
+        var kjoenn = RegelKjønn.hentKjønn(søkerKjønn.getKode());
         Objects.requireNonNull(kjoenn, "Fant ingen kjonn for: " + søkerKjønn.getKode());
         return kjoenn;
     }

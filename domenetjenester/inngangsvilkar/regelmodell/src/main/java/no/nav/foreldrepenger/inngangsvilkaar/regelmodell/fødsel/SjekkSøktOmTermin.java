@@ -17,7 +17,7 @@ public class SjekkSøktOmTermin extends LeafSpecification<FødselsvilkårGrunnla
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        if (t.isErSøktOmTermin()) {
+        if (t.erSøktOmTermin()) {
             return ja();
         }
         return nei();

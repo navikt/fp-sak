@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
-import java.util.Objects;
-
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -20,7 +18,7 @@ public class SjekkSøkerErMor extends LeafSpecification<FødselsvilkårGrunnlag>
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        var erBarnetsMor = Objects.equals(t.getSoekerRolle(), SoekerRolle.MORA);
+        var erBarnetsMor = RegelSøkerRolle.MORA.equals(t.søkerRolle());
         if (erBarnetsMor) {
             return ja();
         }

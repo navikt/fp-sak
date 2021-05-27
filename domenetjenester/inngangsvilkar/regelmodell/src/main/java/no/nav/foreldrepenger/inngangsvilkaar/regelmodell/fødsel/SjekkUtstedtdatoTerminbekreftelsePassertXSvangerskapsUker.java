@@ -8,7 +8,8 @@ public class SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker extends L
 
     static final String ID = SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.class.getSimpleName();
 
-    static final RuleReasonRefImpl IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO = new RuleReasonRefImpl("1019", "Terminbekreftelsens utstedtdato er før 22. svangerskapsuke");
+    static final RuleReasonRefImpl IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO = new RuleReasonRefImpl("1019",
+        "Terminbekreftelse utstedt {0} er før svangerskapsuke 22 (termindato ({1}))");
 
     SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker() {
         super(ID);
@@ -16,9 +17,16 @@ public class SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker extends L
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag t) {
-        if (t.isErTerminBekreftelseUtstedtEtterXUker()) {
+        if (t.erSøktOmTermin() && t.terminbekreftelseTermindato() == null) {
+            throw new IllegalArgumentException("Mangler termindato i :" + t);
+        }
+        if (t.erSøktOmTermin() && t.terminbekreftelseUtstedtDato() == null) {
+            throw new IllegalArgumentException("Mangler utstedt dato i :" + t);
+        }
+
+        if (t.erSøktOmTermin() && t.erTerminbekreftelseUtstedtEtterTidligsteDato()) {
             return ja();
         }
-        return nei(IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO);
+        return nei(IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO, t.terminbekreftelseUtstedtDato(), t.terminbekreftelseTermindato());
     }
 }

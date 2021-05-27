@@ -19,7 +19,7 @@ public class SjekkBrukerErAvklartSomIkkeMedlem extends LeafSpecification<Medlems
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (!grunnlag.isBrukerErMedlem()) {
+        if (!grunnlag.brukerErMedlem()) {
             return ja(IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM);
         }
         return nei();

@@ -32,7 +32,7 @@ public class ProsesseringAsynkTjeneste {
     }
 
     public Map<String, ProsessTaskData> sjekkProsessTaskPågår(Long fagsakId, Long behandlingId, String gruppe) {
-
+        fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
         var statusProsessTasks = sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, gruppe);
 
         var nestePerGruppe = nesteProsessTaskPerGruppe(statusProsessTasks);

@@ -60,7 +60,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_termindato_mer_enn_25_dager_siden() {
+    public void sjekk_manglende_fødsel_dersom_termindato_mer_enn_17_dager_siden() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittTermin(TERMINDATO_27_SIDEN, FØRSTEGANGSSØKNAD);
         //Act
@@ -75,9 +75,9 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void sjekk_manglende_fødsel_dersom_fødsel_og_mindre_enn_14_dager_siden_fødsel() {
+    public void sjekk_manglende_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
         //Arrange
-        var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_NÅ);
+        var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_NÅ.minusDays(7));
         //Act
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
         //Assert
@@ -88,7 +88,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
     }
 
     @Test
-    public void autopunkt_vent_på_fødsel_dersom_fødsel_og_mer_enn_14_dager_siden_fødsel() {
+    public void autopunkt_vent_på_fødsel_dersom_fødsel_og_mer_enn_7_dager_siden_fødsel() {
         //Arrange
         var behandling = opprettBehandlingMedOppgittFødsel(FØDSELSDATO_16_SIDEN);
         //Act

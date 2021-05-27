@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -50,6 +49,7 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -154,8 +154,7 @@ public class MedlemskapsvilkårTest {
         // Act
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(vilkårData.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(vilkårData.getRegelInput());
         var personStatusType = jsonNode.get("personStatusType").asText();
 
         // Assert

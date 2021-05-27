@@ -18,7 +18,7 @@ class SjekkMannAdoptererAlene extends LeafSpecification<AdopsjonsvilkårGrunnlag
 
     @Override
     public Evaluation evaluate(AdopsjonsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isMannAdoptererAlene()) {
+        if (grunnlag.mannAdoptererAlene()) {
             return ja();
         }
         return nei(IKKE_OPPFYLT_MANN_ADOPTERER_IKKE_ALENE);

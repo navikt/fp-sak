@@ -4,137 +4,21 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public class MedlemskapsvilkårGrunnlag implements VilkårGrunnlag {
+public record MedlemskapsvilkårGrunnlag(PersonStatusType personStatusType,
+                                     boolean brukerNorskNordisk,
+                                     boolean brukerBorgerAvEUEOS,
+                                     boolean brukerHarOppholdstillatelse,
+                                     boolean harSøkerArbeidsforholdOgInntekt,
+                                     boolean brukerErMedlem,
+                                     boolean brukerAvklartPliktigEllerFrivillig,
+                                     boolean brukerAvklartBosatt,
+                                     boolean brukerAvklartLovligOppholdINorge,
+                                     boolean brukerAvklartOppholdsrett) implements VilkårGrunnlag {
 
-    /**
-     * Om bruker er medlem
+    /*
+      * Hvis du tenker på annen navngivning - obs på deserialisering av tidligere/nye navn i VedtakXML+ DvhXML .
+      * Anbefaler å gjennomgå all vilkårlagring og avklare med Stønadsstatistikk hva som brukes av DvhXML,
+      * deretter evt regenerere alle tidliger vedtak. Prosess 2022.
      */
-    private boolean brukerErMedlem;
-    /**
-     * Status på personen (valgene er: Bosatt, Utvandret eller Død)
-     */
-    private PersonStatusType personStatusType;
-    /**
-     * Status på personen (valgene er: Bosatt, Utvandret eller Død)
-     */
-    private boolean brukerHarOppholdstillatelse;
-    /**
-     * Om bruker er pliktig eller frivillig medlem
-     */
-    private boolean brukerAvklartPliktigEllerFrivillig;
-    /**
-     * Om bruker er bosatt i Norge
-     */
-    private boolean brukerAvklartBosatt;
-    /**
-     * Om bruker har oppholdsrett
-     */
-    private boolean brukerAvklartOppholdsrett;
-    /**
-     * Om bruker har lovlig opphold i Norge
-     */
-    private boolean brukerAvklartLovligOppholdINorge;
-    /**
-     * Om bruker er norsk eller nordisk statsborger
-     */
-    private boolean brukerNorskNordisk;
-    /**
-     * Om bruker er EU/EØS borger
-     */
-    private boolean brukerBorgerAvEUEOS;
 
-    /**
-     * Har søker arbeidsforhold (ansettelsesperiode) uten sluttdato eller med sluttdato frem i tid som
-     * dekker skjæringstidspunktet, og har pensjonsgivende inntekt i dette arbeidsforholdet?
-     */
-    private boolean harSøkerArbeidsforholdOgInntekt;
-
-    public MedlemskapsvilkårGrunnlag() {
-    }
-
-    public MedlemskapsvilkårGrunnlag(boolean brukerErMedlem, PersonStatusType personStatusType, boolean brukerNorskNordisk, boolean brukerBorgerAvEUEOS) {
-        this.brukerErMedlem = brukerErMedlem;
-        this.personStatusType = personStatusType;
-        this.brukerNorskNordisk = brukerNorskNordisk;
-        this.brukerBorgerAvEUEOS = brukerBorgerAvEUEOS;
-    }
-
-    public boolean isBrukerErMedlem() {
-        return brukerErMedlem;
-    }
-
-    public PersonStatusType getPersonStatusType() {
-        return personStatusType;
-    }
-
-    public boolean isBrukerHarOppholdstillatelse() {
-        return brukerHarOppholdstillatelse;
-    }
-
-    public boolean isBrukerAvklartBosatt() {
-        return brukerAvklartBosatt;
-    }
-
-    public boolean isBrukerAvklartOppholdsrett() {
-        return brukerAvklartOppholdsrett;
-    }
-
-    public boolean isBrukerAvklartLovligOppholdINorge() {
-        return brukerAvklartLovligOppholdINorge;
-    }
-
-    public boolean isBrukerNorskNordisk() {
-        return brukerNorskNordisk;
-    }
-
-    public boolean isBrukerBorgerAvEUEOS() {
-        return brukerBorgerAvEUEOS;
-    }
-
-    public boolean isBrukerAvklartPliktigEllerFrivillig() {
-        return brukerAvklartPliktigEllerFrivillig;
-    }
-
-    public boolean harSøkerArbeidsforholdOgInntekt() {
-        return harSøkerArbeidsforholdOgInntekt;
-    }
-
-    public void setBrukerAvklartBosatt(boolean brukerAvklartBosatt) {
-        this.brukerAvklartBosatt = brukerAvklartBosatt;
-    }
-
-    public void setBrukerAvklartOppholdsrett(boolean brukerAvklartOppholdsrett) {
-        this.brukerAvklartOppholdsrett = brukerAvklartOppholdsrett;
-    }
-
-    public void setBrukerAvklartLovligOppholdINorge(boolean brukerAvklartLovligOppholdINorge) {
-        this.brukerAvklartLovligOppholdINorge = brukerAvklartLovligOppholdINorge;
-    }
-
-    public void setBrukerAvklartPliktigEllerFrivillig(boolean brukerAvklartPliktigEllerFrivillig) {
-        this.brukerAvklartPliktigEllerFrivillig = brukerAvklartPliktigEllerFrivillig;
-    }
-
-    public void setHarSøkerArbeidsforholdOgInntekt(boolean harSøkerArbeidsforholdOgInntekt) {
-        this.harSøkerArbeidsforholdOgInntekt = harSøkerArbeidsforholdOgInntekt;
-    }
-
-    public void setBrukerHarOppholdstillatelse(boolean brukerHarOppholdstillatelse) {
-        this.brukerHarOppholdstillatelse = brukerHarOppholdstillatelse;
-    }
-
-    @Override
-    public String toString() {
-        return "MedlemskapsvilkårGrunnlag{" +
-            "brukerErMedlem=" + brukerErMedlem +
-            ", personStatusType=" + personStatusType +
-            ", brukerAvklartPliktigEllerFrivillig=" + brukerAvklartPliktigEllerFrivillig +
-            ", brukerAvklartBosatt=" + brukerAvklartBosatt +
-            ", brukerAvklartOppholdsrett=" + brukerAvklartOppholdsrett +
-            ", brukerAvklartLovligOppholdINorge=" + brukerAvklartLovligOppholdINorge +
-            ", brukerNorskNordisk=" + brukerNorskNordisk +
-            ", brukerBorgerAvEUEOS=" + brukerBorgerAvEUEOS +
-            ", harSøkerArbeidsforholdOgInntekt=" + harSøkerArbeidsforholdOgInntekt +
-            '}';
-    }
 }

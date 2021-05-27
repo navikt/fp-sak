@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
@@ -103,15 +103,15 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         return grunnlag;
     }
 
-    private SoekerRolle finnFagsakSøkerRolle(BehandlingReferanse ref) {
+    private RegelSøkerRolle finnFagsakSøkerRolle(BehandlingReferanse ref) {
         var relasjonsRolleType = ref.getRelasjonsRolleType();
         if (RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
-            return SoekerRolle.MORA;
+            return RegelSøkerRolle.MORA;
         }
         if (RelasjonsRolleType.UDEFINERT.equals(relasjonsRolleType) || RelasjonsRolleType.BARN.equals(relasjonsRolleType)) {
             return null;
         }
-        return SoekerRolle.FARA;
+        return RegelSøkerRolle.FARA;
     }
 
     private FagsakÅrsak finnFagsakÅrsak(FamilieHendelseEntitet familieHendelse) {

@@ -42,7 +42,7 @@ public class BehandleNegativeKvitteringTjenesteTest {
         verify(prosessTaskRepository).lagre(taskData);
 
         assertThat(taskData.getStatus()).isEqualTo(ProsessTaskStatus.FEILET);
-        assertThat(taskData.getSisteFeil()).isEqualTo("{\"feilmelding\":\"Det finnes negativ kvittering for minst en av oppdragsmottakerne.\"}");
+        assertThat(taskData.getSisteFeil()).contains("\"Det finnes negativ kvittering for minst en av oppdragsmottakerne.\"");
         assertThat(taskData.getHendelse()).isEmpty();
     }
 

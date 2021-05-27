@@ -15,7 +15,7 @@ public class SjekkBrukerErAvklartSomEUEØSStatsborger extends LeafSpecification<
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isBrukerBorgerAvEUEOS()) {
+        if (grunnlag.brukerBorgerAvEUEOS()) {
             return ja();
         }
         return nei();

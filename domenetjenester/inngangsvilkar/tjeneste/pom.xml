@@ -36,6 +36,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
+            <artifactId>familie-hendelse</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandling</artifactId>
         </dependency>
         <dependency>

@@ -23,6 +23,7 @@ import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
@@ -76,6 +77,14 @@ public class FagsakProsessTaskRepository {
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
         query.setParameter("prosessTaskId", prosessTaskId); // NOSONAR
         query.setParameter("fagsakId", fagsakId); // NOSONAR
+        query.executeUpdate();
+        em.flush();
+    }
+
+    public void fjernForAvsluttedeBehandlinger() {
+        var em = getEntityManager();
+        var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK fp where fp.id in ( select fpt.id from FAGSAK_PROSESS_TASK fpt join BEHANDLING b on fpt.behandling_id=b.id where behandling_status = :avsluttet )");
+        query.setParameter("avsluttet", BehandlingStatus.AVSLUTTET.getKode()); // NOSONAR
         query.executeUpdate();
         em.flush();
     }

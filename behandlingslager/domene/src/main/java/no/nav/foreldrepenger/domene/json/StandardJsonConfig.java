@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -59,6 +60,14 @@ public final class StandardJsonConfig {
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
             return OM.readerFor(clazz).readValue(json);
+        } catch (IOException e) {
+            throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
+        }
+    }
+
+    public static JsonNode fromJsonAsTree(String json) {
+        try {
+            return OM.readTree(json);
         } catch (IOException e) {
             throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
         }

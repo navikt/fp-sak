@@ -9,8 +9,6 @@ import java.time.Period;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
@@ -70,8 +69,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
-        var om = new ObjectMapper();
-        var jsonNode = om.readTree(data.getRegelInput());
+        var jsonNode =  StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
@@ -185,14 +183,14 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().minusDays(24))
+                .medTermindato(LocalDate.now().minusDays(15))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
         scenario.medSøknadDato(LocalDate.now().minusMonths(5))
             .medOverstyrtHendelse()
             .medTerminbekreftelse(scenario.medOverstyrtHendelse()
                 .getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().minusDays(24))
+                .medTermindato(LocalDate.now().minusDays(15))
                 .medNavnPå("LEGEN MIN")
                 .medUtstedtDato(LocalDate.now()));
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
@@ -213,15 +211,53 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         scenario.medSøknadHendelse()
             .medTerminbekreftelse(scenario.medSøknadHendelse()
                 .getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().minusDays(26))
+                .medTermindato(LocalDate.now().minusDays(18))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGE LEGESEN"));
         scenario.medOverstyrtHendelse()
             .medTerminbekreftelse(scenario.medOverstyrtHendelse()
                 .getTerminbekreftelseBuilder()
-                .medTermindato(LocalDate.now().minusDays(26))
+                .medTermindato(LocalDate.now().minusDays(18))
                 .medUtstedtDato(LocalDate.now())
                 .medNavnPå("LEGE LEGESEN"));
+        leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        // Act
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
+
+        // Assert
+        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
+        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(data.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1026);
+    }
+
+    @Test
+    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel() {
+        // Arrange
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse()
+            .medFødselsDato(LocalDate.now().minusDays(3))
+            .medAntallBarn(1);
+        leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
+        var behandling = scenario.lagre(repositoryProvider);
+
+        // Act
+        var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
+
+        // Assert
+        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
+        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(data.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1026);
+    }
+
+    @Test
+    public void skal_vurdere_vilkår_som_ikke_oppfylt_dersom_fødsel_burde_vært_inntruffet_søkt_fødsel_frist_passert() {
+        // Arrange
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.medSøknadHendelse()
+            .medFødselsDato(LocalDate.now().minusDays(10))
+            .medAntallBarn(1);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);
 

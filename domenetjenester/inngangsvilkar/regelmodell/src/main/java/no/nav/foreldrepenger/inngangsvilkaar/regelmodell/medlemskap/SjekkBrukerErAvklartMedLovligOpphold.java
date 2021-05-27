@@ -19,7 +19,7 @@ public class SjekkBrukerErAvklartMedLovligOpphold extends LeafSpecification<Medl
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isBrukerAvklartLovligOppholdINorge()) {
+        if (grunnlag.brukerAvklartLovligOppholdINorge()) {
             return ja();
         }
         return nei(IKKE_OPPFYLT_BRUKER_HAR_IKKE_LOVLIG_OPPHOLD);

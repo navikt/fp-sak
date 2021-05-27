@@ -90,8 +90,8 @@ public class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErMorTest
     }
 
     @Test
-    public void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_14_dager_siden_fødsel() {
-        var behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now());
+    public void sjekk_autopunkt_vent_på_fødsel_dersom_fødsel_og_mindre_enn_8_dager_siden_fødsel() {
+        var behandling = opprettBehandlingMedOppgittFødsel(LocalDate.now().minusDays(3));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling));
 
         assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktResultat.opprettForAksjonspunkt(AUTO_VENT_PÅ_FØDSELREGISTRERING));

@@ -28,19 +28,19 @@ import no.nav.fpsak.nare.specification.Specification;
  *
  */
 @RuleDocumentation(value = "FP_VK_3", specificationReference = "https://confluence.adeo.no/pages/viewpage.action?pageId=173827683")
-public class Søknadsfristvilkår implements RuleService<SoeknadsfristvilkarGrunnlag> {
+public class Søknadsfristvilkår implements RuleService<SøknadsfristvilkårGrunnlag> {
 
     @Override
-    public Evaluation evaluer(SoeknadsfristvilkarGrunnlag data) {
+    public Evaluation evaluer(SøknadsfristvilkårGrunnlag data) {
         return getSpecification().evaluate(data);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Specification<SoeknadsfristvilkarGrunnlag> getSpecification() {
-        var rs = new Ruleset<SoeknadsfristvilkarGrunnlag>();
+    public Specification<SøknadsfristvilkårGrunnlag> getSpecification() {
+        var rs = new Ruleset<SøknadsfristvilkårGrunnlag>();
 
-        Specification<SoeknadsfristvilkarGrunnlag> vilkår = rs.hvisRegel("FP_VK_3", "Hvis søknad er elektronisk ...")
+        Specification<SøknadsfristvilkårGrunnlag> vilkår = rs.hvisRegel("FP_VK_3", "Hvis søknad er elektronisk ...")
                 .hvis(new SjekkElektroniskSøknad(), new SjekkFristForSøknad(Period.ofMonths(6), 0))
                 .ellers(new SjekkFristForSøknad(Period.ofMonths(6), 2));
 

@@ -42,11 +42,13 @@ public class FamilieHendelseTjeneste {
 
     private static final Logger LOG = LoggerFactory.getLogger(FamilieHendelseTjeneste.class);
 
-    private static final Period REGISTRERING_FRIST_ETTER_TERMIN = Period.parse("P25D");
-    private static final Period REGISTRERING_FRIST_ETTER_FØDSEL = Period.parse("P14D");
+    private static final Period REGISTRERING_FRIST_ETTER_TERMIN = Period.parse("P17D");
+    private static final Period REGISTRERING_FRIST_ETTER_FØDSEL = Period.parse("P7D");
 
     private static final Period MATCH_INTERVAlL_TERMIN = Period.parse("P19W");
     private static final Period MATCH_INTERVAlL_FØDSEL = Period.parse("P6W");
+
+    public static final Period VENT_FØDSELSREGISTRERING_AUTOPUNKT = Period.parse("P8D"); // Sikre evt aksjonspunkt
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
@@ -248,13 +250,28 @@ public class FamilieHendelseTjeneste {
 
 
     public static boolean getManglerFødselsRegistreringFristUtløpt(FamilieHendelseGrunnlagEntitet grunnlag) {
-        if (grunnlag == null || !grunnlag.getGjeldendeVersjon().getGjelderFødsel() || grunnlag.getBekreftetVersjon().isPresent() ||
-            grunnlag.getOverstyrtVersjon().map(fh -> FØDSEL.equals(fh.getType()) && !fh.getBarna().isEmpty()).orElse(Boolean.FALSE)) {
+        if (grunnlag == null || !grunnlag.getGjeldendeVersjon().getGjelderFødsel() || harBekreftetFødsel(grunnlag)) {
             return false;
         }
         var fhDato = grunnlag.finnGjeldendeFødselsdato();
-        var fhDatoPlussFrist = FamilieHendelseType.FØDSEL.equals(grunnlag.getGjeldendeVersjon().getType()) ? REGISTRERING_FRIST_ETTER_FØDSEL : REGISTRERING_FRIST_ETTER_TERMIN;
+        var fhDatoPlussFrist = FamilieHendelseType.FØDSEL.equals(grunnlag.getGjeldendeVersjon().getType()) ?
+            REGISTRERING_FRIST_ETTER_FØDSEL : REGISTRERING_FRIST_ETTER_TERMIN;
         return LocalDate.now().isAfter(fhDato.plus(fhDatoPlussFrist));
+    }
+
+    private static boolean harBekreftetFødsel(FamilieHendelseGrunnlagEntitet grunnlag) {
+        if (grunnlag.getOverstyrtVersjon().filter(FamilieHendelseTjeneste::harBekreftetFødsel).isPresent()) {
+            return grunnlag.getOverstyrtVersjon().filter(FamilieHendelseTjeneste::harRegistrertFødteBarn).isPresent();
+        }
+        return grunnlag.getBekreftetVersjon().filter(FamilieHendelseTjeneste::harRegistrertFødteBarn).isPresent();
+    }
+
+    private static boolean harBekreftetFødsel(FamilieHendelseEntitet fh) {
+        return FØDSEL.equals(fh.getType());
+    }
+
+    private static boolean harRegistrertFødteBarn(FamilieHendelseEntitet fh) {
+        return FØDSEL.equals(fh.getType()) && !fh.getBarna().isEmpty();
     }
 
     public void kopierGrunnlag(Long fraBehandlingId, Long tilBehandlingId) {

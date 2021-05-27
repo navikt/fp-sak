@@ -17,7 +17,7 @@ public class SjekkMorForSykTilÅTaVarePåBarn extends LeafSpecification<Fødsels
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isErMorForSykVedFødsel()) {
+        if (grunnlag.erMorForSykVedFødsel()) {
             return ja();
         }
         return nei();

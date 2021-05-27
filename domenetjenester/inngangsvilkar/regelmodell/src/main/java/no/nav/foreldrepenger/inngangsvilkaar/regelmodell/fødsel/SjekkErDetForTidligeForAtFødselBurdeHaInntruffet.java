@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
-import java.time.LocalDate;
-
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
@@ -13,20 +11,23 @@ public class SjekkErDetForTidligeForAtFødselBurdeHaInntruffet extends LeafSpeci
 
     static final RuleReasonRef FØDSEL_BURDE_HA_INNTRUFFET = new RuleReasonRefImpl("1026", "Fødsel ikke funnet i folkeregisteret");
 
-    private static final int MAX_ANTALL_DAGER_ETTER_TERMIN = 25;
-
     public SjekkErDetForTidligeForAtFødselBurdeHaInntruffet() {
         super(ID);
     }
 
     @Override
     public Evaluation evaluate(FødselsvilkårGrunnlag grunnlag) {
-        if (!grunnlag.isErSøktOmTermin()){
+        if (grunnlag.behandlingsdato() == null) {
+            throw new IllegalArgumentException("Mangler behandlingsdato i :" + grunnlag);
+        }
+        // Tidligere regel har sjekket om det er registrert barn
+        if (!grunnlag.erSøktOmTermin()) {
+            // Det er søkt på fødsel og det er ikke registrert barn i Folkeregisteret
+            // Det er allerede ventet en periode etter angitt fødselsdato
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }
-        var nå = LocalDate.now();
-        var nårFødselBurdeHaInntruffet = grunnlag.getBekreftetTermindato().plusDays(MAX_ANTALL_DAGER_ETTER_TERMIN);
-        if (nå.isAfter(nårFødselBurdeHaInntruffet)) {
+        if (grunnlag.erFødselRegistreringFristUtløpt()){
+            // Det er søkt på termin og det er ikke registrert eller bekreftet barn.
             return nei(FØDSEL_BURDE_HA_INNTRUFFET);
         }
         return ja();

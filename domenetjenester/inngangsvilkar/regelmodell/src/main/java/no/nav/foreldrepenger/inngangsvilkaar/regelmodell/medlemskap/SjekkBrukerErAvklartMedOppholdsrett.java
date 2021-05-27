@@ -20,7 +20,7 @@ public class SjekkBrukerErAvklartMedOppholdsrett extends LeafSpecification<Medle
 
     @Override
     public Evaluation evaluate(MedlemskapsvilkårGrunnlag grunnlag) {
-        if (grunnlag.isBrukerAvklartOppholdsrett()) {
+        if (grunnlag.brukerAvklartOppholdsrett()) {
             return ja();
         }
         return nei(IKKE_OPPFYLT_BRUKER_HAR_IKKE_OPPHOLDSRETT);

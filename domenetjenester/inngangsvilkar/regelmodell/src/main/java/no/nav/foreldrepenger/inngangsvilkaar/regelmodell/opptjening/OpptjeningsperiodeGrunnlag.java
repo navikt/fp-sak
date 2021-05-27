@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 
 public class OpptjeningsperiodeGrunnlag implements VilkårGrunnlag {
 
     // Input til regel
-    private SoekerRolle søkerRolle;
+    private RegelSøkerRolle søkerRolle;
     private FagsakÅrsak fagsakÅrsak;
     private LocalDate førsteUttaksDato;
     private LocalDate hendelsesDato;
@@ -28,7 +28,7 @@ public class OpptjeningsperiodeGrunnlag implements VilkårGrunnlag {
     public OpptjeningsperiodeGrunnlag() {
     }
 
-    public OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak, SoekerRolle soekerRolle, LocalDate førsteUttaksDato,
+    public OpptjeningsperiodeGrunnlag(FagsakÅrsak fagsakÅrsak, RegelSøkerRolle soekerRolle, LocalDate førsteUttaksDato,
                                       LocalDate hendelsesDato, LocalDate terminDato) {
         this.fagsakÅrsak = fagsakÅrsak;
         this.søkerRolle = soekerRolle;
@@ -37,7 +37,7 @@ public class OpptjeningsperiodeGrunnlag implements VilkårGrunnlag {
         this.terminDato = terminDato;
     }
 
-    public SoekerRolle getSøkerRolle() {
+    public RegelSøkerRolle getSøkerRolle() {
         return søkerRolle;
     }
 
@@ -59,7 +59,7 @@ public class OpptjeningsperiodeGrunnlag implements VilkårGrunnlag {
 
     public Period getPeriodeLengde() { return periodeLengde; }
 
-    public void setSøkerRolle(SoekerRolle søkerRolle) {
+    public void setSøkerRolle(RegelSøkerRolle søkerRolle) {
         this.søkerRolle = søkerRolle;
     }
 

@@ -26,9 +26,10 @@ class SjekkBarnUnder15År extends LeafSpecification<AdopsjonsvilkårGrunnlag> {
     }
 
     private long antallBarnUnder15År(AdopsjonsvilkårGrunnlag grunnlag) {
-        return grunnlag.getBekreftetAdopsjonBarn()
-            .stream()
-            .filter(barn -> grunnlag.getOmsorgsovertakelsesdato().minusYears(15).isBefore(barn.getFoedselsdato()))
+        var omsorgMinusFemtenÅr = grunnlag.omsorgsovertakelsesdato().minusYears(15);
+        return grunnlag.bekreftetAdopsjonBarn().stream()
+            .map(BekreftetAdopsjonBarn::fødselsdato)
+            .filter(omsorgMinusFemtenÅr::isBefore)
             .count();
     }
 

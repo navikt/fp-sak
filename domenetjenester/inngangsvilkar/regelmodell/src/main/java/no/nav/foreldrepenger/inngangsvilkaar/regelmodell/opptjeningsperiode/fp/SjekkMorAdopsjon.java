@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.SoekerRolle;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
@@ -18,6 +18,6 @@ public class SjekkMorAdopsjon extends LeafSpecification<OpptjeningsperiodeGrunnl
 
     @Override
     public Evaluation evaluate(OpptjeningsperiodeGrunnlag regelmodell) {
-        return regelmodell.getSøkerRolle().equals(SoekerRolle.MORA) ? ja() : nei();
+        return RegelSøkerRolle.MORA.equals(regelmodell.getSøkerRolle()) ? ja() : nei();
     }
 }

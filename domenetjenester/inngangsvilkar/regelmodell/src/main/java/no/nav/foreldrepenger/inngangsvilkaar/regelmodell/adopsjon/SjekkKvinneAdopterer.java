@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Kjoenn;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
@@ -16,7 +16,7 @@ class SjekkKvinneAdopterer extends LeafSpecification<AdopsjonsvilkårGrunnlag> {
 
     @Override
     public Evaluation evaluate(AdopsjonsvilkårGrunnlag grunnlag) {
-        if (grunnlag.getSoekersKjonn().equals(Kjoenn.KVINNE)) {
+        if (RegelKjønn.KVINNE.equals(grunnlag.søkersKjønn())) {
             return ja();
         }
         return nei();
