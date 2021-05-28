@@ -20,15 +20,12 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.svp.Opptjeni
 @FagsakYtelseTypeRef("SVP")
 public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjeneste {
     private OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste;
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
 
     public OpptjeningsVilkårTjenesteImpl() {
     }
 
     @Inject
-    public OpptjeningsVilkårTjenesteImpl(InngangsvilkårOversetter inngangsvilkårOversetter,
-                                        OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste) {
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
+    public OpptjeningsVilkårTjenesteImpl(OpptjeningInntektArbeidYtelseTjeneste opptjeningTjeneste) {
         this.opptjeningTjeneste = opptjeningTjeneste;
     }
 
@@ -53,7 +50,7 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårData = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
         vilkårData.setEkstraVilkårresultat(output);
 
         return vilkårData;

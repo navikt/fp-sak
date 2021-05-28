@@ -31,7 +31,7 @@ public class InngangsvilkårEngangsstønadSøknadsfrist implements Inngangsvilk�
     public VilkårData vurderVilkår(BehandlingReferanse behandling) {
         var grunnlag = inngangsvilkårOversetter.oversettTilRegelModellSøknad(behandling);
         var vilkaarResultat = new Søknadsfristvilkår().evaluer(grunnlag);
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.SØKNADSFRISTVILKÅRET, vilkaarResultat, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.SØKNADSFRISTVILKÅRET, vilkaarResultat, grunnlag);
     }
 
 }

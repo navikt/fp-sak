@@ -306,7 +306,7 @@ public class InngangsvilkårOversetter {
     /**
      * True dersom saksbehandler har vurdert til ikke å være medlem i relevant periode
      */
-    private boolean erAvklartSomIkkeMedlem(Optional<VurdertMedlemskap> medlemskap) {
+    private static boolean erAvklartSomIkkeMedlem(Optional<VurdertMedlemskap> medlemskap) {
         return medlemskap.isPresent() && medlemskap.get().getMedlemsperiodeManuellVurdering() != null
             && MedlemskapManuellVurderingType.UNNTAK.equals(medlemskap.get().getMedlemsperiodeManuellVurdering());
     }
@@ -328,7 +328,7 @@ public class InngangsvilkårOversetter {
         return !(erAvklartMaskineltSomIkkeMedlem || erAvklartManueltSomIkkeMedlem);
     }
 
-    private boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
+    private static boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
         // Tar det første for det er det som er prioritert høyest rangert på region
         var eosBorger = aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.EOS);
         return medlemskap
@@ -336,11 +336,11 @@ public class InngangsvilkårOversetter {
             .orElse(eosBorger);
     }
 
-    private boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {
+    private static boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {
         return aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.NORDEN);
     }
 
-    private PersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {
+    private static PersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {
         // Bruker overstyrt personstatus hvis det finnes
         var type = Optional.ofNullable(personopplysninger.getPersonstatusFor(personopplysninger.getSøker().getAktørId()))
             .map(PersonstatusEntitet::getPersonstatus).orElse(null);
@@ -373,20 +373,20 @@ public class InngangsvilkårOversetter {
         return bekreftetAdopsjon;
     }
 
-    private boolean getBooleanOrDefaultFalse(Boolean bool) {
+    private static boolean getBooleanOrDefaultFalse(Boolean bool) {
         if (bool == null) {
             return false;
         }
         return bool;
     }
 
-    private RegelKjønn tilSøkerKjøenn(NavBrukerKjønn søkerKjønn) {
+    private static RegelKjønn tilSøkerKjøenn(NavBrukerKjønn søkerKjønn) {
         var kjoenn = RegelKjønn.hentKjønn(søkerKjønn.getKode());
         Objects.requireNonNull(kjoenn, "Fant ingen kjonn for: " + søkerKjønn.getKode());
         return kjoenn;
     }
 
-    public VilkårData tilVilkårData(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
-        return new VilkårUtfallOversetter().oversett(vilkårType, evaluation, grunnlag);
+    public static VilkårData tilVilkårData(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
+        return VilkårUtfallOversetter.oversett(vilkårType, evaluation, grunnlag);
     }
 }

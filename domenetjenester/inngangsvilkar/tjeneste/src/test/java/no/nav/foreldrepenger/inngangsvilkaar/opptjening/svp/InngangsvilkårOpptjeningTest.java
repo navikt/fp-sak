@@ -30,8 +30,7 @@ public class InngangsvilkårOpptjeningTest {
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårUtfallOversetter = new VilkårUtfallOversetter();
-        var vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -50,8 +49,7 @@ public class InngangsvilkårOpptjeningTest {
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårUtfallOversetter = new VilkårUtfallOversetter();
-        var vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
@@ -70,8 +68,7 @@ public class InngangsvilkårOpptjeningTest {
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårUtfallOversetter = new VilkårUtfallOversetter();
-        var vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
@@ -90,8 +87,7 @@ public class InngangsvilkårOpptjeningTest {
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårUtfallOversetter = new VilkårUtfallOversetter();
-        var vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
@@ -112,8 +108,7 @@ public class InngangsvilkårOpptjeningTest {
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårUtfallOversetter = new VilkårUtfallOversetter();
-        var vilkårData = vilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
+        var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
         assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 

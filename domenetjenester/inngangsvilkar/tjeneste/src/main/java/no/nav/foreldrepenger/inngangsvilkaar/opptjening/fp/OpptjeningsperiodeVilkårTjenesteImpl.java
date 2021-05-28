@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.R
 @FagsakYtelseTypeRef("FP")
 public class OpptjeningsperiodeVilkårTjenesteImpl implements OpptjeningsperiodeVilkårTjeneste {
 
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
     private FamilieHendelseRepository familieHendelseRepository;
     private YtelseMaksdatoTjeneste ytelseMaksdatoTjeneste;
 
@@ -38,36 +37,37 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     }
 
     @Inject
-    public OpptjeningsperiodeVilkårTjenesteImpl(InngangsvilkårOversetter inngangsvilkårOversetter,
-                                                FamilieHendelseRepository familieHendelseRepository,
+    public OpptjeningsperiodeVilkårTjenesteImpl(FamilieHendelseRepository familieHendelseRepository,
                                                 YtelseMaksdatoTjeneste beregnMorsMaksdatoTjeneste) {
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
         this.familieHendelseRepository = familieHendelseRepository;
         this.ytelseMaksdatoTjeneste = beregnMorsMaksdatoTjeneste;
     }
 
     @Override
-    public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
+    public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse) {
 
-        var grunnlag = opprettGrunnlag(behandlingReferanse, førsteUttaksdato);
+        var grunnlag = opprettGrunnlag(behandlingReferanse);
 
         final var data = new OpptjeningsPeriode();
         var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
 
-        var resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
+        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
         resultat.setEkstraVilkårresultat(data);
         return resultat;
     }
 
-    private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref, LocalDate førsteUttaksdato) {
+    private OpptjeningsperiodeGrunnlag opprettGrunnlag(BehandlingReferanse ref) {
 
         var behandlingId = ref.getBehandlingId();
         final var hendelseAggregat = familieHendelseRepository.hentAggregat(behandlingId);
         final var hendelse = hendelseAggregat.getGjeldendeVersjon();
+        final var sammenhengendeUttak = ref.getSkjæringstidspunkt().kreverSammenhengendeUttak();
+        final var førsteUttaksdato = ref.getSkjæringstidspunkt().getFørsteUttaksdato();
 
         var fagsakÅrsak = finnFagsakÅrsak(hendelse);
         var søkerRolle =  finnFagsakSøkerRolle(ref);
-        var morsMaksdato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.getSaksnummer(), ref.getRelasjonsRolleType());
+        Optional<LocalDate> morsMaksdato = !sammenhengendeUttak ? Optional.empty() :
+            ytelseMaksdatoTjeneste.beregnMorsMaksdato(ref.getSaksnummer(), ref.getRelasjonsRolleType());
         Optional<LocalDate> termindato;
         LocalDate hendelsedato;
         if (FagsakÅrsak.FØDSEL.equals(fagsakÅrsak)) {

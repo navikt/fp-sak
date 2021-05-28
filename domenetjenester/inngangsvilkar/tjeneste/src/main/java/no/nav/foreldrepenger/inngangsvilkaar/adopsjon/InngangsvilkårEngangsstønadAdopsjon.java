@@ -33,6 +33,6 @@ public class InngangsvilkårEngangsstønadAdopsjon implements Inngangsvilkår {
 
         var evaluation = new AdopsjonsvilkårEngangsstønad().evaluer(grunnlag);
 
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, evaluation, grunnlag);
     }
 }

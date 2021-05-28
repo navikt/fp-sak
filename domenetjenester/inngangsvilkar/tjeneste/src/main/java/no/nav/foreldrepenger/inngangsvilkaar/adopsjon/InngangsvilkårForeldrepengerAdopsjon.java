@@ -32,6 +32,6 @@ public class InngangsvilkårForeldrepengerAdopsjon implements Inngangsvilkår {
 
         var evaluation = new AdopsjonsvilkårForeldrepenger().evaluer(grunnlag);
 
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, evaluation, grunnlag);
     }
 }

@@ -35,6 +35,6 @@ class InngangsvilkårFødselFar implements Inngangsvilkår {
 
         var evaluation = new FødselsvilkårFar().evaluer(grunnlag);
 
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, evaluation, grunnlag);
     }
 }

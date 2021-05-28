@@ -86,7 +86,8 @@ public class SkjæringstidspunktUtils {
     }
 
     LocalDate utledSkjæringstidspunktFraBehandling(Behandling behandling, LocalDate førsteUttaksDato,
-                                                   Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag, Optional<LocalDate> morsMaksDato) {
+                                                   Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag,
+                                                   Optional<LocalDate> morsMaksDato) {
 
         if (familieHendelseGrunnlag.isPresent()) {
             return evaluerSkjæringstidspunktOpptjening(behandling, førsteUttaksDato, familieHendelseGrunnlag.get(), morsMaksDato);
