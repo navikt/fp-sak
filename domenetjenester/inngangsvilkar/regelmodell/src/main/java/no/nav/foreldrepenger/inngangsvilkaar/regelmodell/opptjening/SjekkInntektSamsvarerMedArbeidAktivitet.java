@@ -45,7 +45,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
 
 
         // regn utførste dato for antatt godkjent bakover
-        var periodeAntattGodkjentAksepteres = data.getGrunnlag().getPeriodeAntattGodkjentFørBehandlingstidspunkt();
+        var periodeAntattGodkjentAksepteres = data.getRegelParametre().periodeAntattGodkjentFørBehandlingstidspunkt();
         var førsteDatoForAntattGodkjent = sisteAntattGodkjentDato
             .plusMonths(1).withDayOfMonth(1) // Periode P2M blir denne måneden (enn så lenge) og forrige måned
             .minus(periodeAntattGodkjentAksepteres);
@@ -78,7 +78,7 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
         var aktiviteter = data.getAktivitetTidslinjer(false, false);
         var inntekter = data.getInntektTidslinjer();
         var grunnlag = data.getGrunnlag();
-        var underkjennPerioder = new UnderkjennPerioder(inntekter, grunnlag.getMinsteInntekt());
+        var underkjennPerioder = new UnderkjennPerioder(inntekter, data.getRegelParametre().minsteInntekt());
 
         aktiviteter.entrySet().stream()
             .filter(e -> ARBEID.equals(e.getKey().getAktivitetType()) || FRILANSREGISTER.equals(e.getKey().getAktivitetType()))

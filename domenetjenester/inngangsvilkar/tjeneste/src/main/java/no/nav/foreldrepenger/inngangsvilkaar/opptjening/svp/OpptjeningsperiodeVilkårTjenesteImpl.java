@@ -12,9 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.OpptjeningsperiodeVilkårTjeneste;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.FagsakÅrsak;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsPeriode;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.RegelFastsettOpptjeningsperiode;
 
 @ApplicationScoped
@@ -22,7 +23,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.
 public class OpptjeningsperiodeVilkårTjenesteImpl implements OpptjeningsperiodeVilkårTjeneste {
 
     private InngangsvilkårOversetter inngangsvilkårOversetter;
-    private Period antallDagerOpptjeningsperiode;
 
     OpptjeningsperiodeVilkårTjenesteImpl() {
         // for CDI proxy
@@ -31,17 +31,17 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
     @Inject
     public OpptjeningsperiodeVilkårTjenesteImpl(InngangsvilkårOversetter inngangsvilkårOversetter) {
         this.inngangsvilkårOversetter = inngangsvilkårOversetter;
-        this.antallDagerOpptjeningsperiode = Period.ofDays(28);
     }
 
     @Override
     public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
-        var grunnlag = new OpptjeningsperiodeGrunnlag();
-
-        grunnlag.setFagsakÅrsak(FagsakÅrsak.SVANGERSKAP);
-        grunnlag.setFørsteUttaksDato(førsteUttaksdato);
-        grunnlag.setPeriodeLengde(antallDagerOpptjeningsperiode);
-        grunnlag.setTidligsteUttakFørFødselPeriode(null);
+        var grunnlag = new OpptjeningsperiodeGrunnlag(
+            FagsakÅrsak.SVANGERSKAP,
+            RegelSøkerRolle.MORA,
+            førsteUttaksdato,
+            null,
+            null,
+            null);
 
         final var data = new OpptjeningsPeriode();
         var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);

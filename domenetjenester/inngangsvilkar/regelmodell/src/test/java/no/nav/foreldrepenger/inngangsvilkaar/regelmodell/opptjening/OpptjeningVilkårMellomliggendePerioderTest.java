@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,18 +20,15 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
         var maksMellomliggendeDager = 14;
         var minForegåendeDager = 4*7;
 
-        var dt1 = LocalDate.of(2017, 10, 02);
-        var dt2 = LocalDate.of(2017, 11, 07);
+        var dt1 = LocalDate.of(2017, 10, 2);
+        var dt2 = LocalDate.of(2017, 11, 7);
         var dt3 = dt2.plusDays(maksMellomliggendeDager).plusDays(1); // pluss 1 vil fortsatt gi for kort mellomliggende pga fom/tom
         var dt4 = dt3.plusDays(1);
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var behandlingstidspunkt = LocalDate.of(2018, 1, 18);
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
-        grunnlag.setMaksMellomliggendePeriodeForArbeidsforhold(Period.ofDays(maksMellomliggendeDager));
-        grunnlag.setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period.ofDays(minForegåendeDager));
-
 
         // arbeid aktivitet
         grunnlag.leggTil(new LocalDateInterval(dt1, dt2), aktivitet);
@@ -58,18 +54,15 @@ public class OpptjeningVilkårMellomliggendePerioderTest {
     @Test
     public void skal_anse_mellomliggende_periode_over_maks_mellomliggende_dager_med_foregående_periode_lenger_enn_min_forgående_dager_for_ikke_medregnet() throws Exception {
         var maksMellomliggendeDager = 14;
-        var minForegåendeDager = 4*7;
 
-        var dt1 = LocalDate.of(2017, 10, 02);
-        var dt2 = LocalDate.of(2017, 11, 07);
+        var dt1 = LocalDate.of(2017, 10, 2);
+        var dt2 = LocalDate.of(2017, 11, 7);
         var dt3 = dt2.plusDays(maksMellomliggendeDager).plusDays(2); // pluss 2 kompenserer for fom/tom og gir mellomliggende 15 dager
         var dt4 = dt3.plusDays(1);
 
         // matcher antatt godkjent kun for dt3-dt4
-        var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
+        var behandlingstidspunkt = LocalDate.of(2018, 1, 18);
         var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
-        grunnlag.setMaksMellomliggendePeriodeForArbeidsforhold(Period.ofDays(maksMellomliggendeDager));
-        grunnlag.setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period.ofDays(minForegåendeDager));
 
         // arbeid aktivitet
         grunnlag.leggTil(new LocalDateInterval(dt1, dt2), aktivitet);

@@ -109,11 +109,11 @@ public class OpptjeningsgrunnlagAdapterTest {
         assertThat(opptjeningsgrunnlag.getAktivitetPerioder()).hasSize(2);
         var aktivitetPeriode1 = opptjeningsgrunnlag.getAktivitetPerioder().get(0);
         assertThat(aktivitetPeriode1.getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_UNDERKJENT);
-        assertThat(aktivitetPeriode1.getDatoInterval()).isEqualTo(new LocalDateInterval(tiMånederSiden, femMånederSiden.minusDays(1)));
+        assertThat(aktivitetPeriode1.getDatoIntervall()).isEqualTo(new LocalDateInterval(tiMånederSiden, femMånederSiden.minusDays(1)));
 
         var aktivitetPeriod2 = opptjeningsgrunnlag.getAktivitetPerioder().get(1);
         assertThat(aktivitetPeriod2.getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.TIL_VURDERING);
-        assertThat(aktivitetPeriod2.getDatoInterval()).isEqualTo(new LocalDateInterval(femMånederSiden, iDag));
+        assertThat(aktivitetPeriod2.getDatoIntervall()).isEqualTo(new LocalDateInterval(femMånederSiden, iDag));
     }
 
     @Test
@@ -159,11 +159,11 @@ public class OpptjeningsgrunnlagAdapterTest {
 
         var aktivitetPeriode1 = opptjeningsgrunnlag.getAktivitetPerioder().get(0);
         assertThat(aktivitetPeriode1.getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
-        assertThat(aktivitetPeriode1.getDatoInterval()).isEqualTo(new LocalDateInterval(tiMånederSiden, femMånederSiden.minusDays(1)));
+        assertThat(aktivitetPeriode1.getDatoIntervall()).isEqualTo(new LocalDateInterval(tiMånederSiden, femMånederSiden.minusDays(1)));
 
         var aktivitetPeriode2 = opptjeningsgrunnlag.getAktivitetPerioder().get(1);
         assertThat(aktivitetPeriode2.getVurderingsStatus()).isEqualTo(AktivitetPeriode.VurderingsStatus.VURDERT_GODKJENT);
-        assertThat(aktivitetPeriode2.getDatoInterval()).isEqualTo(new LocalDateInterval(femMånederSiden, iDag));
+        assertThat(aktivitetPeriode2.getDatoIntervall()).isEqualTo(new LocalDateInterval(femMånederSiden, iDag));
     }
 
     @Test

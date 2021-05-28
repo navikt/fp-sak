@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,7 +14,7 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
     private LocalDateInterval datoIntervall;
 
     @JsonProperty("aktivitet")
-    private Aktivitet opptjeningAktivitet;
+    private Aktivitet aktivitet;
 
     @JsonProperty("vurderingsStatus")
     private VurderingsStatus vurderingsStatus;
@@ -24,42 +23,31 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
     protected AktivitetPeriode() {
     }
 
-    public AktivitetPeriode(LocalDateInterval datoIntervall, Aktivitet opptjeningAktivitet, VurderingsStatus vurderingsStatus) {
+    public AktivitetPeriode(LocalDateInterval datoIntervall,
+                            Aktivitet aktivitet,
+                            VurderingsStatus vurderingsStatus) {
         this.datoIntervall = datoIntervall;
-        this.opptjeningAktivitet = opptjeningAktivitet;
+        this.aktivitet = aktivitet;
         this.vurderingsStatus = vurderingsStatus;
     }
 
     /** Returner dag intervall. */
-    public LocalDateInterval getDatoInterval() {
+    public LocalDateInterval getDatoIntervall() {
         return datoIntervall;
     }
 
-    public Aktivitet getOpptjeningAktivitet() {
-        return opptjeningAktivitet;
+    public Aktivitet getAktivitet() {
+        return aktivitet;
     }
 
     public VurderingsStatus getVurderingsStatus() {
         return vurderingsStatus;
     }
 
-    public boolean dekkerHeleMåneder() {
-        var månedStart = getFomDato().withDayOfMonth(1);
-        var månedSlutt = getTomDato().withDayOfMonth(getTomDato().lengthOfMonth());
-        return Objects.equals(månedStart, getFomDato()) && Objects.equals(månedSlutt, getTomDato());
-    }
-
-    public LocalDate getTomDato() {
-        return datoIntervall.getTomDato();
-    }
-
-    public LocalDate getFomDato() {
-        return getDatoInterval().getFomDato();
-    }
 
     @Override
     public int compareTo(AktivitetPeriode o) {
-        return this.getDatoInterval().compareTo(o.getDatoInterval());
+        return this.getDatoIntervall().compareTo(o.getDatoIntervall());
     }
 
     @Override
@@ -71,18 +59,18 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
             return false;
         }
         var other = (AktivitetPeriode) obj;
-        return Objects.equals(getOpptjeningAktivitet(), other.getOpptjeningAktivitet())
-                && Objects.equals(getDatoInterval(), other.getDatoInterval());
+        return Objects.equals(getAktivitet(), other.getAktivitet())
+                && Objects.equals(getDatoIntervall(), other.getDatoIntervall());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDatoInterval(), getOpptjeningAktivitet());
+        return Objects.hash(getDatoIntervall(), getAktivitet());
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<datoIntervall=" + datoIntervall + ", aktivitet=" + getOpptjeningAktivitet() + ">";
+        return getClass().getSimpleName() + "<datoIntervall=" + datoIntervall + ", aktivitet=" + getAktivitet() + ">";
     }
 
      public enum VurderingsStatus {

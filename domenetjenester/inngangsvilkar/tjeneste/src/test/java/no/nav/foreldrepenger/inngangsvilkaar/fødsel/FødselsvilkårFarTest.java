@@ -40,8 +40,8 @@ import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktUtils;
 public class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
-    private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(Period.parse("P10M"),
-        Period.parse("P6M"), Period.parse("P1Y"), Period.parse("P6M"));
+    private final SkjæringstidspunktUtils stputil = new SkjæringstidspunktUtils(
+        Period.parse("P1Y"), Period.parse("P6M"));
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private InngangsvilkårOversetter oversetter;

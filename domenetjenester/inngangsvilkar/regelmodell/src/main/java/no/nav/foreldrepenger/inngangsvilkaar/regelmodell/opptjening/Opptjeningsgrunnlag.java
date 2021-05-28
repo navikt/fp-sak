@@ -1,13 +1,11 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
@@ -41,43 +39,6 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
     @JsonProperty("inntektPerioder")
     private final List<InntektPeriode> inntektPerioder = new ArrayList<>();
 
-    /**
-     * Maks periode i en mellomliggende periode for et arbeidsforhold for at den skal kunne regnes med.
-     */
-    @JsonIgnore
-    private Period maksMellomliggendePeriodeForArbeidsforhold = Period.ofDays(14);
-
-    /**
-     * Minste periode for en foregående periode i et arbeidsforhold for at en mellomliggende periode skal regnes med.
-     */
-    @JsonIgnore
-    private Period minForegåendeForMellomliggendePeriodeForArbeidsforhold = Period.ofWeeks(4);
-
-    /**
-     * Minste antall dager som kreves godkjent dersom det er færre enn ({@link #minsteAntallMånederGodkjent}+1 måneder .
-     */
-    @JsonIgnore
-    private int minsteAntallDagerGodkjent = 26;
-
-    /**
-     * Minste antall måneder som kreves godkjent. Hvis eksakt samme, så sjekkes også {@link #minsteAntallDagerGodkjent}.
-     */
-    @JsonIgnore
-    private int minsteAntallMånederGodkjent = 5;
-
-    /** Minste godkjente inntekt i en periode. */
-    @JsonIgnore
-    private final Long minsteInntekt = 1L; // NOSONAR
-
-    /**
-     * Periode før behandlingstidspunkt hvor arbeid kan antas godkjent selv om ikke inntekter er rapportert inn ennå.
-     */
-    @JsonIgnore
-    private Period periodeAntattGodkjentFørBehandlingstidspunkt = Period.ofMonths(2); // NOSONAR
-
-    @JsonIgnore
-    private boolean skalGodkjenneBasertPåAntatt = false;
-
     @JsonCreator
     protected Opptjeningsgrunnlag() {
     }
@@ -106,33 +67,10 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
         return Collections.unmodifiableList(new ArrayList<>(inntektPerioder));
     }
 
-    public Period getMaksMellomliggendePeriodeForArbeidsforhold() {
-        return maksMellomliggendePeriodeForArbeidsforhold;
-    }
-
-    public Period getMinForegåendeForMellomliggendePeriodeForArbeidsforhold() {
-        return minForegåendeForMellomliggendePeriodeForArbeidsforhold;
-    }
-
-    public int getMinsteAntallDagerGodkjent() {
-        return minsteAntallDagerGodkjent;
-    }
-
-    public int getMinsteAntallMånederGodkjent() {
-        return minsteAntallMånederGodkjent;
-    }
-
-    public Long getMinsteInntekt() {
-        return minsteInntekt;
-    }
-
     public LocalDateInterval getOpptjeningPeriode() {
         return new LocalDateInterval(førsteDatoOpptjening, sisteDatoForOpptjening);
     }
 
-    public Period getPeriodeAntattGodkjentFørBehandlingstidspunkt() {
-        return periodeAntattGodkjentFørBehandlingstidspunkt;
-    }
 
     public LocalDate getSisteDatoForOpptjening() {
         return sisteDatoForOpptjening;
@@ -160,35 +98,7 @@ public class Opptjeningsgrunnlag implements VilkårGrunnlag {
     }
 
     public void leggTilRapportertInntekt(LocalDateInterval datoInterval, Aktivitet aktivitet, Long kronerInntekt) {
-        var periodeInntekt = new InntektPeriode(datoInterval, aktivitet, kronerInntekt);
-        inntektPerioder.add(periodeInntekt);
+        leggTil(new InntektPeriode(datoInterval, aktivitet, kronerInntekt));
     }
 
-    public void setMaksMellomliggendePeriodeForArbeidsforhold(Period maksMellomliggendePeriodeForArbeidsforhold) {
-        this.maksMellomliggendePeriodeForArbeidsforhold = maksMellomliggendePeriodeForArbeidsforhold;
-    }
-
-    public void setMinForegåendeForMellomliggendePeriodeForArbeidsforhold(Period minForegåendeForMellomliggendePeriodeForArbeidsforhold) {
-        this.minForegåendeForMellomliggendePeriodeForArbeidsforhold = minForegåendeForMellomliggendePeriodeForArbeidsforhold;
-    }
-
-    public void setMinsteAntallDagerGodkjent(int minsteAntallDagerGodkjent) {
-        this.minsteAntallDagerGodkjent = minsteAntallDagerGodkjent;
-    }
-
-    public void setMinsteAntallMånederGodkjent(int minsteAntallMånederGodkjent) {
-        this.minsteAntallMånederGodkjent = minsteAntallMånederGodkjent;
-    }
-
-    public boolean getSkalGodkjenneBasertPåAntatt() {
-        return skalGodkjenneBasertPåAntatt;
-    }
-
-    public void setSkalGodkjenneBasertPåAntatt(boolean skalGodkjenneBasertPåAntatt) {
-        this.skalGodkjenneBasertPåAntatt = skalGodkjenneBasertPåAntatt;
-    }
-
-    public void setPeriodeAntattGodkjentFørBehandlingstidspunkt(Period periodeAntattGodkjentFørBehandlingstidspunkt) {
-        this.periodeAntattGodkjentFørBehandlingstidspunkt = periodeAntattGodkjentFørBehandlingstidspunkt;
-    }
 }

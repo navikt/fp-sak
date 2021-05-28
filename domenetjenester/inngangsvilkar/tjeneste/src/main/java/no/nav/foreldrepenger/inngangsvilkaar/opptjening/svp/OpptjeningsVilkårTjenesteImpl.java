@@ -49,12 +49,6 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
             opptjening.getTom())
             .mapTilGrunnlag(relevanteOpptjeningAktiveter, relevanteOpptjeningInntekter);
 
-        //TODO(OJR) overstyrer konfig for fp... burde blitt flyttet ut til konfig verdier.. både for FP og for SVP???
-        grunnlag.setMinsteAntallDagerGodkjent(28);
-        grunnlag.setMinsteAntallMånederGodkjent(0);
-        //TODO(OJR) denne burde kanskje endres til false i en revurdering-kontekts i etterkant?
-        grunnlag.setSkalGodkjenneBasertPåAntatt(true);
-
         // returner egen output i tillegg for senere lagring
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);

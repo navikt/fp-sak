@@ -5,6 +5,7 @@ import java.util.Arrays;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.Oppfylt;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårMellomregning;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkInntektSamsvarerMedArbeidAktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.SjekkTilstrekkeligOpptjening;
@@ -82,7 +83,7 @@ public class OpptjeningsvilkårForeldrepenger implements RuleService<Opptjenings
 
     @Override
     public Evaluation evaluer(Opptjeningsgrunnlag grunnlag, Object output) {
-        var grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag);
+        var grunnlagOgMellomregning = new OpptjeningsvilkårMellomregning(grunnlag, OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger());
         var evaluation = getSpecification().evaluate(grunnlagOgMellomregning);
 
         // kopier ut resultater og sett resultater

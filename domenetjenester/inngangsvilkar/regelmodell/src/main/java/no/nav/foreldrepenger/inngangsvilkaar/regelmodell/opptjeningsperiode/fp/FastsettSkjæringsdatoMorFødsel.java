@@ -3,13 +3,13 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsperiodeGrunnlag;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodeMellomregning;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(FastsettSkjæringsdatoMorFødsel.ID)
-public class FastsettSkjæringsdatoMorFødsel extends LeafSpecification<OpptjeningsperiodeGrunnlag> {
+public class FastsettSkjæringsdatoMorFødsel extends LeafSpecification<OpptjeningsperiodeMellomregning> {
 
     static final String ID = "FP_VK 21.5";
     static final String BESKRIVELSE = "opptjeningsvilkar for beregning settes til første dag etter siste aktivitetsdag";
@@ -19,15 +19,15 @@ public class FastsettSkjæringsdatoMorFødsel extends LeafSpecification<Opptjeni
     }
 
     @Override
-    public Evaluation evaluate(OpptjeningsperiodeGrunnlag regelmodell) {
-        var skjæringsDatoOpptjening = regelmodell.getFørsteUttaksDato();
+    public Evaluation evaluate(OpptjeningsperiodeMellomregning regelmodell) {
+        var skjæringsDatoOpptjening = regelmodell.getGrunnlag().førsteUttaksDato();
 
-        var terminDato = regelmodell.getTerminDato();
-        var hendelsesDato = regelmodell.getHendelsesDato();
+        var terminDato = regelmodell.getGrunnlag().terminDato();
+        var hendelsesDato = regelmodell.getGrunnlag().hendelsesDato();
 
-        var tidligsteUttakDato = hendelsesDato.minus(regelmodell.getTidligsteUttakFørFødselPeriode());
+        var tidligsteUttakDato = hendelsesDato.minus(regelmodell.getRegelParametre().tidligsteUttakFørFødselPeriode());
         if (terminDato != null && terminDato.isBefore(hendelsesDato)) {
-            tidligsteUttakDato = terminDato.minus(regelmodell.getTidligsteUttakFørFødselPeriode());
+            tidligsteUttakDato = terminDato.minus(regelmodell.getRegelParametre().tidligsteUttakFørFødselPeriode());
         }
 
         if (skjæringsDatoOpptjening.isBefore(tidligsteUttakDato)) {

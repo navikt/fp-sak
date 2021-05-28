@@ -21,7 +21,7 @@ public class OpptjeningsvilkårMellomregningTest {
         grunnlag.leggTil(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(7), Period.ofMonths(6)), aktivitet);
         grunnlag.leggTil(LocalDateInterval.withPeriodAfterDate(LocalDate.now().minusMonths(2), Period.ofWeeks(4)), aktivitet);
 
-        final var mellomregning = new OpptjeningsvilkårMellomregning(grunnlag);
+        final var mellomregning = new OpptjeningsvilkårMellomregning(grunnlag, OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger());
 
         assertThat(mellomregning.getAktivitetTidslinjer(true, true)).isNotEmpty();
     }

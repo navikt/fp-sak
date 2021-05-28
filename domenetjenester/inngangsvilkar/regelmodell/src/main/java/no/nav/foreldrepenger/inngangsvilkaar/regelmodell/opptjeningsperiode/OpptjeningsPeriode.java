@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
+package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode;
 
 import java.time.LocalDate;
 
