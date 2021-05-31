@@ -67,7 +67,7 @@ public class SakOgBehandlingTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var behandling = behandlingRepository.hentBehandlingReadOnly(behandlingId);
         if (Set.of(BehandlingStatus.FATTER_VEDTAK, BehandlingStatus.IVERKSETTER_VEDTAK).contains(behandling.getStatus()))
             return;
         final LocalDateTime tidspunkt;

@@ -86,6 +86,17 @@ public class BehandlingRepository {
         return hentUniktResultat(lagBehandlingQuery(behandlingUuid));
     }
 
+
+    /**
+     * Hent Behandling med angitt id.
+     */
+    public Behandling hentBehandlingReadOnly(Long behandlingId) {
+        Objects.requireNonNull(behandlingId, BEHANDLING_ID); // NOSONAR //$NON-NLS-1$
+        var query = lagBehandlingQuery(behandlingId);
+        query.setHint(QueryHints.HINT_READONLY, "true"); //$NON-NLS-1$
+        return hentEksaktResultat(query);
+    }
+
     /**
      * NB: Sikker på at du vil hente alle behandlinger, inklusiv de som er lukket?
      * <p>
