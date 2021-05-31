@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static java.util.Collections.emptyList;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +24,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.vedtak.konfig.Tid;
 
 @Dependent
 class StartpunktUtlederInntektsmelding {
@@ -82,8 +79,7 @@ class StartpunktUtlederInntektsmelding {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.getBehandlingId(), "en av arbeidsgivere");
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
         }
-        return nyeIm.stream()
-            .anyMatch(i -> erStartdatoUlikFørsteUttaksdato(ref, i)) ? StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP : StartpunktType.BEREGNING;
+        return StartpunktType.BEREGNING;
     }
 
     private StartpunktType finnStartpunktForNyIm(BehandlingReferanse ref, Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> origIm) {
@@ -148,23 +144,6 @@ class StartpunktUtlederInntektsmelding {
         return origIM.stream()
             .filter(ny::gjelderSammeArbeidsforhold)
             .findFirst();
-    }
-
-    private boolean erStartdatoUlikFørsteUttaksdato(BehandlingReferanse ref, Inntektsmelding nyIm) {
-        // Samme logikk som 5045 AksjonspunktutlederForAvklarStartdatoForForeldrepengeperioden
-        var førsteUttaksDato = endreDatoHvisLørdagEllerSøndag(ref.getSkjæringstidspunkt().getFørsteUttaksdato());
-        var startDatoIm = endreDatoHvisLørdagEllerSøndag(nyIm.getStartDatoPermisjon().orElse(Tid.TIDENES_BEGYNNELSE));
-        return !førsteUttaksDato.equals(startDatoIm);
-    }
-
-    LocalDate endreDatoHvisLørdagEllerSøndag(LocalDate dato) {
-        if (dato.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
-            return dato.plusDays(2L);
-        }
-        if (dato.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            return dato.plusDays(1L);
-        }
-        return dato;
     }
 
     private boolean erEndringPåNaturalYtelser(Inntektsmelding nyInntektsmelding, Inntektsmelding opprinneligInntektsmelding) {

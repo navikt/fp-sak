@@ -212,7 +212,6 @@ public class InformasjonssakRepository {
                   join behandling_resultat br1 on (br1.behandling_id=beh1.id and br1.behandling_resultat_type in (:restyper))
                   where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
                 on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
-             join behandling_vedtak bv on br.id=bv.behandling_resultat_id
              left outer join gr_personopplysning grpo on (beh.id=grpo.behandling_id and grpo.aktiv='J')
              left outer join so_annen_part anpa on (grpo.so_annen_part_id=anpa.id and anpa.aktoer_id is not null)
              left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J')
@@ -224,7 +223,7 @@ public class InformasjonssakRepository {
                      where ba.dagsats > 0  group by BEREGNINGSRESULTAT_FP_ID
                   ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
             where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-             and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
+             and fs.til_infotrygd='N' and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
              and ( br.behandling_resultat_type in (:innvilgetyper) or utbminbrfom is not null )
             """;
 
@@ -240,7 +239,7 @@ public class InformasjonssakRepository {
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR + " and bv.vedtak_dato >= :fomdato and bv.vedtak_dato < :tomdato "); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_FOR + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
             query.setParameter("fomdato", fom); //$NON-NLS-1$
             query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
         } else {
@@ -283,14 +282,13 @@ public class InformasjonssakRepository {
                  join behandling_resultat br1 on (br1.behandling_id=beh1.id and br1.behandling_resultat_type in (:restyper))
                  where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
                on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
-             join behandling_vedtak bv on br.id=bv.behandling_resultat_id
              left outer join br_resultat_behandling brr on (brr.behandling_id=beh.id and brr.aktiv='J')
              left outer join (select BEREGNINGSRESULTAT_FP_ID utbbrpid, min(BR_PERIODE_FOM) minbrfom from br_periode brp
                      left join br_andel ba on ba.br_periode_id = brp.id
                      where ba.dagsats > 0  group by BEREGNINGSRESULTAT_FP_ID
                   ) on utbbrpid = brr.BG_BEREGNINGSRESULTAT_FP_ID
             where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-             and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
+             and fs.til_infotrygd='N' and fs.ytelse_type in (:foreldrepenger) and minbrfom is not null
             """;
 
     public List<OverlappData> finnSakerSisteVedtakInnenIntervallMedKunUtbetalte(LocalDate fom, LocalDate tom, String saksnummer) {
@@ -305,7 +303,7 @@ public class InformasjonssakRepository {
                 .collect(Collectors.toList());
         Query query;
         if (saksnummer == null) {
-            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and bv.vedtak_dato >= :fomdato and bv.vedtak_dato < :tomdato "); //$NON-NLS-1$
+            query = entityManager.createNativeQuery(QUERY_AVSTEMMING_ANDRE + " and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato "); //$NON-NLS-1$
             query.setParameter("fomdato", fom); //$NON-NLS-1$
             query.setParameter("tomdato", tom.plusDays(1)); //$NON-NLS-1$
         } else {
@@ -332,8 +330,8 @@ public class InformasjonssakRepository {
              where beh1.behandling_type in (:behtyper) and beh1.behandling_status in (:avsluttet) group by beh1.fagsak_id )
            on (fsmax=beh.fagsak_id and br.opprettet_tid = maxbr)
         where beh.behandling_status in (:avsluttet) and beh.behandling_type in (:behtyper)
-        and fs.opprettet_tid >= :fomdato and fs.opprettet_tid <= :tomdato
-        and fs.ytelse_type = :foreldrepenger
+        and fs.opprettet_tid >= :fomdato and fs.opprettet_tid < :tomdato
+        and fs.ytelse_type = :foreldrepenger and fs.til_infotrygd='N'
         """;
 
     public List<Tuple<String, Long>> finnSakerForAvstemmingFeriepenger(LocalDate fom, LocalDate tom, FagsakYtelseType ytelseType) {

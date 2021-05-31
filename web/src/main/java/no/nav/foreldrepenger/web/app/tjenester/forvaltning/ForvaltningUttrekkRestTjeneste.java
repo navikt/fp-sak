@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
 import java.sql.Timestamp;
@@ -9,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemTask;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
@@ -49,8 +44,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingSaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
-import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningUttrekk")
@@ -132,13 +126,26 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Lagrer task for å finne overlapp. Resultat i app-logg", tags = "FORVALTNING-uttrekk")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOverlapp(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
-        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
-        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, dto.getFom().toString());
-        prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, dto.getTom().toString());
-        prosessTaskData.setCallIdFraEksisterende();
+        if (!dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_FOR_KEY) && !dto.getKey().equals(VedtakOverlappAvstemTask.LOG_TEMA_OTH_KEY)) return Response.ok().build();
+        var fom = LocalDate.of(2018,10,20);
+        var spread = 7199;
+        if (dto.getFom().isAfter(fom)) fom = dto.getFom();
+        var baseline = LocalDateTime.now();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        int suffix = 1;
+        for (var betweendays = fom; !betweendays.isAfter(dto.getTom()); betweendays = betweendays.plusDays(1)) {
+            var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, betweendays.toString());
+            prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, betweendays.toString());
+            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
+            prosessTaskData.setCallId(callId + "_" + suffix);
+            prosessTaskData.setPrioritet(50);
+            prosessTaskRepository.lagre(prosessTaskData);
+            suffix++;
+        }
 
-        prosessTaskRepository.lagre(prosessTaskData);
         return Response.ok().build();
     }
 
@@ -184,32 +191,6 @@ public class ForvaltningUttrekkRestTjeneste {
                 .sorted(Comparator.comparing(OverlappVedtak::getOpprettetTidspunkt).reversed())
                 .collect(Collectors.toList());
         return Response.ok(resultat).build();
-    }
-
-
-    @POST
-    @Path("/sett-abakus-videre")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Ferdigstill Gosys-oppgave", tags = "FORVALTNING-teknisk", responses = {
-        @ApiResponse(responseCode = "200", description = "Oppgave satt til ferdig."),
-        @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
-        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response settAbakusVidere() {
-        prosessTaskRepository.finnUferdigeBatchTasks(InnhentIAYIAbakusTask.TASKTYPE).stream()
-            .filter(t -> t.getStatus().equals(ProsessTaskStatus.VENTER_SVAR))
-            .forEach(task -> {
-                var grunnlagref = inntektArbeidYtelseTjeneste.finnGrunnlag(Long.valueOf(task.getBehandlingId()))
-                    .map(InntektArbeidYtelseGrunnlag::getEksternReferanse)
-                    .map(UUID::toString).orElse(null);
-                task.setStatus(ProsessTaskStatus.KLAR);
-                task.setNesteKjøringEtter(LocalDateTime.now());
-                task.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, grunnlagref);
-                prosessTaskRepository.lagre(task);
-            });
-        return Response.ok().build();
     }
 
 }

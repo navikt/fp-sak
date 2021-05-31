@@ -3,8 +3,11 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingsprosess.dagligejobber.infobrev.InformasjonssakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
@@ -37,9 +39,11 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriode
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.ytelse.beregning.FeriepengeReberegnTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.feriepengeavstemming.Feriepengeavstemmer;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
-import no.nav.vedtak.util.Tuple;
 
 @Path("/forvaltningFeriepenger")
 @ApplicationScoped
@@ -47,7 +51,7 @@ import no.nav.vedtak.util.Tuple;
 public class ForvaltningFeriepengerRestTjeneste {
 
     private FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste;
-    private InformasjonssakRepository repository;
+    private ProsessTaskRepository repository;
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private Behandlingsoppretter behandlingsoppretter;
@@ -56,7 +60,7 @@ public class ForvaltningFeriepengerRestTjeneste {
 
     @Inject
     public ForvaltningFeriepengerRestTjeneste(FeriepengeReberegnTjeneste feriepengeRegeregnTjeneste,
-                                              InformasjonssakRepository repository,
+                                              ProsessTaskRepository repository,
                                               FagsakRepository fagsakRepository,
                                               BehandlingRepository behandlingRepository,
                                               Behandlingsoppretter behandlingsoppretter,
@@ -113,13 +117,26 @@ public class ForvaltningFeriepengerRestTjeneste {
     @Operation(description = "Avstemmer feriepenger mellom tilkjent og oppdrag", tags = "FORVALTNING-feriepenger")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemPeriodeForOppdrag(@Parameter(description = "Periode") @BeanParam @Valid AvstemmingPeriodeDto dto) {
-        var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey())).orElseThrow();
-        repository.finnSakerForAvstemmingFeriepenger(dto.getFom(), dto.getTom(), ytelse).stream()
-            .map(Tuple::getElement2)
-            .forEach(b -> {
-                feriepengeRegeregnTjeneste.harDiffUtenomPeriode(b);
-                feriepengeavstemmer.avstem(b, true);
-            });
+        var ytelse = Optional.ofNullable(FagsakYtelseType.fraKode(dto.getKey()))
+            .filter(yt -> Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER).contains(yt))
+            .orElseThrow();
+        var fom = FagsakYtelseType.FORELDREPENGER.equals(ytelse) ? LocalDate.of(2018,10,20) : LocalDate.of(2019,8,6);
+        var spread = FagsakYtelseType.FORELDREPENGER.equals(ytelse) ? 3599 : 899;
+        if (dto.getFom().isAfter(fom)) fom = dto.getFom();
+        var baseline = LocalDateTime.now();
+        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
+        var callId = MDCOperations.getCallId();
+        int suffix = 1;
+        for (var betweendays = fom; !betweendays.isAfter(dto.getTom()); betweendays = betweendays.plusDays(1)) {
+            var prosessTaskData = new ProsessTaskData(FerieAvstemTask.TASKTYPE);
+            prosessTaskData.setProperty(FerieAvstemTask.YTELSE_KEY, ytelse.getKode());
+            prosessTaskData.setProperty(FerieAvstemTask.DATO_KEY, betweendays.toString());
+            prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
+            prosessTaskData.setCallId(callId + "_" + suffix);
+            prosessTaskData.setPrioritet(50);
+            repository.lagre(prosessTaskData);
+            suffix++;
+        }
 
         return Response.ok().build();
     }

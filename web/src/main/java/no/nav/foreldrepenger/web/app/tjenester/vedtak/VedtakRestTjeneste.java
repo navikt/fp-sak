@@ -42,7 +42,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.ekstern.ValiderOgRegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.innsyn.VedtakInnsynTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.observer.VedtattYtelseTjeneste;
 import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
@@ -51,7 +50,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -195,7 +193,7 @@ public class VedtakRestTjeneste {
             behandlinger = behandlinger.subList(0, genererVedtaksXmlDto.getMaksAntall().intValue());
 
         LOG.info("Skal sjekke vedtakXMLen for {} behandlinger og regenerere de som ikke er gyldige ", behandlinger.size());
-
+/*
         for (var b : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(b);
             var prosessTaskData = new ProsessTaskData(ValiderOgRegenererVedtaksXmlTask.TASKTYPE);
@@ -204,7 +202,7 @@ public class VedtakRestTjeneste {
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
         }
-
+*/
         return Response.ok().build();
     }
 
