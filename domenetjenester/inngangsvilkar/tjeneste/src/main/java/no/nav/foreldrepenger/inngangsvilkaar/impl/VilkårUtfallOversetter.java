@@ -20,10 +20,7 @@ import no.nav.vedtak.exception.VLException;
 
 public class VilkårUtfallOversetter {
 
-    public VilkårUtfallOversetter() {
-    }
-
-    public VilkårData oversett(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
+    public static VilkårData oversett(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
         var summary = new EvaluationSummary(evaluation);
 
         var regelEvalueringJson = EvaluationSerializer.asJson(evaluation);
@@ -48,7 +45,7 @@ public class VilkårUtfallOversetter {
 
     }
 
-    private VilkårUtfallMerknad getVilkårUtfallMerknad(EvaluationSummary summary) {
+    private static VilkårUtfallMerknad getVilkårUtfallMerknad(EvaluationSummary summary) {
         var leafEvaluations = summary.leafEvaluations();
 
         if (leafEvaluations.size() > 1) {
@@ -64,7 +61,7 @@ public class VilkårUtfallOversetter {
         return vilkårUtfallMerknad;
     }
 
-    private List<AksjonspunktDefinisjon> getAksjonspunktDefinisjoner(EvaluationSummary summary) {
+    private static List<AksjonspunktDefinisjon> getAksjonspunktDefinisjoner(EvaluationSummary summary) {
         var leafEvaluations = summary.leafEvaluations(Resultat.IKKE_VURDERT);
         List<AksjonspunktDefinisjon> apDefinisjoner = new ArrayList<>(2);
         for (var ev : leafEvaluations) {
@@ -74,7 +71,7 @@ public class VilkårUtfallOversetter {
         return apDefinisjoner;
     }
 
-    private Properties getMerknadParametere(EvaluationSummary summary) {
+    private static Properties getMerknadParametere(EvaluationSummary summary) {
         var params = new Properties();
         var leafEvaluations = summary.leafEvaluations();
         for (var ev : leafEvaluations) {
@@ -86,7 +83,7 @@ public class VilkårUtfallOversetter {
         return params;
     }
 
-    private VilkårUtfallType getVilkårUtfallType(EvaluationSummary summary) {
+    private static VilkårUtfallType getVilkårUtfallType(EvaluationSummary summary) {
         var leafEvaluations = summary.leafEvaluations();
         for (var ev : leafEvaluations) {
             if (ev.getOutcome() != null) {

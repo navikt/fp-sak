@@ -33,6 +33,6 @@ public class InngangsvilkårMedlemskap implements Inngangsvilkår {
 
         var evaluation = new Medlemskapsvilkår().evaluer(grunnlag);
 
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET, evaluation, grunnlag);
     }
 }

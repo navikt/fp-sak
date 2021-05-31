@@ -50,7 +50,6 @@ public class VurderLøpendeMedlemskap {
 
     private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapRepository medlemskapRepository;
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private MedlemskapPerioderTjeneste medTjeneste;
@@ -65,7 +64,6 @@ public class VurderLøpendeMedlemskap {
     public VurderLøpendeMedlemskap(PersonopplysningTjeneste personopplysningTjeneste,
                                    BehandlingRepository behandlingRepository,
                                    MedlemskapRepository medlemskapRepository,
-                                   InngangsvilkårOversetter inngangsvilkårOversetter,
                                    MedlemskapPerioderTjeneste medTjeneste,
                                    SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                    UtledVurderingsdatoerForMedlemskapTjeneste utledVurderingsdatoerMedlemskapTjeneste,
@@ -76,7 +74,6 @@ public class VurderLøpendeMedlemskap {
         this.medTjeneste = medTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
         this.utledVurderingsdatoerMedlemskap = utledVurderingsdatoerMedlemskapTjeneste;
     }
 
@@ -100,7 +97,7 @@ public class VurderLøpendeMedlemskap {
 
     private VilkårData evaluerGrunnlag(MedlemskapsvilkårGrunnlag grunnlag) {
         var evaluation = new Medlemskapsvilkår().evaluer(grunnlag);
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, evaluation, grunnlag);
     }
 
     private Map<LocalDate, MedlemskapsvilkårGrunnlag> lagGrunnlag(Long behandlingId) {

@@ -36,6 +36,6 @@ public class InngangsvilkårFødselMor implements Inngangsvilkår {
 
         var evaluation = new FødselsvilkårMor().evaluer(grunnlag);
 
-        return inngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_MOR, evaluation, grunnlag);
+        return InngangsvilkårOversetter.tilVilkårData(VilkårType.FØDSELSVILKÅRET_MOR, evaluation, grunnlag);
     }
 }

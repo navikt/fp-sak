@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -26,11 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjeningsperiode;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.OpptjeningsperiodeVilkårTjenesteImpl;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsPeriode;
@@ -44,23 +39,21 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningsperiodeVilkårTjeneste opptjeningsperiodeVilkårTjeneste;
+    private UtsettelseCore2021 utsettelseCore2021;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var stputil = new SkjæringstidspunktUtils(
             Period.parse("P1Y"), Period.parse("P6M"));
         var ytelseMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
+        utsettelseCore2021 = new UtsettelseCore2021(null);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
-            stputil, mock(UtsettelseCore2021.class));
-        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
+            stputil, utsettelseCore2021);
         var beregnMorsMaksdatoTjeneste = new YtelseMaksdatoTjeneste(repositoryProvider,
             new RelatertBehandlingTjeneste(repositoryProvider));
-        var oversetter = new InngangsvilkårOversetter(repositoryProvider, personopplysningTjeneste,
-            beregnMorsMaksdatoTjeneste, iayTjeneste, null);
-        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(oversetter,
+        opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
             repositoryProvider.getFamilieHendelseRepository(), beregnMorsMaksdatoTjeneste);
     }
 

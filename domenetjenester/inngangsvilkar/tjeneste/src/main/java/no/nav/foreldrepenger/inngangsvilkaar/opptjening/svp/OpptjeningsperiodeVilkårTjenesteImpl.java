@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.opptjening.svp;
 
-import java.time.LocalDate;
-import java.time.Period;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -22,19 +19,13 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.svp.
 @FagsakYtelseTypeRef("SVP")
 public class OpptjeningsperiodeVilkårTjenesteImpl implements OpptjeningsperiodeVilkårTjeneste {
 
-    private InngangsvilkårOversetter inngangsvilkårOversetter;
-
-    OpptjeningsperiodeVilkårTjenesteImpl() {
-        // for CDI proxy
-    }
-
     @Inject
-    public OpptjeningsperiodeVilkårTjenesteImpl(InngangsvilkårOversetter inngangsvilkårOversetter) {
-        this.inngangsvilkårOversetter = inngangsvilkårOversetter;
+    public OpptjeningsperiodeVilkårTjenesteImpl() {
     }
 
     @Override
-    public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse, LocalDate førsteUttaksdato) {
+    public VilkårData vurderOpptjeningsperiodeVilkår(BehandlingReferanse behandlingReferanse) {
+        final var førsteUttaksdato = behandlingReferanse.getSkjæringstidspunkt().getFørsteUttaksdato();
         var grunnlag = new OpptjeningsperiodeGrunnlag(
             FagsakÅrsak.SVANGERSKAP,
             RegelSøkerRolle.MORA,
@@ -46,7 +37,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         final var data = new OpptjeningsPeriode();
         var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
 
-        var resultat = inngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
+        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
         resultat.setEkstraVilkårresultat(data);
         return resultat;
     }

@@ -110,7 +110,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .medFørsteUttaksdatoGrunnbeløp(førsteUttaksdatoFødselsjustert);
 
         var opptjening = opptjeningRepository.finnOpptjening(behandlingId);
-        if (opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
+        if (opptjening.filter(Opptjening::erOpptjeningPeriodeVilkårOppfylt).isPresent()) {
             var skjæringstidspunktOpptjening = opptjening.get().getTom().plusDays(1);
             return builder.medSkjæringstidspunktOpptjening(skjæringstidspunktOpptjening)
                 .medUtledetSkjæringstidspunkt(skjæringstidspunktOpptjening)
@@ -119,8 +119,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         }
 
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId);
-        var morsMaksDato = ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
-        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato, familieHendelseGrunnlag, morsMaksDato);
+        Optional<LocalDate> morsMaksDato = !sammenhengendeUttak ? Optional.empty() :
+            ytelseMaksdatoTjeneste.beregnMorsMaksdato(behandling.getFagsak().getSaksnummer(), behandling.getFagsak().getRelasjonsRolleType());
+        var utledetSkjæringstidspunkt = utlederUtils.utledSkjæringstidspunktFraBehandling(behandling, førsteUttaksdato,
+            familieHendelseGrunnlag, morsMaksDato);
 
         return builder.medUtledetSkjæringstidspunkt(utledetSkjæringstidspunkt)
             .medUtledetMedlemsintervall(utledYtelseintervall(behandling, utledetSkjæringstidspunkt))
