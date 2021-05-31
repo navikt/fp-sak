@@ -42,6 +42,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -56,6 +57,7 @@ public class VedtaksHendelseHåndterer {
             YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
+    private static final boolean isProd = Environment.current().isProd();
 
     private FagsakTjeneste fagsakTjeneste;
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
@@ -123,8 +125,14 @@ public class VedtaksHendelseHåndterer {
 
             // Unngå gå i beina på på iverksettingstasker med sen respons
             if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
-                lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
-                lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
+                if (isProd) {
+                    var startberørtdelay = 1 + LocalDateTime.now().getNano() % 3;
+                    lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, startberørtdelay);
+                    lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 5);
+                } else {
+                    lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
+                    lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
+                }
             } else { // SVP
                 lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
             }
