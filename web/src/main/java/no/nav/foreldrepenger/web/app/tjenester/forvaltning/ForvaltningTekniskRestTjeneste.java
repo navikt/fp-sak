@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.datavarehus.tjeneste.DatavarehusTjeneste;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
@@ -68,6 +69,7 @@ public class ForvaltningTekniskRestTjeneste {
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private DatavarehusTjeneste datavarehusTjeneste;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;
+    private FagsakProsessTaskRepository fagsakProsessTaskRepository;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -75,6 +77,7 @@ public class ForvaltningTekniskRestTjeneste {
 
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
+            FagsakProsessTaskRepository fagsakProsessTaskRepository,
             OppgaveTjeneste oppgaveTjeneste,
             PoststedKodeverkRepository postnummerKodeverkRepository,
             PostnummerSynkroniseringTjeneste postnummerTjeneste,
@@ -88,6 +91,7 @@ public class ForvaltningTekniskRestTjeneste {
         this.postnummerTjeneste = postnummerTjeneste;
         this.datavarehusTjeneste = datavarehusTjeneste;
         this.ankeVurderingTjeneste = ankeVurderingTjeneste;
+        this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
     @POST
@@ -323,6 +327,18 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response hentPostnummer() {
         return Response.ok(postnummerKodeverkRepository.finnPoststed("SYNK")).build();
+    }
+
+    @POST
+    @Path("/fjern-fagsak-prosesstask-avsluttet")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Fjern fagsakprosesstask for avsluttede behandlinger", tags = "FORVALTNING-teknisk")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
+    public Response fjernFagsakProsesstaskAvsluttetBehandling() {
+        fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
+        return Response.ok().build();
     }
 
 }
