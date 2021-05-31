@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -13,7 +14,11 @@ import javax.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -177,7 +182,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
             new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
-        BeregningsgrunnlagEntitet overstyrtBG = BeregningsgrunnlagEntitet.ny()
+        var overstyrtBG = BeregningsgrunnlagEntitet.ny()
             .medOverstyring(true)
             .medSkjæringstidspunkt(LocalDate.now())
             .build();
@@ -191,6 +196,41 @@ public class BesteberegningFødendeKvinneTjenesteTest {
 
         // Assert
         assertThat(resultat).isFalse();
+    }
+
+    @Test
+    public void fjernetDagpengerISaksbehandling() {
+        lagreFamilihendelseFødsel();
+        var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
+        var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
+            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
+        var grunnlag = BeregningsgrunnlagEntitet.ny()
+            .medSkjæringstidspunkt(LocalDate.now())
+            .build();
+        var bgGr = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(grunnlag)
+            .medRegisterAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID, OpptjeningAktivitetType.DAGPENGER))
+            .medSaksbehandletAktiviteter(lagAggregat(OpptjeningAktivitetType.ARBEID))
+            .buildUtenIdOgTilstand();
+        when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
+            .thenReturn(Optional.of(opptjeningAktiviteter));
+        when(beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(any()))
+            .thenReturn(Optional.of(bgGr));
+
+        // Act
+        var resultat = besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    private BeregningAktivitetAggregatEntitet lagAggregat(OpptjeningAktivitetType... typer) {
+        var builder = BeregningAktivitetAggregatEntitet.builder();
+        Arrays.asList(typer).forEach(type -> builder.leggTilAktivitet(BeregningAktivitetEntitet.builder()
+            .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()))
+            .medOpptjeningAktivitetType(type)
+            .build()));
+        return builder.medSkjæringstidspunktOpptjening(OPPTJENINGSPERIODE.getTomDato()).build();
     }
 
 

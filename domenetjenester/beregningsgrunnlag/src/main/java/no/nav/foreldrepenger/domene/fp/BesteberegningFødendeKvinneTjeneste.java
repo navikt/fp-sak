@@ -27,7 +27,9 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
+import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
@@ -97,13 +99,34 @@ public class BesteberegningFødendeKvinneTjeneste {
         if (!brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse)) {
             return false;
         }
+        if (erDagpengerManueltFjernetFraBeregningen(behandlingReferanse)) {
+            return false;
+        }
         if (erBesteberegningManueltVurdert(behandlingReferanse)) {
             return false;
         }
         if (beregningsgrunnlagErOverstyrt(behandlingReferanse)) {
             return false;
         }
-        return kanBehandlesAutomatisk(behandlingReferanse);
+
+        // Foreløpig besteberegner vi ikke saker med sykepenger, frilans eller næring automatisk.
+        return harKunDagpengerEllerArbeidIOpptjening(behandlingReferanse);
+    }
+
+    private boolean erDagpengerManueltFjernetFraBeregningen(BehandlingReferanse behandlingReferanse) {
+        Optional<BeregningsgrunnlagGrunnlagEntitet> bgGrunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandlingReferanse.getBehandlingId());
+        bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter).map(BeregningAktivitetAggregatEntitet::getBeregningAktiviteter).orElse(Collections.emptyList());
+        boolean harDPFraRegister = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getRegisterAktiviteter));
+        boolean harDPIGjeldendeAggregat = dagpengerLiggerIAktivitet(bgGrunnlag.map(BeregningsgrunnlagGrunnlagEntitet::getGjeldendeAktiviteter));
+        boolean dagpengerErFjernet = harDPFraRegister && !harDPIGjeldendeAggregat;
+        return dagpengerErFjernet;
+    }
+
+    private boolean dagpengerLiggerIAktivitet(Optional<BeregningAktivitetAggregatEntitet> aggregat) {
+        return aggregat.map(BeregningAktivitetAggregatEntitet::getBeregningAktiviteter)
+            .orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(akt -> OpptjeningAktivitetType.DAGPENGER.equals(akt.getOpptjeningAktivitetType()));
     }
 
     private boolean beregningsgrunnlagErOverstyrt(BehandlingReferanse behandlingReferanse) {
@@ -144,7 +167,7 @@ public class BesteberegningFødendeKvinneTjeneste {
             .orElse(Collections.emptyList()).stream().anyMatch(tilf ->tilf.equals(FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING));
     }
 
-    private boolean kanBehandlesAutomatisk(BehandlingReferanse ref) {
+    private boolean harKunDagpengerEllerArbeidIOpptjening(BehandlingReferanse ref) {
         InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
         var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
