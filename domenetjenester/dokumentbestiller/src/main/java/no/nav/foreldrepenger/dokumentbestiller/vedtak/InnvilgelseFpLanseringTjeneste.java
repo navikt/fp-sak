@@ -6,6 +6,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -17,7 +20,7 @@ import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class InnvilgelseFpLanseringTjeneste {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(InnvilgelseFpLanseringTjeneste.class);
     private static final Environment ENV = Environment.current();
 
     private ForeldrepengerUttakTjeneste fpUttakRepository;
@@ -35,10 +38,15 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     public DokumentMalType velgFpInnvilgelsesmal(Behandling behandling) {
-        return !ENV.isProd()
-            && BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
+        boolean kanBrukeDokgen = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
             && !harAvslåttePerioderEllerPerioderMedGradering(behandling)
-            && !harDødtBarn(behandling) ?
+            && !harDødtBarn(behandling);
+
+        if (kanBrukeDokgen) {
+            LOGGER.info("Saksnummer {} kan bruke Dokgen ved første lansering", behandling.getFagsak().getSaksnummer().getVerdi());
+        }
+
+        return !ENV.isProd() && kanBrukeDokgen ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
