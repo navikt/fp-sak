@@ -1,4 +1,5 @@
 package no.nav.foreldrepenger.web.server.jetty;
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 import java.util.List;
 import java.util.Properties;
@@ -28,13 +29,13 @@ class DataSourceKonfig {
         var config = new HikariConfig();
         config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
         config.setUsername(ENV.getProperty(dataSourceName + ".username"));
-        config.setPassword(ENV.getProperty(dataSourceName + ".password"));
-
+        config.setPassword(ENV.getProperty(dataSourceName + ".password"));:
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
         config.setConnectionTestQuery("select 1 from dual");
         config.setDriverClassName("oracle.jdbc.OracleDriver");
+        config.setMetricRegistry(globalRegistry);
 
         var dsProperties = new Properties();
         config.setDataSourceProperties(dsProperties);
