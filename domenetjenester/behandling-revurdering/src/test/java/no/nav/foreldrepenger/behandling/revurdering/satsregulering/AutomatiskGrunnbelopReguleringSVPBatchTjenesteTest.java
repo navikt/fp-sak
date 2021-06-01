@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -29,17 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
@@ -47,22 +42,19 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
-import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
-public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
+public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    private AutomatiskGrunnbelopReguleringBatchTjeneste tjeneste;
+    private AutomatiskGrunnbelopReguleringSVPBatchTjeneste tjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
@@ -80,45 +72,59 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         var behandlingLåsRepository = new BehandlingLåsRepository(entityManager);
         var behandlingRevurderingRepository = new BehandlingRevurderingRepository(
                 entityManager, behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
-        tjeneste = new AutomatiskGrunnbelopReguleringBatchTjeneste(behandlingRevurderingRepository,
+        tjeneste = new AutomatiskGrunnbelopReguleringSVPBatchTjeneste(behandlingRevurderingRepository,
                 beregningsresultatRepository, prosessTaskRepository);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
     @Test
     public void skal_finne_en_sak_å_revurdere() {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+                .getPeriode().getFomDato();
+        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskGrunnbelopReguleringBatchArguments.REVURDER_KEY, "True");
-        var batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(arguments);
+        var batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(
+                arguments);
         var svar = tjeneste.launch(batchArgs);
-        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-1");
-        assertThat(prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE))).isTrue();
+        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.BATCHNAME + "-1");
+        assertThat(
+                prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
+                        .isTrue();
     }
 
     @Test
     public void skal_ikke_finne_saker_til_revurdering() {
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+                .getPeriode().getFomDato();
+        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         var svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-0");
+        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.BATCHNAME + "-0");
     }
 
     @Test
     public void skal_finne_to_saker_å_revurdere() {
-        var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
-        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
-        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
+        var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+                .getVerdi();
+        var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+                .getPeriode().getFomDato();
+        var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
+                .getVerdi();
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.minusDays(5)); // FØR
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5),
+                0); // Ikke uttak, bare utsettelse
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats,
+                cutoff.minusDays(5)); // FØR
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
-        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 4 * gammelSats, cutoff.plusDays(5)); // Ikke avkortet
+        opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, gammelSats, 4 * gammelSats,
+                cutoff.plusDays(5)); // Ikke avkortet
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, nySats, 6 * nySats, cutoff.plusDays(5)); // Ny sats
         var svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-2");
+        assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.BATCHNAME + "-2");
         assertThat(
                 prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
                         .isFalse();
@@ -128,9 +134,17 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
             long sats,
             long avkortet,
             LocalDate uttakFom) {
+        return opprettRevurderingsKandidat(status, sats, avkortet, uttakFom, 2300);
+    }
+
+    private Behandling opprettRevurderingsKandidat(BehandlingStatus status,
+            long sats,
+            long avkortet,
+            LocalDate uttakFom,
+            int dagsatsUtbet) {
         var terminDato = uttakFom.plusWeeks(3);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
                 .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()).medAntallBarn(1);
@@ -156,59 +170,18 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         BeregningsgrunnlagPeriode.oppdater(periode).build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var virksomhetForUttak = arbeidsgiver("456");
-        var uttakAktivitet = lagUttakAktivitet(virksomhetForUttak);
-        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
-
-        lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom,
-            uttakFom.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
-
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
+        var brFP = BeregningsresultatEntitet.builder().medRegelInput("clob1")
+                .medRegelSporing("clob2").build();
+        var brFPper = BeregningsresultatPeriode.builder()
+                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
+                .medBeregningsresultatAndeler(Collections.emptyList()).build(brFP);
+        BeregningsresultatAndel.builder().medDagsats(dagsatsUtbet).medDagsatsFraBg(1000).medBrukerErMottaker(true)
+                .medStillingsprosent(new BigDecimal(100)).medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+                .medUtbetalingsgrad(new BigDecimal(100)).build(brFPper);
+        beregningsresultatRepository.lagre(behandling, brFP);
 
         return behandlingRepository.hentBehandling(behandling.getId());
     }
 
-    static Arbeidsgiver arbeidsgiver(String arbeidsgiverIdentifikator) {
-        return Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
-    }
-
-    static UttakAktivitetEntitet lagUttakAktivitet(Arbeidsgiver arbeidsgiver) {
-        return new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, InternArbeidsforholdRef.nyRef())
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-    }
-
-    static void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
-                            UttakAktivitetEntitet uttakAktivitet,
-                            LocalDate fom, LocalDate tom,
-                            StønadskontoType stønadskontoType) {
-        lagPeriode(uttakResultatPerioder, fom, tom, stønadskontoType, uttakAktivitet);
-    }
-
-    static void lagPeriode(UttakResultatPerioderEntitet uttakResultatPerioder,
-                            LocalDate fom,
-                            LocalDate tom,
-                            StønadskontoType stønadskontoType,
-                            UttakAktivitetEntitet uttakAktivitetEntitet) {
-
-        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medSamtidigUttak(false)
-            .medFlerbarnsdager(false)
-            .build();
-        uttakResultatPerioder.leggTilPeriode(periode);
-
-        var trekkdager = new Trekkdager(TrekkdagerUtregningUtil.trekkdagerFor(new Periode(periode.getFom(), periode.getTom()),
-                false, BigDecimal.ZERO, null).decimalValue());
-
-        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitetEntitet)
-            .medTrekkdager(trekkdager)
-            .medTrekkonto(stønadskontoType)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .build();
-        periode.leggTilAktivitet(aktivitet);
-    }
 
 }

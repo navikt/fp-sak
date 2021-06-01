@@ -61,8 +61,8 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchT
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForNæringsdrivendeRegulering(forrige.getVerdi(),
-                gjeldende.getPeriode().getFomDato());
+        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForNæringsdrivendeRegulering(
+        );
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {

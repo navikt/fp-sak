@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -227,8 +228,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                     .stream()
                     .map(BeregningsgrunnlagPeriode::getBruttoPrÅr)
                     .max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
-            var multiplikator = repositoryProvider.getBeregningsresultatRepository()
-                    .avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
+            var multiplikator = BeregningsresultatRepository.avkortingMultiplikatorG(grunnbeløp.getPeriode().getFomDato().minusDays(1));
             var grenseverdi = new BigDecimal(satsIBeregning * multiplikator);
             var over6G = bruttoPrÅr.compareTo(grenseverdi) >= 0;
             var erMilitærUnder3G = forrigeBeregning.stream().flatMap(bg -> bg.getBeregningsgrunnlagPerioder().stream())

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskArenaReguleringBatchArguments.DATO;
-
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +63,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     }
 
     List<BehandlingRevurderingRepository.FagsakIdAktørId> hentKandidater(AutomatiskArenaReguleringBatchArguments batchArguments) {
-        return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(DATO, batchArguments.getSatsDato());
+        return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(batchArguments.getSatsDato());
     }
 
     @Override

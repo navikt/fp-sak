@@ -61,8 +61,7 @@ public class AutomatiskMilSivReguleringSVPBatchTjeneste implements BatchTjeneste
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForMilSivRegulering(gjeldende.getVerdi(),
-                forrige.getVerdi(), gjeldende.getPeriode().getFomDato());
+        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForMilSivReguleringSVP();
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {

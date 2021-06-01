@@ -163,7 +163,7 @@ public class BeregningsresultatRepository {
         entityManager.flush();
     }
 
-    public long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {
+    public static long avkortingMultiplikatorG(@SuppressWarnings("unused") LocalDate dato) {
         return G_MULTIPLIKATOR;
     }
 }
