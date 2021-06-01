@@ -149,6 +149,29 @@ public class ForvaltningOppdragRestTjeneste {
         return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
     }
 
+    @POST
+    @Path("/patch-k27")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Patcher oppdrag som har feil i maks dato ved refusjon til AG, og sender over til oppdragsysstemet. Sjekk med Team FP hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response patchK27(@NotNull @Valid OppdragPatchDto dto) {
+        var behandlingId = dto.getBehandlingId();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
+            .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
+        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+
+        validerUferdigProsesstask(vurderØkonomiTask);
+        utførPatching(dto, behandlingId, behandling, oppdragskontroll);
+        lagSendØkonomioppdragTask(vurderØkonomiTask, false);
+
+        LOG.warn(
+            "Patchet oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Ukelønn for å avsjekke resultatet når prosesstask er kjørt.",
+            behandlingId, dto.getFagsystemId());
+        return Response.ok("Patchet oppdrag for behandling=" + behandlingId).build();
+    }
+
     private void utførPatching(OppdragPatchDto dto, Long behandlingId, Behandling behandling, Oppdragskontroll oppdragskontroll) {
         validerHyppighet();
         validerFagsystemId(behandling, dto.getFagsystemId());
