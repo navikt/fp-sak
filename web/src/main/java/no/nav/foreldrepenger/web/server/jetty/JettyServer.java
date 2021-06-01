@@ -32,35 +32,6 @@ public class JettyServer extends AbstractJettyServer {
 
     protected void konfigurerMiljø() {
         dataSourceKonfig = new DataSourceKonfig();
-        tull();
-    }
-
-    private void tull() {
-
-        if (System.getenv("LOADBALANCER_FQDN") != null) {
-            LOG.info("Trickser med loadbalanser.url");
-            var loadbalancerFqdn = System.getenv("LOADBALANCER_FQDN");
-            var protocol = (loadbalancerFqdn.startsWith("localhost")) ? "http" : "https";
-            System.setProperty("loadbalancer.url", protocol + "://" + loadbalancerFqdn);
-        }
-        // FIXME (u139158): PFP-1176 Skriv om i OpenAmIssoHealthCheck og
-        // AuthorizationRequestBuilder når Jboss dør
-        if (System.getenv("OIDC_OPENAM_HOSTURL") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_HOSTURL");
-            System.setProperty("OpenIdConnect.issoHost", System.getenv("OIDC_OPENAM_HOSTURL"));
-        }
-        // FIXME (u139158): PFP-1176 Skriv om i AuthorizationRequestBuilder og
-        // IdTokenAndRefreshTokenProvider når Jboss dør
-        if (System.getenv("OIDC_OPENAM_AGENTNAME") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_AGENTNAME");
-            System.setProperty("OpenIdConnect.username", System.getenv("OIDC_OPENAM_AGENTNAME"));
-        }
-        // FIXME (u139158): PFP-1176 Skriv om i IdTokenAndRefreshTokenProvider når Jboss
-        // dør
-        if (System.getenv("OIDC_OPENAM_PASSWORD") != null) {
-            LOG.info("Trickser med OIDC_OPENAM_PASSWORD");
-            System.setProperty("OpenIdConnect.password", System.getenv("OIDC_OPENAM_PASSWORD"));
-        }
     }
 
     @Override
