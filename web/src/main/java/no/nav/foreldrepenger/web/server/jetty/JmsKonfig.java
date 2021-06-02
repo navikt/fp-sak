@@ -21,11 +21,11 @@ class JmsKonfig {
     private JmsKonfig() { // Util class
     }
 
-    static void settOppJndiConnectionfactory(String jndiName, String queueManagerAlias, String channelAlias) throws JMSException, NamingException {
+    static void settOppJndiConnectionfactory(String jndiName, String queueManagerAlias) throws JMSException, NamingException {
         var mqConnectionFactory = createConnectionfactory(
                 ENV.getProperty(queueManagerAlias + ".hostname"),
                 Integer.parseUnsignedInt(ENV.getProperty(queueManagerAlias + ".port")),
-                ENV.getProperty(channelAlias + ".name"),
+                ENV.getProperty(queueManagerAlias + ".channel"),
                 ENV.getProperty(queueManagerAlias + ".name"),
                 Boolean.getBoolean("mqGateway02.useSslOnJetty"));
         new EnvEntry(jndiName, mqConnectionFactory);
