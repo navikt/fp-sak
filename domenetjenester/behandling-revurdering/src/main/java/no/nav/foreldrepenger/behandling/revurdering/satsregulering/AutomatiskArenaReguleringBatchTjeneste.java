@@ -63,7 +63,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     }
 
     List<BehandlingRevurderingRepository.FagsakIdAktørId> hentKandidater(AutomatiskArenaReguleringBatchArguments batchArguments) {
-        return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(batchArguments.getSatsDato());
+        return behandlingRevurderingRepository.finnSakerMedBehovForArenaRegulering(AutomatiskArenaReguleringBatchArguments.DATO, batchArguments.getSatsDato());
     }
 
     @Override
@@ -80,6 +80,7 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskData.setPrioritet(100);
         prosessTaskRepository.lagre(prosessTaskData);
     }
 }

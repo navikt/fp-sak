@@ -226,13 +226,14 @@ public class BehandlingRevurderingRepository {
     private static final String REGULERING_WHERE_STD_FP = """
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse)
           and futtak.uttakfom > sats.tom
+          and futtak.uttakfom >= :fomdato
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse)
               and beh.id not in (select ba.behandling_id from behandling_arsak ba where behandling_arsak_type=:berort) )
         """;
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(long forrigeAvkortingMultiplikator) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpRegulering(LocalDate gjeldendeFom, long forrigeAvkortingMultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
@@ -248,14 +249,14 @@ public class BehandlingRevurderingRepository {
                 REGULERING_WHERE_STD_FP +
                 "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) ")
             .setParameter("avkorting", forrigeAvkortingMultiplikator);
-        setStandardParametersFP(query);
+        setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivRegulering() {
+    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivRegulering(LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
@@ -273,14 +274,14 @@ public class BehandlingRevurderingRepository {
                 "  and bgmin.brutto <= (bglag.grunnbeloep * :avkorting ) " )
             .setParameter("avkorting", 3)
             .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode()));
-        setStandardParametersFP(query);
+        setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeRegulering() {
+    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeRegulering(LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
@@ -292,14 +293,14 @@ public class BehandlingRevurderingRepository {
                 REGULERING_WHERE_STD_FP)
             .setParameter("snring", List.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.getKode(), AktivitetStatus.KOMBINERT_AT_SN.getKode(),
                 AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode()));
-        setStandardParametersFP(query);
+        setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger Arena-regulering og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForArenaRegulering(LocalDate nySatsDato) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForArenaRegulering(LocalDate gjeldendeFom, LocalDate nySatsDato) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som er beregnet med AAP/DP og har uttak etter gammel sats sin utløpsdato
@@ -313,15 +314,16 @@ public class BehandlingRevurderingRepository {
                 "and nvl(b.sist_oppdatert_tidspunkt, b.opprettet_tid) < :satsdato ")
             .setParameter("satsdato", nySatsDato)
             .setParameter("asarena", List.of(AktivitetStatus.ARBEIDSAVKLARINGSPENGER.getKode(), AktivitetStatus.DAGPENGER.getKode()));
-        setStandardParametersFP(query);
+        setStandardParametersFP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
-    private void setStandardParametersFP(Query query) {
+    private void setStandardParametersFP(Query query, LocalDate gjeldendeFom) {
         query.setParameter("restyper", RES_TYPER_REGULERING)
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
+            .setParameter("fomdato", gjeldendeFom)
             .setParameter("ytelse", YTELSE_TYPER)
             .setParameter("berort", BehandlingÅrsakType.BERØRT_BEHANDLING.getKode())
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode())
@@ -351,21 +353,23 @@ public class BehandlingRevurderingRepository {
     private static final String REGULERING_WHERE_STD_SVP = """
         where b.behandling_status in (:avsluttet) and b.behandling_type in (:ytelse)
           and brnetto.fom > sats.tom
+          and brnetto.fom >= :fomdato
           and f.ytelse_type = :svpytelse
           and f.id not in ( select beh.fagsak_id from behandling beh
             where beh.behandling_status not in (:avsluttet) and beh.behandling_type in (:ytelse) )
         """;
 
-    private void setStandardParametersSVP(Query query) {
+    private void setStandardParametersSVP(Query query, LocalDate gjeldendeFom) {
         query.setParameter("restyper", RES_TYPER_REGULERING)
             .setParameter(AVSLUTTET_KEY, STATUS_FERDIG)
+            .setParameter("fomdato", gjeldendeFom)
             .setParameter("ytelse", YTELSE_TYPER)
             .setParameter("svpytelse", FagsakYtelseType.SVANGERSKAPSPENGER.getKode())
             .setParameter("grunnbelop", BeregningSatsType.GRUNNBELØP.getKode());
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering over 6G og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpReguleringSVP(long forrigeAvkortingMultiplikator) {
+    public List<FagsakIdAktørId> finnSakerMedBehovForGrunnbeløpReguleringSVP(LocalDate gjeldendeFom, long forrigeAvkortingMultiplikator) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, brutto overstiger 6G og har uttak etter gammel sats sin utløpsdato
@@ -381,14 +385,14 @@ public class BehandlingRevurderingRepository {
                 REGULERING_WHERE_STD_SVP +
                 "  and bgmax.brutto >= (bglag.grunnbeloep * :avkorting ) ")
             .setParameter("avkorting", forrigeAvkortingMultiplikator); //$NON-NLS-1$
-        setStandardParametersSVP(query);
+        setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (MS under 3G) og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivReguleringSVP() {
+    public List<FagsakIdAktørId> finnSakerMedBehovForMilSivReguleringSVP(LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status MS, brutto understiger 3G og har uttak etter gammel sats sin utløpsdato
@@ -406,14 +410,14 @@ public class BehandlingRevurderingRepository {
                 "  and bgmin.brutto <= (bglag.grunnbeloep * :avkorting ) " )
             .setParameter("avkorting", 3)
             .setParameter("milsiv", List.of(AktivitetStatus.MILITÆR_ELLER_SIVIL.getKode())); //$NON-NLS-1$
-        setStandardParametersSVP(query);
+        setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR
     }
 
     /** Liste av fagsakId, aktørId for saker som trenger G-regulering (SN og kombinasjon) og det ikke finnes åpen behandling */
-    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeReguleringSVP() {
+    public List<FagsakIdAktørId> finnSakerMedBehovForNæringsdrivendeReguleringSVP(LocalDate gjeldendeFom) {
         /*
          * Plukker fagsakId, aktørId fra fagsaker som møter disse kriteriene:
          * - Saker som har siste avsluttet behandling med gammel sats, status SN/KOMB og har uttak etter gammel sats sin utløpsdato
@@ -425,7 +429,7 @@ public class BehandlingRevurderingRepository {
                 REGULERING_WHERE_STD_SVP )
             .setParameter("snring", List.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.getKode(), AktivitetStatus.KOMBINERT_AT_SN.getKode(),
                 AktivitetStatus.KOMBINERT_FL_SN.getKode(), AktivitetStatus.KOMBINERT_AT_FL_SN.getKode())); //$NON-NLS-1$
-        setStandardParametersSVP(query);
+        setStandardParametersSVP(query, gjeldendeFom);
         @SuppressWarnings("unchecked")
         List<Object[]> resultatList = query.getResultList();
         return resultatList.stream().map(row -> new FagsakIdAktørId(((BigDecimal) row[0]).longValue(), new AktørId((String) row[1]))).collect(Collectors.toList()); // NOSONAR

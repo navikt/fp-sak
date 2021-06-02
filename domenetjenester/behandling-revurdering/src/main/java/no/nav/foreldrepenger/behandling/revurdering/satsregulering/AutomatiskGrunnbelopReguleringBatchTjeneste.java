@@ -63,7 +63,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjeneste implements BatchTjenest
         }
         var avkortingAntallG = BeregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
         var tilVurdering = behandlingRevurderingRepository
-            .finnSakerMedBehovForGrunnbeløpRegulering(avkortingAntallG);
+            .finnSakerMedBehovForGrunnbeløpRegulering(gjeldende.getPeriode().getFomDato(), avkortingAntallG);
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {

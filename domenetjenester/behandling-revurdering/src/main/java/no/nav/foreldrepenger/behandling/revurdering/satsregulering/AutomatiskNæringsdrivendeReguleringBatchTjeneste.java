@@ -61,8 +61,8 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchT
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForNæringsdrivendeRegulering(
-        );
+        var tilVurdering = behandlingRevurderingRepository
+            .finnSakerMedBehovForNæringsdrivendeRegulering(gjeldende.getPeriode().getFomDato());
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {
@@ -85,6 +85,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjeneste implements BatchT
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskData.setPrioritet(100);
         prosessTaskRepository.lagre(prosessTaskData);
     }
 }
