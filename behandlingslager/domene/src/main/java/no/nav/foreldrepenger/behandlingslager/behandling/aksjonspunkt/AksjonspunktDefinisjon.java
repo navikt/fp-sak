@@ -173,10 +173,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktKodeDefinisjon.VURDER_OM_VILKÅR_FOR_SYKDOM_OPPFYLT_KODE, AksjonspunktType.MANUELL, "Vurder om vilkår for sykdom er oppfylt",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
             SkjermlenkeType.FAKTA_OM_FOEDSEL, TOTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN(
-            AksjonspunktKodeDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN_KODE, AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden",
-            BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
-            ENTRINN, EnumSet.of(ES, FP, SVP)),
     FORDEL_BEREGNINGSGRUNNLAG(AksjonspunktKodeDefinisjon.FORDEL_BEREGNINGSGRUNNLAG_KODE,
             AksjonspunktType.MANUELL, "Fordel beregningsgrunnlag", BehandlingStegType.FORDEL_BEREGNINGSGRUNNLAG, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.FAKTA_OM_FORDELING, TOTRINN, EnumSet.of(FP, SVP)),
@@ -472,6 +468,11 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
     @Deprecated
     _7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
+    @Deprecated
+    _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden",
+        BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
+        ENTRINN, EnumSet.of(ES, FP, SVP)),
+
     ;
 
     static final String KODEVERK = "AKSJONSPUNKT_DEF";

@@ -327,34 +327,6 @@ public class EndringskontrollerTest {
     }
 
     @Test
-    public void skal_avbryte_aksjonspunkt_som_ikke_lenger_oppstår() {
-        // Arrange
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR);
-        var behandling = scenario.lagMocked();
-        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
-
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, BehandlingStegStatus.INNGANG, BehandlingStegStatus.INNGANG);
-
-        var startpunktUdefinert = UDEFINERT;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(EndringsresultatDiff.class))).thenReturn(startpunktUdefinert);
-        var endringskontroller = new Endringskontroller(behandlingskontrollTjenesteMock, startpunktTjenesteProviderMock,
-            null, historikkinnslagTjenesteMock, kontrollerFaktaTjenesterMock, skjæringstidspunktTjeneste);
-        when(behandlingskontrollTjenesteMock.erStegPassert(any(Long.class), any())).thenReturn(false);
-        when(behandlingskontrollTjenesteMock.erStegPassert(any(Behandling.class), any())).thenReturn(false);
-        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR), eq(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR))).thenReturn(0);
-        when(behandlingskontrollTjenesteMock.sammenlignRekkefølge(any(), any(), eq(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR), eq(UDEFINERT.getBehandlingSteg()))).thenReturn(-1);
-        when(behandlingskontrollTjenesteMock.skalAksjonspunktLøsesIEllerEtterSteg(any(), any(), eq(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR), eq(AksjonspunktDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN))).thenReturn(true);
-
-        // Act
-        endringskontroller.spolTilStartpunkt(behandling, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), startpunktUdefinert);
-
-        // Assert
-        verify(behandlingskontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(),eq(BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR), eq(behandling.getÅpneAksjonspunkter()));
-    }
-
-    @Test
     public void skal_ikke_spole_til_INNGANG_når_behandlingen_står_i_INNGANG_og_startpunkt_er_samme_steg_som_behandlingen_står_i() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()

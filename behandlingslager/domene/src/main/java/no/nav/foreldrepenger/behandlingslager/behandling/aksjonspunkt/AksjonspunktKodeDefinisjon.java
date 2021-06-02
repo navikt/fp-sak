@@ -115,7 +115,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FASTSETT_BEREGNINGSGRUNNLAG_SELVSTENDIG_NÆRINGSDRIVENDE_KODE = "5042";
     public static final String MANUELL_KONTROLL_AV_OM_BRUKER_HAR_OMSORG_KODE = "5061";
 
-    public static final String AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN_KODE = "5045";
     public static final String OVERSTYRING_AV_AVKLART_STARTDATO_KODE = "6045";
     public static final String AVKLAR_FAKTA_UTTAK_KONTROLLER_SØKNADSPERIODER_KODE = "5070";
     public static final String AVKLAR_FAKTA_UTTAK_GRADERING_UKJENT_AKTIVITET_KODE = "5097";
