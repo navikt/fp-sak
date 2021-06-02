@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringBatchTjenesteTest.lagPeriode;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -17,13 +17,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
@@ -34,7 +36,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @CdiDbAwareTest
-public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
+public class AutomatiskNæringsdrivendeReguleringSVPBatchTjenesteTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
@@ -51,7 +53,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
     @Inject
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
 
-    private AutomatiskNæringsdrivendeReguleringBatchTjeneste tjeneste;
+    private AutomatiskNæringsdrivendeReguleringSVPBatchTjeneste tjeneste;
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -68,7 +70,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
                 .getFomDato();
         gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
                 .getVerdi();
-        tjeneste = new AutomatiskNæringsdrivendeReguleringBatchTjeneste(behandlingRevurderingRepository,
+        tjeneste = new AutomatiskNæringsdrivendeReguleringSVPBatchTjeneste(behandlingRevurderingRepository,
                 beregningsresultatRepository, prosessTaskRepository);
     }
 
@@ -79,7 +81,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats,
                 gammelSats * 4); // Uttak før "1/5"
         var svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME + "-0");
+        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringSVPBatchTjeneste.BATCHNAME + "-0");
     }
 
     @Test
@@ -95,7 +97,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2), nySats,
                 gammelSats * 7); // Har allerede ny G
         var svar = tjeneste.launch(null);
-        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringBatchTjeneste.BATCHNAME + "-3");
+        assertThat(svar).isEqualTo(AutomatiskNæringsdrivendeReguleringSVPBatchTjeneste.BATCHNAME + "-3");
     }
 
     private Behandling opprettRevurderingsKandidat(EntityManager em, BehandlingStatus status,
@@ -104,7 +106,7 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
             long brutto) {
         var terminDato = uttakFom.plusWeeks(3);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger()
                 .medSøknadDato(terminDato.minusDays(40));
 
         scenario.medBekreftetHendelse()
@@ -138,16 +140,24 @@ public class AutomatiskNæringsdrivendeReguleringBatchTjenesteTest {
                 .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var virksomhetForUttak = AutomatiskGrunnbelopReguleringBatchTjenesteTest.arbeidsgiver("456");
-        var uttakAktivitet = AutomatiskGrunnbelopReguleringBatchTjenesteTest.lagUttakAktivitet(virksomhetForUttak);
-        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
+        var brFP = BeregningsresultatEntitet.builder()
+                .medRegelInput("clob1")
+                .medRegelSporing("clob2")
+                .build();
+        var brFPper = BeregningsresultatPeriode.builder()
+                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
+                .medBeregningsresultatAndeler(Collections.emptyList())
+                .build(brFP);
+        BeregningsresultatAndel.builder()
+                .medDagsats(2300)
+                .medDagsatsFraBg(1000)
+                .medBrukerErMottaker(true)
+                .medStillingsprosent(new BigDecimal(100))
+                .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+                .medUtbetalingsgrad(new BigDecimal(100))
+                .build(brFPper);
 
-        lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom,
-            uttakFom.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
-
-        repositoryProvider.getFpUttakRepository()
-            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
-
+        repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
         em.flush();
         em.clear();
         return em.find(Behandling.class, behandling.getId());

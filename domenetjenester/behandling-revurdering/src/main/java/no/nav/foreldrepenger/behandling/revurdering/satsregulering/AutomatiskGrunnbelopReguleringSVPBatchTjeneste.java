@@ -61,9 +61,9 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjeneste implements BatchTjen
         if (gjeldende.getVerdi() == forrige.getVerdi()) {
             throw new IllegalArgumentException("Samme sats i periodene: gammel {} ny {}" + forrige + " ny " + gjeldende);
         }
-        var avkortingAntallG = beregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
-        var tilVurdering = behandlingRevurderingRepository.finnSakerMedBehovForGrunnbeløpRegulering(forrige.getVerdi(),
-                avkortingAntallG, gjeldende.getPeriode().getFomDato());
+        var avkortingAntallG = BeregningsresultatRepository.avkortingMultiplikatorG(gjeldende.getPeriode().getFomDato().minusDays(1));
+        var tilVurdering = behandlingRevurderingRepository
+            .finnSakerMedBehovForGrunnbeløpReguleringSVP(gjeldende.getPeriode().getFomDato(), avkortingAntallG);
         if ((opprettRevurdering != null) && opprettRevurdering.getSkalRevurdere()) {
             tilVurdering.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.aktørId(), callId));
         } else {
@@ -86,6 +86,7 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjeneste implements BatchTjen
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
+        prosessTaskData.setPrioritet(100);
         prosessTaskRepository.lagre(prosessTaskData);
     }
 }

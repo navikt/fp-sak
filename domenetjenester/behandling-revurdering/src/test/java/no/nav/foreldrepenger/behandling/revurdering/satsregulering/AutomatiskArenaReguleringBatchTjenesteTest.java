@@ -2,12 +2,12 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskArenaReguleringBatchArguments.DATE_PATTERN;
+import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringBatchTjenesteTest.lagPeriode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,13 +22,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.modell.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
@@ -45,6 +45,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
     private AutomatiskArenaReguleringBatchTjeneste tjeneste;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
+    private long gammelSats;
     private LocalDate arenaDato;
     private LocalDate cutoff;
     private AutomatiskArenaReguleringBatchArguments batchArgs;
@@ -58,6 +59,11 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
 
         arenaDato = AutomatiskArenaReguleringBatchArguments.DATO;
         cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
+        var cutoffsats = repositoryProvider.getBeregningsresultatRepository().finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now())
+            .getPeriode()
+            .getFomDato();
+        gammelSats = repositoryProvider.getBeregningsresultatRepository().finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1))
+            .getVerdi();
         var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
         var prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
         tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider,
@@ -87,7 +93,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         var kandidat3 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
         var kandidat4 = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
         var kandidater = tjeneste.hentKandidater(batchArgs).stream()
-                .map(fagsakAktørIdTuple -> fagsakAktørIdTuple.fagsakId())
+                .map(BehandlingRevurderingRepository.FagsakIdAktørId::fagsakId)
                 .collect(Collectors.toSet());
         assertThat(kandidater).contains(kandidat1.getFagsakId(), kandidat2.getFagsakId(), kandidat3.getFagsakId());
         assertThat(kandidater).doesNotContain(kandidat4.getFagsakId());
@@ -115,6 +121,7 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         behandlingRepository.lagre(behandling, lås);
 
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
+                .medGrunnbeløp(BigDecimal.valueOf(gammelSats))
                 .medSkjæringstidspunkt(uttakFom)
                 .build();
         BeregningsgrunnlagAktivitetStatus.builder()
@@ -127,23 +134,16 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
                 .build(beregningsgrunnlag);
         beregningsgrunnlagRepository.lagre(behandling.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
 
-        var brFP = BeregningsresultatEntitet.builder()
-                .medRegelInput("clob1")
-                .medRegelSporing("clob2")
-                .build();
-        var brFPper = BeregningsresultatPeriode.builder()
-                .medBeregningsresultatPeriodeFomOgTom(uttakFom, uttakFom.plusMonths(3))
-                .medBeregningsresultatAndeler(Collections.emptyList())
-                .build(brFP);
-        BeregningsresultatAndel.builder()
-                .medDagsats(1000)
-                .medDagsatsFraBg(1000)
-                .medBrukerErMottaker(true)
-                .medStillingsprosent(new BigDecimal(100))
-                .medInntektskategori(Inntektskategori.ARBEIDSAVKLARINGSPENGER)
-                .medUtbetalingsgrad(new BigDecimal(100))
-                .build(brFPper);
-        repositoryProvider.getBeregningsresultatRepository().lagre(behandling, brFP);
+        var virksomhetForUttak = AutomatiskGrunnbelopReguleringBatchTjenesteTest.arbeidsgiver("456");
+        var uttakAktivitet = AutomatiskGrunnbelopReguleringBatchTjenesteTest.lagUttakAktivitet(virksomhetForUttak);
+        var uttakResultatPerioder = new UttakResultatPerioderEntitet();
+
+        lagPeriode(uttakResultatPerioder, uttakAktivitet, uttakFom,
+            uttakFom.plusWeeks(15).minusDays(1), StønadskontoType.MØDREKVOTE);
+
+        repositoryProvider.getFpUttakRepository()
+            .lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttakResultatPerioder);
+
         return behandlingRepository.hentBehandling(behandling.getId());
     }
 
