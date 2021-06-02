@@ -29,7 +29,7 @@ class DataSourceKonfig {
         var config = new HikariConfig();
         config.setJdbcUrl(ENV.getProperty(dataSourceName + ".url"));
         config.setUsername(ENV.getProperty(dataSourceName + ".username"));
-        config.setPassword(ENV.getProperty(dataSourceName + ".password"));:
+        config.setPassword(ENV.getProperty(dataSourceName + ".password"));
         config.setConnectionTimeout(1000);
         config.setMinimumIdle(5);
         config.setMaximumPoolSize(30);
