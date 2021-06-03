@@ -59,7 +59,7 @@ public abstract class BeregnFeriepengerTjeneste {
         MapBeregningsresultatFeriepengerFraRegelTilVL.mapFra(beregningsresultat, regelModell, regelInput, sporing);
     }
 
-    public boolean avvikBeregnetFeriepengerBeregningsresultat(Behandling behandling, BeregningsresultatEntitet beregningsresultat, boolean loggAvvik) {
+    public boolean avvikBeregnetFeriepengerBeregningsresultat(Behandling behandling, BeregningsresultatEntitet beregningsresultat) {
 
         var annenPartsBehandling = finnAnnenPartsBehandling(behandling);
         var annenPartsBeregningsresultat = annenPartsBehandling.map(Behandling::getId)
@@ -72,9 +72,6 @@ public abstract class BeregnFeriepengerTjeneste {
 
         var regelBeregnFeriepenger = new RegelBeregnFeriepenger();
         regelBeregnFeriepenger.evaluer(regelModell);
-        if (loggAvvik) {
-            SammenlignBeregningsresultatFeriepengerMedRegelResultat.loggAvvik(behandling.getFagsak().getSaksnummer(), behandling.getId(), beregningsresultat, regelModell);
-        }
 
         return SammenlignBeregningsresultatFeriepengerMedRegelResultat.erAvvik(beregningsresultat, regelModell);
     }
