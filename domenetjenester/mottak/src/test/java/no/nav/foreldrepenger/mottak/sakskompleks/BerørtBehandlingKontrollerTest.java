@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.sakskompleks;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -377,7 +376,7 @@ public class BerørtBehandlingKontrollerTest {
         settOppAvsluttetBehandlingBruker();
         settOppAvsluttetBehandlingAnnenpart();
         when(berørtBehandlingTjeneste.skalBerørtBehandlingOpprettes(any(), any(Long.class), any(Long.class))).thenReturn(false);
-        when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any(), anyBoolean())).thenReturn(true);
+        when(beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(any(), any())).thenReturn(true);
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any())).thenReturn(Optional.of(new BeregningsresultatEntitet()));
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(any())).thenReturn(List.of());
         when(behandlingsoppretter.opprettRevurderingMultiÅrsak(any(), any())).thenReturn(berørtFeriepenger);

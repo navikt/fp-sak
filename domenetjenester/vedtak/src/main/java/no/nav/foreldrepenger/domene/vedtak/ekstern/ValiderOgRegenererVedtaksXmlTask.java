@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-/*
+
 @ApplicationScoped
 @ProsessTask(ValiderOgRegenererVedtaksXmlTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
@@ -45,4 +45,4 @@ public class ValiderOgRegenererVedtaksXmlTask extends GenerellProsessTask {
 
 
 }
-*/
+

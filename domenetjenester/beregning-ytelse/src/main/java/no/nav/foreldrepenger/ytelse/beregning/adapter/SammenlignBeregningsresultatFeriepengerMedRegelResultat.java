@@ -9,24 +9,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepenger;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 
 public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SammenlignBeregningsresultatFeriepengerMedRegelResultat.class);
+    private static final int AKSEPTERT_AVVIK = 4;
 
-    private static final int AKSEPTERT_AVVIK = 3;
-
-    private static final String AVVIK_KODE = "FP-110713";
     private static final String BRUKER = "Bruker";
     private static final String ARBGIVER = "ArbGiv";
 
@@ -55,28 +48,6 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
             resultat.getBeregningsresultatFeriepenger().map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()));
     }
 
-    public static boolean loggAvvik(Saksnummer saksnummer, Long behandlingId, BeregningsresultatEntitet resultat, BeregningsresultatFeriepengerRegelModell regelModell) {
-
-        if (regelModell.getFeriepengerPeriode() == null) {
-            // Lagrer sporing
-            var tilkjent = resultat.getBeregningsresultatFeriepenger()
-                .map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()).stream()
-                .map(BeregningsresultatFeriepengerPrÅr::getÅrsbeløp)
-                .reduce(new Beløp(BigDecimal.ZERO), Beløp::adder);
-            return Math.abs(tilkjent.getVerdi().longValue()) > AKSEPTERT_AVVIK;
-        }
-
-        var andelerFraRegelKjøring =
-            regelModell.getBeregningsresultatPerioder().stream()
-                .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
-                .flatMap(andel -> andel.getBeregningsresultatFeriepengerPrÅrListe().stream())
-                .filter(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvrundetÅrsbeløpUlik0)
-                .collect(Collectors.toList());
-
-        return sammenlignFeriepengerLogg(saksnummer, behandlingId, andelerFraRegelKjøring,
-            resultat.getBeregningsresultatFeriepenger().map(BeregningsresultatFeriepenger::getBeregningsresultatFeriepengerPrÅrListe).orElse(List.of()));
-    }
-
     private static boolean erAvrundetÅrsbeløpUlik0(no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr prÅr) {
         var årsbeløp = prÅr.getÅrsbeløp().setScale(0, RoundingMode.HALF_UP).longValue();
         return årsbeløp != 0L;
@@ -90,31 +61,6 @@ public class SammenlignBeregningsresultatFeriepengerMedRegelResultat {
         Map<AndelGruppering, BigDecimal> summert = new LinkedHashMap<>();
         tilkjent.forEach((key, value) -> summert.put(key, value.getVerdi()));
         simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
-
-        return summert.values().stream().anyMatch(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvvik);
-    }
-
-    private static boolean sammenlignFeriepengerLogg(Saksnummer saksnummer, Long behandlingId,
-                                                     List<no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerPrÅr> nyeAndeler,
-                                                     List<BeregningsresultatFeriepengerPrÅr> gjeldendeAndeler) {
-        var simulert = sorterteTilkjenteRegelFeriepenger(nyeAndeler);
-        var tilkjent = sorterteTilkjenteFeriepenger(gjeldendeAndeler);
-
-        Map<AndelGruppering, BigDecimal> summert = new LinkedHashMap<>();
-        tilkjent.forEach((key, value) -> summert.put(key, value.getVerdi()));
-        simulert.forEach((key, value) -> summert.put(key, summert.getOrDefault(key, BigDecimal.ZERO).subtract(value.getVerdi())));
-
-        Map<Year, BigDecimal> summertÅr = new LinkedHashMap<>();
-        tilkjent.forEach((key,value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).add(value.getVerdi())));
-        simulert.forEach((key,value) -> summertÅr.put(key.opptjent(), summertÅr.getOrDefault(key.opptjent(), BigDecimal.ZERO).subtract(value.getVerdi())));
-
-        summert.entrySet().stream()
-            .filter(e -> erAvvik(e.getValue()))
-            .forEach(e -> LOG.info("{}:{}:Saksnummer:{}:år:{}:mottaker:{}:diff:{}:gammel:{}:ny:{}",
-                AVVIK_KODE, erAvvik(summertÅr.get(e.getKey().opptjent())) ? "tilkjent-simulert" : "omfordelt",
-                saksnummer, e.getKey().opptjent(), e.getKey().mottaker(), e.getValue().longValue(),
-                tilkjent.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue(),
-                simulert.getOrDefault(e.getKey(), Beløp.ZERO).getVerdi().longValue()));
 
         return summert.values().stream().anyMatch(SammenlignBeregningsresultatFeriepengerMedRegelResultat::erAvvik);
     }
