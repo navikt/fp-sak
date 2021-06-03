@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.metrics;
 
 import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
-
+import javax.ws.rs.Produces;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
