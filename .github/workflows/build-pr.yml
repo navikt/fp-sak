@@ -37,7 +37,7 @@ jobs:
           java-version: 16
 
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@ab80d026d4753220c4243394c07c7d80f9638d06 # Use commit-sha1 instead of tag for security concerns
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c # Use commit-sha1 instead of tag for security concerns
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
