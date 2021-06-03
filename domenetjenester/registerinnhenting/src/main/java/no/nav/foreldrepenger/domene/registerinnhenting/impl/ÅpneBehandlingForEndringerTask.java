@@ -65,7 +65,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
             .finnAksjonspunktDefinisjonerFraOgMed(behandling, startpunkt.getBehandlingSteg(), true);
 
         behandling.getAksjonspunkter().stream()
-            .filter(ap -> !AksjonspunktDefinisjon.AVKLAR_STARTDATO_FOR_FORELDREPENGEPERIODEN.equals(ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> !AksjonspunktDefinisjon._5045.equals(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> aksjonspunkterFraOgMedStartpunkt.contains(ap.getAksjonspunktDefinisjon().getKode()))
             .filter(ap -> !AksjonspunktType.AUTOPUNKT.equals(ap.getAksjonspunktDefinisjon().getAksjonspunktType()))
             .forEach(ap -> behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(ap), true, false));
