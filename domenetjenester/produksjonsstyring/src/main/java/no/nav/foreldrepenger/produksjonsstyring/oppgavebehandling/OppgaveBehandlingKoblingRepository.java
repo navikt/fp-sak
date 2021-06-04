@@ -79,8 +79,10 @@ public class OppgaveBehandlingKoblingRepository {
 
     public List<OppgaveBehandlingKobling> hentUferdigeOppgaverOpprettetTidsrom(LocalDate fom, LocalDate tom, Set<OppgaveÅrsak> oppgaveTyper) {
         var query = entityManager.
-            createQuery("from OppgaveBehandlingKobling where ferdigstilt=:ferdig and opprettet_tid >= :fom and opprettet_tid <= :tom and oppgaveÅrsak in :aarsaker", //$NON-NLS-1$
-            OppgaveBehandlingKobling.class)
+            createQuery("""
+            from OppgaveBehandlingKobling where ferdigstilt=:ferdig and opprettet_tid >= :fom and opprettet_tid <= :tom and oppgaveÅrsak in :aarsaker
+            AND behandlingId not in (SELECT DISTINCT behandlingId from FagsakProsessTask ftp)
+            """, OppgaveBehandlingKobling.class)
             .setHint(QueryHints.HINT_READONLY, "true")
             .setParameter("fom", fom.atStartOfDay())
             .setParameter("tom", tom.plusDays(1).atStartOfDay().minusMinutes(1))

@@ -66,7 +66,7 @@ public class AutomatiskGjenopptagelseTjeneste {
         }
         MDCOperations.putCallId(callId + "_" + behandling.getId());
         var nesteKjøring = LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
-        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, nesteKjøring);
+        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsettBatch(behandling, nesteKjøring);
         MDCOperations.putCallId(callId);
     }
 

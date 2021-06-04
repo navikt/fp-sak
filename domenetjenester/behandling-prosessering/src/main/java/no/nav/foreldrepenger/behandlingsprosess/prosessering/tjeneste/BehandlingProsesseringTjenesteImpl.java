@@ -118,7 +118,8 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public Optional<String> finnesTasksForPolling(Behandling behandling) {
-        return erAlleredeOpprettetOppdateringFor(behandling);
+        return erAlleredeOpprettetOppdateringFor(behandling)
+            .or(() -> finnesFeiletOppdateringFor(behandling));
     }
 
     @Override
@@ -131,11 +132,6 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     public String opprettTasksForStartBehandling(Behandling behandling) {
         var taskData = lagTaskData(StartBehandlingTask.TASKTYPE, behandling, LocalDateTime.now());
         return lagreEnkeltTask(taskData);
-    }
-
-    @Override
-    public boolean kanOppretteTasksForFortsettBehandling(Behandling behandling) {
-        return erAlleredeOpprettetOppdateringFor(behandling).isEmpty();
     }
 
     // Til bruk ved gjenopptak fra vent (Hendelse: Manuell input, Frist utløpt, mv)
@@ -169,10 +165,18 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, LocalDateTime nesteKjøringEtter) {
         return erAlleredeOpprettetOppdateringFor(behandling)
+            .or(() -> finnesFeiletOppdateringFor(behandling))
             .orElseGet(() -> {
                 var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
                 return prosessTaskRepository.lagre(gruppe);
             });
+    }
+
+    // Robust task til bruk ved batch-gjenopptak fra vent - forutsetter sjekk på at ikke allerede finnes
+    @Override
+    public String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter) {
+        var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
+        return prosessTaskRepository.lagre(gruppe);
     }
 
     @Override
@@ -237,6 +241,14 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
         return prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR).stream()
+            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
+            .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
+            .map(ProsessTaskData::getGruppe)
+            .findFirst();
+    }
+
+    private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
+        return prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET).stream()
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
             .map(ProsessTaskData::getGruppe)

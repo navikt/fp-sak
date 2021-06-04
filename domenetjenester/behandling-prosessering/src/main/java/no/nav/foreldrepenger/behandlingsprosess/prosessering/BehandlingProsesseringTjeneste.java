@@ -56,8 +56,6 @@ public interface BehandlingProsesseringTjeneste {
     // Til bruk ved første prosessering av nyopprettet behandling. Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForStartBehandling(Behandling behandling);
 
-    boolean kanOppretteTasksForFortsettBehandling(Behandling behandling);
-
     // Til bruk for å kjøre behandlingsprosessen videre. Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForFortsettBehandling(Behandling behandling);
 
@@ -72,6 +70,7 @@ public interface BehandlingProsesseringTjeneste {
     // (Hendelse: Manuell input, Frist utløpt, mv)
     // NB oppdaterer registerdata Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForGjenopptaOppdaterFortsett(Behandling behandling, LocalDateTime nesteKjøringEtter);
+    String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter);
 
     String opprettTasksForInitiellRegisterInnhenting(Behandling behandling);
 }
