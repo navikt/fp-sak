@@ -145,12 +145,18 @@ public class BerørtBehandlingKontroller {
     }
 
     private boolean skalFeriepengerReberegnesForMedForelder(Fagsak fagsakMedforelder, Behandling sisteVedtatteMedForelder, Long behandlingIdBruker) {
-        // TODO: fjerne neste linje etter batchkjøring av feriepenger. Den er for "avoid cascade"
-        if (behandlingRepository.hentBehandling(behandlingIdBruker).harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER)) return false;
+        var avsluttetErReberegn = behandlingRepository.hentBehandling(behandlingIdBruker).harBehandlingÅrsak(BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         if (!behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId()).isEmpty()) return false;
         var gjeldendeTilkjent = tilkjentRepository.hentUtbetBeregningsresultat(sisteVedtatteMedForelder.getId()).orElse(null);
         if (gjeldendeTilkjent == null) return false;
-        return beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(sisteVedtatteMedForelder, gjeldendeTilkjent, false);
+        var harAvvikFeriepenger = beregnFeriepenger.avvikBeregnetFeriepengerBeregningsresultat(sisteVedtatteMedForelder, gjeldendeTilkjent);
+        if (avsluttetErReberegn && harAvvikFeriepenger) {
+            // TODO: Evaluer om denne opptrer. Hvis ikke kan man droppe sjekk på om avsluttet er en reberegnFeriepenger - ellers undersøk mer
+            // Sjekken var for "avoid cascade" ved batchvis reberegning av feriepenger
+            LOG.info("REBEREGN FERIEPENGER potensiell cascade avsluttet behandlingId {} sak medforelder {}", behandlingIdBruker, fagsakMedforelder.getSaksnummer());
+            return false;
+        }
+        return harAvvikFeriepenger;
     }
 
     private void håndterKø(Fagsak fagsak) {

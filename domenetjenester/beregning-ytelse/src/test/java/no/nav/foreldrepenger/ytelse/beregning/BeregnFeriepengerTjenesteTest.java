@@ -89,7 +89,7 @@ public class BeregnFeriepengerTjenesteTest {
             Inntektskategori.ARBEIDSTAKER);
 
         // Act
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP, false);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP);
 
         // Assert
         assertThat(avvik).isTrue();
@@ -105,7 +105,7 @@ public class BeregnFeriepengerTjenesteTest {
             Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER);
 
         // Act
-        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP,false);
+        var avvik = tjeneste.avvikBeregnetFeriepengerBeregningsresultat(morsBehandling, morsBeregningsresultatFP);
 
         // Assert
         assertThat(avvik).isFalse();

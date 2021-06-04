@@ -41,7 +41,6 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFeriepengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
@@ -102,7 +101,6 @@ public class RestImplementationClasses {
         classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
         classes.add(ForvaltningBeregningRestTjeneste.class);
-        classes.add(ForvaltningFeriepengerRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
         classes.add(LosNøkkeltallRestTjeneste.class);
 
