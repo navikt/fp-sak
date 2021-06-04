@@ -236,9 +236,9 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
-        return prosessTaskRepository.finnUferdigeBatchTasks(InnhentIAYIAbakusTask.TASKTYPE).stream()
+        return prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR).stream()
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
-            .filter(it -> ProsessTaskStatus.VENTER_SVAR.equals(it.getStatus()) || ProsessTaskStatus.KLAR.equals(it.getStatus()))
+            .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }

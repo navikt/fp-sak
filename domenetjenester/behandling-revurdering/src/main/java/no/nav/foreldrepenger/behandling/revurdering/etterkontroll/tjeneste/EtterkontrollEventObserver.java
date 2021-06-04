@@ -69,8 +69,8 @@ public class EtterkontrollEventObserver {
             return;
         }
 
-        LOG.debug("Markerer behandling {} for etterkontroll på bakgrunn av opprettet vedtak {} om ytelse knyttet til termin", event.getBehandlingId(),
-                event.getVedtak().getId());// NOSONAR
+        LOG.info("Etterkontroll Behandlingvedtakevent inngang behandling {}", event.getBehandlingId());
+
         final var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         if (grunnlag.isPresent()) {
             final var hendelseType = grunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
@@ -82,6 +82,7 @@ public class EtterkontrollEventObserver {
         if (Set.of(VedtakResultatType.AVSLAG, VedtakResultatType.OPPHØR).contains(event.getVedtak().getVedtakResultatType())) {
             etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
         }
+        LOG.info("Etterkontroll Behandlingvedtakevent utgang behandling {}", event.getBehandlingId());
     }
 
     private void markerForEtterkontroll(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag) {

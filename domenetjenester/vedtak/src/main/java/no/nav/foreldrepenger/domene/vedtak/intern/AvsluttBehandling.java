@@ -59,7 +59,11 @@ public class AvsluttBehandling {
         vedtak.setIverksettingStatus(IverksettingStatus.IVERKSATT);
 
         behandlingVedtakRepository.lagre(vedtak, kontekst.getSkriveLås());
+        LOG.info("Avslutter behandling iverksatt vedtak: {}", behandlingId); //$NON-NLS-1$
+
         behandlingVedtakEventPubliserer.fireEvent(vedtak, behandling);
+
+        LOG.info("Avslutter behandling gjenopptar: {}", behandlingId); //$NON-NLS-1$
 
         behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
 
@@ -71,5 +75,7 @@ public class AvsluttBehandling {
             LOG.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
+
+        LOG.info("Avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
     }
 }

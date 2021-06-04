@@ -47,10 +47,10 @@ public class IAYRegisterdataTjeneste {
     public void håndterCallback(RegisterdataCallback callback) {
         LOG.info("Mottatt callback fra Abakus etter registerinnhenting for behandlingId={}, eksisterendeGrunnlag={}, nyttGrunnlag={}",
             callback.getBehandlingId(), callback.getEksisterendeGrunnlagRef(), callback.getOppdatertGrunnlagRef());
-        final var tasksSomVenterPåSvar = prosessTaskRepository.finnUferdigeBatchTasks(InnhentIAYIAbakusTask.TASKTYPE)
+        final var tasksSomVenterPåSvar = prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR)
             .stream()
             .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
-            .filter(it -> ProsessTaskStatus.VENTER_SVAR.equals(it.getStatus()))
+            .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
             .collect(Collectors.toList());
 
         if (tasksSomVenterPåSvar.isEmpty()) {

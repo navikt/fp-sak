@@ -47,13 +47,14 @@ public class AutomatiskGjenopptagelseTjeneste {
     }
 
     public String gjenopptaBehandlinger() {
+        LOG.info("BATCH Gjenoppta inngang");
         var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
         var baseline = LocalTime.now();
-
+        LOG.info("BATCH Gjenoppta fant {} behandlinger", behandlingListe.size());
         for (var behandling : behandlingListe) {
             opprettProsessTasks(behandling, baseline, 1439);
         }
-
+        LOG.info("BATCH Gjenoppta utgang");
         return  "-" + behandlingListe.size();
     }
 
@@ -71,29 +72,31 @@ public class AutomatiskGjenopptagelseTjeneste {
 
 
     public String oppdaterBehandlingerFraOppgaveFrist() {
+        LOG.info("BATCH Oppdater inngang");
         var tom = LocalDate.now().minusDays(1);
         var fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
         var oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
         var baseline = LocalTime.now();
-
+        LOG.info("BATCH Oppdater fant {} oppgaver", oppgaveListe.size());
         for (var oppgave : oppgaveListe) {
-            var behandling = behandlingRepository.hentBehandling(oppgave.getBehandlingId());
+            var behandling = behandlingRepository.hentBehandlingReadOnly(oppgave.getBehandlingId());
             if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
                 opprettProsessTasks(behandling, baseline, 1439);
             }
         }
-
+        LOG.info("BATCH Oppdater utgang");
         return "-" + oppgaveListe.size();
     }
 
     public String gjenopplivBehandlinger() {
+        LOG.info("BATCH Gjenoppliv inngang");
         var sovende = behandlingKandidaterRepository.finnÅpneBehandlingerUtenÅpneAksjonspunktEllerAutopunkt();
         var baseline = LocalTime.now();
-
+        LOG.info("BATCH Gjenoppliv fant {} behandlinger", sovende.size());
         for (var behandling : sovende) {
             opprettProsessTasks(behandling, baseline, 101);
         }
-
+        LOG.info("BATCH Gjenoppliv utgang");
         return "-" + sovende.size();
     }
 }
