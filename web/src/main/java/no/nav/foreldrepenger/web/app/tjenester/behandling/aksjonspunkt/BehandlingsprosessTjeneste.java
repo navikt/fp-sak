@@ -70,8 +70,8 @@ public class BehandlingsprosessTjeneste {
      * @return Prosess Task gruppenavn som kan brukes til å sjekke fremdrift
      */
     public void asynkKjørProsess(Behandling behandling) {
-        if (behandlingProsesseringTjeneste.kanOppretteTasksForFortsettBehandling(behandling)) {
-            prosesseringAsynkTjeneste.asynkProsesserBehandling(behandling);
+        if (behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).isEmpty()) {
+            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
     }
 
@@ -172,7 +172,7 @@ public class BehandlingsprosessTjeneste {
      * @return ProsessTask gruppe
      */
     public String asynkTilbakestillOgÅpneBehandlingForEndringer(Behandling behandling) {
-        if (!behandlingProsesseringTjeneste.kanOppretteTasksForFortsettBehandling(behandling)) {
+        if (behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).isPresent()) {
             throw new FunksjonellException("FP-572345", "Finnes aktive tasks", "Vent til registeroppdatering er ferdig");
         }
         var gruppe = new ProsessTaskGruppe();

@@ -56,7 +56,7 @@ public class HendelsePublisererTjeneste {
     }
 
     public void lagreVedtak(BehandlingVedtak vedtak) {
-        LOG.info("lagrer utgående hendelse for vedtak {}", vedtak.getId());
+        LOG.info("lagrer utgående feed-hendelse for vedtak {}", vedtak.getId());
 
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
@@ -85,6 +85,7 @@ public class HendelsePublisererTjeneste {
         } else {
             doLagreVedtakSVP(vedtak, behandling, innvilgetPeriode, orginalPeriode);
         }
+        LOG.info("lagrt utgående feed-hendelse for vedtak {}", vedtak.getId());
     }
 
     private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,

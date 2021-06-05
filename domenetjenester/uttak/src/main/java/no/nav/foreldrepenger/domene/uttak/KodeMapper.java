@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.BasisKodeverdi;
-import no.nav.vedtak.util.Tuple;
 
 /**
  * Hjelpeklasse som tilbyr bygging av en mapping mellom kodelisteinnslag og noe annet.
@@ -18,16 +17,16 @@ import no.nav.vedtak.util.Tuple;
  * som også støtter toveis mapping.
  */
 public class KodeMapper<K extends BasisKodeverdi, O> {
-    private final List<Tuple<K, O>> mappinger;
+    private final List<Kodemapping<K,O>> mappinger;
 
-    private KodeMapper(List<Tuple<K, O>> mappinger) {
+    private KodeMapper(List<Kodemapping<K,O>> mappinger) {
         this.mappinger = Collections.unmodifiableList(mappinger);
     }
 
     public Optional<O> map(K k) {
         return mappinger.stream()
-            .filter(mapping -> mapping.getElement1().equals(k))
-            .map(Tuple::getElement2)
+            .filter(mapping -> mapping.key().equals(k))
+            .map(Kodemapping::mapped)
             .findAny();
     }
 
@@ -60,8 +59,10 @@ public class KodeMapper<K extends BasisKodeverdi, O> {
 
         public KodeMapper<R, T> build() {
             return new KodeMapper<>(IntStream.range(0, rs.size())
-                .mapToObj(i -> new Tuple<>(rs.get(i), ts.get(i)))
+                .mapToObj(i -> new Kodemapping<R,T>(rs.get(i), ts.get(i)))
                 .collect(Collectors.toList()));
         }
     }
+
+    private record Kodemapping<R extends BasisKodeverdi, O>(R key, O mapped) {}
 }

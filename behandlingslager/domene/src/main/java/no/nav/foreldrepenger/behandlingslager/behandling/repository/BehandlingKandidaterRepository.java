@@ -105,14 +105,15 @@ public class BehandlingKandidaterRepository {
 
         var naa = LocalDateTime.now();
 
-        var query = getEntityManager().createQuery(
-            " SELECT DISTINCT b " +
-                " FROM Aksjonspunkt ap " +
-                " INNER JOIN ap.behandling b " +
-                " WHERE ap.status IN :aapneAksjonspunktKoder " +
-                "   AND ap.aksjonspunktDefinisjon IN :autopunktKoder " +
-                "   AND ap.fristTid < :naa ",
-            Behandling.class);
+        var query = getEntityManager().createQuery("""
+             SELECT DISTINCT b
+                 FROM Aksjonspunkt ap
+                 INNER JOIN ap.behandling b
+                 WHERE ap.status IN :aapneAksjonspunktKoder
+                   AND ap.aksjonspunktDefinisjon IN :autopunktKoder
+                   AND ap.fristTid < :naa
+                   AND b.id not in (SELECT DISTINCT behandlingId from FagsakProsessTask ftp)
+                """, Behandling.class);
         query.setHint(QueryHints.HINT_READONLY, "true");
         query.setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
         query.setParameter("autopunktKoder", autopunktKoder);
