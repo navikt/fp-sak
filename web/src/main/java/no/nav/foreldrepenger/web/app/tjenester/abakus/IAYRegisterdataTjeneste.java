@@ -49,8 +49,8 @@ public class IAYRegisterdataTjeneste {
             callback.getBehandlingId(), callback.getEksisterendeGrunnlagRef(), callback.getOppdatertGrunnlagRef());
         final var tasksSomVenterPåSvar = prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR)
             .stream()
-            .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
             .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
+            .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
             .collect(Collectors.toList());
 
         if (tasksSomVenterPåSvar.isEmpty()) {

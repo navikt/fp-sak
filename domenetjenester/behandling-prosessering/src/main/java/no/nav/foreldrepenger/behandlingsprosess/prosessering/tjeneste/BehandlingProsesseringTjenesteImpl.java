@@ -241,16 +241,16 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
         return prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR).stream()
-            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
+            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }
 
     private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
         return prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET).stream()
-            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
+            .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }
