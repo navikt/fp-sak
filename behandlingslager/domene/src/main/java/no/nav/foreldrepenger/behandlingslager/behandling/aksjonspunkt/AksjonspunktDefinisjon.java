@@ -70,9 +70,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE(
             AksjonspunktKodeDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE, AksjonspunktType.MANUELL, "Avklar fakta for omsorgs/foreldreansvarsvilkåret",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.OMSORGSVILKÅRET, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_TILLEGGSOPPLYSNINGER(
-            AksjonspunktKodeDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER_KODE, AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger",
-            BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
     MANUELL_VURDERING_AV_OMSORGSVILKÅRET(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av omsorgsvilkåret",
             BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG, TOTRINN,
@@ -472,6 +469,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden",
         BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
         ENTRINN, EnumSet.of(ES, FP, SVP)),
+    @Deprecated
+    AVKLAR_TILLEGGSOPPLYSNINGER(
+        AksjonspunktKodeDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER_KODE, AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger",
+        BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
 
     ;
 
