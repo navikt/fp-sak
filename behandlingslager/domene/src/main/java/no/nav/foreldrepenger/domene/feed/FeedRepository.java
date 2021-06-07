@@ -40,20 +40,16 @@ public class FeedRepository {
 
     }
 
-    public <V extends UtgåendeHendelse> boolean harHendelseMedKildeId(Class<V> cls, String kildeId) {
+    public <V extends UtgåendeHendelse> boolean harHendelseMedKildeId(String kildeId) {
         Objects.requireNonNull(kildeId);
-        var builder = entityManager.getCriteriaBuilder();
-        var criteria = entityManager.getCriteriaBuilder().createQuery(cls);
-        var from = criteria.from(cls);
-        criteria.select(criteria.from(cls));
-        criteria.where(builder.and(
-                builder.equal(from.get("kildeId"), kildeId))); // $NON-NLS-1$
 
-        var resultList = entityManager.createQuery(criteria)
-                .setHint(QueryHints.HINT_READONLY, "true")
-                .getResultList();
+        var query = entityManager
+            .createNativeQuery("SELECT count(1) FROM UTGAAENDE_HENDELSE where kilde_id = :kildeId")
+            .setParameter("kildeId", kildeId)
+            .setHint(QueryHints.HINT_READONLY, "true");
 
-        return !resultList.isEmpty();
+        var antall = (BigDecimal) query.getSingleResult();
+        return antall.compareTo(BigDecimal.ZERO) > 0;
     }
 
 

@@ -56,19 +56,22 @@ public class HendelsePublisererTjeneste {
     }
 
     public void lagreVedtak(BehandlingVedtak vedtak) {
-        LOG.info("lagrer utgående feed-hendelse for vedtak {}", vedtak.getId());
+        LOG.info("Utgående feed-hendelse inngang for vedtak {}", vedtak.getId());
 
         var behandling = behandlingRepository.hentBehandling(vedtak.getBehandlingsresultat().getBehandlingId());
 
-        if (hendelseEksistererAllerede(vedtak, behandling.getFagsakYtelseType())) {
-            LOG.debug("Skipper lagring av hendelse av vedtakId {} fordi den allerede eksisterer", vedtak.getId());
+        if (hendelseEksistererAllerede(vedtak)) {
+            LOG.info("Utgående feed-hendelse vedtakId {} eksisterer allerede", vedtak.getId());
             return;
         }
+
+        LOG.info("Utgående feed-hendelse vedtakId {} nytt vedtak", vedtak.getId());
 
         // Disse trigger ikke hendelser
         if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())
                 || !behandling.getType().erYtelseBehandlingType()
                 || vedtak.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()) {
+            LOG.info("Utgående feed-hendelse vedtakId {} ikke FP/SVP", vedtak.getId());
             return;
         }
 
@@ -77,15 +80,18 @@ public class HendelsePublisererTjeneste {
 
         if (innvilgetPeriode.isEmpty() && orginalPeriode.isEmpty()) {
             // ingen hendelse
+            LOG.info("Utgående feed-hendelse vedtakId {} ingen data", vedtak.getId());
             return;
         }
+
+        LOG.info("Utgående feed-hendelse vedtakId {} funnet perioder", vedtak.getId());
 
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
             doLagreVedtakFP(vedtak, behandling, innvilgetPeriode, orginalPeriode);
         } else {
             doLagreVedtakSVP(vedtak, behandling, innvilgetPeriode, orginalPeriode);
         }
-        LOG.info("lagrt utgående feed-hendelse for vedtak {}", vedtak.getId());
+        LOG.info("Utgående feed-hendelse utgang for vedtak {}", vedtak.getId());
     }
 
     private void doLagreVedtakFP(BehandlingVedtak vedtak, Behandling behandling, Optional<LocalDateInterval> innvilgetPeriode,
@@ -226,10 +232,7 @@ public class HendelsePublisererTjeneste {
                 .map(VirkedagUtil::tomVirkedag);
     }
 
-    private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak, FagsakYtelseType ytelseType) {
-        if (FagsakYtelseType.FORELDREPENGER.equals(ytelseType)) {
-            return feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
-        }
-        return feedRepository.harHendelseMedKildeId(SvpVedtakUtgåendeHendelse.class, VEDTAK_PREFIX + vedtak.getId());
+    private boolean hendelseEksistererAllerede(BehandlingVedtak vedtak) {
+        return feedRepository.harHendelseMedKildeId(VEDTAK_PREFIX + vedtak.getId());
     }
 }

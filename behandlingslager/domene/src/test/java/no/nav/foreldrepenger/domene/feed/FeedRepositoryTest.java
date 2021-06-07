@@ -89,26 +89,26 @@ public class FeedRepositoryTest extends EntityManagerAwareTest {
     @Test
     public void skal_returnere_true_hvis_hendelse_med_kilde_id_eksisterer() {
         lagreHendelser();
-        assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, KILDE_ID)).isTrue();
+        assertThat(feedRepository.harHendelseMedKildeId(KILDE_ID)).isTrue();
     }
 
     @Test
     public void skal_returnere_false_hvis_hendelse_med_kilde_id_ikke_eksisterer() {
         lagreHendelser();
-        assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "eksisterer_ikke")).isFalse();
+        assertThat(feedRepository.harHendelseMedKildeId("eksisterer_ikke")).isFalse();
     }
 
     @Test
     public void skal_lagre_hendelse_flushe_sjekke_om_kilde_eksisterer() {
         lagreHendelser();
-        assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isFalse();
+        assertThat(feedRepository.harHendelseMedKildeId("ny_kilde")).isFalse();
         var utgåendeHendelse = FpVedtakUtgåendeHendelse.builder().payload(PAYLOAD)
             .aktørId("1000000002")
             .type("type3")
             .kildeId("ny_kilde")
             .build();
         feedRepository.lagre(utgåendeHendelse);
-        assertThat(feedRepository.harHendelseMedKildeId(FpVedtakUtgåendeHendelse.class, "ny_kilde")).isTrue();
+        assertThat(feedRepository.harHendelseMedKildeId("ny_kilde")).isTrue();
     }
 
     @Test
