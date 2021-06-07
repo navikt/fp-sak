@@ -78,6 +78,9 @@ public class AnkevurderingOppdaterer implements AksjonspunktOppdaterer<AnkeVurde
 
     private AnkeVurderingResultatEntitet.Builder mapDto(AnkeVurderingResultatAksjonspunktDto apDto,
                                                         Behandling behandling) {
+        if (AnkeVurdering.UDEFINERT.equals(apDto.getAnkeVurdering())) {
+            throw new IllegalArgumentException("Må sette resultat på anke når aksjonspunktet skal løses");
+        }
         var builder = ankeVurderingTjeneste.hentAnkeVurderingResultatBuilder(behandling);
         resetVurderingsSpesifikkeValg(builder);
         if (AnkeVurdering.ANKE_AVVIS.equals(apDto.getAnkeVurdering())) {
