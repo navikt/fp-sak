@@ -51,7 +51,7 @@ public class AvsluttBehandling {
     }
 
     void avsluttBehandling(Long behandlingId) {
-        LOG.info("Avslutter behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling inngang {}", behandlingId); //$NON-NLS-1$
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
@@ -67,15 +67,15 @@ public class AvsluttBehandling {
 
         behandlingskontrollTjeneste.prosesserBehandlingGjenopptaHvisStegVenter(kontekst, BehandlingStegType.IVERKSETT_VEDTAK);
 
-        LOG.info("Har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling har avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
 
         // TODO (Fluoritt): Kunne vi flyttet dette ut i en Event observer (ref BehandlingStatusEvent) Hilsen FC.
         var ventendeBehandlingOpt = vurderBehandlingerUnderIverksettelse.finnBehandlingSomVenterIverksetting(behandling);
         ventendeBehandlingOpt.ifPresent(ventendeBehandling -> {
-            LOG.info("Fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
+            LOG.info("Avslutter behandling fortsetter iverksetting av ventende behandling: {}", ventendeBehandling.getId()); //$NON-NLS-1$
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(ventendeBehandling);
         });
 
-        LOG.info("Avsluttet behandling: {}", behandlingId); //$NON-NLS-1$
+        LOG.info("Avslutter behandling utgang: {}", behandlingId); //$NON-NLS-1$
     }
 }
