@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtleder;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederHolder;
-import no.nav.foreldrepenger.behandling.steg.avklarfakta.AksjonspunktUtlederForTilleggsopplysninger;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.KontrollerFaktaUtledere;
 import no.nav.foreldrepenger.behandling.steg.avklarfakta.VilkårUtlederFeil;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -68,8 +67,8 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
     }
 
     private void leggTilStandardUtledere(AksjonspunktUtlederHolder utlederHolder) {
-        utlederHolder.leggTil(AksjonspunktUtlederForTilleggsopplysninger.class)
-                .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class)
-                .leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
+        utlederHolder
+            .leggTil(AksjonspunktUtlederForTidligereMottattYtelse.class)
+            .leggTil(AksjonspunktutlederForMedlemskapSkjæringstidspunkt.class);
     }
 }
