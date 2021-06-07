@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRes
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
-
+import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
 @ApplicationPath(ApplicationConfig.API_URI)
 public class ApplicationConfig extends Application {
@@ -42,25 +42,25 @@ public class ApplicationConfig extends Application {
     public ApplicationConfig() {
         var oas = new OpenAPI();
         var info = new Info()
-            .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
-            .version("1.0")
-            .description("REST grensesnitt for FPSAK.");
+                .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
+                .version("1.0")
+                .description("REST grensesnitt for FPSAK.");
 
         oas.info(info)
-            .addServersItem(new Server()
-                .url("/fpsak"));
+                .addServersItem(new Server()
+                        .url("/fpsak"));
         var oasConfig = new SwaggerConfiguration()
-            .openAPI(oas)
-            .prettyPrint(true)
-            .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
-            .resourcePackages(Stream.of("no.nav")
-                .collect(Collectors.toSet()));
+                .openAPI(oas)
+                .prettyPrint(true)
+                .scannerClass("io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner")
+                .resourcePackages(Stream.of("no.nav")
+                        .collect(Collectors.toSet()));
 
         try {
             new JaxrsOpenApiContextBuilder<>()
-                .openApiConfiguration(oasConfig)
-                .buildContext(true)
-                .read();
+                    .openApiConfiguration(oasConfig)
+                    .buildContext(true)
+                    .read();
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -71,7 +71,8 @@ public class ApplicationConfig extends Application {
         Set<Class<?>> classes = new HashSet<>();
         classes.addAll(new RestImplementationClasses().getImplementationClasses());
 
-        //UtilTjenester for uttrekk fra registre
+        // UtilTjenester for uttrekk fra registre
+        classes.add(TimingFilter.class);
         classes.add(DatavarehusAdminRestTjeneste.class);
         classes.add(ForvaltningFagsakRestTjeneste.class);
         classes.add(ForvaltningTekniskRestTjeneste.class);
