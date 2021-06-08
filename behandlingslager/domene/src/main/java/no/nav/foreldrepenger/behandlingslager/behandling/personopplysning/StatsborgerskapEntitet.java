@@ -14,13 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
@@ -49,9 +47,6 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
 
-    @Transient
-    private Region region;
-
     StatsborgerskapEntitet() {
     }
 
@@ -70,11 +65,6 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
     void setPersonopplysningInformasjon(PersonInformasjonEntitet personopplysningInformasjon) {
         this.personopplysningInformasjon = personopplysningInformasjon;
     }
-
-    void setRegion(Region region) {
-        this.region = region;
-    }
-
 
     @Override
     public AktørId getAktørId() {
@@ -99,10 +89,6 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
         return statsborgerskap;
     }
 
-
-    public Region getRegion() {
-        return region;
-    }
 
     void setStatsborgerskap(Landkoder statsborgerskap) {
         this.statsborgerskap = statsborgerskap;

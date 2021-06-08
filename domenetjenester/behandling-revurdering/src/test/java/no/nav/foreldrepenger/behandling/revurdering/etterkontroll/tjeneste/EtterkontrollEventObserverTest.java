@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -122,7 +121,7 @@ public class EtterkontrollEventObserverTest {
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
-                .kvinne(GITT_MOR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
+                .kvinne(GITT_MOR_AKTØR_ID, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.NOR)
                 .build();
         scenario.medRegisterOpplysninger(søker);

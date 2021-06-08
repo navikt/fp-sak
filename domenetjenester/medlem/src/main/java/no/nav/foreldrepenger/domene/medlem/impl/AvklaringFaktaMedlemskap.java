@@ -50,8 +50,7 @@ public class AvklaringFaktaMedlemskap {
             ? medlemskap.get().getRegistrertMedlemskapPerioder()
             : Collections.emptySet();
 
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
-            behandling.getAktørId(), vurderingsdato);
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
 
         if (harDekningsgrad(vurderingsdato, medlemskapPerioder) == JA) {
             if (erFrivilligMedlem(vurderingsdato, medlemskapPerioder) == JA) {

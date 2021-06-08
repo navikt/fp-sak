@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -181,7 +180,7 @@ public class AksjonspunktUtlederForEngangsstønadFødselTest extends EntityManag
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
         var søker = builderForRegisteropplysninger
             .medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
+            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
             .build();
         scenario.medRegisterOpplysninger(søker);
     }

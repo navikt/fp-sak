@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Sivils
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -167,7 +166,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato)
             .medUtledetMedlemsintervall(new LocalDateInterval(dato.minusWeeks(4), dato.plusWeeks(4)))
             .build());
-        return tjeneste.utled(ref, dato);
+        return tjeneste.utledVedSTP(ref);
     }
 
     @Test
@@ -211,7 +210,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
 
         var gift = builderForRegisteropplysninger
                 .medPersonas()
-                .mann(annenPartAktørId, SivilstandType.GIFT, Region.NORDEN)
+                .mann(annenPartAktørId, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.FIN)
                 .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
                 .build();
@@ -219,7 +218,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT, Region.EOS)
+                .kvinne(søkerAktørId, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.ESP)
                 .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
                 .build();
@@ -259,14 +258,14 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT, Region.EOS)
+                .kvinne(søkerAktørId, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.ESP)
                 .relasjonTil(annenPartAktørId, RelasjonsRolleType.EKTE)
                 .build();
 
         var gift = builderForRegisteropplysninger
                 .medPersonas()
-                .mann(annenPartAktørId, SivilstandType.GIFT, Region.UDEFINERT)
+                .mann(annenPartAktørId, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.CAN)
                 .relasjonTil(søkerAktørId, RelasjonsRolleType.EKTE)
                 .build();
@@ -459,7 +458,7 @@ public class AvklarOmSøkerOppholderSegINorgeTest {
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
         var persona = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.UOPPGITT, Region.UDEFINERT)
+                .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
                 .personstatus(PersonstatusType.UDEFINERT)
                 .statsborgerskap(adresseLand);
 

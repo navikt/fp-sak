@@ -78,9 +78,9 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
         if (poDiff.erAdresserEndretIPeriode(fraSkjæringstidpunkt)) {
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, poDiff.erAdresseLandEndretForSøkerPeriode(påSkjæringstidpunkt), "adresse");
         }
-        if (poDiff.erRegionEndretForSøkerPeriode(fraSkjæringstidpunkt)) {
+        if (poDiff.erRegionEndretForSøkerPeriode(fraSkjæringstidpunkt, skjæringstidspunkt)) {
             var aktivtGrunnlag = personopplysningRepository.hentPersonopplysninger(ref.getBehandlingId());
-            var endretPåSTP = poDiff.erRegionEndretForSøkerPeriode(påSkjæringstidpunkt) && !poDiff.harRegionNorden(påSkjæringstidpunkt, aktivtGrunnlag);
+            var endretPåSTP = poDiff.erRegionEndretForSøkerPeriode(påSkjæringstidpunkt, skjæringstidspunkt) && !poDiff.harRegionNorden(påSkjæringstidpunkt, aktivtGrunnlag, skjæringstidspunkt);
             leggTilBasertPåSTP(grunnlag1.getId(), grunnlag2.getId(), startpunkter, endretPåSTP, "region");
         }
         if (barnBorteEndringIdentifiserer.erEndret(ref)) {

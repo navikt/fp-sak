@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -84,7 +83,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
         var søker = builderForRegisteropplysninger.medPersonas()
-            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn, Region.UDEFINERT)
+            .voksenPerson(søkerAktørId, SivilstandType.UOPPGITT, kjønn)
             .build();
         scenario.medRegisterOpplysninger(søker);
     }
@@ -308,7 +307,7 @@ public class FødselsvilkårMorTest extends EntityManagerAwareTest {
             .build();
 
         var søker = builderForRegisteropplysninger.medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, true)
             .build();

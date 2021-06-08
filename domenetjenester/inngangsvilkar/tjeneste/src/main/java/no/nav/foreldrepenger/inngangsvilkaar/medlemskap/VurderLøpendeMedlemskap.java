@@ -121,7 +121,7 @@ public class VurderLøpendeMedlemskap {
         Map<LocalDate, MedlemskapsvilkårGrunnlag> resulatat = new TreeMap<>();
         for (var vurderingsdato : vurderingsdatoerListe) {
             var vurdertOpt = Optional.ofNullable(map.get(vurderingsdato));
-            var aggregatOptional = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref.getBehandlingId(), ref.getAktørId(), vurderingsdato);
+            var aggregatOptional = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, vurderingsdato);
 
             // // FP VK 2.13
             var vurdertErMedlem = brukerErMedlemEllerIkkeRelevantPeriode(medlemskap, vurdertOpt, aggregatOptional.get(), vurderingsdato);
@@ -134,7 +134,7 @@ public class VurderLøpendeMedlemskap {
 
             var grunnlag = new MedlemskapsvilkårGrunnlag(
                 tilPersonStatusType(aggregatOptional), // FP VK 2.1
-                brukerNorskNordisk(aggregatOptional), // FP VK 2.11
+                brukerNorskNordisk(aggregatOptional, vurderingsdato), // FP VK 2.11
                 vurdertOpt.map(v -> defaultValueTrue(v.getErEøsBorger())).orElse(true), // FP VIK 2.12
                 harOppholdstillatelsePåDato(ref, vurderingsdato),
                 finnOmSøkerHarArbeidsforholdOgInntekt(behandling, vurderingsdato),
@@ -205,9 +205,9 @@ public class VurderLøpendeMedlemskap {
             medlemskap.map(MedlemskapAggregat::getRegistrertMedlemskapPerioder).orElse(Collections.emptySet()), vurderingsdato);
     }
 
-    private boolean brukerNorskNordisk(Optional<PersonopplysningerAggregat> aggregatOptional) {
+    private boolean brukerNorskNordisk(Optional<PersonopplysningerAggregat> aggregatOptional, LocalDate vurderingsdato) {
         return aggregatOptional
-            .map(a -> a.harStatsborgerskapRegion(a.getSøker().getAktørId(), Region.NORDEN))
+            .map(a -> a.harStatsborgerskapRegionVedTidspunkt(a.getSøker().getAktørId(), Region.NORDEN, vurderingsdato))
             .orElse(false);
     }
 

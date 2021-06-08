@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.behandling;
 import java.util.Objects;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
@@ -26,12 +27,11 @@ final class PersonopplysningPersoninfoAdapter {
             .brukerKjønn(person.getKjønn())
             .fødselsdato(person.getFødselsdato())
             .dødsdato(person.getDødsdato())
-            .region(person.getRegion())
             .sivilstand(person.getSivilstandType()));
 
         builder.leggTilStatsborgerskap(Statsborgerskap.builder()
             .aktørId(person.getAktørId())
-            .statsborgerskap(person.getLandkode())
+            .statsborgerskap(MapRegionLandkoder.finnRangertLandkode(person.getLandkoder()))
             .periode(person.getFødselsdato(), person.getDødsdato() != null ? person.getDødsdato() : Tid.TIDENES_ENDE));
 
         builder.leggTilPersonstatus(Personstatus.builder()

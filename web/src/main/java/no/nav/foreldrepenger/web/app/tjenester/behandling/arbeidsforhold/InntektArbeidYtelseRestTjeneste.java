@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,8 +33,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -149,7 +146,7 @@ public class InntektArbeidYtelseRestTjeneste {
         var iayg = grunnlag.get();
 
         // finn annen part
-        var annenPartAktørId = getAnnenPart(behandling.getId(), behandling);
+        var annenPartAktørId = getAnnenPart(behandling.getId());
         var param = new UtledArbeidsforholdParametere(
                 behandling.harAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD));
 
@@ -159,14 +156,8 @@ public class InntektArbeidYtelseRestTjeneste {
         return dtoMapper.mapFra(ref, iayg, sakInntektsmeldinger, annenPartAktørId, param);
     }
 
-    private Optional<AktørId> getAnnenPart(Long behandlingId, Behandling behandling) {
-        var personopplysningTidspunkt = LocalDate.now(); // TODO: Hvorfor bruker denne dagens dato og ikke skjæringstidspunkt? (fra
-                                                               // InntektArbeidYtelseDtoMapper commit 81e8624)
-        var personopplysningerAggregat = personopplysningTjeneste
-                .hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), personopplysningTidspunkt);
-        var annenPartAktørId = personopplysningerAggregat.flatMap(PersonopplysningerAggregat::getOppgittAnnenPart)
-                .map(OppgittAnnenPartEntitet::getAktørId);
-        return annenPartAktørId;
+    private Optional<AktørId> getAnnenPart(Long behandlingId) {
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingId);
     }
 
     private boolean erSkjæringstidspunktIkkeUtledet(Skjæringstidspunkt skjæringstidspunkt) {

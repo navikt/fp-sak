@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class PersonopplysningerAggregat {
 
     private final AktørId søkerAktørId;
+    private final LocalDate skjæringstidspunkt;
     private final List<PersonRelasjonEntitet> alleRelasjoner;
     private final List<PersonstatusEntitet> aktuellePersonstatus;
     private final List<PersonstatusEntitet> overstyrtPersonstatus;
@@ -34,8 +35,13 @@ public class PersonopplysningerAggregat {
 
     private final OppgittAnnenPartEntitet oppgittAnnenPart;
 
-    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode) {
+    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, LocalDate forDato, LocalDate skjæringstidspunkt) {
+        this(grunnlag, aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(forDato, forDato.plusDays(1)), skjæringstidspunkt);
+    }
+
+    public PersonopplysningerAggregat(PersonopplysningGrunnlagEntitet grunnlag, AktørId aktørId, DatoIntervallEntitet forPeriode, LocalDate skjæringstidspunkt) {
         this.søkerAktørId = aktørId;
+        this.skjæringstidspunkt = skjæringstidspunkt;
         this.oppgittAnnenPart = grunnlag.getOppgittAnnenPart().orElse(null);
         var registerversjon = grunnlag.getRegisterVersjon().orElse(null);
         if (registerversjon != null) {
@@ -64,7 +70,6 @@ public class PersonopplysningerAggregat {
             this.statsborgerskap = registerversjon.getStatsborgerskap().stream()
                     .filter(adr -> erIkkeSøker(aktørId, adr.getAktørId()) ||
                         erGyldigIPeriode(forPeriode, adr.getPeriode()))
-                    .peek(sb -> sb.setRegion(MapRegionLandkoder.mapLandkode(sb.getStatsborgerskap().getKode())))
                     .collect(Collectors.groupingBy(StatsborgerskapEntitet::getAktørId));
             this.oppholdstillatelser = registerversjon.getOppholdstillatelser().stream()
                 .filter(adr -> erGyldigIPeriode(forPeriode, adr.getPeriode()))
@@ -117,16 +122,28 @@ public class PersonopplysningerAggregat {
     }
 
     public List<StatsborgerskapEntitet> getStatsborgerskapFor(AktørId aktørId) {
+        return Collections.unmodifiableList(statsborgerskap.getOrDefault(aktørId, List.of()));
+    }
+
+    public Optional<StatsborgerskapEntitet> getRangertStatsborgerskapVedSkjæringstidspunktFor(AktørId aktørId) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .sorted(Comparator.comparing(s -> s.getRegion().getRank()))
-            .collect(Collectors.toList());
+            .min(Comparator.comparing(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt).getRank()));
     }
 
     public Region getStatsborgerskapRegionVedTidspunkt(AktørId aktørId, LocalDate vurderingsdato) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
             .filter(s -> s.getPeriode().inkluderer(vurderingsdato))
-            .min(Comparator.comparing(s -> s.getRegion().getRank()))
-            .map(StatsborgerskapEntitet::getRegion).orElse(Region.TREDJELANDS_BORGER);
+            .map(StatsborgerskapEntitet::getStatsborgerskap)
+            .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, vurderingsdato, skjæringstidspunkt))
+            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
+    }
+
+    public Region getStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId) {
+        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+            .filter(s -> s.getPeriode().inkluderer(skjæringstidspunkt))
+            .map(StatsborgerskapEntitet::getStatsborgerskap)
+            .map(s -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(s, skjæringstidspunkt, skjæringstidspunkt))
+            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
     }
 
     public boolean harStatsborgerskap(AktørId aktørId, Landkoder land) {
@@ -134,9 +151,14 @@ public class PersonopplysningerAggregat {
             .anyMatch(sb -> land.equals(sb.getStatsborgerskap()));
     }
 
-    public boolean harStatsborgerskapRegion(AktørId aktørId, Region region) {
+    public boolean harStatsborgerskapRegionVedSkjæringstidspunkt(AktørId aktørId, Region region) {
         return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
-            .anyMatch(sb -> region.equals(sb.getRegion()));
+            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), skjæringstidspunkt, skjæringstidspunkt)));
+    }
+
+    public boolean harStatsborgerskapRegionVedTidspunkt(AktørId aktørId, Region region, LocalDate vurderingsdato) {
+        return statsborgerskap.getOrDefault(aktørId, List.of()).stream()
+            .anyMatch(sb -> region.equals(MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(sb.getStatsborgerskap(), vurderingsdato, skjæringstidspunkt)));
     }
 
     public Optional<OppholdstillatelseEntitet> getOppholdstillatelseFor(AktørId aktørId) {

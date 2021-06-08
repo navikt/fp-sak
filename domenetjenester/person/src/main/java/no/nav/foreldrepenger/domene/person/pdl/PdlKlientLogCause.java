@@ -2,8 +2,11 @@ package no.nav.foreldrepenger.domene.person.pdl;
 
 import static org.apache.http.HttpStatus.SC_NOT_FOUND;
 
+import java.net.SocketTimeoutException;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.ProcessingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import no.nav.pdl.HentGeografiskTilknytningQueryRequest;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.pdl.Pdl;
 import no.nav.vedtak.felles.integrasjon.pdl.PdlException;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
@@ -21,6 +25,8 @@ import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 @ApplicationScoped
 public class PdlKlientLogCause {
 
+    private static final String PDL_TIMEOUT_KODE = "FP-723618";
+    private static final String PDL_TIMEOUT_MSG = "PDL timeout";
     private static final Logger LOG = LoggerFactory.getLogger(PdlKlientLogCause.class);
 
     private Pdl pdlKlient;
@@ -44,6 +50,8 @@ public class PdlKlientLogCause {
                 LOG.warn("PDL FPSAK hentGT feil fra PDL ", e);
             }
             throw e;
+        } catch (ProcessingException e) {
+            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
         }
     }
 
@@ -57,6 +65,8 @@ public class PdlKlientLogCause {
                 LOG.warn("PDL FPSAK hentPerson feil fra PDL ", e);
             }
             throw e;
+        } catch (ProcessingException e) {
+            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
         }
     }
 
@@ -70,6 +80,8 @@ public class PdlKlientLogCause {
                 LOG.warn("PDL FPSAK hentPerson feil fra PDL ", e);
             }
             throw e;
+        } catch (ProcessingException e) {
+            throw e.getCause() instanceof SocketTimeoutException ? new IntegrasjonException(PDL_TIMEOUT_KODE, PDL_TIMEOUT_MSG) : e;
         }
     }
 }

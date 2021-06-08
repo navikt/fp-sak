@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
@@ -26,7 +25,7 @@ public class Personas {
         this.persInfoBuilder = Personopplysning.builder();
     }
 
-    public Personas voksenPerson(AktørId aktørId, SivilstandType st, NavBrukerKjønn kjønn, Region region) {
+    public Personas voksenPerson(AktørId aktørId, SivilstandType st, NavBrukerKjønn kjønn) {
         if (this.aktørId == null) {
             this.aktørId = aktørId;
             this.persInfoBuilder = Personopplysning.builder();
@@ -38,8 +37,7 @@ public class Personas {
             .aktørId(aktørId)
             .brukerKjønn(kjønn)
             .fødselsdato(fødselsdato)
-            .sivilstand(st)
-            .region(region));
+            .sivilstand(st));
         return this;
     }
 
@@ -54,8 +52,7 @@ public class Personas {
             .aktørId(aktørId)
             .fødselsdato(fødselsdato)
             .brukerKjønn(NavBrukerKjønn.MANN)
-            .sivilstand(SivilstandType.UOPPGITT)
-            .region(Region.NORDEN));
+            .sivilstand(SivilstandType.UOPPGITT));
         return this;
     }
 
@@ -91,22 +88,17 @@ public class Personas {
     }
 
     public Personas kvinne(AktørId aktørId) {
-        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.KVINNE, Region.NORDEN);
+        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.KVINNE);
         return this;
     }
 
     public Personas kvinne(AktørId aktørId, SivilstandType st) {
-        voksenPerson(aktørId, st, NavBrukerKjønn.KVINNE, Region.NORDEN);
-        return this;
-    }
-
-    public Personas kvinne(AktørId aktørId, SivilstandType st, Region region) {
-        voksenPerson(aktørId, st, NavBrukerKjønn.KVINNE, region);
+        voksenPerson(aktørId, st, NavBrukerKjønn.KVINNE);
         return this;
     }
 
     public Personas mann(AktørId aktørId, SivilstandType st) {
-        voksenPerson(aktørId, st, NavBrukerKjønn.MANN, Region.NORDEN);
+        voksenPerson(aktørId, st, NavBrukerKjønn.MANN);
         return this;
     }
 
@@ -133,13 +125,8 @@ public class Personas {
     }
 
     public Builder mann(AktørId aktørId) {
-        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.MANN, Region.NORDEN);
+        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.MANN);
         return builder;
-    }
-
-    public Personas mann(AktørId aktørId, SivilstandType st, Region region) {
-        voksenPerson(aktørId, st, NavBrukerKjønn.MANN, region);
-        return this;
     }
 
     public PersonInformasjon build() {

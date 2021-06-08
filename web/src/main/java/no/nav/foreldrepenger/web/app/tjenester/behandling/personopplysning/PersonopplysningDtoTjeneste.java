@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 
 @ApplicationScoped
@@ -86,23 +88,25 @@ public class PersonopplysningDtoTjeneste {
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
     }
 
-    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandling.getId(), behandling.getAktørId(), tidspunkt)
-            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat));
+    private Region hentRegion(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
+        return aggregat.getStatsborgerskapRegionVedTidspunkt(personopplysning.getAktørId(), tidspunkt);
     }
 
-    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(Long behandlingId, LocalDate tidspunkt) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(behandlingId, behandling.getAktørId(), tidspunkt)
-            .flatMap(this::mapAnnenpartMedlemskap);
+    public Optional<PersonopplysningMedlemDto> lagPersonopplysningMedlemskapDto(BehandlingReferanse ref, LocalDate tidspunkt) {
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, tidspunkt)
+            .map(aggregat -> enkelMappingMedlemskap(aggregat.getSøker(), aggregat, tidspunkt));
     }
 
-    private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat) {
+    public Optional<PersonopplysningMedlemDto> lagAnnenpartPersonopplysningMedlemskapDto(BehandlingReferanse ref, LocalDate tidspunkt) {
+        return personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, tidspunkt)
+            .flatMap(agg -> mapAnnenpartMedlemskap(agg, tidspunkt));
+    }
+
+    private Optional<PersonopplysningMedlemDto> mapAnnenpartMedlemskap(PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
         var oppgittAnnenPart = aggregat.getOppgittAnnenPart()
             .filter(oap -> oap.getAktørId() == null && harOppgittLand(oap));
         return oppgittAnnenPart.map(this::enkelUtenlandskAnnenPartMappingMedlemskap)
-            .or(() -> aggregat.getAnnenPartEllerEktefelle().map(ap -> enkelMappingMedlemskap(ap, aggregat)));
+            .or(() -> aggregat.getAnnenPartEllerEktefelle().map(ap -> enkelMappingMedlemskap(ap, aggregat, tidspunkt)));
 
     }
 
@@ -111,17 +115,16 @@ public class PersonopplysningDtoTjeneste {
         var bruknavn = Optional.ofNullable(oppgittAnnenPart.getUtenlandskPersonident()).orElse(oppgittAnnenPart.getUtenlandskFnrLand().getKode());
         dto.setNavn(bruknavn);
         dto.setPersonstatus(PersonstatusType.UREG);
-        dto.setRegion(MapRegionLandkoder.mapLandkode(oppgittAnnenPart.getUtenlandskFnrLand().getKode()));
+        dto.setRegion(MapRegionLandkoder.mapLandkode(oppgittAnnenPart.getUtenlandskFnrLand()));
         return dto;
     }
 
-    private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
+    private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
         var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
         dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
-        Optional.ofNullable(personopplysning.getRegion()).ifPresent(dto::setRegion);
-        var gjeldendePersonstatus = hentPersonstatus(personopplysning, aggregat);
-        dto.setPersonstatus(gjeldendePersonstatus);
+        dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt));
+        dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat));
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
         return dto;
     }

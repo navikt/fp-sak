@@ -11,14 +11,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Utfall;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -49,37 +50,36 @@ public class AvklarOmErBosatt {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
-    public Optional<MedlemResultat> utled(Behandling behandling, LocalDate vurderingsdato) {
-        var behandlingId = behandling.getId();
-        if (harPersonstatusSomSkalAvklares(behandling, vurderingsdato)) {
+    public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, vurderingsdato);
+        if (harPersonstatusSomSkalAvklares(ref, personopplysninger)) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
-        if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(behandlingId, vurderingsdato)) {
+        if (søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(ref, vurderingsdato)) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
-        if (harBrukerTilknytningHjemland(behandlingId) == NEI) {
+        if (harBrukerTilknytningHjemland(ref) == NEI) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
-        if (harBrukerUtenlandskPostadresseITps(behandling, vurderingsdato) == NEI) {
+        if (harBrukerUtenlandskPostadresseITps(ref, personopplysninger) == NEI) {
             return Optional.empty();
         }
-        if (erFrivilligMedlemEllerIkkeMedlem(behandlingId, vurderingsdato) == NEI) {
+        if (erFrivilligMedlemEllerIkkeMedlem(ref, vurderingsdato) == NEI) {
             return Optional.of(MedlemResultat.AVKLAR_OM_ER_BOSATT);
         }
         return Optional.empty();
     }
 
-    private boolean harPersonstatusSomSkalAvklares(Behandling behandling, LocalDate vurderingsdato) {
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(), behandling.getAktørId(), vurderingsdato);
-        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(behandling.getAktørId()))
+    private boolean harPersonstatusSomSkalAvklares(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
+        var personstatus = Optional.ofNullable(personopplysninger.getPersonstatusFor(ref.getAktørId()))
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
         return !STATUS_UTEN_AVKLARINGSBEHOV.contains(personstatus);
     }
 
-    private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(Long behandlingId, LocalDate vurderingsdato) {
-        var grunnlag = familieHendelseRepository.hentAggregat(behandlingId);
+    private boolean søkerHarSøktPåTerminOgSkalOppholdeSegIUtlandetImerEnn12M(BehandlingReferanse ref, LocalDate vurderingsdato) {
+        var grunnlag = familieHendelseRepository.hentAggregat(ref.getBehandlingId());
         if (grunnlag.getGjeldendeVersjon().getTerminbekreftelse().isPresent()) {
-            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
+            final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
             final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
                 .orElseThrow(IllegalStateException::new);
 
@@ -111,10 +111,8 @@ public class AvklarOmErBosatt {
         return new LocalDateSegment<>(fom, tom, true);
     }
 
-    private Utfall harBrukerUtenlandskPostadresseITps(Behandling behandling, LocalDate vurderingsdato) {
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(), behandling.getAktørId(), vurderingsdato);
-
-        if (personopplysninger.getAdresserFor(behandling.getAktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
+    private Utfall harBrukerUtenlandskPostadresseITps(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
+        if (personopplysninger.getAdresserFor(ref.getAktørId()).stream().anyMatch(adresse -> AdresseType.POSTADRESSE_UTLAND.equals(adresse.getAdresseType()) ||
             !Landkoder.erNorge(adresse.getLand()))) {
             return JA;
         }
@@ -122,8 +120,8 @@ public class AvklarOmErBosatt {
     }
 
     //TODO(OJR) må denne endres?
-    private Utfall harBrukerTilknytningHjemland(Long behandlingId) {
-        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(behandlingId);
+    private Utfall harBrukerTilknytningHjemland(BehandlingReferanse ref) {
+        final var medlemskapAggregat = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
         final var oppgittTilknytning = medlemskapAggregat.flatMap(MedlemskapAggregat::getOppgittTilknytning)
             .orElseThrow(IllegalStateException::new);
 
@@ -141,10 +139,10 @@ public class AvklarOmErBosatt {
         return JA;
     }
 
-    private Utfall erFrivilligMedlemEllerIkkeMedlem(Long behandlingId, LocalDate vurderingsdato) {
+    private Utfall erFrivilligMedlemEllerIkkeMedlem(BehandlingReferanse ref, LocalDate vurderingsdato) {
 
 
-        var medlemskap = medlemskapRepository.hentMedlemskap(behandlingId);
+        var medlemskap = medlemskapRepository.hentMedlemskap(ref.getBehandlingId());
 
         Collection<MedlemskapPerioderEntitet> medlemskapsPerioder = medlemskap.isPresent()
             ? medlemskap.get().getRegistrertMedlemskapPerioder()

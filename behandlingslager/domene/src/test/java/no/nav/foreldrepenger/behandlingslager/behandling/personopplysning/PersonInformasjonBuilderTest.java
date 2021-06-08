@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
 
@@ -93,7 +92,6 @@ public class PersonInformasjonBuilderTest {
         return informasjonBuilder
                 .getPersonopplysningBuilder(aktørId)
                 .medSivilstand(SivilstandType.GIFT)
-                .medRegion(Region.NORDEN)
                 .medNavn("Richard Feynman")
                 .medFødselsdato(LocalDate.now())
                 .medKjønn(NavBrukerKjønn.KVINNE);

@@ -40,7 +40,7 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
     @Override
     public Optional<LocalDate> søkersDødsdatoGjeldendePåDato(BehandlingReferanse ref, LocalDate dato) {
         var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(
-            ref.getBehandlingId(), ref.getAktørId(), dato);
+            ref, dato);
         return Optional.ofNullable(personopplysningerAggregat.getSøker().getDødsdato());
     }
 

@@ -35,7 +35,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -209,11 +208,11 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
                 PersonopplysningVersjonType.REGISTRERT);
         var amerikaFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr,
-                Landkoder.ARG, Region.TREDJELANDS_BORGER);
+                Landkoder.ARG);
         var spaniaAndreÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, andreÅr,
-                Landkoder.ESP, Region.EOS);
+                Landkoder.ESP);
         var norgeTredjeÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, tredjeÅr,
-                Landkoder.NOR, Region.NORDEN);
+                Landkoder.NOR);
         personInformasjonBuilder.leggTil(amerikaFørsteÅr);
         personInformasjonBuilder.leggTil(spaniaAndreÅr);
         personInformasjonBuilder.leggTil(norgeTredjeÅr);

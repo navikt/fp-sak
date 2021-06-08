@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
@@ -148,7 +147,7 @@ public class MedlemskapsvilkårTest {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_7_a, Landkoder.NOR, PersonstatusType.BOSA);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.MEDLEM);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.SWE);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.SWE);
         var behandling = lagre(scenario);
 
         // Act
@@ -278,7 +277,7 @@ public class MedlemskapsvilkårTest {
     public void skal_vurdere_norsk_nordisk_statsborger_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(MedlemskapDekningType.UDEFINERT, Landkoder.NOR, PersonstatusType.BOSA);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.NOR);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.NOR);
         scenario.medMedlemskap().medBosattVurdering(true);
         var behandling = lagre(scenario);
 
@@ -305,7 +304,7 @@ public class MedlemskapsvilkårTest {
     public void skal_vurdere_eøs_statsborger_med_oppholdsrett_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Region.EOS, Landkoder.SWE);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.SWE);
         scenario.medMedlemskap().medBosattVurdering(true).medOppholdsrettVurdering(true);
         var behandling = lagre(scenario);
 
@@ -389,7 +388,7 @@ public class MedlemskapsvilkårTest {
     public void skal_vurdere_annen_statsborger_med_oppholdstillatelse_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.ARG,
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.ARG,
             OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusYears(1));
         scenario.medMedlemskap().medBosattVurdering(true)
             .medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
@@ -418,7 +417,7 @@ public class MedlemskapsvilkårTest {
     public void skal_vurdere_annen_statsborger_med_lovlig_opphold_som_vilkår_oppfylt() {
         // Arrange
         var scenario = lagTestScenario(Landkoder.NOR, PersonstatusType.BOSA);
-        leggTilSøker(scenario, PersonstatusType.BOSA, Region.UDEFINERT, Landkoder.USA);
+        leggTilSøker(scenario, PersonstatusType.BOSA, Landkoder.USA);
         scenario.medMedlemskap().medBosattVurdering(true).medLovligOppholdVurdering(true);
         var behandling = lagre(scenario);
 
@@ -440,7 +439,7 @@ public class MedlemskapsvilkårTest {
 
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UTVA);
         scenario.medMedlemskap().medBosattVurdering(false).medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
-        leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
+        leggTilSøker(scenario, PersonstatusType.UREG, Landkoder.SWE);
 
         var behandling = lagre(scenario);
 
@@ -464,7 +463,7 @@ public class MedlemskapsvilkårTest {
         var scenario = lagTestScenario(MedlemskapDekningType.FTL_2_9_1_c, Landkoder.NOR, PersonstatusType.UREG);
         scenario.medMedlemskap().medMedlemsperiodeManuellVurdering(MedlemskapManuellVurderingType.IKKE_RELEVANT);
 
-        leggTilSøker(scenario, PersonstatusType.UREG, Region.NORDEN, Landkoder.SWE);
+        leggTilSøker(scenario, PersonstatusType.UREG, Landkoder.SWE);
 
         var behandling = lagre(scenario);
 
@@ -484,12 +483,7 @@ public class MedlemskapsvilkårTest {
      * medlem eller ikke.
      */
     private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType, Landkoder statsborgerskap,
-            PersonstatusType personstatusType) {
-        return lagTestScenario(dekningType, statsborgerskap, personstatusType, Region.NORDEN);
-    }
-
-    private ScenarioMorSøkerEngangsstønad lagTestScenario(MedlemskapDekningType dekningType, Landkoder statsborgerskap,
-            PersonstatusType personstatusType, Region region) {
+                                                          PersonstatusType personstatusType) {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
@@ -509,7 +503,7 @@ public class MedlemskapsvilkårTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT, region)
+                .kvinne(søkerAktørId, SivilstandType.GIFT)
                 .personstatus(personstatusType)
                 .statsborgerskap(statsborgerskap)
                 .build();
@@ -517,11 +511,11 @@ public class MedlemskapsvilkårTest {
         return scenario;
     }
 
-    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Region region, Landkoder statsborgerskapLand) {
-        leggTilSøker(scenario, personstatus, region, statsborgerskapLand, null, null, null);
+    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Landkoder statsborgerskapLand) {
+        leggTilSøker(scenario, personstatus, statsborgerskapLand, null, null, null);
     }
 
-    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Region region, Landkoder statsborgerskapLand,
+    private void leggTilSøker(ScenarioMorSøkerEngangsstønad scenario, PersonstatusType personstatus, Landkoder statsborgerskapLand,
                               OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var barnAktørId = AktørId.dummy();
@@ -535,7 +529,7 @@ public class MedlemskapsvilkårTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT, region)
+                .kvinne(søkerAktørId, SivilstandType.GIFT)
                 .statsborgerskap(statsborgerskapLand)
                 .personstatus(personstatus)
                 .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null);

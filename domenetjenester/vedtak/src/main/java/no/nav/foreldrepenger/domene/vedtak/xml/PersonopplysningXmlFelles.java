@@ -70,10 +70,6 @@ public class PersonopplysningXmlFelles {
             person.setNorskIdent(VedtakXmlUtil.lagStringOpplysning(norskIdent.map(PersonIdent::getIdent).orElse(null)));
         }
 
-        if (personopplysning.getRegion() != null) {
-            person.setRegion(VedtakXmlUtil.lagStringOpplysning(personopplysning.getRegion().getNavn()));
-        }
-
         var sivilstand = VedtakXmlUtil.lagKodeverksOpplysning(personopplysning.getSivilstand());
         person.setSivilstand(sivilstand);
 
@@ -84,10 +80,6 @@ public class PersonopplysningXmlFelles {
         var person = personopplysningObjectFactory.createPersonUidentifiserbar();
 
         populerPerson(aggregat, personopplysning, person);
-
-        if (personopplysning.getRegion() != null) {
-            person.setRegion(VedtakXmlUtil.lagStringOpplysning(personopplysning.getRegion().getNavn()));
-        }
 
         if (personopplysning.getAktørId() != null) {
             person.setAktoerId(VedtakXmlUtil.lagStringOpplysning(personopplysning.getAktørId().getId()));
@@ -113,9 +105,12 @@ public class PersonopplysningXmlFelles {
             .map(PersonstatusEntitet::getPersonstatus).orElse(PersonstatusType.UDEFINERT);
         person.setPersonstatus(VedtakXmlUtil.lagKodeverksOpplysning(personstatus));
 
-        var statsborgerskap = aggregat.getStatsborgerskapFor(personopplysning.getAktørId()).stream().findFirst()
+        var statsborgerskap = aggregat.getRangertStatsborgerskapVedSkjæringstidspunktFor(personopplysning.getAktørId())
             .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.UDEFINERT);
+
         person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(statsborgerskap));
+
+        person.setRegion(VedtakXmlUtil.lagStringOpplysning(aggregat.getStatsborgerskapRegionVedSkjæringstidspunkt(personopplysning.getAktørId()).getNavn()));
 
         aggregat.getOppholdstillatelseFor(personopplysning.getAktørId()).map(OppholdstillatelseEntitet::getTillatelse)
             .map(OppholdstillatelseType::getKode).map(VedtakXmlUtil::lagStringOpplysning).ifPresent(person::setOppholdstillatelse);

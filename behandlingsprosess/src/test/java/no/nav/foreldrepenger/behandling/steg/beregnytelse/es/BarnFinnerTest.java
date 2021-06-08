@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -128,7 +127,7 @@ public class BarnFinnerTest {
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
-                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
+                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.NOR)
                 .build();
         scenario.medRegisterOpplysninger(søker);

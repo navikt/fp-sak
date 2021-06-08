@@ -27,10 +27,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,14 +83,12 @@ public class FagsakTjenesteTest {
                                 .medKjønn(MANN)
                                 .medNavn("Baby Nordmann")
                                 .medFødselsdato(barnsFødselsdato)
-                                .medSivilstand(SivilstandType.UGIFT)
-                                .medRegion(Region.NORDEN))
+                                .medSivilstand(SivilstandType.UGIFT))
                 .leggTil(
                         medBarnOgOppdatertKjønn.getPersonopplysningBuilder(forelderAktørId)
                                 .medKjønn(MANN)
                                 .medSivilstand(SivilstandType.UGIFT)
                                 .medFødselsdato(forelderFødselsdato)
-                                .medRegion(Region.NORDEN)
                                 .medNavn("Kari Nordmann"))
                 .leggTil(
                         medBarnOgOppdatertKjønn
@@ -110,7 +106,7 @@ public class FagsakTjenesteTest {
         final var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
 
         var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlag,
-                forelderAktørId, DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
+                forelderAktørId, LocalDate.now(), LocalDate.now());
 
         // Act
         tjeneste.oppdaterFagsak(behandling, personopplysningerAggregat, personopplysningerAggregat.getBarna());
