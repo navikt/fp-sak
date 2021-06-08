@@ -122,7 +122,7 @@ public class ForeslåBeregningsgrunnlagStegTest {
         // Assert
         assertThat(resultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(resultat.getAksjonspunktListe()).hasSize(1);
-        assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
+        assertThat(resultat.getAksjonspunktListe().get(0)).isEqualTo(no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS);
     }
 
     private void opprettVilkårResultatForBehandling(VilkårResultatType resultatType) {
