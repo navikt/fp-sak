@@ -2,12 +2,10 @@ package no.nav.foreldrepenger.domene.fp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,14 +23,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
@@ -40,19 +34,12 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(BesteberegningFødendeKvinneTjeneste.class);
-
     private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL,
         FamilieHendelseType.TERMIN);
-    private static final Set<Arbeidskategori> RELEVANTE_KATEGORIER = Set.of(Arbeidskategori.ARBEIDSTAKER, Arbeidskategori.DAGPENGER,
-        Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
 
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
@@ -94,45 +81,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         boolean omfattesAvBB = opptjeningForBeregning.map(
             opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
                 opptjeningAktiviteter)).orElse(false);
-        if (omfattesAvBB) {
-            loggSykepengegrunnlag(iayGrunnlag, behandlingReferanse);
-        }
         return omfattesAvBB;
-    }
-
-    private void loggSykepengegrunnlag(InntektArbeidYtelseGrunnlag iayGrunnlag, BehandlingReferanse behandlingReferanse) {
-        // Ifm besteberegning av sykepenger basert på dagpenger er det ønskelig å få oversikt over hvor mange
-        // saker som har hvilke ytelsegrunnlag, hele metoden kan fjernes når vi har fått litt data
-        Collection<Ytelse> alleYtelser = iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.getAktørId())
-            .map(AktørYtelse::getAlleYtelser)
-            .orElse(Collections.emptyList());
-        List<Ytelse> ytelserFørSTPSomSkalLogges = alleYtelser.stream()
-            .filter(yt -> yt.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
-            .filter(yt -> !yt.getPeriode().inkluderer(behandlingReferanse.getUtledetSkjæringstidspunkt()))
-            .filter(yt -> yt.getPeriode().getTomDato().isAfter((behandlingReferanse.getUtledetSkjæringstidspunkt().minusMonths(11))))
-            .filter(this::harArbeidskategoriSomSkalLogges)
-            .collect(Collectors.toList());
-        List<Ytelse> ytelserPåSTPSomSkalLogges = alleYtelser.stream()
-            .filter(yt -> yt.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
-            .filter(yt -> yt.getPeriode().inkluderer(behandlingReferanse.getUtledetSkjæringstidspunkt()))
-            .filter(this::harArbeidskategoriSomSkalLogges)
-            .collect(Collectors.toList());
-        ytelserFørSTPSomSkalLogges.forEach(ytelse -> {
-            Arbeidskategori kategori = ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getArbeidskategori).orElse(Arbeidskategori.UGYLDIG);
-            DatoIntervallEntitet periode = ytelse.getPeriode();
-            LOG.info("BB-{} på behandling {} for periode {}", kategori, behandlingReferanse.getBehandlingId(), periode);
-        });
-        ytelserPåSTPSomSkalLogges.forEach(ytelse -> {
-            Arbeidskategori kategori = ytelse.getYtelseGrunnlag().flatMap(YtelseGrunnlag::getArbeidskategori).orElse(Arbeidskategori.UGYLDIG);
-            DatoIntervallEntitet periode = ytelse.getPeriode();
-            LOG.info("BBSTP-{} på behandling {} for periode {}", kategori, behandlingReferanse.getBehandlingId(), periode);
-        });
-    }
-
-    private Boolean harArbeidskategoriSomSkalLogges(Ytelse yt) {
-        return yt.getYtelseGrunnlag()
-            .map(gr -> RELEVANTE_KATEGORIER.contains(gr.getArbeidskategori().orElse(Arbeidskategori.UDEFINERT)))
-            .orElse(false);
     }
 
     boolean erFødendeKvinneSomSøkerForeldrepenger(BehandlingReferanse behandlingReferanse) {
