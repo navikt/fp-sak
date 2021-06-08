@@ -75,13 +75,11 @@ public class BesteberegningFødendeKvinneTjeneste {
             return false;
         }
 
-        InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId());
         var opptjeningForBeregning = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(behandlingReferanse,
-            iayGrunnlag);
-        boolean omfattesAvBB = opptjeningForBeregning.map(
+            inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.getBehandlingId()));
+        return opptjeningForBeregning.map(
             opptjeningAktiviteter -> brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse,
                 opptjeningAktiviteter)).orElse(false);
-        return omfattesAvBB;
     }
 
     boolean erFødendeKvinneSomSøkerForeldrepenger(BehandlingReferanse behandlingReferanse) {
