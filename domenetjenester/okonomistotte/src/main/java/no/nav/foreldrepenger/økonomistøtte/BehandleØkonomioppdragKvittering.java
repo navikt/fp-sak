@@ -54,10 +54,11 @@ public class BehandleØkonomioppdragKvittering {
 
     public void behandleKvittering(ØkonomiKvittering kvittering, boolean oppdaterProsesstask) {
         var behandlingId = kvittering.getBehandlingId();
+        LOG.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId);
 
-        LOG.info("Behandler økonomikvittering med resultatkode: {} i behandling: {}", kvittering.getAlvorlighetsgrad(), behandlingId); //$NON-NLS-1$
-
+        LOG.info("Letter etter oppdrag uten kvittering for behandling {} og fagsystemId {}.", behandlingId, kvittering.getFagsystemId());
         var oppdragUtenKvittering = økonomioppdragRepository.hentOppdragUtenKvittering(kvittering.getFagsystemId(), behandlingId);
+        LOG.debug("Oppdrag uten kvittering: {}", oppdragUtenKvittering);
 
         var oppdragKvittering = OppdragKvittering.builder()
             .medAlvorlighetsgrad(kvittering.getAlvorlighetsgrad())
@@ -69,6 +70,7 @@ public class BehandleØkonomioppdragKvittering {
         økonomioppdragRepository.lagre(oppdragKvittering);
 
         var oppdragskontroll = oppdragUtenKvittering.getOppdragskontroll();
+        LOG.debug("Fant oppdragskontroll: {}", oppdragskontroll);
 
         var erAlleKvitteringerMottatt = sjekkAlleKvitteringMottatt(oppdragskontroll.getOppdrag110Liste());
 
