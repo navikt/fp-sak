@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -29,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapTy
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
@@ -36,6 +38,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -196,33 +200,28 @@ public class UtledVurderingsdatoerForMedlemskapTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medFørsteUttaksdato(startdato).build());
-        var søkerAktørId = scenario.getDefaultBrukerAktørId();
+        var aktørId = scenario.getDefaultBrukerAktørId();
 
-        var førsteÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato, startdato.plusYears(1));
-        var andreÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(1), startdato.plusYears(2));
-        var tredjeÅr = DatoIntervallEntitet.fraOgMedTilOgMed(startdato.plusYears(2), startdato.plusYears(3).minusWeeks(1));
+        var personopplysningBuilder = scenario.opprettBuilderForRegisteropplysninger();
+        personopplysningBuilder.leggTilPersonopplysninger(
+            Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
+                .fødselsdato(startdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
+            .leggTilStatsborgerskap(
+                Statsborgerskap.builder().aktørId(aktørId).periode(startdato, startdato.plusYears(1)).statsborgerskap(Landkoder.ARG))
+            .leggTilStatsborgerskap(
+                Statsborgerskap.builder().aktørId(aktørId).periode(startdato.plusYears(1), startdato.plusYears(2)).statsborgerskap(Landkoder.ESP))
+            .leggTilStatsborgerskap(
+                Statsborgerskap.builder().aktørId(aktørId).periode(startdato.plusYears(2), startdato.plusYears(3).minusWeeks(1)).statsborgerskap(Landkoder.NOR));
+
+        scenario.medRegisterOpplysninger(personopplysningBuilder.build());
+
         var behandling = scenario.lagre(provider);
         var behandlingId = behandling.getId();
-        var personopplysningGrunnlag = personopplysningRepository.hentPersonopplysninger(behandlingId);
-
-        var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(personopplysningGrunnlag.getRegisterVersjon(),
-                PersonopplysningVersjonType.REGISTRERT);
-        var amerikaFørsteÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, førsteÅr,
-                Landkoder.ARG);
-        var spaniaAndreÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, andreÅr,
-                Landkoder.ESP);
-        var norgeTredjeÅr = personInformasjonBuilder.getStatsborgerskapBuilder(søkerAktørId, tredjeÅr,
-                Landkoder.NOR);
-        personInformasjonBuilder.leggTil(amerikaFørsteÅr);
-        personInformasjonBuilder.leggTil(spaniaAndreÅr);
-        personInformasjonBuilder.leggTil(norgeTredjeÅr);
-
-        personopplysningRepository.lagre(behandlingId, personInformasjonBuilder);
 
         // Act
         var vurderingsdatoer = tjeneste.finnVurderingsdatoer(lagRef(behandling, startdato, sluttdato));
 
-        assertThat(vurderingsdatoer).containsExactlyInAnyOrder(andreÅr.getFomDato(), tredjeÅr.getFomDato());
+        assertThat(vurderingsdatoer).containsExactlyInAnyOrder(startdato.plusYears(1), startdato.plusYears(2));
     }
 
     @Test

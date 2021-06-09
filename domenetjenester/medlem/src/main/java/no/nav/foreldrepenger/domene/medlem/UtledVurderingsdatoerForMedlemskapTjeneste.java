@@ -206,8 +206,9 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         statsborgerskapDatoer.addAll(MapRegionLandkoder.utledRegionsEndringsDatoer(statsborgerskapLand));
         var statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
-        IntStream.range(0, statsborgerskap.size() - 1).forEach(i -> {
-            if (i != statsborgerskap.size() - 1) { // sjekker om det er siste element
+        var max = statsborgerskap.size() - 1;
+        IntStream.range(0, max).forEach(i -> {
+            if (i != max) { // sjekker om det er siste element
                 var førsteElement = statsborgerskap.get(i);
                 var nesteElement = statsborgerskap.get(i + 1);
                 if (!aggregat.getStatsborgerskapRegionVedTidspunkt(ref.getAktørId(), førsteElement)
