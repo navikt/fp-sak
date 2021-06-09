@@ -251,7 +251,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     }
 
     public boolean isOverføring() {
-        return !Objects.equals(getOverføringÅrsak(), OverføringÅrsak.UKJENT);
+        return !Objects.equals(getOverføringÅrsak(), OverføringÅrsak.UDEFINERT);
     }
 
     @Override
