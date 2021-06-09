@@ -175,7 +175,7 @@ public class GrensesnittavstemmingMapper {
             } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) {
                 godkjentBelop += belop;
                 godkjentAntall++;
-            } else if (Alvorlighetsgrad.FEIL.equals(alvorlighetsgrad)) {
+            } else if (Alvorlighetsgrad.OK_MED_MERKNAD.equals(alvorlighetsgrad)) {
                 varselBelop += belop;
                 varselAntall++;
             } else {
@@ -213,7 +213,7 @@ public class GrensesnittavstemmingMapper {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.MANG, alvorlighetsgrad);
             } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) { //$NON-NLS-1$
                 // ingen detaljer trenges.
-            } else if ("04".equals(alvorlighetsgrad)) {
+            } else if (Alvorlighetsgrad.OK_MED_MERKNAD.equals(alvorlighetsgrad)) {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.VARS, alvorlighetsgrad);
             } else {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.AVVI, alvorlighetsgrad);

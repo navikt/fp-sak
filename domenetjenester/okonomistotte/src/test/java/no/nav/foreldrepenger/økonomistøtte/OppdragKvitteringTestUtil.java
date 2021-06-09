@@ -23,7 +23,7 @@ public class OppdragKvitteringTestUtil {
     }
 
     public static OppdragKvittering lagNegativKvitting(Oppdrag110 o110) {
-        return lagOppdragKvittering(o110, Alvorlighetsgrad.AVSLAG);
+        return lagOppdragKvittering(o110, Alvorlighetsgrad.FEIL);
     }
 
     private static OppdragKvittering lagOppdragKvittering(Oppdrag110 o110, Alvorlighetsgrad alvorlighetsgrad) {

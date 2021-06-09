@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum Alvorlighetsgrad {
     OK("00"),
-    FEIL("04"),
-    AVSLAG("08")
+    OK_MED_MERKNAD("04"),
+    FEIL("08")
     ;
 
     private static final Map<String, Alvorlighetsgrad> KODER = new LinkedHashMap<>();

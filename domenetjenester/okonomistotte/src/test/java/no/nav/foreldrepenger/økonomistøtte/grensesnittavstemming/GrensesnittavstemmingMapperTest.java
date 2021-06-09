@@ -111,10 +111,10 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(null, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag(Alvorlighetsgrad.AVSLAG, kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
@@ -130,10 +130,10 @@ public class GrensesnittavstemmingMapperTest {
             oppdrag = opprettOppdrag(null, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag(Alvorlighetsgrad.AVSLAG, kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());

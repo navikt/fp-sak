@@ -56,7 +56,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Long BEHANDLINGID_FP = 237L;
 
-    private static final Alvorlighetsgrad KVITTERING_FEIL = Alvorlighetsgrad.AVSLAG;
+    private static final Alvorlighetsgrad KVITTERING_FEIL = Alvorlighetsgrad.FEIL;
 
     private static final String KVITTERING_MELDING_FEIL = "Oppdrag ikke utført";
 

@@ -77,7 +77,7 @@ public class OppdragKvitteringEntityTest {
         assertThat(oppdragKvittering_2).isEqualTo(oppdragKvittering);
 
         var oppdragKvitteringBuilder3 = lagOppdragKvitteringMedPaakrevdeFelter();
-        var oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad(Alvorlighetsgrad.FEIL).build();
+        var oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad(Alvorlighetsgrad.OK_MED_MERKNAD).build();
         assertThat(oppdragKvittering).isNotEqualTo(oppdragKvittering_3);
         assertThat(oppdragKvittering_3).isNotEqualTo(oppdragKvittering);
     }

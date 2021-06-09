@@ -86,7 +86,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
         var kvittering = captor.getValue();
         assertThat(kvittering).isNotNull();
-        verifiserKvittering(kvittering, Alvorlighetsgrad.AVSLAG, "B110006F", 341L, "UTBET-FREKVENS har en ugyldig verdi: ENG");
+        verifiserKvittering(kvittering, Alvorlighetsgrad.FEIL, "B110006F", 341L, "UTBET-FREKVENS har en ugyldig verdi: ENG");
     }
 
     private TextMessage opprettKvitteringXml(String filename) throws JMSException, IOException, URISyntaxException {

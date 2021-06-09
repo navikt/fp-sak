@@ -152,7 +152,7 @@ class ForvaltningOppdragTjeneste {
             if (eksisterendeOppdrag110.getFagsystemId() == dto.getFagsystemId() && eksisterendeOppdrag110.venterKvittering()) {
                 OppdragKvittering.builder()
                     .medOppdrag110(eksisterendeOppdrag110)
-                    .medAlvorlighetsgrad(Alvorlighetsgrad.FEIL)
+                    .medAlvorlighetsgrad(Alvorlighetsgrad.OK_MED_MERKNAD)
                     .medBeskrMelding("Erstattes av nytt oppdrag")
                     .build();
                 LOG.info(
