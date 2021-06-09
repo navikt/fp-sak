@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -139,14 +138,10 @@ public class VedtaksperioderHelper {
     }
 
     private Optional<Årsak> finnOverføringÅrsak(UttakResultatPeriodeEntitet up) {
-        if (harOverføringÅrsak(up)) {
+        if (up.isOverføring()) {
             return Optional.of(up.getOverføringÅrsak());
         }
         return Optional.empty();
-    }
-
-    private boolean harOverføringÅrsak(UttakResultatPeriodeEntitet up) {
-        return !OverføringÅrsak.UDEFINERT.equals(up.getOverføringÅrsak());
     }
 
     private Optional<SamtidigUttaksprosent> finnSamtidigUttaksprosent(UttakResultatPeriodeEntitet up) {
@@ -195,7 +190,7 @@ public class VedtaksperioderHelper {
 
     private UttakPeriodeType finnPeriodetype(UttakResultatPeriodeEntitet uttakResultatPeriode) {
         //Oppholdsperiode har ingen aktiviteter
-        if (harOppholdÅrsak(uttakResultatPeriode)) {
+        if (uttakResultatPeriode.isOpphold()) {
             return UttakPeriodeType.ANNET;
         }
         var stønadskontoType = uttakResultatPeriode.getAktiviteter()
@@ -226,16 +221,11 @@ public class VedtaksperioderHelper {
     }
 
     private Optional<OppholdÅrsak> finnOppholdsÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
-        if (harOppholdÅrsak(uttakResultatPeriode)) {
+        if (uttakResultatPeriode.isOpphold()) {
             return Optional.of(uttakResultatPeriode.getOppholdÅrsak());
         }
         return Optional.empty();
     }
-
-    private boolean harOppholdÅrsak(UttakResultatPeriodeEntitet uttakResultatPeriode) {
-        return !OppholdÅrsak.UDEFINERT.equals(uttakResultatPeriode.getOppholdÅrsak());
-    }
-
 
     private Optional<BigDecimal> finnGraderingArbeidsprosent(UttakResultatPeriodeEntitet up) {
         if (up.getPeriodeSøknad().isEmpty() || up.getPeriodeSøknad().get().getGraderingArbeidsprosent() == null) {

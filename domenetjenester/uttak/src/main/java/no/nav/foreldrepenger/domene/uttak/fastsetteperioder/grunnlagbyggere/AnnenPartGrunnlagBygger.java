@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
@@ -78,10 +77,10 @@ public class AnnenPartGrunnlagBygger {
     }
 
     private static AnnenpartUttakPeriode.Builder utledBuilder(UttakResultatPeriodeEntitet periode) {
-        if (periode.erUtsettelse()) {
+        if (periode.isUtsettelse()) {
             return utsettelseBuilder(periode);
         }
-        if (erOpphold(periode)) {
+        if (periode.isOpphold()) {
             return oppholdBuilder(periode);
         }
         return uttakBuilder(periode);
@@ -93,10 +92,6 @@ public class AnnenPartGrunnlagBygger {
 
     private static AnnenpartUttakPeriode.Builder oppholdBuilder(UttakResultatPeriodeEntitet periode) {
         return AnnenpartUttakPeriode.Builder.opphold(periode.getFom(), periode.getTom(), UttakEnumMapper.map(periode.getOppholdÅrsak()));
-    }
-
-    private static boolean erOpphold(UttakResultatPeriodeEntitet periode) {
-        return !OppholdÅrsak.UDEFINERT.equals(periode.getOppholdÅrsak());
     }
 
     private static AnnenpartUttakPeriode.Builder utsettelseBuilder(UttakResultatPeriodeEntitet periode) {

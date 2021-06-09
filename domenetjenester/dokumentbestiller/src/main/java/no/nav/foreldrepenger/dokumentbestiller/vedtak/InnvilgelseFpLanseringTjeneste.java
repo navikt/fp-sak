@@ -55,7 +55,7 @@ public class InnvilgelseFpLanseringTjeneste {
             .map(ForeldrepengerUttak::getGjeldendePerioder)
             .orElse(Collections.emptyList())
             .stream()
-            .anyMatch(p -> !p.isInnvilget() || p.isGraderingInnvilget() || p.erSøktGradering());
+            .anyMatch(p -> !p.isInnvilget() || p.isGraderingInnvilget() || p.isSøktGradering());
     }
 
     private boolean harDødtBarn(Behandling behandling) {
