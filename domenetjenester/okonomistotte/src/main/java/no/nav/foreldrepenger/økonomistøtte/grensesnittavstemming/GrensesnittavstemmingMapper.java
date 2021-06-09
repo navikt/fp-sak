@@ -236,7 +236,7 @@ public class GrensesnittavstemmingMapper {
         detaljdata.setOffnr(oppdrag110.getOppdragGjelderId());
         detaljdata.setAvleverendeTransaksjonNokkel(String.valueOf(oppdrag110.getFagsystemId()));
         detaljdata.setMeldingKode(meldingKode);
-        detaljdata.setAlvorlighetsgrad(alvorlighetsgrad.getKode());
+        detaljdata.setAlvorlighetsgrad(alvorlighetsgrad != null ? alvorlighetsgrad.getKode() : null);
         detaljdata.setTekstMelding(beskrMelding);
         detaljdata.setTidspunkt(oppdrag110.getAvstemming().getTidspunkt());
         avstemmingsdata.getDetalj().add(detaljdata);
