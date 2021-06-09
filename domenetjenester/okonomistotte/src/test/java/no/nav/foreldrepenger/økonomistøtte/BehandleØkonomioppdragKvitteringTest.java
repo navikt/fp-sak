@@ -10,16 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -52,7 +48,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final String VEDTAKID = "VedtakId";
 
-    private static final String KVITTERING_OK = "00";
+    private static final Alvorlighetsgrad KVITTERING_OK = Alvorlighetsgrad.OK;
 
     private static final String KVITTERING_MELDING_OK = "Oppdrag utført";
 
@@ -60,7 +56,7 @@ public class BehandleØkonomioppdragKvitteringTest {
 
     public static final Long BEHANDLINGID_FP = 237L;
 
-    private static final String KVITTERING_FEIL = "12";
+    private static final Alvorlighetsgrad KVITTERING_FEIL = Alvorlighetsgrad.AVSLAG;
 
     private static final String KVITTERING_MELDING_FEIL = "Oppdrag ikke utført";
 
@@ -299,7 +295,7 @@ public class BehandleØkonomioppdragKvitteringTest {
         verify(hendelsesmottak, never()).mottaHendelse(any(), any());
     }
 
-    private ØkonomiKvittering opprettKvittering(String alvorlighetsgrad, String meldingKode, String beskrMelding, Long fagsystemId, Boolean gjelderFP) {
+    private ØkonomiKvittering opprettKvittering(Alvorlighetsgrad alvorlighetsgrad, String meldingKode, String beskrMelding, Long fagsystemId, Boolean gjelderFP) {
         var kvittering = new ØkonomiKvittering();
         kvittering.setAlvorlighetsgrad(alvorlighetsgrad);
         kvittering.setMeldingKode(meldingKode);

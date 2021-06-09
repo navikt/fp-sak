@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 import java.util.Objects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -15,18 +16,20 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 
-@Immutable
 @Entity(name = "OppdragKvittering")
 @Table(name = "OPPDRAG_KVITTERING")
-public class OppdragKvittering extends BaseCreateableEntitet {
+public class OppdragKvittering extends BaseEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OPPDRAG_KVITTERING")
     private Long id;
 
+    @Convert(converter = Alvorlighetsgrad.KodeverdiConverter.class)
     @Column(name = "alvorlighetsgrad")
-    private String alvorlighetsgrad;
+    private Alvorlighetsgrad alvorlighetsgrad;
 
     @Column(name = "beskr_melding")
     private String beskrMelding;
@@ -48,11 +51,11 @@ public class OppdragKvittering extends BaseCreateableEntitet {
         this.id = id;
     }
 
-    public String getAlvorlighetsgrad() {
+    public Alvorlighetsgrad getAlvorlighetsgrad() {
         return alvorlighetsgrad;
     }
 
-    public void setAlvorlighetsgrad(String alvorlighetsgrad) {
+    public void setAlvorlighetsgrad(Alvorlighetsgrad alvorlighetsgrad) {
         this.alvorlighetsgrad = alvorlighetsgrad;
     }
 
@@ -85,10 +88,9 @@ public class OppdragKvittering extends BaseCreateableEntitet {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof OppdragKvittering)) {
+        if (!(object instanceof OppdragKvittering oppdragKvittering)) {
             return false;
         }
-        var oppdragKvittering = (OppdragKvittering) object;
         return Objects.equals(alvorlighetsgrad, oppdragKvittering.getAlvorlighetsgrad())
             && Objects.equals(beskrMelding, oppdragKvittering.getBeskrMelding())
             && Objects.equals(meldingKode, oppdragKvittering.getMeldingKode());
@@ -104,12 +106,12 @@ public class OppdragKvittering extends BaseCreateableEntitet {
     }
 
     public static class Builder {
-        private String alvorlighetsgrad;
+        private Alvorlighetsgrad alvorlighetsgrad;
         private String beskrMelding;
         private String meldingKode;
         private Oppdrag110 oppdrag110;
 
-        public Builder medAlvorlighetsgrad(String alvorlighetsgrad) {
+        public Builder medAlvorlighetsgrad(Alvorlighetsgrad alvorlighetsgrad) {
             this.alvorlighetsgrad = alvorlighetsgrad;
             return this;
         }

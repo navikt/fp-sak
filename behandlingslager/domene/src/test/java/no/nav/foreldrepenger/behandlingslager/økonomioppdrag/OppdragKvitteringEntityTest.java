@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -17,7 +18,7 @@ public class OppdragKvitteringEntityTest {
     private OppdragKvittering oppdragKvittering_2;
 
     private static final KodeFagområde KODEFAGOMRADE = KodeFagområde.FORELDREPENGER_BRUKER;
-    private static final String ALVORLIGHETSGRAD = "00";
+    private static final Alvorlighetsgrad ALVORLIGHETSGRAD = Alvorlighetsgrad.OK;
     private static final String BESKR_MELDING = "Beskr melding";
     private static final String MELDING_KODE = "Melding kode";
     private static final Long FAGSYSTEMID = 250L;
@@ -76,7 +77,7 @@ public class OppdragKvitteringEntityTest {
         assertThat(oppdragKvittering_2).isEqualTo(oppdragKvittering);
 
         var oppdragKvitteringBuilder3 = lagOppdragKvitteringMedPaakrevdeFelter();
-        var oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad("01").build();
+        var oppdragKvittering_3 = oppdragKvitteringBuilder3.medAlvorlighetsgrad(Alvorlighetsgrad.FEIL).build();
         assertThat(oppdragKvittering).isNotEqualTo(oppdragKvittering_3);
         assertThat(oppdragKvittering_3).isNotEqualTo(oppdragKvittering);
     }

@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.grensesnittavstemming.AksjonType;
@@ -171,10 +172,10 @@ public class GrensesnittavstemmingMapper {
             if (null == alvorlighetsgrad) {
                 manglerBelop += belop;
                 manglerAntall++;
-            } else if ("00".equals(alvorlighetsgrad)) {
+            } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) {
                 godkjentBelop += belop;
                 godkjentAntall++;
-            } else if ("04".equals(alvorlighetsgrad)) {
+            } else if (Alvorlighetsgrad.FEIL.equals(alvorlighetsgrad)) {
                 varselBelop += belop;
                 varselAntall++;
             } else {
@@ -210,7 +211,7 @@ public class GrensesnittavstemmingMapper {
             var alvorlighetsgrad = (oppdrag.erKvitteringMottatt()) ? oppdrag.getOppdragKvittering().getAlvorlighetsgrad() : null;
             if (null == alvorlighetsgrad) {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.MANG, alvorlighetsgrad);
-            } else if ("00".equals(alvorlighetsgrad)) { //$NON-NLS-1$
+            } else if (Alvorlighetsgrad.OK.equals(alvorlighetsgrad)) { //$NON-NLS-1$
                 // ingen detaljer trenges.
             } else if ("04".equals(alvorlighetsgrad)) {
                 opprettDetalj(avstemmingsdata, oppdrag, DetaljType.VARS, alvorlighetsgrad);
@@ -222,7 +223,7 @@ public class GrensesnittavstemmingMapper {
         return oppdragNr;
     }
 
-    private void opprettDetalj(Avstemmingsdata avstemmingsdata, Oppdrag110 oppdrag110, DetaljType detaljType, String alvorlighetsgrad) {
+    private void opprettDetalj(Avstemmingsdata avstemmingsdata, Oppdrag110 oppdrag110, DetaljType detaljType, Alvorlighetsgrad alvorlighetsgrad) {
         var kvittering = oppdrag110.getOppdragKvittering();
         String meldingKode = null;
         String beskrMelding = null;
@@ -235,7 +236,7 @@ public class GrensesnittavstemmingMapper {
         detaljdata.setOffnr(oppdrag110.getOppdragGjelderId());
         detaljdata.setAvleverendeTransaksjonNokkel(String.valueOf(oppdrag110.getFagsystemId()));
         detaljdata.setMeldingKode(meldingKode);
-        detaljdata.setAlvorlighetsgrad(alvorlighetsgrad);
+        detaljdata.setAlvorlighetsgrad(alvorlighetsgrad.getKode());
         detaljdata.setTekstMelding(beskrMelding);
         detaljdata.setTidspunkt(oppdrag110.getAvstemming().getTidspunkt());
         avstemmingsdata.getDetalj().add(detaljdata);
