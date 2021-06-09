@@ -99,12 +99,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -751,12 +750,15 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                                     .navn("Forelder")
                                     .brukerKjønn(getKjønnFraFagsak())
                                     .fødselsdato(LocalDate.now().minusYears(25))
-                                    .sivilstand(SivilstandType.UOPPGITT)
-                                    .region(Region.NORDEN))
+                                    .sivilstand(SivilstandType.UOPPGITT))
                     .leggTilPersonstatus(Personstatus.builder()
                             .personstatus(PersonstatusType.BOSA)
                             .periode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
                             .aktørId(behandling.getAktørId()))
+                    .leggTilStatsborgerskap(Statsborgerskap.builder()
+                        .aktørId(behandling.getAktørId())
+                        .statsborgerskap(Landkoder.NOR)
+                        .periode(LocalDate.now().minusYears(20), LocalDate.now().plusYears(10)))
                     .build();
             lagrePersoninfo(behandling, registerInformasjon, personopplysningRepository);
         }
@@ -785,7 +787,6 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                     .medFødselsdato(e.getFødselsdato())
                     .medDødsdato(e.getDødsdato())
                     .medKjønn(e.getBrukerKjønn())
-                    .medRegion(e.getRegion())
                     .medSivilstand(e.getSivilstand());
 
             personInformasjonBuilder.leggTil(builder);
@@ -812,10 +813,9 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         });
 
         personInformasjon.getStatsborgerskap().forEach(e -> {
-            var region = MapRegionLandkoder.mapRangerLandkoder(List.of(e.getStatsborgerskap()));
             var builder = personInformasjonBuilder.getStatsborgerskapBuilder(e.getAktørId(),
                     e.getPeriode(),
-                    e.getStatsborgerskap(), region);
+                    e.getStatsborgerskap());
             personInformasjonBuilder.leggTil(builder);
         });
 

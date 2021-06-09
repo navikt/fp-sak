@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
@@ -159,8 +158,8 @@ public class PersonInformasjonBuilder {
         return kladd.getRelasjonBuilderForAktørId(fraAktør, tilAktør, rolle);
     }
 
-    public StatsborgerskapBuilder getStatsborgerskapBuilder(AktørId aktørId, DatoIntervallEntitet periode, Landkoder landkode, Region region) {
-        return kladd.getStatsborgerskapBuilderForAktørId(aktørId, landkode, periode,region);
+    public StatsborgerskapBuilder getStatsborgerskapBuilder(AktørId aktørId, DatoIntervallEntitet periode, Landkoder landkode) {
+        return kladd.getStatsborgerskapBuilderForAktørId(aktørId, landkode, periode);
     }
 
     public static final class PersonopplysningBuilder {
@@ -211,11 +210,6 @@ public class PersonInformasjonBuilder {
 
         public PersonopplysningBuilder medDødsdato(LocalDate dødsdato) {
             kladd.setDødsdato(dødsdato);
-            return this;
-        }
-
-        public PersonopplysningBuilder medRegion(Region region) {
-            kladd.setRegion(region);
             return this;
         }
 
@@ -490,11 +484,6 @@ public class PersonInformasjonBuilder {
 
         public StatsborgerskapBuilder medStatsborgerskap(Landkoder statsborgerskap) {
             kladd.setStatsborgerskap(statsborgerskap);
-            return this;
-        }
-
-        public StatsborgerskapBuilder medRegion(Region region){
-            kladd.setRegion(region);
             return this;
         }
 

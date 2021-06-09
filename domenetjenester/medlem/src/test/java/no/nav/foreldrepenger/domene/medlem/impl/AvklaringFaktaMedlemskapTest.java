@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -185,7 +184,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.UTVA);
+        leggTilSøker(scenario, Landkoder.USA, PersonstatusType.UTVA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -211,7 +210,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         scenario.leggTilMedlemskapPeriode(medlemskapPeriodeForUnntak);
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.USA, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -229,7 +228,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.NOR, Region.NORDEN, PersonstatusType.UTVA);
+        leggTilSøker(scenario, Landkoder.NOR, PersonstatusType.UTVA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -247,7 +246,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.SWE, Region.UDEFINERT, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.SWE, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -265,7 +264,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        var aktørId = leggTilSøker(scenario, Landkoder.BEL, Region.EOS, PersonstatusType.BOSA);
+        var aktørId = leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
 
         // Arrange - inntekt
@@ -300,7 +299,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -318,7 +317,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -336,7 +335,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.UDEFINERT, Region.UDEFINERT, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.UDEFINERT, PersonstatusType.BOSA);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -354,7 +353,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.BEL, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL.plusYears(1));
+        leggTilSøker(scenario, Landkoder.BEL, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL.plusYears(1));
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -372,7 +371,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.ARG, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1), Tid.TIDENES_ENDE);
+        leggTilSøker(scenario, Landkoder.ARG, PersonstatusType.BOSA, OppholdstillatelseType.PERMANENT, SKJÆRINGSDATO_FØDSEL.minusYears(1), Tid.TIDENES_ENDE);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -390,7 +389,7 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medMottattDato(SKJÆRINGSDATO_FØDSEL);
         scenario.medSøknadHendelse().medFødselsDato(SKJÆRINGSDATO_FØDSEL);
-        leggTilSøker(scenario, Landkoder.USA, Region.UDEFINERT, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL);
+        leggTilSøker(scenario, Landkoder.USA, PersonstatusType.BOSA, OppholdstillatelseType.MIDLERTIDIG, SKJÆRINGSDATO_FØDSEL.minusYears(1), SKJÆRINGSDATO_FØDSEL);
         var behandling = lagre(scenario);
         var ref = lagRef(behandling);
 
@@ -403,15 +402,15 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
     }
 
     private void leggTilSøker(AbstractTestScenario<?> scenario) {
-        leggTilSøker(scenario, Landkoder.NOR, Region.NORDEN, PersonstatusType.BOSA);
+        leggTilSøker(scenario, Landkoder.NOR, PersonstatusType.BOSA);
     }
 
-    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, Region region, PersonstatusType personstatus) {
+    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, PersonstatusType personstatus) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
         var søker = builderForRegisteropplysninger
             .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
+            .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
             .personstatus(personstatus)
             .statsborgerskap(statsborgerskap)
             .build();
@@ -419,13 +418,13 @@ public class AvklaringFaktaMedlemskapTest extends EntityManagerAwareTest {
         return søkerAktørId;
     }
 
-    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, Region region, PersonstatusType personstatus,
+    private AktørId leggTilSøker(AbstractTestScenario<?> scenario, Landkoder statsborgerskap, PersonstatusType personstatus,
                                  OppholdstillatelseType opphold, LocalDate oppholdFom, LocalDate oppholdTom) {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
         var søkerAktørId = scenario.getDefaultBrukerAktørId();
         var søker = builderForRegisteropplysninger
             .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.UOPPGITT, region)
+            .kvinne(søkerAktørId, SivilstandType.UOPPGITT)
             .personstatus(personstatus)
             .statsborgerskap(statsborgerskap)
             .opphold(opphold, oppholdFom, oppholdTom)

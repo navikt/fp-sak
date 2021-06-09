@@ -8,6 +8,8 @@ import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -17,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class PersonopplysningTjenesteTest extends EntityManagerAwareTest {
 
@@ -54,9 +57,13 @@ public class PersonopplysningTjenesteTest extends EntityManagerAwareTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+                .medUtledetSkjæringstidspunkt(tidspunkt)
+                .medUtledetMedlemsintervall(new LocalDateInterval(tidspunkt, tidspunkt.plusWeeks(31)))
+                .medFørsteUttaksdato(tidspunkt).build());
+
         // Act
-        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandling.getId(),
-            behandling.getAktørId(), tidspunkt);
+        var personopplysningerAggregat = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(ref, tidspunkt);
         // Assert
         assertThat(personopplysningerAggregat.getPersonstatuserFor(behandling.getAktørId())).isNotEmpty();
     }

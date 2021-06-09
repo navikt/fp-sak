@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personop
 import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -13,7 +12,6 @@ public final class Statsborgerskap {
     private AktørId aktørId;
     private DatoIntervallEntitet periode;
     private Landkoder statsborgerskap = Landkoder.UDEFINERT;
-    private Region region;
 
     public AktørId getAktørId() {
         return aktørId;
@@ -27,13 +25,10 @@ public final class Statsborgerskap {
         return statsborgerskap;
     }
 
-    public Region getRegion(){ return region;}
-
     private Statsborgerskap(Builder builder) {
         this.aktørId = builder.aktørId;
         this.periode = builder.periode;
         this.statsborgerskap = builder.statsborgerskap;
-        this.region = builder.region;
     }
 
     public static Builder builder() {
@@ -44,7 +39,6 @@ public final class Statsborgerskap {
         private AktørId aktørId;
         private DatoIntervallEntitet periode;
         private Landkoder statsborgerskap;
-        private Region region;
 
         private Builder() {
         }
@@ -68,9 +62,5 @@ public final class Statsborgerskap {
             return this;
         }
 
-        public Builder region(Region region){
-            this.region = region;
-            return this;
-        }
     }
 }

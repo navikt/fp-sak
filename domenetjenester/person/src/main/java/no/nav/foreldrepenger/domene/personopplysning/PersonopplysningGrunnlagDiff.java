@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -98,12 +97,13 @@ public class PersonopplysningGrunnlagDiff {
         return !Objects.equals(hentPersonstatusForPeriode(grunnlag1, søkerAktørId, periode), hentPersonstatusForPeriode(grunnlag2, søkerAktørId, periode));
     }
 
-    public boolean erRegionEndretForSøkerPeriode(DatoIntervallEntitet periode) {
-        return !Objects.equals(hentRangertRegion(grunnlag1, søkerAktørId, periode), hentRangertRegion(grunnlag2, søkerAktørId, periode));
+    public boolean erRegionEndretForSøkerPeriode(DatoIntervallEntitet periode, LocalDate skjæringstidspunkt) {
+        return !Objects.equals(hentRangertRegion(grunnlag1, søkerAktørId, periode, skjæringstidspunkt),
+            hentRangertRegion(grunnlag2, søkerAktørId, periode, skjæringstidspunkt));
     }
 
-    public boolean harRegionNorden(DatoIntervallEntitet periode, PersonopplysningGrunnlagEntitet grunnlag) {
-        return Region.NORDEN.equals(hentRangertRegion(grunnlag, søkerAktørId, periode));
+    public boolean harRegionNorden(DatoIntervallEntitet periode, PersonopplysningGrunnlagEntitet grunnlag, LocalDate skjæringstidspunkt) {
+        return Region.NORDEN.equals(hentRangertRegion(grunnlag, søkerAktørId, periode, skjæringstidspunkt));
     }
 
     public boolean erAdresserEndretIPeriode(DatoIntervallEntitet periode) {
@@ -163,13 +163,12 @@ public class PersonopplysningGrunnlagDiff {
             .collect(Collectors.toSet());
     }
 
-    private Region hentRangertRegion(PersonopplysningGrunnlagEntitet grunnlag, AktørId person, DatoIntervallEntitet periode) {
+    private Region hentRangertRegion(PersonopplysningGrunnlagEntitet grunnlag, AktørId person, DatoIntervallEntitet periode, LocalDate skjæringstidspunkt) {
         return registerVersjon(grunnlag).map(PersonInformasjonEntitet::getStatsborgerskap).orElse(Collections.emptyList()).stream()
             .filter(stb -> person.equals(stb.getAktørId()))
             .filter(stb -> stb.getPeriode().overlapper(periode))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
-            .map(Landkoder::getKode)
-            .map(MapRegionLandkoder::mapLandkode)
+            .map(l -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(l, periode.getFomDato(), skjæringstidspunkt))
             .min(Comparator.comparing(Region::getRank)).orElse(Region.UDEFINERT);
     }
 

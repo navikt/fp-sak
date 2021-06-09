@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -349,7 +348,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private void leggTilMorSøker(ScenarioMorSøkerForeldrepenger scenario) {
         var søker = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
-            .kvinne(MOR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
+            .kvinne(MOR_AKTØR_ID, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .build();
         scenario.medRegisterOpplysninger(søker);
@@ -358,7 +357,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private void leggTilFarSøker(ScenarioFarSøkerForeldrepenger scenario) {
         var søker = scenario.opprettBuilderForRegisteropplysninger()
             .medPersonas()
-            .mann(FAR_AKTØR_ID, SivilstandType.GIFT, Region.NORDEN)
+            .mann(FAR_AKTØR_ID, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .build();
         scenario.medRegisterOpplysninger(søker);

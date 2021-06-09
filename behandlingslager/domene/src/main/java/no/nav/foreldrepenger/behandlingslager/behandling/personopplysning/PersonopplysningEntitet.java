@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.HarAktørId;
 
@@ -58,11 +57,6 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @Column(name = "foedselsdato", nullable = false)
     private LocalDate fødselsdato;
 
-    @ChangeTracked
-    @Convert(converter = Region.KodeverdiConverter.class)
-    @Column(name="region", nullable = false)
-    private Region region = Region.UDEFINERT;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
@@ -76,7 +70,6 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
         this.brukerKjønn = personopplysning.getKjønn();
         this.fødselsdato = personopplysning.getFødselsdato();
         this.dødsdato = personopplysning.getDødsdato();
-        this.region = personopplysning.getRegion();
         this.sivilstand = personopplysning.getSivilstand();
     }
 
@@ -144,14 +137,6 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
         this.dødsdato = dødsdato;
     }
 
-    public Region getRegion() {
-        return region;
-    }
-
-    void setRegion(Region region) {
-        this.region = region;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -166,13 +151,12 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
             Objects.equals(aktørId, entitet.aktørId) &&
             Objects.equals(navn, entitet.navn) &&
             Objects.equals(fødselsdato, entitet.fødselsdato) &&
-            Objects.equals(dødsdato, entitet.dødsdato) &&
-            Objects.equals(region, entitet.region);
+            Objects.equals(dødsdato, entitet.dødsdato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(brukerKjønn, sivilstand, aktørId, navn, fødselsdato, dødsdato, region);
+        return Objects.hash(brukerKjønn, sivilstand, aktørId, navn, fødselsdato, dødsdato);
     }
 
     @Override
@@ -183,7 +167,6 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
             ", navn='" + navn + '\'' +
             ", fødselsdato=" + fødselsdato +
             ", dødsdato=" + dødsdato +
-            ", region=" + region +
             '}';
     }
 

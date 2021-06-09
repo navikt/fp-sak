@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.PersonInformasjon.Builder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
@@ -18,7 +17,7 @@ public class Personas {
         this.builder = builder;
     }
 
-    public Personas voksenPerson(AktørId aktørId, SivilstandType st, NavBrukerKjønn kjønn, Region region) {
+    public Personas voksenPerson(AktørId aktørId, SivilstandType st, NavBrukerKjønn kjønn) {
         if (this.aktørId == null) {
             this.aktørId = aktørId;
             this.persInfoBuilder = Personopplysning.builder();
@@ -30,13 +29,12 @@ public class Personas {
                 .aktørId(aktørId)
                 .brukerKjønn(kjønn)
                 .fødselsdato(fødselsdato)
-                .sivilstand(st)
-                .region(region));
+                .sivilstand(st));
         return this;
     }
 
     public Personas kvinne(AktørId aktørId) {
-        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.KVINNE, Region.NORDEN);
+        voksenPerson(aktørId, SivilstandType.SAMBOER, NavBrukerKjønn.KVINNE);
         return this;
     }
 

@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
@@ -51,8 +50,7 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
         personopplysningBuilder.medNavn(personinfo.getNavn())
             .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
-            .medSivilstand(personinfo.getSivilstandType())
-            .medRegion(Region.NORDEN);
+            .medSivilstand(personinfo.getSivilstandType());
         informasjonBuilder.leggTil(personopplysningBuilder);
         repository.lagre(behandlingId, informasjonBuilder);
 
@@ -62,7 +60,6 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
             .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
             .medSivilstand(personinfo.getSivilstandType())
-            .medRegion(Region.NORDEN)
             .medDødsdato(LocalDate.now());
         informasjonBuilder.leggTil(personopplysningBuilder);
         repository.lagre(behandlingId, informasjonBuilder);
@@ -76,7 +73,7 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
     }
 
     private PersonopplysningerAggregat tilAggregat(Behandling behandling, PersonopplysningGrunnlagEntitet grunnlag) {
-        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(), DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()));
+        return new PersonopplysningerAggregat(grunnlag, behandling.getAktørId(),LocalDate.now(), LocalDate.now());
     }
 
     private Personinfo lagPerson() {
@@ -85,7 +82,7 @@ public class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
             .medAktørId(AktørId.dummy())
             .medSivilstandType(SivilstandType.SAMBOER)
             .medFødselsdato(LocalDate.now().minusYears(20))
-            .medLandkode(Landkoder.NOR)
+            .medLandkoder(List.of(Landkoder.NOR))
             .medNavBrukerKjønn(NavBrukerKjønn.KVINNE)
             .medPersonIdent(new PersonIdent("12345678901"))
             .build();

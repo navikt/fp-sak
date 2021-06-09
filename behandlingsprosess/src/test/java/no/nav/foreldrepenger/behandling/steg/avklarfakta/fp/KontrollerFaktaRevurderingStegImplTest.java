@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
@@ -331,8 +330,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         var personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
         personopplysningBuilder.leggTilPersonopplysninger(
                 Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
-                        .region(Region.UDEFINERT))
+                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
                 .leggTilAdresser(
                         PersonAdresse.builder()
                                 .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
@@ -344,7 +342,6 @@ public class KontrollerFaktaRevurderingStegImplTest {
                 .leggTilStatsborgerskap(
                         Statsborgerskap.builder().aktørId(aktørId)
                                 .periode(fødselsdato, LocalDate.now())
-                                .region(Region.UDEFINERT)
                                 .statsborgerskap(Landkoder.USA));
 
         førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());
@@ -383,8 +380,7 @@ public class KontrollerFaktaRevurderingStegImplTest {
         var personopplysningBuilder = førstegangScenario.opprettBuilderForRegisteropplysninger();
         personopplysningBuilder.leggTilPersonopplysninger(
                 Personopplysning.builder().aktørId(aktørId).sivilstand(SivilstandType.GIFT)
-                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie")
-                        .region(Region.UDEFINERT))
+                        .fødselsdato(fødselsdato).brukerKjønn(NavBrukerKjønn.KVINNE).navn("Marie Curie"))
                 .leggTilAdresser(
                         PersonAdresse.builder()
                                 .adresselinje1("dsffsd 13").aktørId(aktørId).land("USA")
@@ -396,7 +392,6 @@ public class KontrollerFaktaRevurderingStegImplTest {
                 .leggTilStatsborgerskap(
                         Statsborgerskap.builder().aktørId(aktørId)
                                 .periode(fødselsdato, LocalDate.now())
-                                .region(Region.UDEFINERT)
                                 .statsborgerskap(Landkoder.USA));
 
         førstegangScenario.medRegisterOpplysninger(personopplysningBuilder.build());

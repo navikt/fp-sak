@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.StatsborgerskapEntitet;
+import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.domene.medlem.api.VurderingsÅrsak;
 import no.nav.foreldrepenger.domene.medlem.impl.MedlemEndringssjekker;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -103,7 +104,7 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
         var relevantPeriode = DatoIntervallEntitet.fraOgMedTilOgMed(ref.getUtledetMedlemsintervall().getFomDato(), ref.getUtledetMedlemsintervall().getTomDato());
 
         var personopplysningerOpt = personopplysningTjeneste
-                .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref.getBehandlingId(), ref.getAktørId(), relevantPeriode);
+                .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, relevantPeriode);
         if (personopplysningerOpt.isPresent()) {
             var personopplysningerAggregat = personopplysningerOpt.get();
 
@@ -197,10 +198,12 @@ public class UtledVurderingsdatoerForMedlemskapTjeneste {
 
     // PDL har flere samtidige statsborgerskap - dermed må man sjekke region ved hvert brudd
     private Map<LocalDate, Set<VurderingsÅrsak>> hentEndringForStatsborgerskap(PersonopplysningerAggregat aggregat, BehandlingReferanse ref) {
-        var statsborgerskapDatoer = aggregat.getStatsborgerskapFor(ref.getAktørId())
-            .stream()
+        var statsborgerskapene = aggregat.getStatsborgerskapFor(ref.getAktørId());
+        var statsborgerskapDatoer = statsborgerskapene.stream()
             .map(StatsborgerskapEntitet::getPeriode).map(DatoIntervallEntitet::getFomDato)
             .collect(Collectors.toSet());
+        var statsborgerskapLand = statsborgerskapene.stream().map(StatsborgerskapEntitet::getStatsborgerskap).collect(Collectors.toList());
+        statsborgerskapDatoer.addAll(MapRegionLandkoder.utledRegionsEndringsDatoer(statsborgerskapLand));
         var statsborgerskap = statsborgerskapDatoer.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
         final Map<LocalDate, Set<VurderingsÅrsak>> utledetResultat = new HashMap<>();
         IntStream.range(0, statsborgerskap.size() - 1).forEach(i -> {

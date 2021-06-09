@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -149,7 +148,7 @@ public class InngangsvilkårOversetterTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
+                .kvinne(søkerAktørId, SivilstandType.GIFT)
                 .statsborgerskap(Landkoder.NOR)
                 .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, null)
                 .build();
@@ -185,7 +184,7 @@ public class InngangsvilkårOversetterTest {
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
-                .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT, Region.NORDEN)
+                .mann(scenario.getDefaultBrukerAktørId(), SivilstandType.UOPPGITT)
                 .statsborgerskap(Landkoder.NOR)
                 .build();
         scenario.medRegisterOpplysninger(søker);
@@ -276,7 +275,7 @@ public class InngangsvilkårOversetterTest {
 
         var søker = scenario.opprettBuilderForRegisteropplysninger()
                 .medPersonas()
-                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, Region.NORDEN)
+                .kvinne(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT)
                 .personstatus(PersonstatusType.BOSA)
                 .statsborgerskap(Landkoder.NOR)
                 .build();

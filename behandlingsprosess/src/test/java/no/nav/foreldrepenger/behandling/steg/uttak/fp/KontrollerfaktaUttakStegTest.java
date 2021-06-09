@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonAdresse;
@@ -137,7 +136,7 @@ public class KontrollerfaktaUttakStegTest {
 
         var søker = builderForRegisteropplysninger
                 .medPersonas()
-                .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT, Region.NORDEN)
+                .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
                 .bostedsadresse(bostedsadresse)
                 .statsborgerskap(Landkoder.NOR)
                 .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)

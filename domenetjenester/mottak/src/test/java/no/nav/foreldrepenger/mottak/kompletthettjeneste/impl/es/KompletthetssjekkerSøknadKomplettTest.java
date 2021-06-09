@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -123,7 +122,7 @@ public class KompletthetssjekkerSøknadKomplettTest {
 
         var søker = builderForRegisteropplysninger
             .medPersonas()
-            .kvinne(søkerAktørId, SivilstandType.GIFT, Region.NORDEN)
+            .kvinne(søkerAktørId, SivilstandType.GIFT)
             .statsborgerskap(Landkoder.NOR)
             .relasjonTil(barnAktørId, RelasjonsRolleType.BARN, false)
             .build();

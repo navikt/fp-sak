@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -23,7 +24,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class AvklarOmSøkerOppholderSegINorge {
 
@@ -41,16 +41,18 @@ public class AvklarOmSøkerOppholderSegINorge {
         this.personopplysningTjeneste = personopplysningTjeneste;
     }
 
-    public Optional<MedlemResultat> utled(BehandlingReferanse ref, LocalDate vurderingstidspunkt) {
+    public Optional<MedlemResultat> utledVedSTP(BehandlingReferanse ref) {
+        var vurderingstidspunkt = ref.getUtledetSkjæringstidspunkt();
         var behandlingId = ref.getBehandlingId();
-        final var region = getRegion(ref.getBehandlingId(), ref.getAktørId(), vurderingstidspunkt);
+        var personopplysninger = personopplysningTjeneste.hentPersonopplysninger(ref);
+        final var region = getRegion(ref, personopplysninger);
         if ((harFødselsdato(behandlingId) == JA) || (harDatoForOmsorgsovertakelse(behandlingId) == JA)) {
             return Optional.empty();
         }
         if ((harNordiskStatsborgerskap(region) == JA) || (harAnnetStatsborgerskap(region) == JA)) {
             return Optional.empty();
         }
-        if ((erGiftMedNordiskBorger(ref) == JA) || (erGiftMedBorgerMedANNETStatsborgerskap(ref) == JA)) {
+        if ((erGiftMedNordiskBorger(personopplysninger) == JA) || (erGiftMedBorgerMedANNETStatsborgerskap(personopplysninger) == JA)) {
             return Optional.empty();
         }
         if (harOppholdstilltatelseVed(ref, vurderingstidspunkt) == JA) {
@@ -91,24 +93,23 @@ public class AvklarOmSøkerOppholderSegINorge {
         return (region == null || Region.TREDJELANDS_BORGER.equals(region)) || Region.UDEFINERT.equals(region) ? JA : NEI;
     }
 
-    private Utfall erGiftMedNordiskBorger(BehandlingReferanse ref) {
-        return erGiftMed(ref, Region.NORDEN);
+    private Utfall erGiftMedNordiskBorger(PersonopplysningerAggregat personopplysninger) {
+        return erGiftMed(personopplysninger, Region.NORDEN);
     }
 
-    private Utfall erGiftMedBorgerMedANNETStatsborgerskap(BehandlingReferanse ref) {
-        var utfall = erGiftMed(ref, Region.TREDJELANDS_BORGER);
+    private Utfall erGiftMedBorgerMedANNETStatsborgerskap(PersonopplysningerAggregat personopplysninger) {
+        var utfall = erGiftMed(personopplysninger, Region.TREDJELANDS_BORGER);
         if (utfall == NEI) {
-            utfall = erGiftMed(ref, Region.UDEFINERT);
+            utfall = erGiftMed(personopplysninger, Region.UDEFINERT);
         }
         return utfall;
     }
 
-    private Utfall erGiftMed(BehandlingReferanse ref, Region region) {
-        var ektefelle = personopplysningTjeneste.hentPersonopplysninger(ref).getEktefelle();
-        if (ektefelle.isPresent()) {
-            if (ektefelle.get().getRegion().equals(region)) {
-                return JA;
-            }
+    private Utfall erGiftMed(PersonopplysningerAggregat personopplysninger, Region region) {
+        var ektefelleHarRegion = personopplysninger.getEktefelle()
+            .map(e -> personopplysninger.harStatsborgerskapRegionVedSkjæringstidspunkt(e.getAktørId(), region)).orElse(Boolean.FALSE);
+        if (ektefelleHarRegion) {
+            return JA;
         }
         return NEI;
     }
@@ -153,10 +154,7 @@ public class AvklarOmSøkerOppholderSegINorge {
         return termindato.filter(localDate -> localDate.plusDays(14L).isBefore(dagensDato)).map(localDate -> JA).orElse(NEI);
     }
 
-    private Region getRegion(Long behandlingId, AktørId aktørId, LocalDate vurderingstidspunkt) {
-        var personopplysninger = personopplysningTjeneste.hentGjeldendePersoninformasjonPåTidspunkt(behandlingId, aktørId,
-            vurderingstidspunkt);
-
-        return personopplysninger.getStatsborgerskapRegionVedTidspunkt(aktørId, vurderingstidspunkt);
+    private Region getRegion(BehandlingReferanse ref, PersonopplysningerAggregat personopplysninger) {
+        return personopplysninger.getStatsborgerskapRegionVedSkjæringstidspunkt(ref.getAktørId());
     }
 }

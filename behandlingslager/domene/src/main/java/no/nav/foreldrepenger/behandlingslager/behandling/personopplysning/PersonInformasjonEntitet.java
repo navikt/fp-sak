@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.konfig.Tid;
@@ -296,11 +295,11 @@ public class PersonInformasjonEntitet extends BaseEntitet {
                 && eksiterendePeriode.getTomDato().equals(Tid.TIDENES_ENDE) && !nyPeriode.getTomDato().equals(Tid.TIDENES_ENDE);
     }
 
-    PersonInformasjonBuilder.StatsborgerskapBuilder getStatsborgerskapBuilderForAktørId(AktørId aktørId, Landkoder landkode, DatoIntervallEntitet periode, Region region) {
+    PersonInformasjonBuilder.StatsborgerskapBuilder getStatsborgerskapBuilderForAktørId(AktørId aktørId, Landkoder landkode, DatoIntervallEntitet periode) {
         final var eksisterende = statsborgerskap.stream()
                 .filter(it -> it.getAktørId().equals(aktørId) && it.getStatsborgerskap().equals(landkode) && erSannsynligvisSammePeriode(it.getPeriode(), periode))
                 .findAny();
-        return PersonInformasjonBuilder.StatsborgerskapBuilder.oppdater(eksisterende).medAktørId(aktørId).medStatsborgerskap(landkode).medPeriode(periode).medRegion(region);
+        return PersonInformasjonBuilder.StatsborgerskapBuilder.oppdater(eksisterende).medAktørId(aktørId).medStatsborgerskap(landkode).medPeriode(periode);
     }
 
     PersonInformasjonBuilder.PersonstatusBuilder getPersonstatusBuilderForAktørId(AktørId aktørId, DatoIntervallEntitet periode) {

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public final class Personopplysning {
@@ -15,7 +14,6 @@ public final class Personopplysning {
     private String navn;
     private LocalDate dødsdato;
     private LocalDate fødselsdato;
-    private Region region = Region.UDEFINERT;
 
     public AktørId getAktørId() {
         return aktørId;
@@ -41,10 +39,6 @@ public final class Personopplysning {
         return fødselsdato;
     }
 
-    public Region getRegion() {
-        return region;
-    }
-
     private Personopplysning(Builder builder) {
         this.aktørId = builder.aktørId;
         this.brukerKjønn = builder.brukerKjønn;
@@ -52,7 +46,6 @@ public final class Personopplysning {
         this.navn = builder.navn;
         this.dødsdato = builder.dødsdato;
         this.fødselsdato = builder.fødselsdato;
-        this.region = builder.region;
     }
 
     public static Builder builder() {
@@ -68,8 +61,7 @@ public final class Personopplysning {
                 .fødselsdato(LocalDate.now().minusYears(25))
                 .navn("Foreldre")
                 .aktørId(aktørId)
-                .sivilstand(SivilstandType.UOPPGITT)
-                .region(Region.NORDEN);
+                .sivilstand(SivilstandType.UOPPGITT);
     }
 
     public static final class Builder {
@@ -79,7 +71,6 @@ public final class Personopplysning {
         private String navn;
         private LocalDate dødsdato;
         private LocalDate fødselsdato;
-        private Region region;
 
         private Builder() {
         }
@@ -115,11 +106,6 @@ public final class Personopplysning {
 
         public Builder fødselsdato(LocalDate fødselsdato) {
             this.fødselsdato = fødselsdato;
-            return this;
-        }
-
-        public Builder region(Region region) {
-            this.region = region;
             return this;
         }
     }

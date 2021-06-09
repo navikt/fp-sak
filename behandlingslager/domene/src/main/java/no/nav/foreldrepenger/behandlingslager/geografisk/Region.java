@@ -4,9 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -90,19 +87,6 @@ public enum Region implements Kodeverdi {
     @Override
     public String getKodeverk() {
         return KODEVERK;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<Region, String> {
-        @Override
-        public String convertToDatabaseColumn(Region attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public Region convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
     }
 
 }

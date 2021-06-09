@@ -10,7 +10,6 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
@@ -24,8 +23,7 @@ public class Personinfo {
     private PersonstatusType personstatus;
     private NavBrukerKjønn kjønn;
     private Set<FamilierelasjonVL> familierelasjoner = Collections.emptySet();
-    private Region region;
-    private Landkoder landkode;
+    private List<Landkoder> landkoder = List.of();
 
     private List<Adresseinfo> adresseInfoList = new ArrayList<>();
     private SivilstandType sivilstand;
@@ -65,10 +63,6 @@ public class Personinfo {
         return dødsdato;
     }
 
-    public Region getRegion() {
-        return region;
-    }
-
     public List<Adresseinfo> getAdresseInfoList() {
         return adresseInfoList;
     }
@@ -77,8 +71,8 @@ public class Personinfo {
         return sivilstand;
     }
 
-    public Landkoder getLandkode() {
-        return landkode;
+    public List<Landkoder> getLandkoder() {
+        return landkoder;
     }
 
     @Override
@@ -133,11 +127,6 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medRegion(Region region) {
-            personinfoMal.region = region;
-            return this;
-        }
-
         public Builder medAdresseInfoList(List<Adresseinfo> adresseinfoArrayList) {
             personinfoMal.adresseInfoList = adresseinfoArrayList;
             return this;
@@ -148,8 +137,8 @@ public class Personinfo {
             return this;
         }
 
-        public Builder medLandkode(Landkoder landkode) {
-            personinfoMal.landkode = landkode;
+        public Builder medLandkoder(List<Landkoder> landkoder) {
+            personinfoMal.landkoder = landkoder;
             return this;
         }
 

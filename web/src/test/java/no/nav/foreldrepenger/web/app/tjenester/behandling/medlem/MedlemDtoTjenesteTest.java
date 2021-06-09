@@ -63,7 +63,7 @@ public class MedlemDtoTjenesteTest {
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
 
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
@@ -115,7 +115,7 @@ public class MedlemDtoTjenesteTest {
                 .leggTilEndring(EndringsresultatPersonopplysningerForMedlemskap.EndretAttributt.Adresse,
                         DatoIntervallEntitet.fraOgMed(endringFraDato), "", "2")
                 .build();
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any())).thenReturn(endringsresultatPersonopplysningerForMedlemskap);
 
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
             medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
@@ -167,7 +167,7 @@ public class MedlemDtoTjenesteTest {
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
 
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
                 .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
             medlemTjenesteMock, personopplysningTjenesteMock, personDtoTjeneste);
@@ -197,7 +197,7 @@ public class MedlemDtoTjenesteTest {
 
         var medlemTjenesteMock = mock(MedlemTjeneste.class);
         var personDtoTjeneste = new PersonopplysningDtoTjeneste(personopplysningTjenesteMock, repositoryProvider);
-        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any()))
+        when(medlemTjenesteMock.søkerHarEndringerIPersonopplysninger(any(), any()))
             .thenReturn(EndringsresultatPersonopplysningerForMedlemskap.builder().build());
         var dtoTjeneste = new MedlemDtoTjeneste(repositoryProvider, skjæringstidspunktTjeneste,
             medlemTjenesteMock,

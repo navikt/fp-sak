@@ -118,7 +118,7 @@ public class MedlemDtoTjeneste {
         var fom = medlemV2FomFraMedlemskap(ref, medlemskapAggregat);
         // TODO Fom fra personopplysninger kun revurdering og foreldrepenger, bør skilles ut som egen DTO for FP+BT-004
         if (personopplysningerAggregat.isPresent()) {
-            var endringerIPersonopplysninger = medlemTjeneste.søkerHarEndringerIPersonopplysninger(behandling);
+            var endringerIPersonopplysninger = medlemTjeneste.søkerHarEndringerIPersonopplysninger(behandling, ref);
             var endredeAttributter = endringerIPersonopplysninger.getEndredeAttributter();
             if (!endredeAttributter.isEmpty()) {
                 return endringerIPersonopplysninger.getGjeldendeFra();
@@ -148,7 +148,7 @@ public class MedlemDtoTjeneste {
         final var dtoPerioder = dto.getPerioder();
         for (var entrySet : vurderingspunkter.entrySet()) {
             var vurdertMedlemskap = finnVurderMedlemskap(perioder, entrySet);
-            final var medlemPeriodeDto = mapTilPeriodeDto(ref.getBehandlingId(),
+            final var medlemPeriodeDto = mapTilPeriodeDto(ref,
                 vurdertMedlemskap, entrySet.getKey(), entrySet.getValue().getÅrsaker(), vurdertMedlemskap.map(VurdertMedlemskap::getBegrunnelse).orElse(null));
             medlemPeriodeDto.setAksjonspunkter(entrySet.getValue().getAksjonspunkter().stream().map(Kodeverdi::getKode).collect(Collectors.toSet()));
             dtoPerioder.add(medlemPeriodeDto);
@@ -179,7 +179,7 @@ public class MedlemDtoTjeneste {
         final var vurdertMedlemskapOpt = aggregatOpts.flatMap(MedlemskapAggregat::getVurdertMedlemskap);
         var vurderingsdato = ref.getSkjæringstidspunkt().getSkjæringstidspunktHvisUtledet().orElse(null);
         var begrunnelse = vurdertMedlemskapOpt.map(VurdertMedlemskap::getBegrunnelse).orElseGet(() -> hentBegrunnelseFraAksjonspuntk(aksjonspunkter));
-        final var periodeDto = mapTilPeriodeDto(ref.getBehandlingId(), vurdertMedlemskapOpt, vurderingsdato, Set.of(VurderingsÅrsak.SKJÆRINGSTIDSPUNKT), begrunnelse);
+        final var periodeDto = mapTilPeriodeDto(ref, vurdertMedlemskapOpt, vurderingsdato, Set.of(VurderingsÅrsak.SKJÆRINGSTIDSPUNKT), begrunnelse);
         periodeDto.setAksjonspunkter(aksjonspunkter.stream()
             .map(Aksjonspunkt::getAksjonspunktDefinisjon)
             .filter(MEDL_AKSJONSPUNKTER::contains)
@@ -187,12 +187,12 @@ public class MedlemDtoTjeneste {
         dto.getPerioder().add(periodeDto);
     }
 
-    private MedlemPeriodeDto mapTilPeriodeDto(Long behandlingId, Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
+    private MedlemPeriodeDto mapTilPeriodeDto(BehandlingReferanse ref, Optional<VurdertMedlemskap> vurdertMedlemskapOpt,
                                               LocalDate vurderingsdato, Set<VurderingsÅrsak> årsaker, String begrunnelse) {
         final var periodeDto = new MedlemPeriodeDto();
         periodeDto.setÅrsaker(årsaker);
-        personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
-        personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(behandlingId, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
+        personopplysningDtoTjeneste.lagPersonopplysningMedlemskapDto(ref, vurderingsdato).ifPresent(periodeDto::setPersonopplysningBruker);
+        personopplysningDtoTjeneste.lagAnnenpartPersonopplysningMedlemskapDto(ref, vurderingsdato).ifPresent(periodeDto::setPersonopplysningAnnenPart);
         periodeDto.setVurderingsdato(vurderingsdato);
         periodeDto.setBegrunnelse(begrunnelse);
 

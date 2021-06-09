@@ -125,12 +125,10 @@ public class PersonopplysningInnhenter {
         for (var statsborgerskap : statsborgerskaphistorikk) {
             final var landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
 
-            var region = MapRegionLandkoder.mapLandkode(statsborgerskap.getStatsborgerskap().getLandkode());
-
             final var periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), statsborgerskap.getGyldighetsperiode().getTom());
 
             informasjonBuilder
-                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode, region));
+                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode));
         }
     }
 
@@ -192,13 +190,13 @@ public class PersonopplysningInnhenter {
             .medFødselsdato(personinfo.getFødselsdato())
             .medNavn(personinfo.getNavn())
             .medDødsdato(personinfo.getDødsdato())
-            .medSivilstand(personinfo.getSivilstandType())
-            .medRegion(personinfo.getRegion());
+            .medSivilstand(personinfo.getSivilstandType());
         informasjonBuilder.leggTil(builder);
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttStatsborgerskapHistorikk(personinfo.getAktørId())) {
+            var prioritertStatsborgerskap = MapRegionLandkoder.finnRangertLandkode(personinfo.getLandkoder());
             informasjonBuilder
-                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, personinfo.getLandkode(), personinfo.getRegion()));
+                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, prioritertStatsborgerskap));
         }
 
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttAdresseHistorikk(personinfo.getAktørId())) {

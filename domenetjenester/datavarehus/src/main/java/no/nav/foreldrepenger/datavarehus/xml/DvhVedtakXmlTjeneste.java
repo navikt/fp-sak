@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBException;
 
 import org.xml.sax.SAXException;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -62,12 +63,13 @@ public class DvhVedtakXmlTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(behandling.getFagsakId());
         var vedtak = factory.createVedtak();
         var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling, skjæringstidspunkter);
         vedtakXmlTjeneste.setVedtaksopplysninger(vedtak, fagsak, behandling);
         var ytelseType = fagsak.getYtelseType();
         var ikkeFunnet = "Ingen implementasjoner funnet for ytelse: " + ytelseType.getKode();
 
         FagsakYtelseTypeRef.Lookup.find(personopplysningXmlTjenester, ytelseType).orElseThrow(() -> new IllegalStateException(ikkeFunnet))
-            .setPersonopplysninger(vedtak, behandlingId, behandling.getAktørId(), skjæringstidspunkter);
+            .setPersonopplysninger(vedtak, ref);
 
         behandlingsresultatXmlTjenester.setBehandlingresultat(vedtak, behandling);
 

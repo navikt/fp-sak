@@ -120,15 +120,14 @@ public class MedlemTjeneste {
      * Metoden gjelder revurdering foreldrepenger
      */
     // TODO Diamant (Denne gjelder kun revurdering og foreldrepenger, bør eksponeres som egen tjeneste for FP + BT004)
-    public EndringsresultatPersonopplysningerForMedlemskap søkerHarEndringerIPersonopplysninger(Behandling revurderingBehandling) {
+    public EndringsresultatPersonopplysningerForMedlemskap søkerHarEndringerIPersonopplysninger(Behandling revurderingBehandling, BehandlingReferanse ref) {
 
         var builder = EndringsresultatPersonopplysningerForMedlemskap.builder();
         if (revurderingBehandling.erRevurdering() && FagsakYtelseType.FORELDREPENGER.equals(revurderingBehandling.getFagsakYtelseType())) {
             var aktørId = revurderingBehandling.getAktørId();
-            var behandlingId = revurderingBehandling.getId();
             var intervall = DatoIntervallEntitet.fraOgMedTilOgMed(finnStartdato(revurderingBehandling), LocalDate.now());
             var historikkAggregat = personopplysningTjeneste
-                .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(behandlingId, aktørId, intervall);
+                .hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(ref, intervall);
 
             historikkAggregat.ifPresent(historikk -> {
                 sjekkEndringer(historikk.getStatsborgerskapFor(aktørId).stream()

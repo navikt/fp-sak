@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -288,11 +287,10 @@ public class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
             .medNavn("Navn Navnesen")
             .medFødselsdato(FORELDER_FØDSELSDATO)
             .medNavBrukerKjønn(KJØNN)
-            .medLandkode(LANDKODE)
+            .medLandkoder(List.of(LANDKODE))
             .medPersonstatusType(PERSONSTATUS)
             .medSivilstandType(SivilstandType.UGIFT)
             .medFamilierelasjon(singleton(familierelasjon))
-            .medRegion(Region.EOS)
             .build();
     }
 

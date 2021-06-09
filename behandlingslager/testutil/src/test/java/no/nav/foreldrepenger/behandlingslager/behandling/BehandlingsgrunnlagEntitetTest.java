@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -337,14 +336,12 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medKjønn(NavBrukerKjønn.MANN)
                     .medNavn("Barn 1")
                     .medFødselsdato(fødselsdato)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(
                 informasjonBuilder.getPersonopplysningBuilder(forelderAktørId)
                     .medKjønn(NavBrukerKjønn.MANN)
                     .medSivilstand(SivilstandType.UGIFT)
                     .medFødselsdato(fødselsdato.minusYears(25))
-                    .medRegion(Region.NORDEN)
                     .medNavn("Forelder"))
             .leggTil(
                 informasjonBuilder
@@ -360,12 +357,8 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medAdresselinje1("Lyckliga gatan 1")
                     .medPostnummer("1150")
                     .medPoststed("Hundremeterskogen"))
-            .leggTil(
-                informasjonBuilder.
-                    getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12))).medPersonstatus(PersonstatusType.BOSA))
-            .leggTil(
-                informasjonBuilder
-                    .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), Landkoder.NOR, Region.NORDEN));
+            .leggTil(informasjonBuilder.getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12))).medPersonstatus(PersonstatusType.BOSA))
+            .leggTil(informasjonBuilder.getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(LocalDate.now().minusMonths(12)), Landkoder.NOR));
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
@@ -468,24 +461,22 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medNavn("Forelder")
                     .medKjønn(NavBrukerKjønn.KVINNE)
                     .medFødselsdato(fødselsdatoForelder)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(
                 informasjonBuilder.getPersonopplysningBuilder(barnNummer1)
                     .medNavn("Barn 1")
                     .medKjønn(NavBrukerKjønn.MANN)
                     .medFødselsdato(fødselsdatoBarn1)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(
                 informasjonBuilder
                     .getPersonstatusBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder)).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(informasjonBuilder
                 .getPersonstatusBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1)).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder), Landkoder.NOR, Region.NORDEN))
+                .getStatsborgerskapBuilder(forelderAktørId, DatoIntervallEntitet.fraOgMed(fødselsdatoForelder), Landkoder.NOR))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR, Region.NORDEN))
+                .getStatsborgerskapBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), Landkoder.NOR))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(barnNummer1, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn1), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
@@ -524,12 +515,11 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medNavn("Barn 2")
                     .medKjønn(NavBrukerKjønn.MANN)
                     .medFødselsdato(fødselsdatoBarn2)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(informasjonBuilder
                 .getPersonstatusBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2)).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), Landkoder.NOR, Region.NORDEN))
+                .getStatsborgerskapBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), Landkoder.NOR))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(barnNummer2, DatoIntervallEntitet.fraOgMed(fødselsdatoBarn2), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
@@ -585,13 +575,12 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medNavn("Navn")
                     .medKjønn(NavBrukerKjønn.KVINNE)
                     .medFødselsdato(fødselsdato)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(
                 informasjonBuilder
                     .getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato)).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR, Region.NORDEN))
+                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.BOSTEDSADRESSE)
                 .medAdresselinje1("Testadresse")
@@ -672,13 +661,12 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                     .medKjønn(NavBrukerKjønn.MANN)
                     .medFødselsdato(fødselsdato)
                     .medDødsdato(dødsdato)
-                    .medSivilstand(SivilstandType.UGIFT)
-                    .medRegion(Region.NORDEN))
+                    .medSivilstand(SivilstandType.UGIFT))
             .leggTil(
                 informasjonBuilder
                     .getPersonstatusBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato)).medPersonstatus(PersonstatusType.BOSA))
             .leggTil(informasjonBuilder
-                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR, Region.NORDEN))
+                .getStatsborgerskapBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), Landkoder.NOR))
             .leggTil(informasjonBuilder
                 .getAdresseBuilder(forelder, DatoIntervallEntitet.fraOgMed(fødselsdato), AdresseType.MIDLERTIDIG_POSTADRESSE_UTLAND)
                 .medAdresselinje1("Utlandsadresse")
@@ -726,7 +714,6 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
                 .medFødselsdato(fødselsdato)
                 .medDødsdato(dødsdatoForelder1)
                 .medSivilstand(SivilstandType.GIFT)
-                .medRegion(Region.NORDEN)
         ).leggTil(informasjonBuilder
             .getPersonstatusBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1)).medPersonstatus(PersonstatusType.BOSA)
         ).leggTil(informasjonBuilder
@@ -738,7 +725,7 @@ public class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
             .medAdresselinje1("Testadresse")
             .medLand("Sverige").medPostnummer("1234")
         ).leggTil(informasjonBuilder
-            .getStatsborgerskapBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), Landkoder.NOR, Region.NORDEN)
+            .getStatsborgerskapBuilder(aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, dødsdatoForelder1), Landkoder.NOR)
         );
 
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);

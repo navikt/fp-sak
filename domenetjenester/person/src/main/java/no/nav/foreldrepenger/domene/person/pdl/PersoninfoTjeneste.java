@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.geografisk.MapRegionLandkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Poststed;
 import no.nav.foreldrepenger.behandlingslager.geografisk.PoststedKodeverkRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -211,8 +210,7 @@ public class PersoninfoTjeneste {
                 .medNavBrukerKjønn(mapKjønn(person))
                 .medPersonstatusType(pdlStatus)
                 .medSivilstandType(sivilstand)
-                .medLandkode(statsborgerskap)
-                .medRegion(MapRegionLandkoder.mapLandkode(statsborgerskap.getKode()))
+                .medLandkoder(statsborgerskap)
                 .medFamilierelasjon(familierelasjoner)
                 .medAdresseInfoList(adresser)
                 .build();
@@ -362,12 +360,12 @@ public class PersoninfoTjeneste {
                 new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
     }
 
-    private static Landkoder mapStatsborgerskap(List<Statsborgerskap> statsborgerskap) {
+    private static List<Landkoder> mapStatsborgerskap(List<Statsborgerskap> statsborgerskap) {
         var alleLand = statsborgerskap.stream()
                 .map(Statsborgerskap::getLand)
                 .map(Landkoder::fraKodeDefaultUdefinert)
                 .collect(Collectors.toList());
-        return alleLand.stream().anyMatch(Landkoder.NOR::equals) ? Landkoder.NOR : MapRegionLandkoder.finnRangertLandkode(alleLand);
+        return alleLand.stream().anyMatch(Landkoder.NOR::equals) ? List.of(Landkoder.NOR) : alleLand;
     }
 
     private static Set<FamilierelasjonVL> mapFamilierelasjoner(List<ForelderBarnRelasjon> familierelasjoner, List<Sivilstand> sivilstandliste) {

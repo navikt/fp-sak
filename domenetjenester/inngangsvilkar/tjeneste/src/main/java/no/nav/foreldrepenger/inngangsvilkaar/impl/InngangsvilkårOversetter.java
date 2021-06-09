@@ -330,14 +330,14 @@ public class InngangsvilkårOversetter {
 
     private static boolean brukerBorgerAvEOS(Optional<VurdertMedlemskap> medlemskap, PersonopplysningerAggregat aggregat) {
         // Tar det første for det er det som er prioritert høyest rangert på region
-        var eosBorger = aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.EOS);
+        var eosBorger = aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.EOS);
         return medlemskap
             .map(VurdertMedlemskap::getErEøsBorger)
             .orElse(eosBorger);
     }
 
     private static boolean brukerNorskNordisk(PersonopplysningerAggregat aggregat) {
-        return aggregat.harStatsborgerskapRegion(aggregat.getSøker().getAktørId(), Region.NORDEN);
+        return aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.NORDEN);
     }
 
     private static PersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {

@@ -61,11 +61,11 @@ public class VurderMedlemskapTjeneste {
         var behandlingId = ref.getBehandlingId();
         Set<MedlemResultat> resultat = new HashSet<>();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        avklarOmErBosatt.utled(behandling, vurderingsdato).ifPresent(resultat::add);
+        avklarOmErBosatt.utled(ref, vurderingsdato).ifPresent(resultat::add);
         avklarGyldigPeriode.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
         avklarBarnFødtUtenlands.utled(behandlingId, vurderingsdato).ifPresent(resultat::add);
         if (vurderingsdato.equals(ref.getUtledetSkjæringstidspunkt())) {
-            avklarOmSøkerOppholderSegINorge.utled(ref, vurderingsdato).ifPresent(resultat::add);
+            avklarOmSøkerOppholderSegINorge.utledVedSTP(ref).ifPresent(resultat::add);
         }
         avklaringFaktaMedlemskap.utled(ref, behandling, vurderingsdato).ifPresent(resultat::add);
         return resultat;

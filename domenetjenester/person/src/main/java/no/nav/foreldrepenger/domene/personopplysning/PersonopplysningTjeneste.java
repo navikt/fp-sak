@@ -43,52 +43,52 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public PersonopplysningerAggregat hentPersonopplysninger(BehandlingReferanse ref) {
-        final var localDate = ref.getUtledetSkjæringstidspunkt();
-        return hentGjeldendePersoninformasjonPåTidspunkt(ref.getBehandlingId(), ref.getAktørId(), localDate);
+        final var stp = ref.getUtledetSkjæringstidspunkt();
+        return hentGjeldendePersoninformasjonPåTidspunkt(ref, stp);
     }
 
     @Override
     public Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(BehandlingReferanse ref) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
-        if (grunnlagOpt.isPresent()) {
-            final var localDate = ref.getUtledetSkjæringstidspunkt();
-            return Optional.of(mapTilAggregat(ref.getAktørId(), localDate, grunnlagOpt.get()));
-        }
-        return Optional.empty();
+        final var stp = ref.getUtledetSkjæringstidspunkt();
+        return hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, stp);
     }
 
     @Override
-    public PersonopplysningerAggregat hentGjeldendePersoninformasjonPåTidspunkt(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
+    public PersonopplysningerAggregat hentGjeldendePersoninformasjonPåTidspunkt(BehandlingReferanse ref, LocalDate tidspunkt) {
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(tidspunkt, tidspunkt.plusDays(1)));
+            return new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt());
         }
         throw new IllegalStateException("Utvikler feil: Har ikke innhentet opplysninger fra register enda.");
     }
 
-    @Override
     public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(Long behandlingId, AktørId aktørId, LocalDate tidspunkt) {
         final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
         if (grunnlagOpt.isPresent()) {
             tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(tidspunkt, tidspunkt.plusDays(1))));
+            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, tidspunkt, tidspunkt));
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(Long behandlingId, AktørId aktørId, DatoIntervallEntitet forPeriode) {
-        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId);
+    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(BehandlingReferanse ref, LocalDate tidspunkt) {
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
         if (grunnlagOpt.isPresent()) {
-            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), aktørId, forPeriode));
+            tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
+            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), tidspunkt, ref.getUtledetSkjæringstidspunkt()));
         }
         return Optional.empty();
     }
 
-    private PersonopplysningerAggregat mapTilAggregat(AktørId aktørId, LocalDate tidspunkt, PersonopplysningGrunnlagEntitet grunnlag) {
-        tidspunkt = tidspunkt == null ? LocalDate.now() : tidspunkt;
-        return new PersonopplysningerAggregat(grunnlag, aktørId, DatoIntervallEntitet.fraOgMedTilOgMed(tidspunkt, tidspunkt.plusDays(1)));
+    @Override
+    public Optional<PersonopplysningerAggregat> hentGjeldendePersoninformasjonForPeriodeHvisEksisterer(BehandlingReferanse ref, DatoIntervallEntitet forPeriode) {
+        final var grunnlagOpt = getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(ref.getBehandlingId());
+        if (grunnlagOpt.isPresent()) {
+            return Optional.of(new PersonopplysningerAggregat(grunnlagOpt.get(), ref.getAktørId(), forPeriode, ref.getUtledetSkjæringstidspunkt()));
+        }
+        return Optional.empty();
     }
 
     private PersonopplysningRepository getPersonopplysningRepository() {
