@@ -37,18 +37,6 @@ public class OppdragKvitteringTjenesteTest {
     @Test
     public void harPositivKvittering_nei_hvis_08() {
         // Arrange
-        var oppdrag110 = lagOppdrag110(Alvorlighetsgrad.OK_MED_MERKNAD);
-
-        // Act
-        var resultat = OppdragKvitteringTjeneste.harPositivKvittering(oppdrag110);
-
-        // Assert
-        assertThat(resultat).isFalse();
-    }
-
-    @Test
-    public void harPositivKvittering_nei_hvis_12() {
-        // Arrange
         var oppdrag110 = lagOppdrag110(Alvorlighetsgrad.FEIL);
 
         // Act

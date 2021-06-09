@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighets
 
 @Entity(name = "OppdragKvittering")
 @Table(name = "OPPDRAG_KVITTERING")
-public class OppdragKvittering extends BaseEntitet {
+public class OppdragKvittering extends BaseCreateableEntitet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OPPDRAG_KVITTERING")
