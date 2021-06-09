@@ -33,6 +33,11 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
         }
 
         @Override
+        public Set<LovEndring> getGyldigForLovendringer() {
+            return Set.of();
+        }
+
+        @Override
         public String getNavn() {
             return "Ikke definert";
         }
@@ -55,7 +60,7 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
 
     @JsonProperty("gyldigFom")
     default LocalDate getGyldigFraOgMed() {
-        return LocalDate.of(2001, 01, 01);
+        return LocalDate.of(2001, 1, 1);
     }
 
     @JsonProperty("gyldigTom")
@@ -66,6 +71,8 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
     Set<UttakType> getUttakTyper();
 
     Set<StønadskontoType> getValgbarForKonto();
+
+    Set<LovEndring> getGyldigForLovendringer();
 
     /**
      * Enkel serialisering av KodeverkTabell klass PeriodeResultatÅrsak, uten at disse trenger @JsonIgnore eller lignende. Deserialisering går
@@ -88,6 +95,7 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
             jgen.writeStringField("kodeverk", value.getKodeverk());
             jgen.writeStringField("gyldigFom", value.getGyldigFraOgMed().toString());
             jgen.writeStringField("gyldigTom", value.getGyldigTilOgMed().toString());
+            writeArray(jgen, value.getGyldigForLovendringer(), "gyldigForLovendringer");
             writeArray(jgen, value.getUttakTyper(), "uttakTyper");
             writeArray(jgen, value.getValgbarForKonto(), "valgbarForKonto");
             jgen.writeEndObject();
@@ -108,5 +116,10 @@ public interface PeriodeResultatÅrsak extends ÅrsakskodeMedLovreferanse, Kodev
         public MyPeriodeResultatÅrsakSerializer() {
             super(PeriodeResultatÅrsak.class);
         }
+    }
+
+    enum LovEndring {
+        KREVER_SAMMENHENGENDE_UTTAK,
+        FRITT_UTTAK
     }
 }
