@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
-
     private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL,
         FamilieHendelseType.TERMIN);
 
