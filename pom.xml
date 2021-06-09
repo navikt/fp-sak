@@ -57,7 +57,7 @@
         <swaggercore.version>2.1.9</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
         <!-- Hold samme som i felles -->
-        <cxf.version>3.4.3</cxf.version>
+        <cxf.version>3.4.4</cxf.version>
     </properties>
 
     <prerequisites>
