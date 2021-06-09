@@ -81,6 +81,10 @@ public class Oppdragskontroll extends BaseEntitet {
         return prosessTaskId;
     }
 
+    public void setProsessTaskId(final Long prosessTaskId) {
+        this.prosessTaskId = prosessTaskId;
+    }
+
     public List<Oppdrag110> getOppdrag110Liste() {
         return oppdrag110Liste;
     }

@@ -86,7 +86,7 @@ class ForvaltningOppdragTjeneste {
         lagSendØkonomioppdragTask(vurderØkonomiTask, false);
 
         LOG.warn(
-            "Patchet oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Ukelønn for å avsjekke resultatet når prosesstask er kjørt.",
+            "Patchet oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Foreldrepenger for å avsjekke resultatet når prosesstask er kjørt.",
             behandlingId, dto.getFagsystemId());
     }
 

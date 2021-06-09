@@ -7,6 +7,7 @@ class LagOppdragskontrollTjeneste {
     static Oppdragskontroll hentEllerOpprettOppdragskontroll(OppdragInput input, Oppdragskontroll oppdragskontrollFraFør) {
         if (oppdragskontrollFraFør != null) {
             oppdragskontrollFraFør.setVenterKvittering(Boolean.TRUE);
+            oppdragskontrollFraFør.setProsessTaskId(input.getProsessTaskId());
             return oppdragskontrollFraFør;
         }
         return Oppdragskontroll.builder()

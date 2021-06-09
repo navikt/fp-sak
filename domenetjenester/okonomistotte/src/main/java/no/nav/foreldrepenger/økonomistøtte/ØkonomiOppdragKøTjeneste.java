@@ -3,10 +3,15 @@ package no.nav.foreldrepenger.økonomistøtte;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 @ApplicationScoped
 public class ØkonomiOppdragKøTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ØkonomiOppdragKøTjeneste.class);
 
     private ØkonomioppdragRepository økonomioppdragRepository;
     private ØkonomioppdragJmsProducer økonomioppdragJmsProducer;
@@ -34,6 +39,7 @@ public class ØkonomiOppdragKøTjeneste {
         oppdragskontroll.ifPresent(ok -> {
             var mapper = new ØkonomioppdragMapper();
             var oppdragXMLListe = mapper.generateOppdragXML(ok);
+            LOG.debug("Sender {} økonomi oppdrag.", oppdragXMLListe.size());
             //Legge oppdragXML i kø til Økonomiløsningen
             for (var oppdragXML : oppdragXMLListe) {
                 økonomioppdragJmsProducer.sendØkonomiOppdrag(oppdragXML);

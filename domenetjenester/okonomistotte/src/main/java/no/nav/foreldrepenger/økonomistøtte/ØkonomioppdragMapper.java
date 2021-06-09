@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
@@ -33,6 +35,8 @@ import no.nav.vedtak.exception.TekniskException;
 
 
 public class ØkonomioppdragMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ØkonomioppdragMapper.class);
 
     private static final String TYPE_ENHET = "BOS";
     private static final String ENHET = "8020";
@@ -62,6 +66,7 @@ public class ØkonomioppdragMapper {
         List<String> oppdragXmlListe = new ArrayList<>();
         for (var okoOppdrag110 : oppdrag110UtenKvittering) {
             var oppdrag = mapVedtaksDataToOppdrag(okoOppdrag110, oppdragskontroll.getBehandlingId());
+            LOG.debug("Oppretter oppdrag XML for behandling: {} og fagsystem: {}", oppdragskontroll.getBehandlingId(), okoOppdrag110.getFagsystemId());
             try {
                 var oppdragXml = JaxbHelper.marshalAndValidateJaxb(OppdragSkjemaConstants.JAXB_CLASS, oppdrag, OppdragSkjemaConstants.XSD_LOCATION);
                 oppdragXmlListe.add(oppdragXml);
