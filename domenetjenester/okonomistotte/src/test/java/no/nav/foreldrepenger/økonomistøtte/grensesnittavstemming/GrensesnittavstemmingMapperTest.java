@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -60,7 +61,7 @@ public class GrensesnittavstemmingMapperTest {
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
     }
 
-    private Oppdragskontroll opprettOppdrag(String status, KodeFagområde fagområde) {
+    private Oppdragskontroll opprettOppdrag(Alvorlighetsgrad status, KodeFagområde fagområde) {
         var oppdragskontroll = buildOppdragskontroll(status == null);
         var oppdrag110 = buildOppdrag110(oppdragskontroll, fagområde, LocalDateTime.now());
         buildOppdragslinje150(oppdrag110);
@@ -68,7 +69,7 @@ public class GrensesnittavstemmingMapperTest {
         if (status != null) {
             var oppdragKvittering = buildOppdragKvittering(oppdrag110);
             oppdragKvittering.setAlvorlighetsgrad(status);
-            if (!"00".equals(status)) {
+            if (!Alvorlighetsgrad.OK.equals(status)) {
                 oppdragKvittering.setBeskrMelding(BESKRIVENDE_MELDING);
                 oppdragKvittering.setMeldingKode(MELDINGKODE);
             }
@@ -104,16 +105,16 @@ public class GrensesnittavstemmingMapperTest {
     private void setupForStoreDatamengder(KodeFagområde kodeFagområde) {
         oppdragsliste = new ArrayList<>();
         for (var gruppe = 0; gruppe < 60; gruppe++) {
-            var oppdrag = opprettOppdrag("00", kodeFagområde);
+            var oppdrag = opprettOppdrag(Alvorlighetsgrad.OK, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
             oppdrag = opprettOppdrag(null, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag("08", kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag("04", kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
@@ -123,16 +124,16 @@ public class GrensesnittavstemmingMapperTest {
 
         oppdragsliste = new ArrayList<>();
         for (var gruppe = 0; gruppe < 560; gruppe++) {
-            var oppdrag = opprettOppdrag("00", kodeFagområde);
+            var oppdrag = opprettOppdrag(Alvorlighetsgrad.OK, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
             oppdrag = opprettOppdrag(null, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag("08", kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.FEIL, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
 
-            oppdrag = opprettOppdrag("04", kodeFagområde);
+            oppdrag = opprettOppdrag(Alvorlighetsgrad.OK_MED_MERKNAD, kodeFagområde);
             oppdragsliste.addAll(oppdrag.getOppdrag110Liste());
         }
         grensesnittavstemmingMapper = new GrensesnittavstemmingMapper(oppdragsliste, kodeFagområde.getKode());
@@ -141,9 +142,9 @@ public class GrensesnittavstemmingMapperTest {
     private void opprettOppdragMedFlereOppdrag110ForForskjelligeFagområder() {
         oppdragsliste = new ArrayList<>();
 
-        var oppdrag = opprettOppdrag("00", KodeFagområde.FORELDREPENGER_BRUKER);
-        var oppdrag2 = opprettOppdrag("00", kodeFagområde);
-        var oppdrag3 = opprettOppdrag("00", KodeFagområde.ENGANGSSTØNAD);
+        var oppdrag = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.FORELDREPENGER_BRUKER);
+        var oppdrag2 = opprettOppdrag(Alvorlighetsgrad.OK, kodeFagområde);
+        var oppdrag3 = opprettOppdrag(Alvorlighetsgrad.OK, KodeFagområde.ENGANGSSTØNAD);
         oppdrag.getOppdrag110Liste().add(oppdrag2.getOppdrag110Liste().get(0));
         oppdrag.getOppdrag110Liste().add(oppdrag3.getOppdrag110Liste().get(0));
 

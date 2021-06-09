@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
@@ -66,7 +67,7 @@ public class ØkonomiNullProducer extends ØkonomioppdragJmsProducer {
             var kvittering = new ØkonomiKvittering();
             kvittering.setFagsystemId(Long.parseLong(fagSystemId));
             kvittering.setBehandlingId(Long.parseLong(henvisning));
-            kvittering.setAlvorlighetsgrad("00");
+            kvittering.setAlvorlighetsgrad(Alvorlighetsgrad.OK);
 
             LOG.info("Registrerer kvittering for økonomiOppdrag for fagsystemId {} og henvisning {}.", fagSystemId, henvisning);
             behandleØkonomioppdragKvittering.behandleKvittering(kvittering);

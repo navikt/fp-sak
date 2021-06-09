@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+
 public class ØkonomiKvittering {
 
     private Long behandlingId;
     private Long fagsystemId;
     private String meldingKode;
-    private String alvorlighetsgrad;
     private String beskrMelding;
+    private Alvorlighetsgrad alvorlighetsgrad;
 
 
     public Long getBehandlingId() {
@@ -17,7 +19,7 @@ public class ØkonomiKvittering {
         return fagsystemId;
     }
 
-    public String getAlvorlighetsgrad() {
+    public Alvorlighetsgrad getAlvorlighetsgrad() {
         return alvorlighetsgrad;
     }
 
@@ -41,12 +43,11 @@ public class ØkonomiKvittering {
         this.meldingKode = meldingKode;
     }
 
-    public void setAlvorlighetsgrad(String alvorlighetsgrad) {
+    public void setAlvorlighetsgrad(Alvorlighetsgrad alvorlighetsgrad) {
         this.alvorlighetsgrad = alvorlighetsgrad;
     }
 
     public void setBeskrMelding(String beskrMelding) {
         this.beskrMelding = beskrMelding;
     }
-
 }

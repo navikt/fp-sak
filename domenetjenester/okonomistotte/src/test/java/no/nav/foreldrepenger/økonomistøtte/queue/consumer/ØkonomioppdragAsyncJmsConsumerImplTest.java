@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
@@ -70,7 +71,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
         var kvittering = captor.getValue();
         assertThat(kvittering).isNotNull();
-        verifiserKvittering(kvittering, "00", null, BEHANDLINGID, "Oppdrag behandlet");
+        verifiserKvittering(kvittering, Alvorlighetsgrad.OK, null, BEHANDLINGID, "Oppdrag behandlet");
     }
 
     @Test
@@ -85,7 +86,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         verify(behandleØkonomioppdragKvittering).behandleKvittering(captor.capture());
         var kvittering = captor.getValue();
         assertThat(kvittering).isNotNull();
-        verifiserKvittering(kvittering, "08", "B110006F", 341L, "UTBET-FREKVENS har en ugyldig verdi: ENG");
+        verifiserKvittering(kvittering, Alvorlighetsgrad.FEIL, "B110006F", 341L, "UTBET-FREKVENS har en ugyldig verdi: ENG");
     }
 
     private TextMessage opprettKvitteringXml(String filename) throws JMSException, IOException, URISyntaxException {
@@ -100,7 +101,7 @@ public class ØkonomioppdragAsyncJmsConsumerImplTest {
         return Files.readString(path);
     }
 
-    private void verifiserKvittering(ØkonomiKvittering kvittering, String alvorlighetsgrad, String meldingKode, Long behandlingId, String beskrMelding) {
+    private void verifiserKvittering(ØkonomiKvittering kvittering, Alvorlighetsgrad alvorlighetsgrad, String meldingKode, Long behandlingId, String beskrMelding) {
         assertThat(kvittering.getAlvorlighetsgrad()).isEqualTo(alvorlighetsgrad);
         assertThat(kvittering.getMeldingKode()).isEqualTo(meldingKode);
         assertThat(kvittering.getBehandlingId()).isEqualTo(behandlingId);

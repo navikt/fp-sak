@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -19,15 +17,14 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.vedtak.task.SendØkonomiOppdragTask;
 import no.nav.foreldrepenger.domene.vedtak.task.VurderOgSendØkonomiOppdragTask;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomistøtte.ny.domene.FagsystemId;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -69,7 +66,7 @@ class ForvaltningOppdragTjeneste {
         var kvittering = new ØkonomiKvittering();
         kvittering.setBehandlingId(behandlingId);
         kvittering.setFagsystemId(fagsystemId);
-        kvittering.setAlvorlighetsgrad("00"); // kode som indikerer at alt er OK
+        kvittering.setAlvorlighetsgrad(Alvorlighetsgrad.OK);
 
         LOG.info("Kvitterer oppdrag OK for behandlingId={} fagsystemId={} oppdaterProsessTask={}", behandlingId,
             fagsystemId, oppdaterProsesstask);
@@ -118,7 +115,7 @@ class ForvaltningOppdragTjeneste {
         kvitterBortEksisterendeOppdrag(oppdragskontroll, fagsystemId);
         lagVurderOgSendØkonomioppdragTask(behandling);
 
-        LOG.warn(
+        LOG.info(
             "Patchet arbeidsgiver oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Foreldrepenger for å avsjekke resultatet når prosesstask er kjørt.",
             behandlingId, fagsystemId);
     }
@@ -155,7 +152,7 @@ class ForvaltningOppdragTjeneste {
             if (eksisterendeOppdrag110.getFagsystemId() == dto.getFagsystemId() && eksisterendeOppdrag110.venterKvittering()) {
                 OppdragKvittering.builder()
                     .medOppdrag110(eksisterendeOppdrag110)
-                    .medAlvorlighetsgrad("04") // må sette en feilkode slik at
+                    .medAlvorlighetsgrad(Alvorlighetsgrad.OK_MED_MERKNAD)
                     .medBeskrMelding("Erstattes av nytt oppdrag")
                     .build();
                 LOG.info(
@@ -170,7 +167,7 @@ class ForvaltningOppdragTjeneste {
             .filter(oppdrag110 -> oppdrag110.getFagsystemId() == fagsystemId).findFirst().orElseThrow(() -> new IllegalStateException("Forventer å finne oppdrag."));
 
         var oppdragKvittering = oppdrag.getOppdragKvittering();
-        oppdragKvittering.setAlvorlighetsgrad("04");
+        oppdragKvittering.setAlvorlighetsgrad(Alvorlighetsgrad.FEIL);
         oppdragKvittering.setBeskrMelding("Erstattes med nytt oppdrag pga feil max dato.");
         økonomioppdragRepository.lagre(oppdragKvittering);
 

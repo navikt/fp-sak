@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -290,7 +291,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     private OppdragKvittering buildOppdragKvittering(Oppdrag110 oppdrag110) {
         return OppdragKvittering.builder().medOppdrag110(oppdrag110)
-                .medAlvorlighetsgrad("00")
+                .medAlvorlighetsgrad(Alvorlighetsgrad.OK)
                 .build();
     }
 

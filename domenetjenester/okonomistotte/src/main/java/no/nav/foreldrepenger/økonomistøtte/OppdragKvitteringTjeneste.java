@@ -2,10 +2,9 @@ package no.nav.foreldrepenger.økonomistøtte;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 
 public class OppdragKvitteringTjeneste {
-
-    public static final int POSITIV_KVITTERING = 4;
 
     private OppdragKvitteringTjeneste() {
         // hide public constructor
@@ -16,7 +15,7 @@ public class OppdragKvitteringTjeneste {
     }
 
     private static boolean erPositivKvittering(OppdragKvittering oppdragKvittering) {
-        var alvorlighetsgrad = Integer.parseInt(oppdragKvittering.getAlvorlighetsgrad());
-        return alvorlighetsgrad <= POSITIV_KVITTERING;
+        return oppdragKvittering.getAlvorlighetsgrad().equals(Alvorlighetsgrad.OK) ||
+            oppdragKvittering.getAlvorlighetsgrad().equals(Alvorlighetsgrad.OK_MED_MERKNAD);
     }
 }

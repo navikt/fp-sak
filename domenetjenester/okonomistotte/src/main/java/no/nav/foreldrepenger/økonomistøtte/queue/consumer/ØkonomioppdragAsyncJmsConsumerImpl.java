@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.xml.sax.SAXException;
 
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Mmel;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
@@ -127,7 +128,7 @@ public class ØkonomioppdragAsyncJmsConsumerImpl extends InternalQueueConsumer i
     }
 
     private void fraMmel(ØkonomiKvittering kvittering, Mmel mmel, String fagsystemId) {
-        kvittering.setAlvorlighetsgrad(mmel.getAlvorlighetsgrad());
+        kvittering.setAlvorlighetsgrad(Alvorlighetsgrad.fraKode(mmel.getAlvorlighetsgrad()));
         kvittering.setMeldingKode(mmel.getKodeMelding());
         kvittering.setBeskrMelding(mmel.getBeskrMelding());
         kvittering.setFagsystemId(Long.parseLong(fagsystemId));
