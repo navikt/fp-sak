@@ -8,12 +8,10 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.input.UttakYrkesaktiviteter;
@@ -38,7 +36,8 @@ public class MapUttakResultatFraVLTilRegel {
                 var uttakAktiviteter = periode.getAktiviteter().stream()
                     .map(aktivitet -> mapAktivitet(input, aktivitet, periode.getFom(), periode.isGraderingInnvilget()))
                     .collect(Collectors.toList());
-                return new UttakResultatPeriode(periode.getFom(), periode.getTom(), uttakAktiviteter, erOppholdsPeriode(periode));
+                return new UttakResultatPeriode(periode.getFom(), periode.getTom(), uttakAktiviteter,
+                    periode.isOpphold());
             })
             .collect(Collectors.toList());
 
@@ -124,7 +123,4 @@ public class MapUttakResultatFraVLTilRegel {
             BigDecimal.valueOf(100);
     }
 
-    private boolean erOppholdsPeriode(ForeldrepengerUttakPeriode periode) {
-        return !OppholdÅrsak.UDEFINERT.equals(periode.getOppholdÅrsak());
-    }
 }

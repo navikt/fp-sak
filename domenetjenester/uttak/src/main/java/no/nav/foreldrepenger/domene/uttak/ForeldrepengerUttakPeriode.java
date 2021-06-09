@@ -166,14 +166,14 @@ public class ForeldrepengerUttakPeriode {
     }
 
     public boolean harAktivtUttak() {
-        return harUtbetaling() || harTrekkdager() || erInnvilgetUtsettelse();
+        return harUtbetaling() || harTrekkdager() || isInnvilgetUtsettelse();
     }
 
-    public boolean erInnvilgetUtsettelse() {
-        return erUtsettelse() && !harTrekkdager() && !harUtbetaling() && isInnvilget();
+    public boolean isInnvilgetUtsettelse() {
+        return isUtsettelse() && !harTrekkdager() && !harUtbetaling() && isInnvilget();
     }
 
-    private boolean erUtsettelse() {
+    private boolean isUtsettelse() {
         return !Objects.equals(getUtsettelseType(), UttakUtsettelseType.UDEFINERT);
     }
 
@@ -193,8 +193,12 @@ public class ForeldrepengerUttakPeriode {
         return getOverføringÅrsak() != null;
     }
 
-    public boolean erSøktGradering() {
+    public boolean isSøktGradering() {
         return getAktiviteter().stream().anyMatch(ForeldrepengerUttakPeriodeAktivitet::isSøktGraderingForAktivitetIPeriode);
+    }
+
+    public boolean isOpphold() {
+        return !OppholdÅrsak.UDEFINERT.equals(getOppholdÅrsak());
     }
 
     @Override
