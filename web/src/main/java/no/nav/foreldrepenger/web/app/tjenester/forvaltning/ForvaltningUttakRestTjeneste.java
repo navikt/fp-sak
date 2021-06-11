@@ -43,15 +43,15 @@ public class ForvaltningUttakRestTjeneste {
     @Operation(description = "Legg til uttak på opphørt behandling. Alle periodene avslås.", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOpphørUttakPåOpphørtFpBehandling(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Objects.requireNonNull(dto.getBehandlingUUID(), "Støtter bare UUID");
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
-        if (!forvaltningUttakTjeneste.erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(dto.getBehandlingUUID())) {
+        if (!forvaltningUttakTjeneste.erFerdigForeldrepengerBehandlingSomHarFørtTilOpphør(dto.getBehandlingUuid())) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Behandlingen må være type foreldrepenger, avsluttet og ført til oppfør")
                     .build();
         }
 
-        forvaltningUttakTjeneste.lagOpphørtUttaksresultat(dto.getBehandlingUUID());
+        forvaltningUttakTjeneste.lagOpphørtUttaksresultat(dto.getBehandlingUuid());
         return Response.noContent().build();
     }
 
@@ -61,8 +61,8 @@ public class ForvaltningUttakRestTjeneste {
     @Operation(description = "Beregner kontoer basert på data fra behandlingen. Husk å revurdere begge foreldre", tags = "FORVALTNING-uttak")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response beregnKontoer(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        Objects.requireNonNull(dto.getBehandlingUUID(), "Støtter bare UUID");
-        forvaltningUttakTjeneste.beregnKontoer(dto.getBehandlingUUID());
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
+        forvaltningUttakTjeneste.beregnKontoer(dto.getBehandlingUuid());
         return Response.noContent().build();
     }
 
@@ -73,9 +73,9 @@ public class ForvaltningUttakRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response endreAnnenForelderRett(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
             @QueryParam(value = "harRett") @Valid Boolean harRett) {
-        Objects.requireNonNull(dto.getBehandlingUUID(), "Støtter bare UUID");
+        Objects.requireNonNull(dto.getBehandlingUuid(), "Støtter bare UUID");
 
-        forvaltningUttakTjeneste.endreAnnenForelderHarRett(dto.getBehandlingUUID(), harRett);
+        forvaltningUttakTjeneste.endreAnnenForelderHarRett(dto.getBehandlingUuid(), harRett);
         return Response.noContent().build();
     }
 }

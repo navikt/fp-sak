@@ -92,9 +92,7 @@ public class ForvaltningStegRestTjeneste {
     }
 
     private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        return behandlingId == null ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUUID())
-            : behandlingsprosessTjeneste.hentBehandling(behandlingId);
+        return behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST

@@ -226,7 +226,8 @@ public class ForvaltningBehandlingRestTjeneste {
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response oppdaterMigrertFraInfotrygd(@BeanParam @Valid ForvaltningBehandlingIdDto dto,
             @NotNull @QueryParam("migrertFraInfotrygd") @Valid Boolean migrertFraInfotrygd) {
-        var behandling = getBehandling(dto);
+        var behandlingId = dto.getBehandlingUuid();
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling == null) {
             LOG.info("Oppgitt behandling {} er ukjent", dto);
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -252,14 +253,6 @@ public class ForvaltningBehandlingRestTjeneste {
             lagHistorikkInnslag(behandling.getId(), HistorikkinnslagType.MIGRERT_FRA_INFOTRYGD_FJERNET);
         }
         return Response.ok().build();
-    }
-
-    private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        if (behandlingId == null) {
-            return behandlingRepository.hentBehandling(dto.getBehandlingUUID());
-        }
-        return behandlingRepository.hentBehandling(behandlingId);
     }
 
     private void lagHistorikkInnslag(Long behandlingId, HistorikkinnslagType innslagType) {
