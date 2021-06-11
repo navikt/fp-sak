@@ -23,7 +23,7 @@ public class ReåpneBehandlingDto extends DtoMedBehandlingId  {
     @Override
     public String toString() {
         return "BehandlingIdDto{" +
-            "behandlingId=" + getBehandlingId() +
+            "behandlingId=" + getBehandlingUuid() +
             '}';
     }
 }

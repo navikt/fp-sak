@@ -10,14 +10,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 
 public class BekreftedeAksjonspunkterDto {
 
     @Valid
-    private BehandlingIdDto behandlingId;
-
-    @Valid
+    @NotNull
     private UUID behandlingUuid;
 
     @NotNull
@@ -29,27 +26,18 @@ public class BekreftedeAksjonspunkterDto {
     @Valid
     private Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer;
 
-    public static BekreftedeAksjonspunkterDto lagDto(Long behandlingId,
-                                                     UUID behandlingUuid,
+    public static BekreftedeAksjonspunkterDto lagDto(UUID behandlingUuid,
                                                      Long behandlingVersjon,
                                                      Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer) {
         var dto = new BekreftedeAksjonspunkterDto();
-        dto.behandlingId = new BehandlingIdDto(behandlingId);
         dto.behandlingVersjon = behandlingVersjon;
         dto.bekreftedeAksjonspunktDtoer = bekreftedeAksjonspunktDtoer;
         dto.behandlingUuid = behandlingUuid;
         return dto;
     }
 
-    public Long getBehandlingId() {
-        return behandlingId == null ? null : behandlingId.getBehandlingId();
-    }
-
     public UUID getBehandlingUuid() {
-        if (behandlingUuid != null) {
-            return behandlingUuid;
-        }
-        return behandlingId != null ? behandlingId.getBehandlingUuid() : null;
+        return behandlingUuid;
     }
 
     public Long getBehandlingVersjon() {

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class BehandlingIdDto  {
 
+
+    //TODO palfi fjerne?
     @Min(0)
     @Max(Long.MAX_VALUE)
     private Long behandlingId;

@@ -10,14 +10,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 
 public class OverstyrteAksjonspunkterDto {
 
     @Valid
-    private BehandlingIdDto behandlingId;
-
-    @Valid
+    @NotNull
     private UUID behandlingUuid;
 
     @NotNull
@@ -29,15 +26,8 @@ public class OverstyrteAksjonspunkterDto {
     @Size(min = 1, max = 10)
     private Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer;
 
-    public Long getBehandlingId() {
-        return behandlingId == null ? null : behandlingId.getBehandlingId();
-    }
-
     public UUID getBehandlingUuid() {
-        if (behandlingUuid != null) {
-            return behandlingUuid;
-        }
-        return behandlingId != null ? behandlingId.getBehandlingUuid() : null;
+        return behandlingUuid;
     }
 
     public Long getBehandlingVersjon() {

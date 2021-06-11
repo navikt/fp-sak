@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +34,6 @@ public class AksjonspunktRestTjenesteTest {
 
     // skal_håndtere_overlappende_perioder data
     private static final LocalDate now = LocalDate.now();
-    private static final long behandlingId = 1L;
     private static final UUID behandlingUuid = UUID.randomUUID();
     private static final Long behandlingVersjon = 2L;
     private static final String begrunnelse = "skal_håndtere_overlappende_perioder";
@@ -72,7 +70,7 @@ public class AksjonspunktRestTjenesteTest {
                         utstedtdato,
                         antallBarn));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -88,7 +86,7 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         List.of(uidentifiserteBarn)));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -103,7 +101,7 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
@@ -121,7 +119,7 @@ public class AksjonspunktRestTjenesteTest {
                         begrunnelse,
                         aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -137,7 +135,7 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
         assertThrows(FunksjonellException.class,
-                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingId, behandlingUuid, behandlingVersjon, aksjonspunkt)));
+                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt)));
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {
