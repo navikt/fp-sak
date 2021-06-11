@@ -11,16 +11,13 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Behandling;
 @ApplicationScoped
 public class BehandlingGrunnlagBygger {
 
-    public BehandlingGrunnlagBygger() {
-        //CDI
-    }
-
     public Behandling.Builder byggGrunnlag(UttakInput input) {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         return new Behandling.Builder()
             .medErBerørtBehandling(fpGrunnlag.isBerørtBehandling())
-            .medSøkerErMor(søkerErMor(ref));
+            .medSøkerErMor(søkerErMor(ref))
+            .medKreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
     }
 
     private static boolean søkerErMor(BehandlingReferanse ref) {
