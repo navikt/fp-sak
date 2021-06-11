@@ -111,8 +111,7 @@ public class KlageRestTjeneste {
 
         var vurdertAv = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode().equals(apDto.getKode()) ? KlageVurdertAv.NFP
                 : KlageVurdertAv.NK;
-        var behandling = apDto.getBehandlingId() != null ? behandlingRepository.hentBehandling(apDto.getBehandlingId())
-            : behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
         if ((KlageVurdertAv.NK.equals(vurdertAv) && behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NK)) ||
@@ -216,7 +215,8 @@ public class KlageRestTjeneste {
         return dto;
     }
 
-    private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid, FptilbakeRestKlient fptilbakeRestKlient){
+    private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid,
+                                                                                               FptilbakeRestKlient fptilbakeRestKlient){
         return Optional.ofNullable(fptilbakeRestKlient.hentBehandlingInfo(paKlagdEksternBehandlingUuid));
     }
 
@@ -225,14 +225,8 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
-            var attributter = AbacDataAttributter.opprett();
-            if (req.getBehandlingUuid() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-            }
-            if (req.getBehandlingId() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 

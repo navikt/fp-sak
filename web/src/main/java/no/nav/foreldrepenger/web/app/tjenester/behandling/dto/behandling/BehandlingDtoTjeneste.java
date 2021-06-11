@@ -236,10 +236,6 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    public AnnenPartBehandlingDto lagAnnenPartBehandlingDto(Behandling behandling) {
-        return AnnenPartBehandlingDto.mapFra(behandling);
-    }
-
     private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
         var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtaksdato)

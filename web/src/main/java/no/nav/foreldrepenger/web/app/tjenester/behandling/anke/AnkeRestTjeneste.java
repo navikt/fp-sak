@@ -103,14 +103,10 @@ public class AnkeRestTjeneste {
     public Response mellomlagreAnke(@TilpassetAbacAttributt(supplierClass = MellomlagreAbacDataSupplier.class)
             @Parameter(description = "AnkeVurderingAdapter tilpasset til mellomlagring.") @Valid AnkeVurderingResultatAksjonspunktMellomlagringDto apDto) {
 
-        var behandling = apDto.getBehandlingUuid() == null ? behandlingRepository.hentBehandling(apDto.getBehandlingId())
-            : behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             var builder = mapMellomlagreVurdering(apDto, behandling);
-            var påanketBehandlingId = apDto.hentPåAnketBehandlingId();
-            if (påanketBehandlingId == null && apDto.hentPåAnketBehandlingUuid() != null) {
-                påanketBehandlingId = behandlingRepository.hentBehandling(apDto.hentPåAnketBehandlingUuid()).getId();
-            }
+            var påanketBehandlingId = behandlingRepository.hentBehandling(apDto.hentPåAnketBehandlingUuid()).getId();
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, påanketBehandlingId);
         } else {
             var builder = mapMellomlagreTekst(apDto, behandling);
@@ -124,14 +120,8 @@ public class AnkeRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (AnkeVurderingResultatAksjonspunktMellomlagringDto) obj;
-            var attributter = AbacDataAttributter.opprett();
-            if (req.getBehandlingUuid() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-            }
-            if (req.getBehandlingId() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
@@ -148,7 +138,7 @@ public class AnkeRestTjeneste {
                 .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
                 .medErIkkeKonkret(apDto.erIkkeKonkret())
                 .medErIkkeSignert(apDto.erIkkeSignert())
-                .medGjelderVedtak(apDto.hentPåAnketBehandlingId() != null || apDto.hentPåAnketBehandlingUuid() != null);
+                .medGjelderVedtak(apDto.hentPåAnketBehandlingUuid() != null);
     }
 
     private AnkeVurderingResultatEntitet.Builder mapMellomlagreTekst(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {

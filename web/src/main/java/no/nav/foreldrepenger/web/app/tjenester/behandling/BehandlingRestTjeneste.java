@@ -66,6 +66,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.AnnenPartBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.ProsessTaskGruppeIdDto;
@@ -94,9 +95,7 @@ public class BehandlingRestTjeneste {
     private static final String BEHANDLINGER_ALLE_PART_PATH = "/alle";
     public static final String BEHANDLINGER_ALLE_PATH = BASE_PATH + BEHANDLINGER_ALLE_PART_PATH; // NOSONAR TFP-2234
     private static final String BEHANDLINGER_PART_PATH = "";
-    public static final String BEHANDLINGER_PATH = BASE_PATH + BEHANDLINGER_PART_PATH; // NOSONAR TFP-2234
     private static final String BEHANDLINGER_STATUS_PART_PATH = "/status";
-    public static final String BEHANDLINGER_STATUS_PATH = BASE_PATH + BEHANDLINGER_STATUS_PART_PATH; // NOSONAR TFP-2234
     private static final String BYTT_ENHET_PART_PATH = "/bytt-enhet";
     public static final String BYTT_ENHET_PATH = BASE_PATH + BYTT_ENHET_PART_PATH;
     private static final String GJENOPPTA_PART_PATH = "/gjenoppta";
@@ -253,9 +252,7 @@ public class BehandlingRestTjeneste {
     }
 
     private Behandling getBehandling(DtoMedBehandlingId dto) {
-        return dto.getBehandlingId() != null
-            ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingId())
-            : behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
+        return behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST
@@ -425,7 +422,7 @@ public class BehandlingRestTjeneste {
         var saksnummer = new Saksnummer(s.getVerdi());
 
         return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeYtelsesBehandling(saksnummer)
-            .map(behandlingDtoTjeneste::lagAnnenPartBehandlingDto)
+            .map(behandling -> new AnnenPartBehandlingDto(new SaksnummerDto(behandling.getFagsak().getSaksnummer()), behandling.getUuid()))
             .map(apDto -> Response.ok().entity(apDto).build()).orElseGet(() -> Response.ok().build());
     }
 
@@ -446,14 +443,8 @@ public class BehandlingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DtoMedBehandlingId) obj;
-            var attributter = AbacDataAttributter.opprett();
-            if (req.getBehandlingId() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            }
-            if (req.getBehandlingUuid() != null) {
-                attributter.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
-            }
-            return attributter;
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
