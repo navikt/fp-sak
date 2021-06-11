@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{github.event.pull_request.head.ref}}
+          
       # Brukes ukenummer i cache_key da pomene endrer seg alt for ofte.
       # Alternative key med cache fra forrige uke som blir lagret etterpå under CACHE_KEY.
 #       - name: Set cache key
