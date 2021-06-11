@@ -118,8 +118,7 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     private Long getBehandlingId(ForvaltningBehandlingIdDto behandlingIdDto) {
-        return behandlingIdDto.getBehandlingId() == null ? behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUUID()).getId()
-            : behandlingIdDto.getBehandlingId();
+        return behandlingRepository.hentBehandling(behandlingIdDto.getBehandlingUuid()).getId();
     }
 
     @POST
@@ -230,8 +229,7 @@ public class ForvaltningTekniskRestTjeneste {
     }
 
     private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        return dto.getBehandlingId() == null ? behandlingRepository.hentBehandling(dto.getBehandlingUUID())
-            : behandlingRepository.hentBehandling(dto.getBehandlingId());
+        return behandlingRepository.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST

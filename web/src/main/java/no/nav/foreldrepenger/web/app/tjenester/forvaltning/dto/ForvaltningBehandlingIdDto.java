@@ -2,11 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.QueryParam;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -19,37 +18,26 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
  */
 public class ForvaltningBehandlingIdDto implements AbacDto {
 
-    //TODO palfi bare UUID
+
+    //TODO palfi trenger ikke egen for forvaltning lenger
     @NotNull
-    @QueryParam("behandlingId")
-    @Pattern(regexp = "^[a-fA-F0-9-]+$")
+    @QueryParam("behandlingUuid")
+    @Valid
     @JsonProperty
-    private String behandlingId;
+    private UUID behandlingUuid;
 
-    @JsonIgnore
-    public Long getBehandlingId() {
-        return behandlingId != null && getBehandlingUUID() == null ? Long.valueOf(behandlingId) : null;
-    }
-
-    @JsonIgnore
-    public UUID getBehandlingUUID() {
-        return behandlingId != null && behandlingId.contains("-") ? UUID.fromString(behandlingId) : null;
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
-        if (getBehandlingId() != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId());
-        }
-        if (getBehandlingUUID() != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUUID());
-        }
-        return abac;
+        return AbacDataAttributter.opprett()
+            .leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
     }
 
     @Override
     public String toString() {
-        return behandlingId;
+        return behandlingUuid.toString();
     }
 }

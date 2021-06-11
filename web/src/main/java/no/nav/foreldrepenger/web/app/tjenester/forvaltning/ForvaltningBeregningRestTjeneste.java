@@ -158,9 +158,7 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private Behandling getBehandling(ForvaltningBehandlingIdDto dto) {
-        var behandlingId = dto.getBehandlingId();
-        return behandlingId == null ? behandlingRepository.hentBehandling(dto.getBehandlingUUID())
-            : behandlingRepository.hentBehandling(behandlingId);
+        return behandlingRepository.hentBehandling(dto.getBehandlingUuid());
     }
 
     @POST
