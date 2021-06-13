@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
@@ -165,7 +166,8 @@ public class RegisterdataInnhenter {
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .collect(Collectors.toList());
 
-        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(potensielleVedtak, bekreftetFødt);
+        var aktivtGrunnlag = pleiepengerRepository.hentGrunnlag(behandling.getId());
+        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
         eventuellePleiepenger.ifPresent(pp -> pleiepengerRepository.lagrePerioder(behandling.getId(), pp));
     }
 
@@ -238,7 +240,8 @@ public class RegisterdataInnhenter {
         return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? REVURDERING_ES : REVURDERING_FP_SVP;
     }
 
-    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
+    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
+                                                                                       List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
         var ppBuilder = new PleiepengerPerioderEntitet.Builder();
         for (var vedtak : vedtakene) {
             var oversatt = oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
@@ -252,7 +255,8 @@ public class RegisterdataInnhenter {
                     .forEach(ppBuilder::leggTil);
             }
         }
-        return ppBuilder.harPerioder() ? Optional.of(ppBuilder) : Optional.empty();
+        return ppBuilder.harPerioder() || aktivtGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse).isPresent() ?
+            Optional.of(ppBuilder) : Optional.empty();
     }
 
     private PleiepengerOpplysninger oversettTilleggsopplysninger(String tilleggsOpplysninger) {
