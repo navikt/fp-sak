@@ -7,8 +7,11 @@ import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.INNTEKT_SAMMENL
 import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.LIGNET_NÆRING;
 import static no.nav.abakus.iaygrunnlag.request.RegisterdataType.YTELSE;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,9 +24,14 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
+import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
+import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
+import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
@@ -31,15 +39,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
@@ -81,6 +96,7 @@ public class RegisterdataInnhenter {
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MedlemskapRepository medlemskapRepository;
+    private PleiepengerRepository pleiepengerRepository;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private AbakusTjeneste abakusTjeneste;
 
@@ -102,6 +118,7 @@ public class RegisterdataInnhenter {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
+        this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.abakusTjeneste = abakusTjeneste;
     }
@@ -112,26 +129,44 @@ public class RegisterdataInnhenter {
     }
 
     public void innhentPersonopplysninger(Behandling behandling) {
-        innhentPersoninformasjon(behandling);
-        innhentFamiliehendelse(behandling);
+        var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
+        var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getAktørId(), fødselsIntervall);
+        innhentPersoninformasjon(behandling, filtrertFødselFREG);
+        innhentFamiliehendelse(behandling, filtrertFødselFREG);
+        innhentPleiepenger(behandling, filtrertFødselFREG);
     }
 
-    public void innhentPersoninformasjon(Behandling behandling) {
+    private void innhentPersoninformasjon(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
         var søker = behandling.getNavBruker().getAktørId();
         var annenPart = finnAnnenPart(behandling.getId());
         final var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
-        var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
 
         final var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
         informasjonBuilder.tilbakestill(behandling.getAktørId(), annenPart);
-        personopplysningInnhenter.innhentPersonopplysninger(informasjonBuilder, søker, annenPart, opplysningsperioden, fødselsIntervall);
+        personopplysningInnhenter.innhentPersonopplysninger(informasjonBuilder, søker, annenPart, opplysningsperioden, filtrertFødselFREG);
         personopplysningRepository.lagre(behandling.getId(), informasjonBuilder);
     }
 
-    private void innhentFamiliehendelse(Behandling behandling) {
-        var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        var fødselRegistrertTps = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getAktørId(), intervaller);
-        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandling, fødselRegistrertTps);
+    private void innhentFamiliehendelse(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
+        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandling, filtrertFødselFREG);
+    }
+
+    private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
+        var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getIdent).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
+        var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getFødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
+
+        var request = new AktørDatoRequest(new AktørIdPersonident(behandling.getAktørId().getId()), tidligstFødt.minusWeeks(22), YtelseType.FORELDREPENGER);
+
+        var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
+            .map(y -> (YtelseV1)y)
+            .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
+            .filter(y -> YtelseType.PLEIEPENGER_SYKT_BARN.equals(y.getType()))
+            .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
+            .collect(Collectors.toList());
+
+        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(potensielleVedtak, bekreftetFødt);
+        eventuellePleiepenger.ifPresent(pp -> pleiepengerRepository.lagrePerioder(behandling.getId(), pp));
     }
 
     public void innhentMedlemskapsOpplysning(Behandling behandling) {
@@ -202,4 +237,41 @@ public class RegisterdataInnhenter {
         }
         return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? REVURDERING_ES : REVURDERING_FP_SVP;
     }
+
+    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
+        var ppBuilder = new PleiepengerPerioderEntitet.Builder();
+        for (var vedtak : vedtakene) {
+            var oversatt = oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
+            if (oversatt != null && oversatt.innleggelsesPerioder() != null && gjelderAktuelleBarn(oversatt, aktuelleBarn)) {
+                oversatt.innleggelsesPerioder().stream()
+                    .filter(ip -> ip.tom() != null)
+                    .map(ip -> new PleiepengerInnleggelseEntitet.Builder()
+                        .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ip.fom(), ip.tom()))
+                        .medPleiepengerSaksnummer(new Saksnummer(vedtak.getSaksnummer()))
+                        .medPleietrengendeAktørId(oversatt.pleietrengende()))
+                    .forEach(ppBuilder::leggTil);
+            }
+        }
+        return ppBuilder.harPerioder() ? Optional.of(ppBuilder) : Optional.empty();
+    }
+
+    private PleiepengerOpplysninger oversettTilleggsopplysninger(String tilleggsOpplysninger) {
+        try {
+            return StandardJsonConfig.fromJson(tilleggsOpplysninger, PleiepengerOpplysninger.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved oversetting av pleiepenger / innleggelse for {}", tilleggsOpplysninger, e);
+            return null;
+        }
+    }
+
+    private boolean gjelderAktuelleBarn(PleiepengerOpplysninger pleiepenger, Set<PersonIdent> aktuelleBarn) {
+        return personopplysningInnhenter.hentPersonIdentForAktør(pleiepenger.pleietrengende())
+            .filter(aktuelleBarn::contains)
+            .isPresent();
+    }
+
+
+    static record PleiepengerOpplysninger(AktørId pleietrengende, List<PleiepengerInnlagtPeriode> innleggelsesPerioder) {}
+
+    static record PleiepengerInnlagtPeriode(LocalDate fom, LocalDate tom) {}
 }

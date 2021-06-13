@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.økonomistøtte;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -92,11 +91,6 @@ public class PersonInfoAdapterMock extends PersoninfoAdapter {
 
     @Override
     public Optional<Personinfo> innhentPersonopplysningerFor(PersonIdent personIdent) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<LocalDate> hentFødselsdato(PersonIdent ident) {
         return Optional.empty();
     }
 

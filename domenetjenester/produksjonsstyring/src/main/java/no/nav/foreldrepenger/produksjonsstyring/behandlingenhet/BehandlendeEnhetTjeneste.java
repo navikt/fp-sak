@@ -69,6 +69,11 @@ public class BehandlendeEnhetTjeneste {
         return sjekkMotKobletSak(fagsak, enhet);
     }
 
+    public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, OrganisasjonsEnhet sisteBrukt) {
+        if (gyldigEnhetNfpNk(sisteBrukt.getEnhetId())) return sisteBrukt;
+        return enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null));
+    }
+
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {
         var forrigeEnhet = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
             .filter(b -> gyldigEnhetNfpNk(b.getBehandlendeEnhet()))

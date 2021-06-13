@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,8 +53,12 @@ public class PersonopplysningInnhenter {
         return personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(aktørId, intervaller);
     }
 
+    public Optional<PersonIdent> hentPersonIdentForAktør(AktørId aktørId) {
+        return personinfoAdapter.hentFnr(aktørId);
+    }
+
     public void innhentPersonopplysninger(PersonInformasjonBuilder informasjonBuilder, AktørId søker, Optional<AktørId> annenPart,
-                                          SimpleLocalDateInterval opplysningsperiode, List<LocalDateInterval> fødselsIntervaller) {
+                                          SimpleLocalDateInterval opplysningsperiode, List<FødtBarnInfo> filtrertFødselFREG) {
 
         // Fase 1 - Innhent persongalleri - søker, annenpart, relevante barn og ektefelle
         Map<PersonIdent, Personinfo> innhentet = new LinkedHashMap<>();
@@ -63,7 +68,7 @@ public class PersonopplysningInnhenter {
         var annenPartInfo = annenPart.flatMap(ap -> innhentAktørId(ap, innhentet));
         var annenPartsBarn = annenPartInfo.map(this::getAnnenPartsBarn).orElse(Set.of());
 
-        var barnSomSkalInnhentes = finnBarnRelatertTil(søkerPersonInfo, fødselsIntervaller);
+        var barnSomSkalInnhentes = finnBarnRelatertTil(filtrertFødselFREG);
         var ektefelleSomSkalInnhentes = finnEktefelle(søkerPersonInfo);
 
         barnSomSkalInnhentes.forEach(barn -> innhentPersonIdent(barn, innhentet));
@@ -245,12 +250,10 @@ public class PersonopplysningInnhenter {
             .collect(Collectors.toSet());
     }
 
-    private Set<PersonIdent> finnBarnRelatertTil(Personinfo personinfo, List<LocalDateInterval> fødselsintervall) {
-        return personinfo.getFamilierelasjoner().stream()
-            .filter(r -> r.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
-            .map(FamilierelasjonVL::getPersonIdent)
-            .filter(personIdent -> personinfoAdapter.hentFødselsdato(personIdent)
-                .filter(f -> fødselsintervall.stream().anyMatch(i -> i.encloses(f))).isPresent())
+    private Set<PersonIdent> finnBarnRelatertTil(List<FødtBarnInfo> filtrertFødselFREG) {
+        return filtrertFødselFREG.stream()
+            .map(FødtBarnInfo::getIdent)
+            .filter(Objects::nonNull) // Dødfødsel
             .collect(Collectors.toSet());
     }
 

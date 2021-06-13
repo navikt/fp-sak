@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -37,6 +38,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private PersonopplysningRepository personopplysningRepository;
     private MedlemskapRepository medlemskapRepository;
+    private PleiepengerRepository pleiepengerRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private OpptjeningIUtlandDokStatusRepository opptjeningIUtlandDokStatusRepository;
     private RevurderingTjenesteFelles revurderingTjenesteFelles;
@@ -62,6 +64,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
         this.medlemskapRepository = repositoryProvider.getMedlemskapRepository();
+        this.pleiepengerRepository = repositoryProvider.getPleiepengerRepository();
         this.opptjeningIUtlandDokStatusRepository = repositoryProvider.getOpptjeningIUtlandDokStatusRepository();
         this.revurderingEndring = revurderingEndring;
         this.revurderingTjenesteFelles = revurderingTjenesteFelles;
@@ -125,6 +128,7 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         personopplysningRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
+        pleiepengerRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
