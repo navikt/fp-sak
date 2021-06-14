@@ -54,6 +54,10 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
     @Valid
     private UUID påAnketBehandlingUuid;
 
+    @JsonProperty("påAnketKlageBehandlingUuid")
+    @Valid
+    private UUID påAnketKlageBehandlingUuid;
+
     @JsonProperty("erIkkeAnkerPart")
     private boolean erIkkeAnkerPart;
 
@@ -82,7 +86,7 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
                                                               String fritekstTilBrev,
                                                               AnkeVurderingOmgjør ankeVurderingOmgjoer,
                                                               boolean erSubsidiartRealitetsbehandles,
-                                                              UUID påAnketBehandlingUuid,
+                                                              UUID påAnketKlageBehandlingUuid,
                                                               boolean erIkkeAnkerPart,
                                                               boolean erFristIkkeOverholdt,
                                                               boolean erIkkeKonkret,
@@ -95,7 +99,8 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
-        this.påAnketBehandlingUuid = påAnketBehandlingUuid;
+        this.påAnketBehandlingUuid = påAnketKlageBehandlingUuid;
+        this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid;
         this.erIkkeAnkerPart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
         this.erIkkeKonkret = erIkkeKonkret;
@@ -150,7 +155,8 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         return behandlingUuid;
     }
 
-    public UUID hentPåAnketBehandlingUuid() {
-        return påAnketBehandlingUuid;
+    //TODO palfi
+    public UUID getPåAnketKlageBehandlingUuid() {
+        return påAnketBehandlingUuid == null ? påAnketKlageBehandlingUuid : påAnketBehandlingUuid;
     }
 }

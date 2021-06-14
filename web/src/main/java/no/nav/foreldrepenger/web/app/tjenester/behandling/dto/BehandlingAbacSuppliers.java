@@ -13,12 +13,10 @@ public class BehandlingAbacSuppliers {
         public AbacDataAttributter apply(Object obj) {
             var req = (BehandlingIdDto) obj;
             var abac = AbacDataAttributter.opprett();
-            if (req.getBehandlingId() != null) {
-                abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, req.getBehandlingId());
-            } else if (req.getBehandlingUuid() != null) {
+             if (req.getBehandlingUuid() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             } else {
-                throw new IllegalArgumentException("Må ha en av behandlingId/behandlingUuid spesifisert");
+                throw new IllegalArgumentException("Må ha en av behandlingUuid spesifisert");
             }
             return abac;
         }

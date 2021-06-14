@@ -62,12 +62,12 @@ public class AnkeRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void settPåAnketBehandling() {
+    public void settPåAnketKlageBehandling() {
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         var ankeBehandling = scenario.lagre(repositoryProvider);
         var scenario2 = ScenarioFarSøkerEngangsstønad.forFødsel();
-        var påAnketBehandling = scenario2.lagre(repositoryProvider);
-        ankeRepository.settPåAnketBehandling(ankeBehandling.getId(), påAnketBehandling.getId());
+        var påAnketKlageBehandling = scenario2.lagre(repositoryProvider);
+        ankeRepository.settPåAnketKlageBehandling(ankeBehandling.getId(), påAnketKlageBehandling.getId());
     }
 
     private AnkeVurderingResultatEntitet.Builder opprettVurderingResultat(AnkeResultatEntitet ankeResultat) {

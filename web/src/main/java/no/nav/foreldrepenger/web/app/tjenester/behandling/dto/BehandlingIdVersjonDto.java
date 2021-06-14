@@ -23,8 +23,6 @@ public class BehandlingIdVersjonDto extends BehandlingIdDto {
     public String toString() {
         return getClass().getSimpleName() + '<' +
                 (getBehandlingVersjon() != null ? "behandlingVersjon=" + getBehandlingVersjon() + ", " : "") +
-                (getBehandlingId() != null ? "behandlingId=" + getBehandlingId() : "") +
-                ((getBehandlingId() != null) && (getBehandlingUuid() != null) ? ", " : "") +
                 (getBehandlingUuid() != null ? "behandlingUuid=" + getBehandlingUuid() : "") +
                 '>';
     }

@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BehandlingDto {
 
+    //Fptilbake bruker fortsatt denne intern id'n.
     @JsonProperty("id")
     private Long id;
     @JsonProperty("uuid")

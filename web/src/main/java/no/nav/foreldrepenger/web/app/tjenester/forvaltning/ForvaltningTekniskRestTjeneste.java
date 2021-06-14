@@ -154,7 +154,7 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktAvbrutt(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
@@ -176,7 +176,7 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktEntrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
@@ -198,7 +198,7 @@ public class ForvaltningTekniskRestTjeneste {
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response setAksjonspunktTotrinn(@BeanParam @Valid BehandlingAksjonspunktDto dto) {
-        var behandlingId = dto.getBehandlingId();
+        var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())

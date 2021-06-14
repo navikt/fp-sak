@@ -48,12 +48,13 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @JsonProperty("erGodkjentAvMedunderskriver")
     private boolean erGodkjentAvMedunderskriver;
 
-    @JsonProperty("vedtak")
-    private Long påAnketBehandlingId;
-
     @JsonProperty("vedtakBehandlingUuid")
     @Valid
     private UUID vedtakBehandlingUuid;
+
+    @JsonProperty("påAnketKlageBehandlingUuid ")
+    @Valid
+    private UUID påAnketKlageBehandlingUuid ;
 
     @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
@@ -78,8 +79,7 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
                                                  String fritekstTilBrev,
                                                  AnkeVurderingOmgjør ankeVurderingOmgjoer,
                                                  boolean erSubsidiartRealitetsbehandles,
-                                                 Long påAnketBehandlingId,
-                                                 UUID vedtakBehandlingUuid,
+                                                 UUID påAnketKlageBehandlingUuid ,
                                                  boolean erIkkeAnkerPart,
                                                  boolean erFristIkkeOverholdt,
                                                  boolean erIkkeKonkret,
@@ -91,8 +91,8 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
-        this.påAnketBehandlingId = påAnketBehandlingId;
-        this.vedtakBehandlingUuid = vedtakBehandlingUuid;
+        this.vedtakBehandlingUuid = påAnketKlageBehandlingUuid ;
+        this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid ;
         this.erAnkerIkkePart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
         this.erIkkeKonkret = erIkkeKonkret;
@@ -124,12 +124,9 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         return erGodkjentAvMedunderskriver;
     }
 
-    public Long getPåAnketBehandlingId() {
-        return påAnketBehandlingId;
-    }
-
-    public UUID getVedtakBehandlingUuid() {
-        return vedtakBehandlingUuid;
+    //TODO palfi
+    public UUID getPåAnketKlageBehandlingUuid() {
+        return påAnketKlageBehandlingUuid == null ? vedtakBehandlingUuid : påAnketKlageBehandlingUuid;
     }
 
     public boolean erAnkerIkkePart() {

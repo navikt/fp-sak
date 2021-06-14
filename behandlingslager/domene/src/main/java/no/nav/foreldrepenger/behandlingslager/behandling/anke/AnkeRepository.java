@@ -55,12 +55,12 @@ public class AnkeRepository {
         return nyttResultat;
     }
 
-    public void settPåAnketBehandling(Long ankeBehandlingId, Long påAnketBehandlingId) {
+    public void settPåAnketKlageBehandling(Long ankeBehandlingId, Long påAnketKlageBehandlingId) {
         var ankeResultat = hentEllerOpprettAnkeResultat(ankeBehandlingId);
-        if (Objects.equals(påAnketBehandlingId, ankeResultat.getPåAnketBehandlingId().orElse(null))) {
+        if (Objects.equals(påAnketKlageBehandlingId, ankeResultat.getPåAnketKlageBehandlingId().orElse(null))) {
             return;
         }
-        ankeResultat.settPåAnketBehandling(påAnketBehandlingId);
+        ankeResultat.settPåAnketKlageBehandling(påAnketKlageBehandlingId);
         entityManager.persist(ankeResultat);
         entityManager.flush();
     }
