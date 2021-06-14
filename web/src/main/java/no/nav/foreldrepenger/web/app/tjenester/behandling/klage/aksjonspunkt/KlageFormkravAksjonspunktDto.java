@@ -35,9 +35,6 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
 
-    @JsonProperty("vedtak")
-    private Long påKlagdBehandlingId;
-
     @JsonProperty("vedtakBehandlingUuid")
     @Valid
     private UUID påKlagdBehandlingUuid;
@@ -51,7 +48,6 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
                                         boolean erFristOverholdt,
                                         boolean erKonkret,
                                         boolean erSignert,
-                                        Long påKlagdBehandlingId,
                                         UUID påKlagdBehandlingUuid,
                                         String begrunnelse,
                                         boolean erTilbakekreving,
@@ -61,7 +57,6 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
         this.erFristOverholdt = erFristOverholdt;
         this.erKonkret = erKonkret;
         this.erSignert = erSignert;
-        this.påKlagdBehandlingId = påKlagdBehandlingId;
         this.påKlagdBehandlingUuid = påKlagdBehandlingUuid;
         this.erTilbakekreving = erTilbakekreving;
         this.klageTilbakekreving = klageTilbakekreving;
@@ -81,10 +76,6 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
 
     public boolean erSignert() {
         return erSignert;
-    }
-
-    public Long hentPåKlagdBehandlingId() {
-        return påKlagdBehandlingId;
     }
 
     public UUID hentPåKlagdBehandlingUuid() {
@@ -117,12 +108,11 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
                                                boolean erFristOverholdt,
                                                boolean erKonkret,
                                                boolean erSignert,
-                                               Long vedtakId,
                                                UUID vedtakBehandlingUuid,
                                                String begrunnelse,
                                                boolean erTilbakekreving,
                                                KlageTilbakekrevingDto klageTilbakekreving) {
-            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, vedtakBehandlingUuid, begrunnelse, erTilbakekreving,
+            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakBehandlingUuid, begrunnelse, erTilbakekreving,
                 klageTilbakekreving);
         }
     }
@@ -139,12 +129,11 @@ public abstract class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunkt
                                               boolean erFristOverholdt,
                                               boolean erKonkret,
                                               boolean erSignert,
-                                              Long vedtakId,
                                               UUID vedtakBehandlingUuid,
                                               String begrunnelse,
                                               boolean erTilbakekreving,
                                               KlageTilbakekrevingDto klageTilbakekreving) {
-            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakId, vedtakBehandlingUuid, begrunnelse, erTilbakekreving,
+            super(erKlagerPart, erFristOverholdt, erKonkret, erSignert, vedtakBehandlingUuid, begrunnelse, erTilbakekreving,
                 klageTilbakekreving);
         }
     }

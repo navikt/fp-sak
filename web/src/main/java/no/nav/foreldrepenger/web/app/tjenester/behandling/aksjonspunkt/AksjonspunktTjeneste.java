@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.setToTrinnsBehandlingKreves;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +41,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -68,8 +68,6 @@ public class AksjonspunktTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
-
-    private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
 
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
@@ -281,7 +279,7 @@ public class AksjonspunktTjeneste {
         var aksjonspunkt = eksisterendeAksjonspunkt.orElseGet(() -> opprettEkstraAksjonspunktForResultat(kontekst, behandling, apRes, overstyring));
 
         if (totrinn && !AksjonspunktStatus.AVBRUTT.equals(nyStatus)  && aksjonspunktStøtterTotrinn(aksjonspunkt)) {
-            aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+            setToTrinnsBehandlingKreves(aksjonspunkt);
         }
         if (nyStatus.equals(aksjonspunkt.getStatus())) {
             return;
@@ -371,7 +369,7 @@ public class AksjonspunktTjeneste {
         byggVilkårResultat(vilkårBuilder, delresultat);
 
         if (delresultat.kreverTotrinnsKontroll()) {
-            aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+            setToTrinnsBehandlingKreves(aksjonspunkt);
         }
 
         if (!aksjonspunkt.erAvbrutt() && delresultat.skalUtføreAksjonspunkt()) {
@@ -456,7 +454,7 @@ public class AksjonspunktTjeneste {
         var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
         if (resultatKreverTotrinn && behandling.harAksjonspunktMedType(aksjonspunktDefinisjon)) {
             var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
-            aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+            setToTrinnsBehandlingKreves(aksjonspunkt);
         }
     }
 

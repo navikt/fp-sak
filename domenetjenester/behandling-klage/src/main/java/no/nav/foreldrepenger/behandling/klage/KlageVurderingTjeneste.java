@@ -70,8 +70,17 @@ public class KlageVurderingTjeneste {
         return eksisterende.map(KlageFormkravEntitet::builder).orElse(KlageFormkravEntitet.builder()).medKlageVurdertAv(vurdertAv);
     }
 
-    public void oppdaterKlageMedPåklagetBehandling(Long klageBehandlingId, Long påklagetBehandlingId) {
-        klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId);
+    public void oppdaterKlageMedPåklagetBehandling(Long klageBehandlingId, UUID påklagetBehandlingUuid) {
+        var påklagetBehandlingId = getPåklagetBehandlingId(påklagetBehandlingUuid);
+        klageRepository.settPåklagdBehandlingId(klageBehandlingId, påklagetBehandlingId.orElse(null));
+    }
+
+    private Optional<Long> getPåklagetBehandlingId(UUID påklagetBehandlingUuid) {
+        if (påklagetBehandlingUuid == null) {
+            return Optional.empty();
+        }
+        var påklagetBehandling = behandlingRepository.hentBehandling(påklagetBehandlingUuid);
+        return Optional.of(påklagetBehandling.getId());
     }
 
     public void oppdaterKlageMedPåklagetEksternBehandlingUuid(Long klageBehandlingId, UUID påklagetEksternBehandlingUuid) {
@@ -84,10 +93,6 @@ public class KlageVurderingTjeneste {
 
     public Optional<KlageVurderingResultat> hentKlageVurderingResultat(Behandling behandling, KlageVurdertAv vurdertAv) {
         return klageRepository.hentKlageVurderingResultat(behandling.getId(), vurdertAv);
-    }
-
-    public Optional<KlageVurderingResultat> hentGjeldendeKlageVurderingResultat(Behandling behandling) {
-        return klageRepository.hentGjeldendeKlageVurderingResultat(behandling);
     }
 
     public KlageVurderingResultat.Builder hentKlageVurderingResultatBuilder(Behandling behandling, KlageVurdertAv vurdertAv) {

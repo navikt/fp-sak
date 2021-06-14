@@ -8,14 +8,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 /**
  * Håndter all endring av aksjonspunkt.
  */
-public class AksjonspunktRepository {
+public final class AksjonspunktUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AksjonspunktUtil.class);
 
-    public AksjonspunktRepository() {
+    public AksjonspunktUtil() {
     }
 
-    public void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
+    public static void setToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
         var apDef = aksjonspunkt.getAksjonspunktDefinisjon();
         if (apDef.getSkjermlenkeType() == null || SkjermlenkeType.UDEFINERT.equals(apDef.getSkjermlenkeType())) {
             LOG.info("Aksjonspunkt prøver sette totrinnskontroll uten skjermlenke: {}", aksjonspunkt.getAksjonspunktDefinisjon());
@@ -32,7 +32,7 @@ public class AksjonspunktRepository {
         }
     }
 
-    public void fjernToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
+    public static void fjernToTrinnsBehandlingKreves(Aksjonspunkt aksjonspunkt) {
         aksjonspunkt.fjernToTrinnsFlagg();
     }
 
