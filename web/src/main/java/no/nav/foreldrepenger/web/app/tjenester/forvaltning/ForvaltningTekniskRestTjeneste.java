@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.fjernToTrinnsBehandlingKreves;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.setToTrinnsBehandlingKreves;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
@@ -35,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
@@ -62,7 +63,6 @@ public class ForvaltningTekniskRestTjeneste {
     private static final String MANGLER_AP = "Utvikler-feil: Har ikke aksjonspunkt av type: ";
 
     private BehandlingRepository behandlingRepository;
-    private final AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private PoststedKodeverkRepository postnummerKodeverkRepository;
@@ -182,7 +182,7 @@ public class ForvaltningTekniskRestTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(Aksjonspunkt::isToTrinnsBehandling)
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        aksjonspunktRepository.fjernToTrinnsBehandlingKreves(aksjonspunkt);
+        fjernToTrinnsBehandlingKreves(aksjonspunkt);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }
@@ -204,7 +204,7 @@ public class ForvaltningTekniskRestTjeneste {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
                 .filter(ap -> !ap.isToTrinnsBehandling())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
-        aksjonspunktRepository.setToTrinnsBehandlingKreves(aksjonspunkt);
+        setToTrinnsBehandlingKreves(aksjonspunkt);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }

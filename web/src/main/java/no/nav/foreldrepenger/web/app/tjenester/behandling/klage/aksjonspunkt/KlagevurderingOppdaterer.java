@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkResultatType;
@@ -32,7 +32,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
-    private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
+    private AksjonspunktUtil aksjonspunktUtil = new AksjonspunktUtil();
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     KlagevurderingOppdaterer() {
@@ -90,7 +90,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
         if (aksjonspunkt.isToTrinnsBehandling()) {
-            aksjonspunktRepository.fjernToTrinnsBehandlingKreves(aksjonspunkt);
+            aksjonspunktUtil.fjernToTrinnsBehandlingKreves(aksjonspunkt);
         }
     }
 

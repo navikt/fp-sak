@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktUtil.fjernToTrinnsBehandlingKreves;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,7 +21,6 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageAvvistÅrsak;
@@ -40,9 +40,10 @@ import no.nav.foreldrepenger.økonomi.tilbakekreving.klient.FptilbakeRestKlient;
 @DtoTilServiceAdapter(dto = KlageFormkravAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageFormkravAksjonspunktDto> {
 
+    private static final String IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST = "Ikke påklagd et vedtak";
+
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
-    private AksjonspunktRepository aksjonspunktRepository = new AksjonspunktRepository();
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -81,7 +82,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             return OppdateringResultat.medFremoverHoppTotrinn(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_VEDTAK);
         }
         klageBehandling.getÅpentAksjonspunktMedDefinisjonOptional(apDefFormkrav)
-            .ifPresent(ap -> aksjonspunktRepository.fjernToTrinnsBehandlingKreves(ap));
+            .ifPresent(ap -> fjernToTrinnsBehandlingKreves(ap));
 
         return OppdateringResultat.utenTransisjon().build();
     }
@@ -90,14 +91,14 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                                                              Behandling behandling,
                                                              KlageResultatEntitet klageResultat,
                                                              KlageVurdertAv vurdertAv) {
-        var påKlagdBehandlingId = getPåKlagdBehandlingId(dto);
-        var gjelderVedtak = påKlagdBehandlingId != null;
         if (dto.erTilbakekreving()) {
             klageVurderingTjeneste.oppdaterKlageMedPåklagetEksternBehandlingUuid(behandling.getId(),
                 dto.getKlageTilbakekreving().getPåklagdEksternBehandlingUuid());
         } else {
-            if (gjelderVedtak || klageResultat.getPåKlagdBehandlingId().isPresent()) {
-                klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling.getId(), påKlagdBehandlingId);
+            var påKlagdBehandlingUuid = dto.hentPåKlagdBehandlingUuid();
+            if (påKlagdBehandlingUuid != null || dto.hentpåKlagdEksternBehandlingUuId() == null
+                && klageResultat.getPåKlagdBehandlingId().isPresent()) {
+                klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling.getId(), påKlagdBehandlingUuid);
             }
         }
 
@@ -108,23 +109,12 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             .medErSignert(dto.erSignert())
             .medErFristOverholdt(dto.erFristOverholdt())
             .medBegrunnelse(dto.getBegrunnelse())
-            .medGjelderVedtak(gjelderVedtak)
+            .medGjelderVedtak(dto.hentPåKlagdBehandlingUuid() != null)
             .medKlageResultat(klageResultat);
 
         klageVurderingTjeneste.lagreFormkrav(behandling, builder);
-        return utledAvvistÅrsak(dto, gjelderVedtak);
+        return utledAvvistÅrsak(dto, dto.hentPåKlagdBehandlingUuid() != null);
 
-    }
-
-    private Long getPåKlagdBehandlingId(KlageFormkravAksjonspunktDto dto) {
-        if (dto.hentPåKlagdBehandlingId() != null) {
-            return dto.hentPåKlagdBehandlingId();
-        }
-        var påKlagdBehandlingUuid = dto.hentPåKlagdBehandlingUuid();
-        if (påKlagdBehandlingUuid == null) {
-            return null;
-        }
-        return behandlingRepository.hentBehandling(påKlagdBehandlingUuid).getId();
     }
 
     private Optional<KlageAvvistÅrsak> utledAvvistÅrsak(KlageFormkravAksjonspunktDto dto, boolean gjelderVedtak) {
@@ -172,29 +162,33 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     private String hentPåklagdBehandlingTekst(Long behandlingId) {
         if (behandlingId == null) {
-            return "Ikke påklagd et vedtak";
+            return IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST;
         }
         var påKlagdBehandling = behandlingRepository.hentBehandling(behandlingId);
-        var vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandlingId)
+        var vedtaksDatoPåklagdBehandling = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(påKlagdBehandling.getId())
             .map(BehandlingVedtak::getVedtaksdato);
         return påKlagdBehandling.getType().getNavn() + " " + vedtaksDatoPåklagdBehandling.map(this::formatDato)
             .orElse("");
+    }
+
+    private String hentPåklagdBehandlingTekst(UUID behandlingUuid) {
+        return hentPåklagdBehandlingTekst(behandlingUuid == null ? null : behandlingRepository.hentBehandling(behandlingUuid).getId());
     }
 
     private String hentPåKlagdEksternBehandlingTekst(UUID påKlagdEksternBehandlingUuid,
                                                      String behandlingType,
                                                      LocalDate vedtakDato) {
         if (påKlagdEksternBehandlingUuid == null) {
-            return "Ikke påklagd et vedtak";
+            return IKKE_PÅKLAGD_ET_VEDTAK_HISTORIKKINNSLAG_TEKST;
         }
         return BehandlingType.fraKode(behandlingType).getNavn() + " " + formatDato(vedtakDato);
     }
 
     private void settOppHistorikkFelter(HistorikkInnslagTekstBuilder historiebygger,
                                         KlageFormkravAksjonspunktDto formkravDto) {
-        var behandlingId = getPåKlagdBehandlingId(formkravDto);
-        var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId) :
-            hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
+        var behandlingId = formkravDto.hentPåKlagdBehandlingUuid();
+        var påKlagdBehandling = !formkravDto.erTilbakekreving() ? hentPåklagdBehandlingTekst(behandlingId)
+            : hentPåKlagdEksternBehandlingTekst(formkravDto.hentpåKlagdEksternBehandlingUuId(),
             formkravDto.getKlageTilbakekreving().getTilbakekrevingBehandlingType(),
             formkravDto.getKlageTilbakekreving().getTilbakekrevingVedtakDato());
         historiebygger.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID, null, påKlagdBehandling)
@@ -227,7 +221,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                         formkravDto.hentpåKlagdEksternBehandlingUuId(),
                         klageTilbakekrevingDto.getTilbakekrevingBehandlingType(),
                         klageTilbakekrevingDto.getTilbakekrevingVedtakDato()) : hentPåklagdBehandlingTekst(
-                        getPåKlagdBehandlingId(formkravDto)));
+                        formkravDto.hentPåKlagdBehandlingUuid()));
             }
         }
         if (klageFormkrav.erKlagerPart() != formkravDto.erKlagerPart()) {
@@ -262,7 +256,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         } else {
             historikkInnslagTekstBuilder.medEndretFelt(HistorikkEndretFeltType.PA_KLAGD_BEHANDLINGID,
                 hentPåklagdBehandlingTekst(klageResultat.getPåKlagdBehandlingId().orElse(null)),
-                hentPåklagdBehandlingTekst(getPåKlagdBehandlingId(formkravDto)));
+                hentPåklagdBehandlingTekst(formkravDto.hentPåKlagdBehandlingUuid()));
         }
     }
 
@@ -285,7 +279,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
                 hentPåKlagdEksternBehandlingTekst(lagretPåklagdEksternBehandlingUuid,
                     tilbakekrevingVedtakDto.getTilbakekrevingBehandlingType(),
                     tilbakekrevingVedtakDto.getTilbakekrevingVedtakDato()),
-                hentPåklagdBehandlingTekst(getPåKlagdBehandlingId(formkravDto)));
+                hentPåklagdBehandlingTekst(formkravDto.hentPåKlagdBehandlingUuid()));
         }
     }
 
@@ -300,10 +294,14 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     private boolean erVedtakOppdatert(KlageResultatEntitet klageResultat, KlageFormkravAksjonspunktDto formkravDto) {
         var lagretBehandlingId = klageResultat.getPåKlagdBehandlingId().orElse(null);
-        var lagretBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
+        var lagretEkternBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
 
-        return !Objects.equals(lagretBehandlingId, getPåKlagdBehandlingId(formkravDto)) || !Objects.equals(
-            lagretBehandlingUuid, formkravDto.hentpåKlagdEksternBehandlingUuId());
+        var påKlagdBehandlingUuid = formkravDto.hentPåKlagdBehandlingUuid();
+        var påKlagdBehandlingId = påKlagdBehandlingUuid == null ? null
+            : behandlingRepository.hentBehandling(påKlagdBehandlingUuid).getId();
+
+        return !Objects.equals(lagretBehandlingId, påKlagdBehandlingId) ||
+            !Objects.equals(lagretEkternBehandlingUuid, formkravDto.hentpåKlagdEksternBehandlingUuId());
     }
 
     private boolean erNfpAksjonspunt(AksjonspunktDefinisjon apDef) {
