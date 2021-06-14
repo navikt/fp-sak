@@ -63,4 +63,4 @@ jobs:
           mvn package --batch-mode --settings .github/.m2/settings.xml -Dchangelist= -Dsha1=-${BUILD_VERSION}
         env:
           GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }} # Avhengighet til ft-kalkulus (private)
+          GITHUB_PASSWORD: ${{ secrets.GH_ACCESS_TOKEN }} # Må ha PAT pga avhengighet til private repo: legacy-avhengigheter og ft-kalkulus
