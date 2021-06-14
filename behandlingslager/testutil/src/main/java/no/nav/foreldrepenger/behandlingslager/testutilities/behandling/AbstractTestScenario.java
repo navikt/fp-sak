@@ -68,6 +68,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningVersjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -233,6 +234,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         lenient().when(repositoryProvider.getPersonopplysningRepository()).thenReturn(mockPersonopplysningRepository);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(familieHendelseRepository);
         lenient().when(repositoryProvider.getMedlemskapRepository()).thenReturn(mockMedlemskapRepository);
+        lenient().when(repositoryProvider.getPleiepengerRepository()).thenReturn(mock(PleiepengerRepository.class));
         lenient().when(repositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         lenient().when(repositoryProvider.getBehandlingVedtakRepository()).thenReturn(behandlingVedtakRepository);
         lenient().when(repositoryProvider.getFagsakLåsRepository()).thenReturn(fagsakLåsRepository);

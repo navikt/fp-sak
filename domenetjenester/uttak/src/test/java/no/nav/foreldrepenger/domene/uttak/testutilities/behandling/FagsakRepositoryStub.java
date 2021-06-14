@@ -29,6 +29,11 @@ class FagsakRepositoryStub extends FagsakRepository {
     }
 
     @Override
+    public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
+        return finnUnikFagsak(fagsakId).orElseThrow();
+    }
+
+    @Override
     public Optional<Fagsak> finnUnikFagsak(long fagsakId) {
         var fagsak = fagsakMap.get(fagsakId);
         if (fagsak == null) {

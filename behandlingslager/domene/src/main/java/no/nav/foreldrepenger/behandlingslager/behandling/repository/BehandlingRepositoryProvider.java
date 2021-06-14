@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVi
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.utlanddok.OpptjeningIUtlandDokStatusRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -45,6 +46,7 @@ public class BehandlingRepositoryProvider {
     private MedlemskapRepository medlemskapRepository;
     private MedlemskapVilkårPeriodeRepository medlemskapVilkårPeriodeRepository;
     private FamilieHendelseRepository familieHendelseRepository;
+    private PleiepengerRepository pleiepengerRepository;
     private HistorikkRepository historikkRepository;
     private SøknadRepository søknadRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
@@ -92,6 +94,7 @@ public class BehandlingRepositoryProvider {
         this.medlemskapVilkårPeriodeRepository = new MedlemskapVilkårPeriodeRepository(entityManager);
         this.opptjeningRepository = new OpptjeningRepository(entityManager, this.behandlingRepository);
         this.personopplysningRepository = new PersonopplysningRepository(entityManager);
+        this.pleiepengerRepository = new PleiepengerRepository(entityManager);
         this.søknadRepository = new SøknadRepository(entityManager, this.behandlingRepository);
         this.fpUttakRepository = new FpUttakRepository(entityManager);
         this.uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
@@ -148,6 +151,10 @@ public class BehandlingRepositoryProvider {
 
     public FamilieHendelseRepository getFamilieHendelseRepository() {
         return familieHendelseRepository;
+    }
+
+    public PleiepengerRepository getPleiepengerRepository() {
+        return pleiepengerRepository;
     }
 
     public HistorikkRepository getHistorikkRepository() {

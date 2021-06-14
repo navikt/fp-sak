@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettin
 import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -58,6 +59,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingRepository behandlingRepository;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     OpprettInformasjonsFagsakTask() {
         // for CDI proxy
@@ -69,8 +71,10 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             PersoninfoAdapter personinfoAdapter,
             NavBrukerTjeneste brukerTjeneste,
             FagsakTjeneste fagsakTjeneste,
+            BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
             FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
@@ -94,15 +98,17 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             return;
         }
 
+        var fagsakMor = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)));
         var enhet = new OrganisasjonsEnhet(prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY),
                 prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
+        var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetForUkoblet(fagsakMor, enhet);
         var bruker = hentPersonInfo(aktørId);
         if (bruker.getDødsdato() != null) {
             return; // Unngå brev til død annen part
         }
         var fagsak = opprettNyFagsak(aktørId);
-        kobleNyFagsakTilMors(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)), fagsak);
-        var behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, enhet, behandlingÅrsakType);
+        kobleNyFagsakTilMors(fagsakMor, fagsak);
+        var behandling = opprettFørstegangsbehandlingInformasjonssak(fagsak, brukEnhet, behandlingÅrsakType);
         behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
         LOG.info("Opprettet fagsak/informasjon {} med behandling {}", fagsak.getSaksnummer().getVerdi(), behandling.getId()); // NOSONAR
     }
@@ -113,11 +119,10 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
         return fagsakTjeneste.opprettFagsak(ytelseType, navBruker);
     }
 
-    private void kobleNyFagsakTilMors(Long fagsakIdMor, Fagsak fagsak) {
+    private void kobleNyFagsakTilMors(Fagsak fagsakMor, Fagsak fagsak) {
         // Fagsakene må kobles da infobrevet på ny fagsak trenger informasjon fra
         // uttaket på eksisterende fagsak
-        var fagsakMor = fagsakRepository.finnEksaktFagsak(fagsakIdMor);
-        var vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakIdMor);
+        var vedtakMor = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakMor.getId());
         vedtakMor.ifPresent(behandling -> fagsakRelasjonTjeneste.kobleFagsaker(fagsakMor, fagsak, behandling));
     }
 

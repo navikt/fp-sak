@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.person;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -114,10 +113,6 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(AktørId aktørId) {
         return basisTjeneste.hentKjønnPersoninfo(aktørId);
-    }
-
-    public Optional<LocalDate> hentFødselsdato(PersonIdent ident) {
-        return basisTjeneste.hentFødselsdato(ident);
     }
 
     public GeografiskTilknytning hentGeografiskTilknytning(AktørId aktørId) {

@@ -1,9 +1,9 @@
 package no.nav.foreldrepenger.domene.registerinnhenting;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,10 +15,12 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
+import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 
@@ -127,6 +129,25 @@ public class RegisterdataInnhenterTest {
 
         // Assert
         assertThat(harHentetInn).isFalse();
+    }
+
+    @Test
+    public void kan_mappe_tilleggsopplysninger() {
+        // Arrange
+        var json = """
+            {
+              "pleietrengende" : "9999999999999",
+              "innleggelsesPerioder" : [ {
+                "fom" : "2021-05-03",
+                "tom" : "2021-05-09"
+              } ]
+            }
+            """;
+        var deser = StandardJsonConfig.fromJson(json, RegisterdataInnhenter.PleiepengerOpplysninger.class);
+
+        assertThat(deser.pleietrengende()).isEqualTo(new AktørId("9999999999999"));
+        assertThat(deser.innleggelsesPerioder()).hasSize(1);
+        assertThat(deser.innleggelsesPerioder().get(0).fom()).isEqualTo(LocalDate.of(2021,5,3));
     }
 
     private RegisterdataEndringshåndterer lagRegisterdataInnhenter(AbstractTestScenario<?> scenario, String durationInstance) {

@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
+import org.hibernate.jpa.QueryHints;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -46,6 +48,15 @@ public class FagsakRepository {
     public Fagsak finnEksaktFagsak(long fagsakId) {
         var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
         query.setParameter("fagsakId", fagsakId); // NOSONAR
+        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
+        entityManager.refresh(fagsak); // hent alltid på nytt
+        return fagsak;
+    }
+
+    public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
+        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class)
+            .setParameter("fagsakId", fagsakId)
+            .setHint(QueryHints.HINT_READONLY, "true"); // NOSONAR
         var fagsak = HibernateVerktøy.hentEksaktResultat(query);
         entityManager.refresh(fagsak); // hent alltid på nytt
         return fagsak;
