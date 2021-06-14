@@ -50,10 +50,6 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
     @JsonProperty("ankeVurderingOmgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjoer;
 
-    @JsonProperty("vedtakBehandlingUuid")
-    @Valid
-    private UUID påAnketBehandlingUuid;
-
     @JsonProperty("påAnketKlageBehandlingUuid")
     @Valid
     private UUID påAnketKlageBehandlingUuid;
@@ -99,7 +95,6 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
-        this.påAnketBehandlingUuid = påAnketKlageBehandlingUuid;
         this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid;
         this.erIkkeAnkerPart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
@@ -155,8 +150,7 @@ public class AnkeVurderingResultatAksjonspunktMellomlagringDto  {
         return behandlingUuid;
     }
 
-    //TODO palfi
     public UUID getPåAnketKlageBehandlingUuid() {
-        return påAnketBehandlingUuid == null ? påAnketKlageBehandlingUuid : påAnketBehandlingUuid;
+        return påAnketKlageBehandlingUuid;
     }
 }

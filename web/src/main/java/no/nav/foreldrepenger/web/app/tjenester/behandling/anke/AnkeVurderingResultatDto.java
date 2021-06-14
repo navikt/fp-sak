@@ -38,8 +38,6 @@ public class AnkeVurderingResultatDto {
     private boolean erMerknaderMottatt;
     @JsonProperty("merknadKommentar")
     private String merknadKommentar;
-    @JsonProperty("paAnketBehandlingUuid")
-    private UUID paAnketBehandlingUuid;
     @JsonProperty("påAnketKlageBehandlingUuid")
     private UUID påAnketKlageBehandlingUuid;
     @JsonProperty("trygderettVurdering")
@@ -94,10 +92,6 @@ public class AnkeVurderingResultatDto {
 
     public boolean isErSubsidiartRealitetsbehandles() {
         return erSubsidiartRealitetsbehandles;
-    }
-
-    public UUID getPaAnketBehandlingUuid() {
-        return paAnketBehandlingUuid;
     }
 
     public UUID getPåAnketKlageBehandlingUuid() {
@@ -164,10 +158,8 @@ public class AnkeVurderingResultatDto {
         this.merknadKommentar = merknadKommentar;
     }
 
-    //TODO palfi
     public void setPåAnketKlageBehandlingUuid(UUID påAnketKlageBehandlingUuid) {
         this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid;
-        this.paAnketBehandlingUuid = påAnketKlageBehandlingUuid;
     }
 
     public AnkeVurdering getTrygderettVurdering() {

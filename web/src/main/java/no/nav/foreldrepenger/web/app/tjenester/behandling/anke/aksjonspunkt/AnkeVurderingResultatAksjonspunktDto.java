@@ -48,10 +48,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @JsonProperty("erGodkjentAvMedunderskriver")
     private boolean erGodkjentAvMedunderskriver;
 
-    @JsonProperty("vedtakBehandlingUuid")
-    @Valid
-    private UUID vedtakBehandlingUuid;
-
     @JsonProperty("påAnketKlageBehandlingUuid")
     @Valid
     private UUID påAnketKlageBehandlingUuid;
@@ -91,7 +87,6 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         this.ankeOmgjoerArsak = ankeOmgjoerArsak;
         this.ankeVurderingOmgjoer = ankeVurderingOmgjoer;
         this.erSubsidiartRealitetsbehandles = erSubsidiartRealitetsbehandles;
-        this.vedtakBehandlingUuid = påAnketKlageBehandlingUuid ;
         this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid ;
         this.erAnkerIkkePart = erIkkeAnkerPart;
         this.erFristIkkeOverholdt = erFristIkkeOverholdt;
@@ -124,9 +119,8 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
         return erGodkjentAvMedunderskriver;
     }
 
-    //TODO palfi
     public UUID getPåAnketKlageBehandlingUuid() {
-        return påAnketKlageBehandlingUuid == null ? vedtakBehandlingUuid : påAnketKlageBehandlingUuid;
+        return påAnketKlageBehandlingUuid;
     }
 
     public boolean erAnkerIkkePart() {
