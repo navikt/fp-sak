@@ -102,9 +102,6 @@ public class VergeRestTjeneste {
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
-        var behandlingId = behandlingIdDto.getBehandlingId();
-        return behandlingId != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingId)
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        return behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
     }
 }

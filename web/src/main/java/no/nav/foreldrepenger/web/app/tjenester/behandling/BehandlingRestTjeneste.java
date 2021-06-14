@@ -160,7 +160,6 @@ public class BehandlingRestTjeneste {
     @Deprecated
     public Response hentBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @Valid BehandlingIdDto behandlingIdDto) {
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Behandlingrest hentBeh kall med behandlingId");
         var behandling = getBehandling(behandlingIdDto);
 
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
@@ -182,7 +181,6 @@ public class BehandlingRestTjeneste {
     public Response hentBehandlingMidlertidigStatus(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
             @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Behandlingrest hentBehMidlStatus kall med behandlingId");
         var behandling = getBehandling(behandlingIdDto);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
@@ -190,9 +188,7 @@ public class BehandlingRestTjeneste {
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
-        return behandlingIdDto.getBehandlingId() != null
-                ? behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingId())
-                : behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
+        return behandlingsprosessTjeneste.hentBehandling(behandlingIdDto.getBehandlingUuid());
     }
 
     @GET
@@ -204,7 +200,6 @@ public class BehandlingRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response hentBehandlingResultat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
-        if (behandlingIdDto.getBehandlingId() != null) LOG.info("Behandlingrest hentBehRes kall med behandlingId");
         var behandling = getBehandling(behandlingIdDto);
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
         var dto = behandlingDtoTjeneste.lagUtvidetBehandlingDto(behandling, taskStatus);

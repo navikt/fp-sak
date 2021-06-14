@@ -18,8 +18,6 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
  */
 public class ForvaltningBehandlingIdDto implements AbacDto {
 
-
-    //TODO palfi trenger ikke egen for forvaltning lenger
     @NotNull
     @QueryParam("behandlingUuid")
     @Valid

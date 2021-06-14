@@ -24,7 +24,7 @@ public class AnkeResultatEntitet extends BaseEntitet {
     private Long ankeBehandlingId;
 
     @Column(name = "paa_anket_behandling_id")
-    private Long påAnketBehandlingId;
+    private Long påAnketKlageBehandlingId;
 
     public AnkeResultatEntitet() {
         // Hibernate
@@ -32,7 +32,7 @@ public class AnkeResultatEntitet extends BaseEntitet {
 
     private AnkeResultatEntitet(AnkeResultatEntitet entitet) {
         this.ankeBehandlingId = entitet.ankeBehandlingId;
-        this.påAnketBehandlingId = entitet.påAnketBehandlingId;
+        this.påAnketKlageBehandlingId = entitet.påAnketKlageBehandlingId;
     }
 
     public static Builder builder() {
@@ -51,12 +51,12 @@ public class AnkeResultatEntitet extends BaseEntitet {
         return ankeBehandlingId;
     }
 
-    public Optional<Long> getPåAnketBehandlingId() {
-        return Optional.ofNullable(påAnketBehandlingId);
+    public Optional<Long> getPåAnketKlageBehandlingId() {
+        return Optional.ofNullable(påAnketKlageBehandlingId);
     }
 
-    public void settPåAnketBehandling(Long behandlingId) {
-        this.påAnketBehandlingId = behandlingId;
+    public void settPåAnketKlageBehandling(Long påAnketKlageBehandlingId) {
+        this.påAnketKlageBehandlingId = påAnketKlageBehandlingId;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AnkeResultatEntitet extends BaseEntitet {
     }
 
     public static class Builder {
-        private AnkeResultatEntitet ankeResultatEntitetMal;
+        private final AnkeResultatEntitet ankeResultatEntitetMal;
 
         private Builder() {
             ankeResultatEntitetMal = new AnkeResultatEntitet();
@@ -100,11 +100,10 @@ public class AnkeResultatEntitet extends BaseEntitet {
             return this;
         }
 
-        public Builder medPåAnketBehandlingId(Long påAnketBehandlingId) {
-            ankeResultatEntitetMal.påAnketBehandlingId = påAnketBehandlingId;
+        public Builder medPåAnketKlageBehandlingId(Long påAnketKlageBehandlingId) {
+            ankeResultatEntitetMal.påAnketKlageBehandlingId = påAnketKlageBehandlingId;
             return this;
         }
-
 
         public AnkeResultatEntitet build() {
             verifyStateForBuild();

@@ -59,9 +59,10 @@ public class AnkeVurderingTjeneste {
         return eksisterende.map(AnkeVurderingResultatEntitet::builder).orElse(AnkeVurderingResultatEntitet.builder());
     }
 
-    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder,
-            Long påanketBehandlingId) {
-        ankeRepository.settPåAnketBehandling(behandling.getId(), påanketBehandlingId);
+    public void oppdaterBekreftetVurderingAksjonspunkt(Behandling behandling,
+                                                       AnkeVurderingResultatEntitet.Builder builder,
+                                                       Long påAnketKlageBehandlingId) {
+        ankeRepository.settPåAnketKlageBehandling(behandling.getId(), påAnketKlageBehandlingId);
         lagreAnkeVurderingResultat(behandling, builder, true);
     }
 
@@ -76,11 +77,11 @@ public class AnkeVurderingTjeneste {
         ankeRepository.lagreVurderingsResultat(behandling.getId(), builder.build());
     }
 
-    public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påanketBehandlingId) {
+    public void lagreAnkeVurderingResultat(Behandling behandling, AnkeVurderingResultatEntitet.Builder builder, Long påAnketKlageBehandlingId) {
         if (!behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             throw new IllegalArgumentException("Utviklerfeil: Skal ikke kalle denne når aksjonspunkt er utført");
         }
-        ankeRepository.settPåAnketBehandling(behandling.getId(), påanketBehandlingId);
+        ankeRepository.settPåAnketKlageBehandling(behandling.getId(), påAnketKlageBehandlingId);
         lagreAnkeVurderingResultat(behandling, builder, false);
     }
 

@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.Ber
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdVersjonDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ByttBehandlendeEnhetDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.GjenopptaBehandlingDto;
@@ -486,9 +485,9 @@ public class BehandlingDtoTjeneste {
 
     private Optional<ResourceLink> lagSimuleringResultatLink(Behandling behandling) {
         //fpoppdrag.override.proxy.url brukes ved testing lokalt og docker-compose
-        var idDto = new BehandlingIdDto(behandling.getId());
         var baseUurl = fpoppdragOverrideProxyUrl != null ? fpoppdragOverrideProxyUrl : "/fpoppdrag/api";
-        return Optional.of(ResourceLink.post(baseUurl + "/simulering/resultat-uten-inntrekk", "simuleringResultat", idDto));
+        return Optional.of(ResourceLink.post(baseUurl + "/simulering/resultat-uten-inntrekk", "simuleringResultat",
+            new InternBehandlingIdDto(behandling.getId())));
     }
 
     private Optional<ResourceLink> lagTilbakekrevingValgLink(Behandling behandling) {
@@ -511,5 +510,9 @@ public class BehandlingDtoTjeneste {
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
+    }
+
+    //Ikke bruk denne hvis ikke nødvendig, bruk BehandlingIdDto med UUID
+    private record InternBehandlingIdDto(Long behandlingId) {
     }
 }

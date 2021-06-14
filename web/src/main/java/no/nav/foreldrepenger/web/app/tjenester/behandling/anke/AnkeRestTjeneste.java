@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -106,8 +105,8 @@ public class AnkeRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_ANKE)) {
             var builder = mapMellomlagreVurdering(apDto, behandling);
-            var påanketBehandlingId = behandlingRepository.hentBehandling(apDto.hentPåAnketBehandlingUuid()).getId();
-            ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, påanketBehandlingId);
+            var påAnketKlageBehandlingId = behandlingRepository.hentBehandling(apDto.getPåAnketKlageBehandlingUuid()).getId();
+            ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder, påAnketKlageBehandlingId);
         } else {
             var builder = mapMellomlagreTekst(apDto, behandling);
             ankeVurderingTjeneste.lagreAnkeVurderingResultat(behandling, builder);
@@ -138,7 +137,7 @@ public class AnkeRestTjeneste {
                 .medErFristIkkeOverholdt(apDto.erFristIkkeOverholdt())
                 .medErIkkeKonkret(apDto.erIkkeKonkret())
                 .medErIkkeSignert(apDto.erIkkeSignert())
-                .medGjelderVedtak(apDto.hentPåAnketBehandlingUuid() != null);
+                .medGjelderVedtak(apDto.getPåAnketKlageBehandlingUuid() != null);
     }
 
     private AnkeVurderingResultatEntitet.Builder mapMellomlagreTekst(AnkeVurderingResultatAksjonspunktMellomlagringDto apDto, Behandling behandling) {
@@ -148,11 +147,12 @@ public class AnkeRestTjeneste {
 
     private Optional<AnkeVurderingResultatDto> mapAnkeVurderingResultatDto(Behandling behandling) {
         var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
-        var påanketBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
-                .filter(Objects::nonNull).flatMap(AnkeResultatEntitet::getPåAnketBehandlingId);
-        var påanketBehandlingId = påanketBehandling.orElse(null);
-        var påanketBehandlingUuid = påanketBehandling.map(behandlingRepository::hentBehandling).map(Behandling::getUuid).orElse(null);
-        return vurderingResultat.map(avr -> lagDto(avr, påanketBehandlingId, påanketBehandlingUuid));
+        var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
+            .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
+        var påAnketKlageBehandlingId = påAnketKlageBehandling.orElse(null);
+        var påAnketKlageBehandlingUuid = påAnketKlageBehandling.map(behandlingRepository::hentBehandling)
+            .map(Behandling::getUuid).orElse(null);
+        return vurderingResultat.map(avr -> lagDto(avr, påAnketKlageBehandlingId, påAnketKlageBehandlingUuid));
     }
 
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId,

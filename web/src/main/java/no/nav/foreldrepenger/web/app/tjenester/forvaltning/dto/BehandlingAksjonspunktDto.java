@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
+import java.util.UUID;
+
+import javax.validation.Valid;
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -14,19 +14,17 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 public class BehandlingAksjonspunktDto implements AbacDto {
 
     @NotNull
-    @QueryParam("behandlingId")
-    @DefaultValue("0")
-    @Min(0)
-    @Max(Long.MAX_VALUE)
-    private Long behandlingId;
+    @QueryParam("behandlingUuid")
+    @Valid
+    private UUID behandlingUuid;
 
     @NotNull
     @QueryParam("aksjonspunktKode")
     @Digits(integer = 4, fraction = 0)
     private String aksjonspunktKode;
 
-    public BehandlingAksjonspunktDto(@NotNull Long behandlingId, @NotNull String aksjonspunktKode) {
-        this.behandlingId = behandlingId;
+    public BehandlingAksjonspunktDto(@NotNull UUID behandlingUuid, @NotNull String aksjonspunktKode) {
+        this.behandlingUuid = behandlingUuid;
         this.aksjonspunktKode = aksjonspunktKode;
     }
 
@@ -36,8 +34,8 @@ public class BehandlingAksjonspunktDto implements AbacDto {
     @Override
     public AbacDataAttributter abacAttributter() {
         var abac = AbacDataAttributter.opprett();
-        if (behandlingId != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, behandlingId);
+        if (behandlingUuid != null) {
+            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
         }
         if (aksjonspunktKode != null) {
             abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, aksjonspunktKode);
@@ -45,8 +43,8 @@ public class BehandlingAksjonspunktDto implements AbacDto {
         return abac;
     }
 
-    public Long getBehandlingId() {
-        return behandlingId;
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     public String getAksjonspunktKode() {
