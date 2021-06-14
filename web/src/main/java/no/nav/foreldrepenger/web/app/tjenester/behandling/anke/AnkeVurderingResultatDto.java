@@ -38,10 +38,10 @@ public class AnkeVurderingResultatDto {
     private boolean erMerknaderMottatt;
     @JsonProperty("merknadKommentar")
     private String merknadKommentar;
-    @JsonProperty("paAnketBehandlingId")
-    private Long paAnketBehandlingId;
     @JsonProperty("paAnketBehandlingUuid")
     private UUID paAnketBehandlingUuid;
+    @JsonProperty("påAnketKlageBehandlingUuid")
+    private UUID påAnketKlageBehandlingUuid;
     @JsonProperty("trygderettVurdering")
     private AnkeVurdering trygderettVurdering;
     @JsonProperty("trygderettOmgjoerArsak")
@@ -96,12 +96,12 @@ public class AnkeVurderingResultatDto {
         return erSubsidiartRealitetsbehandles;
     }
 
-    public Long getPaAnketBehandlingId() {
-        return paAnketBehandlingId;
-    }
-
     public UUID getPaAnketBehandlingUuid() {
         return paAnketBehandlingUuid;
+    }
+
+    public UUID getPåAnketKlageBehandlingUuid() {
+        return påAnketKlageBehandlingUuid;
     }
 
     public void setAnkeVurderingOmgjoer(AnkeVurderingOmgjør ankeVurderingOmgjoer) {
@@ -164,12 +164,10 @@ public class AnkeVurderingResultatDto {
         this.merknadKommentar = merknadKommentar;
     }
 
-    public void setPaAnketBehandlingId(Long paAnketBehandlingId) {
-        this.paAnketBehandlingId = paAnketBehandlingId;
-    }
-
-    public void setPaAnketBehandlingUuid(UUID paAnketBehandlingUuid) {
-        this.paAnketBehandlingUuid = paAnketBehandlingUuid;
+    //TODO palfi
+    public void setPåAnketKlageBehandlingUuid(UUID påAnketKlageBehandlingUuid) {
+        this.påAnketKlageBehandlingUuid = påAnketKlageBehandlingUuid;
+        this.paAnketBehandlingUuid = påAnketKlageBehandlingUuid;
     }
 
     public AnkeVurdering getTrygderettVurdering() {

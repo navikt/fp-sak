@@ -149,14 +149,13 @@ public class AnkeRestTjeneste {
         var vurderingResultat = ankeVurderingTjeneste.hentAnkeVurderingResultat(behandling);
         var påAnketKlageBehandling = vurderingResultat.map(AnkeVurderingResultatEntitet::getAnkeResultat)
             .flatMap(AnkeResultatEntitet::getPåAnketKlageBehandlingId);
-        var påAnketKlageBehandlingId = påAnketKlageBehandling.orElse(null);
         var påAnketKlageBehandlingUuid = påAnketKlageBehandling.map(behandlingRepository::hentBehandling)
             .map(Behandling::getUuid).orElse(null);
-        return vurderingResultat.map(avr -> lagDto(avr, påAnketKlageBehandlingId, påAnketKlageBehandlingUuid));
+        return vurderingResultat.map(avr -> lagDto(avr, påAnketKlageBehandlingUuid));
     }
 
-    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, Long paAnketBehandlingId,
-            UUID paAnketBehandlingUuid) {
+    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat,
+                                                   UUID påAnketKlageBehandlingUuid) {
 
         var dto = new AnkeVurderingResultatDto();
 
@@ -176,8 +175,7 @@ public class AnkeRestTjeneste {
         dto.setTrygderettVurdering(ankeVurderingResultat.getTrygderettVurdering());
         dto.setTrygderettVurderingOmgjoer(ankeVurderingResultat.getTrygderettVurderingOmgjør());
         dto.setTrygderettOmgjoerArsak(ankeVurderingResultat.getTrygderettOmgjørÅrsak());
-        dto.setPaAnketBehandlingId(paAnketBehandlingId);
-        dto.setPaAnketBehandlingUuid(paAnketBehandlingUuid);
+        dto.setPåAnketKlageBehandlingUuid(påAnketKlageBehandlingUuid);
         return dto;
     }
 

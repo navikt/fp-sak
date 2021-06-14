@@ -52,9 +52,9 @@ public class AnkeVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktD
     @Valid
     private UUID vedtakBehandlingUuid;
 
-    @JsonProperty("påAnketKlageBehandlingUuid ")
+    @JsonProperty("påAnketKlageBehandlingUuid")
     @Valid
-    private UUID påAnketKlageBehandlingUuid ;
+    private UUID påAnketKlageBehandlingUuid;
 
     @JsonProperty("erAnkerIkkePart")
     private boolean erAnkerIkkePart;
