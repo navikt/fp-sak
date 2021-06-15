@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
@@ -29,6 +30,7 @@ public class OppgaveRedirectTjeneste {
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private FagsakRepository fagsakRepository;
+    private BehandlingRepository behandlingRepository;
     private RedirectFactory redirectFactory; // For å kunne endre til alternativ implementasjon på Jetty
 
     public OppgaveRedirectTjeneste() {
@@ -36,9 +38,12 @@ public class OppgaveRedirectTjeneste {
 
     @Inject
     public OppgaveRedirectTjeneste(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
-            FagsakRepository fagsakRepository, RedirectFactory redirectFactory) {
+                                   FagsakRepository fagsakRepository,
+                                   BehandlingRepository behandlingRepository,
+                                   RedirectFactory redirectFactory) {
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.fagsakRepository = fagsakRepository;
+        this.behandlingRepository = behandlingRepository;
         this.redirectFactory = redirectFactory;
     }
 
@@ -47,7 +52,8 @@ public class OppgaveRedirectTjeneste {
     @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     public Response doRedirect(@QueryParam("oppgaveId") @TilpassetAbacAttributt(supplierClass = OppgaveSupplier.class) @Valid OppgaveIdDto oppgaveId,
                                @QueryParam("sakId") @TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @Valid SaksnummerDto saksnummerDto) {
-        var data = OppgaveRedirectData.hent(oppgaveBehandlingKoblingRepository, fagsakRepository, oppgaveId, saksnummerDto);
+        var data = OppgaveRedirectData.hent(oppgaveBehandlingKoblingRepository, fagsakRepository,
+            behandlingRepository, oppgaveId, saksnummerDto);
         var url = redirectFactory.lagRedirect(data);
         var responser = Response.temporaryRedirect(URI.create(url));
         responser.encoding("UTF-8");
