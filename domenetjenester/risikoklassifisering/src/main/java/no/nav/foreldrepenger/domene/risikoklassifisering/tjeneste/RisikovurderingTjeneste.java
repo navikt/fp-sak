@@ -56,15 +56,18 @@ public class RisikovurderingTjeneste {
     public void lagreKontrollresultat(KontrollresultatWrapper resultatWrapper) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(resultatWrapper.getBehandlingUuid());
         behandling.ifPresent(beh -> {
-            if (!behandlingHarBlittRisikoklassifisert(beh.getId())) {
+            var eksisterende = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(beh.getId());
+            var isNyEvalueringEndretTilHøy = erNyEvalueringTilHøy(resultatWrapper, eksisterende);
+            if (eksisterende.isEmpty()) {
                 lagre(resultatWrapper, beh);
                 if (Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && behandlingHarPassertVurderFaresignaler(beh)) {
                     LOG.info("Kontrollresultat HØY motatt for behandling med id {}. Behandlingens status var {}", beh.getId(), beh.getStatus().getKode());
                 }
-            } else {
-                var eksisterende = risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(beh.getId())
-                    .map(RisikoklassifiseringEntitet::getKontrollresultat).orElse(Kontrollresultat.HØY);
-                if (Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && !Kontrollresultat.HØY.equals(eksisterende)) {
+            } else if (isNyEvalueringEndretTilHøy) {
+                if (!behandlingHarPassertVurderFaresignaler(beh) && !erVurdert(eksisterende)) {
+                    lagre(resultatWrapper, beh);
+                    LOG.info("Nytt Kontrollresultat HØY oppdatert for behandling med id {}. Behandlingens status var {}", beh.getId(), beh.getStatus().getKode());
+                } else  {
                     LOG.info("Oppdatert Kontrollresultat HØY motatt for sak {}", beh.getFagsak().getSaksnummer().getVerdi());
                 }
             }
@@ -76,6 +79,16 @@ public class RisikovurderingTjeneste {
             return true;
         }
         return behandlingskontrollTjeneste.erStegPassert(beh, BehandlingStegType.VURDER_FARESIGNALER);
+    }
+
+    private boolean erNyEvalueringTilHøy(KontrollresultatWrapper resultatWrapper, Optional<RisikoklassifiseringEntitet> eksisterende) {
+        var eksisterendeEllerHøy = eksisterende.map(RisikoklassifiseringEntitet::getKontrollresultat).orElse(Kontrollresultat.HØY);
+        return Kontrollresultat.HØY.equals(resultatWrapper.getKontrollresultatkode()) && !Kontrollresultat.HØY.equals(eksisterendeEllerHøy);
+    }
+
+    private boolean erVurdert(Optional<RisikoklassifiseringEntitet> eksisterende) {
+        return eksisterende.map(RisikoklassifiseringEntitet::getFaresignalVurdering)
+            .filter(v -> !FaresignalVurdering.UDEFINERT.equals(v)).isPresent();
     }
 
     public Optional<RisikoklassifiseringEntitet> hentRisikoklassifiseringForBehandling(Long behandlingId) {
