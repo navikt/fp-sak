@@ -73,13 +73,29 @@ public class RisikovurderingTjenesteTest {
         // Arrange
         var uuid = behandling.getUuid();
         when(behandlingRepository.hentBehandlingHvisFinnes(uuid)).thenReturn(Optional.of(behandling));
-        when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong())).thenReturn(Optional.of(RisikoklassifiseringEntitet.builder().buildFor(123L)));
+        when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong()))
+            .thenReturn(Optional.of(RisikoklassifiseringEntitet.builder().medKontrollresultat(Kontrollresultat.HØY).buildFor(123L)));
 
         // Act
         risikovurderingTjeneste.lagreKontrollresultat(lagWrapper(uuid, Kontrollresultat.HØY));
 
         // Assert
         verify(risikoklassifiseringRepository, times(0)).lagreRisikoklassifisering(any(), anyLong());
+    }
+
+    @Test
+    public void skal_teste_at_risikowrapper_lagres_for_en_behandling_når_det_allerede_finnes_et_lavt_resultat() {
+        // Arrange
+        var uuid = behandling.getUuid();
+        when(behandlingRepository.hentBehandlingHvisFinnes(uuid)).thenReturn(Optional.of(behandling));
+        when(risikoklassifiseringRepository.hentRisikoklassifiseringForBehandling(anyLong()))
+            .thenReturn(Optional.of(RisikoklassifiseringEntitet.builder().medKontrollresultat(Kontrollresultat.IKKE_HØY).buildFor(123L)));
+
+        // Act
+        risikovurderingTjeneste.lagreKontrollresultat(lagWrapper(uuid, Kontrollresultat.HØY));
+
+        // Assert
+        verify(risikoklassifiseringRepository).lagreRisikoklassifisering(any(), anyLong());
     }
 
 
