@@ -3,10 +3,13 @@ package no.nav.foreldrepenger.web.app.oppgave;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveBehandlingKoblingRepository;
@@ -17,11 +20,12 @@ public class OppgaveRedirectData {
     private static final Logger LOG = LoggerFactory.getLogger(OppgaveRedirectData.class);
 
     private Saksnummer saksnummer;
-    private Long behandlingId;
+    private UUID behandlingUuid;
     private String feilmelding;
 
     static OppgaveRedirectData hent(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                                     FagsakRepository fagsakRepository,
+                                    BehandlingRepository behandlingRepository,
                                     OppgaveIdDto oppgaveId, SaksnummerDto saksnummerDto) {
         if (oppgaveId == null && saksnummerDto == null) {
             var feilmelding = "Sak kan ikke åpnes, da referanse mangler.";
@@ -33,7 +37,7 @@ public class OppgaveRedirectData {
             return hentForFagsak(fagsakRepository,saksnummer);
         }
         if (saksnummerDto == null) {
-            return hentForOppgave(oppgaveBehandlingKoblingRepository, oppgaveId.getVerdi());
+            return hentForOppgave(oppgaveBehandlingKoblingRepository, behandlingRepository, oppgaveId.getVerdi());
         }
 
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
@@ -46,7 +50,8 @@ public class OppgaveRedirectData {
         if (oppgave.isPresent()) {
             var oppgaveSaksnummer = oppgave.get().getSaksnummer();
             if (oppgaveSaksnummer != null && oppgaveSaksnummer.equals(saksnummer)) {
-                return OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveSaksnummer, oppgave.get().getBehandlingId());
+                var behandlingUuid = hentBehandlingUuid(behandlingRepository, oppgave.get().getBehandlingId());
+                return OppgaveRedirectData.medSaksnummerOgBehandlingUuid(oppgaveSaksnummer, behandlingUuid.orElse(null));
             }
             var feilmelding = String.format("Oppgaven med %s er ikke registrert på sak %s", oppgaveId.getVerdi(),
                 saksnummer.getVerdi());
@@ -71,9 +76,14 @@ public class OppgaveRedirectData {
         return OppgaveRedirectData.medFeilmelding(feilmelding);
     }
 
-    private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository, String oppgaveId) {
+    private static OppgaveRedirectData hentForOppgave(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
+                                                      BehandlingRepository behandlingRepository,
+                                                      String oppgaveId) {
         var oppgave = oppgaveBehandlingKoblingRepository.hentOppgaveBehandlingKobling(oppgaveId);
-        return oppgave.map(oppgaveBehandlingKobling -> OppgaveRedirectData.medSaksnummerOgBehandlingId(oppgaveBehandlingKobling.getSaksnummer(), oppgaveBehandlingKobling.getBehandlingId()))
+        return oppgave.map(oppgaveBehandlingKobling -> {
+            var behandlingUuid = hentBehandlingUuid(behandlingRepository, oppgaveBehandlingKobling.getBehandlingId());
+            return OppgaveRedirectData.medSaksnummerOgBehandlingUuid(oppgaveBehandlingKobling.getSaksnummer(), behandlingUuid.orElse(null));
+        })
             .orElseGet(() -> {
                 var feilmelding = "Det finnes ingen oppgave med denne referansen:" + oppgaveId;
                 LOG.warn(feilmelding);
@@ -81,10 +91,17 @@ public class OppgaveRedirectData {
             });
     }
 
-    private static OppgaveRedirectData medSaksnummerOgBehandlingId(Saksnummer saksnummer, Long behandlingId) {
+    private static Optional<UUID> hentBehandlingUuid(BehandlingRepository behandlingRepository, Long behandlingId) {
+        if (behandlingId == null) {
+            return Optional.empty();
+        }
+        return Optional.of(behandlingRepository.hentBehandling(behandlingId).getUuid());
+    }
+
+    private static OppgaveRedirectData medSaksnummerOgBehandlingUuid(Saksnummer saksnummer, UUID behandlingUuid) {
         var data = new OppgaveRedirectData();
         data.saksnummer = saksnummer;
-        data.behandlingId = behandlingId;
+        data.behandlingUuid = behandlingUuid;
         return data;
     }
 
@@ -109,8 +126,8 @@ public class OppgaveRedirectData {
         return saksnummer;
     }
 
-    Long getBehandlingId() {
-        return behandlingId;
+    UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     String getFeilmelding() {
@@ -118,7 +135,7 @@ public class OppgaveRedirectData {
     }
 
     boolean harBehandlingId() {
-        return behandlingId != null;
+        return behandlingUuid != null;
     }
 
     boolean harFeilmelding() {
