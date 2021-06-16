@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,6 +22,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -39,6 +45,7 @@ public class BehandlingBackendRestTjeneste {
     public static final String BEHANDLINGER_BACKEND_ROOT_PATH = BASE_PATH + BACKEND_ROOT_PATH;
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste;
 
     public BehandlingBackendRestTjeneste() {
@@ -47,9 +54,11 @@ public class BehandlingBackendRestTjeneste {
 
     @Inject
     public BehandlingBackendRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
+                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                          BehandlingDtoForBackendTjeneste behandlingDtoForBackendTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingDtoForBackendTjeneste = behandlingDtoForBackendTjeneste;
+        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
     @GET
@@ -64,9 +73,16 @@ public class BehandlingBackendRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
         var taskStatus = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, null).orElse(null);
-        BehandlingDto dto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, taskStatus);
+        Optional<OrganisasjonsEnhet> endretEnhet = sjekkEnhet(behandling);
+        BehandlingDto dto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, taskStatus, endretEnhet);
         var responseBuilder = Response.ok().entity(dto);
         return responseBuilder.build();
+    }
+
+    private Optional<OrganisasjonsEnhet> sjekkEnhet(Behandling behandling) {
+        if (behandling.erSaksbehandlingAvsluttet()) return Optional.empty();
+        var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
+        return enhet.getEnhetId().equals(behandling.getBehandlendeEnhet()) ? Optional.empty() : Optional.of(enhet);
     }
 
 }

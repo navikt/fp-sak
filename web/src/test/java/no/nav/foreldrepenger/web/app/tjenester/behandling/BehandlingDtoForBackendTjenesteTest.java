@@ -1,6 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -21,14 +31,6 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoForBackendTjeneste;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest {
 
@@ -57,7 +59,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
         lagBehandligVedtak(behandling);
         avsluttBehandling(behandling);
 
-        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(behandling, null, Optional.empty());
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.isBehandlingPåVent()).isFalse();
 
@@ -86,12 +88,12 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
         lagBehandligVedtak(innsyn);
         avsluttBehandling(innsyn);
 
-        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null, Optional.empty());
 
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).hasSize(1);
-
+        assertThat(utvidetBehandlingDto.getBehandlendeEnhetId()).isEqualTo("9999");
         assertThat(utvidetBehandlingDto.getSpråkkode()).isEqualByComparingTo(Språkkode.NN);
         assertThat(utvidetBehandlingDto.getLinks()).isNotEmpty();
     }
@@ -108,12 +110,12 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
         lagBehandligVedtak(innsyn);
         avsluttBehandling(innsyn);
 
-        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null);
+        var utvidetBehandlingDto = behandlingDtoForBackendTjeneste.lagBehandlingDto(innsyn, null, Optional.of(new OrganisasjonsEnhet("9000", "Spesifikk")));
 
         assertThat(utvidetBehandlingDto.getAnsvarligSaksbehandler()).isEqualTo(ANSVARLIG_SAKSBEHANDLER);
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).isNotEmpty();
         assertThat(utvidetBehandlingDto.getBehandlingÅrsaker()).hasSize(1);
-
+        assertThat(utvidetBehandlingDto.getBehandlendeEnhetId()).isEqualTo("9000");
         assertThat(utvidetBehandlingDto.getSpråkkode()).isEqualByComparingTo(Språkkode.NB);
         assertThat(utvidetBehandlingDto.getLinks()).isNotEmpty();
     }
@@ -138,6 +140,7 @@ public class BehandlingDtoForBackendTjenesteTest extends EntityManagerAwareTest 
     private Behandling lagBehandling(Fagsak fagsak, BehandlingType behandlingType) {
 
         var behandling = Behandling.nyBehandlingFor(fagsak, behandlingType)
+            .medBehandlendeEnhet(new OrganisasjonsEnhet("9999", "Generisk"))
             .medBehandlingÅrsak(BehandlingÅrsak.builder(BEHANDLING_ÅRSAK_TYPE))
             .build();
         var behandlingsresultat = Behandlingsresultat.builder()

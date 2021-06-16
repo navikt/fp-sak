@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -49,19 +50,24 @@ public class BehandlingDtoForBackendTjeneste {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
     }
 
-    public UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, AsyncPollingStatus taskStatus) {
+    public UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, AsyncPollingStatus taskStatus, Optional<OrganisasjonsEnhet> endretEnhet) {
         var behandlingVedtak = vedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());
 
-        return lagBehandlingDto(behandling, behandlingVedtak, taskStatus);
+        return lagBehandlingDto(behandling, behandlingVedtak, taskStatus, endretEnhet);
     }
 
-    private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, Optional<BehandlingVedtak> behandlingVedtak, AsyncPollingStatus asyncStatus) {
+    private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling, Optional<BehandlingVedtak> behandlingVedtak,
+                                                  AsyncPollingStatus asyncStatus, Optional<OrganisasjonsEnhet> endretEnhet) {
         var dto = new UtvidetBehandlingDto();
         var vedtaksDato = behandlingVedtak.map(BehandlingVedtak::getVedtaksdato).orElse(null);
         BehandlingDtoUtil.settStandardfelterUtvidet(behandling, dto, erBehandlingGjeldendeVedtak(behandling), vedtaksDato);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }
+        endretEnhet.ifPresent(e -> {
+            dto.setBehandlendeEnhetId(e.getEnhetId());
+            dto.setBehandlendeEnhetNavn(e.getEnhetNavn());
+        });
 
         var uuidDto = new UuidDto(behandling.getUuid());
 
