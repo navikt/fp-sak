@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområ
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 public class BehandleØkonomioppdragKvitteringTest {
 
@@ -76,7 +77,8 @@ public class BehandleØkonomioppdragKvitteringTest {
         behandleØkonomioppdragKvittering = new BehandleØkonomioppdragKvittering(
             hendelsesmottak,
             økonomioppdragRepository,
-            behandleHendelseØkonomioppdrag);
+            behandleHendelseØkonomioppdrag,
+            mock(ProsessTaskRepositoryImpl.class));
     }
 
     @Test
