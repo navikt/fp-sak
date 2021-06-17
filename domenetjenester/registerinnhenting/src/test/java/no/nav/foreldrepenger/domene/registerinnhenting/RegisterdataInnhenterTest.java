@@ -136,14 +136,15 @@ public class RegisterdataInnhenterTest {
         // Arrange
         var json = """
             {
-              "pleietrengende" : "9999999999999",
+              &#34;pleietrengende&#34; : "9999999999999",
               "innleggelsesPerioder" : [ {
                 "fom" : "2021-05-03",
                 "tom" : "2021-05-09"
               } ]
             }
             """;
-        var deser = StandardJsonConfig.fromJson(json, RegisterdataInnhenter.PleiepengerOpplysninger.class);
+        var fikset = json.replace("&#34;", "\"");
+        var deser = StandardJsonConfig.fromJson(fikset, RegisterdataInnhenter.PleiepengerOpplysninger.class);
 
         assertThat(deser.pleietrengende()).isEqualTo(new AktørId("9999999999999"));
         assertThat(deser.innleggelsesPerioder()).hasSize(1);
