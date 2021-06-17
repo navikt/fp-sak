@@ -47,6 +47,7 @@ class ForvaltningOppdragTjeneste {
     private ProsessTaskRepository prosessTaskRepository;
     private EntityManager entityManager;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private K27OppdragMapper k27OppdragMapper;
 
     @Inject
     public ForvaltningOppdragTjeneste(final BehandleØkonomioppdragKvittering økonomioppdragKvitteringTjeneste,
@@ -55,7 +56,8 @@ class ForvaltningOppdragTjeneste {
                                       PersoninfoAdapter personinfoAdapter,
                                       ProsessTaskRepository prosessTaskRepository,
                                       EntityManager entityManager,
-                                      BehandlingVedtakRepository behandlingVedtakRepository) {
+                                      BehandlingVedtakRepository behandlingVedtakRepository,
+                                      K27OppdragMapper k27OppdragMapper) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
@@ -63,6 +65,7 @@ class ForvaltningOppdragTjeneste {
         this.prosessTaskRepository = prosessTaskRepository;
         this.entityManager = entityManager;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
+        this.k27OppdragMapper = k27OppdragMapper;
     }
 
     public void kvitterOk(long behandlingId, long fagsystemId, boolean oppdaterProsesstask) {

@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
