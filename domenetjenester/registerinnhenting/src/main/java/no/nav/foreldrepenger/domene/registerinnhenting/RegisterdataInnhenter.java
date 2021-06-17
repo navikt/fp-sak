@@ -157,7 +157,8 @@ public class RegisterdataInnhenter {
         if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
         var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getFødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
 
-        var request = new AktørDatoRequest(new AktørIdPersonident(behandling.getAktørId().getId()), tidligstFødt.minusWeeks(22), YtelseType.FORELDREPENGER);
+        var request = new AktørDatoRequest(new AktørIdPersonident(behandling.getAktørId().getId()),
+            new Periode(tidligstFødt.minusWeeks(25), tidligstFødt.plusWeeks(10)), YtelseType.FORELDREPENGER);
 
         var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
             .map(y -> (YtelseV1)y)
@@ -261,7 +262,9 @@ public class RegisterdataInnhenter {
 
     private PleiepengerOpplysninger oversettTilleggsopplysninger(String tilleggsOpplysninger) {
         try {
-            return StandardJsonConfig.fromJson(tilleggsOpplysninger, PleiepengerOpplysninger.class);
+            // TODO finne ut hvor double-quote escapes og gir &#34;
+            var midlertidigKonvertering = tilleggsOpplysninger.replace("&#34;", "\"");
+            return StandardJsonConfig.fromJson(midlertidigKonvertering, PleiepengerOpplysninger.class);
         } catch (Exception e) {
             LOG.warn("Feil ved oversetting av pleiepenger / innleggelse for {}", tilleggsOpplysninger, e);
             return null;
