@@ -5,7 +5,6 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -21,14 +20,9 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.K27PatchDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.KvitteringDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.OppdragPatchDto;
-import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningOppdrag")
@@ -93,7 +87,7 @@ public class ForvaltningOppdragRestTjeneste {
     @Operation(description = "Patcher oppdrag som har feil i maks dato ved refusjon til AG, og sender over til oppdragsysstemet. Sjekk med Team FP hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response patchK27(@NotNull @Valid K27PatchDto dto) {
-        forvaltningOppdragTjeneste.patchk27(dto.getBehandlingId(), dto.getFagsystemId());
+        forvaltningOppdragTjeneste.patchk27(dto.getBehandlingId(), dto.getFagsystemId(), dto.getMaksDato());
         return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingId()).build();
     }
 }

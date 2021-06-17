@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import no.nav.foreldrepenger.behandling.impl.FinnAnsvarligSaksbehandler;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -24,7 +26,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.Oppdragsl
 import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
-class OppdragMapper {
+public class OppdragMapper {
 
     private final OppdragPatchDto dto;
 

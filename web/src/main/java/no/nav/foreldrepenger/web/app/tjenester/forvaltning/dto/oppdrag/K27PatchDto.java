@@ -1,8 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag;
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -20,6 +24,9 @@ public class K27PatchDto implements AbacDto {
     @NotNull
     private Long fagsystemId;
 
+    @NotNull
+    private LocalDate maksDato;
+
     public Long getBehandlingId() {
         return behandlingId;
     }
@@ -34,6 +41,14 @@ public class K27PatchDto implements AbacDto {
 
     public void setFagsystemId(Long fagsystemId) {
         this.fagsystemId = fagsystemId;
+    }
+
+    public LocalDate getMaksDato() {
+        return maksDato;
+    }
+
+    public void setMaksDato(final LocalDate maksDato) {
+        this.maksDato = maksDato;
     }
 
     @Override
