@@ -1,10 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -107,17 +110,47 @@ class ForvaltningOppdragTjeneste {
             behandlingId);
     }
 
-    public void patchk27(long behandlingId, long fagsystemId) {
+    public void patchk27(long behandlingId, long fagsystemId, LocalDate maksDato) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
 
-        kvitterBortEksisterendeOppdrag(oppdragskontroll, fagsystemId);
-        lagVurderOgSendØkonomioppdragTask(behandling);
+        // Finn oppdrag som skal patches
+        var oppdrag110TilPatching = oppdragskontroll.getOppdrag110Liste().stream()
+            .filter(oppdrag110 -> oppdrag110.getFagsystemId() == fagsystemId)
+            .collect(Collectors.toList());
+
+        if (oppdrag110TilPatching.size() != 1) {
+            LOG.warn("Mer enn oppdrag110 funnet for behandlingId {} og fagsystemId {}. Avbryttet patching.", behandlingId, fagsystemId);
+            return;
+        }
+
+        // Finn siste oppdrag som ble sendt
+        var alleOppdragForSak = økonomioppdragRepository.finnAlleOppdragForSak(oppdragskontroll.getSaksnummer());
+        var sisteOppdrag = alleOppdragForSak.stream().max(Comparator.comparing(Oppdragskontroll::getOpprettetTidspunkt)).orElseThrow();
+
+        var oppdragSomPatches = oppdragskontroll;
+        if (sisteOppdrag != oppdragskontroll) {
+            LOG.info("Oppdaterer oppdraget siden ikke det siste.");
+            oppdragSomPatches = sisteOppdrag;
+        }
+
+        // lag en kopi av dette hva skal patches uten kvittering med fikset tom dato
+        var mapper = new K27OppdragMapper(behandling);
+        mapper.mapTil(oppdragSomPatches, oppdrag110TilPatching.get(0), maksDato);
+
+        // set venter kvittering true på oppdragskontroll
+        oppdragSomPatches.setVenterKvittering(true);
+        økonomioppdragRepository.lagre(oppdragSomPatches);
+
+        // opprett en sendt økonomi oppdrag task
+        var behandlingPatchet = behandlingRepository.hentBehandling(oppdragSomPatches.getBehandlingId());
 
         LOG.info(
             "Patchet arbeidsgiver oppdrag for behandling={} fagsystemId={}. Ta kontakt med Team Foreldrepenger for å avsjekke resultatet når prosesstask er kjørt.",
-            behandlingId, fagsystemId);
+            behandlingPatchet.getId(), fagsystemId);
+
+        lagSendØkonomioppdragTask(behandlingPatchet);
     }
 
     private void utførPatching(OppdragPatchDto dto, Long behandlingId, Behandling behandling, Oppdragskontroll oppdragskontroll) {
@@ -189,6 +222,16 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             Long.valueOf(hovedProsessTask.getBehandlingId()),
             hovedProsessTask.getAktørId());
+        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+    }
+
+    private void lagSendØkonomioppdragTask(Behandling behandling) {
+        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        sendØkonomiOppdrag.setCallIdFraEksisterende();
+        sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
+        sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
+            behandling.getId(),
+            behandling.getAktørId().toString());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }
 

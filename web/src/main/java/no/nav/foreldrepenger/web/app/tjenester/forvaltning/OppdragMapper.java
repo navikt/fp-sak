@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.oppdrag.Oppdragsl
 import no.nav.foreldrepenger.økonomistøtte.ny.util.OppdragOrgnrUtil;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomistøtteUtils;
 
-class OppdragMapper {
+public class OppdragMapper {
 
     private final OppdragPatchDto dto;
 
