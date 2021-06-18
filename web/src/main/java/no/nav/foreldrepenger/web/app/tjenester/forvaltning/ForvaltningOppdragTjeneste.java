@@ -231,7 +231,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
             behandling.getId(),
-            behandling.getAktørId().toString());
+            behandling.getAktørId().getId());
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }
 

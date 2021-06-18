@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREATE;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -89,5 +91,16 @@ public class ForvaltningOppdragRestTjeneste {
     public Response patchK27(@NotNull @Valid K27PatchDto dto) {
         forvaltningOppdragTjeneste.patchk27(dto.getBehandlingId(), dto.getFagsystemId(), dto.getMaksDato());
         return Response.ok("Patchet oppdrag for behandling=" + dto.getBehandlingId()).build();
+    }
+
+    @POST
+    @Path("/patch-k27-batch")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Patcher oppdrag som har feil i maks dato ved refusjon til AG, og sender over til oppdragsysstemet. Sjekk med Team FP hvis i tvil. Viktig at det sjekkes i Oppdragsystemet etter oversending at alt har gått som forventet", tags = "FORVALTNING-oppdrag")
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
+    public Response patchK27Batch(@NotNull @Valid List<K27PatchDto> k27PatchDtoList) {
+        k27PatchDtoList.forEach(this::patchK27);
+        return Response.ok("Patchet oppdrag for behandling. Antall patchet: " + k27PatchDtoList.size()).build();
     }
 }
