@@ -39,7 +39,7 @@ public class InnvilgelseFpLanseringTjeneste {
 
     public DokumentMalType velgFpInnvilgelsesmal(Behandling behandling) {
         boolean kanBrukeDokgen = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
-            && !harAvslåttePerioderEllerPerioderMedGradering(behandling)
+            && !harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(behandling)
             && !harDødtBarn(behandling);
 
         if (kanBrukeDokgen) {
@@ -50,12 +50,12 @@ public class InnvilgelseFpLanseringTjeneste {
             DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
-    private boolean harAvslåttePerioderEllerPerioderMedGradering(Behandling behandling) {
+    private boolean harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(Behandling behandling) {
         return fpUttakRepository.hentUttakHvisEksisterer(behandling.getId())
             .map(ForeldrepengerUttak::getGjeldendePerioder)
             .orElse(Collections.emptyList())
             .stream()
-            .anyMatch(p -> !p.isInnvilget() || p.isGraderingInnvilget() || p.isSøktGradering());
+            .anyMatch(p -> !p.isInnvilget() || p.isGraderingInnvilget() || p.isSøktGradering() || p.isSamtidigUttak());
     }
 
     private boolean harDødtBarn(Behandling behandling) {
