@@ -154,8 +154,11 @@ public class RegisterdataInnhenter {
 
     private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
         var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getIdent).filter(Objects::nonNull).collect(Collectors.toSet());
+        LOG.info("PSB innhent behandling {} antall født {}", behandling.getId(), bekreftetFødt.size());
         if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
         var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getFødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
+
+        LOG.info("PSB innhent behandling {} tidligst født {}", behandling.getId(), tidligstFødt);
 
         var request = new AktørDatoRequest(new AktørIdPersonident(behandling.getAktørId().getId()),
             new Periode(tidligstFødt.minusWeeks(25), tidligstFødt.plusWeeks(10)), YtelseType.FORELDREPENGER);
@@ -167,9 +170,14 @@ public class RegisterdataInnhenter {
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .collect(Collectors.toList());
 
+        LOG.info("PSB innhent behandling {} antall potensielle vedtak {}", behandling.getId(), potensielleVedtak.size());
+
         var aktivtGrunnlag = pleiepengerRepository.hentGrunnlag(behandling.getId());
-        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
-        eventuellePleiepenger.ifPresent(pp -> pleiepengerRepository.lagrePerioder(behandling.getId(), pp));
+        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(behandling, aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
+        eventuellePleiepenger.ifPresent(pp -> {
+            LOG.info("SB innhent behandling {} lagrer grunnlag", behandling.getId());
+            pleiepengerRepository.lagrePerioder(behandling.getId(), pp);
+        });
     }
 
     public void innhentMedlemskapsOpplysning(Behandling behandling) {
@@ -241,11 +249,12 @@ public class RegisterdataInnhenter {
         return FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType) ? REVURDERING_ES : REVURDERING_FP_SVP;
     }
 
-    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
+    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(Behandling behandling, Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
                                                                                        List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
         var ppBuilder = new PleiepengerPerioderEntitet.Builder();
         for (var vedtak : vedtakene) {
             var oversatt = oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
+            if (oversatt != null) LOG.info("PSB innhent behandling {} vedtak aktuelt barn {} med perioder {}", behandling.getId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
             if (oversatt != null && oversatt.innleggelsesPerioder() != null && gjelderAktuelleBarn(oversatt, aktuelleBarn)) {
                 oversatt.innleggelsesPerioder().stream()
                     .filter(ip -> ip.tom() != null)
@@ -256,8 +265,11 @@ public class RegisterdataInnhenter {
                     .forEach(ppBuilder::leggTil);
             }
         }
-        return ppBuilder.harPerioder() || aktivtGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse).isPresent() ?
-            Optional.of(ppBuilder) : Optional.empty();
+        if (ppBuilder.harPerioder() || aktivtGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse).isPresent()) {
+            LOG.info("PSB innhent behandling {} har perioder {}", behandling.getId(), ppBuilder.harPerioder());
+            return Optional.of(ppBuilder);
+        }
+        return Optional.empty();
     }
 
     private PleiepengerOpplysninger oversettTilleggsopplysninger(String tilleggsOpplysninger) {

@@ -181,6 +181,7 @@ public class VedtaksHendelseHåndterer {
             var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s", ytelse.getType().getNavn(), ytelse.getSaksnummer(),
                     overlappsaker);
             LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
+            loggVedtakOverlapp(ytelse);
             // TODO (jol): enable VKY etter avklaring. Deretter vurder å opprette
             // revurdering .... Behovet tilstede for PSB, øvrige uklare
             // vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(behandlinger.get(0).getFagsakId(),
