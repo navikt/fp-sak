@@ -15,8 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.OppdragKvittering;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -26,6 +29,7 @@ public class BehandleØkonomioppdragKvittering {
     private ProsessTaskHendelseMottak hendelsesmottak;
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandleNegativeKvitteringTjeneste behandleNegativeKvittering;
+    private ProsessTaskRepositoryImpl prosessTaskRepository;
 
     private static final Logger LOG = LoggerFactory.getLogger(BehandleØkonomioppdragKvittering.class);
 
@@ -36,10 +40,12 @@ public class BehandleØkonomioppdragKvittering {
     @Inject
     public BehandleØkonomioppdragKvittering(ProsessTaskHendelseMottak hendelsesmottak,
                                             ØkonomioppdragRepository økonomioppdragRepository,
-                                            BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste) {
+                                            BehandleNegativeKvitteringTjeneste behandleNegativeKvitteringTjeneste,
+                                            ProsessTaskRepositoryImpl prosessTaskRepository) {
         this.hendelsesmottak = hendelsesmottak;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandleNegativeKvittering = behandleNegativeKvitteringTjeneste;
+        this.prosessTaskRepository = prosessTaskRepository;
     }
 
     /**
@@ -77,21 +83,29 @@ public class BehandleØkonomioppdragKvittering {
         if (erAlleKvitteringerMottatt) {
             LOG.info("Alle økonomioppdrag-kvitteringer er mottatt for behandling: {}", behandlingId);
             oppdragskontroll.setVenterKvittering(false);
+            økonomioppdragRepository.lagre(oppdragskontroll);
 
             if (oppdaterProsesstask) {
                 //Dersom kvittering viser positivt resultat: La Behandlingskontroll/TaskManager fortsette behandlingen - trigger prosesstask Behandling.Avslutte hvis brev er bekreftet levert
                 var alleViserPositivtResultat = erAlleKvitteringerMedPositivtResultat(oppdragskontroll.getOppdrag110Liste());
+                var prosessTaskId = oppdragskontroll.getProsessTaskId();
                 if (alleViserPositivtResultat) {
                     LOG.info("Alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                    hendelsesmottak.mottaHendelse(oppdragskontroll.getProsessTaskId(), ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+                    try {
+                        var prosessTaskData = prosessTaskRepository.finn(prosessTaskId);
+                        if (prosessTaskData.getStatus() == ProsessTaskStatus.VENTER_SVAR) {
+                            hendelsesmottak.mottaHendelse(prosessTaskId, ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+                        }
+                    } catch (Exception ex) {
+                        LOG.info("Feil ved oppdatering av prosesstask. Sjekke om task med id {} er i status FERDIG. Hvis ja - ignorer denne meldingen, hvis ikke - opprett en sak.", prosessTaskId);
+                    }
                 } else {
                     LOG.warn("Ikke alle økonomioppdrag-kvitteringer viser positivt resultat for behandling: {}", behandlingId);
-                    behandleNegativeKvittering.nullstilleØkonomioppdragTask(oppdragskontroll.getProsessTaskId());
+                    behandleNegativeKvittering.nullstilleØkonomioppdragTask(prosessTaskId);
                 }
             } else {
                 LOG.info("Oppdaterer ikke prosesstask.");
             }
-            økonomioppdragRepository.lagre(oppdragskontroll);
         }
     }
 
