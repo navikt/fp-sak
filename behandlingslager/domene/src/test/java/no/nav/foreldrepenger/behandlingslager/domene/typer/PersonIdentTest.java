@@ -18,6 +18,13 @@ public class PersonIdentTest {
     }
 
     @Test
+    public void gyldigFoedselsnummer_Masker() {
+        var nasjoaltTestFnr = "10108000398";
+
+        assertThat(new PersonIdent(nasjoaltTestFnr)).hasToString("PersonIdent<ident=1010******8>");
+    }
+
+    @Test
     public void gyldigFoedselsnummer_Dnr() {
         var dnr = "65038300827";
         var gyldig = PersonIdent.erGyldigFnr(dnr);

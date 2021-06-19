@@ -115,9 +115,16 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
         return Objects.hash(ident);
     }
 
-
     @Override
     public String toString() {
-        return PersonIdent.class.getSimpleName() + "<ident=***********>";
+        return PersonIdent.class.getSimpleName() + "<ident=" + maskerIdent() + ">";
+    }
+
+    private String maskerIdent() {
+        var length = ident.length();
+        if (length <= 5) {
+            return "*".repeat(length);
+        }
+        return ident.substring(0, 4) + "*".repeat(length - 5) + ident.substring(length - 1);
     }
 }
