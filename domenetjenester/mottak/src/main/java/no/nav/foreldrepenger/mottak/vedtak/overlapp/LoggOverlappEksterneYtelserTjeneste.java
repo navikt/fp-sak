@@ -18,11 +18,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
-import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
-import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.vedtak.ytelse.Desimaltall;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -225,8 +222,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     public void vurderOmOverlappOMS(AktørId aktørId, LocalDate førsteUttaksDatoFP, LocalDateTimeline<BigDecimal> perioderFp, List<OverlappVedtak.Builder> overlappene) {
         try {
-            abakusTjeneste.hentVedtakForAktørId(new AktørDatoRequest(new AktørIdPersonident(aktørId.getId()),
-                new Periode(førsteUttaksDatoFP.minusYears(1), LocalDate.now().plusYears(1)), YtelseType.FORELDREPENGER)).stream()
+            abakusTjeneste.hentVedtakForAktørId(AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, førsteUttaksDatoFP.minusYears(1))).stream()
                 .map(y -> (YtelseV1)y)
                 .filter(y -> Fagsystem.K9SAK.equals(y.getFagsystem()))
                 .forEach(y -> {

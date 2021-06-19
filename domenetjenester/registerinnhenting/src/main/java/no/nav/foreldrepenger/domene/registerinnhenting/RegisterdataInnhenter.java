@@ -26,7 +26,6 @@ import no.nav.abakus.iaygrunnlag.AktørIdPersonident;
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
-import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.abakus.iaygrunnlag.request.InnhentRegisterdataRequest;
 import no.nav.abakus.iaygrunnlag.request.RegisterdataType;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
@@ -154,14 +153,11 @@ public class RegisterdataInnhenter {
 
     private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
         var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getIdent).filter(Objects::nonNull).collect(Collectors.toSet());
-        LOG.info("PSB innhent behandling {} antall født {}", behandling.getId(), bekreftetFødt.size());
+
         if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
         var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::getFødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
 
-        LOG.info("PSB innhent behandling {} tidligst født {}", behandling.getId(), tidligstFødt);
-
-        var request = new AktørDatoRequest(new AktørIdPersonident(behandling.getAktørId().getId()),
-            new Periode(tidligstFødt.minusWeeks(25), tidligstFødt.plusWeeks(10)), YtelseType.FORELDREPENGER);
+        var request = AbakusTjeneste.lagRequestForHentVedtakFom(behandling.getAktørId(), tidligstFødt.minusWeeks(25));
 
         var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
             .map(y -> (YtelseV1)y)
@@ -170,12 +166,12 @@ public class RegisterdataInnhenter {
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .collect(Collectors.toList());
 
-        LOG.info("PSB innhent behandling {} antall potensielle vedtak {}", behandling.getId(), potensielleVedtak.size());
+        LOG.info("PSB innhent behandling {} tidligst født {} antall potensielle vedtak {}", behandling.getId(), tidligstFødt, potensielleVedtak.size());
 
         var aktivtGrunnlag = pleiepengerRepository.hentGrunnlag(behandling.getId());
         var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(behandling, aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
         eventuellePleiepenger.ifPresent(pp -> {
-            LOG.info("SB innhent behandling {} lagrer grunnlag", behandling.getId());
+            LOG.info("PSB innhent behandling {} lagrer grunnlag", behandling.getId());
             pleiepengerRepository.lagrePerioder(behandling.getId(), pp);
         });
     }
@@ -254,7 +250,8 @@ public class RegisterdataInnhenter {
         var ppBuilder = new PleiepengerPerioderEntitet.Builder();
         for (var vedtak : vedtakene) {
             var oversatt = oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
-            if (oversatt != null) LOG.info("PSB innhent behandling {} vedtak aktuelt barn {} med perioder {}", behandling.getId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
+            if (oversatt != null) LOG.info("PSB innhent behandling {} vedtak aktuelt barn {} med perioder {}",
+                behandling.getId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
             if (oversatt != null && oversatt.innleggelsesPerioder() != null && gjelderAktuelleBarn(oversatt, aktuelleBarn)) {
                 oversatt.innleggelsesPerioder().stream()
                     .filter(ip -> ip.tom() != null)
