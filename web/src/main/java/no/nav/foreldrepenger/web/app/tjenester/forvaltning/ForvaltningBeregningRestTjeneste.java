@@ -179,6 +179,7 @@ public class ForvaltningBeregningRestTjeneste {
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(50);
+        prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
         prosessTaskRepository.lagre(prosessTaskData);
         return Response.ok().build();
     }

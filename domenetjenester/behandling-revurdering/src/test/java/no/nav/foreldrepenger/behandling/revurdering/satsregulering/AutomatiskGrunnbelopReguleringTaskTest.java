@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -36,13 +36,14 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.FPsakEntityManagerAwareExtension;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class AutomatiskGrunnbelopReguleringTaskTest {
+
+    private static LocalDate TERMINDATO = LocalDate.now().plusWeeks(3);
 
     @Mock
     private BehandlingFlytkontroll flytkontroll;
@@ -50,6 +51,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     private BehandlendeEnhetTjeneste enhetsTjeneste;
     @Mock
     private BehandlingProsesseringTjeneste prosesseringTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -64,6 +67,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
     public void skal_opprette_revurderingsbehandling_med_årsak_når_avsluttet_behandling() {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -95,7 +100,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
     private AutomatiskGrunnbelopReguleringTask createTask() {
         return new AutomatiskGrunnbelopReguleringTask(repositoryProvider,
-            prosesseringTjeneste, enhetsTjeneste, flytkontroll);
+            skjæringstidspunktTjeneste, prosesseringTjeneste, enhetsTjeneste, flytkontroll);
 
     }
 
@@ -118,6 +123,8 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
         when(flytkontroll.nyRevurderingSkalVente(any())).thenReturn(true);
         when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusWeeks(3)).build());
 
         var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
         prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
@@ -132,24 +139,55 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
         verify(flytkontroll).settNyRevurderingPåVent(regulering.get());
     }
 
+    @Test
+    public void skal_ikke_opprette_revurdering_dersom_skal_ha_gammel_sats() {
+        var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any()))
+            .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdatoGrunnbeløp(TERMINDATO.minusYears(1)).build());
+
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setSekvens("1");
+
+        var task = createTask();
+        task.doTask(prosessTaskData);
+
+        assertIngenRevurdering(behandling.getFagsak());
+    }
+
+    @Test
+    public void skal_opprette_revurdering_ved_manuell_oppretting() {
+        var behandling = opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET);
+        when(enhetsTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(new OrganisasjonsEnhet("1234", "Test"));
+
+        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().getId());
+        prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
+        prosessTaskData.setSekvens("1");
+
+        var task = createTask();
+        task.doTask(prosessTaskData);
+
+        assertRevurdering(behandling, BehandlingÅrsakType.RE_SATS_REGULERING);
+    }
+
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status) {
-        var terminDato = LocalDate.now().plusDays(10);
 
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
-                .medSøknadDato(terminDato.minusDays(20));
+                .medSøknadDato(TERMINDATO.minusDays(20));
 
         scenario.medSøknadHendelse()
                 .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
                         .medNavnPå("Lege Legesen")
-                        .medTermindato(terminDato)
-                        .medUtstedtDato(terminDato.minusDays(40)))
+                        .medTermindato(TERMINDATO)
+                        .medUtstedtDato(TERMINDATO.minusDays(40)))
                 .medAntallBarn(1);
 
         scenario.medBekreftetHendelse()
                 .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
                         .medNavnPå("Lege Legesen")
-                        .medTermindato(terminDato)
-                        .medUtstedtDato(terminDato.minusDays(40)))
+                        .medTermindato(TERMINDATO)
+                        .medUtstedtDato(TERMINDATO.minusDays(40)))
                 .medAntallBarn(1);
 
         scenario.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
@@ -157,7 +195,7 @@ public class AutomatiskGrunnbelopReguleringTaskTest {
 
         scenario.medBehandlingVedtak()
                 .medVedtakResultatType(VedtakResultatType.INNVILGET)
-                .medVedtakstidspunkt(terminDato.minusWeeks(2).atStartOfDay())
+                .medVedtakstidspunkt(TERMINDATO.minusWeeks(2).atStartOfDay())
                 .medAnsvarligSaksbehandler("Severin Saksbehandler")
                 .build();
 

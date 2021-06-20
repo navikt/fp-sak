@@ -1,6 +1,13 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.uttak.fp.IkkeOppfyltÅrsak.SØKNADSFRIST;
+
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -8,6 +15,13 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.util.env.Environment;
 
@@ -21,6 +35,7 @@ import no.nav.vedtak.util.env.Environment;
 @ApplicationScoped
 public class UtsettelseCore2021 {
 
+    private static final Period SENESTE_UTTAK_FØR_TERMIN = Period.ofWeeks(3);
     public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = true;
 
     private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
@@ -51,5 +66,77 @@ public class UtsettelseCore2021 {
         if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isBefore(ikrafttredelseDato);
         return LocalDate.now().isBefore(ikrafttredelseDato.plusWeeks(2)); // Frist for registrering av fødsel i FREG
     }
+
+    public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag, LocalDate førsteUttaksdato) {
+        // FAR/MEDMOR skal ikke vurderes
+        var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
+        if (!gjeldendeFH.getGjelderFødsel() || !RelasjonsRolleType.MORA.equals(rolle)) {
+            // 14-10 første ledd (far+medmor), andre ledd
+            var uttaksdato = førsteUttaksdato.isBefore(gjeldendeFH.getSkjæringstidspunkt()) ? gjeldendeFH.getSkjæringstidspunkt() : førsteUttaksdato;
+            return VirkedagUtil.fomVirkedag(uttaksdato);
+        }
+        // 14-10 første ledd (mor)
+        var termindatoMinusPeriode = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse()
+            .map(TerminbekreftelseEntitet::getTermindato)
+            .map(t -> t.minus(SENESTE_UTTAK_FØR_TERMIN))
+            .filter(førsteUttaksdato::isAfter);
+        var fødselsdato = gjeldendeFH.getFødselsdato()
+            .filter(førsteUttaksdato::isAfter)
+            .filter(f -> termindatoMinusPeriode.isEmpty() || f.isBefore(termindatoMinusPeriode.get()));
+        var uttaksdato = fødselsdato.or(() -> termindatoMinusPeriode).orElse(førsteUttaksdato);
+        return VirkedagUtil.fomVirkedag(uttaksdato);
+    }
+
+    public static Optional<LocalDate> finnFørsteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder, boolean kreverSammenhengendeUttak) {
+        if (erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(perioder)) {
+            // TODO: Håndtering av tomt Uttak (OBS på allmatch nedenfor). Dagens dato kan være like god som noen annen dato.
+            return perioder.stream()
+                .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+                .map(UttakResultatPeriodeEntitet::getFom)
+                .min(Comparator.naturalOrder());
+        }
+        return perioder.stream()
+            .filter(it -> it.isInnvilget() || SØKNADSFRIST.equals(it.getResultatÅrsak()))
+            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .map(UttakResultatPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
+    }
+
+    public static Optional<LocalDate> finnSisteDatoFraUttakResultat(List<UttakResultatPeriodeEntitet> perioder, boolean kreverSammenhengendeUttak) {
+        return perioder.stream()
+            .filter(UttakResultatPeriodeEntitet::isInnvilget)
+            .filter(it -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(it))
+            .map(UttakResultatPeriodeEntitet::getTom)
+            .max(Comparator.naturalOrder());
+    }
+
+    public static Optional<LocalDate> finnFørsteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
+        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .map(OppgittPeriodeEntitet::getFom)
+            .min(Comparator.naturalOrder());
+    }
+
+    public static Optional<LocalDate> finnSisteDatoFraSøknad(Optional<OppgittFordelingEntitet> oppgittFordeling, boolean kreverSammenhengendeUttak) {
+        return oppgittFordeling.map(OppgittFordelingEntitet::getOppgittePerioder).orElse(Collections.emptyList()).stream()
+            .filter(p -> kreverSammenhengendeUttak || frittUttakErPeriodeMedUttak(p))
+            .map(OppgittPeriodeEntitet::getTom)
+            .max(Comparator.naturalOrder());
+    }
+
+    private static boolean frittUttakErPeriodeMedUttak(UttakResultatPeriodeEntitet periode) {
+        return SØKNADSFRIST.equals(periode.getResultatÅrsak()) ||
+            periode.getAktiviteter().stream().anyMatch(a -> a.getUtbetalingsgrad().harUtbetaling() && a.getTrekkdager().merEnn0());
+    }
+
+    private static boolean frittUttakErPeriodeMedUttak(OppgittPeriodeEntitet periode) {
+        return !(periode.isUtsettelse() || periode.isOpphold());
+    }
+
+    private static boolean erAllePerioderAvslåttOgIngenAvslagPgaSøknadsfrist(List<UttakResultatPeriodeEntitet> uttakResultatPerioder) {
+        return uttakResultatPerioder.stream().allMatch(ut -> PeriodeResultatType.AVSLÅTT.equals(ut.getResultatType())
+            && !SØKNADSFRIST.equals(ut.getResultatÅrsak()));
+    }
+
 
 }
