@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -38,15 +40,18 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveVurderKonsekvensTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;
+    private BehandlendeEnhetTjeneste enhetTjeneste;
 
     OpprettOppgaveVurderKonsekvensTask() {
         // for CDI proxy
     }
 
     @Inject
-    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste) {
+    public OpprettOppgaveVurderKonsekvensTask(OppgaveTjeneste oppgaveTjeneste,
+                                              BehandlendeEnhetTjeneste enhetTjeneste) {
         super();
         this.oppgaveTjeneste = oppgaveTjeneste;
+        this.enhetTjeneste = enhetTjeneste;
     }
 
     @Override
@@ -56,15 +61,19 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
         var prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
         var gjeldendeAktørId = Optional.ofNullable(prosessTaskData.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
 
+        var enhet = enhetTjeneste.gyldigEnhetNfpNk(behandlendeEnhet) ? behandlendeEnhet :
+            gjeldendeAktørId.map(a -> enhetTjeneste.finnBehandlendeEnhetForAktørId(new AktørId(a)))
+                .orElseGet(() -> enhetTjeneste.finnBehandlendeEnhetForFagsakId(fagsakId)).getEnhetId();
+
         var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 
         //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
         String oppgaveId;
         if (gjeldendeAktørId.isPresent()) {
-            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåAktørId(gjeldendeAktørId.get(), prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
+            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåAktørId(gjeldendeAktørId.get(), prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, enhet, beskrivelse, høyPrioritet);
         }else {
-            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, behandlendeEnhet, beskrivelse, høyPrioritet);
+            oppgaveId = oppgaveTjeneste.opprettMedPrioritetOgBeskrivelseBasertPåFagsakId(prosessTaskData.getFagsakId(), VURDER_KONS_FOR_YTELSE, enhet, beskrivelse, høyPrioritet);
         }
-        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", behandlendeEnhet, oppgaveId, prioritet); // NOSONAR
+        LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId, prioritet); // NOSONAR
     }
 }
