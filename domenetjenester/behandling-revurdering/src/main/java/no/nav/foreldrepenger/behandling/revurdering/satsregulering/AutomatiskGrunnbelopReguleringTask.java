@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
+import java.time.LocalDate;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,13 +12,15 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.BehandlingFlytkontroll;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -24,11 +28,15 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(AutomatiskGrunnbelopReguleringTask.TASKTYPE)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
+
     public static final String TASKTYPE = "behandlingsprosess.satsregulering";
+    public static final String MANUELL_KEY = "manuell";
+
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskGrunnbelopReguleringTask.class);
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    private FagsakRepository fagsakRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private BehandlingFlytkontroll flytkontroll;
 
@@ -38,13 +46,15 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
 
     @Inject
     public AutomatiskGrunnbelopReguleringTask(BehandlingRepositoryProvider repositoryProvider,
+                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                               BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
             BehandlingFlytkontroll flytkontroll) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
-        this.fagsakRepository = repositoryProvider.getFagsakRepository();
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
         this.enhetTjeneste = enhetTjeneste;
         this.flytkontroll = flytkontroll;
     }
@@ -58,8 +68,14 @@ public class AutomatiskGrunnbelopReguleringTask extends FagsakProsessTask {
             LOG.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
             return;
         }
+        var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
+        if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
+            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(sisteVedtatte.getId());
+            var satsFom = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
+            if (skjæringstidspunkt.getFørsteUttaksdatoGrunnbeløp().isBefore(satsFom)) return;
+        }
 
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = sisteVedtatte.getFagsak();
         var skalKøes = flytkontroll.nyRevurderingSkalVente(fagsak);
         var enhet = enhetTjeneste.finnBehandlendeEnhetFor(fagsak);
         var revurderingTjeneste = FagsakYtelseTypeRef.Lookup.find(RevurderingTjeneste.class, fagsak.getYtelseType()).orElseThrow();

@@ -15,7 +15,6 @@ public class Skjæringstidspunkt {
     private LocalDate skjæringstidspunktBeregning;
     private LocalDate førsteUttaksdato;
     private LocalDate førsteUttaksdatoGrunnbeløp;
-    private LocalDate førsteUttaksdatoFødseljustert;
     private LocalDateInterval utledetMedlemsintervall;
     private boolean kreverSammenhengendeUttak = true; // Beholdes inntil lovendring avklart
 
@@ -29,7 +28,6 @@ public class Skjæringstidspunkt {
         this.skjæringstidspunktBeregning = other.skjæringstidspunktBeregning;
         this.førsteUttaksdato = other.førsteUttaksdato;
         this.førsteUttaksdatoGrunnbeløp = other.førsteUttaksdatoGrunnbeløp;
-        this.førsteUttaksdatoFødseljustert = other.førsteUttaksdatoFødseljustert;
         this.kreverSammenhengendeUttak = other.kreverSammenhengendeUttak;
     }
 
@@ -85,13 +83,6 @@ public class Skjæringstidspunkt {
     public LocalDate getFørsteUttaksdatoGrunnbeløp() {
         Objects.requireNonNull(førsteUttaksdatoGrunnbeløp, "Utvikler-feil: grunnbeløpdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
         return førsteUttaksdatoGrunnbeløp;
-    }
-
-    /** Første uttaksdato er første dag stønadsperioden løper - før evaluering av opptjeningsperiode. */
-    public LocalDate getFørsteUttaksdatoFødseljustert() {
-        // TODO(jol) - fjerne ved sanering av 5045
-        Objects.requireNonNull(førsteUttaksdatoFødseljustert, "Utvikler-feil: fødselsjustert uttaksdato er ikke satt. Sørg for at det er satt ifht. anvendelse");
-        return førsteUttaksdatoFødseljustert;
     }
 
     /** Skal behandles etter nytt regelverk for uttak anno 2021. */
@@ -170,11 +161,6 @@ public class Skjæringstidspunkt {
 
         public Builder medFørsteUttaksdatoGrunnbeløp(LocalDate dato) {
             kladd.førsteUttaksdatoGrunnbeløp = dato;
-            return this;
-        }
-
-        public Builder medFørsteUttaksdatoFødseljustert(LocalDate dato) {
-            kladd.førsteUttaksdatoFødseljustert = dato;
             return this;
         }
 
