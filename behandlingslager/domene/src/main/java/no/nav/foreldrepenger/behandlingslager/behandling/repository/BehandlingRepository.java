@@ -135,6 +135,10 @@ public class BehandlingRepository {
         return finnSisteBehandling(fagsakId, BehandlingType.getYtelseBehandlingTyper(), false);
     }
 
+    public Optional<Behandling> hentSisteYtelsesBehandlingForFagsakIdReadOnly(Long fagsakId) {
+        return finnSisteBehandling(fagsakId, BehandlingType.getYtelseBehandlingTyper(), true);
+    }
+
     /**
      * Hent siste behandling for angitt {@link Fagsak#id} og behandling type
      */

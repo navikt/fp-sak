@@ -8,10 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -62,6 +64,24 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
             behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         verify(vurderOpphørAvYtelser, times(0)).vurderOpphørAvYtelser(behandling.getFagsak().getId(),
             behandling.getId());
+    }
+
+    @Test
+    public void vurderOpphørForPleiepenger() {
+        var behandling = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
+
+        var prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        prosessTaskData.setFagsak(behandling.getFagsakId(), behandling.getAktørId().toString());
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.K9_REVURDER_KEY, "true");
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.K9_SAK_KEY, "ABCDE");
+        prosessTaskData.setProperty(VurderOpphørAvYtelserTask.K9_YTELSE_KEY, YtelseType.PLEIEPENGER_SYKT_BARN.getNavn());
+
+        vurderOpphørAvYtelserTask.doTask(prosessTaskData);
+
+        var expectBeskrivelse = String.format("%s saksnr %s overlapper %s saksnr %s", YtelseType.PLEIEPENGER_SYKT_BARN.getNavn(), "ABCDE",
+            behandling.getFagsakYtelseType().getNavn(), behandling.getFagsak().getSaksnummer().getVerdi());
+        verify(vurderOpphørAvYtelser, times(1)).oppdaterEllerOpprettRevurdering(behandling.getFagsak(),
+            expectBeskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
     }
 
     public Behandling lagBehandlingFP(BehandlingType behandlingType) {

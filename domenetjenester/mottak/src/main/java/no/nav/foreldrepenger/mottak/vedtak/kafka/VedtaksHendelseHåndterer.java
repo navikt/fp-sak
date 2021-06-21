@@ -56,6 +56,7 @@ public class VedtaksHendelseHåndterer {
             YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
             YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
+    private static final Set<YtelseType> REVURDERING_OPPRETTES = Set.of(YtelseType.PLEIEPENGER_SYKT_BARN);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final boolean isProd = Environment.current().isProd();
 
@@ -101,11 +102,28 @@ public class VedtaksHendelseHåndterer {
         if (Fagsystem.FPSAK.equals(ytelse.getFagsystem())) {
             oprettTasksForFpsakVedtak(ytelse);
         } else if (DB_LOGGES.contains(ytelse.getType())) {
-            loggVedtakOverlapp(ytelse);
+            var fagsaker = getFagsakerFor(ytelse);
+            loggVedtakOverlapp(ytelse, fagsaker);
         } else {
-            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(),
-                    ytelse.getType());
-            sjekkVedtakOverlapp(ytelse);
+            var fagsaker = getFagsakerFor(ytelse);
+            var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
+            if (REVURDERING_OPPRETTES.contains(ytelse.getType())) {
+                var callID = UUID.randomUUID();
+                fagsakerMedOverlapp.forEach(f -> opprettTasksForPleiepengerVedtak(ytelse, f, callID));
+            } else {
+                LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
+                LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(),
+                    fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
+                if (!fagsakerMedOverlapp.isEmpty()) {
+                    var overlappsaker = fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer)
+                        .map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
+                    var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
+                        ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
+                    LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
+                    loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
+                }
+
+            }
         }
     }
 
@@ -141,30 +159,34 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null =
-    // 100.
-    void loggVedtakOverlapp(YtelseV1 ytelse) {
-        var fagsaker = getFagsakerFor(ytelse);
+    private void opprettTasksForPleiepengerVedtak(YtelseV1 ytelse, Fagsak f, UUID callID) {
+        var data = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        data.setFagsak(f.getId(), f.getAktørId().getId());
+        data.setCallId(callID.toString());
+        data.setProperty(VurderOpphørAvYtelserTask.K9_YTELSE_KEY, ytelse.getType().getNavn());
+        data.setProperty(VurderOpphørAvYtelserTask.K9_SAK_KEY, ytelse.getSaksnummer());
+        data.setProperty(VurderOpphørAvYtelserTask.K9_REVURDER_KEY, "true");
+        prosessTaskRepository.lagre(data);
+    }
 
+    // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null = 100.
+    void loggVedtakOverlapp(YtelseV1 ytelse, List<Fagsak> fagsaker) {
         eksternOverlappLogger.loggOverlappForVedtakK9SAK(ytelse, fagsaker);
     }
 
     // Kommende ytelser - gi varsel i applikasjonslogg før databaselogging
-    boolean sjekkVedtakOverlapp(YtelseV1 ytelse) {
-        var fagsaker = getFagsakerFor(ytelse);
+    boolean sjekkVedtakOverlapp(YtelseV1 ytelse, List<Fagsak> fagsaker) {
+        return !fagsakerMedVedtakOverlapp(ytelse, fagsaker).isEmpty();
+    }
 
-        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på
-        // dem.
+    private List<Fagsak> fagsakerMedVedtakOverlapp(YtelseV1 ytelse, List<Fagsak> fagsaker) {
+        // OBS Flere av K9SAK-ytelsene har fom/tom i helg ... ikke bruk VirkedagUtil på dem.
         var ytelsesegments = ytelse.getAnvist().stream()
-                // .filter(p -> p.utbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >
-                // 0)
+                // .filter(p -> p.utbetalingsgrad().getVerdi().compareTo(BigDecimal.ZERO) >  0)
                 .map(p -> new LocalDateSegment<>(p.getPeriode().getFom(), p.getPeriode().getTom(), Boolean.TRUE))
                 .collect(Collectors.toList());
         if (ytelsesegments.isEmpty() || fagsaker.isEmpty())
-            return false;
-
-        LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(),
-                fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
+            return List.of();
 
         var minYtelseDato = ytelsesegments.stream().map(LocalDateSegment::getFom).min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var ytelseTidslinje = new LocalDateTimeline<>(ytelsesegments, StandardCombinators::alwaysTrueForMatch).compress();
@@ -172,23 +194,9 @@ public class VedtaksHendelseHåndterer {
         var behandlinger = fagsaker.stream()
                 .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
                 .filter(b -> sjekkOverlappFor(minYtelseDato, ytelseTidslinje, b))
-                .sorted(Comparator.comparing(Behandling::getOpprettetDato).reversed())
                 .collect(Collectors.toList());
 
-        if (!behandlinger.isEmpty()) {
-            var overlappsaker = behandlinger.stream().map(Behandling::getFagsak).map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi)
-                    .collect(Collectors.joining(", "));
-            var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s", ytelse.getType().getNavn(), ytelse.getSaksnummer(),
-                    overlappsaker);
-            LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
-            loggVedtakOverlapp(ytelse);
-            // TODO (jol): enable VKY etter avklaring. Deretter vurder å opprette
-            // revurdering .... Behovet tilstede for PSB, øvrige uklare
-            // vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(behandlinger.get(0).getFagsakId(),
-            // behandlinger.get(0).getBehandlendeEnhet(),
-            // beskrivelse, Optional.of(ytelse.getAktør().getVerdi()));
-        }
-        return !behandlinger.isEmpty();
+        return behandlinger.stream().map(Behandling::getFagsak).collect(Collectors.toList());
     }
 
     private List<Fagsak> getFagsakerFor(YtelseV1 ytelse) {

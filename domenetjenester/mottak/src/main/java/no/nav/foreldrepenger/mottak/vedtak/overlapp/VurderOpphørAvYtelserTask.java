@@ -1,17 +1,16 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -25,11 +24,11 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørAvYtelserTask.class);
     public static final String K9_YTELSE_KEY = "k9ytelse";
     public static final String K9_SAK_KEY = "k9sak";
-    public static final String K9_FOM_KEY = "k9fom";
-    public static final String K9_TOM_KEY = "k9tom";
+    public static final String K9_REVURDER_KEY = "k9revurder";
 
     private LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste;
     private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
 
 
     private VurderOpphørAvYtelser tjeneste;
@@ -46,18 +45,20 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
         this.tjeneste = tjeneste;
         this.overlappsLoggerTjeneste = overlappsLoggerTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
 
     }
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         // Placeholder for å opprettet VKY når det kommer inn overlappende vedtak fra K9sak, VLSP, mfl
-        if (prosessTaskData.getPropertyValue(K9_SAK_KEY) != null) {
+        if (prosessTaskData.getPropertyValue(K9_REVURDER_KEY) != null) {
+            var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             var saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
             var ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
-            var fom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-            var tom = LocalDate.parse(prosessTaskData.getPropertyValue(K9_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
-            LOG.info("Vedtatt-Ytelse task skal opprette VKY for {} {} {} {}", ytelse, saksnr, fom, tom);
+            var beskrivelse = String.format("%s saksnr %s overlapper %s saksnr %s", ytelse, saksnr, fagsak.getYtelseType().getNavn(), fagsak.getSaksnummer().getVerdi());
+
+            tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
             return;
         }
         var behandling = behandlingRepository.hentBehandling(behandlingId);
