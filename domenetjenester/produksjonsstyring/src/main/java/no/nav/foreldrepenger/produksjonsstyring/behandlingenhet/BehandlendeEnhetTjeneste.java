@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.event.BehandlingEnhetEventPubliserer;
@@ -38,6 +39,7 @@ public class BehandlendeEnhetTjeneste {
     private EnhetsTjeneste enhetsTjeneste;
     private BehandlingEnhetEventPubliserer eventPubliserer;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
+    private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
     private HistorikkRepository historikkRepository;
@@ -54,6 +56,7 @@ public class BehandlendeEnhetTjeneste {
         this.eventPubliserer = eventPubliserer;
         this.personopplysningRepository = provider.getPersonopplysningRepository();
         this.fagsakRelasjonRepository = provider.getFagsakRelasjonRepository();
+        this.fagsakRepository = provider.getFagsakRepository();
         this.behandlingRepository = provider.getBehandlingRepository();
         this.historikkRepository = provider.getHistorikkRepository();
     }
@@ -72,6 +75,14 @@ public class BehandlendeEnhetTjeneste {
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, OrganisasjonsEnhet sisteBrukt) {
         if (gyldigEnhetNfpNk(sisteBrukt.getEnhetId())) return sisteBrukt;
         return enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null));
+    }
+
+    public OrganisasjonsEnhet finnBehandlendeEnhetForFagsakId(Long fagsakId) {
+        return finnEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId));
+    }
+
+    public OrganisasjonsEnhet finnBehandlendeEnhetForAktørId(AktørId aktørId) {
+        return enhetsTjeneste.hentEnhetSjekkKunAktør(aktørId, BehandlingTema.FORELDREPENGER);
     }
 
     private OrganisasjonsEnhet finnEnhetFor(Fagsak fagsak) {

@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -26,17 +27,20 @@ public class OpprettOppgaveVurderKonsekvensTaskTest {
     private OpprettOppgaveVurderKonsekvensTask opprettOppgaveVurderKonsekvensTask;
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakLåsRepository låsRepository;
+    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     @BeforeEach
     public void before() {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         låsRepository = mock(FagsakLåsRepository.class);
+        behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
 
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(låsRepository);
         when(låsRepository.taLås(anyLong())).thenReturn(mock(FagsakLås.class));
+        when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
-        opprettOppgaveVurderKonsekvensTask = new OpprettOppgaveVurderKonsekvensTask(oppgaveTjeneste);
+        opprettOppgaveVurderKonsekvensTask = new OpprettOppgaveVurderKonsekvensTask(oppgaveTjeneste, behandlendeEnhetTjeneste);
     }
 
     @Test

@@ -123,7 +123,7 @@ public class DokumentmottakerFelles {
 
     String hentBehandlendeEnhetTilVurderDokumentOppgave(MottattDokument dokument, Fagsak sak, Behandling behandling) {
         // Prod: Klageinstans + Viken sender dokumenter til scanning med forside som inneholder enhet. Journalføring og Vurder dokument skal til enheten.
-        if (dokument.getJournalEnhet().map(behandlendeEnhetTjeneste::gyldigEnhetNfpNk).orElse(Boolean.FALSE)) {
+        if (dokument.getJournalEnhet().filter(behandlendeEnhetTjeneste::gyldigEnhetNfpNk).isPresent()) {
             return dokument.getJournalEnhet().get();
         }
         if (behandling == null) {
@@ -131,10 +131,15 @@ public class DokumentmottakerFelles {
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsak().getId())
-                .map(Behandling::getBehandlendeEnhet)
+                .map(this::utledEnhetFraBehandling)
                 .orElse(finnEnhetFraFagsak(sak).getEnhetId());
         }
-        return behandling.getBehandlendeEnhet();
+        return utledEnhetFraBehandling(behandling);
+    }
+
+    private String utledEnhetFraBehandling(Behandling behandling) {
+        return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(behandling.getBehandlendeEnhet()) ?
+            behandling.getBehandlendeEnhet() : finnEnhetFraFagsak(behandling.getFagsak()).getEnhetId();
     }
 
     OrganisasjonsEnhet finnEnhetFraFagsak(Fagsak sak) {
