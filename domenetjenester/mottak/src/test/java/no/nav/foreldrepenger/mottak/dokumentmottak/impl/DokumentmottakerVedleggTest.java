@@ -71,6 +71,7 @@ public class DokumentmottakerVedleggTest {
 
         var enhet = new OrganisasjonsEnhet("0312", "enhetNavn");
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
+        lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);

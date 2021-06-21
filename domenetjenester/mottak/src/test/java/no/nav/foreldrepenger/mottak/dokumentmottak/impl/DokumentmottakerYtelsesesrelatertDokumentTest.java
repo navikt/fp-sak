@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import static java.time.LocalDate.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,7 +64,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
 
     @BeforeEach
     public void oppsett() {
-
+        lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
 

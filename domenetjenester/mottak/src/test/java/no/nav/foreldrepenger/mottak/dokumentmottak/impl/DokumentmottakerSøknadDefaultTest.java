@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,6 +96,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
 
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
+        lenient().when(enhetsTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, enhetsTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
