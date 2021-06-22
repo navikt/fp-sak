@@ -1,17 +1,12 @@
 version: 2
 registries: # Define access for private registries
-  navikt:
+  fp-felles:
     type: maven-repository
-    url: https://maven.pkg.github.com/navikt
+    url: https://maven.pkg.github.com/navikt/fp-felles
     username: x-access-token
     password: ${{ secrets.PAT }}
 
 updates:
-  - package-ecosystem: npm
-    directory: "/"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 10
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
@@ -20,7 +15,7 @@ updates:
   - package-ecosystem: maven
     directory: "/"
     registries: # Allow version updates for dependencies in this registry
-      - navikt
+      - fp-felles
     schedule:
       interval: daily
     open-pull-requests-limit: 50
