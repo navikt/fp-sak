@@ -5,7 +5,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 public class PersonadresseDto {
 
     private AdresseType adresseType;
-    private String mottakerNavn;
     private String adresselinje1;
     private String adresselinje2;
     private String adresselinje3;
@@ -18,10 +17,6 @@ public class PersonadresseDto {
 
     public AdresseType getAdresseType() {
         return adresseType;
-    }
-
-    public String getMottakerNavn() {
-        return mottakerNavn;
     }
 
     public String getAdresselinje1() {
@@ -50,10 +45,6 @@ public class PersonadresseDto {
 
     public void setAdresseType(AdresseType adresseType) {
         this.adresseType = adresseType;
-    }
-
-    public void setMottakerNavn(String mottakerNavn) {
-        this.mottakerNavn = mottakerNavn;
     }
 
     public void setAdresselinje1(String adresselinje1) {

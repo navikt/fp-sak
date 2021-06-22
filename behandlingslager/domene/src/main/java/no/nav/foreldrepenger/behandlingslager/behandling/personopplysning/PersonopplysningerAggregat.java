@@ -179,10 +179,6 @@ public class PersonopplysningerAggregat {
                 .findFirst();
     }
 
-    public String getNavn() {
-        return getSøker().getNavn();
-    }
-
     public List<PersonAdresseEntitet> getAdresserFor(AktørId aktørId) {
         return adresser.getOrDefault(aktørId, List.of()).stream()
             .sorted(Comparator.comparing(PersonAdresseEntitet::getPeriode).reversed())

@@ -72,7 +72,8 @@ public class UtsettelseCore2021 {
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (!gjeldendeFH.getGjelderFødsel() || !RelasjonsRolleType.MORA.equals(rolle)) {
             // 14-10 første ledd (far+medmor), andre ledd
-            var uttaksdato = førsteUttaksdato.isBefore(gjeldendeFH.getSkjæringstidspunkt()) ? gjeldendeFH.getSkjæringstidspunkt() : førsteUttaksdato;
+            var uttaksdato = gjeldendeFH.getSkjæringstidspunkt() != null && førsteUttaksdato.isBefore(gjeldendeFH.getSkjæringstidspunkt()) ?
+                gjeldendeFH.getSkjæringstidspunkt() : førsteUttaksdato;
             return VirkedagUtil.fomVirkedag(uttaksdato);
         }
         // 14-10 første ledd (mor)

@@ -10,11 +10,12 @@ import java.util.function.Function;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonIdentMedDiskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class PersonopplysningDtoPersonIdentTjeneste {
@@ -31,7 +32,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
 
     public void oppdaterMedPersonIdent(PersonIdentDto dto) {
         // memoriser oppslagsfunksjoner - unngår repeterende tjeneste kall eksternt
-        Function<AktørId, Optional<PersonIdentMedDiskresjonskode>> piDiskresjonFinder = memoize((aktørId) -> personinfoAdapter.hentPersonIdentMedDiskresjonskode(aktørId));
+        Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder = memoize((aktørId) -> personinfoAdapter.hentPersoninfoForVisning(aktørId));
 
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
@@ -39,6 +40,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         if (dto.getAktoerId() != null) {
             dto.setFnr(findFnr(dto.getAktoerId(), piDiskresjonFinder));
             dto.setDiskresjonskode(findKode(dto.getAktoerId(), piDiskresjonFinder));
+            if (dto.getNavn() == null) dto.setNavn(findNavn(dto.getAktoerId(), piDiskresjonFinder));
         }
     }
 
@@ -53,13 +55,16 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         alle.forEach(this::oppdaterMedPersonIdent);
     }
 
-    private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<PersonIdentMedDiskresjonskode>> piDiskresjonFinder) {
-        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(PersonIdentMedDiskresjonskode::diskresjonskode).orElse(Diskresjonskode.UDEFINERT);
+    private Diskresjonskode findKode(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {
+        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::diskresjonskode).orElse(Diskresjonskode.UDEFINERT);
     }
 
-    private String findFnr(AktørId aktørId, Function<AktørId, Optional<PersonIdentMedDiskresjonskode>> piDiskresjonFinder) {
-        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(PersonIdentMedDiskresjonskode::personIdent).map(PersonIdent::getIdent).orElse(null);
+    private String findFnr(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {
+        return aktørId == null ? null : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::personIdent).map(PersonIdent::getIdent).orElse(null);
+    }
 
+    private String findNavn(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {
+        return aktørId == null ? "Navnløs" : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::navn).map(StringUtils::formaterMedStoreOgSmåBokstaver).orElse("Navnløs");
     }
 
     /** Lag en funksjon som husker resultat av tidligere input. Nyttig for repeterende lookups */
