@@ -1,6 +1,6 @@
 version: 2
-registries: # Define access for private registries
-  fp-felles:
+registries:
+  fp-felles: # Gir tilgang til registre innad i nav med fp-felles som inngang (PATen bestemmer)
     type: maven-repository
     url: https://maven.pkg.github.com/navikt/fp-felles
     username: x-access-token
@@ -14,11 +14,11 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: maven
     directory: "/"
-    registries: # Allow version updates for dependencies in this registry
+    registries:
       - fp-felles
     schedule:
       interval: daily
-    open-pull-requests-limit: 50
+    open-pull-requests-limit: 20
     ignore:
       - dependency-name: "no.nav.vedtak.prosesstask:*"
         versions: ["x", "x.x"]
