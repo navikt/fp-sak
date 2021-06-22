@@ -1,4 +1,11 @@
 version: 2
+registries: # Define access for private registries
+  navikt:
+    type: maven-repository
+    url: https://maven.pkg.github.com/navikt
+    username: x-access-token
+    password: ${{ secrets.PAT }}
+
 updates:
   - package-ecosystem: npm
     directory: "/"
@@ -12,6 +19,15 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: maven
     directory: "/"
+    registries: # Allow version updates for dependencies in this registry
+      - navikt
     schedule:
       interval: daily
-    open-pull-requests-limit: 50   
+    open-pull-requests-limit: 50
+    ignore:
+      - dependency-name: "no.nav.vedtak.prosesstask*"
+        versions: ["x", "x.x"]
+      - dependency-name: "no.nav.foreldrepenger.felles*"
+        versions: ["x", "x.x"]
+      - dependency-name: "no.nav.foreldrepenger.kontrakter*"
+        versions: ["x", "x.x"]
