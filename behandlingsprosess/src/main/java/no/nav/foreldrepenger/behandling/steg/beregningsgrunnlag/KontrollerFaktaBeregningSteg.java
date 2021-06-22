@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
@@ -15,6 +16,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.opptjening.FrilansAvvikLoggTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 
 @FagsakYtelseTypeRef("*")
@@ -26,6 +28,7 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
+    private FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste;
 
     protected KontrollerFaktaBeregningSteg() {
         // for CDI proxy
@@ -34,10 +37,12 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
     @Inject
     public KontrollerFaktaBeregningSteg(BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                         BehandlingRepository behandlingRepository,
-                                        BeregningsgrunnlagInputProvider inputTjenesteProvider) {
+                                        BeregningsgrunnlagInputProvider inputTjenesteProvider,
+                                        FrilansAvvikLoggTjeneste frilansAvvikLoggTjeneste) {
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsgrunnlagInputProvider = Objects.requireNonNull(inputTjenesteProvider, "inputTjenesteProvider");
+        this.frilansAvvikLoggTjeneste = frilansAvvikLoggTjeneste;
     }
 
     @Override
@@ -46,6 +51,10 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var input = getInputTjeneste(behandling.getFagsakYtelseType()).lagInput(behandling);
         var aksjonspunkter = beregningsgrunnlagKopierOgLagreTjeneste.kontrollerFaktaBeregningsgrunnlag(input);
+
+        // TFP-4427
+        frilansAvvikLoggTjeneste.loggFrilansavvikVedBehov(BehandlingReferanse.fra(behandling));
+
         return BehandleStegResultat
                 .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
     }
