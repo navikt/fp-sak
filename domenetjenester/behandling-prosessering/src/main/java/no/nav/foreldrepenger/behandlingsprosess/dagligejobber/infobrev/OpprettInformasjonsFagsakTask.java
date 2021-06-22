@@ -103,7 +103,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
                 prosessTaskData.getPropertyValue(BEH_ENHET_NAVN_KEY));
         var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetForUkoblet(fagsakMor, enhet);
         var bruker = hentPersonInfo(aktørId);
-        if (bruker.getDødsdato() != null) {
+        if (bruker.dødsdato() != null) {
             return; // Unngå brev til død annen part
         }
         var fagsak = opprettNyFagsak(aktørId);

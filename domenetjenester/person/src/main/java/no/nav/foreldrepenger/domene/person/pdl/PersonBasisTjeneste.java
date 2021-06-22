@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -52,6 +53,18 @@ public class PersonBasisTjeneste {
         this.pdlKlient = pdlKlient;
     }
 
+    public PersoninfoVisning hentVisningsPersoninfo(AktørId aktørId, PersonIdent personIdent) {
+        var query = new HentPersonQueryRequest();
+        query.setIdent(aktørId.getId());
+        var projection = new PersonResponseProjection()
+            .navn(new NavnResponseProjection().forkortetNavn().fornavn().mellomnavn().etternavn())
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+
+        var person = pdlKlient.hentPerson(query, projection);
+
+        return new PersoninfoVisning(aktørId, personIdent, mapNavn(person), getDiskresjonskode(person));
+    }
+
     public PersoninfoBasis hentBasisPersoninfo(AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
@@ -73,14 +86,8 @@ public class PersonBasisTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        return new PersoninfoBasis.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersonBasisTjeneste::mapNavn).filter(Objects::nonNull).findFirst()
-                        .orElseGet(() -> isProd ? null : "Navnløs i Folkeregister"))
-                .medFødselsdato(fødselsdato)
-                .medDødsdato(dødsdato)
-                .medDiskresjonsKode(getDiskresjonskode(person))
-                .medNavBrukerKjønn(mapKjønn(person))
-                .build();
+        return new PersoninfoBasis(aktørId, personIdent, mapNavn(person), fødselsdato, dødsdato,
+            mapKjønn(person), getDiskresjonskode(person).getKode());
     }
 
     public Optional<PersoninfoArbeidsgiver> hentArbeidsgiverPersoninfo(AktørId aktørId, PersonIdent personIdent) {
@@ -119,14 +126,21 @@ public class PersonBasisTjeneste {
         return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
 
-    private String getDiskresjonskode(Person person) {
+    private Diskresjonskode getDiskresjonskode(Person person) {
         var kode = person.getAdressebeskyttelse().stream()
-                .map(Adressebeskyttelse::getGradering)
-                .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-                .findFirst().orElse(null);
+            .map(Adressebeskyttelse::getGradering)
+            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
+            .findFirst().orElse(null);
         if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
-            return Diskresjonskode.KODE6.getKode();
-        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7.getKode() : null;
+            return Diskresjonskode.KODE6;
+        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
+    }
+
+    private String mapNavn(Person person) {
+        return person.getNavn().stream()
+            .map(PersonBasisTjeneste::mapNavn)
+            .filter(Objects::nonNull)
+            .findFirst().orElseGet(() -> isProd ? null : "Navnløs i Folkeregister");
     }
 
     private static String mapNavn(Navn navn) {

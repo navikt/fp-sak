@@ -51,16 +51,15 @@ public class PersonopplysningDtoTjeneste {
 
     private static List<PersonadresseDto> lagAddresseDto(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
         return aggregat.getAdresserFor(personopplysning.getAktørId()).stream()
-            .map(e -> lagDto(e, personopplysning.getNavn()))
+            .map(PersonopplysningDtoTjeneste::lagDto)
             .collect(Collectors.toList());
     }
 
-    private static PersonadresseDto lagDto(PersonAdresseEntitet adresse, String navn) {
+    private static PersonadresseDto lagDto(PersonAdresseEntitet adresse) {
         var dto = new PersonadresseDto();
         dto.setAdresselinje1(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje1()));
         dto.setAdresselinje2(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje2()));
         dto.setAdresselinje3(formaterMedStoreOgSmåBokstaver(adresse.getAdresselinje3()));
-        dto.setMottakerNavn(formaterMedStoreOgSmåBokstaver(navn));
         dto.setPoststed(formaterMedStoreOgSmåBokstaver(adresse.getPoststed()));
         dto.setPostNummer(adresse.getPostnummer());
         dto.setLand(adresse.getLand());
@@ -122,7 +121,6 @@ public class PersonopplysningDtoTjeneste {
     private PersonopplysningMedlemDto enkelMappingMedlemskap(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat, LocalDate tidspunkt) {
         var dto = new PersonopplysningMedlemDto();
         dto.setAktoerId(personopplysning.getAktørId());
-        dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
         dto.setRegion(hentRegion(personopplysning, aggregat, tidspunkt));
         dto.setPersonstatus(hentPersonstatus(personopplysning, aggregat));
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
@@ -155,7 +153,6 @@ public class PersonopplysningDtoTjeneste {
         dto.setKjønn(personopplysning.getKjønn());
         dto.setSivilstand(personopplysning.getSivilstand());
         dto.setAktoerId(personopplysning.getAktørId());
-        dto.setNavn(formaterMedStoreOgSmåBokstaver(personopplysning.getNavn()));
         dto.setFødselsdato(personopplysning.getFødselsdato());
         dto.setDødsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));

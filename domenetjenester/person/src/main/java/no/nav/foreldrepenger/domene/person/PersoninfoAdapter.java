@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.GeografiskTilknytning;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonIdentMedDiskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoSpråk;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
@@ -123,8 +123,8 @@ public class PersoninfoAdapter {
         return tilknytningTjeneste.hentDiskresjonskode(aktørId);
     }
 
-    public Optional<PersonIdentMedDiskresjonskode> hentPersonIdentMedDiskresjonskode(AktørId aktørId) {
-        return hentFnr(aktørId).map(f -> new PersonIdentMedDiskresjonskode(f, tilknytningTjeneste.hentDiskresjonskode(aktørId)));
+    public Optional<PersoninfoVisning> hentPersoninfoForVisning(AktørId aktørId) {
+        return hentFnr(aktørId).map(f -> basisTjeneste.hentVisningsPersoninfo(aktørId, f));
     }
 
     public PersoninfoSpråk hentForetrukketSpråk(AktørId aktørId) {

@@ -155,7 +155,7 @@ public class FagsakTjeneste {
         var fagsakDtoer= fagsakRepository.hentForBruker(aktørId).stream()
             .map(fagsak -> mapFraFagsakTilFagsakDto(fagsak))
             .collect(Collectors.toList());
-        var aktoerInfoDto = new AktoerInfoDto(personinfo.getAktørId().getId(), personDto, fagsakDtoer);
+        var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
     }
 
@@ -172,13 +172,13 @@ public class FagsakTjeneste {
     }
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
-        return new PersonDto(pi.getAktørId().getId(),
-            StringUtils.formaterMedStoreOgSmåBokstaver(pi.getNavn()),
-            pi.getPersonIdent().getIdent(),
-            pi.getKjønn(),
-            pi.getDiskresjonskode(),
-            pi.getFødselsdato(),
-            pi.getDødsdato(),
+        return new PersonDto(pi.aktørId().getId(),
+            StringUtils.formaterMedStoreOgSmåBokstaver(pi.navn()),
+            pi.personIdent().getIdent(),
+            pi.kjønn(),
+            pi.diskresjonskode(),
+            pi.fødselsdato(),
+            pi.dødsdato(),
             språkkode);
     }
 

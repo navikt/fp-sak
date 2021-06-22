@@ -3,126 +3,23 @@ package no.nav.foreldrepenger.behandlingslager.aktør;
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
-public class PersoninfoBasis {
+public record PersoninfoBasis(AktørId aktørId,
+                              PersonIdent personIdent,
+                              String navn,
+                              LocalDate fødselsdato,
+                              LocalDate dødsdato,
+                              NavBrukerKjønn kjønn,
+                              String diskresjonskode) {
 
-    private AktørId aktørId;
-    private String navn;
-    private PersonIdent personIdent;
-    private LocalDate fødselsdato;
-    private LocalDate dødsdato;
-    private NavBrukerKjønn kjønn;
-    private String diskresjonskode;
-
-    private PersoninfoBasis() {
-    }
-
-    public AktørId getAktørId() {
-        return aktørId;
-    }
-
-    public PersonIdent getPersonIdent() {
-        return personIdent;
-    }
-
-    public String getNavn() {
-        return navn;
-    }
-
-    public NavBrukerKjønn getKjønn() {
-        return kjønn;
-    }
-
-    public LocalDate getFødselsdato() {
-        return fødselsdato;
-    }
-
-    public LocalDate getDødsdato() {
-        return dødsdato;
-    }
-
-    public String getDiskresjonskode() {
-        return diskresjonskode;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (PersoninfoBasis) o;
-        return aktørId.equals(that.aktørId) &&
-            Objects.equals(navn, that.navn) &&
-            Objects.equals(personIdent, that.personIdent) &&
-            Objects.equals(fødselsdato, that.fødselsdato) &&
-            Objects.equals(dødsdato, that.dødsdato) &&
-            kjønn == that.kjønn &&
-            Objects.equals(diskresjonskode, that.diskresjonskode);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(aktørId);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "<aktørId=" + aktørId + ">"; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public static class Builder {
-        private PersoninfoBasis personinfoMal;
-
-        public Builder() {
-            personinfoMal = new PersoninfoBasis();
-        }
-
-        public Builder medAktørId(AktørId aktørId) {
-            personinfoMal.aktørId = aktørId;
-            return this;
-        }
-
-        public Builder medNavn(String navn) {
-            personinfoMal.navn = navn;
-            return this;
-        }
-
-        public Builder medPersonIdent(PersonIdent fnr) {
-            personinfoMal.personIdent = fnr;
-            return this;
-        }
-
-        public Builder medFødselsdato(LocalDate fødselsdato) {
-            personinfoMal.fødselsdato = fødselsdato;
-            return this;
-        }
-
-        public Builder medDødsdato(LocalDate dødsdato) {
-            personinfoMal.dødsdato = dødsdato;
-            return this;
-        }
-
-        public Builder medNavBrukerKjønn(NavBrukerKjønn kjønn) {
-            personinfoMal.kjønn = kjønn;
-            return this;
-        }
-
-        public Builder medDiskresjonsKode(String diskresjonsKode) {
-            personinfoMal.diskresjonskode = diskresjonsKode;
-            return this;
-        }
-
-        public PersoninfoBasis build() {
-            requireNonNull(personinfoMal.aktørId, "Navbruker må ha aktørId"); //$NON-NLS-1$
-            requireNonNull(personinfoMal.personIdent, "Navbruker må ha fødselsnummer"); //$NON-NLS-1$
-            requireNonNull(personinfoMal.navn, "Navbruker må ha navn"); //$NON-NLS-1$
-            requireNonNull(personinfoMal.kjønn, "Navbruker må ha kjønn"); //$NON-NLS-1$
-            return personinfoMal;
-        }
-
+    public PersoninfoBasis {
+        requireNonNull(aktørId, "Navbruker må ha aktørId");
+        requireNonNull(personIdent, "Navbruker må ha fødselsnummer");
+        requireNonNull(navn, "Navbruker må ha navn");
+        requireNonNull(kjønn, "Navbruker må ha kjønn");
     }
 
 }
