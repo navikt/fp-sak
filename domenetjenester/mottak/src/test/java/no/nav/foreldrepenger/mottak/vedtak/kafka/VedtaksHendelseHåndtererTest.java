@@ -167,7 +167,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
         assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
@@ -199,7 +199,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
@@ -238,7 +238,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
         assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
@@ -271,7 +271,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
 
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1);
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
@@ -306,7 +306,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList);
 
-        var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1);
+        var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
         assertThat(erOverlapp).isTrue();
     }

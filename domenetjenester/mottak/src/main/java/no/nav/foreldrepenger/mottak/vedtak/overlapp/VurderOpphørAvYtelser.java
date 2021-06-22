@@ -204,29 +204,34 @@ public class VurderOpphørAvYtelser  {
     }
 
     private void håndtereOpphør(Fagsak sakOpphør) {
-        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(sakOpphør.getId());
-        if (sisteBehandling.isEmpty() || sisteBehandling.get().harBehandlingÅrsak(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN))
+        var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s", sakOpphør.getSaksnummer());
+        oppdaterEllerOpprettRevurdering(sakOpphør, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+    }
+
+    void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
+        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
+        if (sisteBehandling.isEmpty() || sisteBehandling.get().harBehandlingÅrsak(årsakType))
             return;
 
-        var behandlingId = sisteBehandling.get().getId();
-        var lås = behandlingRepository.taSkriveLås(behandlingId);
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var beskrivelse = String.format("Overlapp identifisert: Vurder saksnr %s", sakOpphør.getSaksnummer());
-        var enhet = utledEnhetFraBehandling(behandling);
+        var behandlingRO = sisteBehandling.get();
+        var enhet = utledEnhetFraBehandling(behandlingRO);
 
-        opprettTaskForÅVurdereKonsekvens(sakOpphør.getId(), enhet.getEnhetId(), beskrivelse, Optional.empty());
+        opprettTaskForÅVurdereKonsekvens(fagsak.getId(), enhet.getEnhetId(), beskrivelse, Optional.empty());
 
-        var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(sakOpphør.getId());
+        var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId());
         if (!harÅpenOrdinærBehandling) {
-            fagsakLåsRepository.taLås(sakOpphør.getId());
-            var skalKøes = køKontroller.skalEvtNyBehandlingKøes(sakOpphør);
-            var revurderingOpphør = opprettRevurdering(sakOpphør, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN, enhet, skalKøes);
-            if (revurderingOpphør != null) {
-                LOG.info("Overlapp FPSAK: Vurder opphør av ytelse har opprettet revurdering med behandlingId {} på sak med saksnummer {} pga behandlingId {}", revurderingOpphør.getId(), sakOpphør.getSaksnummer(), behandlingId);
+            fagsakLåsRepository.taLås(fagsak.getId());
+            var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
+            var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
+            if (revurdering != null) {
+                LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
             } else {
-                LOG.info("Overlapp FPSAK: Vurder opphør av ytelse kunne ikke opprette revurdering på sak med saksnummer {} pga behandlingId {}", sakOpphør.getSaksnummer(), behandlingId);
+                LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
             }
         } else {
+            var behandlingId = sisteBehandling.get().getId();
+            var lås = behandlingRepository.taSkriveLås(behandlingId);
+            behandlingRepository.hentBehandling(behandlingId);
             oppdatereBehMedÅrsak(behandlingId, lås);
         }
     }
