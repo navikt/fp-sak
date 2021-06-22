@@ -1,10 +1,8 @@
 package no.nav.foreldrepenger.domene.opptjening;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
-import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
@@ -23,10 +21,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -59,7 +55,7 @@ public class FrilansAvvikLoggTjeneste {
         InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
 
 
-        List<OppgittFrilansoppdrag> relevantOppgittFrilans = finnOppgittFrilansSomKrysserStpBG(stpBG, iayGrunnlag);
+        Optional<OppgittFrilans> relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
         List<Yrkesaktivitet> relevantRegisterFrilans = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
         if (relevantOppgittFrilans.isEmpty() && relevantRegisterFrilans.isEmpty()) {
             return;
@@ -70,12 +66,8 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     private void loggAvvik(Saksnummer saksnummer,
-                           List<OppgittFrilansoppdrag> relevantOppgittFrilans,
+                           Optional<OppgittFrilans> relevantOppgittFrilans,
                            List<Yrkesaktivitet> relevantRegisterFrilans) {
-        List<DatoIntervallEntitet> oppgittePerioder = relevantOppgittFrilans.stream()
-            .map(OppgittFrilansoppdrag::getPeriode)
-            .collect(Collectors.toList());
-
         List<DatoIntervallEntitet> registerPerioder = relevantRegisterFrilans.stream()
             .map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
             .flatMap(Collection::stream)
@@ -83,18 +75,12 @@ public class FrilansAvvikLoggTjeneste {
             .map(AktivitetsAvtale::getPeriode)
             .collect(Collectors.toList());
         LOG.info("FP-654894: Missmatch mellom frilans fra søknad og frilans fra register på saksnr {}." +
-            " Frilansperioder fra søknad var {} mens frilansperioder fra register var {}",
-            saksnummer, oppgittePerioder, registerPerioder);
+            " Frilans er oppgitt i søknaden: {}. Frilans på skjæringstidspunkt i register: {}",
+            saksnummer, relevantOppgittFrilans.isPresent(), registerPerioder);
     }
 
-    private List<OppgittFrilansoppdrag> finnOppgittFrilansSomKrysserStpBG(LocalDate stpBG, InntektArbeidYtelseGrunnlag iayGrunnlag) {
-        List<OppgittFrilansoppdrag> oppgittFrilans = iayGrunnlag.getOppgittOpptjening().flatMap(OppgittOpptjening::getFrilans)
-            .map(OppgittFrilans::getFrilansoppdrag)
-            .orElse(Collections.emptyList());
-
-        return oppgittFrilans.stream()
-            .filter(of -> of.getPeriode().inkluderer(stpBG))
-            .collect(Collectors.toList());
+    private Optional<OppgittFrilans> finnOppgittFrilansFraSøknad(InntektArbeidYtelseGrunnlag iayGrunnlag) {
+        return iayGrunnlag.getOppgittOpptjening().flatMap(OppgittOpptjening::getFrilans);
     }
 
     private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG,
