@@ -10,9 +10,11 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilans;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittFrilansoppdrag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,6 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class FrilansAvvikLoggTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(FrilansAvvikLoggTjeneste.class);
-    private static final Set<ArbeidType> FRILANS_TYPER = Set.of(ArbeidType.FRILANSER, ArbeidType.FRILANSER_OPPDRAGSTAKER_MED_MER);
 
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -59,7 +60,7 @@ public class FrilansAvvikLoggTjeneste {
 
 
         List<OppgittFrilansoppdrag> relevantOppgittFrilans = finnOppgittFrilansSomKrysserStpBG(stpBG, iayGrunnlag);
-        List<Yrkesaktivitet> relevantRegisterFrilans = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag.getAktørArbeidFraRegister(ref.getAktørId()));
+        List<Yrkesaktivitet> relevantRegisterFrilans = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
         if (relevantOppgittFrilans.isEmpty() && relevantRegisterFrilans.isEmpty()) {
             return;
         }
@@ -97,11 +98,11 @@ public class FrilansAvvikLoggTjeneste {
     }
 
     private List<Yrkesaktivitet> finnFrilansIRegisterSomKrysserSTP(LocalDate stpBG,
-                                                                   Optional<AktørArbeid> aktørArbeid) {
-        Collection<Yrkesaktivitet> yrkesaktiviteter = aktørArbeid.map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList());
-        return yrkesaktiviteter.stream()
-            .filter(ya -> FRILANS_TYPER.contains(ya.getArbeidType()))
+                                                                   InntektArbeidYtelseGrunnlag grunnlag,
+                                                                   AktørId aktørId) {
+        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
+        return filter.getFrilansOppdrag().stream()
             .filter(ya -> erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG))
             .collect(Collectors.toList());
     }
