@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType.PERIODE_IKKE_VURDERT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeVurderingType.PERIODE_OK;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.ARBEID;
-import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.FERIE;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,23 +19,27 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
 
-final class SøknadsperiodeDokumentasjonKontrollerer {
+final class SøknadsperiodeDokKontrollerer {
 
     private final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder;
     private final LocalDate fødselsDatoTilTidligOppstart;
+    private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
 
-    SøknadsperiodeDokumentasjonKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
-                                            LocalDate fødselsDatoTilTidligOppstart) {
+    SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
+                                  LocalDate fødselsDatoTilTidligOppstart,
+                                  UtsettelseDokKontrollerer utsettelseDokKontrollerer) {
         this.dokumentasjonPerioder = dokumentasjonPerioder;
         this.fødselsDatoTilTidligOppstart = fødselsDatoTilTidligOppstart;
+        this.utsettelseDokKontrollerer = utsettelseDokKontrollerer;
     }
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
-                                                  LocalDate fødselsDatoTilTidligOppstart) {
+                                                  LocalDate fødselsDatoTilTidligOppstart,
+                                                  UtsettelseDokKontrollerer utsettelseDokKontrollerer) {
         var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder,
-            fødselsDatoTilTidligOppstart);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder,
+            fødselsDatoTilTidligOppstart, utsettelseDokKontrollerer);
         return kontrollerer.kontrollerSøknadsperioder(
             ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
     }
@@ -129,21 +131,7 @@ final class SøknadsperiodeDokumentasjonKontrollerer {
     }
 
     private KontrollerFaktaPeriode kontrollerUtsettelse(OppgittPeriodeEntitet søknadsperiode) {
-        var utsettelseÅrsak = søknadsperiode.getÅrsak();
-        if (ARBEID.equals(utsettelseÅrsak)) {
-            return kontrollerUtsettelseArbeid(søknadsperiode);
-        }
-        if (FERIE.equals(utsettelseÅrsak)) {
-            return kontrollerUtsettelseFerie(søknadsperiode);
-        }
-        return KontrollerFaktaPeriode.ubekreftet(søknadsperiode);
-    }
-
-    private KontrollerFaktaPeriode kontrollerUtsettelseFerie(OppgittPeriodeEntitet søknadsperiode) {
-        return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
-    }
-
-    private KontrollerFaktaPeriode kontrollerUtsettelseArbeid(OppgittPeriodeEntitet søknadsperiode) {
-        return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
+        return utsettelseDokKontrollerer.måSaksbehandlerManueltBekrefte(søknadsperiode) ?
+            KontrollerFaktaPeriode.ubekreftet(søknadsperiode) : KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
     }
 }

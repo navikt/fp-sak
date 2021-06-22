@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,17 +21,11 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class SøknadsperiodeDokumentasjonKontrollererTest {
+public class SøknadsperiodeDokKontrollererFrittUttakTest {
 
     private static final LocalDate FOM = LocalDate.of(2018, 1, 14);
     private static final LocalDate TOM = LocalDate.of(2018, 1, 31);
     private static final LocalDate enDag = LocalDate.of(2018, 3, 15);
-
-    @Test
-    public void skal_si_at_utsettelse_pga_sykdom_trenger_bekreftelse() {
-        assertThat(kontroller(arbeidstakerPeriodeMedUtsettelseSykdom()).erBekreftet()).isFalse();
-        assertThat(kontroller(frilansNæringsdrivendePeriodeMedUtsettelseSykdom()).erBekreftet()).isFalse();
-    }
 
     @Test
     public void skal_si_at_periode_er_bekreftet_når_saksbehandler_allerede_er_vurdert() {
@@ -40,7 +33,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
             .medPeriode(FOM, TOM)
             .medVurdering(UttakPeriodeVurderingType.PERIODE_OK);
-        var kontrollert = kontroller(vurdertPeriode.build());
+        var kontrollert = kontroller(vurdertPeriode.build(), FOM);
 
         assertThat(kontrollert.erBekreftet()).isTrue();
     }
@@ -63,7 +56,8 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             lagDokumentasjon(enDag.plusDays(4), enDag.plusDays(7), UttakDokumentasjonType.SYK_SØKER)
         );
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(dokumentasjonPerioder, null);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder, null,
+                new UtsettelseDokKontrollererFrittUttak(enDag));
         var resultat = kontrollerer.kontrollerSøknadsperiode(søktPeriode);
 
         assertThat(resultat.getOppgittPeriode().getBegrunnelse().get()).isEqualTo("erstatter");
@@ -84,27 +78,8 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
         return periode;
     }
 
-    @Test
-    public void feriePeriodeFraSøknad() {
-        var arbeidsgiver = arbeidsgiver("orgnr");
-        var feriePeriode = OppgittPeriodeBuilder.ny()
-            .medÅrsak(UtsettelseÅrsak.FERIE)
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medArbeidsgiver(arbeidsgiver)
-            .medErArbeidstaker(true)
-            .medPeriode(LocalDate.of(2018, 1, 13), LocalDate.of(2018, 1, 20))
-            .build();
-
-        var kontrollert = kontroller(feriePeriode);
-        assertThat(kontrollert.erBekreftet()).isTrue();
-    }
-
     private Arbeidsgiver arbeidsgiver(String virksomhetId) {
         return Arbeidsgiver.virksomhet(virksomhetId);
-    }
-
-    private Arbeidsgiver arbeidsgiver() {
-        return arbeidsgiver(UUID.randomUUID().toString());
     }
 
     @Test
@@ -114,7 +89,9 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var fødselsDatoTilTidligOppstart = FOM.minusWeeks(5);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), fødselsDatoTilTidligOppstart,
+            new UtsettelseDokKontrollererFrittUttak(fødselsDatoTilTidligOppstart));
 
         var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isFalse();
@@ -128,7 +105,9 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(7));
+        var fødselsDatoTilTidligOppstart = FOM.minusWeeks(7);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), fødselsDatoTilTidligOppstart,
+            new UtsettelseDokKontrollererFrittUttak(fødselsDatoTilTidligOppstart));
 
         var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
@@ -142,7 +121,9 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medPeriode(FOM, FOM.plusWeeks(1))
             .build();
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var fødselsDatoTilTidligOppstart = FOM.minusWeeks(5);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), fødselsDatoTilTidligOppstart,
+            new UtsettelseDokKontrollererFrittUttak(fødselsDatoTilTidligOppstart));
 
         var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isFalse();
@@ -157,7 +138,8 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medFlerbarnsdager(true)
             .build();
 
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), FOM.minusWeeks(5));
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), FOM.minusWeeks(5),
+            new UtsettelseDokKontrollererFrittUttak(FOM));
 
         var kontrollerFaktaPeriode = kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
@@ -175,7 +157,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -190,7 +172,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -206,7 +188,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom());
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -219,7 +201,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErSelvstendig(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingPeriode);
+        var kontrollerFaktaPeriode = kontroller(graderingPeriode, graderingPeriode.getFom().plusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -234,7 +216,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingsperiode);
+        var kontrollerFaktaPeriode = kontroller(graderingsperiode, graderingsperiode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -249,7 +231,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode);
+        var kontrollerFaktaPeriode = kontroller(utsettelseArbeidPeriode, utsettelseArbeidPeriode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -264,7 +246,7 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErArbeidstaker(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode);
+        var kontrollerFaktaPeriode = kontroller(utsettelseFeriePeriode, utsettelseFeriePeriode.getFom());
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
@@ -278,36 +260,13 @@ public class SøknadsperiodeDokumentasjonKontrollererTest {
             .medErFrilanser(true)
             .build();
 
-        var kontrollerFaktaPeriode = kontroller(graderingsperiode);
+        var kontrollerFaktaPeriode = kontroller(graderingsperiode, graderingsperiode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
     }
 
-    private KontrollerFaktaPeriode kontroller(OppgittPeriodeEntitet oppgittPeriode) {
-        var kontrollerer = new SøknadsperiodeDokumentasjonKontrollerer(List.of(), null);
+    private KontrollerFaktaPeriode kontroller(OppgittPeriodeEntitet oppgittPeriode, LocalDate familiehendelse) {
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), null,
+            new UtsettelseDokKontrollererFrittUttak(familiehendelse));
         return kontrollerer.kontrollerSøknadsperiode(oppgittPeriode);
-    }
-
-    private OppgittPeriodeEntitet arbeidstakerPeriodeMedUtsettelseSykdom() {
-        return arbeidstakerPeriodeMedUtsettelse(UtsettelseÅrsak.SYKDOM);
-    }
-
-    private OppgittPeriodeEntitet frilansNæringsdrivendePeriodeMedUtsettelseSykdom() {
-        return frilansNæringsdrivendePeriodeMedUtsettelse(UtsettelseÅrsak.SYKDOM);
-    }
-
-    private OppgittPeriodeEntitet arbeidstakerPeriodeMedUtsettelse(UtsettelseÅrsak årsak) {
-        return periodeMedUtsettelse(true, arbeidsgiver(), årsak);
-    }
-
-    private OppgittPeriodeEntitet frilansNæringsdrivendePeriodeMedUtsettelse(UtsettelseÅrsak utsettelseÅrsak) {
-        return periodeMedUtsettelse(false, null, utsettelseÅrsak);
-    }
-
-    private OppgittPeriodeEntitet periodeMedUtsettelse(Boolean arbeidstaker, Arbeidsgiver arbeidsgiver, UtsettelseÅrsak utsettelseÅrsak) {
-        return OppgittPeriodeBuilder.ny()
-            .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
-            .medErArbeidstaker(arbeidstaker)
-            .medArbeidsgiver(arbeidsgiver)
-            .medÅrsak(utsettelseÅrsak).medPeriode(enDag, enDag).build();
     }
 }
