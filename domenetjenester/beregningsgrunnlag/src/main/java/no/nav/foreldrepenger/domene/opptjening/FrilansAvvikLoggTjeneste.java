@@ -60,9 +60,14 @@ public class FrilansAvvikLoggTjeneste {
         InntektArbeidYtelseGrunnlag iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
 
         Optional<OppgittFrilans> relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
-        List<Yrkesaktivitet> relevantRegisterFrilans = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
+
+        List<Yrkesaktivitet> registerFrilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
+        List<Yrkesaktivitet> registerFrilansSiste12MndIkkePåSTP = finnFrilansIRegisterSomErAktivtSiste12MndMenIkkePåStp(stpBG, iayGrunnlag, ref.getAktørId());
+        if (!registerFrilansPåSTP.isEmpty() || !registerFrilansSiste12MndIkkePåSTP.isEmpty()) {
+            loggFrilansLister(ref.getSaksnummer(), registerFrilansPåSTP, registerFrilansSiste12MndIkkePåSTP);
+        }
         List<Inntektspost> inntektsposterFrilansSiste12Mnd = inntektsposterFrilansSiste12Mnd(stpBG, iayGrunnlag, ref.getAktørId());
-        if (relevantOppgittFrilans.isEmpty() && relevantRegisterFrilans.isEmpty()) {
+        if (relevantOppgittFrilans.isEmpty() && registerFrilansPåSTP.isEmpty()) {
             if (!inntektsposterFrilansSiste12Mnd.isEmpty()) {
                 // Har ikke frilans i hverken søknad eller register, men har hatt frilansinntekt siste 12 mnd.
                 loggInntektUtenAktivFrilans(ref.getSaksnummer(), inntektsposterFrilansSiste12Mnd);
@@ -75,9 +80,32 @@ public class FrilansAvvikLoggTjeneste {
             LOG.info("FP-654893: Saksnr {} har frilans i enten søknad / register men er uten frilansinntekt siste 12 mnd", ref.getSaksnummer().getVerdi());
             return;
         }
-        if (relevantOppgittFrilans.isEmpty() || relevantRegisterFrilans.isEmpty()) {
-            loggAvvik(ref.getSaksnummer(), relevantOppgittFrilans, relevantRegisterFrilans);
+        if (relevantOppgittFrilans.isEmpty() || registerFrilansPåSTP.isEmpty()) {
+            loggAvvik(ref.getSaksnummer(), relevantOppgittFrilans, registerFrilansPåSTP);
         }
+    }
+
+    private void loggFrilansLister(Saksnummer saksnummer,
+                                   List<Yrkesaktivitet> registerFrilansPåSTP,
+                                   List<Yrkesaktivitet> registerFrilansSiste12MndIkkePåSTP) {
+        LOG.info("FP-654891: Saksnr {}. Antall frilansaktiviteter siste 12 mnd ikke aktivt på stp: {}.  Antall frilansaktiviteter på stp: {}",
+            saksnummer.getVerdi(), registerFrilansSiste12MndIkkePåSTP.size(), registerFrilansPåSTP.size());
+    }
+
+    private List<Yrkesaktivitet> finnFrilansIRegisterSomErAktivtSiste12MndMenIkkePåStp(LocalDate stpBG, InntektArbeidYtelseGrunnlag grunnlag, AktørId aktørId) {
+        YrkesaktivitetFilter filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(),
+            grunnlag.getAktørArbeidFraRegister(aktørId)).før(stpBG);
+        return filter.getFrilansOppdrag().stream()
+            .filter(ya -> erAnsattFørDato(ya.getAlleAktivitetsAvtaler(), stpBG))
+            .filter(ya -> !erAnsattPåDato(ya.getAlleAktivitetsAvtaler(), stpBG))
+            .collect(Collectors.toList());
+
+    }
+
+    private boolean erAnsattFørDato(Collection<AktivitetsAvtale> alleAktivitetsAvtaler, LocalDate stpBG) {
+        return alleAktivitetsAvtaler.stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .anyMatch(aa -> aa.getPeriode().getFomDato().isBefore(stpBG));
     }
 
     private void loggInntektUtenAktivFrilans(Saksnummer saksnummer,
