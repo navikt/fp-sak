@@ -10,24 +10,24 @@
     <artifactId>behandling-revurdering</artifactId>
     <name>FPSAK :: Domenetjenester - Behandling Revurdering</name>
     <packaging>jar</packaging>
-    
+
     <dependencies>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-domene</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>batch</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingskontroll</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>produksjonsstyring</artifactId>
@@ -37,10 +37,10 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandling-prosessering</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-bom</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
+            <artifactId>felles-sikkerhet</artifactId>
         </dependency>
 
         <dependency>
@@ -52,13 +52,13 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>uttak</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>arbeidsforhold</artifactId>
         </dependency>
 
-        <!-- Test dependencies -->		
+        <!-- Test dependencies -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>behandlingslager-testutilities</artifactId>

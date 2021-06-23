@@ -6,7 +6,7 @@
         <version>${revision}${sha1}${changelist}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    
+
     <artifactId>batch</artifactId>
 	<packaging>jar</packaging>
 	<name>FPSAK :: Infrastrukturtjenester - Batch</name>
@@ -26,13 +26,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-feil</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.vedtak.prosesstask</groupId>
-            <artifactId>prosesstask</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
+            <artifactId>felles-sikkerhet</artifactId>
         </dependency>
+
 
         <!-- Test -->
         <dependency>
