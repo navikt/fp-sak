@@ -285,6 +285,8 @@
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
             <artifactId>saaj-impl</artifactId>
+            <!-- Saktjenesten fungerer ikke hvis denne bumpes til 2. Overstyrer fp-felles -->
+            <version>1.5.2</version>
         </dependency>
 
         <!-- Annet -->
