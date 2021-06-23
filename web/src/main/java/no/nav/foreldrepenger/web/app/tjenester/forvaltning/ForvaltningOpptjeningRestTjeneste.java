@@ -50,7 +50,7 @@ import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 @Transactional
 public class ForvaltningOpptjeningRestTjeneste {
 
-    private static Map<String, VirksomhetType> næringTypeKodeMap = Map.of(
+    private static final Map<String, VirksomhetType> NÆRING_TYPE_KODE_MAP = Map.of(
             "A", VirksomhetType.ANNEN,
             "D", VirksomhetType.DAGMAMMA,
             "F", VirksomhetType.FISKE,
@@ -82,8 +82,7 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Legg til innslag for oppgitt frilansaktivitet", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittFrilans(@BeanParam @Valid LeggTilOppgittFrilansDto dto) {
-        var behandling = dto.getBehandlingUUID() != null ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUUID()) :
-            behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingId());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
         if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -105,11 +104,10 @@ public class ForvaltningOpptjeningRestTjeneste {
     @Operation(description = "Legg til innslag for oppgitt næring som fisker", tags = "FORVALTNING-opptjening")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response leggTilOppgittNæring(@BeanParam @Valid LeggTilOppgittNæringDto dto) {
-        var behandling = dto.getBehandlingUUID() != null ? behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUUID())
-            : behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingId());
+        var behandling = behandlingsprosessTjeneste.hentBehandling(dto.getBehandlingUuid());
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandling.getId());
         if (iayGrunnlag.getOppgittOpptjening().isPresent() || behandling.erSaksbehandlingAvsluttet()
-                || næringTypeKodeMap.get(dto.getTypeKode()) == null
+                || NÆRING_TYPE_KODE_MAP.get(dto.getTypeKode()) == null
                 || ("J".equals(dto.getVarigEndring()) && dto.getEndringsDato() == null)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -118,7 +116,7 @@ public class ForvaltningOpptjeningRestTjeneste {
         var periode = dto.getTom() != null ? DatoIntervallEntitet.fraOgMedTilOgMed(dto.getFom(), dto.getTom())
                 : DatoIntervallEntitet.fraOgMed(dto.getFom());
         var enBuilder = OppgittOpptjeningBuilder.EgenNæringBuilder.ny()
-                .medVirksomhetType(næringTypeKodeMap.get(dto.getTypeKode()))
+                .medVirksomhetType(NÆRING_TYPE_KODE_MAP.get(dto.getTypeKode()))
                 .medPeriode(periode)
                 .medBruttoInntekt(brutto)
                 .medNærRelasjon(false)
