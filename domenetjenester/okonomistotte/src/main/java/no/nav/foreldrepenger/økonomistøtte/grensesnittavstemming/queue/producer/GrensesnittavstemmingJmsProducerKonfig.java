@@ -16,4 +16,15 @@ public class GrensesnittavstemmingJmsProducerKonfig extends BaseJmsKonfig {
     public GrensesnittavstemmingJmsProducerKonfig() {
         super(UT_QUEUE_PREFIX);
     }
+
+    @Override
+    public String getQueueManagerUsername() {
+        return "srvappserver"; // TODO - hent fra konfig når ny MQ-konfig innføres i august/september
+    }
+
+    @Override
+    public String getQueueManagerPassword() {
+        return null; // TODO - hent fra vault e.l. når ny MQ-konfig innføres i august/september
+    }
+
 }
