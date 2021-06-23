@@ -17,17 +17,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>no.nav.foreldrepenger.felles</groupId>
-			<artifactId>felles-bom</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
+            <artifactId>felles-sikkerhet</artifactId>
 		</dependency>
 
         <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask</artifactId>
         </dependency>
-        
+
 		<!-- NB ! NB ! NB !: Denne modulen er kandidat til å skilles ut som eget
-			bibliotek. Ikke legg inn flere avhengigheter til prosjektinterne moduler 
+			bibliotek. Ikke legg inn flere avhengigheter til prosjektinterne moduler
 			her. -->
 
 		<!-- Interne avhengigheter -->

@@ -23,15 +23,15 @@
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>arbeidsforhold</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>
             <artifactId>skjaeringstidspunkt</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-bom</artifactId>
+            <groupId>no.nav.foreldrepenger.felles.sikkerhet</groupId>
+            <artifactId>felles-sikkerhet</artifactId>
         </dependency>
 
         <!-- Prosjektinterne avhengigheter -->
