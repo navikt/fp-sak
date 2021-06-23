@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.DefaultValue;
@@ -23,10 +24,10 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     private static final String DATO_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 
     @NotNull
-    @QueryParam("behandlingId")
-    @Pattern(regexp = "^[a-fA-F0-9-]+$")
+    @QueryParam("behandlingUuid")
+    @Valid
     @JsonProperty
-    private String behandlingId;
+    private UUID behandlingUuid;
 
     @NotNull
     @Parameter(description = "type A/D/F/J")
@@ -84,46 +85,18 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String bruttoBeløp;
 
-    public LeggTilOppgittNæringDto(@NotNull String behandlingId, @NotNull String typeKode, @NotNull String fom, String tom,
-                                   String orgnummer, String regnskapNavn, String regnskapTlf, String nyoppstartet,
-                                   String varigEndring, String endringsDato, String begrunnelse, String bruttoBeløp) {
-        this.behandlingId = behandlingId;
-        this.typeKode = typeKode;
-        this.fom = fom;
-        this.tom = tom;
-        this.orgnummer = orgnummer;
-        this.regnskapNavn = regnskapNavn;
-        this.regnskapTlf = regnskapTlf;
-        this.nyoppstartet = nyoppstartet;
-        this.varigEndring = varigEndring;
-        this.endringsDato = endringsDato;
-        this.begrunnelse = begrunnelse;
-        this.bruttoBeløp = bruttoBeløp;
-    }
-
-    public LeggTilOppgittNæringDto() {
-    }
-
     @Override
     public AbacDataAttributter abacAttributter() {
         var abac = AbacDataAttributter.opprett();
-        if (getBehandlingId() != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_ID, getBehandlingId());
-        }
-        if (getBehandlingUUID() != null) {
-            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUUID());
+        if (getBehandlingUuid() != null) {
+            abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
         }
         return abac;
     }
 
     @JsonIgnore
-    public Long getBehandlingId() {
-        return behandlingId != null && getBehandlingUUID() == null ? Long.valueOf(behandlingId) : null;
-    }
-
-    @JsonIgnore
-    public UUID getBehandlingUUID() {
-        return behandlingId != null && behandlingId.contains("-") ? UUID.fromString(behandlingId) : null;
+    public UUID getBehandlingUuid() {
+        return behandlingUuid;
     }
 
     public String getTypeKode() {
