@@ -3,6 +3,7 @@
 target
 .project
 .classpath
+.factorypath
 outdated-dependencies.txt
 bin
 *.iml
