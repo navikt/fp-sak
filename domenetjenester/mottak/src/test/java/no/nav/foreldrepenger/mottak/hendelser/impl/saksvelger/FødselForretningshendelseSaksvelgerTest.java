@@ -33,8 +33,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
+import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,7 +83,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);
@@ -121,7 +121,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
         // Act
@@ -144,7 +144,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
         // Act
@@ -202,10 +202,10 @@ public class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.plusDays(2))));
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
         // Act
@@ -226,10 +226,10 @@ public class FødselForretningshendelseSaksvelgerTest {
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
-        when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO)));
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
 
         // Act
@@ -249,7 +249,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        when(behandlingRepository.finnSisteInnvilgetBehandling(any())).thenReturn(Optional.of(behandling));
+        when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.of(behandling));
         when(beregningsresultatRepository.hentUtbetBeregningsresultat(any()))
             .thenReturn(Optional.of(opprettBeregningsresultatPerioder(FØDSELSDATO.minusDays(2))));
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.OPPRETTET);
@@ -291,7 +291,7 @@ public class FødselForretningshendelseSaksvelgerTest {
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
         var hendelse = new FødselForretningshendelse(singletonList(aktørId), FØDSELSDATO, Endringstype.KORRIGERT);
-        when(familieHendelseTjeneste.erFødselsHendelseRelevantFor(any(), any())).thenReturn(Boolean.TRUE);
+        when(familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(any(), any())).thenReturn(Boolean.TRUE);
 
         // Act
         var behandlingÅrsakTypeListMap = saksvelger.finnRelaterteFagsaker(hendelse);

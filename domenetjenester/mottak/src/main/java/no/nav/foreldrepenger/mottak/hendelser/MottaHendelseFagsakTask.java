@@ -6,9 +6,11 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
+import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -44,7 +46,10 @@ public class MottaHendelseFagsakTask extends FagsakProsessTask {
         Objects.requireNonNull(hendelseTypeKode);
         Objects.requireNonNull(årsakTypeKode);
 
-        forretningshendelseMottak.håndterHendelsePåFagsak(fagsakId, hendelseTypeKode, årsakTypeKode);
+        var hendelseType = ForretningshendelseType.fraKode(hendelseTypeKode);
+        var behandlingÅrsakType = BehandlingÅrsakType.fraKode(årsakTypeKode);
+
+        forretningshendelseMottak.håndterHendelsePåFagsak(fagsakId, hendelseType, behandlingÅrsakType);
     }
 
     @Override

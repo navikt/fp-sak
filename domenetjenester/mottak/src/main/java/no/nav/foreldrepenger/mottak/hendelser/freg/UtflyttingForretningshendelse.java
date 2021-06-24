@@ -11,13 +11,5 @@ public record UtflyttingForretningshendelse(List<AktørId> aktørIdListe,
                                            LocalDate utflyttingsdato,
                                            Endringstype endringstype) implements Forretningshendelse{
 
-    @Override
-    public List<AktørId> getAktørIdListe() {
-        return aktørIdListe();
-    }
 
-    @Override
-    public Endringstype getEndringstype() {
-        return endringstype();
-    }
 }

@@ -382,15 +382,6 @@ Oppretter oppgave i GSAK for å vurdere konsekvens for ytelse
 ++++
 
 
-=== Vurder opprett oppgave tilbakekreving
-====
-* *Kode:* oppgavebehandling.vurderOppgaveTilbakekreving
-====
-
-++++
-Vurderer og oppretter oppgave i GOSYS om at saksbehandler må opprette tilbakekrevingsbehandling i Infotrygd.
-++++
-
 
 
 

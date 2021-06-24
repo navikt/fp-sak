@@ -25,13 +25,15 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
-import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.UtflyttingHendelseDto;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererProvider;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
@@ -48,7 +50,8 @@ public class ForretningshendelseMottak {
     private static final Map<ForretningshendelseType, Function<HendelseDto , ? extends Forretningshendelse>> OVERSETTER = Map.of(
         ForretningshendelseType.DØD, d -> new DødForretningshendelse(mapToAktørIds(d), ((DødHendelseDto)d).getDødsdato(), getEndringstype(d)),
         ForretningshendelseType.DØDFØDSEL, d -> new DødfødselForretningshendelse(mapToAktørIds(d), ((DødfødselHendelseDto)d).getDødfødselsdato(), getEndringstype(d)),
-        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato(), getEndringstype(f))
+        ForretningshendelseType.FØDSEL, f -> new FødselForretningshendelse(mapToAktørIds(f), ((FødselHendelseDto)f).getFødselsdato(), getEndringstype(f)),
+        ForretningshendelseType.UTFLYTTING, f -> new UtflyttingForretningshendelse(mapToAktørIds(f), ((UtflyttingHendelseDto)f).getUtflyttingsdato(), getEndringstype(f))
     );
 
     private Logger LOG = LoggerFactory.getLogger(getClass());
@@ -99,13 +102,8 @@ public class ForretningshendelseMottak {
      * 2. steg av håndtering av mottatt forretningshendelse. Hendelsen på fagsaken brukes som TRIGGER ift. protokoll
      * for mottak av hendelser på fagsak/behandling
      */
-    public void håndterHendelsePåFagsak(Long fagsakId, String hendelseTypeKode, String årsakTypeKode) {
-        Objects.requireNonNull(hendelseTypeKode);
+    public void håndterHendelsePåFagsak(Long fagsakId, ForretningshendelseType hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
         Objects.requireNonNull(fagsakId);
-        Objects.requireNonNull(årsakTypeKode);
-
-        var hendelseType = ForretningshendelseType.fraKode(hendelseTypeKode);
-        var behandlingÅrsakType = BehandlingÅrsakType.fraKode(årsakTypeKode);
 
         var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
         var håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());

@@ -1,45 +1,57 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
-import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
-import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepository;
-import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelsestypeRef.UTFLYTTING_HENDELSE)
 public class UtflyttingForretningshendelseSaksvelger implements ForretningshendelseSaksvelger<UtflyttingForretningshendelse> {
 
-    private static final Set<FagsakYtelseType> YTELSE_TYPER = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
+    private static final Logger LOG = LoggerFactory.getLogger(UtflyttingForretningshendelseSaksvelger.class);
+
+
 
     private FagsakRepository fagsakRepository;
-    private HendelseHåndteringRepository hendelseHåndteringRepository;
+    private BehandlingRepository behandlingRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
 
     @Inject
     public UtflyttingForretningshendelseSaksvelger(BehandlingRepositoryProvider repositoryProvider,
-                                                   HendelseHåndteringRepository hendelseHåndteringRepository,
+                                                   FamilieHendelseTjeneste familieHendelseTjeneste,
                                                    HistorikkinnslagTjeneste historikkinnslagTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.hendelseHåndteringRepository = hendelseHåndteringRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
     }
 
@@ -47,13 +59,13 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(UtflyttingForretningshendelse forretningshendelse) {
         Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER, forretningshendelse.getAktørIdListe().stream()
+        resultat.put(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
-            .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
+            .filter(f -> erFagsakPassendeForUtflyttingHendelse(forretningshendelse, f))
             .collect(Collectors.toList()));
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
             resultat.values().stream().flatMap(Collection::stream)
                 .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
         }
@@ -61,10 +73,27 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
         return resultat;
     }
 
-    private boolean erFagsakPassendeForUtflyttingHendelse(LocalDate utflyttingsdato, Fagsak fagsak) {
-        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .map(b -> familieHendelseTjeneste.erFødselsHendelseRelevantFor(b.getId(), fødsel))
-            .orElse(Boolean.FALSE);
+
+    private boolean erFagsakPassendeForUtflyttingHendelse(UtflyttingForretningshendelse forretningshendelse, Fagsak fagsak) {
+        if (forretningshendelse.utflyttingsdato() == null) {
+            LOG.info("Hendelser: Utflyttingshendelse uten utflyttingsdato {}", forretningshendelse);
+            return false;
+        }
+        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId())) return true;
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
+            // Utflytting før fødsel
+            return behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId())
+                .filter(b -> familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(b.getId(), forretningshendelse.utflyttingsdato()))
+                .isPresent();
+        } else {
+            // Utflytting mens det finnes innvilget ytelse
+            var ytelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+                .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+                .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+            return forretningshendelse.utflyttingsdato().minusDays(1).isBefore(ytelseTom);
+        }
     }
 }
 

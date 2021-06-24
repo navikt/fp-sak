@@ -19,10 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØDFØDSEL_HENDELSE)
@@ -49,15 +49,15 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(DødfødselForretningshendelse forretningshendelse) {
         Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, forretningshendelse.getAktørIdListe().stream()
+        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
-            .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-                || erFagsakPassendeForFamilieHendelse(forretningshendelse.getDødfødselsdato(), fagsak))
+            .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+                || erFagsakPassendeForFamilieHendelse(forretningshendelse.dødfødselsdato(), fagsak))
             .collect(Collectors.toList()));
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
             resultat.values().stream().flatMap(Collection::stream)
                 .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om dødfødsel i folkeregisteret"));
         }
@@ -67,7 +67,7 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .map(b -> familieHendelseTjeneste.erFødselsHendelseRelevantFor(b.getId(), fødsel))
+            .map(b -> familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(b.getId(), fødsel))
             .orElse(Boolean.FALSE);
     }
 }

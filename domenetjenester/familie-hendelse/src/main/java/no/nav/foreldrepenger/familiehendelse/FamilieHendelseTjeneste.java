@@ -70,7 +70,7 @@ public class FamilieHendelseTjeneste {
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
     }
 
-    public boolean erFødselsHendelseRelevantFor(Long behandlingId, LocalDate fødselsdato) {
+    public boolean erHendelseDatoRelevantForBehandling(Long behandlingId, LocalDate fødselsdato) {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
         if (familieHendelseGrunnlag == null || !familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
             return false;

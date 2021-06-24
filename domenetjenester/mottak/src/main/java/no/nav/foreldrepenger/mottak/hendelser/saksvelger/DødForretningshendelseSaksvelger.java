@@ -17,10 +17,10 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseHåndteringRepository;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØD_HENDELSE)
@@ -45,18 +45,18 @@ public class DødForretningshendelseSaksvelger implements ForretningshendelseSak
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(DødForretningshendelse forretningshendelse) {
         Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER, forretningshendelse.getAktørIdListe().stream()
+        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
             .collect(Collectors.toList()));
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, forretningshendelse.getAktørIdListe().stream()
+        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_BARN, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> hendelseHåndteringRepository.hentFagsakerSomHarAktørIdSomBarn(aktørId).stream())
             .filter(fagsak -> FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) && fagsak.erÅpen())
             .collect(Collectors.toList()));
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
             resultat.values().stream().flatMap(Collection::stream)
                 .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om død i folkeregisteret"));
         }

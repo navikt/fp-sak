@@ -36,7 +36,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_OPPLYSNINGER_OM_INNTEKT("RE-INNTK", "Opplysninger inntekt"),
     RE_OPPLYSNINGER_OM_FØDSEL("RE-FØDSEL", "Fødsel"),
     RE_OPPLYSNINGER_OM_DØD("RE-DØD", "Opplysninger død"),
-    RE_OPPLYSNINGER_OM_SØKERS_REL("RE-SRTB", "Opplysninger rel/barn"),
+    RE_OPPLYSNINGER_OM_SØKERS_REL("RE-SRTB", "Opplysninger relasjon/barn"),
     RE_OPPLYSNINGER_OM_SØKNAD_FRIST("RE-FRIST", "Opplysninger søknadsfrist"),
     RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG("RE-BER-GRUN", "Opplysninger beregning"),
 
@@ -71,6 +71,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_HENDELSE_DØD_FORELDER("RE-HENDELSE-DØD-F", "Forelder død"),
     RE_HENDELSE_DØD_BARN("RE-HENDELSE-DØD-B", "Barn død"),
     RE_HENDELSE_DØDFØDSEL("RE-HENDELSE-DØDFØD", "Dødfødsel"),
+    RE_HENDELSE_UTFLYTTING("RE-HENDELSE-UTFLYTTING", "Utflytting"),
 
     RE_VEDTAK_PLEIEPENGER("RE-VEDTAK-PSB", "Pleiepenger"),
 

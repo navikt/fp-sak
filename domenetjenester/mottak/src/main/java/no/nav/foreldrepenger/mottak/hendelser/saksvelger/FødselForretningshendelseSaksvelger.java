@@ -25,10 +25,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
+import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @ForretningshendelsestypeRef(ForretningshendelsestypeRef.FØDSEL_HENDELSE)
@@ -58,17 +59,15 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(FødselForretningshendelse forretningshendelse) {
         Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_FØDSEL, forretningshendelse.getAktørIdListe().stream()
+        resultat.put(BehandlingÅrsakType.RE_HENDELSE_FØDSEL, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
-            .filter(fagsak -> fagsakErRelevantForeldrepengesak(fagsak)
-                || fagsakErRelevantEngangsstønadsak(fagsak)
-                || fagsakErRelevantSvangerskapspengersak(fagsak, forretningshendelse))
-            .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-                || erFagsakPassendeForFamilieHendelse(forretningshendelse.getFødselsdato(), f))
+            .filter(fagsak -> fagsakErRelevantForHendelse(fagsak, forretningshendelse))
+            .filter(f -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+                || erFagsakPassendeForFamilieHendelse(forretningshendelse.fødselsdato(), f))
             .collect(Collectors.toList()));
 
-        if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())
-            || Endringstype.KORRIGERT.equals(forretningshendelse.getEndringstype())) {
+        if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
+            || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
             resultat.values().stream().flatMap(Collection::stream)
                 .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om fødsel i folkeregisteret"));
         }
@@ -76,37 +75,27 @@ public class FødselForretningshendelseSaksvelger implements Forretningshendelse
         return resultat;
     }
 
-    private boolean fagsakErRelevantForeldrepengesak(Fagsak fagsak) {
-        return FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType()) && fagsak.erÅpen();
-    }
-
-    private boolean fagsakErRelevantEngangsstønadsak(Fagsak fagsak) {
-        return FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) &&
-            (fagsak.erÅpen() || behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent());
-    }
-
-    private boolean fagsakErRelevantSvangerskapspengersak(Fagsak fagsak, FødselForretningshendelse forretningshendelse) {
+    private boolean fagsakErRelevantForHendelse(Fagsak fagsak, FødselForretningshendelse forretningshendelse) {
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType())) {
-            if (Endringstype.ANNULLERT.equals(forretningshendelse.getEndringstype())) {
+            if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())) {
                 // ANNULLERT-hendelser inneholder ikke fødselsdato og videre sjekk er derfor unødvendig
                 return true;
             }
-            var behandling = behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId());
-            var fødselsdato = forretningshendelse.getFødselsdato();
-
-            var beregningsresultat = behandling.flatMap(b -> beregningsresultatRepository
-                .hentUtbetBeregningsresultat(b.getId()));
-            var tilkjentYtelseTom = beregningsresultat.map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
-                    .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-                    .max(Comparator.naturalOrder());
-            return tilkjentYtelseTom.map(d -> fødselsdato.minusDays(1).isBefore(d)).orElse(Boolean.FALSE);
+            var tilkjentYtelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+                .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
+                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(Collections.emptyList()).stream()
+                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+                .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+            return forretningshendelse.fødselsdato().minusDays(1).isBefore(tilkjentYtelseTom);
+        } else {
+            return fagsak.erÅpen() ||
+                (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) && behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId()).isPresent());
         }
-        return false;
     }
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
-            .map(b -> familieHendelseTjeneste.erFødselsHendelseRelevantFor(b.getId(), fødsel))
+            .map(b -> familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(b.getId(), fødsel))
             .orElse(Boolean.FALSE);
     }
 

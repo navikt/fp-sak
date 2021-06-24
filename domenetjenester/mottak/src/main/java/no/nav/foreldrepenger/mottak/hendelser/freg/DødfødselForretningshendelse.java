@@ -11,13 +11,4 @@ public record DødfødselForretningshendelse(List<AktørId> aktørIdListe,
                                            LocalDate dødfødselsdato,
                                            Endringstype endringstype) implements Forretningshendelse {
 
-    @Override
-    public List<AktørId> getAktørIdListe() {
-        return aktørIdListe();
-    }
-
-    @Override
-    public Endringstype getEndringstype() {
-        return endringstype();
-    }
 }

@@ -22,6 +22,7 @@ public enum ForretningshendelseType implements Kodeverdi {
     FØDSEL("FØDSEL", "Fødsel"),
     DØD("DØD", "Død"),
     DØDFØDSEL("DØDFØDSEL", "Dødfødsel"),
+    UTFLYTTING("UTFLYTTING", "Utflytting"),
 
     UDEFINERT("-", "Ikke definert"),
     ;

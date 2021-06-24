@@ -11,15 +11,4 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public record FødselForretningshendelse(List<AktørId> aktørIdListe,
                                         LocalDate fødselsdato,
                                         Endringstype endringstype) implements Forretningshendelse {
-
-    @Override
-    public List<AktørId> getAktørIdListe() {
-        return aktørIdListe();
-    }
-
-    @Override
-    public Endringstype getEndringstype() {
-        return endringstype();
-    }
-
 }
