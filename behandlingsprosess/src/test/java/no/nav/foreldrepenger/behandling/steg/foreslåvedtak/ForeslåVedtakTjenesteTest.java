@@ -86,7 +86,7 @@ public class ForeslåVedtakTjenesteTest {
         var sjekkMotEksisterendeOppgaverTjeneste = new SjekkMotEksisterendeOppgaverTjeneste(historikkRepository,
                 oppgaveTjeneste);
         var klageAnke = new KlageAnkeVedtakTjeneste(klageRepository, ankeRepository);
-        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste);
+        tjeneste = new ForeslåVedtakTjeneste(fagsakRepository, klageAnke, sjekkMotEksisterendeOppgaverTjeneste, dokumentBehandlingTjeneste);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class ForeslåVedtakTjenesteTest {
     }
 
     @Test
-    public void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotorinnskontroll() {
+    public void setterStegTilUtførtUtenAksjonspunktDersomIkkeTotrinnskontroll() {
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
 
@@ -158,6 +158,29 @@ public class ForeslåVedtakTjenesteTest {
         // Assert
         assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
         assertThat(behandling.isToTrinnsBehandling()).isFalse();
+    }
+
+    @Test
+    public void nullstillerFritekstfeltetDersomIkkeTotrinnskontroll() {
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        verify(dokumentBehandlingTjeneste, times(1)).nullstillVedtakFritekstHvisFinnes(anyLong());
+    }
+
+    @Test
+    public void nullstillerIkkeFritekstfeltetDersomTotrinnskontroll() {
+        // Arrange
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_ER_BOSATT, true);
+
+        // Act
+        var stegResultat = tjeneste.foreslåVedtak(behandling);
+
+        // Assert
+        assertThat(stegResultat.getTransisjon()).isEqualTo(FellesTransisjoner.UTFØRT);
+        verify(dokumentBehandlingTjeneste, times(0)).nullstillVedtakFritekstHvisFinnes(anyLong());
     }
 
     @Test

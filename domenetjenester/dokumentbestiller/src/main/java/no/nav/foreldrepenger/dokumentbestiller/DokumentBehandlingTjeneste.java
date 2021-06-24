@@ -66,12 +66,19 @@ public class DokumentBehandlingTjeneste {
     }
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
-
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         return behandlingDokument.isPresent() && behandlingDokument.get().getBestilteDokumenter().stream()
                 .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
                 .collect(Collectors.toList())
                 .contains(dokumentMalTypeKode.getKode());
+    }
+
+    public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
+        behandlingDokument.ifPresent(behandlingDokumentEntitet -> behandlingDokumentRepository.lagreOgFlush(
+            BehandlingDokumentEntitet.Builder.fraEksisterende(behandlingDokumentEntitet)
+                .medVedtakFritekst(null)
+                .build()));
     }
 
     public void settBehandlingPåVent(Long behandlingId, Venteårsak venteårsak) {

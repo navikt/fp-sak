@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 
 @ApplicationScoped
@@ -26,6 +27,7 @@ class ForeslåVedtakTjeneste {
     private SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste;
     private FagsakRepository fagsakRepository;
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     protected ForeslåVedtakTjeneste() {
         // CDI proxy
@@ -33,11 +35,13 @@ class ForeslåVedtakTjeneste {
 
     @Inject
     ForeslåVedtakTjeneste(FagsakRepository fagsakRepository,
-            KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
-            SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste) {
+                          KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
+                          SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste,
+                          DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.klageAnkeVedtakTjeneste = klageAnkeVedtakTjeneste;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling) {
@@ -84,6 +88,8 @@ class ForeslåVedtakTjeneste {
             LOG.info("To-trinn fjernet på behandling={}", behandling.getId());
             if (skalOppretteForeslåVedtakManuelt(behandling)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+            } else {
+                dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
             }
         }
     }

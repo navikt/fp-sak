@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -26,6 +28,8 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
 public class DokumentBehandlingTjenesteTest {
+    private static final String VEDTAK_FRITEKST = "Begrunnelse";
+
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
     @Mock
@@ -148,5 +152,40 @@ public class DokumentBehandlingTjenesteTest {
 
         // Act+Assert
         assertThat(dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.INNHENT_DOK)).isFalse();
+    }
+
+    @Test
+    public void skal_nullstille_vedtak_fritekst() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
+            .medBehandling(behandling.getId())
+            .medVedtakFritekst(VEDTAK_FRITEKST);
+        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
+
+        Optional<BehandlingDokumentEntitet> behandlingDokumentFør = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokumentFør).isPresent();
+        assertThat(behandlingDokumentFør.get().getVedtakFritekst()).isEqualTo(VEDTAK_FRITEKST);
+
+        // Act
+        dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
+
+        // Assert
+        Optional<BehandlingDokumentEntitet> behandlingDokumentEtter = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokumentEtter).isPresent();
+        assertThat(behandlingDokumentEtter.get().getVedtakFritekst()).isNull();
+    }
+
+    @Test
+    public void skal_håndtere_at_det_ikke_finnes_behandling_dokument_ved_nullstilling_av_vedtak_fritekst() {
+        // Arrange
+        behandling = scenario.lagre(repositoryProvider);
+
+        // Act
+        dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
+
+        // Assert
+        Optional<BehandlingDokumentEntitet> behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
+        assertThat(behandlingDokument).isNotPresent();
     }
 }
