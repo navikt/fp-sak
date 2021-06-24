@@ -144,7 +144,7 @@ public class RegisterdataInnhenterTest {
             }
             """;
         var fikset = json.replace("&#34;", "\"");
-        var deser = StandardJsonConfig.fromJson(fikset, RegisterdataInnhenter.PleiepengerOpplysninger.class);
+        var deser = StandardJsonConfig.fromJson(fikset, PleipengerOversetter.PleiepengerOpplysninger.class);
 
         assertThat(deser.pleietrengende()).isEqualTo(new AktørId("9999999999999"));
         assertThat(deser.innleggelsesPerioder()).hasSize(1);

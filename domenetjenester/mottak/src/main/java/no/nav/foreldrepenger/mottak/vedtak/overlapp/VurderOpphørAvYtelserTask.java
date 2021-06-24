@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
+import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -23,6 +25,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørAvYtelserTask.class);
     public static final String K9_YTELSE_KEY = "k9ytelse";
+    public static final String K9_INNLEGGELSE_KEY = "k9innleggelse";
     public static final String K9_SAK_KEY = "k9sak";
     public static final String K9_REVURDER_KEY = "k9revurder";
 
@@ -56,7 +59,8 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             var saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
             var ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
-            var beskrivelse = String.format("%s saksnr %s overlapper %s saksnr %s", ytelse, saksnr, fagsak.getYtelseType().getNavn(), fagsak.getSaksnummer().getVerdi());
+            var intro = prosessTaskData.getPropertyValue(K9_INNLEGGELSE_KEY) != null ? "(Innlagt) saksnr" : "saksnr";
+            var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s", ytelse, intro, saksnr, fagsak.getYtelseType().getNavn(), fagsak.getSaksnummer().getVerdi());
 
             tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
             return;

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.registerinnhenting.PleipengerOversetter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
@@ -160,9 +162,14 @@ public class VedtaksHendelseHåndterer {
     }
 
     private void opprettTasksForPleiepengerVedtak(YtelseV1 ytelse, Fagsak f, UUID callID) {
+        var innleggelse = Optional.ofNullable(ytelse.getTilleggsopplysninger())
+            .map(PleipengerOversetter::oversettTilleggsopplysninger)
+            .filter(to -> !to.innleggelsesPerioder().isEmpty())
+            .isPresent();
         var data = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         data.setFagsak(f.getId(), f.getAktørId().getId());
         data.setCallId(callID.toString());
+        if (innleggelse) data.setProperty(VurderOpphørAvYtelserTask.K9_INNLEGGELSE_KEY, "true");
         data.setProperty(VurderOpphørAvYtelserTask.K9_YTELSE_KEY, ytelse.getType().getNavn());
         data.setProperty(VurderOpphørAvYtelserTask.K9_SAK_KEY, ytelse.getSaksnummer());
         data.setProperty(VurderOpphørAvYtelserTask.K9_REVURDER_KEY, "true");

@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.api.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
@@ -249,7 +248,7 @@ public class RegisterdataInnhenter {
                                                                                        List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
         var ppBuilder = new PleiepengerPerioderEntitet.Builder();
         for (var vedtak : vedtakene) {
-            var oversatt = oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
+            var oversatt = PleipengerOversetter.oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
             if (oversatt != null) LOG.info("PSB innhent behandling {} vedtak aktuelt barn {} med perioder {}",
                 behandling.getId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
             if (oversatt != null && oversatt.innleggelsesPerioder() != null && gjelderAktuelleBarn(oversatt, aktuelleBarn)) {
@@ -269,25 +268,10 @@ public class RegisterdataInnhenter {
         return Optional.empty();
     }
 
-    private PleiepengerOpplysninger oversettTilleggsopplysninger(String tilleggsOpplysninger) {
-        try {
-            // TODO finne ut hvor double-quote escapes og gir &#34;
-            var midlertidigKonvertering = tilleggsOpplysninger.replace("&#34;", "\"");
-            return StandardJsonConfig.fromJson(midlertidigKonvertering, PleiepengerOpplysninger.class);
-        } catch (Exception e) {
-            LOG.warn("Feil ved oversetting av pleiepenger / innleggelse for {}", tilleggsOpplysninger, e);
-            return null;
-        }
-    }
-
-    private boolean gjelderAktuelleBarn(PleiepengerOpplysninger pleiepenger, Set<PersonIdent> aktuelleBarn) {
+    private boolean gjelderAktuelleBarn(PleipengerOversetter.PleiepengerOpplysninger pleiepenger, Set<PersonIdent> aktuelleBarn) {
         return personopplysningInnhenter.hentPersonIdentForAktør(pleiepenger.pleietrengende())
             .filter(aktuelleBarn::contains)
             .isPresent();
     }
 
-
-    static record PleiepengerOpplysninger(AktørId pleietrengende, List<PleiepengerInnlagtPeriode> innleggelsesPerioder) {}
-
-    static record PleiepengerInnlagtPeriode(LocalDate fom, LocalDate tom) {}
 }
