@@ -59,7 +59,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             var saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
             var ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
-            var intro = prosessTaskData.getPropertyValue(K9_YTELSE_KEY) != null ? " (Innlagt) saksnr" : "saksnr";
+            var intro = prosessTaskData.getPropertyValue(K9_INNLEGGELSE_KEY) != null ? "(Innlagt) saksnr" : "saksnr";
             var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s", ytelse, intro, saksnr, fagsak.getYtelseType().getNavn(), fagsak.getSaksnummer().getVerdi());
 
             tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
