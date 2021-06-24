@@ -70,13 +70,13 @@ public class FamilieHendelseTjeneste {
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag);
     }
 
-    public boolean erHendelseDatoRelevantForBehandling(Long behandlingId, LocalDate fødselsdato) {
+    public boolean erHendelseDatoRelevantForBehandling(Long behandlingId, LocalDate hendelsedato) {
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId).orElse(null);
         if (familieHendelseGrunnlag == null || !familieHendelseGrunnlag.getGjeldendeVersjon().getGjelderFødsel()) {
             return false;
         }
         return utledPerioderForRegisterinnhenting(familieHendelseGrunnlag).stream()
-            .anyMatch(i -> i.encloses(fødselsdato));
+            .anyMatch(i -> i.encloses(hendelsedato));
     }
 
     public boolean matcherFødselsSøknadMedBehandling(FamilieHendelseGrunnlagEntitet grunnlag, LocalDate termindato, LocalDate fødselsdato) {

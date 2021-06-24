@@ -64,9 +64,8 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
 
     @BeforeEach
     public void before() {
-        lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
-        lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
-        lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
+        when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
+        when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         lenient().when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);
         saksvelger = new UtflyttingForretningshendelseSaksvelger(repositoryProvider, familieHendelseTjeneste, historikkinnslagTjeneste);
     }
@@ -156,7 +155,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_foreldrepengersak_der_fødselsdatoen_er_før_tilkjent_ytelse_sluttdato() {
+    public void skal_velge_foreldrepengersak_der_utflyttingsdatoen_er_før_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
@@ -178,7 +177,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void skal_velge_svangerskapspengersak_der_fødselsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
+    public void skal_velge_svangerskapspengersak_der_utflyttingsdatoen_er_lik_tilkjent_ytelse_sluttdato() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
@@ -221,7 +220,7 @@ public class UtflyttingForretningshendelseSaksvelgerTest {
     }
 
     @Test
-    public void annullert_fødselshendelse_skal_ikke_treffe_foreldrepengesak() {
+    public void annullert_utflyttingshendelse_skal_ikke_treffe_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);

@@ -47,22 +47,20 @@ public class DødfødselForretningshendelseSaksvelger implements Forretningshend
 
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(DødfødselForretningshendelse forretningshendelse) {
-        Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, forretningshendelse.aktørIdListe().stream()
+        var saker = forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(fagsak -> YTELSE_TYPER.contains(fagsak.getYtelseType()) && fagsak.erÅpen())
             .filter(fagsak -> Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
                 || erFagsakPassendeForFamilieHendelse(forretningshendelse.dødfødselsdato(), fagsak))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
 
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
-            resultat.values().stream().flatMap(Collection::stream)
-                .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om dødfødsel i folkeregisteret"));
+            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om dødfødsel i folkeregisteret"));
         }
 
-        return resultat;
+        return Map.of(BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL, saker);
     }
 
     private boolean erFagsakPassendeForFamilieHendelse(LocalDate fødsel, Fagsak fagsak) {

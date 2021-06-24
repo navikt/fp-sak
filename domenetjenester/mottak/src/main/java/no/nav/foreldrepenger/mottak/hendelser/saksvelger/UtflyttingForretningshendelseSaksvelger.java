@@ -57,20 +57,18 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
 
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(UtflyttingForretningshendelse forretningshendelse) {
-        Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
 
-        resultat.put(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, forretningshendelse.aktørIdListe().stream()
+        var saker = forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())
             .filter(f -> erFagsakPassendeForUtflyttingHendelse(forretningshendelse, f))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
 
         if (Endringstype.ANNULLERT.equals(forretningshendelse.endringstype())
             || Endringstype.KORRIGERT.equals(forretningshendelse.endringstype())) {
-            resultat.values().stream().flatMap(Collection::stream)
-                .forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
+            saker.forEach(f -> historikkinnslagTjeneste.opprettHistorikkinnslagForEndringshendelse(f, "Endrede opplysninger om utflytting i Folkeregisteret"));
         }
 
-        return resultat;
+        return Map.of(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, saker);
     }
 
 
@@ -85,15 +83,15 @@ public class UtflyttingForretningshendelseSaksvelger implements Forretningshende
             return behandlingRepository.finnSisteInnvilgetBehandling(fagsak.getId())
                 .filter(b -> familieHendelseTjeneste.erHendelseDatoRelevantForBehandling(b.getId(), forretningshendelse.utflyttingsdato()))
                 .isPresent();
-        } else {
-            // Utflytting mens det finnes innvilget ytelse
-            var ytelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
-                .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
-                .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
-                .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
-                .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
-            return forretningshendelse.utflyttingsdato().minusDays(1).isBefore(ytelseTom);
         }
+
+        // Utflytting mens det finnes innvilget ytelse
+        var ytelseTom = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId())
+            .flatMap(b -> beregningsresultatRepository.hentUtbetBeregningsresultat(b.getId()))
+            .map(BeregningsresultatEntitet::getBeregningsresultatPerioder).orElse(List.of()).stream()
+            .map(BeregningsresultatPeriode::getBeregningsresultatPeriodeTom)
+            .max(Comparator.naturalOrder()).orElse(Tid.TIDENES_BEGYNNELSE);
+        return forretningshendelse.utflyttingsdato().minusDays(1).isBefore(ytelseTom);
     }
 }
 
