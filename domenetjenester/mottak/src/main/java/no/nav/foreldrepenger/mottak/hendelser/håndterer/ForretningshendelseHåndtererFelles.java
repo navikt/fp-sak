@@ -49,12 +49,12 @@ public class ForretningshendelseHåndtererFelles {
         return revurdering;
     }
 
-    public void fellesHåndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
+    public void håndterÅpenBehandling(Behandling åpenBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         historikkinnslagTjeneste.opprettHistorikkinnslagForBehandlingOppdatertMedNyeOpplysninger(åpenBehandling, behandlingÅrsakType);
         kompletthetskontroller.vurderNyForretningshendelse(åpenBehandling);
     }
 
-    public void fellesHåndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> køetBehandlingOpt) {
+    public void håndterKøetBehandling(Fagsak fagsak, BehandlingÅrsakType behandlingÅrsakType, Optional<Behandling> køetBehandlingOpt) {
         if (køetBehandlingOpt.isPresent()) {
             // Oppdateringer fanges opp etter at behandling tas av kø, ettersom den vil passere steg innhentregisteropplysninger
             return;

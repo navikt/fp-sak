@@ -21,19 +21,22 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødForretningshendelse;
-import no.nav.foreldrepenger.familiehendelse.dødsfall.DødfødselForretningshendelse;
-import no.nav.foreldrepenger.familiehendelse.fødsel.FødselForretningshendelse;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.Endringstype;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
+import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.UtflyttingHendelseDto;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.FødselForretningshendelse;
+import no.nav.foreldrepenger.mottak.hendelser.freg.UtflyttingForretningshendelse;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaksvelgerProvider;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
+import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshendelseSaksvelger;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
@@ -91,8 +94,8 @@ public class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(FødselForretningshendelse.class);
-        assertThat((captor.getValue()).getAktørIdListe()).containsExactly(aktørId);
-        assertThat(((FødselForretningshendelse)captor.getValue()).getFødselsdato()).isEqualTo(LocalDate.now());
+        assertThat(((FødselForretningshendelse)captor.getValue()).aktørIdListe()).containsExactly(aktørId);
+        assertThat(((FødselForretningshendelse)captor.getValue()).fødselsdato()).isEqualTo(LocalDate.now());
     }
 
 
@@ -123,7 +126,7 @@ public class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(DødfødselForretningshendelse.class);
-        assertThat(((DødfødselForretningshendelse)captor.getValue()).getDødfødselsdato()).isEqualTo(LocalDate.now());
+        assertThat(((DødfødselForretningshendelse)captor.getValue()).dødfødselsdato()).isEqualTo(LocalDate.now());
     }
 
     @Test
@@ -153,6 +156,36 @@ public class KlargjørHendelseTaskTest {
 
         Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
         assertThat(captor.getValue()).isInstanceOf(DødForretningshendelse.class);
-        assertThat(((DødForretningshendelse)captor.getValue()).getDødsdato()).isEqualTo(LocalDate.now());
+        assertThat(((DødForretningshendelse)captor.getValue()).dødsdato()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    public void skal_motta_utflytting() {
+        var saksvelgerProvider = mock(ForretningshendelseSaksvelgerProvider.class);
+        ForretningshendelseSaksvelger saksvelger = mock(UtflyttingForretningshendelseSaksvelger.class);
+        when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
+        when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.UTFLYTTING)).thenReturn(saksvelger);
+        var domenetjeneste = new ForretningshendelseMottak(null,
+            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
+
+        var task = new KlargjørHendelseTask(domenetjeneste);
+
+        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "UTFLYTTING");
+        taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
+        var hendelse = new UtflyttingHendelseDto();
+        hendelse.setId("id_1");
+        hendelse.setEndringstype(Endringstype.OPPRETTET);
+        hendelse.setAktørId(Collections.singletonList(new AktørIdDto(AktørId.dummy().getId())));
+        hendelse.setUtflyttingsdato(LocalDate.now());
+        taskData.setPayload(StandardJsonConfig.toJson(hendelse));
+
+        var captor = ArgumentCaptor.forClass(Forretningshendelse.class);
+
+        task.doTask(taskData);
+
+        Mockito.verify(saksvelger).finnRelaterteFagsaker(captor.capture());
+        assertThat(captor.getValue()).isInstanceOf(UtflyttingForretningshendelse.class);
+        assertThat(((UtflyttingForretningshendelse)captor.getValue()).utflyttingsdato()).isEqualTo(LocalDate.now());
     }
 }

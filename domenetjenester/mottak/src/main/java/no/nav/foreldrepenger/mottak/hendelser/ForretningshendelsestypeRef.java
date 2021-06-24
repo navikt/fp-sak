@@ -25,6 +25,7 @@ public @interface ForretningshendelsestypeRef {
     String FØDSEL_HENDELSE = "FØDSEL";
     String DØD_HENDELSE = "DØD";
     String DØDFØDSEL_HENDELSE = "DØDFØDSEL";
+    String UTFLYTTING_HENDELSE = "UTFLYTTING";
 
     /**
      * Settes til navn på forretningshendelse slik det defineres i KODELISTE-tabellen, eller til YTELSE_HENDELSE

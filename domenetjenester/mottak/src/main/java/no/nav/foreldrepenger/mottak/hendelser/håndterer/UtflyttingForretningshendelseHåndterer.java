@@ -13,17 +13,18 @@ import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 
 @ApplicationScoped
-@ForretningshendelsestypeRef(ForretningshendelsestypeRef.DØDFØDSEL_HENDELSE)
-public class DødfødselForretningshendelseHåndterer implements ForretningshendelseHåndterer {
+@ForretningshendelsestypeRef(ForretningshendelsestypeRef.UTFLYTTING_HENDELSE)
+public class UtflyttingForretningshendelseHåndterer implements ForretningshendelseHåndterer {
 
     private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
 
     @Inject
-    public DødfødselForretningshendelseHåndterer(BehandlingRepositoryProvider repositoryProvider,
-                                                 ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles) {
+    public UtflyttingForretningshendelseHåndterer(BehandlingRepositoryProvider repositoryProvider,
+                                                  ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
+
     }
 
     @Override
