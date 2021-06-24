@@ -209,31 +209,40 @@ public class VurderOpphørAvYtelser  {
     }
 
     void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
-        var sisteBehandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId());
-        if (sisteBehandling.isEmpty() || sisteBehandling.get().harBehandlingÅrsak(årsakType))
-            return;
-
-        var behandlingRO = sisteBehandling.get();
-        var enhet = utledEnhetFraBehandling(behandlingRO);
-
-        opprettTaskForÅVurdereKonsekvens(fagsak.getId(), enhet.getEnhetId(), beskrivelse, Optional.empty());
-
         var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId());
-        if (!harÅpenOrdinærBehandling) {
-            fagsakLåsRepository.taLås(fagsak.getId());
-            var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
-            var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
-            if (revurdering != null) {
-                LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
-            } else {
-                LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
-            }
-        } else {
-            var behandlingId = sisteBehandling.get().getId();
-            var lås = behandlingRepository.taSkriveLås(behandlingId);
-            behandlingRepository.hentBehandling(behandlingId);
-            oppdatereBehMedÅrsak(behandlingId, lås);
+        if (harÅpenOrdinærBehandling) {
+            // Litt styr for å unngå EntityNotFoundException: attempted to lock a deleted instance. Prøv flush / hent hvis fortsatt problem
+            behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+                .filter(b -> !b.harBehandlingÅrsak(årsakType))
+                .map(Behandling::getId)
+                .ifPresent(bid -> {
+                    var lås = behandlingRepository.taSkriveLås(bid);
+                    var behandling = behandlingRepository.hentBehandling(bid);
+                    opprettVurderKonsekvens(behandling, beskrivelse);
+                    oppdatereBehMedÅrsak(bid, lås);
+                });
+            return;
         }
+        behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
+            .filter(b -> !b.harBehandlingÅrsak(årsakType))
+            .ifPresent(b -> {
+                var enhet = opprettVurderKonsekvens(b, beskrivelse);
+
+                fagsakLåsRepository.taLås(fagsak.getId());
+                var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
+                var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
+                if (revurdering != null) {
+                    LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
+                } else {
+                    LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
+                }
+            });
+    }
+
+    private OrganisasjonsEnhet opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
+        var enhet = utledEnhetFraBehandling(behandling);
+        opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.getEnhetId(), beskrivelse, Optional.empty());
+        return enhet;
     }
 
 

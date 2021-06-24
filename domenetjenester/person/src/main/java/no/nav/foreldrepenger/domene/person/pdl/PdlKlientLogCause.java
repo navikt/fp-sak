@@ -47,7 +47,7 @@ public class PdlKlientLogCause {
             if (e.getStatus() == SC_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentGT person ikke funnet");
             } else {
-                LOG.warn("PDL FPSAK hentGT feil fra PDL ", e);
+                LOG.warn("PDL FPSAK hentGT feil fra PDL pga {}", e.toString(), e);
             }
             throw e;
         } catch (ProcessingException e) {
@@ -62,7 +62,7 @@ public class PdlKlientLogCause {
             if (e.getStatus() == SC_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
             } else {
-                LOG.warn("PDL FPSAK hentPerson feil fra PDL ", e);
+                LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
             }
             throw e;
         } catch (ProcessingException e) {
@@ -77,7 +77,7 @@ public class PdlKlientLogCause {
             if (e.getStatus() == SC_NOT_FOUND) {
                 LOG.info("PDL FPSAK hentPerson ikke funnet");
             } else if (e.getStatus() != SC_NOT_FOUND) {
-                LOG.warn("PDL FPSAK hentPerson feil fra PDL ", e);
+                LOG.warn("PDL FPSAK hentPerson feil fra PDL pga {}", e.toString(), e);
             }
             throw e;
         } catch (ProcessingException e) {
