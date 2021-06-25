@@ -15,9 +15,9 @@ public class BehandlingGrunnlagBygger {
         var ref = input.getBehandlingReferanse();
         ForeldrepengerGrunnlag fpGrunnlag = input.getYtelsespesifiktGrunnlag();
         return new Behandling.Builder()
-            .medErBerørtBehandling(fpGrunnlag.isBerørtBehandling())
-            .medSøkerErMor(søkerErMor(ref))
-            .medKreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
+            .berørtBehandling(fpGrunnlag.isBerørtBehandling())
+            .søkerErMor(søkerErMor(ref))
+            .kreverSammenhengendeUttak(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak());
     }
 
     private static boolean søkerErMor(BehandlingReferanse ref) {

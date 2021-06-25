@@ -10,6 +10,6 @@ public class MedlemskapGrunnlagBygger {
 
     public Medlemskap.Builder byggGrunnlag(UttakInput input) {
         return new Medlemskap.Builder()
-                .medOpphørsdato(input.getMedlemskapOpphørsdato().orElse(null));
+                .opphørsdato(input.getMedlemskapOpphørsdato().orElse(null));
     }
 }

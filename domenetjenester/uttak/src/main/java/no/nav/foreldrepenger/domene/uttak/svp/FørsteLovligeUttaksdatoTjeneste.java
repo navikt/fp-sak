@@ -35,8 +35,8 @@ public class FørsteLovligeUttaksdatoTjeneste {
         var søknadMottattDato = input.getSøknadMottattDato();
         //Sjekk søknadsfristregel
         var søknadsfristGrunnlag = new SøknadsfristGrunnlag.Builder()
-            .medFørsteUttaksdato(uttaksgrenser.getFomDato())
-            .medSøknadMottattDato(søknadMottattDato)
+            .førsteUttaksdato(uttaksgrenser.getFomDato())
+            .søknadMottattDato(søknadMottattDato)
             .build();
         var resultat = new SøknadsfristRegelOrkestrering().vurderSøknadsfrist(søknadsfristGrunnlag);
 

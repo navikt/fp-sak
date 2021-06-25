@@ -33,17 +33,17 @@ public class DatoerGrunnlagBygger {
         var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var ref = input.getBehandlingReferanse();
         return new Datoer.Builder()
-            .medFødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
-            .medTermin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
-            .medOmsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
-            .medDødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref));
+            .fødsel(gjeldendeFamilieHendelse.getFødselsdato().orElse(null))
+            .termin(gjeldendeFamilieHendelse.getTermindato().orElse(null))
+            .omsorgsovertakelse(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElse(null))
+            .dødsdatoer(byggDødsdatoer(ytelsespesifiktGrunnlag, ref));
     }
 
     private Dødsdatoer.Builder byggDødsdatoer(ForeldrepengerGrunnlag foreldrepengerGrunnlag, BehandlingReferanse ref) {
         return new Dødsdatoer.Builder()
-            .medSøkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
-            .medBarnsDødsdato(barnsDødsdato(foreldrepengerGrunnlag).orElse(null))
-            .medErAlleBarnDøde(erAlleBarnDøde(foreldrepengerGrunnlag));
+            .søkersDødsdato(personopplysninger.søkersDødsdato(ref).orElse(null))
+            .barnsDødsdato(barnsDødsdato(foreldrepengerGrunnlag).orElse(null))
+            .alleBarnDøde(erAlleBarnDøde(foreldrepengerGrunnlag));
     }
 
     private Optional<LocalDate> barnsDødsdato(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

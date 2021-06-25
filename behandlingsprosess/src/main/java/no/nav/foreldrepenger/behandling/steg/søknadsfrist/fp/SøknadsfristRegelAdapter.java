@@ -28,8 +28,8 @@ final class SøknadsfristRegelAdapter {
             .map(o -> o.getFom());
 
         return SøknadsfristGrunnlag.builder()
-            .medSøknadMottattDato(søknad.getMottattDato())
-            .medFørsteUttaksdato(førsteUttaksdato.orElse(null))
+            .søknadMottattDato(søknad.getMottattDato())
+            .førsteUttaksdato(førsteUttaksdato.orElse(null))
             .build();
     }
 }

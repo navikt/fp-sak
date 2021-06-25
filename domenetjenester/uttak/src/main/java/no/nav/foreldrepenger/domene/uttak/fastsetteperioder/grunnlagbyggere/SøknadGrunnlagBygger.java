@@ -38,6 +38,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedHV
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedInnleggelse;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedSykdomEllerSkade;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedTiltakIRegiAvNav;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Søknadstype;
@@ -61,10 +62,10 @@ public class SøknadGrunnlagBygger {
         var ref = input.getBehandlingReferanse();
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
         return new Søknad.Builder()
-            .medType(type(input.getYtelsespesifiktGrunnlag()))
-            .medDokumentasjon(dokumentasjon(ytelseFordelingAggregat))
-            .medOppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat))
-            .medMottattTidspunkt(input.getSøknadOpprettetTidspunkt());
+            .type(type(input.getYtelsespesifiktGrunnlag()))
+            .dokumentasjon(dokumentasjon(ytelseFordelingAggregat))
+            .oppgittePerioder(oppgittePerioder(input, ytelseFordelingAggregat))
+            .mottattTidspunkt(input.getSøknadOpprettetTidspunkt());
     }
 
     private List<OppgittPeriode> oppgittePerioder(UttakInput input, YtelseFordelingAggregat ytelseFordelingAggregat) {
@@ -227,7 +228,7 @@ public class SøknadGrunnlagBygger {
             .map(AktivitetskravPerioderEntitet::getPerioder).orElse(List.of()).stream()
             .map(p -> new PeriodeMedAvklartMorsAktivitet(p.getTidsperiode().getFomDato(), p.getTidsperiode().getTomDato(),
                 map(p.getAvklaring())))
-            .forEach(builder::leggTilPeriodeMedAvklartMorsAktivitet);
+            .forEach(builder::periodeMedAvklartMorsAktivitet);
 
         return builder;
     }
@@ -235,7 +236,7 @@ public class SøknadGrunnlagBygger {
     private void leggTilDokumentasjon(YtelseFordelingAggregat ytelseFordelingAggregat, Dokumentasjon.Builder builder) {
         var perioderUtenOmsorg = ytelseFordelingAggregat.getPerioderUtenOmsorg().orElseThrow().getPerioder();
         for (var periodeUtenOmsorg : perioderUtenOmsorg) {
-            builder.leggPeriodeUtenOmsorg(new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
+            builder.periodeUtenOmsorg(new PeriodeUtenOmsorg(periodeUtenOmsorg.getPeriode().getFomDato(),
                 periodeUtenOmsorg.getPeriode().getTomDato()));
         }
     }
@@ -252,17 +253,17 @@ public class SøknadGrunnlagBygger {
         var tom = tidsperiode.getTomDato();
         var dokumentasjonType = dokumentasjonPeriode.getDokumentasjonType();
         if (UttakDokumentasjonType.SYK_SØKER.equals(dokumentasjonType)) {
-            builder.leggPeriodeMedSykdomEllerSkade(new PeriodeMedSykdomEllerSkade(fom, tom));
+            builder.periodeMedSykdomEllerSkade(new PeriodeMedSykdomEllerSkade(fom, tom));
         } else if (UttakDokumentasjonType.INNLAGT_BARN.equals(dokumentasjonType)) {
-            builder.leggPeriodeMedBarnInnlagt(new PeriodeMedBarnInnlagt(fom, tom));
+            builder.periodeMedBarnInnlagt(new PeriodeMedBarnInnlagt(fom, tom));
         } else if (UttakDokumentasjonType.INNLAGT_SØKER.equals(dokumentasjonType)) {
-            builder.leggPeriodeMedInnleggelse(new PeriodeMedInnleggelse(fom, tom));
+            builder.periodeMedInnleggelse(new PeriodeMedInnleggelse(fom, tom));
         } else if (UttakDokumentasjonType.HV_OVELSE.equals(dokumentasjonType)) {
-            builder.leggTilPeriodeMedHV(new PeriodeMedHV(fom, tom));
+            builder.periodeMedHV(new PeriodeMedHV(fom, tom));
         } else if (UttakDokumentasjonType.NAV_TILTAK.equals(dokumentasjonType)) {
-            builder.leggTilPeriodeMedTiltakViaNav(new PeriodeMedTiltakIRegiAvNav(fom, tom));
+            builder.periodeMedTiltakViaNav(new PeriodeMedTiltakIRegiAvNav(fom, tom));
         } else {
-            builder.leggGyldigGrunnPeriode(new GyldigGrunnPeriode(fom, tom));
+            builder.gyldigGrunnPeriode(new GyldigGrunnPeriode(fom, tom));
         }
     }
 }

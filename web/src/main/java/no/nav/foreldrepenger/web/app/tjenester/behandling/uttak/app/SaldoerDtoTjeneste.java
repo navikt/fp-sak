@@ -142,13 +142,13 @@ public class SaldoerDtoTjeneste {
 
     private FastsattUttakPeriode map(UttakResultatPeriodeLagreDto dto) {
         return new FastsattUttakPeriode.Builder()
-            .medSamtidigUttak(dto.isSamtidigUttak())
-            .medOppholdÅrsak(UttakEnumMapper.map(dto.getOppholdÅrsak()))
-            .medFlerbarnsdager(dto.isFlerbarnsdager())
-            .medAktiviteter(map(dto.getAktiviteter()))
-            .medPeriodeResultatType(UttakEnumMapper.map(dto.getPeriodeResultatType()))
-            .medTidsperiode(dto.getFom(), dto.getTom())
-            .medMottattDato(dto.getMottattDato())
+            .samtidigUttak(dto.isSamtidigUttak())
+            .oppholdÅrsak(UttakEnumMapper.map(dto.getOppholdÅrsak()))
+            .flerbarnsdager(dto.isFlerbarnsdager())
+            .aktiviteter(map(dto.getAktiviteter()))
+            .periodeResultatType(UttakEnumMapper.map(dto.getPeriodeResultatType()))
+            .tidsperiode(dto.getFom(), dto.getTom())
+            .mottattDato(dto.getMottattDato())
             .build();
     }
 

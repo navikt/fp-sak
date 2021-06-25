@@ -33,10 +33,10 @@ public class InngangsvilkårGrunnlagBygger {
         var vilkårResultat = finnVilkårResultat(ref);
 
         return new Inngangsvilkår.Builder()
-                .medOpptjeningOppfylt(opptjeningsvilkåretOppfylt(vilkårResultat))
-                .medForeldreansvarnOppfylt(foreldreansvarsvilkåretOppfylt(vilkårResultat))
-                .medAdopsjonOppfylt(adopsjonsvilkåretOppfylt(vilkårResultat))
-                .medFødselOppfylt(fødselsvilkårOppfylt(vilkårResultat, ref));
+                .opptjeningOppfylt(opptjeningsvilkåretOppfylt(vilkårResultat))
+                .foreldreansvarnOppfylt(foreldreansvarsvilkåretOppfylt(vilkårResultat))
+                .adopsjonOppfylt(adopsjonsvilkåretOppfylt(vilkårResultat))
+                .fødselOppfylt(fødselsvilkårOppfylt(vilkårResultat, ref));
     }
 
     private VilkårResultat finnVilkårResultat(BehandlingReferanse behandlingReferanse) {

@@ -46,8 +46,8 @@ public class AnnenPartGrunnlagBygger {
             return Optional.empty();
         }
         return Optional.of(new AnnenPart.Builder()
-            .medSisteSøknadMottattTidspunkt(fpGrunnlag.getAnnenpart().get().søknadOpprettetTidspunkt())
-            .medUttaksperioder(uttaksperioder(annenpartUttak.get())));
+            .sisteSøknadMottattTidspunkt(fpGrunnlag.getAnnenpart().get().søknadOpprettetTidspunkt())
+            .uttaksperioder(uttaksperioder(annenpartUttak.get())));
     }
 
     private List<AnnenpartUttakPeriode> uttaksperioder(UttakResultatEntitet annenpartUttak) {
@@ -60,10 +60,10 @@ public class AnnenPartGrunnlagBygger {
 
     public static AnnenpartUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         var builder = utledBuilder(periode)
-            .medSamtidigUttak(periode.isSamtidigUttak())
-            .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medInnvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
-            .medSenestMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null));
+            .samtidigUttak(periode.isSamtidigUttak())
+            .flerbarnsdager(periode.isFlerbarnsdager())
+            .innvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
+            .senestMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null));
 
         for (var aktivitet : periode.getAktiviteter()) {
             var utbetalingsgrad = new Utbetalingsgrad(aktivitet.getUtbetalingsgrad().decimalValue());
@@ -71,7 +71,7 @@ public class AnnenPartGrunnlagBygger {
             var trekkonto = UttakEnumMapper.map(aktivitet.getTrekkonto());
             var mapped = new AnnenpartUttakPeriodeAktivitet(UttakEnumMapper.map(aktivitet.getUttakAktivitet()),
                 trekkonto, trekkdager, utbetalingsgrad);
-            builder.medUttakPeriodeAktivitet(mapped);
+            builder.uttakPeriodeAktivitet(mapped);
         }
         return builder.build();
     }
