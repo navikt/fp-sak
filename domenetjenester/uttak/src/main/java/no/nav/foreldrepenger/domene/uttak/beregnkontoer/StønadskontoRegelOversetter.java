@@ -26,8 +26,8 @@ public class StønadskontoRegelOversetter {
             annenpartsGjeldendeUttaksplan);
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
-            .medAntallBarn(familieHendelse.getAntallBarn())
-            .medDekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
+            .antallBarn(familieHendelse.getAntallBarn())
+            .dekningsgrad(map(fagsakRelasjon.getGjeldendeDekningsgrad().getVerdi()));
 
         leggTilFamileHendelseDatoer(grunnlagBuilder, familieHendelse,
             fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel());
@@ -47,10 +47,10 @@ public class StønadskontoRegelOversetter {
                                              FamilieHendelse gjeldendeFamilieHendelse,
                                              boolean erFødsel) {
         if (erFødsel) {
-            grunnlagBuilder.medFødselsdato(gjeldendeFamilieHendelse.getFødselsdato().orElse(null));
-            grunnlagBuilder.medTermindato(gjeldendeFamilieHendelse.getTermindato().orElse(null));
+            grunnlagBuilder.fødselsdato(gjeldendeFamilieHendelse.getFødselsdato().orElse(null));
+            grunnlagBuilder.termindato(gjeldendeFamilieHendelse.getTermindato().orElse(null));
         } else {
-            grunnlagBuilder.medOmsorgsovertakelseDato(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElseThrow());
+            grunnlagBuilder.omsorgsovertakelseDato(gjeldendeFamilieHendelse.getOmsorgsovertakelse().orElseThrow());
         }
     }
 }

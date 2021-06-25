@@ -80,10 +80,11 @@ public class StønadskontoSaldoTjeneste {
 
     private Kontoer lagKontoer(Set<Stønadskonto> stønadskontoer) {
         var kontoList = stønadskontoer.stream()
-            .map(stønadskonto -> new Konto.Builder().medType(UttakEnumMapper.map(stønadskonto.getStønadskontoType()))
-                .medTrekkdager(stønadskonto.getMaxDager()))
+            .map(stønadskonto -> new Konto.Builder()
+                .type(UttakEnumMapper.map(stønadskonto.getStønadskontoType()))
+                .trekkdager(stønadskonto.getMaxDager()))
             .collect(Collectors.toList());
-        return new Kontoer.Builder().medKontoList(kontoList).build();
+        return new Kontoer.Builder().kontoList(kontoList).build();
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
@@ -143,13 +144,13 @@ public class StønadskontoSaldoTjeneste {
 
     private static FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         return new FastsattUttakPeriode.Builder()
-            .medTidsperiode(periode.getFom(), periode.getTom())
-            .medAktiviteter(mapTilRegelPeriodeAktiviteter(periode.getAktiviteter()))
-            .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
-            .medSamtidigUttak(periode.isSamtidigUttak())
-            .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
-            .medMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
+            .tidsperiode(periode.getFom(), periode.getTom())
+            .aktiviteter(mapTilRegelPeriodeAktiviteter(periode.getAktiviteter()))
+            .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
+            .samtidigUttak(periode.isSamtidigUttak())
+            .flerbarnsdager(periode.isFlerbarnsdager())
+            .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();
     }
 

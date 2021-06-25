@@ -41,10 +41,10 @@ public class RettOgOmsorgGrunnlagBygger {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregat(ref.getBehandlingId());
         var annenpartsUttaksplan = hentAnnenpartsUttak(uttakInput);
         return new RettOgOmsorg.Builder()
-                .medAleneomsorg(aleneomsorg(ytelseFordelingAggregat))
-                .medFarHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .medMorHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
-                .medSamtykke(samtykke(ytelseFordelingAggregat));
+                .aleneomsorg(aleneomsorg(ytelseFordelingAggregat))
+                .farHarRett(farHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+                .morHarRett(morHarRett(ref, ytelseFordelingAggregat, annenpartsUttaksplan))
+                .samtykke(samtykke(ytelseFordelingAggregat));
     }
 
     private Optional<ForeldrepengerUttak> hentAnnenpartsUttak(UttakInput uttakInput) {

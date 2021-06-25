@@ -47,7 +47,7 @@ public class ArbeidGrunnlagBygger {
         var arbeid = new Arbeid.Builder();
         var arbeidsforhold = lagArbeidsforhold(input);
         for (var a : arbeidsforhold) {
-            arbeid.leggTilArbeidsforhold(a);
+            arbeid.arbeidsforhold(a);
         }
         return arbeid;
     }

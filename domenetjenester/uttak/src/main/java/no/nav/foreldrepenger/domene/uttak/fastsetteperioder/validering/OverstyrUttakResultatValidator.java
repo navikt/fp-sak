@@ -61,13 +61,14 @@ public class OverstyrUttakResultatValidator {
     }
 
     private FastsattUttakPeriode map(ForeldrepengerUttakPeriode periode) {
-        return new FastsattUttakPeriode.Builder().medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
-            .medSamtidigUttak(periode.isSamtidigUttak())
-            .medTidsperiode(periode.getTidsperiode().getFomDato(), periode.getTidsperiode().getTomDato())
-            .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
-            .medAktiviteter(mapAktiviteter(periode.getAktiviteter()))
-            .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medMottattDato(periode.getMottattDato())
+        return new FastsattUttakPeriode.Builder()
+            .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
+            .samtidigUttak(periode.isSamtidigUttak())
+            .tidsperiode(periode.getTidsperiode().getFomDato(), periode.getTidsperiode().getTomDato())
+            .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .aktiviteter(mapAktiviteter(periode.getAktiviteter()))
+            .flerbarnsdager(periode.isFlerbarnsdager())
+            .mottattDato(periode.getMottattDato())
             .build();
     }
 

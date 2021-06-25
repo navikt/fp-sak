@@ -31,13 +31,13 @@ public class KontoerGrunnlagBygger {
     public Kontoer.Builder byggGrunnlag(BehandlingReferanse ref) {
         var stønadskontoer = hentStønadskontoer(ref);
         return new Kontoer.Builder()
-            .medKontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
+            .kontoList(stønadskontoer.stream().map(this::map).collect(Collectors.toList()));
     }
 
     private Konto.Builder map(Stønadskonto stønadskonto) {
         return new Konto.Builder()
-            .medTrekkdager(stønadskonto.getMaxDager())
-            .medType(UttakEnumMapper.map(stønadskonto.getStønadskontoType()));
+            .trekkdager(stønadskonto.getMaxDager())
+            .type(UttakEnumMapper.map(stønadskonto.getStønadskontoType()));
     }
 
     private Set<Stønadskonto> hentStønadskontoer(BehandlingReferanse ref) {

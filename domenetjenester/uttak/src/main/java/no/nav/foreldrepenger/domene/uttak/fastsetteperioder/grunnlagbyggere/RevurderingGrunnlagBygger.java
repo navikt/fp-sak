@@ -45,8 +45,8 @@ public class RevurderingGrunnlagBygger {
         }
         var endringsdato = endringsdato(input);
         return Optional.of(new Revurdering.Builder()
-            .medEndringsdato(endringsdato)
-            .medGjeldendeVedtak(vedtak(input, endringsdato)));
+            .endringsdato(endringsdato)
+            .gjeldendeVedtak(vedtak(input, endringsdato)));
     }
 
     private Vedtak.Builder vedtak(UttakInput input, LocalDate endringsdato) {
@@ -71,13 +71,13 @@ public class RevurderingGrunnlagBygger {
 
     private FastsattUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         return new FastsattUttakPeriode.Builder()
-            .medAktiviteter(map(periode.getAktiviteter()))
-            .medFlerbarnsdager(periode.isFlerbarnsdager())
-            .medSamtidigUttak(periode.isSamtidigUttak())
-            .medTidsperiode(periode.getFom(), periode.getTom())
-            .medOppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
-            .medPeriodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
-            .medMottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
+            .aktiviteter(map(periode.getAktiviteter()))
+            .flerbarnsdager(periode.isFlerbarnsdager())
+            .samtidigUttak(periode.isSamtidigUttak())
+            .tidsperiode(periode.getFom(), periode.getTom())
+            .oppholdÅrsak(UttakEnumMapper.map(periode.getOppholdÅrsak()))
+            .periodeResultatType(UttakEnumMapper.map(periode.getResultatType()))
+            .mottattDato(periode.getPeriodeSøknad().map(ps -> ps.getMottattDato()).orElse(null))
             .build();
     }
 

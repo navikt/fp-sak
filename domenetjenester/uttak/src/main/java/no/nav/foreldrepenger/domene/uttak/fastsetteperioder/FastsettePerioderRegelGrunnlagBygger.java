@@ -69,18 +69,18 @@ public class FastsettePerioderRegelGrunnlagBygger {
     public RegelGrunnlag byggGrunnlag(UttakInput input) {
         ForeldrepengerGrunnlag foreldrepengerGrunnlag = input.getYtelsespesifiktGrunnlag();
         return new RegelGrunnlag.Builder()
-            .medArbeid(arbeidGrunnlagBygger.byggGrunnlag(input))
-            .medRettOgOmsorg(rettOgOmsorgGrunnlagBygger.byggGrunnlag(input))
-            .medBehandling(behandlingGrunnlagBygger.byggGrunnlag(input))
-            .medMedlemskap(medlemskapGrunnlagBygger.byggGrunnlag(input))
-            .medSøknad(søknadGrunnlagBygger.byggGrunnlag(input))
-            .medRevurdering(revurderingGrunnlagBygger.byggGrunnlag(input).orElse(null))
-            .medAnnenPart(annenPartGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
-            .medDatoer(datoerGrunnlagBygger.byggGrunnlag(input))
-            .medInngangsvilkår(inngangsvilkårGrunnlagBygger.byggGrunnlag(input))
-            .medOpptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
-            .medAdopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
-            .medKontoer(kontoerGrunnlagBygger.byggGrunnlag(input.getBehandlingReferanse()))
+            .arbeid(arbeidGrunnlagBygger.byggGrunnlag(input))
+            .rettOgOmsorg(rettOgOmsorgGrunnlagBygger.byggGrunnlag(input))
+            .behandling(behandlingGrunnlagBygger.byggGrunnlag(input))
+            .medlemskap(medlemskapGrunnlagBygger.byggGrunnlag(input))
+            .søknad(søknadGrunnlagBygger.byggGrunnlag(input))
+            .revurdering(revurderingGrunnlagBygger.byggGrunnlag(input).orElse(null))
+            .annenPart(annenPartGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
+            .datoer(datoerGrunnlagBygger.byggGrunnlag(input))
+            .inngangsvilkår(inngangsvilkårGrunnlagBygger.byggGrunnlag(input))
+            .opptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
+            .adopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
+            .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input.getBehandlingReferanse()))
             .build();
     }
 }
