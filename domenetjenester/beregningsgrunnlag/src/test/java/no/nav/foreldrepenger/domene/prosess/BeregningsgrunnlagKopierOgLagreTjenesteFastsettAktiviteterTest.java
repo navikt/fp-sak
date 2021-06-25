@@ -381,7 +381,7 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteFastsettAktiviteterTest {
         return YrkesaktivitetBuilder.oppdatere(empty())
             .medArbeidsgiver(virksomhet)
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet.fraOgMedTilOgMed(
+                .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(
                     SKJÆRINGSTIDSPUNKT.minusYears(1), SKJÆRINGSTIDSPUNKT.plusMonths(10))))
             .leggTilAktivitetsAvtale(AktivitetsAvtaleBuilder.ny()
                 .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(1),

@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.KjedeNøkkel;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
+import no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Ytelse;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.YtelsePeriode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.samlinger.GruppertYtelse;
@@ -321,7 +322,7 @@ public abstract class NyOppdragskontrollTjenesteTestBase {
     }
 
     protected YtelsePeriode lagPeriode(LocalDate referanseDato, int plusDagerFom, int plusDagerTom, Satsen sats, int utbetalingsgrad) {
-        return new YtelsePeriode(Periode.of(referanseDato.plusDays(plusDagerFom), referanseDato.plusDays(plusDagerTom)), sats, no.nav.foreldrepenger.økonomistøtte.ny.domene.Utbetalingsgrad.prosent(utbetalingsgrad));
+        return new YtelsePeriode(Periode.of(referanseDato.plusDays(plusDagerFom), referanseDato.plusDays(plusDagerTom)), sats, Utbetalingsgrad.prosent(utbetalingsgrad));
     }
 
     protected YtelsePeriode lagFeriepengerPeriode(LocalDate opptjeningsår,  Satsen sats) {

@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Omsorgs
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
@@ -123,7 +124,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     }
 
 
-    private no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet getSøkerPersonopplysning(Long behandlingId) {
+    private PersonInformasjonEntitet getSøkerPersonopplysning(Long behandlingId) {
         var grunnlag = getPersonopplysninger(behandlingId);
         return grunnlag.getGjeldendeVersjon();
     }

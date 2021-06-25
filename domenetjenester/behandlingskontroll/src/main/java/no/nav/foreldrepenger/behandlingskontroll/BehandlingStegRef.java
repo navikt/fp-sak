@@ -46,7 +46,7 @@ public @interface BehandlingStegRef {
      * Må matche ett innslag i <code>BEHANDLING_STEG_TYPE</code> tabell for å kunne
      * kjøres.
      *
-     * @see no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType
+     * @see BehandlingStegType
      */
     String kode();
 
@@ -55,7 +55,7 @@ public @interface BehandlingStegRef {
      * <p>
      * Eks. for bruk i:<br>
      * {@link CDI#current#select(javax.enterprise.util.TypeLiteral,
-     * java.lang.annotation.Annotation...)}.
+     * Annotation...)}.
      */
     public static class BehandlingStegRefLiteral extends AnnotationLiteral<BehandlingStegRef> implements BehandlingStegRef {
 

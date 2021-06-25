@@ -158,12 +158,12 @@ public class StønadskontoSaldoTjeneste {
         return aktiviteter.stream().map(StønadskontoSaldoTjeneste::map).collect(Collectors.toList());
     }
 
-    private static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet map(
+    private static FastsattUttakPeriodeAktivitet map(
         UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var trekkdager = UttakEnumMapper.map(aktivitet.getTrekkdager());
         var stønadskontotype = UttakEnumMapper.map(aktivitet.getTrekkonto());
         var aktivitetIdentifikator = UttakEnumMapper.map(aktivitet.getUttakAktivitet());
-        return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.FastsattUttakPeriodeAktivitet(
+        return new FastsattUttakPeriodeAktivitet(
             trekkdager, stønadskontotype, aktivitetIdentifikator);
     }
 }

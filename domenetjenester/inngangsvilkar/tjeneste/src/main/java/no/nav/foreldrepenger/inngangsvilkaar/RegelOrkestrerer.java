@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,7 @@ public class RegelOrkestrerer {
             .collect(toMap(v -> v.getVilkårType(), v -> v.getGjeldendeVilkårUtfall()));
 
         var matchendeVilkår = vilkårTyper.get(vdRegelmotor.getVilkårType());
-        java.util.Objects.requireNonNull(matchendeVilkår, "skal finnes match"); //$NON-NLS-1$
+        Objects.requireNonNull(matchendeVilkår, "skal finnes match"); //$NON-NLS-1$
         // Utfall fra automatisk regelvurdering skal legges til settet av utfall, dersom vilkår ikke er manuelt vurdert
         if (!(matchendeVilkår.erManueltVurdert() || matchendeVilkår.erOverstyrt())) {
             vilkårUtfall.put(vdRegelmotor.getVilkårType(), vdRegelmotor.getUtfallType());

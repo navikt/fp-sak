@@ -56,14 +56,14 @@ public class BeregningUttakTjenesteTest {
                 .build();
         var arbeidsgiver1 = Arbeidsgiver.virksomhet("123");
         var gradering1 = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
                 .medArbeidsprosent(BigDecimal.TEN)
                 .medErArbeidstaker(true)
                 .medPeriode(LocalDate.of(2019, 6, 1), LocalDate.of(2019, 6, 20))
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .build();
         var gradering2 = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
                 .medArbeidsprosent(BigDecimal.valueOf(20))
                 .medErArbeidstaker(true)
                 .medPeriode(LocalDate.of(2019, 6, 21), LocalDate.of(2019, 6, 25))
@@ -71,7 +71,7 @@ public class BeregningUttakTjenesteTest {
                 .build();
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("456");
         var gradering3 = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("456"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("456"))
                 .medArbeidsprosent(BigDecimal.TEN)
                 .medErArbeidstaker(true)
                 .medPeriode(LocalDate.of(2019, 6, 26), LocalDate.of(2019, 6, 27))
@@ -174,7 +174,7 @@ public class BeregningUttakTjenesteTest {
                 .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
                 .build();
         var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
                 .medArbeidsprosent(BigDecimal.TEN)
                 .medErArbeidstaker(true)
                 .medPeriode(LocalDate.of(2019, 5, 21), LocalDate.of(2019, 6, 25))
@@ -269,7 +269,7 @@ public class BeregningUttakTjenesteTest {
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
                 .medArbeidsprosent(BigDecimal.TEN)
                 .medErFrilanser(true)
                 .medPeriode(LocalDate.of(2019, 5, 21), LocalDate.of(2019, 6, 25))
@@ -314,7 +314,7 @@ public class BeregningUttakTjenesteTest {
         scenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
-                .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
                 .medArbeidsprosent(BigDecimal.TEN)
                 .medErSelvstendig(true)
                 .medPeriode(LocalDate.of(2019, 5, 21), LocalDate.of(2019, 6, 25))
@@ -351,7 +351,7 @@ public class BeregningUttakTjenesteTest {
     public void skal_finne_siste_uttaksdag_når_ytelsefordeling_finnes() {
         scenario.medBehandlingType(BehandlingType.REVURDERING);
         var oppgittPeriodeMedGradering = OppgittPeriodeBuilder.ny()
-            .medArbeidsgiver(no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver.virksomhet("123"))
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
             .medArbeidsprosent(BigDecimal.TEN)
             .medErSelvstendig(true)
             .medPeriode(LocalDate.of(2019, 5, 21), LocalDate.of(2019, 6, 25))

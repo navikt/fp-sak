@@ -16,7 +16,7 @@ import no.nav.vedtak.konfig.Tid;
 public class Personas {
     private Builder builder;
     private AktørId aktørId;
-    private no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning.Builder persInfoBuilder;
+    private Personopplysning.Builder persInfoBuilder;
     private LocalDate fødselsdato;
     private LocalDate dødsdato;
 

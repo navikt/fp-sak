@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
@@ -109,7 +110,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
                 .flatMap(y -> y.getAlleAktivitetsAvtaler().stream()).filter(AktivitetsAvtale::erAnsettelsesPeriode))
             .filter(periodeLiggerMellomDatoer(skjæringstidspunkt, startdatoArbeid))
             .map(AktivitetsAvtale::getPeriode)
-            .map(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet::getTomDato)
+            .map(DatoIntervallEntitet::getTomDato)
             .max(Comparator.naturalOrder())
             .orElse(skjæringstidspunkt);
     }
@@ -152,7 +153,7 @@ class TilbaketrekkVedTilkommetArbeidsforholdTjeneste {
             .filter(a -> a.getPeriode().getFomDato().isAfter(skjæringstidspunkt))
             .filter(harIkkeAktivAnsettelsesPeriodeDagenFørStart(revurderingAndel, yrkesaktiviteter))
             .map(AktivitetsAvtale::getPeriode)
-            .map(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet::getFomDato)
+            .map(DatoIntervallEntitet::getFomDato)
             .min(Comparator.naturalOrder());
     }
 

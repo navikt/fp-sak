@@ -20,6 +20,7 @@ import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.NaturalytelseDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.RefusjonDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.UtsettelsePeriodeDto;
+import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
@@ -183,11 +184,11 @@ public class MapInntektsmeldinger {
             }
             if ((internRef != null) && (eksternRef != null) && (internRef.getReferanse() != null) && (eksternRef.getReferanse() != null)) {
                 return new ArbeidsforholdRefDto(internRef.getReferanse(), eksternRef.getReferanse(),
-                        no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem.AAREGISTERET);
+                        Fagsystem.AAREGISTERET);
             }
             if (!validerArbeidsforholdId && (eksternRef != null) && (eksternRef.getReferanse() != null)) {
                 return new ArbeidsforholdRefDto(null, eksternRef.getReferanse(),
-                        no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem.AAREGISTERET);
+                        Fagsystem.AAREGISTERET);
             }
             if ((internRef != null) && (internRef.getReferanse() != null) && (eksternRef == null)) {
                 return null;

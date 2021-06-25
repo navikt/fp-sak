@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 public class Personas {
     private Builder builder;
     private AktørId aktørId;
-    private no.nav.foreldrepenger.domene.arbeidsforhold.testutilities.personopplysning.Personopplysning.Builder persInfoBuilder;
+    private Personopplysning.Builder persInfoBuilder;
     private LocalDate fødselsdato;
 
     public Personas(Builder builder) {

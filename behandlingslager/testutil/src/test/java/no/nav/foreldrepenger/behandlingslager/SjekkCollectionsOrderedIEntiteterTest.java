@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.metamodel.Type;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -51,7 +52,7 @@ public class SjekkCollectionsOrderedIEntiteterTest {
 
     public static Set<Class<?>> getEntityClasses(Predicate<Class<?>> filter) {
         var managedTypes = entityManagerFactory.getMetamodel().getManagedTypes();
-        return managedTypes.stream().map(javax.persistence.metamodel.Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
+        return managedTypes.stream().map(Type::getJavaType).filter(c -> !Modifier.isAbstract(c.getModifiers()))
                 .filter(filter).collect(Collectors.toSet());
     }
 

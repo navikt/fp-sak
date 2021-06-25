@@ -47,7 +47,7 @@ public @interface FagsakYtelseTypeRef {
      * Må matche ett innslag i <code>FAGSAK_YTELSE_TYPE</code> tabell for å kunne
      * kjøres.
      *
-     * @see no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType
+     * @see FagsakYtelseType
      */
     String value() default "*";
 

@@ -66,7 +66,7 @@ public class TilbakehoppTest {
         observer = new BehandlingskontrollTransisjonTilbakeføringEventObserver(serviceProvider) {
             @Override
             protected void hoppBakover(BehandlingStegModell s,
-                    no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
+                    BehandlingStegOvergangEvent.BehandlingStegTilbakeføringEvent event,
                     BehandlingStegType førsteSteg, BehandlingStegType sisteSteg) {
                 transisjoner.add(new StegTransisjon(TransisjonType.HOPP_OVER_BAKOVER, s.getBehandlingStegType()));
             }

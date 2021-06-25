@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndringLinje;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
@@ -150,7 +151,7 @@ public class EksisterendeOppdragMapperTest {
             .medDelytelseId(Long.parseLong(delytelseId.toString()))
             .medKodeKlassifik(kodeKlassifik)
             .medVedtakFomOgTom(p.getFom(), p.getTom())
-            .medSats(no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Sats.på(sats.getSats()))
+            .medSats(Sats.på(sats.getSats()))
             .medTypeSats(TypeSats.fraKode(sats.getSatsType().getKode()))
             .medDatoStatusFom(opphørFomDato)
             .medKodeStatusLinje(opphørFomDato != null ? KodeStatusLinje.OPPHØR : null)

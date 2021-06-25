@@ -77,11 +77,13 @@ import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class IAYMapperTilKalkulus {
 
-    public static InternArbeidsforholdRefDto mapArbeidsforholdRef(no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef arbeidsforholdRef) {
+    public static InternArbeidsforholdRefDto mapArbeidsforholdRef(InternArbeidsforholdRef arbeidsforholdRef) {
         return InternArbeidsforholdRefDto.ref(arbeidsforholdRef.getReferanse());
     }
 
@@ -136,7 +138,7 @@ public class IAYMapperTilKalkulus {
             .medPeriode(mapDatoIntervall(oppgittArbeidsforhold.getPeriode()));
     }
 
-    private static Intervall mapDatoIntervall(no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet periode) {
+    private static Intervall mapDatoIntervall(DatoIntervallEntitet periode) {
         return Intervall.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato());
     }
 

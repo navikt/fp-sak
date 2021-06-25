@@ -160,8 +160,8 @@ public class BeregningsgrunnlagRepository {
         query.setParameter("opprettetFom", opprettetFom); //$NON-NLS-1$
         query.setParameter("opprettetTom", opprettetTom); //$NON-NLS-1$
         query.setParameter("aktivt", true); //$NON-NLS-1$
-        query.setParameter("status1", no.nav.foreldrepenger.domene.modell.AktivitetStatus.ARBEIDSAVKLARINGSPENGER); //$NON-NLS-1$
-        query.setParameter("status2", no.nav.foreldrepenger.domene.modell.AktivitetStatus.DAGPENGER); //$NON-NLS-1$
+        query.setParameter("status1", AktivitetStatus.ARBEIDSAVKLARINGSPENGER); //$NON-NLS-1$
+        query.setParameter("status2", AktivitetStatus.DAGPENGER); //$NON-NLS-1$
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         return query.getResultList();
     }

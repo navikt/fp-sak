@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrArbeidsforhold;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.BeregningsgrunnlagPrStatus;
@@ -20,14 +21,14 @@ public class MapBeregningsgrunnlagFraVLTilRegel {
     private MapBeregningsgrunnlagFraVLTilRegel() {
     }
 
-    public static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
+    public static Beregningsgrunnlag map(BeregningsgrunnlagEntitet vlBeregningsgrunnlag) {
         var aktivitetStatuser = vlBeregningsgrunnlag.getAktivitetStatuser().stream()
             .map(vlBGAktivitetStatus -> AktivitetStatusMapper.fraVLTilRegel(vlBGAktivitetStatus.getAktivitetStatus()))
             .collect(Collectors.toList());
 
         var perioder = mapBeregningsgrunnlagPerioder(vlBeregningsgrunnlag);
 
-        return no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Beregningsgrunnlag.builder()
+        return Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(vlBeregningsgrunnlag.getSkjæringstidspunkt())
             .medAktivitetStatuser(aktivitetStatuser)
             .medBeregningsgrunnlagPerioder(perioder)

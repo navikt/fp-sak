@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.ArbeidstakerandelUtenIMMottarYtelseDto;
+import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneAndelDto;
+import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneDto;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.DagpengeAndelLagtTilBesteberegningDto;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.FastsattBrukersAndel;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.OverstyrBeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.VurderMilitærDto;
 import no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.VurderteArbeidsforholdDto;
@@ -255,8 +258,8 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.VurderNyoppstartetFLDto(vurderNyoppstartetFL.erErNyoppstartetFL());
     }
 
-    private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneDto mapBesteberegningFødendeKvinneDto(no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneDto besteberegningAndeler) {
-        return new no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneDto(
+    private static BesteberegningFødendeKvinneDto mapBesteberegningFødendeKvinneDto(no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneDto besteberegningAndeler) {
+        return new BesteberegningFødendeKvinneDto(
             mapBesteberegningAndeler(besteberegningAndeler.getBesteberegningAndelListe()),
             besteberegningAndeler.getNyDagpengeAndel() == null ? null : mapNyDagpengeandel(besteberegningAndeler.getNyDagpengeAndel())
         );
@@ -266,12 +269,12 @@ public class OppdatererDtoMapper {
         return new DagpengeAndelLagtTilBesteberegningDto(nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(), Inntektskategori.fraKode(nyDagpengeAndel.getFastsatteVerdier().getInntektskategori().getKode()));
     }
 
-    private static List<no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneAndelDto> mapBesteberegningAndeler(List<no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
+    private static List<BesteberegningFødendeKvinneAndelDto> mapBesteberegningAndeler(List<no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
         return besteberegningAndelListe.stream().map(OppdatererDtoMapper::mapBesteberegningAndel).collect(Collectors.toList());
     }
 
-    private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneAndelDto mapBesteberegningAndel(no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneAndelDto besteberegningFødendeKvinneAndelDto) {
-        return new no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.BesteberegningFødendeKvinneAndelDto(
+    private static BesteberegningFødendeKvinneAndelDto mapBesteberegningAndel(no.nav.foreldrepenger.domene.rest.dto.BesteberegningFødendeKvinneAndelDto besteberegningFødendeKvinneAndelDto) {
+        return new BesteberegningFødendeKvinneAndelDto(
             besteberegningFødendeKvinneAndelDto.getAndelsnr(),
             besteberegningFødendeKvinneAndelDto.getFastsatteVerdier().getFastsattBeløp(),
             Inntektskategori.fraKode(besteberegningFødendeKvinneAndelDto.getFastsatteVerdier().getInntektskategori().getKode()),
@@ -290,7 +293,8 @@ public class OppdatererDtoMapper {
         return inntektPrAndelList.stream().map(OppdatererDtoMapper::mapInntektPrAndel).collect(Collectors.toList());
     }
 
-    private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.InntektPrAndelDto mapInntektPrAndel(no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto inntektPrAndelDto) {
+    private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.InntektPrAndelDto mapInntektPrAndel(
+        InntektPrAndelDto inntektPrAndelDto) {
         return new no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.InntektPrAndelDto(inntektPrAndelDto.getInntekt(), inntektPrAndelDto.getAndelsnr());
     }
 
@@ -391,8 +395,8 @@ public class OppdatererDtoMapper {
             redigerbarAndel.getBeregningsperiodeTom());
     }
 
-    private static no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
-        return new no.nav.folketrygdloven.kalkulator.aksjonspunkt.dto.RedigerbarAndelFaktaOmBeregningDto(
+    private static RedigerbarAndelFaktaOmBeregningDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
+        return new RedigerbarAndelFaktaOmBeregningDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getNyAndel(),
             redigerbarAndel.getAktivitetStatus() == null ? null : AktivitetStatus.fraKode(redigerbarAndel.getAktivitetStatus().getKode()),

@@ -20,8 +20,8 @@ public class UtledeteVilkår {
      // I tillegg til betinget vilkår vil det følge tilhørende vilkår
      private List<VilkårType> tilhørendeVilkår;
 
-     static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår forAvklartRelasjonsvilkårTilBarn(VilkårType betingetVilkårType, List<VilkårType> tilhørendeVilkårTyper) {
-         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+     static UtledeteVilkår forAvklartRelasjonsvilkårTilBarn(VilkårType betingetVilkårType, List<VilkårType> tilhørendeVilkårTyper) {
+         var utledeteVilkår = new UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = singletonList(betingetVilkårType);
          utledeteVilkår.avklartBetingetVilkårType = betingetVilkårType;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;
@@ -29,9 +29,9 @@ public class UtledeteVilkår {
          return utledeteVilkår;
      }
 
-     static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår forPotensielleRelasjonsvilkårTilBarn(List<VilkårType> potensielleVilkårtyper,
+     static UtledeteVilkår forPotensielleRelasjonsvilkårTilBarn(List<VilkårType> potensielleVilkårtyper,
                                                                                                            List<VilkårType> tilhørendeVilkårTyper) {
-         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+         var utledeteVilkår = new UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = potensielleVilkårtyper;
          utledeteVilkår.avklartBetingetVilkårType = null;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;
@@ -39,8 +39,8 @@ public class UtledeteVilkår {
          return utledeteVilkår;
      }
 
-     static no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår bareTilhærendeVilkår(List<VilkårType> tilhørendeVilkårTyper) {
-         var utledeteVilkår = new no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår();
+     static UtledeteVilkår bareTilhærendeVilkår(List<VilkårType> tilhørendeVilkårTyper) {
+         var utledeteVilkår = new UtledeteVilkår();
          utledeteVilkår.potensielleBetingedeVilkårtyper = List.of();
          utledeteVilkår.avklartBetingetVilkårType = null;
          utledeteVilkår.tilhørendeVilkår = tilhørendeVilkårTyper;

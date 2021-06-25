@@ -207,7 +207,7 @@ public class KalkulatorStegProsesseringInputTjeneste {
         return behandlinger.stream()
             .filter(b -> b.getStatus().erFerdigbehandletStatus())
             .map(kobling -> beregningsgrunnlagRepository.hentSisteBeregningsgrunnlagGrunnlagEntitet(kobling.getId(),
-                no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.FASTSATT))
+                BeregningsgrunnlagTilstand.FASTSATT))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .filter(gr -> MonthDay.from(gr.getBeregningsgrunnlag()

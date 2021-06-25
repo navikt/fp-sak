@@ -14,11 +14,14 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
+import no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants;
+import no.nav.foreldrepenger.vedtak.v2.VedtakConstants;
+
 public class HtmlTransformerProvider {
 
     private static Map<String, String> namespaces = Collections.unmodifiableMap(Stream.of( // NOSONAR
-            new AbstractMap.SimpleEntry<>(no.nav.foreldrepenger.vedtak.v1.ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
-            new AbstractMap.SimpleEntry<>(no.nav.foreldrepenger.vedtak.v2.VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
+            new AbstractMap.SimpleEntry<>(ForeldrepengerVedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v1.xsl"),
+            new AbstractMap.SimpleEntry<>(VedtakConstants.NAMESPACE, "vedtakXmlTilHtml_v2.xsl"))
             .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
 
     private static Map<String, Templates> templates = new ConcurrentHashMap<>(); // NOSONAR

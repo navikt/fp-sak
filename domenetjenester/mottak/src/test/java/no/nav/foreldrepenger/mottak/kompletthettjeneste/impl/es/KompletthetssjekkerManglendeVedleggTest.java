@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
         var søknad = new SøknadEntitet.Builder().leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
-        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
+        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
 
         // Act
         final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
@@ -100,7 +101,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg).leggTilVedlegg(annetSøknadVedlegg).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
-        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
+        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
         // Act
         final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
@@ -131,7 +132,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
         var søknad = new SøknadEntitet.Builder().medElektroniskRegistrert(true).leggTilVedlegg(påkrevdSøknadVedlegg2).leggTilVedlegg(påkrevdSøknadVedlegg1).build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
-        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(java.util.Optional.ofNullable(søknad));
+        when(søknadRepository.hentSøknadHvisEksisterer(behandling.getId())).thenReturn(Optional.ofNullable(søknad));
         // Act
         final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
@@ -146,7 +147,7 @@ public class KompletthetssjekkerManglendeVedleggTest {
         var søknad = new SøknadEntitet.Builder().build();
         reset(søknadRepository);
         when(søknadRepository.hentSøknad(behandling.getId())).thenReturn(søknad);
-        when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(java.util.Optional.ofNullable(søknad));
+        when(søknadRepository.hentSøknadHvisEksisterer(any())).thenReturn(Optional.ofNullable(søknad));
         // Act
         final var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 

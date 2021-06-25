@@ -12,13 +12,18 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapper;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperFelles;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.DelvisTilrettelegging;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.HelTilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.IngenTilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.ObjectFactory;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Tilrettelegging;
 import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.TilretteleggingListe;
+import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet;
 import no.nav.vedtak.felles.xml.soeknad.v3.Soeknad;
 
 @FagsakYtelseTypeRef("SVP")
@@ -109,41 +114,41 @@ public class YtelseSøknadMapper implements SøknadMapper {
         }
     }
 
-    private static no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser mapTilFrilanser() {
-        var frilanser = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Frilanser();
+    private static Frilanser mapTilFrilanser() {
+        var frilanser = new Frilanser();
         // Setter risikofaktor og tilrettelegginstiltak til blank for manuell søknad.
         frilanser.setOpplysningerOmRisikofaktorer("");
         frilanser.setOpplysningerOmTilretteleggingstiltak("");
         return frilanser;
     }
 
-    private static no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende mapTilSelvstendigNæringsdrivende() {
-        var selvstendigNæringsdrivendeDselvstendigNæringsdrivende = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.SelvstendigNæringsdrivende();
+    private static SelvstendigNæringsdrivende mapTilSelvstendigNæringsdrivende() {
+        var selvstendigNæringsdrivendeDselvstendigNæringsdrivende = new SelvstendigNæringsdrivende();
         // Setter risikofaktor og tilrettelegginstiltak til blank for manuell søknad.
         selvstendigNæringsdrivendeDselvstendigNæringsdrivende.setOpplysningerOmRisikofaktorer("");
         selvstendigNæringsdrivendeDselvstendigNæringsdrivende.setOpplysningerOmTilretteleggingstiltak("");
         return selvstendigNæringsdrivendeDselvstendigNæringsdrivende;
     }
 
-    private static no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver mapTilArbeidsforhold(SvpTilretteleggingPrivatArbeidsgiverDto privatArbeidsgiverDto) {
-        var privatArbeidsgiver = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver();
+    private static PrivatArbeidsgiver mapTilArbeidsforhold(SvpTilretteleggingPrivatArbeidsgiverDto privatArbeidsgiverDto) {
+        var privatArbeidsgiver = new PrivatArbeidsgiver();
         privatArbeidsgiver.setIdentifikator(privatArbeidsgiverDto.getArbeidsgiverIdentifikator());
         return privatArbeidsgiver;
     }
 
-    private static no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver mapTilArbeidsforhold(SvpTilretteleggingVirksomhetDto virksomhetDto) {
+    private static Arbeidsgiver mapTilArbeidsforhold(SvpTilretteleggingVirksomhetDto virksomhetDto) {
         var arbeidsgiverIdentifikator = virksomhetDto.getOrganisasjonsnummer();
         if (arbeidsgiverIdentifikator == null) {
             throw new IllegalArgumentException("Arbeidsgiver identifikator må være utfylt.");
         }
         arbeidsgiverIdentifikator = arbeidsgiverIdentifikator.trim();
         if (arbeidsgiverIdentifikator.length() == 11) {
-            var privatArbeidsgiver = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.PrivatArbeidsgiver();
+            var privatArbeidsgiver = new PrivatArbeidsgiver();
             privatArbeidsgiver.setIdentifikator(arbeidsgiverIdentifikator);
             return privatArbeidsgiver;
         }
         if (arbeidsgiverIdentifikator.length() == 9) {
-            var virksomhet = new no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet();
+            var virksomhet = new Virksomhet();
             virksomhet.setIdentifikator(arbeidsgiverIdentifikator);
             return virksomhet;
         }

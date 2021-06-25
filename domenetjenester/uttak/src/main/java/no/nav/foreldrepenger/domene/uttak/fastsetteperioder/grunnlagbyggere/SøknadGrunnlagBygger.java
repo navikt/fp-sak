@@ -122,9 +122,9 @@ public class SøknadGrunnlagBygger {
         }
         //Ligger søknader fra tidligere i prod med samtidig uttak og 0%. Tolker som 100%
         if (oppgittPeriode.getSamtidigUttaksprosent().equals(no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent.ZERO)) {
-            return no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent.HUNDRED;
+            return SamtidigUttaksprosent.HUNDRED;
         }
-        return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.SamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent().decimalValue());
+        return new SamtidigUttaksprosent(oppgittPeriode.getSamtidigUttaksprosent().decimalValue());
     }
 
     private static OppgittPeriode byggGradertPeriode(OppgittPeriodeEntitet oppgittPeriode,

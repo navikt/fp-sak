@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
@@ -37,7 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
  * Visitor for å traversere ett behandlingssteg.
  */
 class BehandlingStegVisitor {
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(BehandlingStegVisitor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingStegVisitor.class);
 
     private final BehandlingRepository behandlingRepository;
     private final BehandlingskontrollKontekst kontekst;

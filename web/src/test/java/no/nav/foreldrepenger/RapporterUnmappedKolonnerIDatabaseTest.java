@@ -20,6 +20,7 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.model.relational.Database;
 import org.hibernate.boot.model.relational.Namespace;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.jpa.boot.spi.IntegratorProvider;
 import org.hibernate.mapping.Column;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
@@ -154,7 +155,7 @@ public class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     public static class MetadataExtractorIntegrator
-            implements org.hibernate.integrator.spi.Integrator {
+            implements Integrator {
 
         public static final MetadataExtractorIntegrator INSTANCE = new MetadataExtractorIntegrator();
 

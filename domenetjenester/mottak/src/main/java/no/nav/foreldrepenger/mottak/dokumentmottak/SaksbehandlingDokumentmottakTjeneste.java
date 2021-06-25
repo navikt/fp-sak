@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -16,7 +17,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 @ApplicationScoped
 public class SaksbehandlingDokumentmottakTjeneste {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(SaksbehandlingDokumentmottakTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SaksbehandlingDokumentmottakTjeneste.class);
 
     private ProsessTaskRepository prosessTaskRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;

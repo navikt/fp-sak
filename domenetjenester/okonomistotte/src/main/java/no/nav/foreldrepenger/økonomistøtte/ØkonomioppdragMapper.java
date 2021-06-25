@@ -23,9 +23,14 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Avstemming115;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.ObjectFactory;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Ompostering116;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
@@ -52,7 +57,7 @@ public class ØkonomioppdragMapper {
 
     public ØkonomioppdragMapper() {}
 
-    no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
+    Oppdrag mapVedtaksDataToOppdrag(Oppdrag110 okoOppdrag110, Long behandlingId) {
         final var oppdrag = objectFactory.createOppdrag();
         oppdrag.setOppdrag110(mapOppdrag110(okoOppdrag110, behandlingId));
         return oppdrag;
@@ -111,7 +116,7 @@ public class ØkonomioppdragMapper {
         return ompostering116;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Avstemming115 mapAvstemming115(Avstemming avstemming) {
+    private Avstemming115 mapAvstemming115(Avstemming avstemming) {
         final var avstemming115 =
             objectFactory.createAvstemming115();
 
@@ -122,7 +127,7 @@ public class ØkonomioppdragMapper {
         return avstemming115;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsEnhet120 mapOppdragsEnhet120() {
+    private OppdragsEnhet120 mapOppdragsEnhet120() {
         final var oppdragsEnhet120 =
             objectFactory.createOppdragsEnhet120();
 
@@ -191,7 +196,7 @@ public class ØkonomioppdragMapper {
         return refusjonsinfo156;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Grad170 mapGrad170(Utbetalingsgrad okoUtbetalingsgrad) {
+    private Grad170 mapGrad170(Utbetalingsgrad okoUtbetalingsgrad) {
         final var grad170 = objectFactory.createGrad170();
 
         grad170.setGrad(BigInteger.valueOf(okoUtbetalingsgrad.getVerdi()));
@@ -200,7 +205,7 @@ public class ØkonomioppdragMapper {
         return grad170;
     }
 
-    private no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Attestant180 mapAttestant180(String saksbehId) {
+    private Attestant180 mapAttestant180(String saksbehId) {
         final var attestant180 =
             objectFactory.createAttestant180();
 
