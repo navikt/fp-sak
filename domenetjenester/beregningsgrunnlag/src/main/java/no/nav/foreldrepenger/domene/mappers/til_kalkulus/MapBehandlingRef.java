@@ -4,11 +4,12 @@ import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.Skjæringstidspunkt;
 import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
 import no.nav.folketrygdloven.kalkulus.typer.AktørId;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 
 //TODO(OJR) skal fjernes
 public class MapBehandlingRef {
 
-    public static KoblingReferanse mapRef(no.nav.foreldrepenger.behandling.BehandlingReferanse behandlingReferanse) {
+    public static KoblingReferanse mapRef(BehandlingReferanse behandlingReferanse) {
         return KoblingReferanse.fra(FagsakYtelseType.fraKode(behandlingReferanse.getFagsakYtelseType().getKode()),
             new AktørId(behandlingReferanse.getAktørId().getId()),
             behandlingReferanse.getBehandlingId(),

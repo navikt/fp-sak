@@ -20,17 +20,17 @@ public class ArbeidsforholdTjenesteMock {
     private static final String ORGNR1 = KUNSTIG_ORG;
     private static final String ORGNR2 = "52";
     private static final LocalDate PERIODE_FOM = LocalDate.now().minusYears(3L);
-    private final no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste arbeidsforholdTjeneste;
+    private final ArbeidsforholdTjeneste arbeidsforholdTjeneste;
 
     public ArbeidsforholdTjenesteMock(boolean medToArbeidsforhold) {
         var response = opprettResponse(medToArbeidsforhold);
 
         var arbeidsforholdConsumer = mock(AbakusTjeneste.class);
         when(arbeidsforholdConsumer.hentArbeidsforholdIPerioden(any())).thenReturn(response);
-        this.arbeidsforholdTjeneste = new no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste(arbeidsforholdConsumer);
+        this.arbeidsforholdTjeneste = new ArbeidsforholdTjeneste(arbeidsforholdConsumer);
     }
 
-    public no.nav.foreldrepenger.domene.abakus.ArbeidsforholdTjeneste getMock() {
+    public ArbeidsforholdTjeneste getMock() {
         return arbeidsforholdTjeneste;
     }
 

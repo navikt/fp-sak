@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.feriepenger.BeregningsresultatFeriepengerRegelModell;
 
 public class MapBeregningsresultatFeriepengerFraRegelTilVL {
@@ -47,7 +48,7 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVL {
     }
 
     private static void mapAndel(BeregningsresultatFeriepenger beregningsresultatFeriepenger, BeregningsresultatPeriode vlBeregningsresultatPeriode,
-                                 no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel regelAndel) {
+                                 BeregningsresultatAndel regelAndel) {
         if (regelAndel.getBeregningsresultatFeriepengerPrÅrListe().isEmpty()) {
             return;
         }

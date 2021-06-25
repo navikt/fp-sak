@@ -55,6 +55,7 @@ import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
+import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
@@ -233,7 +234,7 @@ class MapTilKalkulatorInput {
                 ytelseDto.getRelatertYtelseType() == null ? null : new RelatertYtelseType(ytelseDto.getRelatertYtelseType().getKode()),
                 mapPeriode(ytelseDto.getPeriode()),
                 ytelseDto.getBehandlingsTema() == null ||
-                    ytelseDto.getBehandlingsTema().equals(no.nav.folketrygdloven.kalkulus.kodeverk.TemaUnderkategori.UDEFINERT) ? null
+                    ytelseDto.getBehandlingsTema().equals(TemaUnderkategori.UDEFINERT) ? null
                         : TemaUnderkategori.fraKode(ytelseDto.getBehandlingsTema().getKode()));
     }
 
@@ -415,7 +416,7 @@ class MapTilKalkulatorInput {
             : new no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto(
                 mapArbeidsgiver(yrkesaktivitetDto.getArbeidsgiver()),
                 mapAbakusReferanse(yrkesaktivitetDto.getArbeidsforholdRef()),
-                yrkesaktivitetDto.getArbeidType() == null ? null : no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType.fraKode(yrkesaktivitetDto.getArbeidType().getKode()),
+                yrkesaktivitetDto.getArbeidType() == null ? null : ArbeidType.fraKode(yrkesaktivitetDto.getArbeidType().getKode()),
                 mapAktivitetsAvtaler(yrkesaktivitetDto.getAlleAktivitetsAvtaler()));
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -39,7 +40,7 @@ public class BehandlingModellTest {
             var behandlingSteg = steg.getSteg();
             assertThat(behandlingSteg).as(description).isNotNull();
 
-            @SuppressWarnings("rawtypes") var targetClass = ((org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy) behandlingSteg)
+            @SuppressWarnings("rawtypes") var targetClass = ((TargetInstanceProxy) behandlingSteg)
                     .weld_getTargetClass();
             assertThat(targetClass).as(description).hasAnnotation(ApplicationScoped.class);
         }

@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -18,7 +19,7 @@ public class MapBeregningsresultatFraRegelTilVL {
     public MapBeregningsresultatFraRegelTilVL() {
     }
 
-    public no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet mapFra(Beregningsresultat resultat, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet eksisterendeResultat) {
+    public BeregningsresultatEntitet mapFra(Beregningsresultat resultat, BeregningsresultatEntitet eksisterendeResultat) {
         if (eksisterendeResultat.getBeregningsresultatPerioder().isEmpty()) {
             resultat.getBeregningsresultatPerioder().forEach(p -> mapFraPeriode(p, eksisterendeResultat));
         } else {
@@ -27,7 +28,7 @@ public class MapBeregningsresultatFraRegelTilVL {
         return eksisterendeResultat;
     }
 
-    private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet eksisterendeResultat) {
+    private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode mapFraPeriode(BeregningsresultatPeriode resultatPeriode, BeregningsresultatEntitet eksisterendeResultat) {
         var nyPeriode = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(resultatPeriode.getFom(), resultatPeriode.getTom())
             .build(eksisterendeResultat);

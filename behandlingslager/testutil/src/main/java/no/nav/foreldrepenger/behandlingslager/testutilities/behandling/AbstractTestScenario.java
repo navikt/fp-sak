@@ -103,6 +103,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personstatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Statsborgerskap;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -175,7 +176,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     private BehandlingRepositoryProvider repositoryProvider;
     private PerioderUtenOmsorgEntitet perioderUtenOmsorg;
     private PerioderAleneOmsorgEntitet perioderMedAleneomsorg;
-    private no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.PersonInformasjon.Builder personInformasjonBuilder;
+    private PersonInformasjon.Builder personInformasjonBuilder;
     private UttakResultatPerioderEntitet uttak;
     private boolean manueltOpprettet;
 
@@ -747,7 +748,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
         } else {
             var registerInformasjon = PersonInformasjon.builder(PersonopplysningVersjonType.REGISTRERT)
                     .leggTilPersonopplysninger(
-                            no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning.builder()
+                            Personopplysning.builder()
                                     .aktørId(behandling.getAktørId())
                                     .navn("Forelder")
                                     .brukerKjønn(getKjønnFraFagsak())

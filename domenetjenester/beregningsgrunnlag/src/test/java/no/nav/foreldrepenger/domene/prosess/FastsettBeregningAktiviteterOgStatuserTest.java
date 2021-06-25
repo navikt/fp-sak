@@ -353,7 +353,7 @@ public class FastsettBeregningAktiviteterOgStatuserTest {
         var arbId2 = InternArbeidsforholdRef.nyRef();
         var arbId3 = InternArbeidsforholdRef.nyRef();
 
-        var periode = new no.nav.abakus.iaygrunnlag.Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
+        var periode = new Periode(SKJÆRINGSTIDSPUNKT_OPPTJENING.minusMonths(4),
                 DAGEN_FØR_SFO);
         var ref = opprettBehandling();
         var opptjeningAktiviteter = new OpptjeningAktiviteter(lagArbeidOgOpptjening(orgnr, periode.getFom(), periode.getTom(), arbId1, ref),

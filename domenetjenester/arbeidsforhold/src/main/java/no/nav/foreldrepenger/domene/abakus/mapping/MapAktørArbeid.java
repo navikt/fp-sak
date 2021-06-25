@@ -22,6 +22,7 @@ import no.nav.abakus.iaygrunnlag.arbeid.v1.AktivitetsAvtaleDto;
 import no.nav.abakus.iaygrunnlag.arbeid.v1.ArbeidDto;
 import no.nav.abakus.iaygrunnlag.arbeid.v1.PermisjonDto;
 import no.nav.abakus.iaygrunnlag.arbeid.v1.YrkesaktivitetDto;
+import no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
@@ -259,7 +260,7 @@ public class MapAktørArbeid {
             }
 
             return new ArbeidsforholdRefDto(internRef.getReferanse(), eksternRef.getReferanse(),
-                    no.nav.abakus.iaygrunnlag.kodeverk.Fagsystem.AAREGISTERET);
+                    Fagsystem.AAREGISTERET);
         }
 
         private Aktør mapAktør(Arbeidsgiver arbeidsgiver) {

@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFeriepengerFraRegelTilVL;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
@@ -69,8 +70,8 @@ public class MapBeregningsresultatFeriepengerFraRegelTilVLTest {
         assertThat(beregningsresultatFeriepengerPrÅrListe).hasSize(1);
     }
 
-    private no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet lagVlBeregningsresultat() {
-        var beregningsresultat = no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet
+    private BeregningsresultatEntitet lagVlBeregningsresultat() {
+        var beregningsresultat = BeregningsresultatEntitet
                 .builder()
                 .medRegelInput("Regelinput")
                 .medRegelSporing("Regelsporing")

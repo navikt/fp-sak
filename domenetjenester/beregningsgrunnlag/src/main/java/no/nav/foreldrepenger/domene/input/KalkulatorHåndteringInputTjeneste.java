@@ -8,6 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulator.input.BeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.HåndterBeregningsgrunnlagInput;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.BehandlingslagerTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
@@ -49,7 +50,7 @@ public class KalkulatorHåndteringInputTjeneste {
                                                                                 Optional<BeregningsgrunnlagGrunnlagEntitet> grunnlagFraHåndteringTilstand) {
         var inputMedBG = beregningTilInputTjeneste.lagInputMedVerdierFraBeregning(input);
         return new HåndterBeregningsgrunnlagInput(inputMedBG,
-            no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand.fraKode(
+            BeregningsgrunnlagTilstand.fraKode(
                 MapHåndteringskodeTilTilstand.map(håndteringKode).getKode())).medForrigeGrunnlagFraHåndtering(
             grunnlagFraHåndteringTilstand.map(BehandlingslagerTilKalkulusMapper::mapGrunnlag).orElse(null));
     }

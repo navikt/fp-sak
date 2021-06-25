@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -20,7 +21,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 // Variasjoner av protokollen håndteres utenfro
 public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokumentmottaker {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DokumentmottakerYtelsesesrelatertDokument.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentmottakerYtelsesesrelatertDokument.class);
 
     protected DokumentmottakerFelles dokumentmottakerFelles;
     Behandlingsoppretter behandlingsoppretter;

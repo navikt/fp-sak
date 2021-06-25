@@ -21,6 +21,7 @@ import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Request;
@@ -169,7 +170,7 @@ abstract class AbstractJettyServer {
         var httpConfig = new HttpConfiguration();
 
         // Add support for X-Forwarded headers
-        httpConfig.addCustomizer(new org.eclipse.jetty.server.ForwardedRequestCustomizer());
+        httpConfig.addCustomizer(new ForwardedRequestCustomizer());
 
         return httpConfig;
     }

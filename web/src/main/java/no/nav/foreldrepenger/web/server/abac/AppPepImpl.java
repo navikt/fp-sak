@@ -12,11 +12,12 @@ import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
+import no.nav.vedtak.sikkerhet.abac.PepImpl;
 
 @Default
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION + 1)
-public class AppPepImpl extends no.nav.vedtak.sikkerhet.abac.PepImpl {
+public class AppPepImpl extends PepImpl {
 
     AppPepImpl() {
     }

@@ -25,8 +25,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto.class, adapter = AksjonspunktOppdaterer.class)
-public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.rest.dto.FastsettBeregningsgrunnlagATFLDto> {
+@DtoTilServiceAdapter(dto = FastsettBeregningsgrunnlagATFLDto.class, adapter = AksjonspunktOppdaterer.class)
+public class FastsettBeregningsgrunnlagATFLOppdaterer implements AksjonspunktOppdaterer<FastsettBeregningsgrunnlagATFLDto> {
 
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private FastsettBeregningsgrunnlagATFLHistorikkTjeneste fastsettBeregningsgrunnlagATFLHistorikkTjeneste;

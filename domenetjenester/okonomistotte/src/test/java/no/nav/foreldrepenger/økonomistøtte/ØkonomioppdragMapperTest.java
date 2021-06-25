@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.TypeSats;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.ØkonomiKodekomponent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragsLinje150;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TfradragTillegg;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.TkodeStatusLinje;
@@ -75,7 +76,7 @@ public class ØkonomioppdragMapperTest {
     public void testMapVedtaksDataToOppdragFPNårOpp150IkkeErSortert() {
         //Arrange
         var oppdrag110List = opprettOppdrag110(oppdragskontroll, true, false, false);
-        List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag> oppdragGenerertList = new ArrayList<>();
+        List<Oppdrag> oppdragGenerertList = new ArrayList<>();
 
         //Act
         oppdrag110List.forEach(opp110 ->
@@ -157,7 +158,7 @@ public class ØkonomioppdragMapperTest {
     @Test
     public void mapperOmpostering116() {
         var oppdrag110List = opprettOppdrag110(oppdragskontroll, true, true, true);
-        List<no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag> oppdragGenerertList = new ArrayList<>();
+        List<Oppdrag> oppdragGenerertList = new ArrayList<>();
 
         //Act
         oppdrag110List.forEach(opp110 ->

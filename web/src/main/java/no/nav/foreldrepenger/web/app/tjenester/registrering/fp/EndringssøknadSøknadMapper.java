@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
+import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Fordeling;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.LukketPeriodeMedVedlegg;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Oppholdsperiode;
@@ -40,10 +41,10 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
     public <V extends ManuellRegistreringDto> Soeknad mapSøknad(V registreringDto, NavBruker navBruker) {
         var søknad = SøknadMapperFelles.mapSøknad(registreringDto, navBruker);
 
-        var endringssøknad = new no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory().createEndringssoeknad();
+        var endringssøknad = new ObjectFactory().createEndringssoeknad();
         endringssøknad.setFordeling(mapFordelingEndringssøknad((ManuellRegistreringEndringsøknadDto)registreringDto));
         var omYtelse = new no.nav.vedtak.felles.xml.soeknad.v3.ObjectFactory().createOmYtelse();
-        omYtelse.getAny().add(new no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.ObjectFactory().createEndringssoeknad(endringssøknad));
+        omYtelse.getAny().add(new ObjectFactory().createEndringssoeknad(endringssøknad));
         søknad.setOmYtelse(omYtelse);
         return søknad;
     }

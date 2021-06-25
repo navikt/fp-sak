@@ -53,7 +53,7 @@ public class AksjonspunktRestTjenesteTest {
         when(behandling.getUuid()).thenReturn(UUID.randomUUID());
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-        when(behandling.getStatus()).thenReturn(no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.OPPRETTET);
+        when(behandling.getStatus()).thenReturn(BehandlingStatus.OPPRETTET);
         doNothing().when(behandlingsutredningTjenesteMock).kanEndreBehandling(any(), anyLong());
         aksjonspunktRestTjeneste = new AksjonspunktRestTjeneste(aksjonspunktTjenesteMock, behandlingRepository,
             behandlingsutredningTjenesteMock, totrinnTjeneste);

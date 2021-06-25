@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTI
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -55,7 +56,7 @@ public class InntektArbeidYtelseScenario {
             var build = kladd.build();
             build.getAktørArbeid().stream()
                     .map(AktørArbeid::hentAlleYrkesaktiviteter)
-                    .flatMap(java.util.Collection::stream)
+                    .flatMap(Collection::stream)
                     .forEach(yr -> {
                         if (yr.getArbeidsgiver().getErVirksomhet()) {
                             var orgnr = yr.getArbeidsgiver().getOrgnr();

@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
@@ -122,7 +123,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-                new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
+                new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
 
@@ -138,7 +139,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         lagreFamilihendelseFødsel();
         var opptjeningAktiviteter = OpptjeningAktiviteter.fraOrgnr(OpptjeningAktivitetType.ARBEID,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
+            new Periode(OPPTJENINGSPERIODE.getFomDato(), OPPTJENINGSPERIODE.getTomDato()), ORGNR);
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
             .thenReturn(Optional.of(opptjeningAktiviteter));
 
@@ -165,7 +166,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
     public void skalIkkeGiBesteberegningIkkeDagpengerPåStp() {
         lagreFamilihendelseFødsel();
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
+            new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.minusDays(3)));
         when(opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(any(), any()))
                 .thenReturn(Optional.of(opptjeningAktiviteter));
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
@@ -181,7 +182,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         lagreFamilihendelseFødsel();
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
+            new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         var overstyrtBG = BeregningsgrunnlagEntitet.ny()
             .medOverstyring(true)
             .medSkjæringstidspunkt(LocalDate.now())
@@ -203,7 +204,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         lagreFamilihendelseFødsel();
         var ref = lagBehandlingReferanseMedStp(behandlingReferanse);
         var opptjeningAktiviteter = OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER,
-            new no.nav.abakus.iaygrunnlag.Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
+            new Periode(OPPTJENINGSPERIODE.getFomDato(), SKJÆRINGSTIDSPUNKT.plusDays(1)));
         var grunnlag = BeregningsgrunnlagEntitet.ny()
             .medSkjæringstidspunkt(LocalDate.now())
             .build();

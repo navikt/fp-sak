@@ -2,6 +2,14 @@ package no.nav.foreldrepenger.domene.abakus.mapping;
 
 import java.util.Map;
 
+import no.nav.abakus.iaygrunnlag.kodeverk.InntektskildeType;
+import no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType;
+import no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType;
+import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType;
+import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType;
+import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType;
+import no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType;
+import no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType;
 import no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -77,17 +85,17 @@ public final class KodeverkMapper {
      * @deprecated fjern YtelseType og eksponert abakus-kodeverk i stedet fra fpsak
      */
     @Deprecated(forRemoval = true)
-    static no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType mapYtelseTypeTilDto(
-            no.nav.foreldrepenger.domene.iay.modell.kodeverk.YtelseType ytelseType) {
+    static UtbetaltYtelseType mapYtelseTypeTilDto(
+            YtelseType ytelseType) {
         if ((ytelseType == null) || "-".equals(ytelseType.getKode())) {
             return null;
         }
         return switch (ytelseType.getKodeverk()) {
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.fraKode(ytelseType.getKode());
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.fraKode(ytelseType.getKode());
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK -> no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.fraKode(ytelseType.getKode());
+            case UtbetaltYtelseFraOffentligeType.KODEVERK -> UtbetaltYtelseFraOffentligeType.fraKode(ytelseType.getKode());
+            case UtbetaltNæringsYtelseType.KODEVERK -> UtbetaltNæringsYtelseType.fraKode(ytelseType.getKode());
+            case UtbetaltPensjonTrygdType.KODEVERK -> UtbetaltPensjonTrygdType.fraKode(ytelseType.getKode());
             default -> throw new IllegalArgumentException("Ukjent YtelseType: " + ytelseType + ", kan ikke mappes til "
-                + no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType.class.getName());
+                + UtbetaltYtelseType.class.getName());
         };
 
     }
@@ -111,7 +119,7 @@ public final class KodeverkMapper {
         };
     }
 
-    static no.nav.abakus.iaygrunnlag.kodeverk.YtelseStatus getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(RelatertYtelseTilstand tilstand) {
+    static YtelseStatus getAbakusYtelseStatusForFpsakRelatertYtelseTilstand(RelatertYtelseTilstand tilstand) {
         var kode = tilstand.getKode();
         return switch (kode) {
             case "IKKESTARTET" -> YtelseStatus.OPPRETTET;
@@ -122,15 +130,15 @@ public final class KodeverkMapper {
         };
     }
 
-    static YtelseType mapUtbetaltYtelseTypeTilGrunnlag(no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseType type) {
+    static YtelseType mapUtbetaltYtelseTypeTilGrunnlag(UtbetaltYtelseType type) {
         if (type == null) {
             return OffentligYtelseType.UDEFINERT;
         }
         var kode = type.getKode();
         return switch (type.getKodeverk()) {
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltYtelseFraOffentligeType.KODEVERK -> OffentligYtelseType.fraKode(kode);
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltNæringsYtelseType.KODEVERK -> NæringsinntektType.fraKode(kode);
-            case no.nav.abakus.iaygrunnlag.kodeverk.UtbetaltPensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
+            case UtbetaltYtelseFraOffentligeType.KODEVERK -> OffentligYtelseType.fraKode(kode);
+            case UtbetaltNæringsYtelseType.KODEVERK -> NæringsinntektType.fraKode(kode);
+            case UtbetaltPensjonTrygdType.KODEVERK -> PensjonTrygdType.fraKode(kode);
             default -> throw new IllegalArgumentException("Ukjent UtbetaltYtelseType: " + type);
         };
     }
@@ -202,10 +210,10 @@ public final class KodeverkMapper {
                 : no.nav.abakus.iaygrunnlag.kodeverk.PermisjonsbeskrivelseType.fraKode(kode.getKode());
     }
 
-    static no.nav.abakus.iaygrunnlag.kodeverk.InntektskildeType mapInntektsKildeTilDto(InntektsKilde kode) {
+    static InntektskildeType mapInntektsKildeTilDto(InntektsKilde kode) {
         return (kode == null) || InntektsKilde.UDEFINERT.equals(kode)
                 ? null
-                : no.nav.abakus.iaygrunnlag.kodeverk.InntektskildeType.fraKode(kode.getKode());
+                : InntektskildeType.fraKode(kode.getKode());
     }
 
     static no.nav.abakus.iaygrunnlag.kodeverk.InntektspostType mapInntektspostTypeTilDto(InntektspostType kode) {
@@ -232,26 +240,26 @@ public final class KodeverkMapper {
                 : ArbeidType.fraKode(dto.getKode());
     }
 
-    static no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType mapInntektsmeldingInnsendingsårsak(
+    static InntektsmeldingInnsendingsårsakType mapInntektsmeldingInnsendingsårsak(
             InntektsmeldingInnsendingsårsak kode) {
         return (kode == null) || InntektsmeldingInnsendingsårsak.UDEFINERT.equals(kode)
                 ? null
-                : no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType.fraKode(kode.getKode());
+                : InntektsmeldingInnsendingsårsakType.fraKode(kode.getKode());
     }
 
-    static no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType mapNaturalYtelseTilDto(NaturalYtelseType kode) {
+    static NaturalytelseType mapNaturalYtelseTilDto(NaturalYtelseType kode) {
         return (kode == null) || NaturalYtelseType.UDEFINERT.equals(kode)
                 ? null
-                : no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType.fraKode(kode.getKode());
+                : NaturalytelseType.fraKode(kode.getKode());
     }
 
-    static no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType mapUtsettelseÅrsakTilDto(UtsettelseÅrsak kode) {
+    static UtsettelseÅrsakType mapUtsettelseÅrsakTilDto(UtsettelseÅrsak kode) {
         return (kode == null) || UtsettelseÅrsak.UDEFINERT.equals(kode)
                 ? null
-                : no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType.fraKode(kode.getKode());
+                : UtsettelseÅrsakType.fraKode(kode.getKode());
     }
 
-    static InntektsKilde mapInntektsKildeFraDto(no.nav.abakus.iaygrunnlag.kodeverk.InntektskildeType dto) {
+    static InntektsKilde mapInntektsKildeFraDto(InntektskildeType dto) {
         return dto == null
                 ? InntektsKilde.UDEFINERT
                 : InntektsKilde.fraKode(dto.getKode());
@@ -263,7 +271,7 @@ public final class KodeverkMapper {
                 : ArbeidsforholdHandlingType.fraKode(dto.getKode());
     }
 
-    static NaturalYtelseType mapNaturalYtelseFraDto(no.nav.abakus.iaygrunnlag.kodeverk.NaturalytelseType dto) {
+    static NaturalYtelseType mapNaturalYtelseFraDto(NaturalytelseType dto) {
         return dto == null
                 ? NaturalYtelseType.UDEFINERT
                 : NaturalYtelseType.fraKode(dto.getKode());
@@ -306,13 +314,13 @@ public final class KodeverkMapper {
     }
 
     static InntektsmeldingInnsendingsårsak mapInntektsmeldingInnsendingsårsakFraDto(
-            no.nav.abakus.iaygrunnlag.kodeverk.InntektsmeldingInnsendingsårsakType dto) {
+            InntektsmeldingInnsendingsårsakType dto) {
         return dto == null
                 ? InntektsmeldingInnsendingsårsak.UDEFINERT
                 : InntektsmeldingInnsendingsårsak.fraKode(dto.getKode());
     }
 
-    static UtsettelseÅrsak mapUtsettelseÅrsakFraDto(no.nav.abakus.iaygrunnlag.kodeverk.UtsettelseÅrsakType dto) {
+    static UtsettelseÅrsak mapUtsettelseÅrsakFraDto(UtsettelseÅrsakType dto) {
         return dto == null
                 ? UtsettelseÅrsak.UDEFINERT
                 : UtsettelseÅrsak.fraKode(dto.getKode());

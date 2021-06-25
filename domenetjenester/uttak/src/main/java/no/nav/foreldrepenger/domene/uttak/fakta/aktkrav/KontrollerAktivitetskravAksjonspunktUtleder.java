@@ -167,7 +167,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
         });
     }
 
-    private static boolean erMor(no.nav.foreldrepenger.behandling.BehandlingReferanse behandlingReferanse) {
+    private static boolean erMor(BehandlingReferanse behandlingReferanse) {
         return RelasjonsRolleType.erMor(behandlingReferanse.getRelasjonsRolleType());
     }
 

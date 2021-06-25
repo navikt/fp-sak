@@ -48,7 +48,7 @@ public @interface BehandlingTypeRef {
      * Må matche ett innslag i <code>BEHANDling_TYPE</code> tabell for å kunne
      * kjøres.
      *
-     * @see no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType
+     * @see BehandlingType
      */
     String value() default "*";
 

@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.domene.vedtak.xml.YtelseXmlTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.v2.Beregningsresultat;
 import no.nav.vedtak.felles.xml.vedtak.v2.TilkjentYtelse;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.ObjectFactory;
+import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet;
 import no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.YtelseForeldrepenger;
 
 @FagsakYtelseTypeRef("FP")
@@ -76,8 +77,8 @@ public class YtelseXmlTjenesteImpl implements YtelseXmlTjeneste {
         return kontrakt;
     }
 
-    private no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet konverterVirksomhetFraDomene(BeregningsresultatAndel andelDomene) {
-        var kontrakt = new no.nav.vedtak.felles.xml.vedtak.ytelse.fp.v2.Virksomhet();
+    private Virksomhet konverterVirksomhetFraDomene(BeregningsresultatAndel andelDomene) {
+        var kontrakt = new Virksomhet();
         andelDomene.getArbeidsgiver().map(Arbeidsgiver::getOrgnr).ifPresent(orgNr -> {
             kontrakt.setOrgnr(VedtakXmlUtil.lagStringOpplysning(orgNr));
             if (!OrgNummer.erKunstig(orgNr)) {

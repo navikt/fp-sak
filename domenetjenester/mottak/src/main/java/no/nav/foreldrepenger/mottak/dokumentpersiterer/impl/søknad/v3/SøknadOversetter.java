@@ -114,6 +114,7 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Overfoeringsperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Person;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Utsettelsesperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
+import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
 
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
@@ -431,7 +432,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
         if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver) {
             builder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-            no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver arbeidsgiver;
+            Arbeidsgiver arbeidsgiver;
 
             if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) {
                 var orgnr = ((no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet) arbeidsforhold).getIdentifikator();
@@ -651,7 +652,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         oppgittPeriodeBuilder.medArbeidsprosent(BigDecimal.valueOf(gradering.getArbeidtidProsent()));
     }
 
-    private no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver oversettArbeidsgiver(no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver arbeidsgiverFraSøknad) {
+    private Arbeidsgiver oversettArbeidsgiver(no.nav.vedtak.felles.xml.soeknad.uttak.v3.Arbeidsgiver arbeidsgiverFraSøknad) {
         if (arbeidsgiverFraSøknad instanceof Person) {
             var aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(arbeidsgiverFraSøknad.getIdentifikator()));
             if (aktørId.isEmpty()) {
@@ -659,7 +660,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
             }
             return Arbeidsgiver.person(aktørId.get());
         }
-        if (arbeidsgiverFraSøknad instanceof no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet) {
+        if (arbeidsgiverFraSøknad instanceof Virksomhet) {
             var orgnr = arbeidsgiverFraSøknad.getIdentifikator();
             virksomhetTjeneste.hentOrganisasjon(orgnr);
             return Arbeidsgiver.virksomhet(orgnr);

@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.domene.vedtak.xml.BeregningsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.vedtak.felles.xml.felles.v2.FloatOpplysning;
 import no.nav.vedtak.felles.xml.felles.v2.LongOpplysning;
+import no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.AktivitetStatus;
 import no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.BeregningsgrunnlagSvangerskapspenger;
 import no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.GjennomsnittligPensjonsgivendeInntekt;
 import no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.ObjectFactory;
@@ -99,8 +100,8 @@ public class BeregningsgrunnlagXmlTjenesteImpl implements BeregningsgrunnlagXmlT
         beregningsgrunnlag.getAktivitetstatuser().addAll(aktivitetStatusListe);
     }
 
-    private no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.AktivitetStatus konverterFraDomene(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatus) {
-        var kontrakt = new no.nav.vedtak.felles.xml.vedtak.beregningsgrunnlag.svp.v2.AktivitetStatus();
+    private AktivitetStatus konverterFraDomene(BeregningsgrunnlagAktivitetStatus beregningsgrunnlagAktivitetStatus) {
+        var kontrakt = new AktivitetStatus();
         kontrakt.setAktivitetStatus(VedtakXmlUtil.lagKodeverksOpplysning(beregningsgrunnlagAktivitetStatus.getAktivitetStatus()));
         kontrakt.setHjemmel(VedtakXmlUtil.lagKodeverksOpplysning(beregningsgrunnlagAktivitetStatus.getHjemmel()));
         return kontrakt;

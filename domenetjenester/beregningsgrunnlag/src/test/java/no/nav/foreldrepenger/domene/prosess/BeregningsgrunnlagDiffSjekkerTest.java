@@ -423,14 +423,14 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var beregningsgrunnlagEntitet = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
@@ -449,14 +449,14 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAt.medAvvikPromille(BigDecimal.ZERO);
         sammenligningsgrunnlagPrStatusAt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusAt.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFl = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFl.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFl.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFl.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusFl.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAt)
@@ -479,14 +479,14 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAtAktivt.medAvvikPromille(avvikPromilleAtAktivt);
         sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusAtAktivt.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var sammenligningsgrunnlagPrStatusFlAktivt = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlAktivt.medRapportertPrÅr(BigDecimal.valueOf(200_000));
         sammenligningsgrunnlagPrStatusFlAktivt.medAvvikPromille(BigDecimal.valueOf(250));
         sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsperiode(LocalDate.now().minusYears(1), LocalDate.now());
         sammenligningsgrunnlagPrStatusFlAktivt.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var sammenligningsgrunnlagPrStatusFlForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusFlForrige.medRapportertPrÅr(BigDecimal.valueOf(200_000));
@@ -494,7 +494,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsperiode(LocalDate.now().minusYears(1),
             LocalDate.now());
         sammenligningsgrunnlagPrStatusFlForrige.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_FL);
+            SammenligningsgrunnlagType.SAMMENLIGNING_FL);
 
         var sammenligningsgrunnlagPrStatusAtForrige = new SammenligningsgrunnlagPrStatus.Builder();
         sammenligningsgrunnlagPrStatusAtForrige.medRapportertPrÅr(BigDecimal.valueOf(100_000));
@@ -502,7 +502,7 @@ public class BeregningsgrunnlagDiffSjekkerTest {
         sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsperiode(LocalDate.now().minusYears(1),
             LocalDate.now());
         sammenligningsgrunnlagPrStatusAtForrige.medSammenligningsgrunnlagType(
-            no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagType.SAMMENLIGNING_AT);
+            SammenligningsgrunnlagType.SAMMENLIGNING_AT);
 
         var aktivt = BeregningsgrunnlagEntitet.ny()
             .leggTilSammenligningsgrunnlag(sammenligningsgrunnlagPrStatusAtAktivt)

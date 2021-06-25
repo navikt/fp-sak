@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VedtakXmlUtil;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Addresse;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Familierelasjon;
+import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Inntekt;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.PersonopplysningerEngangsstoenad;
 
@@ -228,8 +229,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
     }
 
-    private List<no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
-        List<no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Inntekt> inntektList = new ArrayList<>();
+    private List<Inntekt> lagInntekt(AktørId aktørId, InntektFilter filter) {
+        List<Inntekt> inntektList = new ArrayList<>();
         filter.forFilter((inntekt, inntektsposter) -> {
             inntektsposter.forEach(ip -> {
                 var inntektXML = personopplysningObjectFactory.createInntekt(); // NOSONAR

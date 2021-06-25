@@ -19,8 +19,8 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto.class, adapter = AksjonspunktOppdaterer.class)
-public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto> {
+@DtoTilServiceAdapter(dto = VurderFaktaOmBeregningDto.class, adapter = AksjonspunktOppdaterer.class)
+public class VurderFaktaOmBeregningOppdaterer implements AksjonspunktOppdaterer<VurderFaktaOmBeregningDto> {
 
     private FaktaBeregningHistorikkHåndterer faktaBeregningHistorikkHåndterer;
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;

@@ -250,7 +250,7 @@ public class MapUttakResultatFraVLTilRegelTest {
         assertThat(periode.getErOppholdsPeriode()).isFalse();
     }
 
-    private no.nav.foreldrepenger.ytelse.beregning.regelmodell.UttakResultatPeriode getPeriodeByFom(List<UttakResultatPeriode> uttakResultatPerioder,
+    private UttakResultatPeriode getPeriodeByFom(List<UttakResultatPeriode> uttakResultatPerioder,
             LocalDate fom) {
         return uttakResultatPerioder.stream().filter(a -> fom.equals(a.getFom())).findFirst().orElse(null);
     }

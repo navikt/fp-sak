@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -27,7 +28,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     public static final String BEHANDLING_ÅRSAK_TYPE_KEY = "arsakType";
     public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HåndterMottattDokumentTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HåndterMottattDokumentTask.class);
 
     private InnhentDokumentTjeneste innhentDokumentTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;

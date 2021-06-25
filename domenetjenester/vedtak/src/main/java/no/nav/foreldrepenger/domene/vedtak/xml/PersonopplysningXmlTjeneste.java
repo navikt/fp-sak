@@ -5,6 +5,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger;
 import no.nav.vedtak.felles.xml.vedtak.v2.Vedtak;
 
 public abstract class PersonopplysningXmlTjeneste {
@@ -30,7 +31,7 @@ public abstract class PersonopplysningXmlTjeneste {
         if (personopplysningerAggregat.isPresent()) {
             personopplysninger = lagPersonopplysning(personopplysningerAggregat.get(), ref.getBehandlingId(), ref.getAktørId(), ref.getSkjæringstidspunkt());//Implementeres i hver subklasse
         }
-        var personopplysninger1 = new no.nav.vedtak.felles.xml.vedtak.v2.Personopplysninger();
+        var personopplysninger1 = new Personopplysninger();
         personopplysninger1.getAny().add(personopplysninger);
         vedtak.setPersonOpplysninger(personopplysninger1);
     }

@@ -30,6 +30,7 @@ import no.nav.saf.DokumentoversiktResponseProjection;
 import no.nav.saf.Dokumentvariant;
 import no.nav.saf.DokumentvariantResponseProjection;
 import no.nav.saf.FagsakInput;
+import no.nav.saf.Journalpost;
 import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.Journalstatus;
@@ -177,7 +178,7 @@ public class DokumentArkivTjeneste {
                 .logiskeVedlegg(new LogiskVedleggResponseProjection().tittel()));
     }
 
-    private ArkivJournalPost mapTilArkivJournalPost(no.nav.saf.Journalpost journalpost) {
+    private ArkivJournalPost mapTilArkivJournalPost(Journalpost journalpost) {
 
         var dokumenter = journalpost.getDokumenter().stream()
             .map(this::mapTilArkivDokument)
