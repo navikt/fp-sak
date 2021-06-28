@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Refusjonsinfo156;
+import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 
 class K27OppdragMapper {
 
@@ -59,7 +60,7 @@ class K27OppdragMapper {
         var nyOppdrag110 = Oppdrag110.builder()
             .medOppdragskontroll(oppdragskontroll)
             .medAvstemming(oppdrag110.getAvstemming())
-            .medKodeEndring(oppdrag110.getKodeEndring())
+            .medKodeEndring(KodeEndring.ENDRING)
             .medKodeFagomrade(oppdrag110.getKodeFagomrade())
             .medOppdragGjelderId(oppdrag110.getOppdragGjelderId())
             .medFagSystemId(oppdrag110.getFagsystemId())
