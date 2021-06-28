@@ -13,6 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -25,12 +27,15 @@ public class InnvilgelseFpLanseringTjeneste {
 
     private ForeldrepengerUttakTjeneste fpUttakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
+    private SøknadRepository søknadRepository;
 
     @Inject
     public InnvilgelseFpLanseringTjeneste(ForeldrepengerUttakTjeneste fpUttakRepository,
-                                          FamilieHendelseRepository familieHendelseRepository) {
+                                          FamilieHendelseRepository familieHendelseRepository,
+                                          SøknadRepository søknadRepository) {
         this.fpUttakRepository = fpUttakRepository;
         this.familieHendelseRepository = familieHendelseRepository;
+        this.søknadRepository = søknadRepository;
     }
 
     InnvilgelseFpLanseringTjeneste() {
@@ -40,7 +45,8 @@ public class InnvilgelseFpLanseringTjeneste {
     public DokumentMalType velgFpInnvilgelsesmal(Behandling behandling) {
         boolean kanBrukeDokgen = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
             && !harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(behandling)
-            && !harDødtBarn(behandling);
+            && !harDødtBarn(behandling)
+            && harSøknadMedSpråkkodeNB(behandling);
 
         if (kanBrukeDokgen) {
             LOGGER.info("Saksnummer {} kan bruke Dokgen ved første lansering", behandling.getFagsak().getSaksnummer().getVerdi());
@@ -63,5 +69,11 @@ public class InnvilgelseFpLanseringTjeneste {
         return familieHendelseGrunnlagEntitet.isPresent()
             && (familieHendelseGrunnlagEntitet.get().getGjeldendeVersjon().getInnholderDødtBarn()
             || familieHendelseGrunnlagEntitet.get().getGjeldendeVersjon().getInnholderDøfødtBarn());
+    }
+
+    private boolean harSøknadMedSpråkkodeNB(Behandling behandling) {
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(s -> Språkkode.NB.equals(s.getSpråkkode()))
+            .orElse(false);
     }
 }
