@@ -154,6 +154,26 @@ class DagpengerGirBesteberegningTest {
         assertThat(resultat).isTrue();
     }
 
+    @Test
+    public void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
+        // Act
+        var mandagSTP = STP.minusDays(1);
+        var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);
+        lagYtelseAnvist(ytelseBuilder, periode);
+        lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
+
+        // Act
+        var periode2 = new Periode(STP.minusDays(30), STP.plusDays(1));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.FRILANS, periode2),
+            Collections.singletonList(ytelseBuilder.build()),
+            mandagSTP);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
     private void lagYtelseAnvist(YtelseBuilder builder, DatoIntervallEntitet periode) {
         builder.medYtelseAnvist(builder.getAnvistBuilder().medAnvistPeriode(periode)
             .medBeløp(BigDecimal.ZERO)

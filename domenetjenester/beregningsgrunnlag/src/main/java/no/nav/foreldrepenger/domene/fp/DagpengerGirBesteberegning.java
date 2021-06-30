@@ -8,6 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 
@@ -39,6 +40,7 @@ public class DagpengerGirBesteberegning {
                                                                                                  LocalDate dato) {
         return ytelser.stream()
             .filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
+            .filter(y -> y.getStatus().equals(RelatertYtelseTilstand.AVSLUTTET) || y.getStatus().equals(RelatertYtelseTilstand.LØPENDE))
             .filter(y -> y.getYtelseGrunnlag().isPresent())
             .filter(y -> y.getPeriode() != null && y.getPeriode().inkluderer(dato))
             .map(y -> y.getYtelseGrunnlag().get())

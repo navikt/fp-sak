@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 
 public class VentPåSykemelding {
-    private static final List<Arbeidskategori> ARBEIDSKATEGORI_DAGPENGER = List.of(Arbeidskategori.DAGPENGER,
+    private static final List<Arbeidskategori> ARBEIDSKATEGORIER_DAGPENGER = List.of(Arbeidskategori.DAGPENGER,
         Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);
 
 
@@ -31,13 +31,17 @@ public class VentPåSykemelding {
     public static Optional<LocalDate> utledVenteFrist(YtelseFilter filter,
                                                       LocalDate skjæringstidspunkt,
                                                       LocalDate dagensDato) {
-        var løpendeSykepenger = filter.før(skjæringstidspunkt)
-            .filter(y -> RelatertYtelseTilstand.LØPENDE.equals(y.getStatus()) && RelatertYtelseType.SYKEPENGER.equals(
-                y.getRelatertYtelseType()))
+        Collection<Ytelse> alleSykepengerBasertPåDagpenger = filter.før(skjæringstidspunkt)
+            .filter(y -> RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType()))
+            .filter(yt -> erBasertPåDagpenger(yt.getYtelseGrunnlag()))
             .getFiltrertYtelser();
 
-        var løpendeSPBasertPåDagpenger = løpendeSykepenger.stream()
-            .filter(yt -> erBasertPåDagpenger(yt.getYtelseGrunnlag()))
+        if (finnesÅpentVedtakPåStp(alleSykepengerBasertPåDagpenger, skjæringstidspunkt)) {
+            return utledFrist(skjæringstidspunkt, dagensDato);
+        }
+
+        var løpendeSPBasertPåDagpenger = alleSykepengerBasertPåDagpenger.stream()
+            .filter(y -> RelatertYtelseTilstand.LØPENDE.equals(y.getStatus()))
             .collect(Collectors.toList());
 
         if (løpendeSPBasertPåDagpenger.isEmpty()) {
@@ -48,6 +52,12 @@ public class VentPåSykemelding {
             skjæringstidspunkt);
         return finnesNødvendigSykemelding ? Optional.empty() : utledFrist(skjæringstidspunkt, dagensDato);
 
+    }
+
+    private static boolean finnesÅpentVedtakPåStp(Collection<Ytelse> sykepengevedtak, LocalDate skjæringstidspunkt) {
+        return sykepengevedtak.stream()
+            .filter(vedtak -> vedtak.getPeriode().inkluderer(skjæringstidspunkt))
+            .anyMatch(vedtak -> RelatertYtelseTilstand.ÅPEN.equals(vedtak.getStatus()));
     }
 
     private static Optional<LocalDate> utledFrist(LocalDate skjæringstidspunkt, LocalDate dagensdato) {
@@ -71,7 +81,7 @@ public class VentPåSykemelding {
 
     private static boolean erBasertPåDagpenger(Optional<YtelseGrunnlag> ytelseGrunnlag) {
         return ytelseGrunnlag.map(
-            yg -> ARBEIDSKATEGORI_DAGPENGER.contains(yg.getArbeidskategori().orElse(Arbeidskategori.UDEFINERT)))
+            yg -> ARBEIDSKATEGORIER_DAGPENGER.contains(yg.getArbeidskategori().orElse(Arbeidskategori.UDEFINERT)))
             .orElse(false);
     }
 }
