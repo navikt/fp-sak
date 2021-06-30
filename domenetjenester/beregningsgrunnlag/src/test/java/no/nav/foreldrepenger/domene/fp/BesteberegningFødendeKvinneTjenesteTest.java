@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import no.nav.abakus.iaygrunnlag.Periode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregatEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
@@ -147,6 +148,7 @@ public class BesteberegningFødendeKvinneTjenesteTest {
         var aktørYtelseBuilder = oppdatere.getAktørYtelseBuilder(behandlingReferanse.getAktørId());
         var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
             .medPeriode(DatoIntervallEntitet.fraOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(10)))
+            .medStatus(RelatertYtelseTilstand.LØPENDE)
             .medYtelseType(RelatertYtelseType.SYKEPENGER);
         var grunnlagBuilder = ytelseBuilder.getGrunnlagBuilder();
         grunnlagBuilder.medArbeidskategori(Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER);

@@ -39,8 +39,8 @@ public class DagpengerGirBesteberegning {
     private static boolean harSykepengerMedOvergangFraDagpengerPåEllerOppTilSkjæringstidspunktet(Collection<Ytelse> ytelser,
                                                                                                  LocalDate dato) {
         return ytelser.stream()
-            .filter(y -> y.getRelatertYtelseType().equals(RelatertYtelseType.SYKEPENGER))
-            .filter(y -> y.getStatus().equals(RelatertYtelseTilstand.AVSLUTTET) || y.getStatus().equals(RelatertYtelseTilstand.LØPENDE))
+            .filter(y -> RelatertYtelseType.SYKEPENGER.equals(y.getRelatertYtelseType()))
+            .filter(y -> RelatertYtelseTilstand.AVSLUTTET.equals(y.getStatus()) || RelatertYtelseTilstand.LØPENDE.equals(y.getStatus()))
             .filter(y -> y.getYtelseGrunnlag().isPresent())
             .filter(y -> y.getPeriode() != null && y.getPeriode().inkluderer(dato))
             .map(y -> y.getYtelseGrunnlag().get())
