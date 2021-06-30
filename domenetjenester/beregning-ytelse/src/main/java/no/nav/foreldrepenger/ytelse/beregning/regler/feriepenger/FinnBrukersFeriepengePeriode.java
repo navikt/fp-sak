@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori;
@@ -101,9 +102,16 @@ class FinnBrukersFeriepengePeriode extends LeafSpecification<BeregningsresultatF
 
     private Optional<LocalDate> finnFørsteUttaksdag(List<BeregningsresultatPeriode> beregningsresultatPerioder) {
         return beregningsresultatPerioder.stream()
-            .filter(periode -> periode.getBeregningsresultatAndelList().stream().anyMatch(andel -> andel.getDagsats() > 0))
+            .filter(periode -> finnesAndelMedKravPåFeriepengerOgUtbetaling(periode.getBeregningsresultatAndelList()))
             .map(BeregningsresultatPeriode::getFom)
             .min(Comparator.naturalOrder());
+    }
+
+    private boolean finnesAndelMedKravPåFeriepengerOgUtbetaling(List<BeregningsresultatAndel> andeler) {
+        return andeler.stream()
+            .filter(andel -> andel.getInntektskategori().erArbeidstakerEllerSjømann())
+            .anyMatch(andel -> andel.getDagsats() > 0);
+
     }
 
     private LocalDate finnSisteUttaksdag(List<BeregningsresultatPeriode> beregningsresultatPerioder, List<BeregningsresultatPeriode> annenPartsBeregningsresultatPerioder) {
