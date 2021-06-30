@@ -158,6 +158,20 @@ class VentPåSykemeldingTest {
         assertThat(frist).isEqualTo(skjæringstidspunkt.plusDays(1));
     }
 
+    @Test
+    public void skal_vente_hvis_vedtak_på_stp_er_åpent() {
+        // Arrange
+        var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(førStp(20), 30);
+        var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);
+        lagYtelseGrunnlag(ytelseBuilder, Arbeidskategori.DAGPENGER);
+
+        // Act
+        var frist = VentPåSykemelding.utledVenteFrist(
+            new YtelseFilter(Collections.singletonList(ytelseBuilder.build())), STP, STP);
+
+        // Assert
+        assertThat(frist).isPresent();
+    }
 
     private Optional<LocalDate> kjørSakSomTriggerVentepunkt(LocalDate skjæringstidspunkt, LocalDate dagensDato) {
         var periode = DatoIntervallEntitet.fraOgMedPlusArbeidsdager(skjæringstidspunkt.minusDays(20), 14);
