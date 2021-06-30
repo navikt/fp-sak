@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,8 @@ public class VurderOpphørAvYtelser  {
     private FamilieHendelseRepository familieHendelseRepository;
     private static final BigDecimal HUNDRE = new BigDecimal(100);
 
+    private EntityManager entityManager;
+
     public VurderOpphørAvYtelser() {
         //NoSonar
     }
@@ -95,7 +98,8 @@ public class VurderOpphørAvYtelser  {
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                  OverlappFPInfotrygdTjeneste sjekkOverlappInfortrygd,
-                                 KøKontroller køKontroller) {
+                                 KøKontroller køKontroller,
+                                 EntityManager entityManager) {
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.personopplysningRepository = behandlingRepositoryProvider.getPersonopplysningRepository();
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
@@ -110,6 +114,7 @@ public class VurderOpphørAvYtelser  {
         this.sjekkOverlappInfortrygd = sjekkOverlappInfortrygd;
         this.køKontroller = køKontroller;
         this.familieHendelseRepository = behandlingRepositoryProvider.getFamilieHendelseRepository();
+        this.entityManager = entityManager;
     }
 
     public void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
@@ -211,12 +216,13 @@ public class VurderOpphørAvYtelser  {
     void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
         var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId());
         if (harÅpenOrdinærBehandling) {
-            // Litt styr for å unngå EntityNotFoundException: attempted to lock a deleted instance. Prøv flush / hent hvis fortsatt problem
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .filter(b -> !b.harBehandlingÅrsak(årsakType))
                 .map(Behandling::getId)
                 .ifPresent(bid -> {
                     var lås = behandlingRepository.taSkriveLås(bid);
+                    // Litt styr for å unngå EntityNotFoundException: attempted to lock a deleted instance. Prøver flush / hent:
+                    entityManager.flush();
                     var behandling = behandlingRepository.hentBehandling(bid);
                     opprettVurderKonsekvens(behandling, beskrivelse);
                     oppdatereBehMedÅrsak(bid, lås);

@@ -100,7 +100,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(entityManager);
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
         vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
-            prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class) );
+            prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class), entityManager);
     }
 
     @Test
