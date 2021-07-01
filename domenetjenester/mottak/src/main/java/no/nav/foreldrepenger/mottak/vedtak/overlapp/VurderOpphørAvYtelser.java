@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -218,14 +217,9 @@ public class VurderOpphørAvYtelser  {
         if (harÅpenOrdinærBehandling) {
             behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
                 .filter(b -> !b.harBehandlingÅrsak(årsakType))
-                .map(Behandling::getId)
-                .ifPresent(bid -> {
-                    var lås = behandlingRepository.taSkriveLås(bid);
-                    // Litt styr for å unngå EntityNotFoundException: attempted to lock a deleted instance. Prøver flush / hent:
-                    entityManager.flush();
-                    var behandling = behandlingRepository.hentBehandling(bid);
-                    opprettVurderKonsekvens(behandling, beskrivelse);
-                    oppdatereBehMedÅrsak(bid, lås);
+                .ifPresent(b -> {
+                    opprettVurderKonsekvens(b, beskrivelse);
+                    oppdatereBehMedÅrsak(b.getId());
                 });
             return;
         }
@@ -391,8 +385,8 @@ public class VurderOpphørAvYtelser  {
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
-    private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingLås lås) {
-        behandlingRepository.verifiserBehandlingLås(lås);
+    private void oppdatereBehMedÅrsak(Long behandlingId) {
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var årsakBuilder = BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
         behandling.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
