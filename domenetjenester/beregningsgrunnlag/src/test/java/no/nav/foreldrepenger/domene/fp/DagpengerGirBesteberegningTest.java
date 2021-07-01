@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import org.junit.jupiter.api.Test;
 
 import no.nav.abakus.iaygrunnlag.Periode;
@@ -96,6 +97,20 @@ class DagpengerGirBesteberegningTest {
     }
 
     @Test
+    public void skal_gi_true_ved_dagpenger_som_starter_1_dag_før_stp() {
+        // Act
+        var periode = new Periode(STP.minusDays(1), STP.plusDays(20));
+        var resultat = DagpengerGirBesteberegning.harDagpengerPåEllerIntillSkjæringstidspunkt(
+            OpptjeningAktiviteter.fra(OpptjeningAktivitetType.DAGPENGER, periode),
+            Collections.emptyList(),
+            STP);
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
+
+    @Test
     public void skal_gi_true_ved_dagpenger_på_stp() {
         // Act
         var periode = new Periode(STP.minusDays(30), STP);
@@ -157,6 +172,7 @@ class DagpengerGirBesteberegningTest {
     @Test
     public void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
         // Act
+        LocalDate localDate = VirkedagUtil.tomVirkedag(LocalDate.of(2021, 6, 7));
         var mandagSTP = STP.minusDays(1);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);

@@ -53,7 +53,7 @@ public class DagpengerGirBesteberegning {
                                                                          LocalDate dato) {
         return opptjeningAktiviteter.getOpptjeningPerioder()
             .stream()
-            .filter(opptjeningPeriode -> opptjeningPeriode.periode().getFom().isBefore(dato) && (
+            .filter(opptjeningPeriode -> !opptjeningPeriode.periode().getFom().isAfter(dato) && (
                 opptjeningPeriode.periode().getTom() == null || !opptjeningPeriode.periode()
                     .getTom()
                     .isBefore(dato)))
