@@ -28,11 +28,12 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
     private final LoggOverlappEksterneYtelserTjeneste identifiserOverlappendeInfotrygdYtelser = Mockito.mock(
         LoggOverlappEksterneYtelserTjeneste.class);
     private final VurderOpphørAvYtelser vurderOpphørAvYtelser = Mockito.mock(VurderOpphørAvYtelser.class);
+    private final HåndterOpphørAvYtelser håndterOpphørAvYtelser = Mockito.mock(HåndterOpphørAvYtelser.class);
 
     @BeforeEach
     public void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser,
+        vurderOpphørAvYtelserTask = new VurderOpphørAvYtelserTask(vurderOpphørAvYtelser, håndterOpphørAvYtelser,
             identifiserOverlappendeInfotrygdYtelser, repositoryProvider);
     }
 
@@ -80,7 +81,7 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
 
         var expectBeskrivelse = String.format("%s saksnr %s overlapper %s saksnr %s", YtelseType.PLEIEPENGER_SYKT_BARN.getNavn(), "ABCDE",
             behandling.getFagsakYtelseType().getNavn(), behandling.getFagsak().getSaksnummer().getVerdi());
-        verify(vurderOpphørAvYtelser, times(1)).oppdaterEllerOpprettRevurdering(behandling.getFagsak(),
+        verify(håndterOpphørAvYtelser, times(1)).oppdaterEllerOpprettRevurdering(behandling.getFagsak(),
             expectBeskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
     }
 
