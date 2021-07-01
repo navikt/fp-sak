@@ -272,6 +272,7 @@ class MapTilKalkulatorInput {
                 oppgittEgenNæringDto.getVarigEndring(),
                 oppgittEgenNæringDto.getEndringDato(),
                 oppgittEgenNæringDto.getNyIArbeidslivet(),
+                oppgittEgenNæringDto.getBegrunnelse(),
                 oppgittEgenNæringDto.getBruttoInntekt());
     }
 
