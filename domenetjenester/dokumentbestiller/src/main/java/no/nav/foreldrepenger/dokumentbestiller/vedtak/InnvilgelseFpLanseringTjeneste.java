@@ -52,7 +52,7 @@ public class InnvilgelseFpLanseringTjeneste {
             LOGGER.info("Saksnummer {} kan bruke Dokgen ved første lansering", behandling.getFagsak().getSaksnummer().getVerdi());
         }
 
-        return !ENV.isProd() && kanBrukeDokgen ?
+        return kanBrukeDokgen ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
