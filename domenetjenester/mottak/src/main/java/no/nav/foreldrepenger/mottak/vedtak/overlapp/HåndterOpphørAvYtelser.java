@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -67,30 +68,35 @@ public class HåndterOpphørAvYtelser {
     }
 
     public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
-        var harÅpenOrdinærBehandling = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId());
-        if (harÅpenOrdinærBehandling) {
-            behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+        var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(fagsak, årsakType);
+
+        if (eksisterendeBehandling != null) {
+            opprettVurderKonsekvens(eksisterendeBehandling, beskrivelse);
+            oppdatereBehMedÅrsak(eksisterendeBehandling.getId(), årsakType);
+        } else {
+            behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
                 .filter(b -> !b.harBehandlingÅrsak(årsakType))
                 .ifPresent(b -> {
-                    opprettVurderKonsekvens(b, beskrivelse);
-                    oppdatereBehMedÅrsak(b.getId());
-                });
-            return;
-        }
-        behandlingRepository.hentSisteYtelsesBehandlingForFagsakIdReadOnly(fagsak.getId())
-            .filter(b -> !b.harBehandlingÅrsak(årsakType))
-            .ifPresent(b -> {
-                var enhet = opprettVurderKonsekvens(b, beskrivelse);
+                    var enhet = opprettVurderKonsekvens(b, beskrivelse);
 
-                fagsakLåsRepository.taLås(fagsak.getId());
-                var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
-                var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
-                if (revurdering != null) {
-                    LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
-                } else {
-                    LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
-                }
-            });
+                    fagsakLåsRepository.taLås(fagsak.getId());
+                    var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
+                    var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
+                    if (revurdering != null) {
+                        LOG.info("Overlapp FPSAK: Opprettet revurdering med behandlingId {} saksnummer {} pga {}", revurdering.getId(), fagsak.getSaksnummer(), beskrivelse);
+                    } else {
+                        LOG.info("Overlapp FPSAK: Kunne ikke opprette revurdering saksnummer {}", fagsak.getSaksnummer());
+                    }
+                });
+        }
+    }
+
+    private Behandling finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(Fagsak fagsak, BehandlingÅrsakType årsakType) {
+        return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId())
+            .filter(b -> !BehandlingStatus.getFerdigbehandletStatuser().contains(b.getStatus()))
+            .filter(b -> !b.harBehandlingÅrsak(årsakType))
+            .filter(b -> !b.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING))
+            .orElse(null);
     }
 
     private OrganisasjonsEnhet opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
@@ -126,10 +132,10 @@ public class HåndterOpphørAvYtelser {
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
-    private void oppdatereBehMedÅrsak(Long behandlingId) {
+    private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingÅrsakType behandlingÅrsakType) {
         var lås = behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var årsakBuilder = BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);
+        var årsakBuilder = BehandlingÅrsak.builder(behandlingÅrsakType);
         behandling.getOriginalBehandlingId().ifPresent(årsakBuilder::medOriginalBehandlingId);
         årsakBuilder.buildFor(behandling);
         behandlingRepository.lagre(behandling, lås);
