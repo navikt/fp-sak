@@ -13,9 +13,9 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.rest.StsAccessTokenConfig;
 import no.nav.vedtak.felles.integrasjon.rest.SystemStsRestClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 /*
  * Dokumentasjon Tjeneste for å hente digital kontaktinformasjon (mobil, epost, sdp og språkkode)

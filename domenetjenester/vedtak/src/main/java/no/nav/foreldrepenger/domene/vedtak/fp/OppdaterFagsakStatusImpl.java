@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.uttak.saldo.MaksDatoUttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.domene.vedtak.OppdaterFagsakStatus;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef("FP")

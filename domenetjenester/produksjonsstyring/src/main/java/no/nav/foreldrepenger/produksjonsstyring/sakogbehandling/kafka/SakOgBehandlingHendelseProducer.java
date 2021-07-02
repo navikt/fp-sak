@@ -18,9 +18,9 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class SakOgBehandlingHendelseProducer {

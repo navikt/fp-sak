@@ -124,7 +124,7 @@ public class LoggHistoriskOverlappFPInfotrygdVLTjeneste {
 
     private LocalDateTimeline<Boolean> finnTidslinjeFraGrunnlagene(List<Grunnlag> grunnlag, LocalDate førsteUttaksdatoFp) {
         var segmenter = grunnlag.stream()
-            .map(Grunnlag::getVedtak)
+                .map(Grunnlag::getVedtak)
             .flatMap(Collection::stream)
             .filter(v -> !v.getPeriode().getTom().isBefore(førsteUttaksdatoFp))
             .filter(v -> v.getUtbetalingsgrad() > 0)

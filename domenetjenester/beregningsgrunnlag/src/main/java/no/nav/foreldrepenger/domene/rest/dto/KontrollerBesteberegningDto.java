@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_AUTOMATISK_BESTEBEREGNING_KODE)
 public class KontrollerBesteberegningDto extends BekreftetAksjonspunktDto {

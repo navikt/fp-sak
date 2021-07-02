@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.folketrygdloven.kalkulator.modell.opptjening.OpptjeningAktiviteterDto;
 import no.nav.folketrygdloven.kalkulator.tid.Intervall;
+import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 
 public class OpptjeningMapperTilKalkulus {

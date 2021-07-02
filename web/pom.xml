@@ -20,12 +20,6 @@
     </properties>
     <dependencies>
 
-        <!-- UNLEASH: DENNE SKAL FJERNES -->
-        <dependency>
-            <groupId>no.finn.unleash</groupId>
-            <artifactId>unleash-client-java</artifactId>
-        </dependency>
-
         <!-- Database håndtering -->
         <dependency>
             <groupId>com.zaxxer</groupId>

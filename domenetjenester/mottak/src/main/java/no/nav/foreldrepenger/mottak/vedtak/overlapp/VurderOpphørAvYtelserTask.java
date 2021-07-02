@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 

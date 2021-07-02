@@ -16,9 +16,9 @@ import org.apache.kafka.common.errors.AuthorizationException;
 import org.apache.kafka.common.errors.RetriableException;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 class RisikoklassifiseringMeldingProducer  {

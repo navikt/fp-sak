@@ -44,10 +44,10 @@ import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagSakSnapshotDto;
 import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClient;
 import no.nav.vedtak.felles.integrasjon.rest.OidcRestClientResponseHandler.ObjectReaderResponseHandler;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class AbakusTjeneste {

@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.domene.fp;
 
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseandel;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelseperiode;
@@ -17,14 +25,6 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class BesteberegningYtelsegrunnlagMapper {
     private static final List<RelatertYtelseType> FPSAK_YTELSER = Arrays.asList(RelatertYtelseType.FORELDREPENGER,

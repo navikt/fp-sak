@@ -20,10 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.familie.topic.Topic;
 import no.nav.familie.topic.TopicManifest;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.VLException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped

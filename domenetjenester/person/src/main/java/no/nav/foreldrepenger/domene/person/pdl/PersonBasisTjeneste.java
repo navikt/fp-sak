@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.pdl.Adressebeskyttelse;
 import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
@@ -34,7 +35,6 @@ import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-import no.nav.vedtak.util.env.Environment;
 
 @ApplicationScoped
 public class PersonBasisTjeneste {

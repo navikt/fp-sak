@@ -13,9 +13,9 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.OAuth2RestClient;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class SpokelseKlient {

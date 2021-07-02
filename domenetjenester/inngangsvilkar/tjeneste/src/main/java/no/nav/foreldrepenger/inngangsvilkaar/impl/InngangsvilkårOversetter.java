@@ -53,9 +53,9 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.Fødselsvilkår
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class InngangsvilkårOversetter {

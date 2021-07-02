@@ -22,8 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 /** Steg for å beregne tilkjent ytelse (for Engangsstønad). */
 @BehandlingStegRef(kode = "BERYT")

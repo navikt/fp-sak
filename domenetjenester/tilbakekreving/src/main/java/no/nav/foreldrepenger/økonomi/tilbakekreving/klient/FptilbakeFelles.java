@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomi.tilbakekreving.klient;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 class FptilbakeFelles {
 

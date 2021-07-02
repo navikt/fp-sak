@@ -19,10 +19,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
-import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
 
 @ApplicationScoped
 @TestOnlyMqDisabled

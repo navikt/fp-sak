@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragslinje150;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.økonomistøtte.OppdragKvitteringTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Betalingsmottaker;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.DelytelseId;
@@ -27,7 +28,6 @@ import no.nav.foreldrepenger.økonomistøtte.ny.domene.OppdragLinje;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Periode;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.SatsType;
 import no.nav.foreldrepenger.økonomistøtte.ny.domene.Satsen;
-import no.nav.vedtak.util.env.Environment;
 
 
 public class EksisterendeOppdragMapper {

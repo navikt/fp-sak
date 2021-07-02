@@ -8,8 +8,8 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class OpplysningsPeriodeTjeneste {
