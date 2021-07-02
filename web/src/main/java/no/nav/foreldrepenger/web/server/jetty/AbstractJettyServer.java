@@ -84,10 +84,10 @@ abstract class AbstractJettyServer {
     }
 
     private void konfigurerJms() throws Exception {
-        JmsKonfig.settOppJndiConnectionfactory("jms/ConnectionFactory", "mqGateway02");
-        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragSend", "fpsak.okonomi.oppdrag.send");
-        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragMotta", "fpsak.okonomi.oppdrag.mottak");
-        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakGrensesnittavstemmingSend", "ray.avstem.data", true);
+        JmsKonfig.settOppJndiConnectionfactory("jms/ConnectionFactory");
+        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragSend", "fpsak.okonomi.oppdrag.send.queueName");
+        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakOkonomiOppdragMotta", "fpsak.okonomi.oppdrag.mottak.queueName");
+        JmsKonfig.settOppJndiMessageQueue("jms/QueueFpsakGrensesnittavstemmingSend", "ray.avstem.data.queueName", true);
     }
 
     protected abstract void konfigurerMiljø() throws Exception;
