@@ -553,10 +553,6 @@ public class AutomatiskEtterkontrollTaskTest {
     }
 
     private FødtBarnInfo byggBaby(LocalDate fødselsdato) {
-        return new FødtBarnInfo.Builder()
-                .medFødselsdato(fødselsdato)
-                .medIdent(PersonIdent.fra("12345678901"))
-                .build();
+        return new FødtBarnInfo(PersonIdent.fra("12345678901"), fødselsdato);
     }
-
 }

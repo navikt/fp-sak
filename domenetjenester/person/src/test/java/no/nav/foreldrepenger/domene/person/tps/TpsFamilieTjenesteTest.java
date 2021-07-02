@@ -62,10 +62,8 @@ public class TpsFamilieTjenesteTest {
     private List<FødtBarnInfo> genererBarn(Set<FamilierelasjonVL> familierelasjoner, LocalDate startdatoIntervall) {
         final var barn = new ArrayList<FødtBarnInfo>();
         for (var familierelasjon : familierelasjoner) {
-            barn.add(new FødtBarnInfo.Builder()
-                    .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
-                    .medIdent(familierelasjon.personIdent())
-                    .build());
+            barn.add(new FødtBarnInfo(familierelasjon.personIdent(),
+                    genererFødselsdag(startdatoIntervall.minusWeeks(1))));
         }
         return barn;
     }

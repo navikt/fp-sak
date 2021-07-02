@@ -426,7 +426,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void settOppTpsSurrogatiStrukturer() {
-        BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
+        BARN_FBI = new FødtBarnInfo(BARN_IDENT, BARN_FØDT);
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of(BARN_FBI));
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.finnAktørIdForForeldreTil(BARN_IDENT)).thenReturn(List.of(MOR_AKTØR_ID));
@@ -437,7 +437,7 @@ public class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     }
 
     private void settOppTpsStrukturer(boolean medKunMor, boolean nyfødtbarnEriTPS) {
-        BARN_FBI = new FødtBarnInfo.Builder().medIdent(BARN_IDENT).medFødselsdato(BARN_FØDT).build();
+        BARN_FBI = new FødtBarnInfo(BARN_IDENT, BARN_FØDT);
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(MOR_AKTØR_ID), any())).thenReturn(List.of());
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(eq(FAR_AKTØR_ID), any())).thenReturn(List.of());
         if(nyfødtbarnEriTPS) {

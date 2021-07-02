@@ -253,7 +253,7 @@ public class PersonopplysningInnhenter {
 
     private Set<PersonIdent> finnBarnRelatertTil(List<FødtBarnInfo> filtrertFødselFREG) {
         return filtrertFødselFREG.stream()
-            .map(FødtBarnInfo::getIdent)
+                .map(FødtBarnInfo::ident)
             .filter(Objects::nonNull) // Dødfødsel
             .collect(Collectors.toSet());
     }

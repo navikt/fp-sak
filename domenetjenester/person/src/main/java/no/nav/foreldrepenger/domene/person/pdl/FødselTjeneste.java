@@ -68,7 +68,7 @@ public class FødselTjeneste {
             .forEach(alleBarn::add);
 
         return alleBarn.stream()
-                .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.getFødselsdato())))
+                .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato())))
                 .collect(Collectors.toList());
     }
 
@@ -89,10 +89,7 @@ public class FødselTjeneste {
 
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {
         var dato = LocalDate.parse(barn.getDato(), DateTimeFormatter.ISO_LOCAL_DATE);
-        return new FødtBarnInfo.Builder()
-                .medFødselsdato(dato)
-                .medDødsdato(dato)
-                .build();
+        return new FødtBarnInfo(null, dato, dato);
     }
 
     private FødtBarnInfo fraIdent(String barnIdent) {
@@ -112,11 +109,8 @@ public class FødselTjeneste {
                 .map(Doedsfall::getDoedsdato)
                 .filter(Objects::nonNull)
                 .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        return new FødtBarnInfo.Builder()
-                .medIdent(new PersonIdent(barnIdent))
-                .medFødselsdato(fødselsdato)
-                .medDødsdato(dødssdato)
-                .build();
+        return new FødtBarnInfo(new PersonIdent(barnIdent), fødselsdato, dødssdato);
+
     }
 
 }

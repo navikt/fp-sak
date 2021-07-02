@@ -150,7 +150,7 @@ public class FamilieHendelseTjeneste {
         final var hendelseBuilder = familieGrunnlagRepository.opprettBuilderForregister(behandling)
             .tilbakestillBarn();
 
-        bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.getFødselsdato(), barn.getDødsdato().orElse(null)));
+        bekreftetTps.forEach(barn -> hendelseBuilder.leggTilBarn(barn.fødselsdato(), barn.getDødsdato().orElse(null)));
         hendelseBuilder.medAntallBarn(bekreftetTps.size());
 
         familieGrunnlagRepository.lagreRegisterHendelse(behandling, hendelseBuilder);
