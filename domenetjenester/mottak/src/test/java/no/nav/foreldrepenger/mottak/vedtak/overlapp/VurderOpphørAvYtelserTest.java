@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -26,9 +25,7 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
@@ -40,16 +37,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
-import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -88,8 +84,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     private RevurderingTjeneste revurderingTjenesteMockFP;
     @Mock
     private RevurderingTjeneste revurderingTjenesteMockSVP;
-    @Mock
-    private BehandlingProsesseringTjeneste behandlingProsesseringTjenesteMock;
 
     @BeforeEach
     public void setUp() {
@@ -100,7 +94,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         fagsakRepository = new FagsakRepository(entityManager);
         prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
         vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
-            prosessTaskRepository, behandlendeEnhetTjeneste, behandlingProsesseringTjenesteMock, sjekkInfotrygdTjeneste, mock(KøKontroller.class), entityManager);
+            prosessTaskRepository, behandlendeEnhetTjeneste, sjekkInfotrygdTjeneste, entityManager);
     }
 
     @Test
@@ -117,7 +111,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
 
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fsavsluttetBehMor);
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(), any());
     }
 
@@ -139,13 +133,12 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(),nyAvsBehandlingMor.getId());
 
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak());
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
     }
 
     @Test
     public void adopsjonFarFørstSkalIkkeOpphøresAvMor() {
-
         var avsluttetBehFar = lagBehandlingFar(FØDSELS_DATO_1, MEDF_AKTØR_ID, AKTØR_ID_MOR);
         var berResFarBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetBehFar, berResFarBeh1);
@@ -159,7 +152,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fsavsluttetBehMor.getId(),avsluttetBehMor.getId());
 
         // OBS: Dette vil vi helst ikke. Trenger sjekk på om sak gjelder samme barn
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fsavsluttetBehFar);
     }
 
     @Test
@@ -176,7 +169,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehMorSomIkkeOverlapper.getId());
-        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
     }
 
@@ -199,9 +192,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fsavsluttetBehFar = avslBehFarMedOverlappMor.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehMorSomIkkeOverlapper.getId());
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fsavsluttetBehFar);
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_IKKE_BEH_1 );
-
     }
 
     @Test
@@ -219,7 +211,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fagsakNy = nyBehFar.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehFar.getId());
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehFar), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fsavsluttetBehFar);
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fagsakNy.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
     }
 
@@ -236,25 +228,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fagsakNy = nyAvsBehandlingMor.getFagsak();
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
-        verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
-    }
-
-    @Test
-    public void ikkeOpphørSakPåMorNårOpphørErOpprettetAllerede() {
-        var avsluttetBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
-        var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(avsluttetBehMor, berResMorBeh1);
-
-        var nyAvsBehandlingMor = lagBehandlingMor(SISTE_DAG_MOR, AKTØR_ID_MOR, null);
-        var berResMorOverlapp = lagBeregningsresultat(SISTE_DAG_MOR, SISTE_DAG_MOR.plusWeeks(3), Inntektskategori.ARBEIDSTAKER);
-        beregningsresultatRepository.lagre(nyAvsBehandlingMor, berResMorOverlapp);
-        var fagsakNy = nyAvsBehandlingMor.getFagsak();
-
-        lagRevurdering(avsluttetBehMor);
-
-        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyAvsBehandlingMor.getId());
-        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fsavsluttetBehMor);
         verify(sjekkInfotrygdTjeneste, times(0)).harForeldrepengerInfotrygdSomOverlapper(any(),any() );
     }
 
@@ -288,7 +262,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void opprettRevNårOverlappMedFPNårInnvSVPPåSammeBarn() {
+    public void opprettHåndteringNårOverlappMedFPNårInnvSVPPåSammeBarn() {
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
@@ -300,11 +274,11 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMockSVP, times(1)).opprettAutomatiskRevurdering(eq(fagsakNy), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fagsakNy);
     }
 
     @Test
-    public void opprettRevNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
+    public void opprettHåndteringNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
         var avsluttetFPBehMor = lagBehandlingMor(FØDSELS_DATO_1, AKTØR_ID_MOR, null);
         var berResMorBeh1 = lagBeregningsresultat(FØDSELS_DATO_1, SISTE_DAG_MOR, Inntektskategori.ARBEIDSTAKER);
         beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
@@ -317,7 +291,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPSakMor);
     }
 
     @Test
@@ -335,7 +309,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
     }
 
     @Test
@@ -354,7 +328,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(avsluttetFPSakMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetFPSakMor);
     }
 
     @Test
@@ -370,7 +344,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
 
-        verify(revurderingTjenesteMockSVP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
     }
 
     @Test
@@ -387,7 +361,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), morAdopsjonSammeBarnIVB.getId());
 
-        verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
     }
 
     @Test
@@ -406,11 +380,10 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), morAdopsjonIVB.getId());
 
-        verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(adopsjonFarLopFS), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(adopsjonFarLopFS);
     }
 
-    private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
-    {
+    private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId) {
         var scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioAvsluttetBehMor.medSøknadHendelse().medFødselsDato(fødselsDato);
         if (medfAktørId!= null) {
@@ -425,8 +398,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private Behandling lagBehandlingFar( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId)
-    {
+    private Behandling lagBehandlingFar( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId) {
         var scenarioAvsluttetBehFar = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
         scenarioAvsluttetBehFar.medSøknadHendelse().medFødselsDato(fødselsDato);
         if (medfAktørId!= null) {
@@ -487,7 +459,6 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         return behandlingSVP;
     }
 
-
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, Inntektskategori inntektskategori) {
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build();
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
@@ -541,13 +512,18 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         fagsakRepository.oppdaterFagsakStatus(behandling.getFagsakId(), FagsakStatus.LØPENDE);
     }
-    private void lagRevurdering(Behandling originalBehandling) {
-        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN)
-                    .medOriginalBehandlingId(originalBehandling.getId()))
-            .build();
-        repositoryProvider.getBehandlingRepository().lagre(revurdering, repositoryProvider.getBehandlingRepository().taSkriveLås(revurdering));
+
+    private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak) {
+        var håndterOpphør = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
+        assertThat(håndterOpphør.getTaskType()).isEqualTo(HåndterOpphørAvYtelserTask.TASKTYPE);
+        assertThat(håndterOpphør.getFagsakId()).isEqualTo(fagsak.getId());
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNotNull();
+        assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN.getKode());
     }
 
+    private void verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet() {
+        boolean ikkeFunnetTask = prosessTaskRepository.finnIkkeStartet().stream()
+            .noneMatch(pt -> HåndterOpphørAvYtelserTask.TASKTYPE.equals(pt.getTaskType()));
+        assertThat(ikkeFunnetTask).isTrue();
+    }
 }

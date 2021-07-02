@@ -1,12 +1,7 @@
 package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
-import java.util.Optional;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -23,7 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     public static final String TASKTYPE = "iverksetteVedtak.vurderOpphørAvYtelser";
 
-    private static final Logger LOG = LoggerFactory.getLogger(VurderOpphørAvYtelserTask.class);
     public static final String K9_YTELSE_KEY = "k9ytelse";
     public static final String K9_INNLEGGELSE_KEY = "k9innleggelse";
     public static final String K9_SAK_KEY = "k9sak";
@@ -33,36 +27,38 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
 
-
-    private VurderOpphørAvYtelser tjeneste;
+    private VurderOpphørAvYtelser vurderOpphørAvYtelser;
+    private HåndterOpphørAvYtelser håndterOpphørAvYtelser;
 
     VurderOpphørAvYtelserTask() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser tjeneste,
+    public VurderOpphørAvYtelserTask(VurderOpphørAvYtelser vurderOpphørAvYtelser,
+                                     HåndterOpphørAvYtelser håndterOpphørAvYtelser,
                                      LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste,
                                      BehandlingRepositoryProvider repositoryProvider) {
         super();
-        this.tjeneste = tjeneste;
+        this.vurderOpphørAvYtelser = vurderOpphørAvYtelser;
+        this.håndterOpphørAvYtelser = håndterOpphørAvYtelser;
         this.overlappsLoggerTjeneste = overlappsLoggerTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-
     }
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         // Placeholder for å opprettet VKY når det kommer inn overlappende vedtak fra K9sak, VLSP, mfl
         if (prosessTaskData.getPropertyValue(K9_REVURDER_KEY) != null) {
+            //TODO TFP-4475: Flytte dette til HåndterOpphørAvYtelserTask
             var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
             var saksnr = prosessTaskData.getPropertyValue(K9_SAK_KEY);
             var ytelse = prosessTaskData.getPropertyValue(K9_YTELSE_KEY);
             var intro = prosessTaskData.getPropertyValue(K9_INNLEGGELSE_KEY) != null ? "(Innlagt) saksnr" : "saksnr";
             var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s", ytelse, intro, saksnr, fagsak.getYtelseType().getNavn(), fagsak.getSaksnummer().getVerdi());
 
-            tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
+            håndterOpphørAvYtelser.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
             return;
         }
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -70,7 +66,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
         overlappsLoggerTjeneste.loggOverlappForVedtakFPSAK(behandlingId, behandling.getFagsak().getSaksnummer(), behandling.getAktørId());
         //kjøres kun for førstegangsvedtak for svp og fp
         if (!behandling.erRevurdering()) {
-            tjeneste.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);
+            vurderOpphørAvYtelser.vurderOpphørAvYtelser(prosessTaskData.getFagsakId(), behandlingId);
         }
     }
 

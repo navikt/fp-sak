@@ -166,6 +166,7 @@ public class VedtaksHendelseHåndterer {
             .map(PleipengerOversetter::oversettTilleggsopplysninger)
             .filter(to -> !to.innleggelsesPerioder().isEmpty())
             .isPresent();
+        //TODO TFP-4475: Bytte ut VurderOpphørAvYtelserTask med HåndterOpphørAvYtelserTask
         var data = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
         data.setFagsak(f.getId(), f.getAktørId().getId());
         data.setCallId(callID.toString());
