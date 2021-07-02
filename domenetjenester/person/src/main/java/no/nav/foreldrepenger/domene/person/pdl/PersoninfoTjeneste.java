@@ -262,23 +262,23 @@ public class PersoninfoTjeneste {
                 .map(PersoninfoTjeneste::mapPersonstatusHistorisk)
                 .collect(Collectors.toList());
         periodiserPersonstatus(personStatusPerioder).stream()
-                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .filter(p -> p.gyldighetsperiode().tom().isAfter(fom) && p.gyldighetsperiode().fom().isBefore(tom))
                 .forEach(builder::leggTil);
 
         person.getStatsborgerskap().stream()
                 .map(PersoninfoTjeneste::mapStatsborgerskapHistorikk)
-                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .filter(p -> p.gyldighetsperiode().tom().isAfter(fom) && p.gyldighetsperiode().fom().isBefore(tom))
                 .forEach(builder::leggTil);
 
         person.getOpphold().stream()
                 .filter(PersoninfoTjeneste::relevantOppholdstillatelse)
                 .map(PersoninfoTjeneste::mapOppholdsHistorikk)
-                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .filter(p -> p.gyldighetsperiode().tom().isAfter(fom) && p.gyldighetsperiode().fom().isBefore(tom))
                 .forEach(builder::leggTil);
 
         var adressePerioder = mapAdresserHistorikk(person.getBostedsadresse(), person.getKontaktadresse(), person.getOppholdsadresse());
         periodiserAdresse(adressePerioder).stream()
-                .filter(p -> p.getGyldighetsperiode().getTom().isAfter(fom) && p.getGyldighetsperiode().getFom().isBefore(tom))
+                .filter(p -> p.getGyldighetsperiode().tom().isAfter(fom) && p.getGyldighetsperiode().fom().isBefore(tom))
                 .forEach(builder::leggTil);
 
         return builder.build();
@@ -314,9 +314,9 @@ public class PersoninfoTjeneste {
     }
 
     private static List<PersonstatusPeriode> periodiserPersonstatus(List<PersonstatusPeriode> perioder) {
-        var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::getGyldighetsperiode).collect(Collectors.toList());
+        var gyldighetsperioder = perioder.stream().map(PersonstatusPeriode::gyldighetsperiode).collect(Collectors.toList());
         return perioder.stream()
-                .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getPersonstatus()))
+                .map(p -> new PersonstatusPeriode(finnFraPerioder(gyldighetsperioder, p.gyldighetsperiode()), p.personstatus()))
                 .collect(Collectors.toList());
     }
 
@@ -328,7 +328,7 @@ public class PersoninfoTjeneste {
                 .map(p -> new AdressePeriode(
                         finnFraPerioder(adresseTypePerioder.get(forSortering(p.getAdresse().getAdresseType())), p.getGyldighetsperiode()),
                         p.getAdresse()))
-                .filter(a -> !a.getGyldighetsperiode().getFom().isAfter(a.getGyldighetsperiode().getTom()))
+                .filter(a -> !a.getGyldighetsperiode().fom().isAfter(a.getGyldighetsperiode().tom()))
                 .collect(Collectors.toList());
     }
 
@@ -341,14 +341,14 @@ public class PersoninfoTjeneste {
     }
 
     private static Gyldighetsperiode finnFraPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
-        if (alleperioder.stream().noneMatch(p -> p.getFom().isAfter(periode.getFom()) && p.getFom().isBefore(periode.getTom())))
+        if (alleperioder.stream().noneMatch(p -> p.fom().isAfter(periode.fom()) && p.fom().isBefore(periode.tom())))
             return periode;
         var tom = alleperioder.stream()
-                .map(Gyldighetsperiode::getFom)
-                .filter(d -> d.isAfter(periode.getFom()))
+                .map(Gyldighetsperiode::fom)
+                .filter(d -> d.isAfter(periode.fom()))
                 .min(Comparator.naturalOrder())
                 .map(d -> d.minusDays(1)).orElse(Tid.TIDENES_ENDE);
-        return Gyldighetsperiode.innenfor(periode.getFom(), tom);
+        return new Gyldighetsperiode(periode.fom(), tom);
     }
 
     private static StatsborgerskapPeriode mapStatsborgerskapHistorikk(Statsborgerskap statsborgerskap) {
@@ -356,7 +356,7 @@ public class PersoninfoTjeneste {
                 : LocalDate.parse(statsborgerskap.getGyldigTilOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
         var gyldigFra = statsborgerskap.getGyldigFraOgMed() == null ? null
                 : LocalDate.parse(statsborgerskap.getGyldigFraOgMed(), DateTimeFormatter.ISO_LOCAL_DATE);
-        return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil),
+        return new StatsborgerskapPeriode(new Gyldighetsperiode(gyldigFra, gyldigTil),
                 new no.nav.foreldrepenger.behandlingslager.aktør.Statsborgerskap(statsborgerskap.getLand()));
     }
 
@@ -396,8 +396,8 @@ public class PersoninfoTjeneste {
         bostedsadresser.forEach(b -> {
             var periode = periodeFraDates(b.getGyldigFraOgMed(), b.getGyldigTilOgMed());
             var flyttedato = b.getAngittFlyttedato() != null ? LocalDate.parse(b.getAngittFlyttedato(), DateTimeFormatter.ISO_LOCAL_DATE)
-                    : periode.getFom();
-            var periode2 = flyttedato.isBefore(periode.getFom()) ? Gyldighetsperiode.innenfor(flyttedato, periode.getTom()) : periode;
+                    : periode.fom();
+            var periode2 = flyttedato.isBefore(periode.fom()) ? new Gyldighetsperiode(flyttedato, periode.tom()) : periode;
             mapAdresser(List.of(b), List.of(), List.of()).forEach(a -> adresser.add(mapAdresseinfoTilAdressePeriode(periode2, a)));
         });
         kontaktadresser.forEach(k -> {
@@ -414,7 +414,7 @@ public class PersoninfoTjeneste {
     private static Gyldighetsperiode periodeFraDates(Date dateFom, Date dateTom) {
         var gyldigTil = dateTom == null ? null : LocalDateTime.ofInstant(dateTom.toInstant(), ZoneId.systemDefault()).toLocalDate();
         var gyldigFra = dateFom == null ? null : LocalDateTime.ofInstant(dateFom.toInstant(), ZoneId.systemDefault()).toLocalDate();
-        return Gyldighetsperiode.innenfor(gyldigFra, gyldigTil);
+        return new Gyldighetsperiode(gyldigFra, gyldigTil);
     }
 
     private static AdressePeriode mapAdresseinfoTilAdressePeriode(Gyldighetsperiode periode, Adresseinfo adresseinfo) {
@@ -579,23 +579,23 @@ public class PersoninfoTjeneste {
 
     // TODO: Sjekk hva som kommer. Vurder Periodisering
     private List<OppholdstillatelsePeriode> periodiserOppholdstillatelser(List<OppholdstillatelsePeriode> uperiodisert) {
-        var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::getGyldighetsperiode).collect(Collectors.toList());
+        var gyldighetsperioder = uperiodisert.stream().map(OppholdstillatelsePeriode::gyldighetsperiode).collect(Collectors.toList());
         return uperiodisert.stream()
-                .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.getGyldighetsperiode()), p.getTillatelse()))
+                .map(p -> new OppholdstillatelsePeriode(finnFomFraTomPerioder(gyldighetsperioder, p.gyldighetsperiode()), p.tillatelse()))
                 .collect(Collectors.toList());
     }
 
     private static Gyldighetsperiode finnFomFraTomPerioder(List<Gyldighetsperiode> alleperioder, Gyldighetsperiode periode) {
-        if (!periode.getFom().equals(Tid.TIDENES_BEGYNNELSE))
+        if (!periode.fom().equals(Tid.TIDENES_BEGYNNELSE))
             return periode;
-        if (alleperioder.stream().noneMatch(p -> p.getTom().isBefore(periode.getTom()) && p.getTom().isAfter(periode.getFom())))
+        if (alleperioder.stream().noneMatch(p -> p.tom().isBefore(periode.tom()) && p.tom().isAfter(periode.fom())))
             return periode;
         var fom = alleperioder.stream()
-                .map(Gyldighetsperiode::getTom)
-                .filter(d -> d.isBefore(periode.getTom()))
+                .map(Gyldighetsperiode::tom)
+                .filter(d -> d.isBefore(periode.tom()))
                 .max(Comparator.naturalOrder())
                 .map(d -> d.plusDays(1)).orElse(Tid.TIDENES_BEGYNNELSE);
-        return Gyldighetsperiode.innenfor(fom, periode.getTom());
+        return new Gyldighetsperiode(fom, periode.tom());
     }
 
     private static boolean relevantOppholdstillatelse(Opphold opphold) {
@@ -607,7 +607,7 @@ public class PersoninfoTjeneste {
         var type = TILLATELSE_FRA_FREG_OPPHOLD.get(opphold.getType());
         var gyldigTil = opphold.getOppholdTil() == null ? null : LocalDate.parse(opphold.getOppholdTil(), DateTimeFormatter.ISO_LOCAL_DATE);
         var gyldigFra = opphold.getOppholdFra() == null ? null : LocalDate.parse(opphold.getOppholdFra(), DateTimeFormatter.ISO_LOCAL_DATE);
-        return new OppholdstillatelsePeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), type);
+        return new OppholdstillatelsePeriode(new Gyldighetsperiode(gyldigFra, gyldigTil), type);
     }
 
 }

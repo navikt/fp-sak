@@ -24,4 +24,6 @@ public class NavBrukerEntityTest extends EntityManagerAwareTest {
         assertThat(bruker).isPresent();
         assertThat(bruker.get().getAktørId()).isEqualTo(aktørId);
     }
+
+
 }

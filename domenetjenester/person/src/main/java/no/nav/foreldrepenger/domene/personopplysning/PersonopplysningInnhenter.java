@@ -108,8 +108,8 @@ public class PersonopplysningInnhenter {
 
     private void mapPersonstatus(List<PersonstatusPeriode> personstatushistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (var personstatus : personstatushistorikk) {
-            final var status = personstatus.getPersonstatus();
-            final var periode = fødselsJustertPeriode(personstatus.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), personstatus.getGyldighetsperiode().getTom());
+            final var status = personstatus.personstatus();
+            final var periode = fødselsJustertPeriode(personstatus.gyldighetsperiode().fom(), personinfo.getFødselsdato(), personstatus.gyldighetsperiode().tom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getPersonstatusBuilder(personinfo.getAktørId(), periode).medPersonstatus(status));
@@ -118,8 +118,8 @@ public class PersonopplysningInnhenter {
 
     private void mapOppholdstillatelse(List<OppholdstillatelsePeriode> oppholdshistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (var tillatelse : oppholdshistorikk) {
-            final var type = tillatelse.getTillatelse();
-            final var periode = fødselsJustertPeriode(tillatelse.getGyldighetsperiode().getFom(), FIKTIV_FOM, tillatelse.getGyldighetsperiode().getTom());
+            final var type = tillatelse.tillatelse();
+            final var periode = fødselsJustertPeriode(tillatelse.gyldighetsperiode().fom(), FIKTIV_FOM, tillatelse.gyldighetsperiode().tom());
 
             informasjonBuilder
                 .leggTil(informasjonBuilder.getOppholdstillatelseBuilder(personinfo.getAktørId(), periode).medOppholdstillatelse(type));
@@ -128,19 +128,20 @@ public class PersonopplysningInnhenter {
 
     private void mapStatsborgerskap(List<StatsborgerskapPeriode> statsborgerskaphistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         for (var statsborgerskap : statsborgerskaphistorikk) {
-            final var landkode = Landkoder.fraKode(statsborgerskap.getStatsborgerskap().getLandkode());
+            final var landkode = Landkoder.fraKode(statsborgerskap.statsborgerskap().getLandkode());
 
-            final var periode = fødselsJustertPeriode(statsborgerskap.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), statsborgerskap.getGyldighetsperiode().getTom());
+            final var periode = fødselsJustertPeriode(statsborgerskap.gyldighetsperiode().fom(), personinfo.getFødselsdato(),
+                    statsborgerskap.gyldighetsperiode().tom());
 
             informasjonBuilder
-                .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode));
+                    .leggTil(informasjonBuilder.getStatsborgerskapBuilder(personinfo.getAktørId(), periode, landkode));
         }
     }
 
     private void mapAdresser(List<AdressePeriode> adressehistorikk, PersonInformasjonBuilder informasjonBuilder, Personinfo personinfo) {
         var aktørId = personinfo.getAktørId();
         for (var adresse : adressehistorikk) {
-            final var periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().getFom(), personinfo.getFødselsdato(), adresse.getGyldighetsperiode().getTom());
+            final var periode = fødselsJustertPeriode(adresse.getGyldighetsperiode().fom(), personinfo.getFødselsdato(), adresse.getGyldighetsperiode().tom());
             var adresseBuilder = informasjonBuilder.getAdresseBuilder(aktørId, periode, adresse.getAdresse().getAdresseType())
                 .medMatrikkelId(adresse.getAdresse().getMatrikkelId())
                 .medAdresselinje1(adresse.getAdresse().getAdresselinje1())
@@ -165,8 +166,8 @@ public class PersonopplysningInnhenter {
             return RelasjonsRolleType.UDEFINERT;
         }
         return barn.getFamilierelasjoner().stream()
-            .filter(fr -> fr.getPersonIdent().equals(personinfo.getPersonIdent()))
-            .map(FamilierelasjonVL::getRelasjonsrolle)
+                .filter(fr -> fr.personIdent().equals(personinfo.getPersonIdent()))
+                .map(FamilierelasjonVL::relasjonsrolle)
             .filter(RelasjonsRolleType::erRegistrertForeldre)
             .findFirst().orElse(RelasjonsRolleType.UDEFINERT);
     }
@@ -231,22 +232,22 @@ public class PersonopplysningInnhenter {
 
     private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder, Map<PersonIdent, Personinfo> innhentet) {
         søkerPersonInfo.getFamilierelasjoner().stream()
-            .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
-                f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
-            .filter(ekte -> innhentet.get(ekte.getPersonIdent()) != null)
+                .filter(f -> f.relasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
+                        f.relasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
+                .filter(ekte -> innhentet.get(ekte.personIdent()) != null)
             .forEach(relasjon -> {
-                var ekte = innhentet.get(relasjon.getPersonIdent());
+                    var ekte = innhentet.get(relasjon.personIdent());
                 mapInfoTilEntitet(ekte, informasjonBuilder, true);
-                mapRelasjon(søkerPersonInfo, ekte, relasjon.getRelasjonsrolle(), informasjonBuilder);
-                mapRelasjon(ekte, søkerPersonInfo, relasjon.getRelasjonsrolle(), informasjonBuilder);
+                    mapRelasjon(søkerPersonInfo, ekte, relasjon.relasjonsrolle(), informasjonBuilder);
+                    mapRelasjon(ekte, søkerPersonInfo, relasjon.relasjonsrolle(), informasjonBuilder);
             });
     }
 
     private Set<PersonIdent> finnEktefelle(Personinfo personinfo) {
         return personinfo.getFamilierelasjoner().stream()
-            .filter(f -> f.getRelasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
-                f.getRelasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
-            .map(FamilierelasjonVL::getPersonIdent)
+                .filter(f -> f.relasjonsrolle().equals(RelasjonsRolleType.EKTE) ||
+                        f.relasjonsrolle().equals(RelasjonsRolleType.REGISTRERT_PARTNER))
+                .map(FamilierelasjonVL::personIdent)
             .collect(Collectors.toSet());
     }
 
@@ -259,8 +260,8 @@ public class PersonopplysningInnhenter {
 
     private Set<PersonIdent> getAnnenPartsBarn(Personinfo annenPartInfo) {
         return annenPartInfo.getFamilierelasjoner().stream()
-            .filter(f -> RelasjonsRolleType.BARN.equals(f.getRelasjonsrolle()))
-            .map(FamilierelasjonVL::getPersonIdent)
+                .filter(f -> RelasjonsRolleType.BARN.equals(f.relasjonsrolle()))
+                .map(FamilierelasjonVL::personIdent)
             .collect(Collectors.toSet());
     }
 

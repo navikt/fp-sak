@@ -64,7 +64,7 @@ public class TpsFamilieTjenesteTest {
         for (var familierelasjon : familierelasjoner) {
             barn.add(new FødtBarnInfo.Builder()
                     .medFødselsdato(genererFødselsdag(startdatoIntervall.minusWeeks(1)))
-                    .medIdent(familierelasjon.getPersonIdent())
+                    .medIdent(familierelasjon.personIdent())
                     .build());
         }
         return barn;
