@@ -7,6 +7,7 @@ import org.eclipse.jetty.plus.jndi.EnvEntry;
 
 import com.ibm.mq.jms.MQConnectionFactory;
 import com.ibm.mq.jms.MQQueue;
+import com.ibm.msg.client.jms.JmsConstants;
 import com.ibm.msg.client.wmq.WMQConstants;
 import com.ibm.msg.client.wmq.compat.jms.internal.JMSC;
 
@@ -21,51 +22,38 @@ class JmsKonfig {
     private JmsKonfig() { // Util class
     }
 
-    static void settOppJndiConnectionfactory(String jndiName, String queueManagerAlias) throws JMSException, NamingException {
+    static void
+    settOppJndiConnectionfactory(String jndiName) throws JMSException, NamingException {
         var mqConnectionFactory = createConnectionfactory(
-                ENV.getProperty(queueManagerAlias + ".hostname"),
-                Integer.parseUnsignedInt(ENV.getProperty(queueManagerAlias + ".port")),
-                ENV.getProperty(queueManagerAlias + ".channel"),
-                ENV.getProperty(queueManagerAlias + ".name"),
-                Boolean.getBoolean("mqGateway02.useSslOnJetty"));
+                ENV.getProperty("mqGateway02.hostname"),
+                ENV.getProperty("mqGateway02.port", Integer.class),
+                ENV.getProperty("mqGateway02.channel"),
+                ENV.getProperty("mqGateway02.name"));
         new EnvEntry(jndiName, mqConnectionFactory);
     }
 
-    static void settOppJndiMessageQueue(String jndiName, String queueAlias) throws NamingException, JMSException {
-        settOppJndiMessageQueue(jndiName, queueAlias, false);
+    static void settOppJndiMessageQueue(String jndiName, String queueNameProp) throws NamingException, JMSException {
+        settOppJndiMessageQueue(jndiName, queueNameProp, false);
     }
 
-    static void settOppJndiMessageQueue(String jndiName, String queueAlias, boolean mqTargetClient) throws NamingException, JMSException {
-        var queue = new MQQueue(ENV.getProperty(queueAlias + ".queueName"));
+    static void settOppJndiMessageQueue(String jndiName, String queueNameProp, boolean mqTargetClient) throws NamingException, JMSException {
+        var queue = new MQQueue(ENV.getProperty(queueNameProp));
         if (mqTargetClient) {
             queue.setMessageBodyStyle(MQ_TARGET_CLIENT);
         }
         new EnvEntry(jndiName, queue);
     }
 
-    /**
-     * @param useSSL - FIXME (u139158): PFP-1176 Saneres når vi er over til å bruke
-     *               SSL mot MQ overalt
-     */
-    private static MQConnectionFactory createConnectionfactory(String hostName, Integer port, String channel, String queueManagerName, boolean useSSL)
+    private static MQConnectionFactory createConnectionfactory(String hostName, Integer port, String channel, String queueManagerName)
             throws JMSException {
         var connectionFactory = new MQConnectionFactory();
         connectionFactory.setHostName(hostName);
         connectionFactory.setPort(port);
-        if (channel != null) {
-            connectionFactory.setChannel(channel);
-        }
         connectionFactory.setQueueManager(queueManagerName);
+        connectionFactory.setChannel(channel);
+
         connectionFactory.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
-
-        if (useSSL) {
-            connectionFactory.setSSLCipherSuite("TLS_RSA_WITH_AES_128_CBC_SHA");
-
-            // Denne trengs for at IBM MQ libs skal bruke/gjenkjenne samme ciphersuite navn
-            // som Oracle JRE:
-            // (Uten denne vil ikke IBM MQ libs gjenkjenne "TLS_RSA_WITH_AES_128_CBC_SHA")
-            System.setProperty("com.ibm.mq.cfg.useIBMCipherMappings", "false");
-        }
+        connectionFactory.setBooleanProperty(JmsConstants.USER_AUTHENTICATION_MQCSP, true);
 
         return connectionFactory;
     }
