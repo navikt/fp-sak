@@ -31,7 +31,7 @@ public class ØkonomioppdragJmsProducerKonfig extends BaseJmsKonfig {
         this.mqPassword = passord;
     }
 
-    public ØkonomioppdragJmsProducerKonfig() {
+    private ØkonomioppdragJmsProducerKonfig() {
         super(UT_QUEUE_PREFIX, KVITTERING_QUEUE_PREFIX);
     }
 
