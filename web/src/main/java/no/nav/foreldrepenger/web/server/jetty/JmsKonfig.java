@@ -11,7 +11,7 @@ import com.ibm.msg.client.jms.JmsConstants;
 import com.ibm.msg.client.wmq.WMQConstants;
 import com.ibm.msg.client.wmq.compat.jms.internal.JMSC;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 class JmsKonfig {
 
@@ -50,8 +50,9 @@ class JmsKonfig {
         connectionFactory.setHostName(hostName);
         connectionFactory.setPort(port);
         connectionFactory.setQueueManager(queueManagerName);
-        connectionFactory.setChannel(channel);
-
+        if (channel != null) { // TODO: Må fikses det trenges ikke ved lokalt kjøring og vtp da mq mockes.
+            connectionFactory.setChannel(channel);
+        }
         connectionFactory.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
         connectionFactory.setBooleanProperty(JmsConstants.USER_AUTHENTICATION_MQCSP, true);
 
