@@ -108,25 +108,25 @@ public class VedtaksHendelseHåndterer {
         } else if (DB_LOGGES.contains(ytelse.getType())) {
             var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
-        } else {
+        } else if (REVURDERING_OPPRETTES.contains(ytelse.getType())) {
             var fagsaker = getFagsakerFor(ytelse);
-            var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
-            if (REVURDERING_OPPRETTES.contains(ytelse.getType())) {
-                var callID = UUID.randomUUID();
-                fagsakerMedOverlapp.forEach(f -> opprettTasksForPleiepengerVedtak(ytelse, f, callID));
-            } else {
-                LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
-                LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(),
-                    fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
-                if (!fagsakerMedOverlapp.isEmpty()) {
-                    var overlappsaker = fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer)
-                        .map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
-                    var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
-                        ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
-                    LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
-                    loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
-                }
+            var callID = UUID.randomUUID();
+            fagsakerMedVedtakOverlapp(ytelse, fagsaker)
+                .forEach(f -> opprettTasksForPleiepengerVedtak(ytelse, f, callID));
+        } else {
+            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
+            var fagsaker = getFagsakerFor(ytelse);
+            LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
+                ytelse.getType(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
+            var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
+            if (!fagsakerMedOverlapp.isEmpty()) {
+                var overlappSaksnummerList =
+                    fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.toList());
+                var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
+                    ytelse.getType().getNavn(), ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
+                LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
+                loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
             }
         }
     }
