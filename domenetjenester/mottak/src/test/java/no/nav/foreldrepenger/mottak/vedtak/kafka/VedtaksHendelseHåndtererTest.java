@@ -7,11 +7,13 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -283,27 +285,16 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     public void overlappOpplæringspengerSVP() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
-        leggTilBerPeriode(berResSvp, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 25), 442, 100, 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(LocalDate.of(2020, 4, 1));
-        periode.setTom(LocalDate.of(2020, 5, 4));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        Behandling svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periode("2020-03-01", "2020-03-31"),
+            periode("2020-05-01", "2020-05-25"));
 
-        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
-
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList);
+        YtelseV1 ytelseV1 = lagVedtakForPeriode(
+            YtelseType.OPPLÆRINGSPENGER, aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periode("2020-04-01", "2020-04-30"),
+            periode("2020-05-01", "2020-05-04"));
 
         var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
@@ -313,17 +304,15 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
-        var stp = LocalDate.of(2020, 3, 1);
-        var fpPeriodeFom = stp;
-        var fpPeriodeTom = stp.plusMonths(2);
-        var psbPeriodeFom = stp.plusMonths(1);
-        var psbPeriodeTom = stp.plusMonths(3);
-
-        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+        Behandling fpBehandling = leggPerioderPå(lagBehandlingFP(),
+            periode("2020-03-01", "2020-04-30"));
 
         //when
-        YtelseV1 ppYtelseMedOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
-        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseMedOverlapp);
+        var psbYtelseMedOverlapp = lagVedtakForPeriode(
+            YtelseType.PLEIEPENGER_SYKT_BARN,
+            aktørFra(fpBehandling),
+            periode("2020-04-01", "2020-06-01"));
+        vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlapp);
 
         // then
         var taskList = prosessTaskRepository.finnIkkeStartet();
@@ -339,46 +328,57 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
         // given
-        var stp = LocalDate.of(2020, 3, 1);
-        var fpPeriodeFom = stp;
-        var fpPeriodeTom = stp.plusMonths(2);
-        var psbPeriodeFom = stp.plusMonths(3);
-        var psbPeriodeTom = stp.plusMonths(4);
-
-        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+        Behandling fpBehandling = leggPerioderPå(
+            lagBehandlingFP(),
+            periode("2020-03-01", "2020-04-30"));
 
         //when
-        YtelseV1 ppYtelseUTENOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
-        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseUTENOverlapp);
+        YtelseV1 psbYtelseUTENOverlapp = lagVedtakForPeriode(
+            YtelseType.PLEIEPENGER_SYKT_BARN,
+            aktørFra(fpBehandling),
+            periode("2020-06-01", "2020-06-30"));
+        vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseUTENOverlapp);
 
         // then
         var taskList = prosessTaskRepository.finnIkkeStartet();
         assertThat(taskList.size()).isEqualTo(0);
     }
 
-    private YtelseV1 lagVedtakForPeriode(Aktør aktør, YtelseType abakusYtelse, LocalDate periodeFom, LocalDate periodeTom) {
+    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, LocalDateInterval... anvistPerioder) {
         var periode = new Periode();
-        periode.setFom(periodeFom);
-        periode.setTom(periodeTom);
-
-        var anvistList = List.of(genererAnvist(periodeFom, periodeTom, new Desimaltall(BigDecimal.valueOf(100))));
-
+        periode.setFom(vedtaksPeriode.getFomDato());
+        periode.setTom(vedtaksPeriode.getTomDato());
+        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var anvistList =
+            (anvistPerioder.length == 0 ? List.of(vedtaksPeriode) : Arrays.asList(anvistPerioder))
+                .stream()
+                .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(), utbetgrad))
+                .collect(Collectors.toList());
         return genererYtelseAbakus(abakusYtelse, aktør, periode, anvistList);
     }
 
-    private Behandling lagFPforPeriode(LocalDate periodeFom, LocalDate periodeTom) {
-        var fpBehandling = lagBehandlingFP();
-        lagBeregningsgrunnlag(fpBehandling, periodeFom, 100);
-        var beregningsresultat = lagBeregningsresultat(periodeFom, periodeTom, 100);
-        beregningsresultatRepository.lagre(fpBehandling, beregningsresultat);
-        return fpBehandling;
+    private Behandling leggPerioderPå(Behandling behandling, LocalDateInterval... perioder) {
+        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), 100);
+        for (int i = 1; i < perioder.length; i++) {
+            LocalDateInterval periode = perioder[i];
+            leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, 100, 100);
+        }
+        beregningsresultatRepository.lagre(behandling, berResSvp);
+        return behandling;
     }
+
 
     private Aktør aktørFra(Behandling fpBehandling) {
         Aktør aktør = new Aktør();
         aktør.setVerdi(fpBehandling.getAktørId().getId());
         return aktør;
     }
+
+    /* 'periode' leser bedre enn parseFrom i testene */
+    private static LocalDateInterval periode(String fom, String tom) {
+        return LocalDateInterval.parseFrom(fom, tom);
+    }
+
 
     private Behandling lagBehandlingFP() {
         ScenarioMorSøkerForeldrepenger scenarioFP;
