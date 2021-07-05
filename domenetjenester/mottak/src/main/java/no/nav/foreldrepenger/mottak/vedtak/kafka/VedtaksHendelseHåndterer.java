@@ -131,7 +131,7 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
+    private void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
         var fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
 
         if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {

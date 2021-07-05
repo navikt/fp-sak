@@ -108,7 +108,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var fpBehandling = lagBehandlingFP();
         var fpYtelse = genererYtelseFpsak(fpBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(fpYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(fpYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var svpBehandling = lagBehandlingSVP();
         var svpYtelse = genererYtelseFpsak(svpBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(svpYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(svpYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
@@ -134,7 +134,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var esBehandling = lagBehandlingES();
         var esYtelse = genererYtelseFpsak(esBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(esYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(esYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream()
