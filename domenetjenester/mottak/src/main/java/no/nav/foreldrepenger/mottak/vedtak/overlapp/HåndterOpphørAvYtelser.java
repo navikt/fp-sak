@@ -67,7 +67,7 @@ public class HåndterOpphørAvYtelser {
         this.køKontroller = køKontroller;
     }
 
-    public void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
+    void oppdaterEllerOpprettRevurdering(Fagsak fagsak, String beskrivelse, BehandlingÅrsakType årsakType) {
         var eksisterendeBehandling = finnÅpenOrdinærYtelsesbehandlingUtenÅrsakType(fagsak, årsakType);
 
         if (eksisterendeBehandling != null) {
