@@ -73,16 +73,13 @@ import no.nav.vedtak.konfig.Tid;
 @ExtendWith(MockitoExtension.class)
 public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private VedtaksHendelseHåndterer vedtaksHendelseHåndterer;
-    private LoggOverlappEksterneYtelserTjeneste overlappTjeneste;
 
     @Mock
     private ProsessTaskEventPubliserer eventPubliserer;
-    BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
-    private FagsakTjeneste fagsakTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingRepositoryProvider repositoryProvider;
     private static final int DAGSATS = 442;
@@ -95,12 +92,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
-                new SøknadRepository(getEntityManager(), behandlingRepository), null);
-        overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsgrunnlagRepository, beregningsresultatRepository, null,
-                null, null, null, null,
-                overlappInfotrygdRepository, behandlingRepository);
+        var behandlingRepository = new BehandlingRepository(getEntityManager());
+        var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
+            new SøknadRepository(getEntityManager(), behandlingRepository), null);
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsgrunnlagRepository, beregningsresultatRepository, null,
+            null, null, null, null,
+            overlappInfotrygdRepository, behandlingRepository);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
                 prosessTaskRepository);
     }
@@ -383,7 +380,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return aktør;
     }
 
-    public Behandling lagBehandlingFP() {
+    private Behandling lagBehandlingFP() {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -397,7 +394,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    public Behandling lagBehandlingSVP() {
+    private Behandling lagBehandlingSVP() {
         ScenarioMorSøkerSvangerskapspenger scenarioSVP;
         scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -411,7 +408,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    public Behandling lagBehandlingES() {
+    private Behandling lagBehandlingES() {
         ScenarioMorSøkerEngangsstønad scenarioES;
         scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenarioES.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -482,7 +479,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
     }
 
-    public YtelseV1 genererYtelseFpsak(Behandling behandling) {
+    private YtelseV1 genererYtelseFpsak(Behandling behandling) {
         final var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .orElseThrow();
 
@@ -502,7 +499,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return ytelse;
     }
 
-    public YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
+    private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPABAKUS);
         ytelse.setSaksnummer("6T5NM");
