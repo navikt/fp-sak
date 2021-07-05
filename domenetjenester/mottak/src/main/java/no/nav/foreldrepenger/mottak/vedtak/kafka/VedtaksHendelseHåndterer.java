@@ -60,7 +60,6 @@ public class VedtaksHendelseHåndterer {
             YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
             YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
-    private static final Set<YtelseType> REVURDERING_OPPRETTES = Set.of(YtelseType.PLEIEPENGER_SYKT_BARN);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final boolean isProd = Environment.current().isProd();
 
@@ -108,7 +107,7 @@ public class VedtaksHendelseHåndterer {
         } else if (DB_LOGGES.contains(ytelse.getType())) {
             var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
-        } else if (REVURDERING_OPPRETTES.contains(ytelse.getType())) {
+        } else if (YtelseType.PLEIEPENGER_SYKT_BARN == ytelse.getType()) {
             var fagsaker = getFagsakerFor(ytelse);
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker)
