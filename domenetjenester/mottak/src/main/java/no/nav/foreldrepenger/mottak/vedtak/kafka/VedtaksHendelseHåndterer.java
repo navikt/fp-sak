@@ -15,6 +15,8 @@ import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,15 +168,21 @@ public class VedtaksHendelseHåndterer {
             .map(PleipengerOversetter::oversettTilleggsopplysninger)
             .filter(to -> !to.innleggelsesPerioder().isEmpty())
             .isPresent();
-        //TODO TFP-4475: Bytte ut VurderOpphørAvYtelserTask med HåndterOpphørAvYtelserTask
-        var data = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        data.setFagsak(f.getId(), f.getAktørId().getId());
-        data.setCallId(callID.toString());
-        if (innleggelse) data.setProperty(VurderOpphørAvYtelserTask.K9_INNLEGGELSE_KEY, "true");
-        data.setProperty(VurderOpphørAvYtelserTask.K9_YTELSE_KEY, ytelse.getType().getNavn());
-        data.setProperty(VurderOpphørAvYtelserTask.K9_SAK_KEY, ytelse.getSaksnummer());
-        data.setProperty(VurderOpphørAvYtelserTask.K9_REVURDER_KEY, "true");
-        prosessTaskRepository.lagre(data);
+
+        var prosessTaskData = new ProsessTaskData(HåndterOpphørAvYtelserTask.TASKTYPE);
+        prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
+        prosessTaskData.setCallId(callID.toString());
+
+        var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s",
+            ytelse.getType().getNavn(),
+            innleggelse ? "(Innlagt) saksnr" : "saksnr",
+            ytelse.getSaksnummer(),
+            f.getYtelseType().getNavn(),
+            f.getSaksnummer().getVerdi());
+
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
+        prosessTaskRepository.lagre(prosessTaskData);
     }
 
     // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null = 100.
