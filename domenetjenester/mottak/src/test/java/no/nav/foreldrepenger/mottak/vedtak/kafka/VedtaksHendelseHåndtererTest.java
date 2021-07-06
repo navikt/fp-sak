@@ -7,11 +7,13 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -145,165 +147,108 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     public void ingenOverlappOmsorgspengerSVP() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(LocalDate.of(2020, 4, 1));
-        periode.setTom(LocalDate.of(2020, 5, 4));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100));
 
-        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
+        var ompYtelse = lagVedtakForPeriode(
+            YtelseType.OMSORGSPENGER,
+            aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 100)
+        );
 
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
-
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
         assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
 
     @Test
     public void overlappOmsorgspengerSVP() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var stp = LocalDate.of(2020, 3, 1);
-        var eksternbase = LocalDate.of(2020, 4, 1);
-        lagBeregningsgrunnlag(svp, stp, 100);
-        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
-        leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(24), 442, 100, 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(eksternbase);
-        periode.setTom(eksternbase.plusMonths(1).plusDays(3));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+            periodeMedGrad("2020-05-01", "2020-05-25", 100));
+        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 100);
 
-        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgrad);
-        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetgrad);
+        var ompYtelse = lagVedtakForPeriode(
+            YtelseType.OMSORGSPENGER,
+            aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 100)
+        );
 
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
-
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(200);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualByComparingTo(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
-                        berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom()));
+        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
     @Test
     public void ingenOverlappOMPSVPGradertPeriode() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var stp = LocalDate.of(2020, 3, 1);
-        var eksternbase = LocalDate.of(2020, 4, 1);
-        lagBeregningsgrunnlag(svp, stp, 50);
-        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
-        leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(24), 221, 50, 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(eksternbase);
-        periode.setTom(eksternbase.plusMonths(1).plusDays(3));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
-        var utbetGrad = new Desimaltall(BigDecimal.valueOf(50));
+        var svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+            periodeMedGrad("2020-05-01", "2020-05-25", 50));
+        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 50);
 
-        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
-        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
+        var ompYtelse = lagVedtakForPeriode(
+            YtelseType.OMSORGSPENGER,
+            aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 50)
+        );
 
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
-
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
         assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
 
     @Test
     public void overlappOMPSVPGradertPeriode() {
-        // SVP sak
-        var stp = LocalDate.of(2020, 3, 1);
-        var eksternbase = LocalDate.of(2020, 4, 1);
-        var svp = lagBehandlingSVP();
-        lagBeregningsgrunnlag(svp, stp, 60);
-        var berResSvp = lagBeregningsresultat(stp, stp.plusMonths(1).minusDays(1), 100);
-        leggTilBerPeriode(berResSvp, stp.plusMonths(2), stp.plusMonths(2).plusDays(25), 266, 60, 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(eksternbase);
-        periode.setTom(eksternbase.plusMonths(1).plusDays(3));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgradFull = new Desimaltall(BigDecimal.valueOf(100));
-        var utbetGrad = new Desimaltall(BigDecimal.valueOf(60));
+        var svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+            periodeMedGrad("2020-05-01", "2020-05-25", 60));
+        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 60);
 
-        var anvist1 = genererAnvist(eksternbase, eksternbase.plusMonths(1).minusDays(1), utbetgradFull);
-        var anvist2 = genererAnvist(eksternbase.plusMonths(1), eksternbase.plusMonths(1).plusDays(3), utbetGrad);
+        var ompYtelse = lagVedtakForPeriode(
+            YtelseType.OMSORGSPENGER,
+            aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 60)
+        );
 
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
-
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
         var behandlingOverlappInfotrygd = overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer());
         assertThat(behandlingOverlappInfotrygd).hasSize(1);
         assertThat(behandlingOverlappInfotrygd.get(0).getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.get(0).getUtbetalingsprosent()).isEqualTo(120);
-        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualByComparingTo(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeFom(),
-                        berResSvp.getBeregningsresultatPerioder().get(1).getBeregningsresultatPeriodeTom()));
+        assertThat(behandlingOverlappInfotrygd.get(0).getPeriode()).isEqualTo(
+            ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
     @Test
     public void overlappOpplæringspengerSVP() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
-        leggTilBerPeriode(berResSvp, LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 25), 442, 100, 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(LocalDate.of(2020, 4, 1));
-        periode.setTom(LocalDate.of(2020, 5, 4));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        Behandling svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+            periodeMedGrad("2020-05-01", "2020-05-25", 100));
 
-        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
-
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OPPLÆRINGSPENGER, aktør, periode, anvistList);
+        YtelseV1 ytelseV1 = lagVedtakForPeriode(
+            YtelseType.OPPLÆRINGSPENGER, aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 100));
 
         var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
@@ -313,17 +258,15 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
-        var stp = LocalDate.of(2020, 3, 1);
-        var fpPeriodeFom = stp;
-        var fpPeriodeTom = stp.plusMonths(2);
-        var psbPeriodeFom = stp.plusMonths(1);
-        var psbPeriodeTom = stp.plusMonths(3);
-
-        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+        Behandling fpBehandling = leggPerioderPå(lagBehandlingFP(),
+            periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
-        YtelseV1 ppYtelseMedOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
-        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseMedOverlapp);
+        var psbYtelseMedOverlapp = lagVedtakForPeriode(
+            YtelseType.PLEIEPENGER_SYKT_BARN,
+            aktørFra(fpBehandling),
+            periode("2020-04-01", "2020-06-01"));
+        vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseMedOverlapp);
 
         // then
         var taskList = prosessTaskRepository.finnIkkeStartet();
@@ -339,45 +282,63 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     @Test
     public void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
         // given
-        var stp = LocalDate.of(2020, 3, 1);
-        var fpPeriodeFom = stp;
-        var fpPeriodeTom = stp.plusMonths(2);
-        var psbPeriodeFom = stp.plusMonths(3);
-        var psbPeriodeTom = stp.plusMonths(4);
-
-        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+        Behandling fpBehandling = leggPerioderPå(
+            lagBehandlingFP(),
+            periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
-        YtelseV1 ppYtelseUTENOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
-        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseUTENOverlapp);
+        YtelseV1 psbYtelseUTENOverlapp = lagVedtakForPeriode(
+            YtelseType.PLEIEPENGER_SYKT_BARN,
+            aktørFra(fpBehandling),
+            periode("2020-06-01", "2020-06-30"));
+        vedtaksHendelseHåndterer.handleMessageIntern(psbYtelseUTENOverlapp);
 
         // then
         var taskList = prosessTaskRepository.finnIkkeStartet();
         assertThat(taskList.size()).isEqualTo(0);
     }
 
-    private YtelseV1 lagVedtakForPeriode(Aktør aktør, YtelseType abakusYtelse, LocalDate periodeFom, LocalDate periodeTom) {
+    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, PeriodeMedUtbetalingsgrad... anvistPerioder) {
         var periode = new Periode();
-        periode.setFom(periodeFom);
-        periode.setTom(periodeTom);
-
-        var anvistList = List.of(genererAnvist(periodeFom, periodeTom, new Desimaltall(BigDecimal.valueOf(100))));
-
+        periode.setFom(vedtaksPeriode.getFomDato());
+        periode.setTom(vedtaksPeriode.getTomDato());
+        var anvistList =
+            (anvistPerioder.length == 0 ? List.of(new PeriodeMedUtbetalingsgrad(vedtaksPeriode, 100)) : Arrays.asList(anvistPerioder))
+                .stream()
+                .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(), new Desimaltall(BigDecimal.valueOf(anvistPeriode.utbetalingsgrad))))
+                .collect(Collectors.toList());
         return genererYtelseAbakus(abakusYtelse, aktør, periode, anvistList);
     }
 
-    private Behandling lagFPforPeriode(LocalDate periodeFom, LocalDate periodeTom) {
-        var fpBehandling = lagBehandlingFP();
-        lagBeregningsgrunnlag(fpBehandling, periodeFom, 100);
-        var beregningsresultat = lagBeregningsresultat(periodeFom, periodeTom, 100);
-        beregningsresultatRepository.lagre(fpBehandling, beregningsresultat);
-        return fpBehandling;
+    private Behandling leggPerioderPå(Behandling behandling, PeriodeMedUtbetalingsgrad... perioder) {
+        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), perioder[0].utbetalingsgrad);
+        for (int i = 1; i < perioder.length; i++) {
+            PeriodeMedUtbetalingsgrad periode = perioder[i];
+            leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, periode.utbetalingsgrad, 100);
+        }
+        beregningsresultatRepository.lagre(behandling, berResSvp);
+        return behandling;
     }
+
 
     private Aktør aktørFra(Behandling fpBehandling) {
         Aktør aktør = new Aktør();
         aktør.setVerdi(fpBehandling.getAktørId().getId());
         return aktør;
+    }
+
+    /* 'periode' leser bedre enn parseFrom i testene */
+    private static LocalDateInterval periode(String fom, String tom) {
+        return LocalDateInterval.parseFrom(fom, tom);
+    }
+
+    private static PeriodeMedUtbetalingsgrad periodeMedGrad(String fom, String tom, int utbetalingsgrad) {
+        return new PeriodeMedUtbetalingsgrad(periode(fom, tom), utbetalingsgrad);
+    }
+
+    record PeriodeMedUtbetalingsgrad(LocalDateInterval periode, int utbetalingsgrad) {
+        LocalDate getFomDato() { return periode.getFomDato(); }
+        LocalDate getTomDato() { return periode.getTomDato(); }
     }
 
     private Behandling lagBehandlingFP() {
