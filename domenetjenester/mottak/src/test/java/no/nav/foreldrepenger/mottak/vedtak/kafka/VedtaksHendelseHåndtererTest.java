@@ -287,14 +287,14 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     public void overlappOpplæringspengerSVP() {
         Behandling svp = leggPerioderPå(
             lagBehandlingSVP(),
-            periode("2020-03-01", "2020-03-31"),
-            periode("2020-05-01", "2020-05-25"));
+            periodeMedGrad("2020-03-01", "2020-03-31", 100),
+            periodeMedGrad("2020-05-01", "2020-05-25", 100));
 
         YtelseV1 ytelseV1 = lagVedtakForPeriode(
             YtelseType.OPPLÆRINGSPENGER, aktørFra(svp),
             periode("2020-04-01", "2020-05-04"),
-            periode("2020-04-01", "2020-04-30"),
-            periode("2020-05-01", "2020-05-04"));
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 100));
 
         var erOverlapp = vedtaksHendelseHåndterer.sjekkVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
 
@@ -305,7 +305,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     public void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
         // given
         Behandling fpBehandling = leggPerioderPå(lagBehandlingFP(),
-            periode("2020-03-01", "2020-04-30"));
+            periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
         var psbYtelseMedOverlapp = lagVedtakForPeriode(
@@ -330,7 +330,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         // given
         Behandling fpBehandling = leggPerioderPå(
             lagBehandlingFP(),
-            periode("2020-03-01", "2020-04-30"));
+            periodeMedGrad("2020-03-01", "2020-04-30", 100));
 
         //when
         YtelseV1 psbYtelseUTENOverlapp = lagVedtakForPeriode(
@@ -344,24 +344,23 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(taskList.size()).isEqualTo(0);
     }
 
-    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, LocalDateInterval... anvistPerioder) {
+    private YtelseV1 lagVedtakForPeriode(YtelseType abakusYtelse, Aktør aktør, LocalDateInterval vedtaksPeriode, PeriodeMedUtbetalingsgrad... anvistPerioder) {
         var periode = new Periode();
         periode.setFom(vedtaksPeriode.getFomDato());
         periode.setTom(vedtaksPeriode.getTomDato());
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
         var anvistList =
-            (anvistPerioder.length == 0 ? List.of(vedtaksPeriode) : Arrays.asList(anvistPerioder))
+            (anvistPerioder.length == 0 ? List.of(new PeriodeMedUtbetalingsgrad(vedtaksPeriode, 100)) : Arrays.asList(anvistPerioder))
                 .stream()
-                .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(), utbetgrad))
+                .map(anvistPeriode -> genererAnvist(anvistPeriode.getFomDato(), anvistPeriode.getTomDato(), new Desimaltall(BigDecimal.valueOf(anvistPeriode.utbetalingsgrad))))
                 .collect(Collectors.toList());
         return genererYtelseAbakus(abakusYtelse, aktør, periode, anvistList);
     }
 
-    private Behandling leggPerioderPå(Behandling behandling, LocalDateInterval... perioder) {
-        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), 100);
+    private Behandling leggPerioderPå(Behandling behandling, PeriodeMedUtbetalingsgrad... perioder) {
+        var berResSvp = lagBeregningsresultat(perioder[0].getFomDato(), perioder[0].getTomDato(), perioder[0].utbetalingsgrad);
         for (int i = 1; i < perioder.length; i++) {
-            LocalDateInterval periode = perioder[i];
-            leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, 100, 100);
+            PeriodeMedUtbetalingsgrad periode = perioder[i];
+            leggTilBerPeriode(berResSvp, periode.getFomDato(), periode.getTomDato(), 442, periode.utbetalingsgrad, 100);
         }
         beregningsresultatRepository.lagre(behandling, berResSvp);
         return behandling;
@@ -379,6 +378,14 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return LocalDateInterval.parseFrom(fom, tom);
     }
 
+    private static PeriodeMedUtbetalingsgrad periodeMedGrad(String fom, String tom, int utbetalingsgrad) {
+        return new PeriodeMedUtbetalingsgrad(periode(fom, tom), utbetalingsgrad);
+    }
+
+    record PeriodeMedUtbetalingsgrad(LocalDateInterval periode, int utbetalingsgrad) {
+        LocalDate getFomDato() { return periode.getFomDato(); }
+        LocalDate getTomDato() { return periode.getTomDato(); }
+    }
 
     private Behandling lagBehandlingFP() {
         ScenarioMorSøkerForeldrepenger scenarioFP;
