@@ -147,28 +147,19 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
     @Test
     public void ingenOverlappOmsorgspengerSVP() {
-        // SVP sak
-        var svp = lagBehandlingSVP();
-        var berResSvp = lagBeregningsresultat(LocalDate.of(2020, 3, 1), LocalDate.of(2020, 3, 31), 100);
-        beregningsresultatRepository.lagre(svp, berResSvp);
-        // Omsorgspenger vedtak
-        final var aktør = new Aktør();
-        aktør.setVerdi(svp.getAktørId().getId());
-        var periode = new Periode();
-        periode.setFom(LocalDate.of(2020, 4, 1));
-        periode.setTom(LocalDate.of(2020, 5, 4));
-        List<Anvisning> anvistList = new ArrayList<>();
-        var utbetgrad = new Desimaltall(BigDecimal.valueOf(100));
+        var svp = leggPerioderPå(
+            lagBehandlingSVP(),
+            periodeMedGrad("2020-03-01", "2020-03-31", 100));
 
-        var anvist1 = genererAnvist(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 30), utbetgrad);
-        var anvist2 = genererAnvist(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 4), utbetgrad);
+        var ompYtelse = lagVedtakForPeriode(
+            YtelseType.OMSORGSPENGER,
+            aktørFra(svp),
+            periode("2020-04-01", "2020-05-04"),
+            periodeMedGrad("2020-04-01", "2020-04-30", 100),
+            periodeMedGrad("2020-05-01", "2020-05-04", 100)
+        );
 
-        anvistList.add(anvist1);
-        anvistList.add(anvist2);
-
-        var ytelseV1 = genererYtelseAbakus(YtelseType.OMSORGSPENGER, aktør, periode, anvistList);
-
-        vedtaksHendelseHåndterer.loggVedtakOverlapp(ytelseV1, List.of(svp.getFagsak()));
+        vedtaksHendelseHåndterer.loggVedtakOverlapp(ompYtelse, List.of(svp.getFagsak()));
 
         assertThat(overlappInfotrygdRepository.hentForSaksnummer(svp.getFagsak().getSaksnummer())).isEmpty();
     }
