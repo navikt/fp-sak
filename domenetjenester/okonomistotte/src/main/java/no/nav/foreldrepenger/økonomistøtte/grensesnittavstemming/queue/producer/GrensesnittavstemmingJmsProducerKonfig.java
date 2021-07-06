@@ -4,15 +4,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.felles.integrasjon.jms.BaseJmsKonfig;
 
 @Named("grensesnittavstemmingjmsproducerkonfig")
 @ApplicationScoped
 public class GrensesnittavstemmingJmsProducerKonfig extends BaseJmsKonfig {
-
-    private static final Environment ENV = Environment.current();
 
     private String mqUsername;
     private String mqPassword;
@@ -35,12 +32,12 @@ public class GrensesnittavstemmingJmsProducerKonfig extends BaseJmsKonfig {
 
     @Override
     public String getQueueManagerUsername() {
-        return ENV.isDev() ? mqUsername : "srvappserver"; // TODO - hent fra konfig når ny MQ-konfig innføres i august/september
+        return mqUsername;
     }
 
     @Override
     public String getQueueManagerPassword() {
-        return ENV.isDev() ? mqPassword : null; // TODO - hent fra vault e.l. når ny MQ-konfig innføres i august/september
+        return mqPassword;
     }
 
 }
