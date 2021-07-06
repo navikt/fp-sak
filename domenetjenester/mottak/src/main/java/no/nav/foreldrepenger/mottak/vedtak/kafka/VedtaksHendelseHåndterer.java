@@ -15,6 +15,8 @@ import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,6 @@ public class VedtaksHendelseHåndterer {
             YtelseType.FORELDREPENGER, FagsakYtelseType.FORELDREPENGER,
             YtelseType.SVANGERSKAPSPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<YtelseType> DB_LOGGES = Set.of(YtelseType.FRISINN, YtelseType.OMSORGSPENGER);
-    private static final Set<YtelseType> REVURDERING_OPPRETTES = Set.of(YtelseType.PLEIEPENGER_SYKT_BARN);
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final boolean isProd = Environment.current().isProd();
 
@@ -106,30 +107,30 @@ public class VedtaksHendelseHåndterer {
         } else if (DB_LOGGES.contains(ytelse.getType())) {
             var fagsaker = getFagsakerFor(ytelse);
             loggVedtakOverlapp(ytelse, fagsaker);
-        } else {
+        } else if (YtelseType.PLEIEPENGER_SYKT_BARN == ytelse.getType()) {
             var fagsaker = getFagsakerFor(ytelse);
-            var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
-            if (REVURDERING_OPPRETTES.contains(ytelse.getType())) {
-                var callID = UUID.randomUUID();
-                fagsakerMedOverlapp.forEach(f -> opprettTasksForPleiepengerVedtak(ytelse, f, callID));
-            } else {
-                LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
-                LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}", ytelse.getType(),
-                    fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
-                if (!fagsakerMedOverlapp.isEmpty()) {
-                    var overlappsaker = fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer)
-                        .map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
-                    var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
-                        ytelse.getType().getNavn(), ytelse.getSaksnummer(), overlappsaker);
-                    LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
-                    loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
-                }
+            var callID = UUID.randomUUID();
+            fagsakerMedVedtakOverlapp(ytelse, fagsaker)
+                .forEach(f -> opprettHåndterOverlappTaskPleiepenger(ytelse, f, callID));
+        } else {
+            LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
+            var fagsaker = getFagsakerFor(ytelse);
+            LOG.info("Vedtatt-Ytelse VL har disse sakene for bruker med vedtak {} - saker {}",
+                ytelse.getType(), fagsaker.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList()));
 
+            var fagsakerMedOverlapp = fagsakerMedVedtakOverlapp(ytelse, fagsaker);
+            if (!fagsakerMedOverlapp.isEmpty()) {
+                var overlappSaksnummerList =
+                    fagsakerMedOverlapp.stream().map(Fagsak::getSaksnummer).map(Saksnummer::getVerdi).collect(Collectors.toList());
+                var beskrivelse = String.format("Vedtak om %s sak %s overlapper saker i VL: %s",
+                    ytelse.getType().getNavn(), ytelse.getSaksnummer(), String.join(", ", overlappSaksnummerList));
+                LOG.warn("Vedtatt-Ytelse KONTAKT PRODUKTEIER UMIDDELBART! - {}", beskrivelse);
+                loggVedtakOverlapp(ytelse, fagsakerMedOverlapp);
             }
         }
     }
 
-    void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
+    private void oprettTasksForFpsakVedtak(YtelseV1 ytelse) {
         var fagsakYtelseType = YTELSE_TYPE_MAP.getOrDefault(ytelse.getType(), FagsakYtelseType.UDEFINERT);
 
         if (!VURDER_OVERLAPP.contains(fagsakYtelseType)) {
@@ -161,20 +162,26 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    private void opprettTasksForPleiepengerVedtak(YtelseV1 ytelse, Fagsak f, UUID callID) {
+    private void opprettHåndterOverlappTaskPleiepenger(YtelseV1 ytelse, Fagsak f, UUID callID) {
         var innleggelse = Optional.ofNullable(ytelse.getTilleggsopplysninger())
             .map(PleipengerOversetter::oversettTilleggsopplysninger)
             .filter(to -> !to.innleggelsesPerioder().isEmpty())
             .isPresent();
-        //TODO TFP-4475: Bytte ut VurderOpphørAvYtelserTask med HåndterOpphørAvYtelserTask
-        var data = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
-        data.setFagsak(f.getId(), f.getAktørId().getId());
-        data.setCallId(callID.toString());
-        if (innleggelse) data.setProperty(VurderOpphørAvYtelserTask.K9_INNLEGGELSE_KEY, "true");
-        data.setProperty(VurderOpphørAvYtelserTask.K9_YTELSE_KEY, ytelse.getType().getNavn());
-        data.setProperty(VurderOpphørAvYtelserTask.K9_SAK_KEY, ytelse.getSaksnummer());
-        data.setProperty(VurderOpphørAvYtelserTask.K9_REVURDER_KEY, "true");
-        prosessTaskRepository.lagre(data);
+
+        var prosessTaskData = new ProsessTaskData(HåndterOpphørAvYtelserTask.TASKTYPE);
+        prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
+        prosessTaskData.setCallId(callID.toString());
+
+        var beskrivelse = String.format("%s %s %s overlapper %s saksnr %s",
+            ytelse.getType().getNavn(),
+            innleggelse ? "(Innlagt) saksnr" : "saksnr",
+            ytelse.getSaksnummer(),
+            f.getYtelseType().getNavn(),
+            f.getSaksnummer().getVerdi());
+
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
+        prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
+        prosessTaskRepository.lagre(prosessTaskData);
     }
 
     // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null = 100.

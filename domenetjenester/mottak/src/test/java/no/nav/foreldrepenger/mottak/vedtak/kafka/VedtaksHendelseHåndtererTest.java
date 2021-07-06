@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,16 +73,13 @@ import no.nav.vedtak.konfig.Tid;
 @ExtendWith(MockitoExtension.class)
 public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private VedtaksHendelseHåndterer vedtaksHendelseHåndterer;
-    private LoggOverlappEksterneYtelserTjeneste overlappTjeneste;
 
     @Mock
     private ProsessTaskEventPubliserer eventPubliserer;
-    BehandlingRepository behandlingRepository;
     private ProsessTaskRepository prosessTaskRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private OverlappVedtakRepository overlappInfotrygdRepository;
-    private FagsakTjeneste fagsakTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingRepositoryProvider repositoryProvider;
     private static final int DAGSATS = 442;
@@ -93,12 +92,12 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());
-        behandlingRepository = new BehandlingRepository(getEntityManager());
-        fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
-                new SøknadRepository(getEntityManager(), behandlingRepository), null);
-        overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsgrunnlagRepository, beregningsresultatRepository, null,
-                null, null, null, null,
-                overlappInfotrygdRepository, behandlingRepository);
+        var behandlingRepository = new BehandlingRepository(getEntityManager());
+        var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
+            new SøknadRepository(getEntityManager(), behandlingRepository), null);
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsgrunnlagRepository, beregningsresultatRepository, null,
+            null, null, null, null,
+            overlappInfotrygdRepository, behandlingRepository);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer(fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
                 prosessTaskRepository);
     }
@@ -108,7 +107,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var fpBehandling = lagBehandlingFP();
         var fpYtelse = genererYtelseFpsak(fpBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(fpYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(fpYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
@@ -121,7 +120,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var svpBehandling = lagBehandlingSVP();
         var svpYtelse = genererYtelseFpsak(svpBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(svpYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(svpYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toList());
@@ -134,7 +133,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var esBehandling = lagBehandlingES();
         var esYtelse = genererYtelseFpsak(esBehandling);
 
-        vedtaksHendelseHåndterer.oprettTasksForFpsakVedtak(esYtelse);
+        vedtaksHendelseHåndterer.handleMessageIntern(esYtelse);
 
         var prosessTaskDataList = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var tasktyper = prosessTaskDataList.stream()
@@ -311,7 +310,77 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(erOverlapp).isTrue();
     }
 
-    public Behandling lagBehandlingFP() {
+    @Test
+    public void vedtak_om_PSB_som_overlapper_med_FP_trigger_task_for_revurdering() {
+        // given
+        var stp = LocalDate.of(2020, 3, 1);
+        var fpPeriodeFom = stp;
+        var fpPeriodeTom = stp.plusMonths(2);
+        var psbPeriodeFom = stp.plusMonths(1);
+        var psbPeriodeTom = stp.plusMonths(3);
+
+        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+
+        //when
+        YtelseV1 ppYtelseMedOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
+        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseMedOverlapp);
+
+        // then
+        var taskList = prosessTaskRepository.finnIkkeStartet();
+        assertThat(taskList.size()).isEqualTo(1);
+
+        var task = taskList.get(0);
+        assertThat(task.getTaskType()).isEqualTo(HåndterOpphørAvYtelserTask.TASKTYPE);
+        assertThat(task.getAktørId()).isEqualTo(aktørFra(fpBehandling).getVerdi());
+        assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
+        assertThat(task.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
+    }
+
+    @Test
+    public void vedtak_om_PSB_som_IKKE_overlapper_med_FP_skaper_ingen_tasks() {
+        // given
+        var stp = LocalDate.of(2020, 3, 1);
+        var fpPeriodeFom = stp;
+        var fpPeriodeTom = stp.plusMonths(2);
+        var psbPeriodeFom = stp.plusMonths(3);
+        var psbPeriodeTom = stp.plusMonths(4);
+
+        Behandling fpBehandling = lagFPforPeriode(fpPeriodeFom, fpPeriodeTom);
+
+        //when
+        YtelseV1 ppYtelseUTENOverlapp = lagVedtakForPeriode(aktørFra(fpBehandling), YtelseType.PLEIEPENGER_SYKT_BARN, psbPeriodeFom, psbPeriodeTom);
+        vedtaksHendelseHåndterer.handleMessageIntern(ppYtelseUTENOverlapp);
+
+        // then
+        var taskList = prosessTaskRepository.finnIkkeStartet();
+        assertThat(taskList.size()).isEqualTo(0);
+    }
+
+    private YtelseV1 lagVedtakForPeriode(Aktør aktør, YtelseType abakusYtelse, LocalDate periodeFom, LocalDate periodeTom) {
+        var periode = new Periode();
+        periode.setFom(periodeFom);
+        periode.setTom(periodeTom);
+
+        var anvistList = List.of(genererAnvist(periodeFom, periodeTom, new Desimaltall(BigDecimal.valueOf(100))));
+
+        return genererYtelseAbakus(abakusYtelse, aktør, periode, anvistList);
+    }
+
+    private Behandling lagFPforPeriode(LocalDate periodeFom, LocalDate periodeTom) {
+        var fpBehandling = lagBehandlingFP();
+        lagBeregningsgrunnlag(fpBehandling, periodeFom, 100);
+        var beregningsresultat = lagBeregningsresultat(periodeFom, periodeTom, 100);
+        beregningsresultatRepository.lagre(fpBehandling, beregningsresultat);
+        return fpBehandling;
+    }
+
+    private Aktør aktørFra(Behandling fpBehandling) {
+        Aktør aktør = new Aktør();
+        aktør.setVerdi(fpBehandling.getAktørId().getId());
+        return aktør;
+    }
+
+    private Behandling lagBehandlingFP() {
         ScenarioMorSøkerForeldrepenger scenarioFP;
         scenarioFP = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioFP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -325,7 +394,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    public Behandling lagBehandlingSVP() {
+    private Behandling lagBehandlingSVP() {
         ScenarioMorSøkerSvangerskapspenger scenarioSVP;
         scenarioSVP = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenarioSVP.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -339,7 +408,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    public Behandling lagBehandlingES() {
+    private Behandling lagBehandlingES() {
         ScenarioMorSøkerEngangsstønad scenarioES;
         scenarioES = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenarioES.medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
@@ -353,7 +422,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private void lagBeregningsgrunnlag(Behandling svp, LocalDate stp, int utbetalingsgrad) {
+    private void lagBeregningsgrunnlag(Behandling b, LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
         var beregningsgrunnlag = BeregningsgrunnlagEntitet.ny()
@@ -371,7 +440,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
                     .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.AktivitetStatus.ARBEIDSTAKER)))
             .build();
-        beregningsgrunnlagRepository.lagre(svp.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningsgrunnlagRepository.lagre(b.getId(), beregningsgrunnlag, BeregningsgrunnlagTilstand.FASTSATT);
     }
 
     private BeregningsresultatEntitet lagBeregningsresultat(LocalDate periodeFom, LocalDate periodeTom, int utbetalingsgrad) {
@@ -410,7 +479,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
     }
 
-    public YtelseV1 genererYtelseFpsak(Behandling behandling) {
+    private YtelseV1 genererYtelseFpsak(Behandling behandling) {
         final var vedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
                 .orElseThrow();
 
@@ -430,7 +499,7 @@ public class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return ytelse;
     }
 
-    public YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
+    private YtelseV1 genererYtelseAbakus(YtelseType type, Aktør aktør, Periode periode, List<Anvisning> anvist) {
         var ytelse = new YtelseV1();
         ytelse.setFagsystem(Fagsystem.FPABAKUS);
         ytelse.setSaksnummer("6T5NM");
