@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 public abstract class BeregningsgrunnlagInputFelles {
 
-    private BehandlingRepository behandlingRepository;
+    protected BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
