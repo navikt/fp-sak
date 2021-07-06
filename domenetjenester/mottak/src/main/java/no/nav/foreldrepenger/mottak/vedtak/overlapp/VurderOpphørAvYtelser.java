@@ -100,7 +100,7 @@ public class VurderOpphørAvYtelser  {
         this.entityManager = entityManager;
     }
 
-    public void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
+    void vurderOpphørAvYtelser(Long fagsakId, Long behandlingId) {
 
         var gjeldendeFagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
 
