@@ -111,7 +111,7 @@ public class VedtaksHendelseHåndterer {
             var fagsaker = getFagsakerFor(ytelse);
             var callID = UUID.randomUUID();
             fagsakerMedVedtakOverlapp(ytelse, fagsaker)
-                .forEach(f -> opprettTasksForPleiepengerVedtak(ytelse, f, callID));
+                .forEach(f -> opprettHåndterOverlappTaskPleiepenger(ytelse, f, callID));
         } else {
             LOG.info("Vedtatt-Ytelse mottok vedtak fra system {} saksnummer {} ytelse {}", ytelse.getFagsystem(), ytelse.getSaksnummer(), ytelse.getType());
             var fagsaker = getFagsakerFor(ytelse);
@@ -162,7 +162,7 @@ public class VedtaksHendelseHåndterer {
         }
     }
 
-    private void opprettTasksForPleiepengerVedtak(YtelseV1 ytelse, Fagsak f, UUID callID) {
+    private void opprettHåndterOverlappTaskPleiepenger(YtelseV1 ytelse, Fagsak f, UUID callID) {
         var innleggelse = Optional.ofNullable(ytelse.getTilleggsopplysninger())
             .map(PleipengerOversetter::oversettTilleggsopplysninger)
             .filter(to -> !to.innleggelsesPerioder().isEmpty())
