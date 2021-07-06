@@ -2,10 +2,7 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -382,6 +379,42 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(adopsjonFarLopFS);
     }
+
+    @Test
+    public void opprettIkkeRevNårOverlappMedFPNårInnvilgerSVPPåNyttBarn() {
+        var fud = LocalDate.of(2021,6,4);
+        var avsluttetFPBehMor = lagBehandlingMor(fud.plusWeeks(3), AKTØR_ID_MOR, null);
+        var berResMorBeh1 = lagBeregningsresultat(fud, fud.plusMonths(3), Inntektskategori.ARBEIDSTAKER);
+        beregningsresultatRepository.lagre(avsluttetFPBehMor, berResMorBeh1);
+
+        var nyBehSVPOverlapper = lagBehandlingSVP(AKTØR_ID_MOR);
+        var berResMedOverlapp = lagBeregningsresultat(LocalDate.of(2021,5,3), fud.minusDays(1), Inntektskategori.ARBEIDSTAKER);
+        leggTilBeregningsresPeriodeBeløp(berResMedOverlapp, fud, LocalDate.of(2021,8,1), 0);
+        beregningsresultatRepository.lagre(nyBehSVPOverlapper, berResMedOverlapp);
+        var fagsakNy = nyBehSVPOverlapper.getFagsak();
+
+        vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(), nyBehSVPOverlapper.getId());
+
+        verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet();
+    }
+
+    private void leggTilBeregningsresPeriodeBeløp(BeregningsresultatEntitet beregningsresultatEntitet, LocalDate fom, LocalDate tom, int dagsats) {
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(fom, tom)
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medDagsats(dagsats)
+            .medDagsatsFraBg(dagsats)
+            .medBrukerErMottaker(true)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medStillingsprosent(BigDecimal.valueOf(50))
+            .build(beregningsresultatPeriode);
+        beregningsresultatEntitet.addBeregningsresultatPeriode(beregningsresultatPeriode);
+    }
+
 
     private Behandling lagBehandlingMor( LocalDate fødselsDato, AktørId aktørId, AktørId medfAktørId) {
         var scenarioAvsluttetBehMor = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(aktørId);
