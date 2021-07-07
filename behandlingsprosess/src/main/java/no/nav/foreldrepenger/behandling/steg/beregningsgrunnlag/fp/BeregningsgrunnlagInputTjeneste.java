@@ -62,6 +62,7 @@ public class BeregningsgrunnlagInputTjeneste extends BeregningsgrunnlagInputFell
         if (besteberegningFødendeKvinneTjeneste.kvalifisererTilAutomatiskBesteberegning(ref)) {
             fpGrunnlag.setBesteberegningYtelsegrunnlag(besteberegningFødendeKvinneTjeneste.lagBesteberegningYtelseinput(ref));
         }
+        fpGrunnlag.setBehandlingstidspunkt(behandlingRepository.hentBehandling(ref.getBehandlingId()).getOpprettetDato().toLocalDate());
         return fpGrunnlag;
     }
 }
