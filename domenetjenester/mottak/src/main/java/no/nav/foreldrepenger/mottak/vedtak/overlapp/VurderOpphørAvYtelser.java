@@ -151,7 +151,7 @@ public class VurderOpphørAvYtelser  {
     }
 
     private void vurderOpphørAvYtelserForSVP(Fagsak gjeldendeSVPsak, LocalDate startDatoIVB, Long behandlingId) {
-        var sisteDatoIVB = finnMaxDato(behandlingId);
+        var sisteDatoIVB = finnMaxDatoUtenAvslåtte(behandlingId);
         var overlapper = løpendeSakerSomOverlapperUttakNySakSVP(gjeldendeSVPsak.getAktørId(), gjeldendeSVPsak.getSaksnummer(), startDatoIVB, sisteDatoIVB);
         overlapper.forEach( fagsak -> {
             // Overlapp SVP-SVP - logger foreløpig
