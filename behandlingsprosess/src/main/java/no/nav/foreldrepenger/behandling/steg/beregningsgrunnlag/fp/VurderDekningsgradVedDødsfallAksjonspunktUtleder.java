@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag.fp;
 
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
@@ -13,12 +11,8 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtleder {
     private static final int ANTALL_LEVEUKER = 6;
     private static final int DEKNINGSGRAD_80 = 80;
 
-    public static List<AksjonspunktResultat> utled(List<AksjonspunktResultat> apResultat, int dekningsgradFraFagsakRelasjon,
-            List<UidentifisertBarn> barnList) {
-        if (utledAksjonspunktVedDødfødselOgDekningsgradUlik100(dekningsgradFraFagsakRelasjon, barnList)) {
-            apResultat.add(AksjonspunktResultat.opprettForAksjonspunkt(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD));
-        }
-        return apResultat;
+    public static boolean utled(int dekningsgradFraFagsakRelasjon, List<UidentifisertBarn> barnList) {
+        return utledAksjonspunktVedDødfødselOgDekningsgradUlik100(dekningsgradFraFagsakRelasjon, barnList);
     }
 
     private static boolean utledAksjonspunktVedDødfødselOgDekningsgradUlik100(int dekningsgradFraFagsakRelasjon,

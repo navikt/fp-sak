@@ -31,12 +31,10 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        List<AksjonspunktResultat> apResultat = new ArrayList<>();
-        VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(apResultat, dekningsgrad, List.of(barnList));
+        boolean skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
 
         // Assert
-        var apDefs = apResultat.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-        assertThat(apDefs).doesNotContain(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        assertThat(skalHaAksjonspunkt).isFalse();
     }
 
     @Test
@@ -47,12 +45,10 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        List<AksjonspunktResultat> apResultat = new ArrayList<>();
-        VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(apResultat, dekningsgrad, List.of(barnList));
+        boolean skalHaAksjonspunkt = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
 
         // Assert
-        var apDefs = apResultat.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-        assertThat(apDefs).containsExactly(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        assertThat(skalHaAksjonspunkt).isTrue();
     }
 
     @Test
@@ -63,11 +59,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        List<AksjonspunktResultat> apResultat = new ArrayList<>();
-        VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(apResultat, dekningsgrad, List.of(barnList));
+        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barnList));
         // Assert
-        var apDefs = apResultat.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-        assertThat(apDefs).containsExactly(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        assertThat(resultat).isTrue();
     }
 
     @Test
@@ -78,11 +72,10 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 100;
 
         // Act
-        List<AksjonspunktResultat> apResultat = new ArrayList<>();
-        VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(apResultat, dekningsgrad, List.of(barn));
+        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of(barn));
+
         // Assert
-        var apDefs = apResultat.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-        assertThat(apDefs).doesNotContain(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        assertThat(resultat).isFalse();
     }
 
     @Test
@@ -91,10 +84,9 @@ public class VurderDekningsgradVedDødsfallAksjonspunktUtlederTest {
         var dekningsgrad = 80;
 
         // Act
-        List<AksjonspunktResultat> apResultat = new ArrayList<>();
-        VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(apResultat, dekningsgrad, List.of());
+        boolean resultat = VurderDekningsgradVedDødsfallAksjonspunktUtleder.utled(dekningsgrad, List.of());
+
         // Assert
-        var apDefs = apResultat.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toList());
-        assertThat(apDefs).doesNotContain(AksjonspunktDefinisjon.VURDER_DEKNINGSGRAD);
+        assertThat(resultat).isFalse();
     }
 }
