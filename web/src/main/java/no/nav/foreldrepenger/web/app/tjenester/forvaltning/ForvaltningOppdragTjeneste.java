@@ -126,10 +126,10 @@ class ForvaltningOppdragTjeneste {
         }
 
         // Finn siste oppdrag som ble sendt
+        var oppdragSomPatches = oppdragskontroll;
         var alleOppdragForSak = økonomioppdragRepository.finnAlleOppdragForSak(oppdragskontroll.getSaksnummer());
         var sisteOppdrag = alleOppdragForSak.stream().max(Comparator.comparing(Oppdragskontroll::getOpprettetTidspunkt)).orElseThrow();
 
-        var oppdragSomPatches = oppdragskontroll;
         if (sisteOppdrag != oppdragskontroll) {
             LOG.info("Oppdaterer oppdraget siden ikke det siste.");
             oppdragSomPatches = sisteOppdrag;
