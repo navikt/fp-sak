@@ -53,6 +53,11 @@ public class Oppdragskontroll extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "oppdragskontroll")
     private List<Oppdrag110> oppdrag110Liste = new ArrayList<>();
 
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "patched")
+    private Boolean patched;
+
     public Oppdragskontroll() {
         // default constructor
     }
@@ -75,6 +80,10 @@ public class Oppdragskontroll extends BaseEntitet {
 
     public void setVenterKvittering(Boolean venterKvittering) {
         this.venterKvittering = venterKvittering;
+    }
+
+    public void setPatched(final Boolean patched) {
+        this.patched = patched;
     }
 
     public Long getProsessTaskId() {
