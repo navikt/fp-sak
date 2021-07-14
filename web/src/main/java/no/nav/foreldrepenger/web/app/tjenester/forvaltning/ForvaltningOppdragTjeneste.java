@@ -131,7 +131,7 @@ class ForvaltningOppdragTjeneste {
         var sisteOppdrag = alleOppdragForSak.stream().max(Comparator.comparing(Oppdragskontroll::getOpprettetTidspunkt)).orElseThrow();
 
         if (sisteOppdrag != oppdragskontroll) {
-            LOG.info("Oppdaterer oppdraget siden ikke det siste. Oppdrag med feil: {}, oppdrag som patches: {}", oppdragskontroll.getId(), oppdragSomPatches.getId());
+            LOG.info("Oppdaterer oppdraget siden ikke det siste. Oppdrag med feil: {}, oppdrag som patches: {}", oppdragskontroll.getId(), sisteOppdrag.getId());
             oppdragSomPatches = sisteOppdrag;
 
             // Må lagre den som ble patched til å kunne fjerne den fra oversikten.
