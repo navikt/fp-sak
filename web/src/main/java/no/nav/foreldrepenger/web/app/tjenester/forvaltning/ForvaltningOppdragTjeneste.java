@@ -131,8 +131,12 @@ class ForvaltningOppdragTjeneste {
         var sisteOppdrag = alleOppdragForSak.stream().max(Comparator.comparing(Oppdragskontroll::getOpprettetTidspunkt)).orElseThrow();
 
         if (sisteOppdrag != oppdragskontroll) {
-            LOG.info("Oppdaterer oppdraget siden ikke det siste.");
+            LOG.info("Oppdaterer oppdraget siden ikke det siste. Oppdrag med feil: {}, oppdrag som patches: {}", oppdragskontroll.getId(), oppdragSomPatches.getId());
             oppdragSomPatches = sisteOppdrag;
+
+            // Må lagre den som ble patched til å kunne fjerne den fra oversikten.
+            oppdragskontroll.setPatched(true);
+            økonomioppdragRepository.lagre(oppdragskontroll);
         }
 
         // lag en kopi av dette hva skal patches uten kvittering med fikset tom dato
@@ -141,6 +145,7 @@ class ForvaltningOppdragTjeneste {
 
         // set venter kvittering true på oppdragskontroll
         oppdragSomPatches.setVenterKvittering(true);
+        oppdragSomPatches.setPatched(true);
         økonomioppdragRepository.lagre(oppdragSomPatches);
 
         // opprett en sendt økonomi oppdrag task
