@@ -113,7 +113,7 @@ public class ForvaltningFagsakRestTjeneste {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
         if (fagsak == null || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-            LOG.warn("Fagsak allerede avsluttet " + saksnummer.getVerdi());
+            LOG.warn("Fagsak allerede avsluttet {}", saksnummer.getVerdi());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
@@ -341,6 +341,31 @@ public class ForvaltningFagsakRestTjeneste {
             fagsakRepository.oppdaterBrukerMedAktørId(fagsak.getNavBruker().getId(), gjeldendeAktørId);
         }
         personopplysningRepository.oppdaterAktørIdFor(eksisterendeAktørId, gjeldendeAktørId);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/fagsak/setStatusUnderBehandlingFagsak")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Sett riktig status for fagsak", tags = "FORVALTNING-fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Oppdatert fagsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
+    public Response setStatusUnderBehandlingFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                                @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        if (fagsak == null || FagsakStatus.UNDER_BEHANDLING.equals(fagsak.getStatus()) || FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
+            LOG.warn("Ugyldig fagsak {}", saksnummer.getVerdi());
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        LOG.info("Avslutter fagsak med saksnummer: {} ", saksnummer.getVerdi()); // NOSONAR
+        var oppdaterFagsakStatus = FagsakYtelseTypeRef.Lookup.find(oppdaterFagsakStatuser, fagsak.getYtelseType())
+            .orElseThrow(() -> new ForvaltningException("Ingen implementasjoner funnet for ytelse: " + fagsak.getYtelseType().getKode()));
+        oppdaterFagsakStatus.settUnderBehandlingNårAktiveBehandlinger(fagsak);
         return Response.ok().build();
     }
 }
