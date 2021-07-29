@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @ApplicationScoped
 public class BehandlingKandidaterRepository {
 
-    private static final Set<AksjonspunktDefinisjon> AUTOPUNKTER = List.of(AksjonspunktDefinisjon.values()).stream().filter(a -> AksjonspunktType.AUTOPUNKT.equals(a.getAksjonspunktType())).collect(Collectors.toSet());
     private static final Set<BehandlingStatus> AVSLUTTENDE_STATUS = BehandlingStatus.getFerdigbehandletStatuser();
     private static final String AVSLUTTENDE_KEY = "avsluttetOgIverksetterStatus";
     private EntityManager entityManager;
@@ -99,25 +98,16 @@ public class BehandlingKandidaterRepository {
 
     public List<Behandling> finnBehandlingerForAutomatiskGjenopptagelse() {
 
-        var køetKode = Set.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING);
-
-        var autopunktKoder = AUTOPUNKTER.stream().filter(a -> !køetKode.contains(a)).collect(Collectors.toSet());
-
-        var naa = LocalDateTime.now();
-
         var query = getEntityManager().createQuery("""
              SELECT DISTINCT b
                  FROM Aksjonspunkt ap
                  INNER JOIN ap.behandling b
-                 WHERE ap.status IN :aapneAksjonspunktKoder
-                   AND ap.aksjonspunktDefinisjon IN :autopunktKoder
-                   AND ap.fristTid < :naa
+                 WHERE ap.status IN (:aapneAksjonspunktKoder)
+                   AND ap.fristTid < systimestamp
                    AND b.id not in (SELECT DISTINCT behandlingId from FagsakProsessTask ftp)
                 """, Behandling.class);
         query.setHint(QueryHints.HINT_READONLY, "true");
         query.setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
-        query.setParameter("autopunktKoder", autopunktKoder);
-        query.setParameter("naa", naa);
 
         return query.getResultList();
     }
