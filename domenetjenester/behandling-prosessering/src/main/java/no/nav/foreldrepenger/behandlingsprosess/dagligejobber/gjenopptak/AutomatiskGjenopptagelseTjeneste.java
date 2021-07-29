@@ -51,8 +51,10 @@ public class AutomatiskGjenopptagelseTjeneste {
         var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
         var baseline = LocalTime.now();
         LOG.info("BATCH Gjenoppta fant {} behandlinger", behandlingListe.size());
+        var counter = 0;
         for (var behandling : behandlingListe) {
             opprettProsessTasks(behandling, baseline, 1439);
+            if (++counter > 500) break;
         }
         LOG.info("BATCH Gjenoppta utgang");
         return  "-" + behandlingListe.size();
