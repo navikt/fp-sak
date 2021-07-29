@@ -369,21 +369,6 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_manuelt_aksjonspunkt() {
-
-        // Arrange
-        var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
-        opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET, igår);
-        lagreBehandling(behandling1);
-
-        // Act
-        var liste = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
-
-        // Assert
-        assertThat(liste).isEmpty();
-    }
-
-    @Test
     public void skal_ikke_finne_for_automatisk_gjenopptagelse_naar_naar_lukket_aksjonspunkt() {
         var behandling1 = opprettBehandlingForAutomatiskGjenopptagelse();
         var aksjonspunkt = opprettAksjonspunkt(behandling1, AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, igår);
