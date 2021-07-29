@@ -74,6 +74,14 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
         avsluttFagsakNårAlleBehandlingerErLukket(fagsak, null);
     }
 
+    @Override
+    public void settUnderBehandlingNårAktiveBehandlinger(Fagsak fagsak) {
+        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId()) && FagsakStatus.LØPENDE.equals(fagsak.getStatus())) {
+            var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
+            oppdaterFagsakStatus(fagsak, behandling, FagsakStatus.UNDER_BEHANDLING);
+        }
+    }
+
     private FagsakStatusOppdateringResultat oppdaterFagsak(Behandling behandling) {
 
         if (Objects.equals(BehandlingStatus.AVSLUTTET, behandling.getStatus())) {

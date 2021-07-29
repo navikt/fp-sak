@@ -17,6 +17,8 @@ public abstract class OppdaterFagsakStatus {
 
     public abstract void avsluttFagsakUtenAktiveBehandlinger(Fagsak fagsak);
 
+    public abstract void settUnderBehandlingNårAktiveBehandlinger(Fagsak fagsak);
+
     public void oppdaterFagsakStatus(Fagsak fagsak, Behandling behandling, FagsakStatus nyStatus) {
         var gammelStatus = fagsak.getStatus();
         var fagsakId = fagsak.getId();
