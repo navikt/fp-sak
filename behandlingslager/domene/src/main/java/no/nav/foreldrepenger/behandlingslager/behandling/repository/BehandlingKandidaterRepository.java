@@ -17,9 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 
 /**
  * Ulike spesialmetoder for å hente opp behandlinger som er kandidater for videre spesiell prosessering, slik som
@@ -103,12 +101,11 @@ public class BehandlingKandidaterRepository {
                  FROM Aksjonspunkt ap
                  INNER JOIN ap.behandling b
                  WHERE ap.status IN (:aapneAksjonspunktKoder)
-                   AND ap.fristTid < systimestamp
-                   AND b.id not in (SELECT DISTINCT behandlingId from FagsakProsessTask ftp)
-                """, Behandling.class);
-        query.setHint(QueryHints.HINT_READONLY, "true");
-        query.setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
-
+                   AND ap.fristTid < :naa
+                """, Behandling.class)
+            .setHint(QueryHints.HINT_READONLY, "true")
+            .setParameter("naa", LocalDateTime.now())
+            .setParameter("aapneAksjonspunktKoder", AksjonspunktStatus.getÅpneAksjonspunktStatuser());
         return query.getResultList();
     }
 

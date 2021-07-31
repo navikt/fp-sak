@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPe
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonRelasjonEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -145,9 +144,11 @@ public class InngangsvilkårOversetter {
     }
 
     private NavBrukerKjønn getSøkersKjønn(BehandlingReferanse ref) {
-        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .map(PersonopplysningerAggregat::getSøker)
-            .map(PersonopplysningEntitet::getKjønn).orElse(NavBrukerKjønn.UDEFINERT);
+        try {
+            return personopplysningTjeneste.hentPersonopplysninger(ref).getSøker().getKjønn();
+        } catch (Exception e) {
+            return NavBrukerKjønn.UDEFINERT;
+        }
     }
 
     private RegelSøkerRolle finnSoekerRolle(BehandlingReferanse ref) {

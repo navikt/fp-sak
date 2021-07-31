@@ -48,14 +48,13 @@ public class AutomatiskGjenopptagelseTjeneste {
 
     public String gjenopptaBehandlinger() {
         LOG.info("BATCH Gjenoppta inngang");
-        var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
         var baseline = LocalTime.now();
+        var feileteBehandlinger = behandlingProsesseringTjeneste.behandlingerMedFeiletProsessTask();
+        var behandlingListe = behandlingKandidaterRepository.finnBehandlingerForAutomatiskGjenopptagelse();
         LOG.info("BATCH Gjenoppta fant {} behandlinger", behandlingListe.size());
-        var counter = 0;
-        for (var behandling : behandlingListe) {
-            opprettProsessTasks(behandling, baseline, 1439);
-            if (++counter > 500) break;
-        }
+        behandlingListe.stream()
+            .filter(b -> !feileteBehandlinger.contains(b.getId()))
+            .forEach(behandling -> opprettProsessTasks(behandling, baseline, 1439));
         LOG.info("BATCH Gjenoppta utgang");
         return  "-" + behandlingListe.size();
     }
@@ -77,15 +76,15 @@ public class AutomatiskGjenopptagelseTjeneste {
         LOG.info("BATCH Oppdater inngang");
         var tom = LocalDate.now().minusDays(1);
         var fom = DayOfWeek.MONDAY.equals(tom.getDayOfWeek()) ? tom.minusDays(2) : tom;
+        var feileteBehandlinger = behandlingProsesseringTjeneste.behandlingerMedFeiletProsessTask();
         var oppgaveListe = oppgaveBehandlingKoblingRepository.hentUferdigeOppgaverOpprettetTidsrom(fom, tom, OPPGAVE_TYPER);
         var baseline = LocalTime.now();
         LOG.info("BATCH Oppdater fant {} oppgaver", oppgaveListe.size());
-        for (var oppgave : oppgaveListe) {
-            var behandling = behandlingRepository.hentBehandlingReadOnly(oppgave.getBehandlingId());
-            if (!behandling.erSaksbehandlingAvsluttet() && !behandling.isBehandlingPåVent() && behandling.erYtelseBehandling()) {
-                opprettProsessTasks(behandling, baseline, 1439);
-            }
-        }
+        oppgaveListe.stream()
+            .filter(o -> !feileteBehandlinger.contains(o.getBehandlingId()))
+            .map(o -> behandlingRepository.hentBehandlingReadOnly(o.getBehandlingId()))
+            .filter(b -> !b.erSaksbehandlingAvsluttet() && !b.isBehandlingPåVent() && b.erYtelseBehandling())
+            .forEach(behandling -> opprettProsessTasks(behandling, baseline, 1439));
         LOG.info("BATCH Oppdater utgang");
         return "-" + oppgaveListe.size();
     }
