@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -73,4 +74,6 @@ public interface BehandlingProsesseringTjeneste {
     String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter);
 
     String opprettTasksForInitiellRegisterInnhenting(Behandling behandling);
+
+    Set<Long> behandlingerMedFeiletProsessTask();
 }

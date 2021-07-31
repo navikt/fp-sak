@@ -168,6 +168,10 @@ public class BehandlingReferanse {
         return skjæringstidspunkt.getUtledetSkjæringstidspunkt();
     }
 
+    public Optional<LocalDate> getUtledetSkjæringstidspunktHvisUtledet() {
+        return skjæringstidspunkt.getSkjæringstidspunktHvisUtledet();
+    }
+
     public LocalDateInterval getUtledetMedlemsintervall() {
         // precondition
         sjekkSkjæringstidspunkt();

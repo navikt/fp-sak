@@ -49,7 +49,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
 
     @Override
     public Optional<PersonopplysningerAggregat> hentPersonopplysningerHvisEksisterer(BehandlingReferanse ref) {
-        final var stp = ref.getUtledetSkjæringstidspunkt();
+        final var stp = ref.getUtledetSkjæringstidspunktHvisUtledet().orElseGet(LocalDate::now);
         return hentGjeldendePersoninformasjonPåTidspunktHvisEksisterer(ref, stp);
     }
 

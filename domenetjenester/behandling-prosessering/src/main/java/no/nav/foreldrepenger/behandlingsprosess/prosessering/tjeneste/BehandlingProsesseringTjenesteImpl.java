@@ -3,7 +3,10 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -253,5 +256,15 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
+    }
+
+    @Override
+    public Set<Long> behandlingerMedFeiletProsessTask() {
+        return prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET).stream()
+            .filter(it -> FortsettBehandlingTask.TASKTYPE.equals(it.getTaskType()) || StartBehandlingTask.TASKTYPE.equals(it.getTaskType()))
+            .map(ProsessTaskData::getBehandlingId)
+            .filter(Objects::nonNull)
+            .map(Long::valueOf)
+            .collect(Collectors.toSet());
     }
 }
