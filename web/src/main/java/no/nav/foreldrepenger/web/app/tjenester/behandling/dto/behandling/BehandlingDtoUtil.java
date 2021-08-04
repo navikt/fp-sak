@@ -76,7 +76,7 @@ public class BehandlingDtoUtil {
         dto.setBehandlingKøet(behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
         dto.setAnsvarligSaksbehandler(behandling.getAnsvarligSaksbehandler());
         dto.setToTrinnsBehandling(behandling.isToTrinnsBehandling());
-        dto.setBehandlingArsaker(lagBehandlingÅrsakDto(behandling));
+        dto.setBehandlingÅrsaker(lagBehandlingÅrsakDto(behandling));
     }
 
     static void setStandardfelterMedGjeldendeVedtak(Behandling behandling,
