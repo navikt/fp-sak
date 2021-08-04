@@ -43,7 +43,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     public BeregningsgrunnlagFormidlingRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject

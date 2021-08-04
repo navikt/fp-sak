@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.Operation;
 public class JettyLoginResource {
 
     @GET
-    @Path("")
     @Operation(description = "Innlogging ved kjøring lokalt", hidden = true)
     public Response login() {
         //  når vi har kommet hit, er brukeren innlogget og har fått ID-token. Kan da gjøre redirect til hovedsiden for VL

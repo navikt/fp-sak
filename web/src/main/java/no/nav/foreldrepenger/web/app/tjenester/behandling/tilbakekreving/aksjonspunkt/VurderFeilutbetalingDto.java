@@ -25,7 +25,7 @@ public class VurderFeilutbetalingDto extends BekreftetAksjonspunktDto {
     private String varseltekst;
 
     VurderFeilutbetalingDto() {
-        //for jackson/resteasy
+        //for CDI
     }
 
     public VurderFeilutbetalingDto(String begrunnelse, TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {

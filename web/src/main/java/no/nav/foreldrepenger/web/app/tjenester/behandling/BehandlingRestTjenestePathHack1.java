@@ -53,7 +53,7 @@ public class BehandlingRestTjenestePathHack1 {
     public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
 
     public BehandlingRestTjenestePathHack1() {
-        // for resteasy
+        // CDI
     }
 
     private BehandlingRestTjeneste behandlingRestTjeneste;

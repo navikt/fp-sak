@@ -39,7 +39,7 @@ public class FeriepengegrunnlagRestTjeneste {
     private BehandlingRepository behandlingRepository;
 
     public FeriepengegrunnlagRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject

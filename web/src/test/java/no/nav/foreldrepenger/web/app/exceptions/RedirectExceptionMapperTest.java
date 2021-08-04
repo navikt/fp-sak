@@ -3,10 +3,10 @@ package no.nav.foreldrepenger.web.app.exceptions;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.spi.ApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ public class RedirectExceptionMapperTest {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
 
-        var exception = new ApplicationException(null);
+        var exception = new WebApplicationException();
         when(generalRestExceptionMapper.toResponse(exception)).thenReturn(generalResponse);
 
         var response = exceptionMapper.toResponse(exception);

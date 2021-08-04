@@ -139,7 +139,7 @@ abstract class AbstractJettyServer {
         webAppContext.setBaseResource(createResourceCollection());
         webAppContext.setContextPath(webKonfigurasjon.getContextPath());
         webAppContext.setConfigurations(CONFIGURATIONS);
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*resteasy-.*.jar$|^.*felles-.*.jar$");
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", "^.*jersey-.*.jar$|^.*felles-.*.jar$");
         webAppContext.setSecurityHandler(createSecurityHandler());
 
         webAppContext.setParentLoaderPriority(true);

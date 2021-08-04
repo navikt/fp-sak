@@ -52,7 +52,7 @@ public class BeregningsgrunnlagRestTjeneste {
     private BeregningsgrunnlagInputProvider inputTjenesteProvider;
 
     public BeregningsgrunnlagRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject

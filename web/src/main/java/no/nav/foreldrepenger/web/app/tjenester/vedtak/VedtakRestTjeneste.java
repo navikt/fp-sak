@@ -85,7 +85,7 @@ public class VedtakRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(VedtakRestTjeneste.class);
 
     public VedtakRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject

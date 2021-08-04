@@ -43,7 +43,7 @@ public class KontrollRestTjeneste {
     private BehandlingRepository behandlingRepository;
 
     public KontrollRestTjeneste() {
-        // resteasy
+        // CDI
     }
 
     @Inject

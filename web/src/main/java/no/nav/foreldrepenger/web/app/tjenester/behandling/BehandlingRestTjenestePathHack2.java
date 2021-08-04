@@ -44,7 +44,7 @@ public class BehandlingRestTjenestePathHack2 {
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
 
     public BehandlingRestTjenestePathHack2() {
-        // for resteasy
+        // CDI
     }
 
     @Inject
