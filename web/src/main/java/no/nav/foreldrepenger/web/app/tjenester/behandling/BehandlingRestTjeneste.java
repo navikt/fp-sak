@@ -153,7 +153,7 @@ public class BehandlingRestTjeneste {
     }
 
     @POST
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Init hent behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Hent behandling initiert, Returnerer link til å polle på fremdrift", headers = @Header(name = HttpHeaders.LOCATION)),
@@ -198,7 +198,7 @@ public class BehandlingRestTjeneste {
     }
 
     @GET
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Deprecated
     @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
@@ -298,7 +298,7 @@ public class BehandlingRestTjeneste {
     }
 
     @PUT
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Opprette ny behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Opprett ny behandling pågår", headers = @Header(name = HttpHeaders.LOCATION))

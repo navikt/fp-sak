@@ -120,7 +120,7 @@ public class FagsakRestTjeneste {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path(FAGSAK_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(FAGSAK_PART_PATH)
     @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
             @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")

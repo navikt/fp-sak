@@ -49,7 +49,6 @@ import no.nav.foreldrepenger.kontrakter.feed.vedtak.v1.FeedDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.AktørParam;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
@@ -162,6 +161,7 @@ public class VedtakRestTjeneste {
         return Response.ok(resultat, "text/html").build();
     }
 
+    /* TODO: Enable når frontend har endret query til hent-vedtaksdokument/?behandlingUuid= + slett den over
     @GET
     @Path(HENT_VEDTAKSDOKUMENT_PART_PATH)
     @Operation(description = "Hent vedtaksdokument gitt behandlingId", summary = ("Returnerer vedtaksdokument som er tilknyttet behandlingId."), tags = "vedtak")
@@ -170,6 +170,7 @@ public class VedtakRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return hentVedtaksdokument(new BehandlingIdDto(uuidDto));
     }
+    */
 
     @POST
     @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "vedtak")

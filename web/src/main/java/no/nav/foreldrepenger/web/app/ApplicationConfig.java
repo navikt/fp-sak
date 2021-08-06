@@ -1,14 +1,15 @@
 package no.nav.foreldrepenger.web.app;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
+
+import io.swagger.v3.jaxrs2.SwaggerSerializers;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -17,25 +18,15 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
+import no.nav.foreldrepenger.web.app.exceptions.GenerellVLExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.web.app.tjenester.datavarehus.DatavarehusAdminRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
 @ApplicationPath(ApplicationConfig.API_URI)
-public class ApplicationConfig extends Application {
+public class ApplicationConfig extends ResourceConfig {
 
     public static final String API_URI = "/api";
 
@@ -64,34 +55,24 @@ public class ApplicationConfig extends Application {
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+
+        property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        register(SwaggerSerializers.class);
+        register(OpenApiResource.class);
+        register(JacksonJsonConfig.class);
+        register(TimingFilter.class);
+
+        registerClasses(new LinkedHashSet<>(RestImplementationClasses.getImplementationClasses()));
+        registerClasses(new LinkedHashSet<>(RestImplementationClasses.getForvaltningClasses()));
+
+        // Disse overstyrer tilsvarende fra jackson+jersey
+        register(ConstraintViolationMapper.class);
+        register(JsonMappingExceptionMapper.class);
+        register(JsonParseExceptionMapper.class);
+        // Map+Logg VLException + Alle andre
+        register(GenerellVLExceptionMapper.class);
+
+        property(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
     }
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-        classes.addAll(new RestImplementationClasses().getImplementationClasses());
-
-        // UtilTjenester for uttrekk fra registre
-        classes.add(TimingFilter.class);
-        classes.add(DatavarehusAdminRestTjeneste.class);
-        classes.add(ForvaltningFagsakRestTjeneste.class);
-        classes.add(ForvaltningTekniskRestTjeneste.class);
-        classes.add(ForvaltningUttrekkRestTjeneste.class);
-        classes.add(ForvaltningOppdragRestTjeneste.class);
-        classes.add(ForvaltningOpptjeningRestTjeneste.class);
-        classes.add(ForvaltningUttakRestTjeneste.class);
-        classes.add(ForvaltningBehandlingRestTjeneste.class);
-        classes.add(ForvaltningStegRestTjeneste.class);
-        classes.add(ForvaltningSøknadRestTjeneste.class);
-
-        classes.add(OpenApiResource.class);
-
-        classes.add(ConstraintViolationMapper.class);
-        classes.add(JsonMappingExceptionMapper.class);
-        classes.add(JsonParseExceptionMapper.class);
-        classes.add(GeneralRestExceptionMapper.class);
-        classes.add(JacksonJsonConfig.class);
-
-        return Collections.unmodifiableSet(classes);
-    }
 }

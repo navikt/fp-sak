@@ -57,7 +57,7 @@ public class RestUtils {
 
     public static Collection<ResourceLink> getRoutes() {
         Set<ResourceLink> routes = new HashSet<>();
-        var restClasses = new RestImplementationClasses().getImplementationClasses();
+        var restClasses = RestImplementationClasses.getImplementationClasses();
         for (var aClass : restClasses) {
             var pathFromClass = getClassAnnotationValue(aClass, Path.class, "value");
             var methods = aClass.getMethods();

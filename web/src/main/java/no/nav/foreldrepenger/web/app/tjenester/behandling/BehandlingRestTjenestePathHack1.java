@@ -83,7 +83,7 @@ public class BehandlingRestTjenestePathHack1 {
     }
 
     @GET
-    @Path(BEHANDLING_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLING_PART_PATH)
     @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
     })

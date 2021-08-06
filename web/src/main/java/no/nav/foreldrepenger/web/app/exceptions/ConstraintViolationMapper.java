@@ -12,6 +12,7 @@ import javax.validation.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.slf4j.Logger;
@@ -22,17 +23,22 @@ import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.OverstyrteAksjonspunkterDto;
 
+@Provider
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConstraintViolationMapper.class);
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
+        return mapException(exception);
+    }
+
+    public static Response mapException(ConstraintViolationException exception) {
         log(exception);
         return lagResponse(exception);
     }
 
-    private void log(ConstraintViolationException exception) {
+    private static void log(ConstraintViolationException exception) {
         var aksjonspunktKoder = finnAksjonspunktKoder(exception);
         //De fleste innkommende dto er klyttet til et aksjonspunkt
         var constraints = constraints(exception);
