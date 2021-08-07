@@ -17,10 +17,6 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
 
     @Override
     public Response toResponse(JsonMappingException exception) {
-        return mapException(exception);
-    }
-
-    public static Response mapException(JsonMappingException exception) {
         var feil = "FP-252294 JSON-mapping feil";
         LOG.warn(feil, exception);
         return Response

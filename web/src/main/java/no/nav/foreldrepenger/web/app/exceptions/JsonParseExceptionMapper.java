@@ -17,10 +17,6 @@ public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseExcept
 
     @Override
     public Response toResponse(JsonParseException exception) {
-        return mapException(exception);
-    }
-
-    public static Response mapException(JsonParseException exception) {
         var feil = String.format("FP-299955 JSON-parsing feil: %s", exception.getMessage());
         LOG.warn(feil, exception);
         return Response

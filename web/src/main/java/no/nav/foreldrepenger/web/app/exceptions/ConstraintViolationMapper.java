@@ -30,10 +30,6 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-        return mapException(exception);
-    }
-
-    public static Response mapException(ConstraintViolationException exception) {
         log(exception);
         return lagResponse(exception);
     }

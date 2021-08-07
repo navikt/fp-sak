@@ -63,26 +63,23 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
     private static Response serverError(String feilmelding) {
-        var feilType = FeilType.GENERELL_FEIL;
         return Response.serverError()
-                .entity(new FeilDto(feilType, feilmelding))
+                .entity(new FeilDto(FeilType.GENERELL_FEIL, feilmelding))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
     private static Response ikkeTilgang(String feilmelding) {
-        var feilType = FeilType.MANGLER_TILGANG_FEIL;
         return Response.status(Response.Status.FORBIDDEN)
-                .entity(new FeilDto(feilType, feilmelding))
+                .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, feilmelding))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
 
     private static Response behandlingEndret() {
         var feilmelding = "Behandlingen er endret av en annen saksbehandler, eller har blitt oppdatert med ny informasjon av systemet. Last inn behandlingen på nytt.";
-        var feilType = FeilType.BEHANDLING_ENDRET_FEIL;
         return Response.status(Response.Status.CONFLICT)
-                .entity(new FeilDto(feilType, feilmelding))
+                .entity(new FeilDto(FeilType.BEHANDLING_ENDRET_FEIL, feilmelding))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
