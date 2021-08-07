@@ -1,15 +1,18 @@
 package no.nav.foreldrepenger.web.app;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 
-import io.swagger.v3.jaxrs2.SwaggerSerializers;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -18,7 +21,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GenerellVLExceptionMapper;
+import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
@@ -26,7 +29,7 @@ import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
 @ApplicationPath(ApplicationConfig.API_URI)
-public class ApplicationConfig extends ResourceConfig {
+public class ApplicationConfig extends Application {
 
     public static final String API_URI = "/api";
 
@@ -55,24 +58,41 @@ public class ApplicationConfig extends ResourceConfig {
         } catch (OpenApiConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
 
-        property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
-        register(SwaggerSerializers.class);
-        register(OpenApiResource.class);
-        register(JacksonJsonConfig.class);
-        register(TimingFilter.class);
+    @Override
+    public Set<Class<?>> getClasses() {
+        Set<Class<?>> classes = new HashSet<>();
+        // eksponert grensesnitt
+        classes.addAll(RestImplementationClasses.getImplementationClasses());
+        // forvaltning/swagger
+        classes.addAll(RestImplementationClasses.getForvaltningClasses());
 
-        registerClasses(new LinkedHashSet<>(RestImplementationClasses.getImplementationClasses()));
-        registerClasses(new LinkedHashSet<>(RestImplementationClasses.getForvaltningClasses()));
+        // swagger
+        classes.add(OpenApiResource.class);
 
-        // Disse overstyrer tilsvarende fra jackson+jersey
-        register(ConstraintViolationMapper.class);
-        register(JsonMappingExceptionMapper.class);
-        register(JsonParseExceptionMapper.class);
-        // Map+Logg VLException + Alle andre
-        register(GenerellVLExceptionMapper.class);
+        // Applikasjonsoppsett
+        classes.add(TimingFilter.class);
+        classes.add(JacksonJsonConfig.class);
 
-        property(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
+        // ExceptionMappers pga de som finnes i Jackson+Jersey-media
+        classes.add(ConstraintViolationMapper.class);
+        classes.add(JsonMappingExceptionMapper.class);
+        classes.add(JsonParseExceptionMapper.class);
+
+        // Generell exceptionmapper m/logging for øvrige tilfelle
+        classes.add(GeneralRestExceptionMapper.class);
+
+        return Collections.unmodifiableSet(classes);
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        // Ref Jersey doc
+        properties.put(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        properties.put(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
+        return properties;
     }
 
 }

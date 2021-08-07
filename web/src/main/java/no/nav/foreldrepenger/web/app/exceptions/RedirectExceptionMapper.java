@@ -26,12 +26,10 @@ public class RedirectExceptionMapper implements ExceptionMapper<Throwable> {
         this.loadBalancerUrl = url;
     }
 
-    @SuppressWarnings({ "resource", "unchecked" })
     @Override
     public Response toResponse(Throwable exception) {
         try {
-            @SuppressWarnings("rawtypes")
-            var response = GenerellVLExceptionMapper.handleException(exception);
+            var response = GeneralRestExceptionMapper.handleException(exception);
             var feilmelding = ((FeilDto) response.getEntity()).getFeilmelding();
             var enkodetFeilmelding = Encode.forUriComponent(feilmelding);
 

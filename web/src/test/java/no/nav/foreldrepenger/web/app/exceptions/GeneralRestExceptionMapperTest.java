@@ -22,15 +22,15 @@ import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
-public class GenerellVLExceptionMapperTest {
+public class GeneralRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;
 
-    private final GenerellVLExceptionMapper exceptionMapper = new GenerellVLExceptionMapper();
+    private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
     public void setUp() {
-        logSniffer = MemoryAppender.sniff(GenerellVLExceptionMapper.class);
+        logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
     }
 
     @AfterEach

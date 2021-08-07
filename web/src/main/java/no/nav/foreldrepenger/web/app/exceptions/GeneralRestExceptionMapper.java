@@ -23,9 +23,9 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
 @Provider
-public class GenerellVLExceptionMapper implements ExceptionMapper<Throwable> {
+public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GenerellVLExceptionMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionMapper.class);
 
 
     @Override
@@ -39,10 +39,10 @@ public class GenerellVLExceptionMapper implements ExceptionMapper<Throwable> {
 
     public static Response handleException(Throwable feil) {
         if (feil instanceof KanIkkeUtledeGjeldendeFødselsdatoException || feil instanceof TomtResultatException) {
-            return handleTomtResultatFeil(getTextForField(feil.getMessage()));
+            return handleTomtResultatFeil(getExceptionMelding(feil));
         }
         if (feil instanceof ManglerTilgangException) {
-            return ikkeTilgang(getTextForField(feil.getMessage()));
+            return ikkeTilgang(getExceptionMelding(feil));
         }
         if (feil instanceof BehandlingEndretException) {
             return behandlingEndret();
@@ -51,7 +51,7 @@ public class GenerellVLExceptionMapper implements ExceptionMapper<Throwable> {
             return valideringsfeil(vfe);
         }
         loggTilApplikasjonslogg(feil);
-        return serverError(getExceptionFeilmelding(feil));
+        return serverError(getExceptionFullFeilmelding(feil));
     }
 
     private static Response handleTomtResultatFeil(String feilmelding) {
@@ -99,9 +99,9 @@ public class GenerellVLExceptionMapper implements ExceptionMapper<Throwable> {
             .build();
     }
 
-    private static String getExceptionFeilmelding(Throwable feil) {
+    private static String getExceptionFullFeilmelding(Throwable feil) {
         var callId = MDCOperations.getCallId();
-        var feilbeskrivelse = getTextForField(feil.getMessage());
+        var feilbeskrivelse = getExceptionMelding(feil);
         if (feil instanceof FunksjonellException fe) {
             var løsningsforslag = getTextForField(fe.getLøsningsforslag());
             return String.format("Det oppstod en feil: %s - %s. Referanse-id: %s", feilbeskrivelse, løsningsforslag, callId);
@@ -113,9 +113,13 @@ public class GenerellVLExceptionMapper implements ExceptionMapper<Throwable> {
         if (feil instanceof ForvaltningException) {
             LOG.warn("Feil i bruk av forvaltningstjenester", feil);
         } else {
-            var melding = "Fikk uventet feil: " + getTextForField(feil.getMessage());
+            var melding = "Fikk uventet feil: " + getExceptionMelding(feil);
             LOG.warn(melding, feil);
         }
+    }
+
+    private static String getExceptionMelding(Throwable feil) {
+        return getTextForField(feil.getMessage());
     }
 
     private static String getTextForField(String input) {
