@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -20,6 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -77,7 +80,7 @@ public class AksjonspunktRestTjeneste {
     private TotrinnTjeneste totrinnTjeneste;
 
     public AksjonspunktRestTjeneste() {
-        // Bare for RESTeasy
+        // Bare CDI
     }
 
     @Inject
@@ -166,8 +169,10 @@ public class AksjonspunktRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Lagre endringer gitt av aksjonspunktene og rekjør behandling fra gjeldende steg", tags = "aksjonspunkt")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response bekreft(@TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
-            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto) { // NOSONAR
+    public Response bekreft(@Context HttpServletRequest request,
+                            @TilpassetAbacAttributt(supplierClass = BekreftetAbacDataSupplier.class)
+            @Parameter(description = "Liste over aksjonspunkt som skal bekreftes, inklusiv data som trengs for å løse de.") @Valid BekreftedeAksjonspunkterDto apDto)
+        throws URISyntaxException { // NOSONAR
 
         var bekreftedeAksjonspunktDtoer = apDto.getBekreftedeAksjonspunktDtoer();
 
@@ -179,7 +184,7 @@ public class AksjonspunktRestTjeneste {
 
         applikasjonstjeneste.bekreftAksjonspunkter(bekreftedeAksjonspunktDtoer, behandling.getId());
 
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
 
     /**
@@ -194,8 +199,9 @@ public class AksjonspunktRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Overstyrer stegene", tags = "aksjonspunkt")
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response overstyr(@TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
-        @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) { // NOSONAR
+    public Response overstyr(@Context HttpServletRequest request,
+                             @TilpassetAbacAttributt(supplierClass = OverstyrtAbacDataSupplier.class)
+        @Parameter(description = "Liste over overstyring aksjonspunkter.") @Valid OverstyrteAksjonspunkterDto apDto) throws URISyntaxException {
 
         var behandling = behandlingRepository.hentBehandling(apDto.getBehandlingUuid());
 
@@ -205,7 +211,7 @@ public class AksjonspunktRestTjeneste {
 
         applikasjonstjeneste.overstyrAksjonspunkter(apDto.getOverstyrteAksjonspunktDtoer(), behandling.getId());
 
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid());
     }
 
     private static void validerBetingelserForAksjonspunkt(Behandling behandling, Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {

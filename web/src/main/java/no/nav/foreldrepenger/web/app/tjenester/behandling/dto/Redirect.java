@@ -5,11 +5,10 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,65 +23,71 @@ public final class Redirect {
         // no ctor
     }
 
-    public static Response tilBehandlingPollStatus(UUID behandlingUuid, Optional<String> gruppeOpt) {
-        var uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.STATUS_PATH);
-        uriBuilder.queryParam(UuidDto.NAME, behandlingUuid);
+    public static Response tilBehandlingPollStatus(HttpServletRequest request, UUID behandlingUuid, Optional<String> gruppeOpt) throws URISyntaxException {
+        UriBuilder uriBuilder = getUriBuilder(request)
+            .path(BehandlingRestTjenestePathHack1.STATUS_PATH)
+            .queryParam(UuidDto.NAME, behandlingUuid);
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
-        return Response.accepted().location(honorXForwardedProto(uriBuilder.build())).build();
+        return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
-    public static Response tilBehandlingPollStatus(UUID behandlingUuid) {
-        return tilBehandlingPollStatus(behandlingUuid, Optional.empty());
+    public static Response tilBehandlingPollStatus(HttpServletRequest request,UUID behandlingUuid) throws URISyntaxException {
+        return tilBehandlingPollStatus(request, behandlingUuid, Optional.empty());
     }
 
-    public static Response tilBehandlingEllerPollStatus(UUID behandlingUuid, AsyncPollingStatus status) {
-        var uriBuilder = UriBuilder.fromPath(BehandlingRestTjenestePathHack1.BEHANDLING_PATH);
-        uriBuilder.queryParam(UuidDto.NAME, behandlingUuid);
-        return buildResponse(status, uriBuilder.build());
+    public static Response tilBehandlingEllerPollStatus(HttpServletRequest request, UUID behandlingUuid, AsyncPollingStatus status) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request)
+            .path(BehandlingRestTjenestePathHack1.BEHANDLING_PATH)
+            .queryParam(UuidDto.NAME, behandlingUuid);
+        return buildResponse(request, status, uriBuilder.build());
     }
 
-    public static Response tilFagsakPollStatus(Saksnummer saksnummer, Optional<String> gruppeOpt) {
-        var uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.STATUS_PATH);
-        uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
+    public static Response tilFagsakPollStatus(HttpServletRequest request, Saksnummer saksnummer, Optional<String> gruppeOpt) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request)
+            .path(FagsakRestTjeneste.FAGSAK_PATH)
+            .queryParam("saksnummer", saksnummer.getVerdi());
         gruppeOpt.ifPresent(s -> uriBuilder.queryParam("gruppe", s));
-        return Response.accepted().location(honorXForwardedProto(uriBuilder.build())).build();
+        return Response.accepted().location(honorXForwardedProto(request, uriBuilder.build())).build();
     }
 
-    public static Response tilFagsakEllerPollStatus(Saksnummer saksnummer, AsyncPollingStatus status) {
-        var uriBuilder = UriBuilder.fromPath(FagsakRestTjeneste.FAGSAK_PATH);
-        uriBuilder.queryParam("saksnummer", saksnummer.getVerdi());
-        return buildResponse(status, uriBuilder.build());
+    public static Response tilFagsakEllerPollStatus(HttpServletRequest request, Saksnummer saksnummer, AsyncPollingStatus status) throws URISyntaxException {
+        var uriBuilder = getUriBuilder(request)
+            .path(FagsakRestTjeneste.FAGSAK_PATH)
+            .queryParam("saksnummer", saksnummer.getVerdi());
+        return buildResponse(request, status, uriBuilder.build());
     }
 
-    private static Response buildResponse(AsyncPollingStatus status, URI resultatUri) {
-        var uri = honorXForwardedProto(resultatUri);
+    private static UriBuilder getUriBuilder(HttpServletRequest request) {
+        UriBuilder uriBuilder = request == null || request.getContextPath() == null ? UriBuilder.fromUri("") : UriBuilder.fromUri(URI.create(request.getContextPath()));
+        Optional.ofNullable(request).map(HttpServletRequest::getServletPath).ifPresent(c -> uriBuilder.path(c));
+        return uriBuilder;
+    }
+
+    private static Response buildResponse(HttpServletRequest request, AsyncPollingStatus status, URI resultatUri) throws URISyntaxException {
+        var uri = honorXForwardedProto(request, resultatUri);
         if (status != null) {
             // sett alltid resultat-location i tilfelle timeout på klient
             status.setLocation(uri);
             return Response.status(status.getStatus().getHttpStatus()).entity(status).build();
+        } else {
+            return Response.seeOther(uri).build();
         }
-        return Response.seeOther(uri).build();
     }
 
-    /**
-     * @see org.jboss.resteasy.specimpl.ResponseBuilderImpl#location(URI)
-     * @see URI#create(String)
-     */
-    private static URI honorXForwardedProto(URI location) {
+    private static URI honorXForwardedProto(HttpServletRequest request, URI location) throws URISyntaxException {
         URI newLocation = null;
         if (relativLocationAndRequestAvailable(location)) {
-            var httpRequest = ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class);
-            var xForwardedProto = getXForwardedProtoHeader(httpRequest);
+            String xForwardedProto = getXForwardedProtoHeader(request);
 
-            if (mismatchedScheme(xForwardedProto, httpRequest)) {
+            if (mismatchedScheme(xForwardedProto, request)) {
                 var path = location.toString();
                 if (path.startsWith("/")) { // NOSONAR
                     path = path.substring(1); // NOSONAR
                 }
-                var baseUri = httpRequest.getUri().getBaseUri();
+                var baseUri = new URI(request.getRequestURI());
                 try {
                     var rewritten = new URI(xForwardedProto, baseUri.getSchemeSpecificPart(), baseUri.getFragment())
-                            .resolve(path);
+                        .resolve(path);
                     LOG.debug("Rewrote URI from '{}' to '{}'", location, rewritten);
                     newLocation = rewritten;
                 } catch (URISyntaxException e) {
@@ -94,33 +99,29 @@ public final class Redirect {
     }
 
     private static boolean relativLocationAndRequestAvailable(URI location) {
-        return location != null &&
-                !location.isAbsolute() &&
-                ResteasyProviderFactory.getInstance().getContextData(HttpRequest.class) != null;
+        return location != null && !location.isAbsolute();
     }
 
     /**
      * @return http, https or null
      */
-    private static String getXForwardedProtoHeader(HttpRequest httpRequest) {
-        var xForwardedProto = httpRequest.getHttpHeaders().getHeaderString("X-Forwarded-Proto");
-        if (xForwardedProto != null &&
-                ("https".equalsIgnoreCase(xForwardedProto) ||
-                        "http".equalsIgnoreCase(xForwardedProto))) {
+    private static String getXForwardedProtoHeader(HttpServletRequest httpRequest) {
+        var xForwardedProto = httpRequest.getHeader("X-Forwarded-Proto");
+        if ("https".equalsIgnoreCase(xForwardedProto) ||
+            "http".equalsIgnoreCase(xForwardedProto)) {
             return xForwardedProto;
         }
         return null;
     }
 
-    private static boolean mismatchedScheme(String xForwardedProto, HttpRequest httpRequest) {
+    private static boolean mismatchedScheme(String xForwardedProto, HttpServletRequest httpRequest) {
         return xForwardedProto != null &&
-                !xForwardedProto.equalsIgnoreCase(httpRequest.getUri().getBaseUri().getScheme());
+            !xForwardedProto.equalsIgnoreCase(httpRequest.getScheme());
     }
 
     @SuppressWarnings("resource")
     private static URI leggTilBaseUri(URI resultatUri) {
-        // tvinger resultatUri til å være en absolutt URI (passer med Location Header og
-        // Location felt når kommer i payload)
+        // tvinger resultatUri til å være en absolutt URI (passer med Location Header og Location felt når kommer i payload)
         var response = Response.noContent().location(resultatUri).build();
         return response.getLocation();
     }

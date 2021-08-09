@@ -56,7 +56,7 @@ public class KodeverkRestTjeneste {
     }
 
     public KodeverkRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @GET

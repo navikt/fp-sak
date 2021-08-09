@@ -62,7 +62,7 @@ public class BeregningsresultatRestTjeneste {
     private TilkjentYtelseTjeneste tilkjentYtelseTjeneste;
 
     public BeregningsresultatRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject

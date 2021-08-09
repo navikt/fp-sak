@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
-import org.jboss.resteasy.spi.ApplicationException;
+import javax.ws.rs.core.Response;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,10 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import ch.qos.logback.classic.Level;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.validering.Valideringsfeil;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingEndretException;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -25,7 +26,7 @@ public class GeneralRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;
 
-    private final GeneralRestExceptionMapper generalRestExceptionMapper = new GeneralRestExceptionMapper();
+    private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
 
     @BeforeEach
     public void setUp() {
@@ -42,23 +43,22 @@ public class GeneralRestExceptionMapperTest {
         var feltFeilDto = new FeltFeilDto("Et feltnavn", "En feilmelding");
         var valideringsfeil = new Valideringsfeil(Collections.singleton(feltFeilDto));
 
-        var response = generalRestExceptionMapper.toResponse(new ApplicationException(valideringsfeil));
+        var response = exceptionMapper.toResponse(valideringsfeil);
 
         assertThat(response.getStatus()).isEqualTo(400);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getFeilmelding())
-                .isEqualTo("Det oppstod valideringsfeil på felt [Et feltnavn]. Vennligst kontroller at alle feltverdier er korrekte.");
+            .isEqualTo("Det oppstod valideringsfeil på felt [Et feltnavn]. Vennligst kontroller at alle feltverdier er korrekte.");
         assertThat(feilDto.getFeltFeil()).hasSize(1);
         assertThat(feilDto.getFeltFeil().iterator().next()).isEqualTo(feltFeilDto);
+        assertThat(logSniffer.search("feltnavn", Level.WARN)).isEmpty();
     }
 
     @Test
     public void skalIkkeMappeManglerTilgangFeil() {
-        var manglerTilgangFeil = manglerTilgangFeil();
-
-        var response = generalRestExceptionMapper.toResponse(new ApplicationException(manglerTilgangFeil));
+        var response = exceptionMapper.toResponse(manglerTilgangFeil());
 
         assertThat(response.getStatus()).isEqualTo(403);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
@@ -66,14 +66,12 @@ public class GeneralRestExceptionMapperTest {
 
         assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
         assertThat(feilDto.getFeilmelding()).contains("ManglerTilgangFeilmeldingKode");
-        assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).hasSize(0);
+        assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).isEmpty();
     }
 
     @Test
     public void skalMappeFunksjonellFeil() {
-        var funksjonellFeil = funksjonellFeil();
-
-        var response = generalRestExceptionMapper.toResponse(new ApplicationException(funksjonellFeil));
+        var response = exceptionMapper.toResponse(funksjonellFeil());
 
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
@@ -85,10 +83,20 @@ public class GeneralRestExceptionMapperTest {
     }
 
     @Test
-    public void skalMappeVLException() {
-        VLException vlException = tekniskFeil();
+    public void skalBehandlingEndretFeil() {
+        var response = exceptionMapper.toResponse(new BehandlingEndretException());
 
-        var response = generalRestExceptionMapper.toResponse(new ApplicationException(vlException));
+        assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+        var feilDto = (FeilDto) response.getEntity();
+
+        assertThat(feilDto.getFeilmelding()).contains("endret av en annen saksbehandler");
+        assertThat(feilDto.getFeilmelding()).contains("Last inn behandlingen");
+        assertThat(logSniffer.search("Last inn behandlingen", Level.WARN)).isEmpty();
+    }
+
+    @Test
+    public void skalMappeVLException() {
+        var response = exceptionMapper.toResponse(tekniskFeil());
 
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
@@ -99,19 +107,49 @@ public class GeneralRestExceptionMapperTest {
     }
 
     @Test
-    public void skalMappeGenerellFeil() {
-        var feilmelding = "en helt generell feil";
-        var generellFeil = new RuntimeException(feilmelding);
+    public void skalMappeWrappedGenerellFeil() {
+        String feilmelding = "en helt generell feil";
+        RuntimeException generellFeil = new RuntimeException(feilmelding);
 
-        var response = generalRestExceptionMapper.toResponse(new ApplicationException(generellFeil));
+        Response response = exceptionMapper.toResponse(new TekniskException("KODE", "TEKST", generellFeil));
 
         assertThat(response.getStatus()).isEqualTo(500);
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-        var feilDto = (FeilDto) response.getEntity();
+        FeilDto feilDto = (FeilDto) response.getEntity();
+
+        assertThat(feilDto.getFeilmelding()).contains("TEKST");
+        assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
+    }
+
+    @Test
+    public void skalMappeWrappedFeilUtenCause() {
+        String feilmelding = "en helt generell feil";
+
+        Response response = exceptionMapper.toResponse(new TekniskException("KODE", feilmelding));
+
+        assertThat(response.getStatus()).isEqualTo(500);
+        assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+        FeilDto feilDto = (FeilDto) response.getEntity();
 
         assertThat(feilDto.getFeilmelding()).contains(feilmelding);
-        assertThat(logSniffer.search(feilmelding, Level.ERROR)).hasSize(1);
+        assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
     }
+
+    @Test
+    public void skalMappeGenerellFeil() {
+        String feilmelding = "en helt generell feil";
+        RuntimeException generellFeil = new IllegalArgumentException(feilmelding);
+
+        Response response = exceptionMapper.toResponse(generellFeil);
+
+        assertThat(response.getStatus()).isEqualTo(500);
+        assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
+        FeilDto feilDto = (FeilDto) response.getEntity();
+
+        assertThat(feilDto.getFeilmelding()).contains(feilmelding);
+        assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
+    }
+
 
     private static FunksjonellException funksjonellFeil() {
         return new FunksjonellException("FUNK_FEIL", "en funksjonell feilmelding", "et løsningsforslag");

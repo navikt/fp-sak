@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -61,7 +63,7 @@ public class AksjonspunktRestTjenesteTest {
     }
 
     @Test
-    public void skal_bekrefte_terminbekreftelse() {
+    public void skal_bekrefte_terminbekreftelse() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new BekreftTerminbekreftelseAksjonspunktDto(
@@ -70,13 +72,13 @@ public class AksjonspunktRestTjenesteTest {
                         utstedtdato,
                         antallBarn));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
-    public void skal_bekrefte_fødsel() {
+    public void skal_bekrefte_fødsel() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         var uidentifiserteBarn = new UidentifisertBarnDto[]{new UidentifisertBarnDto(fødselsdato, null)};
         aksjonspunkt.add(
@@ -86,13 +88,13 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         List.of(uidentifiserteBarn)));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
 
     @Test
-    public void skal_bekrefte_antall_barn() {
+    public void skal_bekrefte_antall_barn() throws Exception {
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         aksjonspunkt.add(
                 new SjekkManglendeFodselDto(
@@ -101,14 +103,14 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
 
     }
 
     @Test
-    public void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() {
+    public void skal_bekrefte_fatte_vedtak_med_aksjonspunkt_godkjent() throws Exception {
         when(behandling.getStatus()).thenReturn(BehandlingStatus.FATTER_VEDTAK);
         Collection<BekreftetAksjonspunktDto> aksjonspunkt = new ArrayList<>();
         Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos = new ArrayList<>();
@@ -119,7 +121,7 @@ public class AksjonspunktRestTjenesteTest {
                         begrunnelse,
                         aksjonspunktGodkjenningDtos));
 
-        aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
+        aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt));
 
         verify(aksjonspunktTjenesteMock).bekreftAksjonspunkter(ArgumentMatchers.anyCollection(), anyLong());
     }
@@ -135,7 +137,7 @@ public class AksjonspunktRestTjenesteTest {
                         false,
                         new ArrayList<>()));
         assertThrows(FunksjonellException.class,
-                () -> aksjonspunktRestTjeneste.bekreft(BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt)));
+                () -> aksjonspunktRestTjeneste.bekreft(mock(HttpServletRequest.class), BekreftedeAksjonspunkterDto.lagDto(behandlingUuid, behandlingVersjon, aksjonspunkt)));
     }
 
     private AksjonspunktGodkjenningDto opprettetGodkjentAksjonspunkt(boolean godkjent) {

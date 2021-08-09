@@ -1,13 +1,17 @@
 package no.nav.foreldrepenger.web.app;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+
+import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -22,16 +26,6 @@ import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
-import no.nav.foreldrepenger.web.app.tjenester.datavarehus.DatavarehusAdminRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.server.jetty.TimingFilter;
 
 @ApplicationPath(ApplicationConfig.API_URI)
@@ -69,29 +63,36 @@ public class ApplicationConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new HashSet<>();
-        classes.addAll(new RestImplementationClasses().getImplementationClasses());
+        // eksponert grensesnitt
+        classes.addAll(RestImplementationClasses.getImplementationClasses());
+        // forvaltning/swagger
+        classes.addAll(RestImplementationClasses.getForvaltningClasses());
 
-        // UtilTjenester for uttrekk fra registre
-        classes.add(TimingFilter.class);
-        classes.add(DatavarehusAdminRestTjeneste.class);
-        classes.add(ForvaltningFagsakRestTjeneste.class);
-        classes.add(ForvaltningTekniskRestTjeneste.class);
-        classes.add(ForvaltningUttrekkRestTjeneste.class);
-        classes.add(ForvaltningOppdragRestTjeneste.class);
-        classes.add(ForvaltningOpptjeningRestTjeneste.class);
-        classes.add(ForvaltningUttakRestTjeneste.class);
-        classes.add(ForvaltningBehandlingRestTjeneste.class);
-        classes.add(ForvaltningStegRestTjeneste.class);
-        classes.add(ForvaltningSøknadRestTjeneste.class);
-
+        // swagger
         classes.add(OpenApiResource.class);
 
+        // Applikasjonsoppsett
+        classes.add(TimingFilter.class);
+        classes.add(JacksonJsonConfig.class);
+
+        // ExceptionMappers pga de som finnes i Jackson+Jersey-media
         classes.add(ConstraintViolationMapper.class);
         classes.add(JsonMappingExceptionMapper.class);
         classes.add(JsonParseExceptionMapper.class);
+
+        // Generell exceptionmapper m/logging for øvrige tilfelle
         classes.add(GeneralRestExceptionMapper.class);
-        classes.add(JacksonJsonConfig.class);
 
         return Collections.unmodifiableSet(classes);
     }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        // Ref Jersey doc
+        properties.put(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        properties.put(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
+        return properties;
+    }
+
 }

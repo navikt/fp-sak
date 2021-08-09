@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.datavarehus.DatavarehusAdminRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.AktoerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
@@ -39,9 +41,18 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.FormidlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBehandlingskontrollRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningBeregningRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTilkjentYtelseRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.integrasjonstatus.IntegrasjonstatusRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
@@ -56,7 +67,7 @@ import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestImplementationClasses {
 
-    public Collection<Class<?>> getImplementationClasses() {
+    public static Collection<Class<?>> getImplementationClasses() {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(InitielleLinksRestTjeneste.class);
         classes.add(FagsakRestTjeneste.class);
@@ -110,5 +121,23 @@ public class RestImplementationClasses {
         classes.add(FormidlingRestTjeneste.class);
         classes.add(BeregningsgrunnlagFormidlingRestTjeneste.class);
         return Set.copyOf(classes);
+    }
+
+    public static Set<Class<?>> getForvaltningClasses() {
+        Set<Class<?>> classes = new HashSet<>();
+
+        // UtilTjenester for uttrekk fra registre
+        classes.add(DatavarehusAdminRestTjeneste.class);
+        classes.add(ForvaltningFagsakRestTjeneste.class);
+        classes.add(ForvaltningTekniskRestTjeneste.class);
+        classes.add(ForvaltningUttrekkRestTjeneste.class);
+        classes.add(ForvaltningOppdragRestTjeneste.class);
+        classes.add(ForvaltningOpptjeningRestTjeneste.class);
+        classes.add(ForvaltningUttakRestTjeneste.class);
+        classes.add(ForvaltningBehandlingRestTjeneste.class);
+        classes.add(ForvaltningStegRestTjeneste.class);
+        classes.add(ForvaltningSøknadRestTjeneste.class);
+
+        return Collections.unmodifiableSet(classes);
     }
 }

@@ -4,12 +4,14 @@ import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.CREAT
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -20,6 +22,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -123,7 +126,7 @@ public class BehandlingRestTjeneste {
     private TotrinnTjeneste totrinnTjeneste;
 
     public BehandlingRestTjeneste() {
-        // for resteasy
+        // CDI
     }
 
     @Inject
@@ -150,7 +153,7 @@ public class BehandlingRestTjeneste {
     }
 
     @POST
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Init hent behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Hent behandling initiert, Returnerer link til å polle på fremdrift", headers = @Header(name = HttpHeaders.LOCATION)),
@@ -158,15 +161,16 @@ public class BehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
     @Deprecated
-    public Response hentBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @NotNull @Valid BehandlingIdDto behandlingIdDto) {
+    public Response hentBehandling(@Context HttpServletRequest request,
+                                   @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @NotNull @Valid BehandlingIdDto behandlingIdDto) throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
 
         var gruppeOpt = behandlingsprosessTjeneste.sjekkOgForberedAsynkInnhentingAvRegisteropplysningerOgKjørProsess(behandling);
 
         // sender alltid til poll status slik at vi får sjekket på utestående prosess
         // tasks også.
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid(), gruppeOpt);
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), gruppeOpt);
     }
 
     @GET
@@ -178,13 +182,15 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "418", description = "ProsessTasks har feilet", headers = @Header(name = HttpHeaders.LOCATION), content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AsyncPollingStatus.class)))
     })
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response hentBehandlingMidlertidigStatus(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+    public Response hentBehandlingMidlertidigStatus(@Context HttpServletRequest request,
+                                                    @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
         @NotNull @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto,
-            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto) {
+            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.TaskgruppeAbacDataSupplier.class) @QueryParam("gruppe") @Valid ProsessTaskGruppeIdDto gruppeDto)
+        throws URISyntaxException {
         var behandling = getBehandling(behandlingIdDto);
         var gruppe = gruppeDto == null ? null : gruppeDto.getGruppe();
         var prosessTaskGruppePågår = behandlingsprosessTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
-        return Redirect.tilBehandlingEllerPollStatus(behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
+        return Redirect.tilBehandlingEllerPollStatus(request, behandling.getUuid(), prosessTaskGruppePågår.orElse(null));
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
@@ -192,7 +198,7 @@ public class BehandlingRestTjeneste {
     }
 
     @GET
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Deprecated
     @Operation(description = "Hent behandling gitt id", summary = ("Returnerer behandlingen som er tilknyttet id. Dette er resultat etter at asynkrone operasjoner er utført."), tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "200", description = "Returnerer Behandling", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UtvidetBehandlingDto.class)))
@@ -257,8 +263,10 @@ public class BehandlingRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Gjenoppta behandling påstartet i bakgrunnen", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response gjenopptaBehandling(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
-            @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto) {
+    public Response gjenopptaBehandling(@Context HttpServletRequest request,
+                                        @TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+            @Parameter(description = "BehandlingId for behandling som skal gjenopptas") @Valid GjenopptaBehandlingDto dto)
+        throws URISyntaxException{
         var behandlingVersjon = dto.getBehandlingVersjon();
         var behandling = getBehandling(dto);
 
@@ -268,7 +276,7 @@ public class BehandlingRestTjeneste {
         // gjenoppta behandling ( sparkes i gang asynkront, derav redirect til status
         // url under )
         var gruppeOpt = behandlingsprosessTjeneste.gjenopptaBehandling(behandling);
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid(), gruppeOpt);
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), gruppeOpt);
     }
 
     @POST
@@ -290,14 +298,16 @@ public class BehandlingRestTjeneste {
     }
 
     @PUT
-    @Path(BEHANDLINGER_PART_PATH)
+    // re-enable hvis endres til ikke-tom @Path(BEHANDLINGER_PART_PATH)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Opprette ny behandling", tags = "behandlinger", responses = {
             @ApiResponse(responseCode = "202", description = "Opprett ny behandling pågår", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response opprettNyBehandling(@TilpassetAbacAttributt(supplierClass = NyBehandlingAbacDataSupplier.class)
-            @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto) {
+    public Response opprettNyBehandling(@Context HttpServletRequest request,
+                                        @TilpassetAbacAttributt(supplierClass = NyBehandlingAbacDataSupplier.class)
+            @Parameter(description = "Saksnummer og flagg om det er ny behandling etter klage") @Valid NyBehandlingDto dto)
+        throws URISyntaxException {
         var saksnummer = new Saksnummer(Long.toString(dto.getSaksnummer()));
         var funnetFagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, true);
         var kode = BehandlingType.fraKode(dto.getBehandlingType().getKode());
@@ -318,20 +328,20 @@ public class BehandlingRestTjeneste {
         if (BehandlingType.INNSYN.equals(kode)) {
             var behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.INNSYN);
             var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-            return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
+            return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 
         }
         if (BehandlingType.ANKE.equals(kode)) {
             var behandling = behandlingOpprettingTjeneste.opprettBehandlingVedKlageinstans(fagsak, BehandlingType.ANKE);
             var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-            return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
+            return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
             var behandlingÅrsakType = BehandlingÅrsakType.fraKode(dto.getBehandlingArsakType().getKode());
             var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType);
             var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
-            return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
+            return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 
         }
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(kode)) {
@@ -340,13 +350,13 @@ public class BehandlingRestTjeneste {
             // sender derfor ikke viderer til prosesser behandling (i motsetning til de
             // andre).
             // må også oppfriske hele sakskomplekset, så sender til fagsak poll url
-            return Redirect.tilFagsakPollStatus(fagsak.getSaksnummer(), Optional.empty());
+            return Redirect.tilFagsakPollStatus(request, fagsak.getSaksnummer(), Optional.empty());
 
         }
         if (BehandlingType.KLAGE.equals(kode)) {
             var behandling = behandlingOpprettingTjeneste.opprettBehandling(fagsak, BehandlingType.KLAGE);
             var gruppe = behandlingOpprettingTjeneste.asynkStartBehandlingsprosess(behandling);
-            return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.of(gruppe));
+            return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 
         }
         throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
@@ -385,8 +395,10 @@ public class BehandlingRestTjeneste {
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
 
-    public Response åpneBehandlingForEndringer(@TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
-            @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto) {
+    public Response åpneBehandlingForEndringer(@Context HttpServletRequest request,
+                                               @TilpassetAbacAttributt(supplierClass = LocalBehandlingIdAbacDataSupplier.class)
+            @Parameter(description = "BehandlingId for behandling som skal åpnes for endringer") @Valid ReåpneBehandlingDto dto)
+        throws URISyntaxException {
         var behandlingVersjon = dto.getBehandlingVersjon();
 
         var behandling = getBehandling(dto);
@@ -404,7 +416,7 @@ public class BehandlingRestTjeneste {
         }
         behandlingsprosessTjeneste.asynkTilbakestillOgÅpneBehandlingForEndringer(behandling);
         behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.empty());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
     @GET

@@ -2,16 +2,19 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.verge;
 
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.UPDATE;
 
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -66,8 +69,9 @@ public class VergeRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Aksjonspunkt for verge/fullmektig opprettes", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response opprettVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
+    public Response opprettVerge(@Context HttpServletRequest request,
+                                 @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Behandling som skal få verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
         var behandling = getBehandling(dto);
         var behandlingVersjon = dto.getBehandlingVersjon();
 
@@ -77,7 +81,7 @@ public class VergeRestTjeneste {
         vergeTjeneste.opprettVergeAksjonspunktOgHoppTilbakeTilKofakHvisSenereSteg(behandling);
 
         behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getId());
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.empty());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
     @POST
@@ -87,8 +91,9 @@ public class VergeRestTjeneste {
             @ApiResponse(responseCode = "200", description = "Fjerning av verge/fullmektig er gjennomført", headers = @Header(name = HttpHeaders.LOCATION))
     })
     @BeskyttetRessurs(action = UPDATE, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
-    public Response fjernVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
-        @Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) {
+    public Response fjernVerge(@Context HttpServletRequest request,
+                               @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+        @Parameter(description = "Behandling som skal få fjernet verge/fullmektig") @Valid BehandlingIdVersjonDto dto) throws URISyntaxException {
         var behandling = getBehandling(dto);
         var behandlingVersjon = dto.getBehandlingVersjon();
 
@@ -98,7 +103,7 @@ public class VergeRestTjeneste {
         vergeTjeneste.fjernVergeGrunnlagOgAksjonspunkt(behandling);
 
         behandling = behandlingsprosessTjeneste.hentBehandling(behandling.getId());
-        return Redirect.tilBehandlingPollStatus(behandling.getUuid(), Optional.empty());
+        return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.empty());
     }
 
     private Behandling getBehandling(BehandlingIdDto behandlingIdDto) {
