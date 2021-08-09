@@ -40,25 +40,27 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0));
         }
         if (matchendeFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem ES strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem ES strukturert søknad flere matchende saker {}", matchendeFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         var passendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, false))
+            .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
         if (passendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(passendeFagsaker.get(0));
         }
         if (passendeFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {} for {}", passendeFagsaker.size(), vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem ES strukturert søknad flere relevante saker {}", passendeFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -84,8 +86,9 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             return standardVurdering.orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
-        if (fellesUtils.harSakOpprettetInnenIntervall(kompatibleFagsaker)) {
-            LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd for {}", vurderFagsystem.getAktørId());
+        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream().collect(Collectors.toList());
+        if (!sakOpprettetInnenIntervall.isEmpty()) {
+            LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return new BehandlendeFagsystem(VEDTAKSLØSNING);

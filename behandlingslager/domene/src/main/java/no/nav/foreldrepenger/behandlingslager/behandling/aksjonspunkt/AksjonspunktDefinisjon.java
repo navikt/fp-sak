@@ -417,16 +417,24 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     UNDEFINED,
 
-    // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i P, Q, T
+    // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
 
     @Deprecated
-    _7024("7024", AksjonspunktType.AUTOPUNKT, "Sett på vent - Arbeidsgiver krever refusjon 3 måneder tilbake i tid (UTGÅTT)"),
+    _5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
     @Deprecated
-    _7028("7028", AksjonspunktType.AUTOPUNKT, "Sett på vent - Søker har søkt SVP og hatt AAP eller DP siste 10 mnd (UTGÅTT)"),
-    @Deprecated
-    _7029("7029", AksjonspunktType.AUTOPUNKT, "Sett på vent - Støtter ikke FL/SN i svangerskapspenger (UTGÅTT)"),
+    _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
     @Deprecated
     _5024("5024", AksjonspunktType.MANUELL, "Saksbehandler må avklare hvilke verdier som er gjeldene, det er mismatch mellom register- og lokaldata (UTGÅTT)"),
+    @Deprecated
+    _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden"),
+    @Deprecated
+    _5072("5072", AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget"),
+    @Deprecated
+    _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
+    @Deprecated
+    _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
+    @Deprecated
+    _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
     @Deprecated
     _7015("7015", AksjonspunktType.AUTOPUNKT, "Venter på regler for 80% dekningsgrad (UTGÅTT)"),
     @Deprecated
@@ -434,25 +442,17 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     _7017("7017", AksjonspunktType.AUTOPUNKT, "Sett på vent - ventelønn/vartpenger og militær med flere aktiviteter (UTGÅTT)"),
     @Deprecated
-    _7021("7021", AksjonspunktType.AUTOPUNKT, "Endring i fordeling av ytelse bakover i tid (UTGÅTT)"),
-    @Deprecated
-    _5078("5078", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser innvilget"),
-    @Deprecated
-    _5079("5079", AksjonspunktType.MANUELL, "Kontroller tilstøtende ytelser opphørt"),
-    @Deprecated
-    _5072("5072", AksjonspunktType.MANUELL, "Søker er stortingsrepresentant/administrativt ansatt i Stortinget"),
-    @Deprecated
-    _5022("5022", AksjonspunktType.MANUELL, "Avklar fakta for status på person."),
-    @Deprecated
-    _7006("7006", AksjonspunktType.AUTOPUNKT, "Venter på opptjeningsopplysninger"),
-    @Deprecated
     _7018("7018", AksjonspunktType.AUTOPUNKT, "Autopunkt dødfødsel 80% dekningsgrad."),
     @Deprecated
     _7019("7019", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering uten beregningsgrunnlag."),
     @Deprecated
+    _7021("7021", AksjonspunktType.AUTOPUNKT, "Endring i fordeling av ytelse bakover i tid (UTGÅTT)"),
+    @Deprecated
     _7022("7022", AksjonspunktType.AUTOPUNKT, "Autopunkt vent på ny inntektsmelding med gyldig arbeidsforholdId."),
     @Deprecated
     _7023("7023", AksjonspunktType.AUTOPUNKT, "Autopunkt militær i opptjeningsperioden og beregninggrunnlag under 3G."),
+    @Deprecated
+    _7024("7024", AksjonspunktType.AUTOPUNKT, "Sett på vent - Arbeidsgiver krever refusjon 3 måneder tilbake i tid (UTGÅTT)"),
     @Deprecated
     _7025("7025", AksjonspunktType.AUTOPUNKT, "Autopunkt gradering flere arbeidsforhold."),
     @Deprecated
@@ -460,19 +460,15 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     _7027("7027", AksjonspunktType.AUTOPUNKT, "Autopunkt vent delvis tilrettelegging og refusjon SVP."),
     @Deprecated
+    _7028("7028", AksjonspunktType.AUTOPUNKT, "Sett på vent - Søker har søkt SVP og hatt AAP eller DP siste 10 mnd (UTGÅTT)"),
+    @Deprecated
+    _7029("7029", AksjonspunktType.AUTOPUNKT, "Sett på vent - Støtter ikke FL/SN i svangerskapspenger (UTGÅTT)"),
+    @Deprecated
     _7034("7034", AksjonspunktType.AUTOPUNKT, "Autopunkt flere arbeidsforhold i samme virksomhet SVP"),
     @Deprecated
     _7035("7035", AksjonspunktType.AUTOPUNKT, "Autopunkt potensielt feil i endringssøknad, kontakt bruker"),
     @Deprecated
     _7036("7036", AksjonspunktType.AUTOPUNKT, "Autopunkt vent manglende arbeidsforhold ifm kommunereform 2020."),
-    @Deprecated
-    _5045("5045", AksjonspunktType.MANUELL, "Avklar startdato for foreldrepengeperioden",
-        BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.INN, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
-        ENTRINN, EnumSet.of(ES, FP, SVP)),
-    @Deprecated
-    AVKLAR_TILLEGGSOPPLYSNINGER(
-        AksjonspunktKodeDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER_KODE, AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger",
-        BehandlingStegType.KONTROLLER_FAKTA, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
 
     ;
 
