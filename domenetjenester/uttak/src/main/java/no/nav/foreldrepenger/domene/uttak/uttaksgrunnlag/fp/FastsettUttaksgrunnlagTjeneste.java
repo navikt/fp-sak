@@ -110,7 +110,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> justerFordelingEtterFamilieHendelse(ForeldrepengerGrunnlag fpGrunnlag, List<OppgittPeriodeEntitet> oppgittePerioder) {
         var familiehendelser = finnFamiliehendelser(fpGrunnlag);
-        return justerFordelingTjeneste.juster(
+        return justerFordelingTjeneste.justerForFamiliehendelse(
             oppgittePerioder,
             familiehendelser.søknad().orElse(null),
             familiehendelser.gjeldende());

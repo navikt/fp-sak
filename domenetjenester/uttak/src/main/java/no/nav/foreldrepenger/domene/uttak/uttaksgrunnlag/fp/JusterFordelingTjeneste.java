@@ -31,7 +31,9 @@ class JusterFordelingTjeneste {
      * Skyver perioder basert på antall virkedager i mellom familiehendelsene.
      * Gradering, utsettelse, opphold og hull mellom perioder flyttes ikke.
      */
-    List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
+    List<OppgittPeriodeEntitet> justerForFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                         LocalDate gammelFamiliehendelse,
+                                                         LocalDate nyFamiliehendelse) {
         var justert = sorterEtterFom(oppgittePerioder);
         if (finnesOverlapp(oppgittePerioder)) {
             LOG.warn("Finnes overlapp i oppgitte perioder fra søknad. Sannsynligvis feil i søknadsdialogen. "
@@ -49,7 +51,9 @@ class JusterFordelingTjeneste {
         return slåSammenLikePerioder(justert);
     }
 
-    private List<OppgittPeriodeEntitet> justerVedEndringAvFamilieHendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
+    private List<OppgittPeriodeEntitet> justerVedEndringAvFamilieHendelse(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                          LocalDate gammelFamiliehendelse,
+                                                                          LocalDate nyFamiliehendelse) {
         var oppgittPerioder = sorterEtterFom(oppgittePerioder);
         return sorterEtterFom(justerPerioder(oppgittPerioder, gammelFamiliehendelse, nyFamiliehendelse));
     }
@@ -124,7 +128,9 @@ class JusterFordelingTjeneste {
         return dato.getDayOfWeek().equals(DayOfWeek.SATURDAY);
     }
 
-    private List<OppgittPeriodeEntitet> justerPerioder(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
+    private List<OppgittPeriodeEntitet> justerPerioder(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                       LocalDate gammelFamiliehendelse,
+                                                       LocalDate nyFamiliehendelse) {
         var fjernetHelgerFraStartOgSluttAvPerioder = fjernHelgerFraStartOgSlutt(oppgittePerioder);
         List<OppgittPeriodeEntitet> justerte;
         if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
@@ -161,7 +167,9 @@ class JusterFordelingTjeneste {
         return dato;
     }
 
-    private List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
+    private List<OppgittPeriodeEntitet> justerVedFødselFørTermin(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                 LocalDate gammelFamiliehendelse,
+                                                                 LocalDate nyFamiliehendelse) {
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
@@ -247,7 +255,8 @@ class JusterFordelingTjeneste {
         return ledigeVirkedager;
     }
 
-    private boolean søktOmPerioderEtterFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse) {
+    private boolean søktOmPerioderEtterFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                       LocalDate gammelFamiliehendelse) {
         return oppgittePerioder.get(oppgittePerioder.size() - 1).getTom().isAfter(gammelFamiliehendelse);
     }
 
@@ -263,11 +272,14 @@ class JusterFordelingTjeneste {
         return resultat;
     }
 
-    private boolean søktOmPerioderFørFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse) {
+    private boolean søktOmPerioderFørFamiliehendelse(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                     LocalDate gammelFamiliehendelse) {
         return oppgittePerioder.get(0).getFom().isBefore(gammelFamiliehendelse);
     }
 
-    private List<OppgittPeriodeEntitet> beholdStartdatoForUttak(List<OppgittPeriodeEntitet> justertePerioder, LocalDate startdato, LocalDate nyFamiliehendelse) {
+    private List<OppgittPeriodeEntitet> beholdStartdatoForUttak(List<OppgittPeriodeEntitet> justertePerioder,
+                                                                LocalDate startdato,
+                                                                LocalDate nyFamiliehendelse) {
         return justertePerioder.stream()
             .filter(p -> !p.getTom().isBefore(startdato))
             .map(p -> {
@@ -307,7 +319,8 @@ class JusterFordelingTjeneste {
         if (knekkFunnet) {
             var virkedagerPeriodeFørKnekk = beregnAntallVirkedager(nyPeriode.getFom(), nyPeriode.getTom());
             var fom = plusVirkedager(oppgittPeriode.getFom(), virkedagerPeriodeFørKnekk);
-            var perioderEtterKnekk = flyttPeriodeTilVenstre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()), antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
+            var perioderEtterKnekk = flyttPeriodeTilVenstre(kopier(oppgittPeriode, fom, oppgittPeriode.getTom()),
+                antallVirkedagerSomSkalSkyves, ikkeFlyttbarePerioder);
             resultat.addAll(perioderEtterKnekk);
         }
 
@@ -341,7 +354,9 @@ class JusterFordelingTjeneste {
         return resultat;
     }
 
-    private List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate gammelFamiliehendelse, LocalDate nyFamiliehendelse) {
+    private List<OppgittPeriodeEntitet> justerVedFødselEtterTermin(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                   LocalDate gammelFamiliehendelse,
+                                                                   LocalDate nyFamiliehendelse) {
         var ikkeFlyttbarePerioder = ikkeFlyttbarePerioder(oppgittePerioder);
         var virkedagerSomSkalSkyves = beregnAntallLedigeVirkedager(gammelFamiliehendelse, nyFamiliehendelse, ikkeFlyttbarePerioder);
 
@@ -371,13 +386,14 @@ class JusterFordelingTjeneste {
             .build();
     }
 
-    private boolean førsteUttaksdatoErFlyttet(List<OppgittPeriodeEntitet> oppgittePerioder, List<OppgittPeriodeEntitet> justertePerioder) {
+    private boolean førsteUttaksdatoErFlyttet(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                              List<OppgittPeriodeEntitet> justertePerioder) {
         return !justertePerioder.get(0).getFom().isEqual(oppgittePerioder.get(0).getFom());
     }
 
     private List<OppgittPeriodeEntitet> flyttPeriodeTilHøyre(OppgittPeriodeEntitet oppgittPeriode,
-                                                      int antallVirkedagerSomSkalSkyves,
-                                                      List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
+                                                             int antallVirkedagerSomSkalSkyves,
+                                                             List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
         if (!erPeriodeFlyttbar(oppgittPeriode)) {
             return Collections.singletonList(kopier(oppgittPeriode, oppgittPeriode.getFom(), oppgittPeriode.getTom()));
         }
@@ -452,7 +468,8 @@ class JusterFordelingTjeneste {
         return hull;
     }
 
-    private Optional<OppgittPeriodeEntitet> finnOverlappendePeriode(LocalDate dato, List<OppgittPeriodeEntitet> perioder) {
+    private Optional<OppgittPeriodeEntitet> finnOverlappendePeriode(LocalDate dato,
+                                                                    List<OppgittPeriodeEntitet> perioder) {
         return perioder.stream().filter(periode -> (periode.getFom().equals(dato) || periode.getFom().isBefore(dato)
             && (periode.getTom().equals(dato) || periode.getTom().isAfter(dato)))).findFirst();
     }
@@ -461,7 +478,8 @@ class JusterFordelingTjeneste {
         return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode).medPeriode(nyFom, nyTom).build();
     }
 
-    private List<OppgittPeriodeEntitet> fjernPerioderEtterSisteSøkteDato(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate sisteSøkteDato) {
+    private List<OppgittPeriodeEntitet> fjernPerioderEtterSisteSøkteDato(List<OppgittPeriodeEntitet> oppgittePerioder,
+                                                                         LocalDate sisteSøkteDato) {
         return oppgittePerioder.stream().filter(p -> p.getFom().isBefore(sisteSøkteDato) || p.getFom().isEqual(sisteSøkteDato)).map(p -> {
             if (p.getTom().isAfter(sisteSøkteDato)) {
                 return OppgittPeriodeBuilder.fraEksisterende(p).medPeriode(p.getFom(), sisteSøkteDato).build();
