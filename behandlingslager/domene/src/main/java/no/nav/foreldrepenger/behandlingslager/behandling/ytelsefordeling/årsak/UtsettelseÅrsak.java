@@ -32,6 +32,7 @@ public enum UtsettelseÅrsak implements Årsak {
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
+    private static final Map<String, UtsettelseÅrsak> KODER_EKSTERN = new LinkedHashMap<>();
 
     public static final String KODEVERK = "UTSETTELSE_AARSAK_TYPE";
 
@@ -40,9 +41,10 @@ public enum UtsettelseÅrsak implements Årsak {
             if (KODER.putIfAbsent(v.kode, v) != null) {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
+            KODER_EKSTERN.putIfAbsent(v.kode, v);
         }
         // TODO vurder om behov for å manuelt opprette fri utsettelse fra GUI + finne diskrimininator (saksavhengig)
-        KODER.remove(FRI.getKode());
+        KODER_EKSTERN.remove(FRI.getKode());
     }
 
     @JsonIgnore
@@ -68,7 +70,7 @@ public enum UtsettelseÅrsak implements Årsak {
         return ad;
     }
     public static Map<String, UtsettelseÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
+        return Collections.unmodifiableMap(KODER_EKSTERN);
     }
 
     @Override
