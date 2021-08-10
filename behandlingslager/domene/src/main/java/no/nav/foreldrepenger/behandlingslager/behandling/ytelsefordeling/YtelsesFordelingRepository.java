@@ -211,9 +211,9 @@ public class YtelsesFordelingRepository {
                 .medAvklarteDatoer(null)
                 .medJustertFordeling(null)
                 .medPerioderUttakDokumentasjon(null)
-                .medOverstyrtFordeling(null)
-                .medSaksbehandledeAktivitetskravPerioder(null);
-            ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().ifPresent(yfBuilder::medOpprinneligeAktivitetskravPerioder);
+                .medOverstyrtFordeling(null);
+            ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder()
+                .ifPresent(akp -> yfBuilder.medOpprinneligeAktivitetskravPerioder(akp).medSaksbehandledeAktivitetskravPerioder(null));
             lagreOgFlush(nyBehandlingId, yfBuilder.build());
         });
     }
