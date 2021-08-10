@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -74,7 +75,7 @@ public class FastsettUttaksgrunnlagTjenesteTest {
 
     private UttakInput lagInput(Behandling behandling, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
         var ref = BehandlingReferanse.fra(behandling, LocalDate.now());
-        return new UttakInput(ref, null, ytelsespesifiktGrunnlag);
+        return new UttakInput(ref, InntektArbeidYtelseGrunnlagBuilder.nytt().build(), ytelsespesifiktGrunnlag);
     }
 
     @Test

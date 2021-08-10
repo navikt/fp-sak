@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -68,6 +71,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
     private FastsettUttaksgrunnlagOgVurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
     private FamilieHendelseRepository familieHendelseRepository;
+    private AbakusInMemoryInntektArbeidYtelseTjeneste iayTjeneste;
 
     @BeforeEach
     public void setup() {
@@ -81,7 +85,7 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
                 new SkjæringstidspunktUtils(), mock(UtsettelseCore2021.class));
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         var andelGraderingTjeneste = new BeregningUttakTjeneste(uttakTjeneste, ytelsesFordelingRepository);
-        var iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
+        iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var uttakInputTjeneste = new UttakInputTjeneste(behandlingRepositoryProvider, beregningsgrunnlagTjeneste,
                 iayTjeneste, skjæringstidspunktTjeneste, mock(MedlemTjeneste.class), andelGraderingTjeneste);
         var vurderSøknadsfristTjeneste = new VurderSøknadsfristTjeneste(behandlingRepositoryProvider);
@@ -127,6 +131,10 @@ public class FastsettUttaksgrunnlagOgVurderSøknadsfristStegTest extends EntityM
 
         var vilkårResultat = VilkårResultat.builder().buildFor(behandlingsresultat);
         behandlingRepository.lagre(vilkårResultat, lås);
+
+        iayTjeneste.lagreIayAggregat(behandling.getId(), InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER));
+
         return behandling;
     }
 
