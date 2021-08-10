@@ -48,6 +48,9 @@ public class VurderDekningsgradOppdaterer implements AksjonspunktOppdaterer<Vurd
     public OppdateringResultat oppdater(VurderDekningsgradDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getBehandling();
         var dekningsgradFraDto = dto.getDekningsgrad();
+        if (Dekningsgrad._80.getVerdi() != dekningsgradFraDto && Dekningsgrad._100.getVerdi() != dekningsgradFraDto) {
+            throw new IllegalArgumentException("Udyldig dekningsgrad. Godkjente verdier er 80 og 100, men mottok " + dekningsgradFraDto);
+        }
         var gjeldendeDekningsgrad = fagsakRelasjonTjeneste.finnRelasjonFor(behandling.getFagsak()).getGjeldendeDekningsgrad();
         var erDekningsgradEndret = gjeldendeDekningsgrad.getVerdi() != dekningsgradFraDto;
         if (erDekningsgradEndret) {
