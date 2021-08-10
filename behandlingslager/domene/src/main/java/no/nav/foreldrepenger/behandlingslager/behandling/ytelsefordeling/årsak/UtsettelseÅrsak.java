@@ -41,6 +41,8 @@ public enum UtsettelseÅrsak implements Årsak {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
         }
+        // TODO vurder om behov for å manuelt opprette fri utsettelse fra GUI + finne diskrimininator (saksavhengig)
+        KODER.remove(FRI.getKode());
     }
 
     @JsonIgnore

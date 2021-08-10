@@ -201,6 +201,7 @@ public final class UttakEnumMapper {
             .medMapping(UttakUtsettelseType.BARN_INNLAGT, UtsettelseÅrsak.INSTITUSJON_BARN)
             .medMapping(UttakUtsettelseType.HV_OVELSE, UtsettelseÅrsak.HV_OVELSE)
             .medMapping(UttakUtsettelseType.NAV_TILTAK, UtsettelseÅrsak.NAV_TILTAK)
+            .medMapping(UttakUtsettelseType.FRI, UtsettelseÅrsak.FRI)
             .build();
     }
 
@@ -277,6 +278,7 @@ public final class UttakEnumMapper {
             case INNLAGT_SØKER -> UttakUtsettelseType.SØKER_INNLAGT;
             case HV_OVELSE -> UttakUtsettelseType.HV_OVELSE;
             case NAV_TILTAK -> UttakUtsettelseType.NAV_TILTAK;
+            case FRI -> UttakUtsettelseType.FRI;
             default -> throw new IllegalArgumentException(
                 "Utvikler-feil: Kom ut av regel med perioderesultattype " + utsettelseårsaktype);
         };
