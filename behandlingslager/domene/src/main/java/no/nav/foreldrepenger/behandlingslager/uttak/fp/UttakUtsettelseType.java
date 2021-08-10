@@ -28,6 +28,7 @@ public enum UttakUtsettelseType implements Kodeverdi {
     BARN_INNLAGT("BARN_INNLAGT", "Barn er innlagt i helseinstitusjon"),
     HV_OVELSE("HV_OVELSE", "Heimevernet"),
     NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av NAV"),
+    FRI("FRI", "Fri utsettelse fom høst 2021"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UttakUtsettelseType> KODER = new LinkedHashMap<>();

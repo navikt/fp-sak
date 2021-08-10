@@ -32,6 +32,9 @@ import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 @ApplicationScoped
 public class KontrollerAktivitetskravAksjonspunktUtleder {
 
+    private static final Set<UtsettelseÅrsak> BFHR_MED_AKTIVITETSKRAV = Set.of(UtsettelseÅrsak.ARBEID, UtsettelseÅrsak.FERIE,
+        UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER, UtsettelseÅrsak.FRI);
+
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
 
@@ -88,10 +91,7 @@ public class KontrollerAktivitetskravAksjonspunktUtleder {
     private static boolean bareFarHarRettOgSøkerUtsettelse(OppgittPeriodeEntitet periode,
                                                            boolean annenForelderHarRett) {
         //Reglene sjekker ikke aktivitetskrav hvis tiltak nav eller hv
-        return !annenForelderHarRett && (UtsettelseÅrsak.ARBEID.equals(periode.getÅrsak())
-            || UtsettelseÅrsak.FERIE.equals(periode.getÅrsak()) || UtsettelseÅrsak.SYKDOM.equals(periode.getÅrsak())
-            || UtsettelseÅrsak.INSTITUSJON_BARN.equals(periode.getÅrsak()) || UtsettelseÅrsak.INSTITUSJON_SØKER.equals(
-            periode.getÅrsak()));
+        return !annenForelderHarRett && (BFHR_MED_AKTIVITETSKRAV.contains(periode.getÅrsak()));
     }
 
     private static Set<AktivitetskravPeriodeEntitet> finnAvklartePerioderSomDekkerSøknadsperiode(OppgittPeriodeEntitet periode,

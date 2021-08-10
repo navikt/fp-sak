@@ -192,6 +192,7 @@ public class FaktaUttakHistorikkTjeneste {
         } else if (UtsettelseÅrsak.NAV_TILTAK.equals(utsettelseÅrsak)) {
             byggHistorikkinnslagDokumentertPeriode(behandling, dto, HistorikkAvklartSoeknadsperiodeType.UTSETTELSE_TILTAK_I_REGI_AV_NAV, tekstBuilder);
         }
+        // UtsettelseÅrsak FRI krever ikke dokumentasjon - men bør vel lage innslag hvis SBH legger til en slik periode - hvis det skal være mulig?!
     }
 
     private boolean erGradering(BekreftetOppgittPeriodeDto dto) {
