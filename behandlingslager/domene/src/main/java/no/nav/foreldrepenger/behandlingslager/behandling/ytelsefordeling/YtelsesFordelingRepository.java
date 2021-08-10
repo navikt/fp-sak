@@ -203,8 +203,6 @@ public class YtelsesFordelingRepository {
     /**
      * Kopierer grunnlag fra en tidligere behandling. Nullstiller avklarte datoer.
      * Brukes ifm oppretting av revurdering
-     * TODO: Rydde i KOFAK-REVURDERING-FP når alle i kompletthet har passert KOFAK (2-4 uker). Behold oppgitte for endringssøknad
-     * Flytt innhold her + KOFAK-revurdering til RevurderingTjeneste der man fikser på akt.krav (tilpass for KøKontroller)
      */
     public void kopierGrunnlagFraEksisterendeBehandling(Long gammelBehandlingId, Long nyBehandlingId) {
         var origAggregat = hentAggregatHvisEksisterer(gammelBehandlingId);
@@ -213,7 +211,9 @@ public class YtelsesFordelingRepository {
                 .medAvklarteDatoer(null)
                 .medJustertFordeling(null)
                 .medPerioderUttakDokumentasjon(null)
-                .medOverstyrtFordeling(null);
+                .medOverstyrtFordeling(null)
+                .medSaksbehandledeAktivitetskravPerioder(null);
+            ytelseFordelingAggregat.getGjeldendeAktivitetskravPerioder().ifPresent(yfBuilder::medOpprinneligeAktivitetskravPerioder);
             lagreOgFlush(nyBehandlingId, yfBuilder.build());
         });
     }

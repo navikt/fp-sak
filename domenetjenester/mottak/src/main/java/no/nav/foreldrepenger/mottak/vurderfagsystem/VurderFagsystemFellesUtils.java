@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -110,16 +111,20 @@ public class VurderFagsystemFellesUtils {
         return behandling.getAvsluttetDato() != null && behandling.getAvsluttetDato().isAfter(LocalDateTime.now().minus(OPPLYSNINGSPLIKT_INTERVALL));
     }
 
-    public boolean harSakOpprettetInnenIntervall(List<Fagsak> sakerGittYtelseType) {
+    public List<Saksnummer> sakerOpprettetInnenIntervall(List<Fagsak> sakerGittYtelseType) {
         var sammenlign = LocalDateTime.now().minus(PERIODE_FOR_AKTUELLE_SAKER);
         return sakerGittYtelseType.stream()
-            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign));
+            .filter(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign))
+            .map(Fagsak::getSaksnummer)
+            .collect(Collectors.toList());
     }
 
-    public boolean harSakOpprettetInnenTvilsintervall(List<Fagsak> sakerGittYtelseType) {
+    public List<Saksnummer> sakerOpprettetInnenTvilsintervall(List<Fagsak> sakerGittYtelseType) {
         var sammenlign = LocalDateTime.now().minus(PERIODE_FOR_MULIGE_SAKER_IM);
         return sakerGittYtelseType.stream()
-            .anyMatch(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign));
+            .filter(f -> f.getOpprettetTidspunkt() != null && f.getOpprettetTidspunkt().isAfter(sammenlign))
+            .map(Fagsak::getSaksnummer)
+            .collect(Collectors.toList());
     }
 
     public boolean harSakOpprettetInnenIntervallForIM(List<Fagsak> sakerGittYtelseType, LocalDate referanseDato) {
@@ -189,15 +194,17 @@ public class VurderFagsystemFellesUtils {
         if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MULIG_MATCH, List.of()).isEmpty()) {
             return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.GRUNNLAG_MULIG_MATCH), SorteringSaker.GRUNNLAG_MULIG_MATCH, vurderFagsystem);
         }
-        if (!sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenTvilsintervall(sorterteSaker.get(SorteringSaker.GRUNNLAG_MISMATCH))) {
-            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.GRUNNLAG_MISMATCH, vurderFagsystem.getAktørId());
+        var tvilssaker = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.GRUNNLAG_MISMATCH, List.of()));
+        if (!tvilssaker.isEmpty()) {
+            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} saker {}", SorteringSaker.GRUNNLAG_MISMATCH, tvilssaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_DATO_MATCH, List.of()).isEmpty()) {
             return behandlendeFagsystemFraFagsaker(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_DATO_MATCH), SorteringSaker.INNTEKTSMELDING_DATO_MATCH, vurderFagsystem);
         }
-        if (!sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()).isEmpty() && harSakOpprettetInnenTvilsintervall(sorterteSaker.get(SorteringSaker.INNTEKTSMELDING_MISMATCH))) {
-            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} for {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, vurderFagsystem.getAktørId());
+        var tvilssakerIM = sakerOpprettetInnenTvilsintervall(sorterteSaker.getOrDefault(SorteringSaker.INNTEKTSMELDING_MISMATCH, List.of()));
+        if (!tvilssakerIM.isEmpty()) {
+            LOG.info("VurderFagsystem FP IM manuell pga nylige saker av type {} saker {}", SorteringSaker.INNTEKTSMELDING_MISMATCH, tvilssakerIM);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         return sorterteSaker.getOrDefault(SorteringSaker.TOM_SAK, List.of()).isEmpty() ?  new BehandlendeFagsystem(VURDER_INFOTRYGD) :

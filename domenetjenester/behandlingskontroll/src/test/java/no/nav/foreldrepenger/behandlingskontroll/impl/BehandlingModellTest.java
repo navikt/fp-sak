@@ -68,7 +68,7 @@ public class BehandlingModellTest {
         var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
         var a1_1 = AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD;
         var a2_0 = AksjonspunktDefinisjon.AVKLAR_GYLDIG_MEDLEMSKAPSPERIODE;
-        var a2_1 = AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER;
+        var a2_1 = AksjonspunktDefinisjon.AVKLAR_VERGE;
 
         var steg = new DummySteg();
         var steg0 = new DummySteg();

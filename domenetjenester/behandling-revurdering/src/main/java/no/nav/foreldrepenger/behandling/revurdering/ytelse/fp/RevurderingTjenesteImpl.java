@@ -133,14 +133,6 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
-            ytelseFordelingAggregat.flatMap(YtelseFordelingAggregat::getGjeldendeAktivitetskravPerioder)
-                .ifPresent(entitet -> {
-                    var yfa = ytelsesFordelingRepository.opprettBuilder(nyBehandlingId)
-                        .medOpprinneligeAktivitetskravPerioder(entitet)
-                        .medSaksbehandledeAktivitetskravPerioder(null)
-                        .build();
-                    ytelsesFordelingRepository.lagre(nyBehandlingId, yfa);
-                });
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
             ytelseFordelingAggregat.ifPresent(yfa -> {

@@ -51,34 +51,38 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         // NB: Man ønsker er å rute søknad inn på mulig sak og unngå unødvendig saksopretting. Mottak skal håndtere tilfellene
         var matchendeFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(matchendeFagsaker.get(0));
         }
         if (matchendeFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {} for {}", matchendeFagsaker.size(), vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP strukturert søknad flere matchende saker {}", matchendeFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         var relevanteFagsaker = sakerGittYtelseType.stream()
             .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
+            .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0).getSaksnummer());
+            return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(relevanteFagsaker.get(0));
         }
         if (relevanteFagsaker.size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {} for {}", relevanteFagsaker.size(), vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP strukturert søknad flere relevante saker {}", relevanteFagsaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
-        if (fellesUtils.finnÅpneSaker(sakerGittYtelseType).size() > 1) {
-            LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak for {}", vurderFagsystem.getAktørId());
+        var åpneSaker = fellesUtils.finnÅpneSaker(sakerGittYtelseType).stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
+        if (åpneSaker.size() > 1) {
+            LOG.info("VurderFagsystem FP strukturert søknad mer enn 1 åpen sak {}", åpneSaker);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
-        if (fellesUtils.harSakOpprettetInnenIntervall(sakerGittYtelseType)) {
-            LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", vurderFagsystem.getAktørId());
+        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream().collect(Collectors.toList());
+        if (!sakOpprettetInnenIntervall.isEmpty()) {
+            LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
@@ -101,13 +105,13 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
 
         if (VurderFagsystemFellesUtils.erSøknad(vurderFagsystem) && (DokumentTypeId.UDEFINERT.equals(vurderFagsystem.getDokumentTypeId()) || !vurderFagsystem.getDokumentTypeId().erEndringsSøknadType())) {
             // Inntil videre kan man ikke se periode. OBS på forskjell mot ES: FP-saker lever mye lenger.
-            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling for {}", vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling a for {}", vurderFagsystem.getAktørId());
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
 
         var vurdering = fellesUtils.standardUstrukturertDokumentVurdering(kompatibleFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         if (MANUELL_VURDERING.equals(vurdering.getBehandlendeSystem())) {
-            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling for {}", vurderFagsystem.getAktørId());
+            LOG.info("VurderFagsystem FP ustrukturert vurdert til manuell behandling b for {}", vurderFagsystem.getAktørId());
         }
         return vurdering;
     }

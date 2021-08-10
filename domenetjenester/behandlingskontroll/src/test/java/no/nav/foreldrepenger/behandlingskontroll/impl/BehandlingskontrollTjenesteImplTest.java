@@ -307,7 +307,7 @@ public class BehandlingskontrollTjenesteImplTest {
         when(kontekst.getBehandlingId()).thenReturn(behandling.getId());
         when(kontekst.getFagsakId()).thenReturn(behandling.getFagsakId());
         assertThat(kontrollTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(behandling.getFagsakYtelseType(),
-                behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_TILLEGGSOPPLYSNINGER))
+                behandling.getType(), steg2, AksjonspunktDefinisjon.AVKLAR_VERGE))
                         .isTrue();
     }
 
