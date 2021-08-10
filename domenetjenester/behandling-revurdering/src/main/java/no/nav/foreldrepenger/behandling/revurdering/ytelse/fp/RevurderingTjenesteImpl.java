@@ -130,12 +130,11 @@ public class RevurderingTjenesteImpl implements RevurderingTjeneste {
         medlemskapRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         pleiepengerRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
 
-        var ytelseFordelingAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId);
         if (BehandlingType.REVURDERING.equals(ny.getType())) {
             ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(originalBehandlingId, nyBehandlingId);
         } else {
             // Kopierer kun oppgitt for ny 1gang. Bør kanskje kopiere alt?
-            ytelseFordelingAggregat.ifPresent(yfa -> {
+            ytelsesFordelingRepository.hentAggregatHvisEksisterer(originalBehandlingId).ifPresent(yfa -> {
                 var yfBuilder = YtelseFordelingAggregat.oppdatere(yfa)
                     .medOppgittRettighet(yfa.getOppgittRettighet())
                     .medOppgittDekningsgrad(yfa.getOppgittDekningsgrad());
