@@ -66,11 +66,24 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     private void loggSaksnummerForNesteLansering(Behandling behandling) {
-        boolean kanBrukeDokgen = ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(behandling);
+        boolean kanBrukeDokgenVedNesteLansering = kanBrukeDokgenVedNesteLansering(behandling);
 
-        if (kanBrukeDokgen) {
-            LOGGER.info("Saksnummer {} kan bruke Dokgen ved neste lansering", behandling.getFagsak().getSaksnummer().getVerdi());
+        if (kanBrukeDokgenVedNesteLansering) {
+            LOGGER.info("Saksnummer {} vil bruke Dokgen ved neste lansering", behandling.getFagsak().getSaksnummer().getVerdi());
         }
+    }
+
+    private boolean kanBrukeDokgenVedNesteLansering(Behandling behandling) {
+        return ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(behandling)
+            && harAvslåttePerioder(behandling);
+    }
+
+    private boolean harAvslåttePerioder(Behandling behandling) {
+        return fpUttakRepository.hentUttakHvisEksisterer(behandling.getId())
+            .map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(p -> !p.isInnvilget());
     }
 
     private boolean ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(Behandling behandling) {
