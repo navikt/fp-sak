@@ -24,6 +24,7 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
 
     SØKNAD("SØKNAD", "Kilde er søknad"),
     TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Kilde er tidligere vedtatt behandling."),
+    ANDRE_NAV_VEDTAK("ANDRE_NAV_VEDTAK", "Kilde er andre vedtak i nav")
     ;
     private static final Map<String, FordelingPeriodeKilde> KODER = new LinkedHashMap<>();
 

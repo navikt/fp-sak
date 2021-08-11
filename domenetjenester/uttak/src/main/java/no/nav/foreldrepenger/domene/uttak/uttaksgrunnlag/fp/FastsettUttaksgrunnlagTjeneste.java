@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
@@ -84,7 +85,15 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
         }
         justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
+        if (!Environment.current().isProd()) {
+            justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
+        }
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert());
+    }
+
+    private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
+        return PleiepengerJustering.juster(input.getBehandlingReferanse().getAktørId(), input.getIayGrunnlag(),
+            perioder);
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
