@@ -4,6 +4,7 @@ import static java.time.LocalDate.of;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -116,7 +117,7 @@ class PleiepengerJusteringTest {
     void pleiepenger_fra_annet_system_enn_k9sak_skal_ikke_opprette_utsettelse() {
         var aktørId = AktørId.dummy();
         var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
-            .medKilde(Fagsystem.K9SAK)
+            .medKilde(Fagsystem.INFOTRYGD)
             .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
         ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
@@ -130,8 +131,32 @@ class PleiepengerJusteringTest {
             .build();
         var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
 
-        assertThat(resultat).hasSize(3);
-        assertThat(resultat.get(1).isUtsettelse()).isTrue();
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).isUtsettelse()).isFalse();
+    }
+
+    @Test
+    void exception_hvis_overlappende_ytelse() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
+            .medKilde(Fagsystem.K9SAK)
+            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
+        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval1)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 5), of(2020, 1, 10));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval2)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        assertThrows(IllegalStateException.class, () -> PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote)));
     }
 
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {

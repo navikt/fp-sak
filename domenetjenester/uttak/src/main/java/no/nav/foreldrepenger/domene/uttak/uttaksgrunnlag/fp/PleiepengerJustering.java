@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem.K9SAK;
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 
 import java.util.List;
 
@@ -45,8 +46,15 @@ final class PleiepengerJustering {
             .toList();
 
         var utsettelser = opprettUtsettelser(perioderMedUtbetaltPleiepenger);
+        exceptionHvisOverlapp(utsettelser);
 
         return combine(utsettelser, oppgittePerioder);
+    }
+
+    private static void exceptionHvisOverlapp(List<OppgittPeriodeEntitet> utsettelser) {
+        if (finnesOverlapp(utsettelser)) {
+            throw new IllegalStateException("Utviklerfeil: Overlappende utsettelser pga pleiepenger " + utsettelser);
+        }
     }
 
     static List<OppgittPeriodeEntitet> combine(List<OppgittPeriodeEntitet> pleiepengerUtsettelser,

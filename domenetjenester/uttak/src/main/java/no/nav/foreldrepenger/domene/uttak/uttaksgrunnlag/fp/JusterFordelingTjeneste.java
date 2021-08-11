@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 
+import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.sorterEtterFom;
 import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.beregnAntallVirkedager;
 import static no.nav.foreldrepenger.regler.uttak.felles.Virkedager.plusVirkedager;
@@ -525,23 +526,8 @@ class JusterFordelingTjeneste {
         }
     }
 
-    private boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
-        for (var i = 0; i < oppgittPerioder.size(); i++) {
-            for (var j = i + 1; j < oppgittPerioder.size(); j++) {
-                if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private boolean overlapper(OppgittPeriodeEntitet periode, LocalDate dato) {
         return periode.getFom().isEqual(dato) || periode.getTom().isEqual(dato) || (periode.getFom().isBefore(dato) && periode.getTom().isAfter(dato));
-    }
-
-    private boolean overlapper(OppgittPeriodeEntitet p1, OppgittPeriodeEntitet p2) {
-        return new SimpleLocalDateInterval(p1.getFom(), p1.getTom()).overlapper(new SimpleLocalDateInterval(p2.getFom(), p2.getTom()));
     }
 
     /**

@@ -8,11 +8,27 @@ import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
+import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 
 class OppgittPeriodeUtil {
 
     private OppgittPeriodeUtil() {
         //Forhindrer instanser
+    }
+
+    static boolean finnesOverlapp(List<OppgittPeriodeEntitet> oppgittPerioder) {
+        for (var i = 0; i < oppgittPerioder.size(); i++) {
+            for (var j = i + 1; j < oppgittPerioder.size(); j++) {
+                if (overlapper(oppgittPerioder.get(i), oppgittPerioder.get(j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean overlapper(OppgittPeriodeEntitet p1, OppgittPeriodeEntitet p2) {
+        return new SimpleLocalDateInterval(p1.getFom(), p1.getTom()).overlapper(new SimpleLocalDateInterval(p2.getFom(), p2.getTom()));
     }
 
     static List<OppgittPeriodeEntitet> sorterEtterFom(List<OppgittPeriodeEntitet> oppgittePerioder) {
