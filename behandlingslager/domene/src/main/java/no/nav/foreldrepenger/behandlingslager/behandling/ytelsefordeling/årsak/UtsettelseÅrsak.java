@@ -28,9 +28,11 @@ public enum UtsettelseÅrsak implements Årsak {
     INSTITUSJON_BARN("INSTITUSJONSOPPHOLD_BARNET", "Barn er innlagt i helseinstitusjon"),
     HV_OVELSE("HV_OVELSE", "Heimevernet"),
     NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av NAV"),
+    FRI("FRI", "Fri utsettelse fom høst 2021"),
     UDEFINERT("-", "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
+    private static final Map<String, UtsettelseÅrsak> KODER_EKSTERN = new LinkedHashMap<>();
 
     public static final String KODEVERK = "UTSETTELSE_AARSAK_TYPE";
 
@@ -39,7 +41,10 @@ public enum UtsettelseÅrsak implements Årsak {
             if (KODER.putIfAbsent(v.kode, v) != null) {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
+            KODER_EKSTERN.putIfAbsent(v.kode, v);
         }
+        // TODO vurder om behov for å manuelt opprette fri utsettelse fra GUI + finne diskrimininator (saksavhengig)
+        KODER_EKSTERN.remove(FRI.getKode());
     }
 
     @JsonIgnore
@@ -65,7 +70,7 @@ public enum UtsettelseÅrsak implements Årsak {
         return ad;
     }
     public static Map<String, UtsettelseÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
+        return Collections.unmodifiableMap(KODER_EKSTERN);
     }
 
     @Override

@@ -160,6 +160,14 @@ public class KontrollerAktivitetskravAksjonspunktUtlederTest {
     }
 
     @Test
+    public void utledeAPForFarSomHarSøktUtsettelseFriOgBareFarRett() {
+        var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.FRI);
+        var ap = utleder.utledFor(uttakInput);
+
+        assertThat(ap).containsOnly(KONTROLLER_AKTIVITETSKRAV);
+    }
+
+    @Test
     public void ikkeUtledeAPForFarSomHarSøktUtsettelseHvOgBareFarRett() {
         var uttakInput = bareFarRettMedSøktUtsettelse(UtsettelseÅrsak.HV_OVELSE);
         var ap = utleder.utledFor(uttakInput);
