@@ -59,23 +59,30 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     public DokumentMalType velgFpInnvilgelsesmalDev(Behandling behandling) {
-        boolean kanBrukeDokgen = ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(behandling);
+        boolean kanBrukeDokgen = behandling.erYtelseBehandling()
+            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
+            && !harPerioderMedGradertOgAvslått(behandling)
+            && !harDødtBarn(behandling)
+            && harSøknadMedSpråkkodeNB(behandling);
 
         return kanBrukeDokgen ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
     private void loggSaksnummerForNesteLansering(Behandling behandling) {
-        boolean kanBrukeDokgenVedNesteLansering = kanBrukeDokgenVedNesteLansering(behandling);
 
-        if (kanBrukeDokgenVedNesteLansering) {
+        if (vilBrukeDokgenVedNesteLansering(behandling)) {
             LOGGER.info("Saksnummer {} vil bruke Dokgen ved neste lansering", behandling.getFagsak().getSaksnummer().getVerdi());
         }
     }
 
-    private boolean kanBrukeDokgenVedNesteLansering(Behandling behandling) {
-        return ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(behandling)
-            && harAvslåttePerioder(behandling);
+    private boolean vilBrukeDokgenVedNesteLansering(Behandling behandling) {
+        return (BehandlingType.REVURDERING.equals(behandling.getType())
+            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
+            && !harPerioderMedGradertOgAvslått(behandling)
+            && !harDødtBarn(behandling)
+            && harSøknadMedSpråkkodeNB(behandling))
+            || (forrigeLanseringMedAvslag(behandling));
     }
 
     private boolean harAvslåttePerioder(Behandling behandling) {
@@ -86,12 +93,13 @@ public class InnvilgelseFpLanseringTjeneste {
             .anyMatch(p -> !p.isInnvilget());
     }
 
-    private boolean ikkeGraderingDødtBarnEllerSamtidigUttakOgharBokmål(Behandling behandling) {
+    private boolean forrigeLanseringMedAvslag(Behandling behandling) {
         return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
             && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
             && !harPerioderMedGradertOgAvslått(behandling)
             && !harDødtBarn(behandling)
-            && harSøknadMedSpråkkodeNB(behandling);
+            && harSøknadMedSpråkkodeNB(behandling)
+            && harAvslåttePerioder(behandling);
     }
 
     private boolean harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(Behandling behandling) {
