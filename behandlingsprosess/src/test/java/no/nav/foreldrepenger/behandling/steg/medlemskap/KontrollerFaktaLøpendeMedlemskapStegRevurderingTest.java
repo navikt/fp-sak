@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -36,6 +37,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -157,6 +161,13 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         scenario.medAvklarteUttakDatoer(avklarteUttakDatoer);
         scenario.medDefaultSøknadTerminbekreftelse();
         scenario.medDefaultOppgittTilknytning();
+        var periode0 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(45))
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("123"))
+            .build();
+        var fordeling = new OppgittFordelingEntitet(List.of(periode0), true);
+        scenario.medFordeling(fordeling);
 
         var periode = opprettPeriode(ettÅrSiden, iDag, MedlemskapDekningType.FTL_2_6);
         scenario.leggTilMedlemskapPeriode(periode);
