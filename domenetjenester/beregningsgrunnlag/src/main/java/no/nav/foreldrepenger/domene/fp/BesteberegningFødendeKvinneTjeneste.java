@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.domene.fp;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.folketrygdloven.kalkulator.steg.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -36,10 +26,21 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
     private static final Set<FamilieHendelseType> fødselHendelser = Set.of(FamilieHendelseType.FØDSEL,
         FamilieHendelseType.TERMIN);
+    private static final Set<OpptjeningAktivitetType> GODKJENT_FOR_AUTOMATISK_BEREGNING = Set.of(OpptjeningAktivitetType.ARBEID,
+        OpptjeningAktivitetType.SYKEPENGER, OpptjeningAktivitetType.DAGPENGER);
 
     private FamilieHendelseRepository familieHendelseRepository;
     private OpptjeningForBeregningTjeneste opptjeningForBeregningTjeneste;
@@ -170,8 +171,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         InntektArbeidYtelseGrunnlag iay = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.getBehandlingId());
         var opptjening = opptjeningForBeregningTjeneste.hentOpptjeningForBeregning(ref, iay);
         var opptjeningAktiviteter = opptjening.map(OpptjeningAktiviteter::getOpptjeningPerioder).orElse(Collections.emptyList());
-        return opptjeningAktiviteter.stream().allMatch(a -> a.opptjeningAktivitetType().equals(OpptjeningAktivitetType.DAGPENGER)
-            || a.opptjeningAktivitetType().equals(OpptjeningAktivitetType.ARBEID));
+        return opptjeningAktiviteter.stream().allMatch(a -> GODKJENT_FOR_AUTOMATISK_BEREGNING.contains(a.opptjeningAktivitetType()));
     }
 
     private static boolean gjelderForeldrepenger(BehandlingReferanse behandlingReferanse) {

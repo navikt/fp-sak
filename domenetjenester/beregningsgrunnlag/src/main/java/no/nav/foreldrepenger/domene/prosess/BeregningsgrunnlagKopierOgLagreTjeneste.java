@@ -11,10 +11,12 @@ import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.OPP
 import static no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -27,6 +29,8 @@ import no.nav.folketrygdloven.kalkulator.input.FordelBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBeregningsgrunnlagInput;
 import no.nav.folketrygdloven.kalkulator.input.ForeslåBesteberegningInput;
 import no.nav.folketrygdloven.kalkulator.modell.behandling.KoblingReferanse;
+import no.nav.folketrygdloven.kalkulator.modell.iay.AktørInntektDto;
+import no.nav.folketrygdloven.kalkulator.modell.iay.InntektDto;
 import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
 import no.nav.folketrygdloven.kalkulator.output.BeregningResultatAggregat;
 import no.nav.folketrygdloven.kalkulator.output.RegelSporingAggregat;
@@ -37,6 +41,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.domene.fp.BesteberegningAvvikskontrollerer;
 import no.nav.foreldrepenger.domene.input.KalkulatorStegProsesseringInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.BesteberegningMapper;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilBehandlingslagerMapper;
@@ -45,6 +50,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BesteberegninggrunnlagEntitet;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 /**
@@ -169,6 +176,7 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
     }
 
     public BeregningsgrunnlagVilkårOgAkjonspunktResultat foreslåBesteberegning(BeregningsgrunnlagInput input) {
+
         var behandlingId = input.getKoblingReferanse().getKoblingId();
         var foreslåBeregningsgrunnlagInput = (ForeslåBesteberegningInput) kalkulatorStegProsesseringInputTjeneste.lagFortsettInput(
             behandlingId, input, BehandlingStegType.FORESLÅ_BESTEBEREGNING);
@@ -179,9 +187,23 @@ public class BeregningsgrunnlagKopierOgLagreTjeneste {
             beregningResultatAggregat.getBeregningsgrunnlagGrunnlag().getFaktaAggregat(),
             beregningResultatAggregat.getRegelSporingAggregat(),
             beregningResultatAggregat.getBesteberegningVurderingGrunnlag());
+
+        // Avvikskontroll
+        avvikskontrollerBesteberegning(input, nyttBg, behandlingId);
+
         beregningsgrunnlagRepository.lagre(behandlingId, nyttBg, BESTEBEREGNET);
         return new BeregningsgrunnlagVilkårOgAkjonspunktResultat(
             beregningResultatAggregat.getBeregningAksjonspunktResultater());
+    }
+
+    private void avvikskontrollerBesteberegning(BeregningsgrunnlagInput input, BeregningsgrunnlagEntitet nyttBg, Long behandlingId) {
+        Set<BesteberegningMånedsgrunnlagEntitet> seksBesteMnd = nyttBg.getBesteberegninggrunnlag()
+            .map(BesteberegninggrunnlagEntitet::getSeksBesteMåneder)
+            .orElse(Collections.emptySet());
+        Collection<InntektDto> inntekter = input.getIayGrunnlag().getAktørInntektFraRegister()
+            .map(AktørInntektDto::getInntekt).orElse(Collections.emptyList());
+        BesteberegningAvvikskontrollerer.finnArbeidsgivereMedAvvikendeInntekt(behandlingId, nyttBg.getSkjæringstidspunkt(), seksBesteMnd,
+            inntekter);
     }
 
 
