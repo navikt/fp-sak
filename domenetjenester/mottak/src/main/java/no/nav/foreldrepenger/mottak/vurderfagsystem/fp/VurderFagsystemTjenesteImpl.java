@@ -81,7 +81,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
-            .filter(s -> !fellesUtils.erFagsakMedFamilieHendelseAnnenEnnSøknad(vurderFagsystem, s))
+            .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknad(vurderFagsystem, s))
             .collect(Collectors.toList());
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);

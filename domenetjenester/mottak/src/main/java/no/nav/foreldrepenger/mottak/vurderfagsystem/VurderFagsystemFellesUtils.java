@@ -195,7 +195,7 @@ public class VurderFagsystemFellesUtils {
         return false;
     }
 
-    public boolean erFagsakMedFamilieHendelseAnnenEnnSøknad(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+    public boolean erFagsakMedAnnenFamilieHendelseEnnSøknad(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         // Finn behandling
         var fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
