@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class BesteberegningAvvikskontrollerer {
     private static final Logger LOG = LoggerFactory.getLogger(BesteberegningAvvikskontrollerer.class);
     private static final BigDecimal AVVIKSGRENSE = BigDecimal.valueOf(25);
+    private static final int MÅNEDER_SIDEN_STP_SOM_BRUKES_FOR_SNITT = 17;
 
     private BesteberegningAvvikskontrollerer() {
         // Skjuler default
@@ -86,10 +87,10 @@ public class BesteberegningAvvikskontrollerer {
     }
 
     private static BigDecimal finnSnittlønnSiste10Mnd(LocalDate skjæringstidspunkt, Collection<InntektspostDto> alleInntektsposterPåAG) {
-        LocalDate førsteDagInntektSkalMed = skjæringstidspunkt.minusMonths(10).withDayOfMonth(1);
+        LocalDate førsteDagInntektSkalMed = skjæringstidspunkt.minusMonths(MÅNEDER_SIDEN_STP_SOM_BRUKES_FOR_SNITT).withDayOfMonth(1);
         BigDecimal totalInntekt = BigDecimal.ZERO;
         int månederMedInntekt = 0;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < MÅNEDER_SIDEN_STP_SOM_BRUKES_FOR_SNITT; i++) {
             BigDecimal inntekt = finnInntektIMåned(alleInntektsposterPåAG, førsteDagInntektSkalMed.plusMonths(i));
             if (inntekt.compareTo(BigDecimal.ZERO) > 0) {
                 månederMedInntekt++;
