@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.fp;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektDtoBuilder;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektspostDtoBuilder;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BesteberegningInntektEntitet;
@@ -28,6 +29,7 @@ class BesteberegningAvvikskontrollererTest {
         String orgnr = "999999999";
         InntektDto inntektFraRegister = InntektDtoBuilder.oppdatere(Optional.empty())
             .medArbeidsgiver(no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver.virksomhet(orgnr))
+            .medInntektsKilde(InntektskildeType.INNTEKT_BEREGNING)
             .leggTilInntektspost(lagPost(månederFørSTP(1), 250))
             .leggTilInntektspost(lagPost(månederFørSTP(2), 250))
             .leggTilInntektspost(lagPost(månederFørSTP(3), 250))
@@ -59,6 +61,7 @@ class BesteberegningAvvikskontrollererTest {
         String orgnr = "999999999";
         InntektDto inntektFraRegister = InntektDtoBuilder.oppdatere(Optional.empty())
             .medArbeidsgiver(no.nav.folketrygdloven.kalkulator.modell.typer.Arbeidsgiver.virksomhet(orgnr))
+            .medInntektsKilde(InntektskildeType.INNTEKT_BEREGNING)
             .leggTilInntektspost(lagPost(månederFørSTP(1), 200))
             .leggTilInntektspost(lagPost(månederFørSTP(2), 1000))
             .leggTilInntektspost(lagPost(månederFørSTP(3), 200))

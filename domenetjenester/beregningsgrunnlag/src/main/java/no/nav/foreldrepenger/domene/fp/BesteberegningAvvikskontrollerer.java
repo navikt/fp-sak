@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.fp;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektDto;
 import no.nav.folketrygdloven.kalkulator.modell.iay.InntektspostDto;
 import no.nav.folketrygdloven.kalkulator.modell.typer.Beløp;
+import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BesteberegningInntektEntitet;
 import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlagEntitet;
@@ -37,10 +38,10 @@ public class BesteberegningAvvikskontrollerer {
         List<BesteberegningInntektEntitet> besteInntekterFraBesteberegning = seksBesteMnd.stream()
             .map(BesteberegningMånedsgrunnlagEntitet::getInntekter)
             .flatMap(Collection::stream).collect(Collectors.toList());
-        List<Arbeidsgiver> arbeidsgivereIBesteberegning = besteInntekterFraBesteberegning.stream()
+        Set<Arbeidsgiver> arbeidsgivereIBesteberegning = besteInntekterFraBesteberegning.stream()
             .map(BesteberegningInntektEntitet::getArbeidsgiver)
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
         Map<Arbeidsgiver, BigDecimal> avvikPrAG = beregnAvvikPrArbeidsgiver(skjæringstidspunkt, besteInntekterFraBesteberegning,
             arbeidsgivereIBesteberegning,
             inntekterFraRegister);
@@ -57,11 +58,12 @@ public class BesteberegningAvvikskontrollerer {
 
     private static Map<Arbeidsgiver, BigDecimal> beregnAvvikPrArbeidsgiver(LocalDate skjæringstidspunkt,
                                                                            List<BesteberegningInntektEntitet> besteInntekterFraBesteberegning,
-                                                                           List<Arbeidsgiver> arbeidsgivereIBesteberegning,
+                                                                           Set<Arbeidsgiver> arbeidsgivereIBesteberegning,
                                                                            Collection<InntektDto> inntekterFraRegister) {
         Map<Arbeidsgiver, BigDecimal> avvikPrAG = new HashMap<>();
         arbeidsgivereIBesteberegning.forEach(ag -> {
             Collection<InntektspostDto> alleInntektsposterHosAG = inntekterFraRegister.stream()
+                .filter(innt -> Objects.equals(innt.getInntektsKilde(), InntektskildeType.INNTEKT_BEREGNING))
                 .filter(innt -> innt.getArbeidsgiver() != null && innt.getArbeidsgiver().getIdentifikator().equals(ag.getIdentifikator()))
                 .findFirst()
                 .map(InntektDto::getAlleInntektsposter)
@@ -77,7 +79,7 @@ public class BesteberegningAvvikskontrollerer {
 
     private static BigDecimal finnHøyesteMånedInntektFraBesteberegning(Arbeidsgiver ag, List<BesteberegningInntektEntitet> besteInntekter) {
         return besteInntekter.stream()
-            .filter(bi -> bi.getArbeidsgiver().equals(ag))
+            .filter(bi -> Objects.equals(bi.getArbeidsgiver(), ag))
             .map(BesteberegningInntektEntitet::getInntekt)
             .max(Comparator.naturalOrder())
             .orElse(BigDecimal.ZERO);
