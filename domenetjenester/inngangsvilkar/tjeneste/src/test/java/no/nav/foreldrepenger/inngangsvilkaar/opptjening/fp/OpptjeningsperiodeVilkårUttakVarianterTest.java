@@ -60,7 +60,6 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var førsteUttaksdato = morsmaksdato.plusWeeks(4);
         utsettelseCore2021 = new UtsettelseCore2021(fødselsdato.plusMonths(1));
 
-        utsettelseCore2021 = new UtsettelseCore2021(null);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelseCore2021);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
@@ -108,7 +107,6 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var førsteUttaksdato = morsmaksdato.minusWeeks(4);
         utsettelseCore2021 = new UtsettelseCore2021(fødselsdato.plusMonths(1));
 
-        utsettelseCore2021 = new UtsettelseCore2021(null);
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider, ytelseMaksdatoTjeneste,
             stputil, utsettelseCore2021);
         opptjeningsperiodeVilkårTjeneste = new OpptjeningsperiodeVilkårTjenesteImpl(
