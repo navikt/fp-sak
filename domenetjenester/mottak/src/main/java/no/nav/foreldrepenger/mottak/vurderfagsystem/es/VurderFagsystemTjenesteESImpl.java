@@ -86,7 +86,9 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             return standardVurdering.orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
-        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream().collect(Collectors.toList());
+        var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(kompatibleFagsaker).stream()
+            .map(Fagsak::getSaksnummer)
+            .collect(Collectors.toList());
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem ES ustrukturert finnes nyere sak enn 10mnd {}", sakOpprettetInnenIntervall);
             return new BehandlendeFagsystem(MANUELL_VURDERING);
