@@ -16,22 +16,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.domene.PleiepengerToggle;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.EndringsdatoRevurderingUtleder;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @Dependent
 public class FastsettUttaksgrunnlagTjeneste {
 
-    private FpUttakRepository fpUttakRepository;
-    private YtelsesFordelingRepository ytelsesFordelingRepository;
-    private EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
-    private EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
+    private final FpUttakRepository fpUttakRepository;
+    private final YtelsesFordelingRepository ytelsesFordelingRepository;
+    private final EndringsdatoFørstegangsbehandlingUtleder endringsdatoFørstegangsbehandlingUtleder;
+    private final EndringsdatoRevurderingUtleder endringsdatoRevurderingUtleder;
 
-    private VedtaksperioderHelper vedtaksperioderHelper = new VedtaksperioderHelper();
-    private JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
+    private final VedtaksperioderHelper vedtaksperioderHelper = new VedtaksperioderHelper();
+    private final JusterFordelingTjeneste justerFordelingTjeneste = new JusterFordelingTjeneste();
 
     @Inject
     public FastsettUttaksgrunnlagTjeneste(UttakRepositoryProvider provider,
@@ -85,7 +85,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
         }
         justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
-        if (!Environment.current().isProd()) {
+        if (PleiepengerToggle.erToggletPå()) {
             justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         }
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert());

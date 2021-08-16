@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -42,6 +44,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private SøknadRepository søknadRepository;
+    private PleiepengerRepository pleiepengerRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -53,6 +56,7 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
         this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
+        this.pleiepengerRepository = behandlingRepositoryProvider.getPleiepengerRepository();
     }
 
     UttakGrunnlagTjeneste() {
@@ -76,15 +80,20 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             behandling.harBehandlingÅrsak(BehandlingÅrsakType.BERØRT_BEHANDLING) && !behandling.harBehandlingÅrsak(
                 BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         var originalBehandling = originalBehandling(behandling);
-        var grunnlag = new ForeldrepengerGrunnlag().medErBerørtBehandling(erBerørtBehandling)
+        var grunnlag = new ForeldrepengerGrunnlag()
+            .medErBerørtBehandling(erBerørtBehandling)
             .medFamilieHendelser(familiehendelser)
-            .medOriginalBehandling(originalBehandling.orElse(null));
+            .medOriginalBehandling(originalBehandling.orElse(null))
+            .medPleiepengerGrunnlag(pleiepengerGrunnlag(ref).orElse(null));
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), familiehendelser, behandling);
             grunnlag = grunnlag.medAnnenpart(annenpart.orElse(null));
-
         }
         return Optional.of(grunnlag);
+    }
+
+    private Optional<PleiepengerGrunnlagEntitet> pleiepengerGrunnlag(BehandlingReferanse ref) {
+        return pleiepengerRepository.hentGrunnlag(ref.getBehandlingId());
     }
 
     private Optional<Annenpart> annenpart(FagsakRelasjon fagsakRelasjon,

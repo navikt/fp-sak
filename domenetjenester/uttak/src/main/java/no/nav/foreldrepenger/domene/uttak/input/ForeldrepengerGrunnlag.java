@@ -2,12 +2,15 @@ package no.nav.foreldrepenger.domene.uttak.input;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
+
 public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     private boolean berørtBehandling;
     private FamilieHendelser familieHendelser;
     private OriginalBehandling originalBehandling;
     private Annenpart annenpart;
+    private PleiepengerGrunnlagEntitet pleiepengerGrunnlag;
 
     public ForeldrepengerGrunnlag() {
 
@@ -18,6 +21,7 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
         familieHendelser = foreldrepengerGrunnlag.familieHendelser;
         originalBehandling = foreldrepengerGrunnlag.originalBehandling;
         annenpart = foreldrepengerGrunnlag.annenpart;
+        pleiepengerGrunnlag = foreldrepengerGrunnlag.pleiepengerGrunnlag;
     }
 
     public boolean isBerørtBehandling() {
@@ -34,6 +38,10 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
 
     public Optional<Annenpart> getAnnenpart() {
         return Optional.ofNullable(annenpart);
+    }
+
+    public Optional<PleiepengerGrunnlagEntitet> getPleiepengerGrunnlag() {
+        return Optional.ofNullable(pleiepengerGrunnlag);
     }
 
     public ForeldrepengerGrunnlag medErBerørtBehandling(boolean berørtBehandling) {
@@ -57,6 +65,12 @@ public class ForeldrepengerGrunnlag implements YtelsespesifiktGrunnlag {
     public ForeldrepengerGrunnlag medAnnenpart(Annenpart annenpart) {
         var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
         nyttGrunnlag.annenpart = annenpart;
+        return nyttGrunnlag;
+    }
+
+    public ForeldrepengerGrunnlag medPleiepengerGrunnlag(PleiepengerGrunnlagEntitet pleiepengerGrunnlag) {
+        var nyttGrunnlag = new ForeldrepengerGrunnlag(this);
+        nyttGrunnlag.pleiepengerGrunnlag = pleiepengerGrunnlag;
         return nyttGrunnlag;
     }
 }

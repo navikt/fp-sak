@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.Oppt
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RevurderingGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.YtelserGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.RegelGrunnlag;
@@ -34,6 +35,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
     private OpptjeningGrunnlagBygger opptjeningGrunnlagBygger;
     private AdopsjonGrunnlagBygger adopsjonGrunnlagBygger;
     private KontoerGrunnlagBygger kontoerGrunnlagBygger;
+    private YtelserGrunnlagBygger ytelserGrunnlagBygger;
 
     public FastsettePerioderRegelGrunnlagBygger() {
         // CDI
@@ -51,7 +53,8 @@ public class FastsettePerioderRegelGrunnlagBygger {
                                                 InngangsvilkårGrunnlagBygger inngangsvilkårGrunnlagBygger,
                                                 OpptjeningGrunnlagBygger opptjeningGrunnlagBygger,
                                                 AdopsjonGrunnlagBygger adopsjonGrunnlagBygger,
-                                                KontoerGrunnlagBygger kontoerGrunnlagBygger) { // NOSONAR
+                                                KontoerGrunnlagBygger kontoerGrunnlagBygger,
+                                                YtelserGrunnlagBygger ytelserGrunnlagBygger) { // NOSONAR
         this.annenPartGrunnlagBygger = annenPartGrunnlagBygger;
         this.arbeidGrunnlagBygger = arbeidGrunnlagBygger;
         this.behandlingGrunnlagBygger = behandlingGrunnlagBygger;
@@ -64,6 +67,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
         this.opptjeningGrunnlagBygger = opptjeningGrunnlagBygger;
         this.adopsjonGrunnlagBygger = adopsjonGrunnlagBygger;
         this.kontoerGrunnlagBygger = kontoerGrunnlagBygger;
+        this.ytelserGrunnlagBygger = ytelserGrunnlagBygger;
     }
 
     public RegelGrunnlag byggGrunnlag(UttakInput input) {
@@ -81,6 +85,7 @@ public class FastsettePerioderRegelGrunnlagBygger {
             .opptjening(opptjeningGrunnlagBygger.byggGrunnlag(input))
             .adopsjon(adopsjonGrunnlagBygger.byggGrunnlag(foreldrepengerGrunnlag).orElse(null))
             .kontoer(kontoerGrunnlagBygger.byggGrunnlag(input.getBehandlingReferanse()))
+            .ytelser(ytelserGrunnlagBygger.byggGrunnlag(input))
             .build();
     }
 }
