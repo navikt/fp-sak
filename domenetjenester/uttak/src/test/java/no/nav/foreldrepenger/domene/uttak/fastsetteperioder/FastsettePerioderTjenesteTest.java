@@ -77,6 +77,7 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.Oppt
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RettOgOmsorgGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.RevurderingGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.SøknadGrunnlagBygger;
+import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere.YtelserGrunnlagBygger;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.validering.OverstyrUttakResultatValidator;
 import no.nav.foreldrepenger.domene.uttak.input.Barn;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
@@ -111,7 +112,8 @@ public class FastsettePerioderTjenesteTest {
                 repositoryProvider.getFpUttakRepository()),
             new SøknadGrunnlagBygger(repositoryProvider.getYtelsesFordelingRepository()),
             new InngangsvilkårGrunnlagBygger(repositoryProvider), new OpptjeningGrunnlagBygger(),
-            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(repositoryProvider)),
+            new AdopsjonGrunnlagBygger(), new KontoerGrunnlagBygger(repositoryProvider),
+            new YtelserGrunnlagBygger()),
         new FastsettePerioderRegelResultatKonverterer(fpUttakRepository, ytelsesFordelingRepository));
 
     private final ForeldrepengerUttakTjeneste uttakTjeneste = new ForeldrepengerUttakTjeneste(fpUttakRepository);
