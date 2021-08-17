@@ -232,14 +232,15 @@ public class DokumentmottakerFelles {
         return behandling;
     }
 
-    void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType, boolean harAvslåttPeriode) {
+    void standardForAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling,
+                                                  BehandlingÅrsakType behandlingÅrsakType, boolean kanRevurderes) {
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument);
             return;
         }
         if (skalOppretteNyFørstegangsbehandling(avsluttetBehandling.getFagsak())) { //#I3 #E6
             opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, behandlingÅrsakType);
-        } else if (harAvslåttPeriode && behandlingsoppretter.harBehandlingsresultatOpphørt(avsluttetBehandling)) { //#I4 #E7 #S5
+        } else if (kanRevurderes && behandlingsoppretter.erOpphørtBehandling(avsluttetBehandling)) { //#I4 #E7 #S5
             opprettRevurdering(mottattDokument, fagsak, behandlingÅrsakType);
         } else { //#I5 #E8 #S7
             opprettTaskForÅVurdereDokument(fagsak, avsluttetBehandling, mottattDokument);

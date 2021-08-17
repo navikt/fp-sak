@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +46,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
@@ -82,6 +85,8 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
     @Mock
     private KøKontroller køKontroller;
+    @Mock
+    private ForeldrepengerUttakTjeneste fpUttakTjeneste;
 
     private DokumentmottakerSøknad dokumentmottaker;
     private DokumentmottakerFelles dokumentmottakerFelles;
@@ -102,7 +107,6 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
-        var fpUttakTjeneste = new ForeldrepengerUttakTjeneste(new FpUttakRepository(entityManager));
         dokumentmottaker = new DokumentmottakerSøknadDefault(repositoryProvider, dokumentmottakerFelles,
                 behandlingsoppretter, kompletthetskontroller, køKontroller, fpUttakTjeneste);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
@@ -438,6 +442,72 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
                 BehandlingÅrsakType.ETTER_KLAGE, false);
         verify(behandlingsoppretter).opprettNyFørstegangsbehandlingFraTidligereSøknad(behandling.getFagsak(), BehandlingÅrsakType.ETTER_KLAGE,
                 behandling);
+    }
+
+    @Test
+    public void skal_lage_ny_førstegangsbehandling_når_opphørt_ingen_perioder() {
+        // Arrange
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.OPPHØR))
+            .lagre(repositoryProvider);
+
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.OPPHØR);
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidliggere behandligen er avsluttet
+        behandling.avsluttBehandling();
+        var fagsakId = behandling.getFagsakId();
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        doReturn(true).when(behandlingsoppretter).erOpphørtBehandling(behandling);
+        doReturn(behandling).when(behandlingsoppretter).opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(eq(behandling.getFagsak()), any(),
+            any(), anyBoolean());
+
+        // Act
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
+
+        // Assert
+        verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(),  behandling, null);
+
+        // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
+        verify(prosessTaskRepository).lagre(captor.capture());
+        var prosessTaskData = captor.getValue();
+        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+    }
+
+    @Test
+    public void skal_lage_revurdering_når_opphørt_med_innvilget_perioder() {
+        // Arrange
+        var behandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.OPPHØR))
+            .lagre(repositoryProvider);
+
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.OPPHØR);
+        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
+        // simulere at den tidliggere behandligen er avsluttet
+        behandling.avsluttBehandling();
+        var fagsakId = behandling.getFagsakId();
+        var dokumentTypeId = DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+
+        var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        var uttakPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(LocalDate.now(), LocalDate.now()).medResultatType(PeriodeResultatType.INNVILGET).build();
+        doReturn(true).when(behandlingsoppretter).erOpphørtBehandling(behandling);
+        doReturn(Optional.of(new ForeldrepengerUttak(List.of(uttakPeriode)))).when(fpUttakTjeneste).hentUttakHvisEksisterer(behandling.getId());
+        doReturn(behandling).when(behandlingsoppretter).opprettRevurdering(eq(behandling.getFagsak()), any());
+
+        // Act
+        dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
+
+        // Assert
+        verify(dokumentmottaker).håndterAvslåttEllerOpphørtBehandling(mottattDokument, behandling.getFagsak(),  behandling, null);
+
+        // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
+        verify(prosessTaskRepository).lagre(captor.capture());
+        var prosessTaskData = captor.getValue();
+        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
     }
 
     @Test

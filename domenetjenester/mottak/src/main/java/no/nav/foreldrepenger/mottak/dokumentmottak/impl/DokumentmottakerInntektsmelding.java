@@ -71,7 +71,7 @@ class DokumentmottakerInntektsmelding extends DokumentmottakerYtelsesesrelatertD
     @Override
     public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         dokumentmottakerFelles.standardForAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, avsluttetBehandling,
-            getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), harAvslåttPeriode(avsluttetBehandling));
+            getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), harInnvilgetPeriode(avsluttetBehandling));
     }
 
     @Override
