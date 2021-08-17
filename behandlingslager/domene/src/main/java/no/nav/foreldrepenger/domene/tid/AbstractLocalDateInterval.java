@@ -28,8 +28,6 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
 
     public abstract LocalDate getTomDato();
 
-    protected abstract AbstractLocalDateInterval lagNyPeriode(LocalDate fomDato, LocalDate tomDato);
-
     protected static LocalDate finnTomDato(LocalDate fom, int antallArbeidsdager) {
         if (antallArbeidsdager < 1) {
             throw new IllegalArgumentException("Antall arbeidsdager må være 1 eller større.");
@@ -110,8 +108,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     public boolean overlapper(AbstractLocalDateInterval other) {
         var fomBeforeOrEqual = this.getFomDato().isBefore(other.getTomDato()) || this.getFomDato().isEqual(other.getTomDato());
         var tomAfterOrEqual = this.getTomDato().isAfter(other.getFomDato()) || this.getTomDato().isEqual(other.getFomDato());
-        var overlapper = fomBeforeOrEqual && tomAfterOrEqual;
-        return overlapper;
+        return fomBeforeOrEqual && tomAfterOrEqual;
     }
 
     public int antallArbeidsdager() {
@@ -119,16 +116,6 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
             throw new IllegalStateException("Både fra og med og til og med dato må være satt for å regne ut arbeidsdager.");
         }
         return arbeidsdager().size();
-    }
-
-    public int maksAntallArbeidsdager() {
-        if (getTomDato().isEqual(TIDENES_ENDE)) {
-            throw new IllegalStateException("Både fra og med og til og med dato må være satt for å regne ut arbeidsdager.");
-        }
-
-        var månedsstart = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
-        var månedsslutt = getTomDato().minusDays(getTomDato().getDayOfMonth() - 1L).plusDays(getTomDato().lengthOfMonth() - 1L);
-        return listArbeidsdager(månedsstart, månedsslutt).size();
     }
 
     public List<LocalDate> arbeidsdager() {
@@ -149,42 +136,6 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
 
     protected static boolean erArbeidsdag(LocalDate dato) {
         return !dato.getDayOfWeek().equals(SATURDAY) && !dato.getDayOfWeek().equals(SUNDAY); // NOSONAR
-    }
-
-    public boolean grenserTil(AbstractLocalDateInterval periode2) {
-        return getTomDato().equals(periode2.getFomDato().minusDays(1)) || periode2.getTomDato().equals(getFomDato().minusDays(1));
-    }
-
-    public List<AbstractLocalDateInterval> splittVedMånedsgrenser() {
-        List<AbstractLocalDateInterval> perioder = new ArrayList<>();
-
-        var dato = getFomDato().minusDays(getFomDato().getDayOfMonth() - 1L);
-        var periodeFomDato = getFomDato();
-
-        while (dato.isBefore(getTomDato())) {
-            var dagerIMåned = dato.lengthOfMonth();
-            var sisteDagIMåneden = dato.plusDays(dagerIMåned - 1L);
-            var harMånedsslutt = inkluderer(sisteDagIMåneden);
-            if (harMånedsslutt) {
-                perioder.add(lagNyPeriode(periodeFomDato, sisteDagIMåneden));
-                dato = sisteDagIMåneden.plusDays(1);
-                periodeFomDato = dato;
-            } else {
-                perioder.add(lagNyPeriode(periodeFomDato, getTomDato()));
-                dato = getTomDato();
-            }
-        }
-
-        return perioder;
-    }
-
-    public AbstractLocalDateInterval avgrensTilArbeidsdager() {
-        var nyFomDato = nesteArbeidsdag(getFomDato());
-        var nyTomDato = forrigeArbeidsdag(getTomDato());
-        if (nyFomDato.equals(getFomDato()) && nyTomDato.equals(getTomDato())) {
-            return this;
-        }
-        return lagNyPeriode(nyFomDato, nyTomDato);
     }
 
     @Override

@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
 
-    private LocalDate fomDato;
-    private LocalDate tomDato;
+    private final LocalDate fomDato;
+    private final LocalDate tomDato;
 
     public SimpleLocalDateInterval(LocalDate fomDato, LocalDate tomDato) {
         this.fomDato = fomDato;
@@ -30,11 +30,6 @@ public class SimpleLocalDateInterval extends AbstractLocalDateInterval{
     @Override
     public LocalDate getTomDato() {
         return tomDato;
-    }
-
-    @Override
-    protected AbstractLocalDateInterval lagNyPeriode(LocalDate fomDato, LocalDate tomDato) {
-        return new SimpleLocalDateInterval(fomDato, tomDato);
     }
 
     @Override

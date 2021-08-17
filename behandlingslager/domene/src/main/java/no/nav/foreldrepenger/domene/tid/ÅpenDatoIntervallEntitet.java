@@ -36,14 +36,6 @@ public class ÅpenDatoIntervallEntitet extends AbstractLocalDateInterval {
         return new ÅpenDatoIntervallEntitet(fomDato, tomDato);
     }
 
-    public static ÅpenDatoIntervallEntitet fraOgMedPlusArbeidsdager(LocalDate fom, int antallArbeidsdager) {
-        return ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(fom, finnTomDato(fom, antallArbeidsdager));
-    }
-
-    public static ÅpenDatoIntervallEntitet tilOgMedMinusArbeidsdager(LocalDate tom, int antallArbeidsdager) {
-        return ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(finnFomDato(tom, antallArbeidsdager), tom);
-    }
-
     @Override
     public LocalDate getFomDato() {
         return fomDato;
@@ -52,11 +44,6 @@ public class ÅpenDatoIntervallEntitet extends AbstractLocalDateInterval {
     @Override
     public LocalDate getTomDato() {
         return tomDato;
-    }
-
-    @Override
-    protected ÅpenDatoIntervallEntitet lagNyPeriode(LocalDate fomDato, LocalDate tomDato) {
-        return fraOgMedTilOgMed(fomDato, tomDato);
     }
 
     @Override

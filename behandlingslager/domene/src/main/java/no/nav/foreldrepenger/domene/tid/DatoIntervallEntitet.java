@@ -59,11 +59,6 @@ public class DatoIntervallEntitet extends AbstractLocalDateInterval {
     }
 
     @Override
-    protected DatoIntervallEntitet lagNyPeriode(LocalDate fomDato, LocalDate tomDato) {
-        return fraOgMedTilOgMed(fomDato, tomDato);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
