@@ -39,7 +39,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
     @Override
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         var matchendeFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForSøknadFamilieHendelse(vurderFagsystem, s))
             .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
@@ -52,7 +52,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
         }
 
         var passendeFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, false))
+            .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, false))
             .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 

@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
@@ -59,6 +60,7 @@ public class VurderFagsystemFellesUtils {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
+    private FagsakRelasjonRepository fagsakRelasjonRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
@@ -75,6 +77,7 @@ public class VurderFagsystemFellesUtils {
                                       InntektsmeldingTjeneste inntektsmeldingTjeneste, SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.fagsakRelasjonRepository = repositoryProvider.getFagsakRelasjonRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
@@ -108,7 +111,7 @@ public class VurderFagsystemFellesUtils {
             .collect(Collectors.toList());
     }
 
-    public Optional<FamilieHendelseEntitet> finnGjeldendeFamilieHendelse(Fagsak fagsak) {
+    public Optional<FamilieHendelseEntitet> finnGjeldendeFamilieHendelseSVP(Fagsak fagsak) {
         return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
             .flatMap(behandling -> familieHendelseTjeneste.finnAggregat(behandling.getId())
                 .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon));
@@ -149,17 +152,14 @@ public class VurderFagsystemFellesUtils {
         return referanseDato.isAfter(min) && referanseDato.isBefore(max);
     }
 
-    public boolean erFagsakMedFamilieHendelsePassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+    public boolean erFagsakMedFamilieHendelsePassendeForSøknadFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         // Finn behandling
-        var fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
-            .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
-        if (fhGrunnlag.isEmpty()) {
-            return false;
-        }
-        return erGrunnlagPassendeFor(fhGrunnlag.get(), fagsak.getYtelseType(), vurderFagsystem);
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+            .flatMap(this::hentAktuellFamilieHendelse)
+            .map(g -> erGrunnlagPassendeFor(g, fagsak.getYtelseType(), vurderFagsystem)).orElse(false);
     }
 
-    public boolean erFagsakPassendeForFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak, boolean vurderHenlagte) {
+    public boolean erFagsakPassendeForSøknadFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak, boolean vurderHenlagte) {
         // Vurder omskriving av denne og neste til Predicate<Fagsak> basert på bruksmønster
         // Finn behandling
         var behandling = vurderHenlagte ? behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()) :
@@ -168,13 +168,12 @@ public class VurderFagsystemFellesUtils {
             return true;
         }
 
-        var fhGrunnlag = behandling.flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
-        if (fhGrunnlag.isEmpty()) {
-            // Her har vi en sak m/behandling uten FH - 3 hovedtilfelle uregistrert papirsøknad, infobrev far, im før søknad.
+        return behandling
+            .flatMap(this::hentAktuellFamilieHendelse)
+            .map(g -> erGrunnlagPassendeFor(g, fagsak.getYtelseType(), vurderFagsystem))
+            // Her har vi en sak m/behandling uten FH - 3 hovedtilfelle uregistrert papirsøknad, im før søknad.
             // Innkommende kan være søknad, IM, eller ustrukturert For ES godtar man alt.
-            return kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get());
-        }
-        return erGrunnlagPassendeFor(fhGrunnlag.get(), fagsak.getYtelseType(), vurderFagsystem);
+            .orElseGet(() -> kanFagsakUtenGrunnlagBrukesForDokument(vurderFagsystem, behandling.get()));
     }
 
     private boolean erGrunnlagPassendeFor(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {
@@ -195,14 +194,12 @@ public class VurderFagsystemFellesUtils {
         return false;
     }
 
-    public boolean erFagsakMedAnnenFamilieHendelseEnnSøknad(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
+    public boolean erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(VurderFagsystem vurderFagsystem, Fagsak fagsak) {
         // Finn behandling
-        var fhGrunnlag = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
-            .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId()));
-        if (fhGrunnlag.isEmpty()) {
-            return false;
-        }
-        return gjelderGrunnlagAnnenFamiliehendelse(fhGrunnlag.get(), fagsak.getYtelseType(), vurderFagsystem);
+        return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+            .flatMap(this::hentAktuellFamilieHendelse)
+            .map(g -> gjelderGrunnlagAnnenFamiliehendelse(g, fagsak.getYtelseType(), vurderFagsystem))
+            .orElse(false);
     }
 
     private boolean gjelderGrunnlagAnnenFamiliehendelse(FamilieHendelseGrunnlagEntitet grunnlag, FagsakYtelseType ytelseType, VurderFagsystem vurderFagsystem) {
@@ -371,6 +368,14 @@ public class VurderFagsystemFellesUtils {
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getType).orElse(FamilieHendelseType.UDEFINERT);
         return BehandlingTema.fraFagsakHendelse(s.getYtelseType(), fhType);
+    }
+
+    private Optional<FamilieHendelseGrunnlagEntitet> hentAktuellFamilieHendelse(Behandling behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling.getId())
+            .or(() -> fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(behandling.getFagsak())
+                .flatMap(r -> r.getRelatertFagsak(behandling.getFagsak()))
+                .flatMap(f -> behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(f.getId()))
+                .flatMap(b -> familieHendelseTjeneste.finnAggregat(b.getId())));
     }
 
     public enum SorteringSaker {

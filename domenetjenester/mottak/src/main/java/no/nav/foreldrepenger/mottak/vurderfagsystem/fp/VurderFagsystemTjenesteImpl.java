@@ -50,7 +50,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
     public BehandlendeFagsystem vurderFagsystemStrukturertSøknad(VurderFagsystem vurderFagsystem, List<Fagsak> sakerGittYtelseType) {
         // NB: Man ønsker er å rute søknad inn på mulig sak og unngå unødvendig saksopretting. Mottak skal håndtere tilfellene
         var matchendeFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForFamilieHendelse(vurderFagsystem, s))
+            .filter(s -> fellesUtils.erFagsakMedFamilieHendelsePassendeForSøknadFamilieHendelse(vurderFagsystem, s))
             .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
@@ -63,7 +63,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         var relevanteFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
+            .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, true))
             .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
 
@@ -81,7 +81,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(MANUELL_VURDERING);
         }
         var sakOpprettetInnenIntervall = fellesUtils.sakerOpprettetInnenIntervall(sakerGittYtelseType).stream()
-            .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknad(vurderFagsystem, s))
+            .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(vurderFagsystem, s))
             .collect(Collectors.toList());
         if (!sakOpprettetInnenIntervall.isEmpty()) {
             LOG.info("VurderFagsystem FP strukturert søknad nyere sak enn 10mnd for {}", sakOpprettetInnenIntervall);

@@ -63,7 +63,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         var relevanteFagsaker = sakerGittYtelseType.stream()
-            .filter(s -> fellesUtils.erFagsakPassendeForFamilieHendelse(vurderFagsystem, s, true))
+            .filter(s -> fellesUtils.erFagsakPassendeForSøknadFamilieHendelse(vurderFagsystem, s, true))
             .collect(Collectors.toList());
 
         if (relevanteFagsaker.size() > 1) {
@@ -95,7 +95,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         var aktuelleSakerForMatch = sakerGittYtelseType.stream()
-            .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
+            .filter(f -> fellesUtils.finnGjeldendeFamilieHendelseSVP(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .collect(Collectors.toList());
         if (aktuelleSakerForMatch.size() > 1) {
             var saksnumre = aktuelleSakerForMatch.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
@@ -133,7 +133,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         }
 
         var aktuelleSakerForMatch = sakerGittYtelseType.stream()
-            .filter(f -> fellesUtils.finnGjeldendeFamilieHendelse(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
+            .filter(f -> fellesUtils.finnGjeldendeFamilieHendelseSVP(f).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE))
             .map(Fagsak::getSaksnummer)
             .collect(Collectors.toList());
         if (!aktuelleSakerForMatch.isEmpty()) {
@@ -146,7 +146,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
         if (vurderFagsystem.erInntektsmelding() || fagsakManglerSøknad(fagsak)) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsak.getSaksnummer());
         }
-        if (fellesUtils.finnGjeldendeFamilieHendelse(fagsak).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE)) {
+        if (fellesUtils.finnGjeldendeFamilieHendelseSVP(fagsak).map(this::hendelseDatoIPeriode).orElse(Boolean.TRUE)) {
             return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsak.getSaksnummer());
         }
         return new BehandlendeFagsystem(MANUELL_VURDERING);
