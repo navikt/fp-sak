@@ -143,8 +143,8 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
-        when(behandlingsoppretter.harBehandlingsresultatOpphørt(behandling)).thenReturn(true);
-        Mockito.doReturn(false).when(dokumentmottaker).harAvslåttPeriode(behandling);
+        when(behandlingsoppretter.erOpphørtBehandling(behandling)).thenReturn(true);
+        Mockito.doReturn(false).when(dokumentmottaker).harInnvilgetPeriode(behandling);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);
@@ -169,7 +169,7 @@ public class DokumentmottakerYtelsesesrelatertDokumentTest {
         var dokumentTypeId = DokumentTypeId.INNTEKTSMELDING;
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true,
                 "123");
-        doReturn(true).when(behandlingsoppretter).harBehandlingsresultatOpphørt(behandling);
+        doReturn(true).when(behandlingsoppretter).erOpphørtBehandling(behandling);
 
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING);

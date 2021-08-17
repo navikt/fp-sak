@@ -96,9 +96,11 @@ public abstract class DokumentmottakerSøknad extends DokumentmottakerYtelsesesr
     public void håndterAvslåttEllerOpphørtBehandling(MottattDokument mottattDokument, Fagsak fagsak, Behandling avsluttetBehandling, BehandlingÅrsakType behandlingÅrsakType) {
         if (erAvslag(avsluttetBehandling)) { //#S4 #S6
             dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
+        } else if (erOpphør(avsluttetBehandling) && !harInnvilgetPeriode(avsluttetBehandling)) {
+            dokumentmottakerFelles.opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(mottattDokument, fagsak, getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType));
         } else { // diverse
             dokumentmottakerFelles.standardForAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, avsluttetBehandling,
-                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), harAvslåttPeriode(avsluttetBehandling));
+                getBehandlingÅrsakHvisUdefinert(behandlingÅrsakType), harInnvilgetPeriode(avsluttetBehandling));
         }
     }
 

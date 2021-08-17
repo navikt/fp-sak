@@ -82,7 +82,7 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
             behandling = sisteAvsluttetBehandling.orElse(behandling);
             // Håndter avsluttet behandling
             if (behandlingsoppretter.erAvslåttBehandling(behandling)
-                || behandlingsoppretter.harBehandlingsresultatOpphørt(behandling)) {
+                || behandlingsoppretter.erOpphørtBehandling(behandling)) {
                 håndterAvslåttEllerOpphørtBehandling(mottattDokument, fagsak, behandling, behandlingÅrsakType);
             } else {
                 håndterAvsluttetTidligereBehandling(mottattDokument, fagsak, behandlingÅrsakType);
@@ -116,9 +116,14 @@ public abstract class DokumentmottakerYtelsesesrelatertDokument implements Dokum
         return behandlingsoppretter.erAvslåttBehandling(avsluttetBehandling);
     }
 
-    boolean harAvslåttPeriode(Behandling avsluttetBehandling) {
-        final var uttakResultat = fpUttakTjeneste.hentUttakHvisEksisterer(avsluttetBehandling.getId());
-        return uttakResultat.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder().stream()
-            .anyMatch(periode -> PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType()))).orElse(false);
+    protected final boolean erOpphør(Behandling avsluttetBehandling) {
+        return behandlingsoppretter.erOpphørtBehandling(avsluttetBehandling);
+    }
+
+    boolean harInnvilgetPeriode(Behandling avsluttetBehandling) {
+        return fpUttakTjeneste.hentUttakHvisEksisterer(avsluttetBehandling.getId())
+            .map(uttak -> uttak.getGjeldendePerioder().stream()
+                .anyMatch(periode -> PeriodeResultatType.INNVILGET.equals(periode.getResultatType())))
+            .orElse(false);
     }
 }

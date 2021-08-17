@@ -30,6 +30,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
@@ -48,6 +51,7 @@ public class Behandlingsoppretter {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRevurderingRepository revurderingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
     private SøknadRepository søknadRepository;
 
     public Behandlingsoppretter() {
@@ -70,6 +74,7 @@ public class Behandlingsoppretter {
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.revurderingRepository = behandlingRepositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingsresultatRepository = behandlingRepositoryProvider.getBehandlingsresultatRepository();
+        this.behandlingVedtakRepository = behandlingRepositoryProvider.getBehandlingVedtakRepository();
         this.søknadRepository = behandlingRepositoryProvider.getSøknadRepository();
     }
 
@@ -205,13 +210,18 @@ public class Behandlingsoppretter {
         behandlingskontrollTjeneste.settBehandlingPåVent(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
     }
 
-    public boolean harBehandlingsresultatOpphørt(Behandling behandling) {
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        return behandlingsresultat.map(Behandlingsresultat::isBehandlingsresultatOpphørt).orElse(false);
+    public boolean erOpphørtBehandling(Behandling behandling) {
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+            .map(BehandlingVedtak::getVedtakResultatType)
+            .filter(VedtakResultatType.OPPHØR::equals)
+            .isPresent();
     }
 
     public boolean erAvslåttBehandling(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(Behandlingsresultat::isBehandlingsresultatAvslått).orElse(false);
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
+            .map(BehandlingVedtak::getVedtakResultatType)
+            .filter(VedtakResultatType.AVSLAG::equals)
+            .isPresent();
     }
 
     private void kopierTidligereGrunnlagFraTil(Fagsak fagsak, Behandling behandlingMedSøknad, Behandling nyBehandling) {
