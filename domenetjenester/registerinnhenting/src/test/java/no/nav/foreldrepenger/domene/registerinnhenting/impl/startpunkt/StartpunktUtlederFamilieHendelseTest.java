@@ -162,6 +162,47 @@ public class StartpunktUtlederFamilieHendelseTest {
     }
 
     @Test
+    public void skal_returnere_startpunkt_uttak_dersom_tilkommet_dødfødsel_med_dekningsgrad100() {
+        // Arrange
+        var fødselsdato = LocalDate.now();
+        var skjæringsdato = LocalDate.now().minusWeeks(3);
+
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        førstegangScenario.medSøknadHendelse().medFødselsDato(fødselsdato);
+        var repositoryProvider = førstegangScenario.mockBehandlingRepositoryProvider();
+        var originalBehandling = førstegangScenario.lagre(repositoryProvider);
+
+        var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(skjæringsdato).build();
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(originalBehandling.getId())).thenReturn(skjæringstidspunkt);
+
+        var revurderingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.REVURDERING);
+        revurderingScenario.medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_MANGLER_FØDSEL);
+        førstegangScenario.medSøknadHendelse().medFødselsDato(fødselsdato);
+        revurderingScenario.medBekreftetHendelse().leggTilBarn(fødselsdato, fødselsdato);
+        var revurdering = revurderingScenario.lagre(repositoryProvider);
+
+        var g1 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(originalBehandling.getId());
+        var g2 = repositoryProvider.getFamilieHendelseRepository().hentAggregat(revurdering.getId());
+
+        var relasjonTjeneste = mock(FagsakRelasjonTjeneste.class);
+        when(relasjonTjeneste.finnRelasjonForHvisEksisterer(anyLong())).thenReturn(Optional.of(new FagsakRelasjon(originalBehandling.getFagsak(), null,
+            null, null, Dekningsgrad._100, null, fødselsdato.plusYears(3))));
+
+        // Act/Assert
+        var familieHendelseTjeneste = mock(FamilieHendelseTjeneste.class);
+        when(familieHendelseTjeneste.hentAggregat(originalBehandling.getId())).thenReturn(g1);
+        when(familieHendelseTjeneste.hentAggregat(revurdering.getId())).thenReturn(g2);
+        when(familieHendelseTjeneste.hentGrunnlagPåId(1L)).thenReturn(g1);
+        when(familieHendelseTjeneste.hentGrunnlagPåId(2L)).thenReturn(g2);
+
+        var utleder = new StartpunktUtlederFamilieHendelse(skjæringstidspunktTjeneste, familieHendelseTjeneste, relasjonTjeneste);
+        assertThat(utleder.utledStartpunkt(BehandlingReferanse.fra(revurdering, skjæringstidspunkt), 1L, 2L)).isEqualTo(StartpunktType.UTTAKSVILKÅR);
+    }
+
+    @Test
     public void skal_returnere_startpunkt_opplysningsplikt_dersom_orig_skjæringstidspunkt_flyttes_tidligere() {
         // Arrange
         var origSkjæringsdato = LocalDate.now();
