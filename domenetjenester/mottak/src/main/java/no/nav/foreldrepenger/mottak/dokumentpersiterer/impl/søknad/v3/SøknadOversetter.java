@@ -600,7 +600,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private void oversettUtsettelsesperiode(OppgittPeriodeBuilder oppgittPeriodeBuilder,
                                             Utsettelsesperiode utsettelsesperiode) {
-        oppgittPeriodeBuilder.medErArbeidstaker(utsettelsesperiode.isErArbeidstaker());
         if (utsettelsesperiode.getUtsettelseAv() != null) {
             oppgittPeriodeBuilder.medPeriodeType(
                 UttakPeriodeType.fraKode(utsettelsesperiode.getUtsettelseAv().getKode()));
