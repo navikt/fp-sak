@@ -216,7 +216,6 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
         utsettelsePeriode1.setPeriodeTom(LocalDate.now().plusWeeks(3));
         utsettelsePeriode1.setArsakForUtsettelse(UtsettelseÅrsak.ARBEID);
         utsettelsePeriode1.setPeriodeForUtsettelse(UttakPeriodeType.FELLESPERIODE);
-        utsettelsePeriode1.setErArbeidstaker(true);
         utsettelsePerioder.add(utsettelsePeriode1);
 
         var utsettelsePeriode2 = new UtsettelseDto();
@@ -224,7 +223,6 @@ public class ManuellRegistreringEndringssøknadValidatorTest {
         utsettelsePeriode2.setPeriodeTom(LocalDate.now().plusWeeks(5));
         utsettelsePeriode2.setArsakForUtsettelse(UtsettelseÅrsak.ARBEID);
         utsettelsePeriode2.setPeriodeForUtsettelse(UttakPeriodeType.FELLESPERIODE);
-        utsettelsePeriode2.setErArbeidstaker(true);
         utsettelsePerioder.add(utsettelsePeriode2);
 
         return utsettelsePerioder;

@@ -26,9 +26,6 @@ public class UtsettelseDto {
     @ValidKodeverk
     private MorsAktivitet morsAktivitet;
 
-    private boolean erArbeidstaker;
-
-
     public LocalDate getPeriodeFom() {
         return periodeFom;
     }
@@ -67,14 +64,6 @@ public class UtsettelseDto {
 
     public void setMorsAktivitet(MorsAktivitet morsAktivitet) {
         this.morsAktivitet = morsAktivitet;
-    }
-
-    public boolean isErArbeidstaker() {
-        return erArbeidstaker;
-    }
-
-    public void setErArbeidstaker(boolean erArbeidstaker) {
-        this.erArbeidstaker = erArbeidstaker;
     }
 
 }

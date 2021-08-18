@@ -191,7 +191,6 @@ public class SøknadMapperTest {
         assertThat(utsettelsesperiode.getFom()).isEqualTo(fraDato);
         assertThat(utsettelsesperiode.getTom()).isEqualTo(tomDato);
         assertThat(utsettelsesperiode.getUtsettelseAv().getKode()).isEqualTo(FELLESPERIODE.getKode());
-        assertThat(utsettelsesperiode.isErArbeidstaker()).isTrue();
     }
 
     @Test
@@ -515,7 +514,7 @@ public class SøknadMapperTest {
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
         assertThat(ytelseFordeling.getOppgittFordeling().getOppgittePerioder()).anySatisfy(
-            periode -> assertThat(periode.isArbeidstaker()).isEqualTo(Boolean.TRUE));
+            periode -> assertThat((UtsettelseÅrsak)periode.getÅrsak()).isEqualTo(UtsettelseÅrsak.FERIE));
     }
 
     @Test

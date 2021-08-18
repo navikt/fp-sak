@@ -53,7 +53,6 @@ public class SøknadMapperUtil {
         dto.setArsakForUtsettelse(UtsettelseÅrsak.FERIE);
         dto.setPeriodeFom(fraDato);
         dto.setPeriodeTom(tilDato);
-        dto.setErArbeidstaker(erArbeidstaker);
         dto.setPeriodeForUtsettelse(gradering);
         return dto;
     }
