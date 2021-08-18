@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.util.unleash;
 
-import static no.nav.vedtak.util.env.Namespace.NAIS_NAMESPACE_NAME;
+import static no.nav.foreldrepenger.konfig.Namespace.NAIS_NAMESPACE_NAME;
 
 import java.util.Optional;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class EnvironmentProperty {
 

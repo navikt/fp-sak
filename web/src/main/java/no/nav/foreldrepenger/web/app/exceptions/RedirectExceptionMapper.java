@@ -10,7 +10,7 @@ import org.owasp.encoder.Encode;
 import org.slf4j.MDC;
 
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @Provider
 public class RedirectExceptionMapper implements ExceptionMapper<Throwable> {

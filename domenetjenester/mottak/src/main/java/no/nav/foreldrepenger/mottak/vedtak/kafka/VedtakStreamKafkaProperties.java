@@ -5,8 +5,8 @@ import javax.inject.Inject;
 
 import org.apache.kafka.common.serialization.Serdes;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @Dependent
 class VedtakStreamKafkaProperties {

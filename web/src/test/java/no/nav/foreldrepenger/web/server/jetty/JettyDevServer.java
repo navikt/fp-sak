@@ -19,7 +19,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import no.nav.foreldrepenger.web.app.ApplicationConfig;
 import no.nav.foreldrepenger.web.app.JettyTestApplication;
 import no.nav.vedtak.isso.IssoApplication;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class JettyDevServer extends AbstractJettyServer {
 

@@ -6,7 +6,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @FagsakYtelseTypeRef("SVP")
 @ApplicationScoped
@@ -17,7 +17,7 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
     }
 
     /**
-     * 
+     *
      * @param antallDagerFeriepenger - Antall dager i feriepengerperioden for svangerskapspenger
      */
     @Inject

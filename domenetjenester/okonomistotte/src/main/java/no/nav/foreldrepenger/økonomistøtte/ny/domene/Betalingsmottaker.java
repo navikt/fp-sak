@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.økonomistøtte.ny.domene;
 import java.util.Comparator;
 import java.util.Objects;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public interface Betalingsmottaker {
     Bruker BRUKER = new Bruker();
