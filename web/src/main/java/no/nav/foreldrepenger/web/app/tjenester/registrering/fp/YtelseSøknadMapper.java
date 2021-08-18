@@ -278,7 +278,6 @@ public class YtelseSøknadMapper implements SøknadMapper {
         }
         utsettelsesperiode.setFom(utsettelserDto.getPeriodeFom());
         utsettelsesperiode.setTom(utsettelserDto.getPeriodeTom());
-        utsettelsesperiode.setErArbeidstaker(utsettelserDto.isErArbeidstaker());
         if (!isNull(utsettelserDto.getMorsAktivitet())) {
             var morsAktivitetsTyper = new MorsAktivitetsTyper();
             morsAktivitetsTyper.setKode(utsettelserDto.getMorsAktivitet().getKode());
