@@ -12,36 +12,75 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.domene.PleiepengerToggle;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
+import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 
 final class SøknadsperiodeDokKontrollerer {
 
     private final List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder;
     private final LocalDate fødselsDatoTilTidligOppstart;
     private final UtsettelseDokKontrollerer utsettelseDokKontrollerer;
+    private final List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser;
+
+    SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
+                                  LocalDate fødselsDatoTilTidligOppstart,
+                                  UtsettelseDokKontrollerer utsettelseDokKontrollerer,
+                                  List<PleiepengerInnleggelseEntitet> pleiepengerInnleggelser) {
+        this.dokumentasjonPerioder = dokumentasjonPerioder;
+        this.fødselsDatoTilTidligOppstart = fødselsDatoTilTidligOppstart;
+        this.utsettelseDokKontrollerer = utsettelseDokKontrollerer;
+        this.pleiepengerInnleggelser = pleiepengerInnleggelser;
+    }
 
     SøknadsperiodeDokKontrollerer(List<PeriodeUttakDokumentasjonEntitet> dokumentasjonPerioder,
                                   LocalDate fødselsDatoTilTidligOppstart,
                                   UtsettelseDokKontrollerer utsettelseDokKontrollerer) {
-        this.dokumentasjonPerioder = dokumentasjonPerioder;
-        this.fødselsDatoTilTidligOppstart = fødselsDatoTilTidligOppstart;
-        this.utsettelseDokKontrollerer = utsettelseDokKontrollerer;
+        this(dokumentasjonPerioder, fødselsDatoTilTidligOppstart, utsettelseDokKontrollerer, List.of());
     }
 
     static KontrollerFaktaData kontrollerPerioder(YtelseFordelingAggregat ytelseFordeling,
                                                   LocalDate fødselsDatoTilTidligOppstart,
-                                                  UtsettelseDokKontrollerer utsettelseDokKontrollerer) {
+                                                  UttakInput uttakInput) {
         var dokumentasjonPerioder = hentDokumentasjonPerioder(ytelseFordeling);
 
         var kontrollerer = new SøknadsperiodeDokKontrollerer(dokumentasjonPerioder,
-            fødselsDatoTilTidligOppstart, utsettelseDokKontrollerer);
+            fødselsDatoTilTidligOppstart, utledUtsettelseKontrollerer(uttakInput),
+            finnPerioderMedPleiepengerInnleggelse(uttakInput));
         return kontrollerer.kontrollerSøknadsperioder(
             ytelseFordeling.getGjeldendeSøknadsperioder().getOppgittePerioder());
+    }
+
+    private static List<PleiepengerInnleggelseEntitet> finnPerioderMedPleiepengerInnleggelse(UttakInput input) {
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var pleiepengerGrunnlag = ytelsespesifiktGrunnlag.getPleiepengerGrunnlag();
+        if (pleiepengerGrunnlag.isPresent()) {
+            var perioderMedInnleggelse = pleiepengerGrunnlag.get().getPerioderMedInnleggelse();
+            if (perioderMedInnleggelse.isPresent()) {
+                return perioderMedInnleggelse.get().getInnleggelser();
+            }
+        }
+        return List.of();
+    }
+
+    private static UtsettelseDokKontrollerer utledUtsettelseKontrollerer(UttakInput input) {
+        var stp = input.getBehandlingReferanse().getSkjæringstidspunkt();
+        return stp.kreverSammenhengendeUttak() ? new UtsettelseDokKontrollererSammenhengendeUttak()
+            : new UtsettelseDokKontrollererFrittUttak(finnGjeldendeFamiliehendelse(input));
+    }
+
+    private static LocalDate finnGjeldendeFamiliehendelse(UttakInput input) {
+        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
+        var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
+        return gjeldendeFamilieHendelse.getFamilieHendelseDato();
     }
 
     private static List<PeriodeUttakDokumentasjonEntitet> hentDokumentasjonPerioder(YtelseFordelingAggregat ytelseFordeling) {
@@ -61,8 +100,19 @@ final class SøknadsperiodeDokKontrollerer {
         if (erPeriodenAvklartAvSaksbehandler(søknadsperiode)) {
             return kontrollerAvklartPeriode(søknadsperiode, eksisterendeDokumentasjon);
         }
+        if (PleiepengerToggle.erToggletPå() && erAvklartAvVedtakOmPleiepenger(søknadsperiode)) {
+            return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
+        }
 
         return kontrollerUavklartPeriode(søknadsperiode, eksisterendeDokumentasjon);
+    }
+
+    private boolean erAvklartAvVedtakOmPleiepenger(OppgittPeriodeEntitet søknadsperiode) {
+        if (!UtsettelseÅrsak.INSTITUSJON_BARN.equals(søknadsperiode.getÅrsak())) {
+            return false;
+        }
+        return pleiepengerInnleggelser.stream()
+            .anyMatch(i -> søknadsperiode.getTidsperiode().erOmsluttetAv(i.getPeriode()));
     }
 
     private KontrollerFaktaPeriode kontrollerAvklartPeriode(OppgittPeriodeEntitet søknadsperiode,
