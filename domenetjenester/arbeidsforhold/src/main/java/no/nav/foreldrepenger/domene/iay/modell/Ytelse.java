@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -38,6 +39,8 @@ public class Ytelse extends BaseEntitet implements IndexKey {
      */
     private Saksnummer saksnummer;
 
+    private LocalDateTime vedtattTidspunkt;
+
     @ChangeTracked
     @Convert(converter = Fagsystem.KodeverdiConverter.class)
     private Fagsystem kilde;
@@ -55,6 +58,7 @@ public class Ytelse extends BaseEntitet implements IndexKey {
     public Ytelse(Ytelse ytelse) {
         this.relatertYtelseType = ytelse.getRelatertYtelseType();
         this.status = ytelse.getStatus();
+        this.vedtattTidspunkt = ytelse.getVedtattTidspunkt();
         this.periode = ytelse.getPeriode();
         this.saksnummer = ytelse.getSaksnummer();
         this.temaUnderkategori = ytelse.getBehandlingsTema();
@@ -96,6 +100,14 @@ public class Ytelse extends BaseEntitet implements IndexKey {
 
     void setStatus(RelatertYtelseTilstand status) {
         this.status = status;
+    }
+
+    public LocalDateTime getVedtattTidspunkt() {
+        return vedtattTidspunkt;
+    }
+
+    public void setVedtattTidspunkt(LocalDateTime vedtattTidspunkt) {
+        this.vedtattTidspunkt = vedtattTidspunkt;
     }
 
     public DatoIntervallEntitet getPeriode() {
