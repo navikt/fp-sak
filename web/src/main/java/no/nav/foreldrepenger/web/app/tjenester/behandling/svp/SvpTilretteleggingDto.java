@@ -34,8 +34,8 @@ public class SvpTilretteleggingDto {
         return arbeidsforholdListe;
     }
 
-    public void setArbeidsforholdListe(List<SvpArbeidsforholdDto> arbeidsforholdListe) {
-        this.arbeidsforholdListe = arbeidsforholdListe;
+    public void leggTilArbeidsforhold(SvpArbeidsforholdDto arbeidsforhold) {
+        this.arbeidsforholdListe.add(arbeidsforhold);
     }
 
     public boolean isSaksbehandlet() {
@@ -45,5 +45,4 @@ public class SvpTilretteleggingDto {
     public void setSaksbehandlet(boolean saksbehandlet) {
         this.saksbehandlet = saksbehandlet;
     }
-
 }

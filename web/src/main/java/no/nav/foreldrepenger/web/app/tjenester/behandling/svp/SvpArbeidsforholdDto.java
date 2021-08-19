@@ -26,6 +26,7 @@ public class SvpArbeidsforholdDto {
     private String internArbeidsforholdReferanse;
     private String eksternArbeidsforholdReferanse;
     private boolean skalBrukes = true;
+    private boolean kanTilrettelegges = true;
     private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
 
     @Size(max = 4000)
@@ -110,6 +111,14 @@ public class SvpArbeidsforholdDto {
 
     public void setSkalBrukes(boolean skalBrukes) {
         this.skalBrukes = skalBrukes;
+    }
+
+    public void setKanTilrettelegges(boolean kanTilrettelegges) {
+        this.kanTilrettelegges = kanTilrettelegges;
+    }
+
+    public boolean isKanTilrettelegges() {
+        return kanTilrettelegges;
     }
 
     public String getEksternArbeidsforholdReferanse() {
