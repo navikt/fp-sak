@@ -138,8 +138,7 @@ public class PersonopplysningTjeneste implements StandardPersonopplysningTjenest
     }
 
     public Optional<AktørId> hentOppgittAnnenPartAktørId(Long behandlingId) {
-        return getPersonopplysningRepository().hentPersonopplysningerHvisEksisterer(behandlingId)
-            .flatMap(PersonopplysningGrunnlagEntitet::getOppgittAnnenPart).map(OppgittAnnenPartEntitet::getAktørId);
+        return hentOppgittAnnenPart(behandlingId).map(OppgittAnnenPartEntitet::getAktørId);
     }
 
     public Optional<OppgittAnnenPartEntitet> hentOppgittAnnenPart(Long behandlingId) {

@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PeriodeUttakDokumentasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.UttakDokumentasjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -262,6 +263,19 @@ public class SøknadsperiodeDokKontrollererFrittUttakTest {
 
         var kontrollerFaktaPeriode = kontroller(graderingsperiode, graderingsperiode.getFom().minusMonths(2));
         assertThat(kontrollerFaktaPeriode.erBekreftet()).isTrue();
+    }
+
+    @Test
+    public void skal_si_at_periode_er_bekreftet_når_utsettelse_pga_innlagt_barn_og_vedtak_om_pleiepenger_med_innleggelse() {
+        var vurdertPeriode = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.INSTITUSJON_BARN)
+            .medPeriode(FOM, TOM);
+        var kontrollerer = new SøknadsperiodeDokKontrollerer(List.of(), null,
+            new UtsettelseDokKontrollererFrittUttak(FOM), List.of(new PleiepengerInnleggelseEntitet.Builder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(FOM, TOM)).build()));
+        var resultat = kontrollerer.kontrollerSøknadsperiode(vurdertPeriode.build());
+
+        assertThat(resultat.erBekreftet()).isTrue();
     }
 
     private KontrollerFaktaPeriode kontroller(OppgittPeriodeEntitet oppgittPeriode, LocalDate familiehendelse) {

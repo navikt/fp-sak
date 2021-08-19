@@ -154,6 +154,10 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
         return periode.getFomDato();
     }
 
+    public DatoIntervallEntitet getTidsperiode() {
+        return periode;
+    }
+
     public LocalDate getTom() {
         return periode.getTomDato();
     }

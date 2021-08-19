@@ -45,20 +45,9 @@ public class AvklarFaktaUttakPerioderTjeneste {
         }
 
         var fødselsDatoTilTidligOppstart = utledDatoForTidligOppstart(input);
+
         return SøknadsperiodeDokKontrollerer.kontrollerPerioder(ytelseFordeling.get(), fødselsDatoTilTidligOppstart,
-            utledUtsettelseKontrollerer(input));
-    }
-
-    private UtsettelseDokKontrollerer utledUtsettelseKontrollerer(UttakInput input) {
-        var stp = input.getBehandlingReferanse().getSkjæringstidspunkt();
-        return stp.kreverSammenhengendeUttak() ? new UtsettelseDokKontrollererSammenhengendeUttak()
-            : new UtsettelseDokKontrollererFrittUttak(finnGjeldendeFamiliehendelse(input));
-    }
-
-    private LocalDate finnGjeldendeFamiliehendelse(UttakInput input) {
-        ForeldrepengerGrunnlag ytelsespesifiktGrunnlag = input.getYtelsespesifiktGrunnlag();
-        var gjeldendeFamilieHendelse = ytelsespesifiktGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
-        return gjeldendeFamilieHendelse.getFamilieHendelseDato();
+            input);
     }
 
     private KontrollerFaktaData utenGrunnlagResultat() {

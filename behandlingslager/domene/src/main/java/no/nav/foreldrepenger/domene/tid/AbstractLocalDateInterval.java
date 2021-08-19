@@ -103,6 +103,11 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
         };
     }
 
+    //Også true hvis perioden er lik
+    public boolean erOmsluttetAv(AbstractLocalDateInterval other) {
+        return !other.getFomDato().isAfter(this.getFomDato()) && !other.getTomDato().isBefore(this.getTomDato());
+    }
+
     public long antallDager() {
         return DAYS.between(getFomDato(), getTomDato());
     }

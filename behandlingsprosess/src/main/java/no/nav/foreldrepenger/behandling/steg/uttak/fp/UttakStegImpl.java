@@ -5,11 +5,7 @@ import java.util.Objects;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.behandling.steg.uttak.UttakSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
@@ -20,11 +16,11 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.domene.uttak.KopierForeldrepengerUttaktjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettUttakManueltAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTjeneste;
@@ -35,8 +31,6 @@ import no.nav.foreldrepenger.domene.uttak.fastsetteperioder.FastsettePerioderTje
 @ApplicationScoped
 public class UttakStegImpl implements UttakSteg {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UttakStegImpl.class);
-
     private final BehandlingsresultatRepository behandlingsresultatRepository;
     private final FastsettePerioderTjeneste fastsettePerioderTjeneste;
     private final FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder;
@@ -45,7 +39,6 @@ public class UttakStegImpl implements UttakSteg {
     private final UttakInputTjeneste uttakInputTjeneste;
     private final UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste;
     private final FagsakRepository fagsakRepository;
-    private final BehandlingRepository behandlingRepository;
     private final SkalKopiereUttakTjeneste skalKopiereUttakTjeneste;
     private final KopierForeldrepengerUttaktjeneste kopierUttaktjeneste;
 
@@ -55,7 +48,6 @@ public class UttakStegImpl implements UttakSteg {
                          FastsettUttakManueltAksjonspunktUtleder fastsettUttakManueltAksjonspunktUtleder,
                          UttakInputTjeneste uttakInputTjeneste,
                          UttakStegBeregnStønadskontoTjeneste beregnStønadskontoTjeneste,
-                         BehandlingRepository behandlingRepository,
                          SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
                          KopierForeldrepengerUttaktjeneste kopierUttaktjeneste) {
         this.fastsettUttakManueltAksjonspunktUtleder = fastsettUttakManueltAksjonspunktUtleder;
@@ -66,7 +58,6 @@ public class UttakStegImpl implements UttakSteg {
         this.fpUttakRepository = repositoryProvider.getFpUttakRepository();
         this.beregnStønadskontoTjeneste = beregnStønadskontoTjeneste;
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.behandlingRepository = behandlingRepository;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.kopierUttaktjeneste = kopierUttaktjeneste;
     }
