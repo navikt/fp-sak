@@ -42,5 +42,9 @@ public class PersonIdentTest {
         foedselsnummer = "9999999999";
         gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
         assertThat(gyldig).isFalse();
+
+        foedselsnummer = "101080-0388";
+        gyldig = PersonIdent.erGyldigFnr(foedselsnummer);
+        assertThat(gyldig).isFalse();
     }
 }

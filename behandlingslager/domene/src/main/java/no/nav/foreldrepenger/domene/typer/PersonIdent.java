@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.typer;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -18,6 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
  * </ul>
  */
 public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
+
+    private static final String VALID_REGEXP = "^\\d{11}$";
+
+    private static final Pattern VALID = Pattern.compile(VALID_REGEXP, Pattern.CASE_INSENSITIVE);
 
     private static final int[] CHECKSUM_EN_VECTOR = new int[]{3, 7, 6, 1, 8, 9, 4, 5, 2};
     private static final int[] CHECKSUM_TO_VECTOR = new int[]{5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
@@ -54,7 +59,7 @@ public class PersonIdent implements Comparable<PersonIdent>, IndexKey {
     }
 
     private static boolean validerFnrStruktur(String foedselsnummer) {
-        if (foedselsnummer.length() != FNR_LENGDE) {
+        if (foedselsnummer.length() != FNR_LENGDE || !VALID.matcher(foedselsnummer).matches()) {
             return false;
         }
         var checksumEn = FNR_LENGDE - (sum(foedselsnummer, CHECKSUM_EN_VECTOR) % FNR_LENGDE);
