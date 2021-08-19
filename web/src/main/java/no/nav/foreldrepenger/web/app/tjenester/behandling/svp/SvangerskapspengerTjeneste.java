@@ -132,7 +132,7 @@ public class SvangerskapspengerTjeneste {
         dto.setSkalBrukes(svpTilrettelegging.getSkalBrukes());
         dto.setUttakArbeidType(ARBTYPE_MAP.getOrDefault(svpTilrettelegging.getArbeidType(), UttakArbeidType.ANNET));
         svpTilrettelegging.getArbeidsgiver().ifPresent(ag -> dto.setArbeidsgiverReferanse(ag.getIdentifikator()));
-        svpTilrettelegging.getInternArbeidsforholdRef().map(InternArbeidsforholdRef::getReferanse);
+        svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> dto.setInternArbeidsforholdReferanse(ref.getReferanse()));
         return dto;
     }
 
