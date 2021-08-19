@@ -176,7 +176,7 @@ public class MapAktørYtelse {
             var organisasjon = ytelseStørrelse.getVirksomhet().map(o -> new Organisasjon(o.getId())).orElse(null);
             var inntektPeriodeType = KodeverkMapper.mapInntektPeriodeTypeTilDto(ytelseStørrelse.getHyppighet());
             var beløp = ytelseStørrelse.getBeløp().getVerdi();
-            return new FordelingDto(organisasjon, inntektPeriodeType, beløp);
+            return new FordelingDto(organisasjon, inntektPeriodeType == null ? no.nav.abakus.iaygrunnlag.kodeverk.InntektPeriodeType.UDEFINERT : inntektPeriodeType, beløp);
         }
 
         private YtelseDto tilYtelse(Ytelse ytelse) {
