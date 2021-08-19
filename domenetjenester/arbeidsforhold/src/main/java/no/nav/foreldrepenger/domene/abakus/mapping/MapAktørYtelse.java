@@ -93,6 +93,7 @@ public class MapAktørYtelse {
                     .medBehandlingsTema(behandlingsTema)
                     .medKilde(KodeverkMapper.mapFagsystemFraDto(ytelseDto.getFagsystemDto()))
                     .medPeriode(mapPeriode(ytelseDto.getPeriode()))
+                    .medVedtattTidspunkt(ytelseDto.getVedtattTidspunkt())
                     .medSaksnummer(ytelseDto.getSaksnummer() == null ? null : new Saksnummer(ytelseDto.getSaksnummer()))
                     .medStatus(KodeverkMapper.getFpsakRelatertYtelseTilstandForAbakusYtelseStatus(ytelseDto.getStatus()));
             ytelseDto.getAnvisninger()
@@ -186,6 +187,7 @@ public class MapAktørYtelse {
             var temaUnderkategori = KodeverkMapper.getBehandlingsTemaUnderkategori(ytelse.getBehandlingsTema());
             var dto = new YtelseDto(fagsystem, ytelseType, periode, ytelseStatus)
                     .medSaksnummer(ytelse.getSaksnummer() == null ? null : ytelse.getSaksnummer().getVerdi())
+                    .medVedtattTidspunkt(ytelse.getVedtattTidspunkt())
                     .medTemaUnderkategori(temaUnderkategori);
 
             ytelse.getYtelseGrunnlag().map(this::mapYtelseGrunnlag).ifPresent(gr -> dto.setGrunnlag(gr));

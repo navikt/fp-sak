@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -43,6 +44,11 @@ public class YtelseBuilder {
 
     public YtelseBuilder medPeriode(DatoIntervallEntitet intervallEntitet) {
         ytelse.setPeriode(intervallEntitet);
+        return this;
+    }
+
+    public YtelseBuilder medVedtattTidspunkt(LocalDateTime vedtattTidspunkt) {
+        ytelse.setVedtattTidspunkt(vedtattTidspunkt);
         return this;
     }
 

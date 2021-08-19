@@ -51,7 +51,7 @@
         <fp-tidsserie.version>2.5.7</fp-tidsserie.version>
         <fp-nare.version>2.1.5</fp-nare.version>
         <kalkulus.version>1.2.52</kalkulus.version>
-        <abakus-kontrakt.version>1.3.11</abakus-kontrakt.version>
+        <abakus-kontrakt.version>1.3.12</abakus-kontrakt.version>
 
         <swaggercore.version>2.1.10</swaggercore.version>
         <flyway.version>4.2.0</flyway.version>
