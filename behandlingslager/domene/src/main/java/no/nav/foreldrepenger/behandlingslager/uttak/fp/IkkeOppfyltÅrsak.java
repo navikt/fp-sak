@@ -112,6 +112,15 @@ public enum IkkeOppfyltÅrsak implements PeriodeResultatÅrsak {
     FORELDREANSVARSVILKÅRET_IKKE_OPPFYLT("4098", "§14-5: Foreldreansvarsvilkåret er ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-5\"}}}", Set.of(UTTAK)),
     OPPTJENINGSVILKÅRET_IKKE_OPPFYLT("4099", "§14-6: Opptjeningsvilkåret er ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-6\"}}}", Set.of(UTTAK)),
     UTTAK_FØR_OMSORGSOVERTAKELSE("4100", "§14-10 andre ledd: Uttak før omsorgsovertakelse", "", Set.of(UTTAK)),
+    BARE_FAR_RETT_AKTIVITETSKRAVET_IKKE_OPPFYLT("4101", "§14-11, jf. §14-14,§14-13: Bare far har rett, mor fyller ikke aktivitetskravet", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,14-14,14-13\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    BARE_FAR_RETT_IKKE_SØKT("4102", "§14-11, jf. §14-14: Bare far har rett, mangler søknad uttak/utsettelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,14-14,14-13\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    MOR_FØRSTE_SEKS_UKER_IKKE_SØKT("4103", "§14-11, jf. §14-9: Mangler søknad for første seks uker etter fødsel", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,14-9\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT("4110", "§14-11: Søkers sykdom/skade første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT("4111", "§14-11: Søkers innleggelse første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_OPPFYLT("4112", "§14-11: Barnets innleggelse første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    SØKERS_SYKDOM_ELLER_SKADE_SEKS_UKER_IKKE_DOKUMENTERT("4115", "§14-11, jf §21-3: Utsettelse søkers sykdom/skade første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    SØKERS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT("4116", "§14-11, jf §21-3: Utsettelse søkers innleggelse første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
+    BARNETS_INNLEGGELSE_SEKS_UKER_IKKE_DOKUMENTERT("4117", "§14-11, jf §21-3: Utsettelse barnets innleggelse første 6 uker ikke dokumentert", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11,21-3\"}}}", Set.of(UTSETTELSE), null, null, null, Set.of(LovEndring.FRITT_UTTAK)),
     ;
 
     private static final Map<String, IkkeOppfyltÅrsak> KODER = new LinkedHashMap<>();

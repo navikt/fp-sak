@@ -60,8 +60,11 @@ public enum InnvilgetÅrsak implements PeriodeResultatÅrsak {
     OVERFØRING_ANNEN_PART_SYKDOM_SKADE("2021", "§14-12: Overføring oppfylt, annen part er helt avhengig av hjelp til å ta seg av barnet", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
     OVERFØRING_ANNEN_PART_INNLAGT("2022", "§14-12: Overføring oppfylt, annen part er innlagt i helseinstitusjon", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
     OVERFØRING_SØKER_HAR_ALENEOMSORG_FOR_BARNET("2023", "§14-15 første ledd: Overføring oppfylt, søker har aleneomsorg for barnet", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-15\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
-    //TODO fritt uttak. Se til at riktig navn på ny årsak
-    UTSETTELSE_GYLDIG("2024", "§14-11 Gyldig utsettelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", of(UTSETTELSE), null, null, null, of(FRITT_UTTAK)),
+    //TODO fritt uttak. Se til at riktig navn på ny årsak. Avvent om trengs koder for BFHR utsettelse pga mor syk/innlagt - bør vel søke uttak eller FRI med dokumentasjon
+    UTSETTELSE_GYLDIG("2024", "§14-11: Gyldig utsettelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", of(UTSETTELSE), null, null, null, of(FRITT_UTTAK)),
+    UTSETTELSE_GYLDIG_SEKS_UKER_INNLEGGELSE("2025", "§14-11: Gyldig utsettelse første 6 uker pga. innleggelse", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", of(UTSETTELSE), null, null, null, of(FRITT_UTTAK)),
+    UTSETTELSE_GYLDIG_SEKS_UKER_FRI_BARN_INNLAGT("2026", "§14-11: Gyldig utsettelse første 6 uker pga. barn innlagt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", of(UTSETTELSE), null, null, null, of(FRITT_UTTAK)),
+    UTSETTELSE_GYLDIG_SEKS_UKER_FRI_SYKDOM("2027", "§14-11: Gyldig utsettelse første 6 uker pga. sykdom", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}", of(UTSETTELSE), null, null, null, of(FRITT_UTTAK)),
     GRADERING_FELLESPERIODE_ELLER_FORELDREPENGER("2030", "§14-9, jf. §14-16: Gradering av fellesperiode/foreldrepenger", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-9,14-16\"}}}", of(UTTAK), of(FELLESPERIODE, FORELDREPENGER)),
     GRADERING_KVOTE_ELLER_OVERFØRT_KVOTE("2031", "§14-12, jf. §14-16: Gradering av kvote/overført kvote", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-12,14-16\"}}}", of(UTTAK), of(MØDREKVOTE, FEDREKVOTE)),
     GRADERING_ALENEOMSORG("2032", "§14-15, jf. §14-16: Gradering foreldrepenger ved aleneomsorg", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-15,14-16\"}}}", of(UTTAK), of(FORELDREPENGER)),
