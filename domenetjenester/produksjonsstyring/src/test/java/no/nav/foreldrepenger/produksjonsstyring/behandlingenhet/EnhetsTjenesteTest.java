@@ -21,9 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
 
 @ExtendWith(MockitoExtension.class)
 public class EnhetsTjenesteTest {
@@ -47,7 +47,7 @@ public class EnhetsTjenesteTest {
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
-    private ArbeidsfordelingRestKlient arbeidsfordelingTjeneste;
+    private Arbeidsfordeling arbeidsfordelingTjeneste;
     private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
