@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrun
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
-import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFilter;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -116,23 +115,35 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     LocalDate utledBasertPåGrunnlag(SvpGrunnlagEntitet grunnlag) {
-        var tidligsteTilretteleggingsDatoOpt = new TilretteleggingFilter(grunnlag)
-            .getAktuelleTilretteleggingerFiltrert().stream()
-            .map(aktuelle -> beregn(aktuelle.getBehovForTilretteleggingFom(),
-                aktuelle.getTilretteleggingFOMListe().stream()
-                    .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
-                    .map(TilretteleggingFOM::getFomDato)
-                    .min(LocalDate::compareTo),
-                aktuelle.getTilretteleggingFOMListe().stream()
-                    .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
-                    .map(TilretteleggingFOM::getFomDato)
-                    .min(LocalDate::compareTo),
-                aktuelle.getTilretteleggingFOMListe().stream()
-                    .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
-                    .map(TilretteleggingFOM::getFomDato)
-                    .min(LocalDate::compareTo)))
-            .min(Comparator.naturalOrder());
+        Optional<LocalDate> tidligsteTilretteleggingsDatoOpt = Optional.ofNullable(grunnlag.getOverstyrteTilrettelegginger())
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+            .flatMap(this::tidligsteDatoFraTIlrettelegging)
+            .or(() -> Optional.ofNullable(grunnlag.getOpprinneligeTilrettelegginger())
+                .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
+                .flatMap(this::tidligsteDatoFraTIlrettelegging));
         return tidligsteTilretteleggingsDatoOpt.orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
+    }
+
+    Optional<LocalDate> tidligsteDatoFraTIlrettelegging(List<SvpTilretteleggingEntitet> tilrettelegginger) {
+        if (tilrettelegginger == null || tilrettelegginger.isEmpty()) {
+            return Optional.empty();
+        }
+        return tilrettelegginger.stream()
+            .filter(SvpTilretteleggingEntitet::getSkalBrukes)
+            .map(aktuelle -> beregn(aktuelle.getBehovForTilretteleggingFom(),
+            aktuelle.getTilretteleggingFOMListe().stream()
+                .filter(tl -> tl.getType().equals(TilretteleggingType.HEL_TILRETTELEGGING))
+                .map(TilretteleggingFOM::getFomDato)
+                .min(LocalDate::compareTo),
+            aktuelle.getTilretteleggingFOMListe().stream()
+                .filter(tl -> tl.getType().equals(TilretteleggingType.DELVIS_TILRETTELEGGING))
+                .map(TilretteleggingFOM::getFomDato)
+                .min(LocalDate::compareTo),
+            aktuelle.getTilretteleggingFOMListe().stream()
+                .filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING))
+                .map(TilretteleggingFOM::getFomDato)
+                .min(LocalDate::compareTo)))
+            .min(Comparator.naturalOrder());
     }
 
     private Optional<LocalDate> finnFørsteDatoMedUttak(Behandling behandling) {
