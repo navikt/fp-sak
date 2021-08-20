@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import static no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval.TIDENES_ENDE;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -83,13 +85,29 @@ public class SvangerskapspengerTjeneste {
         var saksbehandletFilter = new YrkesaktivitetFilter(iayGrunnlag.getArbeidsforholdInformasjon(), saksbehandletVersjon.flatMap(iay -> iay.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(behandling.getAktørId())).findFirst()));
 
         var tilretteleggingFilter = new TilretteleggingFilter(svpGrunnlagOpt.get());
-        var aktuelleTilretteleggingerUfiltrert = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert().stream()
-            .map(svpTilretteleggingEntitet -> mapTilrettelegging(svpTilretteleggingEntitet, arbeidsforholdInformasjon, filter, saksbehandletFilter))
-            .collect(Collectors.toList());
-        dto.setArbeidsforholdListe(aktuelleTilretteleggingerUfiltrert);
+        List<SvpTilretteleggingEntitet> tilrettelegginger = tilretteleggingFilter.getAktuelleTilretteleggingerUfiltrert();
+        tilrettelegginger.forEach(tilr -> {
+            SvpArbeidsforholdDto tilretteleggingDto = mapTilretteleggingsinfo(tilr);
+            tilretteleggingDto.setVelferdspermisjoner(finnVelferdspermisjoner(tilr, filter, saksbehandletFilter));
+            finnEksternRef(tilr, arbeidsforholdInformasjon).ifPresent(tilretteleggingDto::setEksternArbeidsforholdReferanse);
+            tilretteleggingDto.setKanTilrettelegges(erTilgjengeligForBeregning(tilr, filter));
+            dto.leggTilArbeidsforhold(tilretteleggingDto);
+        });
         dto.setSaksbehandlet(harSaksbehandletTilrettelegging(behandling));
 
         return dto;
+    }
+
+    private boolean erTilgjengeligForBeregning(SvpTilretteleggingEntitet tilr, YrkesaktivitetFilter filter) {
+        if (tilr.getArbeidsgiver().isEmpty()) {
+            return true;
+        }
+        if (filter.getYrkesaktiviteterForBeregning().isEmpty()) {
+            return false;
+        }
+        return filter.getYrkesaktiviteterForBeregning().stream()
+            .anyMatch(ya -> Objects.equals(ya.getArbeidsgiver(), tilr.getArbeidsgiver().orElse(null))
+                && Objects.equals(ya.getArbeidsforholdRef(), tilr.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef())));
     }
 
     /**
@@ -101,7 +119,7 @@ public class SvangerskapspengerTjeneste {
         return aksjonspunkt.isPresent() && aksjonspunkt.get().erUtført();
     }
 
-    private SvpArbeidsforholdDto mapTilrettelegging(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
+    private SvpArbeidsforholdDto mapTilretteleggingsinfo(SvpTilretteleggingEntitet svpTilrettelegging) {
         var dto = new SvpArbeidsforholdDto();
         dto.setTilretteleggingId(svpTilrettelegging.getId());
         dto.setTilretteleggingBehovFom(svpTilrettelegging.getBehovForTilretteleggingFom());
@@ -113,17 +131,21 @@ public class SvangerskapspengerTjeneste {
         dto.setMottattTidspunkt(svpTilrettelegging.getMottattTidspunkt());
         dto.setSkalBrukes(svpTilrettelegging.getSkalBrukes());
         dto.setUttakArbeidType(ARBTYPE_MAP.getOrDefault(svpTilrettelegging.getArbeidType(), UttakArbeidType.ANNET));
-        svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> {
-            dto.setInternArbeidsforholdReferanse(ref.getReferanse());
+        svpTilrettelegging.getArbeidsgiver().ifPresent(ag -> dto.setArbeidsgiverReferanse(ag.getIdentifikator()));
+        svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> dto.setInternArbeidsforholdReferanse(ref.getReferanse()));
+        return dto;
+    }
+
+    private Optional<String> finnEksternRef(SvpTilretteleggingEntitet svpTilrettelegging, ArbeidsforholdInformasjon arbeidsforholdInformasjon) {
+        return svpTilrettelegging.getInternArbeidsforholdRef().map(ref -> {
             var arbeidsgiver = svpTilrettelegging.getArbeidsgiver()
                 .orElseThrow(() -> new IllegalStateException("Utviklerfeil: Fant ikke forventent arbeidsgiver for tilrettelegging: " + svpTilrettelegging.getId()));
-            dto.setEksternArbeidsforholdReferanse(arbeidsforholdInformasjon.finnEkstern(arbeidsgiver, ref).getReferanse());
+            return arbeidsforholdInformasjon.finnEkstern(arbeidsgiver, ref).getReferanse();
         });
-        svpTilrettelegging.getArbeidsgiver().ifPresent(a -> {
-            dto.setVelferdspermisjoner(mapVelferdspermisjoner(svpTilrettelegging, filter, a, saksbehandletFilter));
-            dto.setArbeidsgiverReferanse(a.getIdentifikator());
-        });
-        return dto;
+    }
+
+    private List<VelferdspermisjonDto> finnVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, YrkesaktivitetFilter saksbehandletFilter) {
+        return svpTilrettelegging.getArbeidsgiver().map(a -> mapVelferdspermisjoner(svpTilrettelegging, filter, a, saksbehandletFilter)).orElse(Collections.emptyList());
     }
 
     private List<VelferdspermisjonDto> mapVelferdspermisjoner(SvpTilretteleggingEntitet svpTilrettelegging, YrkesaktivitetFilter filter, Arbeidsgiver arbeidsgiver, YrkesaktivitetFilter saksbehandletFilter) {
