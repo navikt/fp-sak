@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -159,6 +159,43 @@ class PleiepengerJusteringTest {
         assertThrows(IllegalStateException.class, () -> PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote)));
     }
 
+    @Test
+    void ikke_opprette_pleiepenger_hvis_søknadsperiode_mottatt_etter_pleiepenge_vedtak() {
+        var aktørId = AktørId.dummy();
+        var vedtakTidspunkt = LocalDateTime.of(2021, 1, 1, 1, 1, 1);
+        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
+            .medKilde(Fagsystem.K9SAK)
+            .medVedtattTidspunkt(vedtakTidspunkt)
+            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
+        var pleiepengerFom = of(2020, 2, 1);
+        var pleiepengerTom = of(2020, 2, 13);
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(pleiepengerFom, pleiepengerTom);
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2020, 1, 1), of(2020, 2, 1))
+            .medPeriodeType(MØDREKVOTE)
+            .medMottattDato(vedtakTidspunkt.minusWeeks(1).toLocalDate())
+            .build();
+        var mødrekvoteFraEndringssøknad = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2020, 2, 2), of(2020, 4, 4))
+            .medPeriodeType(MØDREKVOTE)
+            .medMottattDato(vedtakTidspunkt.plusWeeks(1).toLocalDate())
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvoteFraEndringssøknad));
+
+        assertThat(resultat).hasSize(3);
+        assertThat(resultat.get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerFom.minusDays(1));
+        assertThat(resultat.get(1).isUtsettelse()).isTrue();
+        assertThat(resultat.get(1).getFom()).isEqualTo(pleiepengerFom);
+        assertThat(resultat.get(1).getTom()).isEqualTo(mødrekvoteFraEndringssøknad.getFom().minusDays(1));
+        assertThat(resultat.get(2).isUtsettelse()).isFalse();
+    }
+
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
@@ -196,7 +233,8 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(4).isUtsettelse()).isFalse();
     }
 
-    private OppgittPeriodeEntitet pleiepenger(LocalDate fom, LocalDate tom) {
-        return OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medÅrsak(INSTITUSJON_BARN).build();
+    private PleiepengerJustering.PleiepengerUtsettelse pleiepenger(LocalDate fom, LocalDate tom) {
+        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriode(fom, tom).medÅrsak(INSTITUSJON_BARN).build();
+        return new PleiepengerJustering.PleiepengerUtsettelse(LocalDateTime.now(), oppgittPeriode);
     }
 }

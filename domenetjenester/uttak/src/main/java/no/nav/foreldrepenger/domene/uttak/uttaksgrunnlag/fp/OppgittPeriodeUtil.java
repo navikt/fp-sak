@@ -1,14 +1,18 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 
 class OppgittPeriodeUtil {
 
@@ -63,6 +67,62 @@ class OppgittPeriodeUtil {
         }
 
         return Optional.empty();
+    }
+
+    static List<OppgittPeriodeEntitet> slåSammenLikePerioder(List<OppgittPeriodeEntitet> perioder) {
+        List<OppgittPeriodeEntitet> resultat = new ArrayList<>();
+
+        var i = 0;
+        while (i < perioder.size()) {
+            var j = i + 1;
+            var slåttSammen = perioder.get(i);
+            if (i < perioder.size() - 1) {
+                //Hvis ikke hull mellom periodene skal vi se om de er like for å så slå de sammen
+                while (j < perioder.size()) {
+                    var nestePeriode = perioder.get(j);
+                    if (!erHullMellom(slåttSammen.getTom(), nestePeriode.getFom()) && erLikBortsettFraTidsperiode(slåttSammen, nestePeriode)) {
+                        slåttSammen = slåSammen(slåttSammen, nestePeriode);
+                    } else {
+                        break;
+                    }
+                    j++;
+                }
+            }
+            resultat.add(slåttSammen);
+            i = j;
+        }
+        return resultat;
+    }
+
+    private static boolean erLikBortsettFraTidsperiode(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+        //begrunnelse ikke viktig å se på
+        return Objects.equals(periode1.isArbeidstaker(), periode2.isArbeidstaker()) &&
+            Objects.equals(periode1.isFrilanser(), periode2.isFrilanser()) &&
+            Objects.equals(periode1.isSelvstendig(), periode2.isSelvstendig()) &&
+            Objects.equals(periode1.isFlerbarnsdager(), periode2.isFlerbarnsdager()) &&
+            Objects.equals(periode1.isSamtidigUttak(), periode2.isSamtidigUttak()) &&
+            Objects.equals(periode1.getArbeidsgiver(), periode2.getArbeidsgiver()) &&
+            Objects.equals(periode1.getMorsAktivitet(), periode2.getMorsAktivitet()) &&
+            Objects.equals(periode1.isVedtaksperiode(), periode2.isVedtaksperiode()) &&
+            Objects.equals(periode1.getPeriodeType(), periode2.getPeriodeType()) &&
+            Objects.equals(periode1.getPeriodeVurderingType(), periode2.getPeriodeVurderingType()) &&
+            Objects.equals(periode1.getSamtidigUttaksprosent(), periode2.getSamtidigUttaksprosent()) &&
+            Objects.equals(periode1.getMottattDato(), periode2.getMottattDato()) &&
+            Objects.equals(periode1.getTidligstMottattDato(), periode2.getTidligstMottattDato()) &&
+            Objects.equals(periode1.getÅrsak(), periode2.getÅrsak()) &&
+            Objects.equals(periode1.getArbeidsprosent(), periode2.getArbeidsprosent());
+    }
+
+    private static OppgittPeriodeEntitet slåSammen(OppgittPeriodeEntitet periode1, OppgittPeriodeEntitet periode2) {
+        return kopier(periode1, periode1.getFom(), periode2.getTom());
+    }
+
+    static boolean erHullMellom(LocalDate date1, LocalDate date2) {
+        return Virkedager.plusVirkedager(date1, 1).isBefore(date2);
+    }
+
+    static OppgittPeriodeEntitet kopier(OppgittPeriodeEntitet oppgittPeriode, LocalDate nyFom, LocalDate nyTom) {
+        return OppgittPeriodeBuilder.fraEksisterende(oppgittPeriode).medPeriode(nyFom, nyTom).build();
     }
 
 }

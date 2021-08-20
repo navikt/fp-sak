@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
-import no.nav.foreldrepenger.behandlingslager.ytelse.TemaUnderkategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -259,10 +255,6 @@ public class InntektArbeidYtelseAggregatBuilder {
         public void fjernYrkesaktivitetHvisFinnes(YrkesaktivitetBuilder builder) {
             kladd.fjernYrkesaktivitetForBuilder(builder);
         }
-
-        public void tilbakestillYrkesaktiviteter() {
-            kladd.tilbakestillYrkesaktiviteter();
-        }
     }
 
     public static class AktørInntektBuilder {
@@ -315,11 +307,6 @@ public class InntektArbeidYtelseAggregatBuilder {
         boolean getErOppdatering() {
             return oppdatering;
         }
-
-        public AktørInntektBuilder fjernInntekterFraKilde(InntektsKilde inntektsKilde) {
-            kladd.fjernInntekterFraKilde(inntektsKilde);
-            return this;
-        }
     }
 
     public static class AktørYtelseBuilder {
@@ -354,21 +341,6 @@ public class InntektArbeidYtelseAggregatBuilder {
 
         public YtelseBuilder getYtelselseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer sakId) {
             return kladd.getYtelseBuilderForType(fagsystem, type, sakId);
-        }
-
-        public YtelseBuilder getYtelselseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, Saksnummer sakId, DatoIntervallEntitet periode,
-                Optional<LocalDate> tidligsteAnvistFom) {
-            return kladd.getYtelseBuilderForType(fagsystem, type, sakId, periode, tidligsteAnvistFom);
-        }
-
-        public YtelseBuilder getYtelselseBuilderForType(Fagsystem fagsystem, RelatertYtelseType type, TemaUnderkategori typeKategori,
-                DatoIntervallEntitet periode) {
-            return kladd.getYtelseBuilderForType(fagsystem, type, typeKategori, periode);
-        }
-
-        public void tilbakestillYtelserFraKildeBeholdAvsluttede(Fagsystem kilde) {
-            this.kladd.getAlleYtelser()
-                    .removeIf(yt -> kilde.equals(yt.getKilde()) && !RelatertYtelseTilstand.AVSLUTTET.equals(yt.getStatus()));
         }
 
         public AktørYtelseBuilder leggTilYtelse(YtelseBuilder builder) {
