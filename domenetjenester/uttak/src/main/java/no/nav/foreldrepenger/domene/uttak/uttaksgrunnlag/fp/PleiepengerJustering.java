@@ -65,10 +65,15 @@ final class PleiepengerJustering {
                                                List<OppgittPeriodeEntitet> foreldrepenger) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
         var pleiepengerTimeline = pleiepengerUtsettelseTimeline(pleiepengerUtsettelser);
-        var fellesTimeline = foreldrepengerTimeline.combine(pleiepengerTimeline,
+        var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
+        var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
+        var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
             (interval, fp, pp) -> {
                 if (pp == null) {
                     return copy(interval, fp.getValue());
+                }
+                if (interval.getTomDato().isBefore(førsteSøkteDag) || interval.getFomDato().isAfter(sisteSøkteDag)) {
+                    return null;
                 }
                 if (fp != null) {
                     //Hvis søknad om periode er mottatt etter vedtak så beholder vi søknadsperiode
@@ -80,7 +85,7 @@ final class PleiepengerJustering {
                 }
                 return copy(interval, pp.getValue().oppgittPeriode());
 
-            }, LocalDateTimeline.JoinStyle.LEFT_JOIN);
+            });
         var combined = fellesTimeline.toSegments().stream().map(s -> s.getValue()).toList();
         return slåSammenLikePerioder(combined);
     }

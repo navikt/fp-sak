@@ -31,9 +31,7 @@ class PleiepengerJusteringTest {
     @Test
     void pleiepenger_med_utbetaling_skal_opprette_utsettelse() {
         var aktørId = AktørId.dummy();
-        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
-            .medKilde(Fagsystem.K9SAK)
-            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
+        var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1),
             of(2020, 1, 13));
         ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
@@ -138,9 +136,7 @@ class PleiepengerJusteringTest {
     @Test
     void exception_hvis_overlappende_ytelse() {
         var aktørId = AktørId.dummy();
-        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty())
-            .medKilde(Fagsystem.K9SAK)
-            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
+        var ytelseBuilder = pleiepengerFraK9();
         var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 1, 13));
         ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
             .medAnvistPeriode(pleiepengerInterval1)
@@ -196,15 +192,6 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(2).isUtsettelse()).isFalse();
     }
 
-    private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
-        return InntektArbeidYtelseGrunnlagBuilder.nytt()
-            .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
-                .leggTilAktørYtelse(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
-                    .medAktørId(aktørId)
-                    .leggTilYtelse(ytelseBuilder)))
-            .build();
-    }
-
     @Test
     void combine() {
         var pleiepengerFørFp = pleiepenger(of(2020, 11, 11), of(2020, 12, 12));
@@ -231,6 +218,69 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(4).getFom()).isEqualTo(of(2021, 2, 6));
         assertThat(resultat.get(4).getTom()).isEqualTo(of(2021, 3, 3));
         assertThat(resultat.get(4).isUtsettelse()).isFalse();
+    }
+
+    @Test
+    void ikke_opprette_pleiepenger_hvis_før_startdato_eller_etter_sluttdato_for_fp() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 2, 1), of(2020, 5, 5));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(pleiepengerInterval.getFomDato().plusWeeks(1), pleiepengerInterval.getTomDato().minusWeeks(1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.get(0).getFom()).isEqualTo(mødrekvote.getFom());
+        assertThat(resultat.get(0).getTom()).isEqualTo(mødrekvote.getTom());
+    }
+
+    @Test
+    void opprette_pleiepenger_hvis_hvis_hull_i_fp() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 2, 1));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote1 = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2020, 1, 1), of(2020, 1, 10))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var mødrekvote2 = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2020, 1, 15), of(2020, 2, 1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2));
+
+        assertThat(resultat).hasSize(1);
+        assertThat(resultat.get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval.getFomDato());
+        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval.getTomDato());
+    }
+
+    private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
+        return InntektArbeidYtelseGrunnlagBuilder.nytt()
+            .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)
+                .leggTilAktørYtelse(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
+                    .medAktørId(aktørId)
+                    .leggTilYtelse(ytelseBuilder)))
+            .build();
+    }
+
+    private YtelseBuilder pleiepengerFraK9() {
+        return YtelseBuilder.oppdatere(Optional.empty())
+            .medKilde(Fagsystem.K9SAK)
+            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
     }
 
     private PleiepengerJustering.PleiepengerUtsettelse pleiepenger(LocalDate fom, LocalDate tom) {
