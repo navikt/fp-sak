@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
  * Oppdaterer registeropplysninger for engangsstønader og skrur behandlingsprosessen tilbake

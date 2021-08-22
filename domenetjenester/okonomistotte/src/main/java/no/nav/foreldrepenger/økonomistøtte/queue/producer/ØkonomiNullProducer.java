@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighets
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.queue.TestOnlyMqDisabled;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 @TestOnlyMqDisabled

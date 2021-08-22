@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.klient;
 
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 class FpoppdragFelles {
 

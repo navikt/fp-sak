@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaks
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class ForretningshendelseMottak {

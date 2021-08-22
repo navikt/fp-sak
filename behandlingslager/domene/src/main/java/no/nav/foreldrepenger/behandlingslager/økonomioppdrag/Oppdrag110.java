@@ -27,8 +27,8 @@ import org.hibernate.annotations.Immutable;
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeEndring;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Cluster;
+import no.nav.foreldrepenger.konfig.Environment;
 
 /**
  * Denne klassen er en ren avbildning fra Oppdragsløsningens meldingsformater.

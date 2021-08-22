@@ -12,7 +12,7 @@ import no.finn.unleash.strategy.Strategy;
 import no.finn.unleash.util.UnleashConfig;
 import no.nav.foreldrepenger.web.app.util.unleash.strategier.ByAnsvarligSaksbehandlerStrategy;
 import no.nav.foreldrepenger.web.app.util.unleash.strategier.ByEnvironmentStrategy;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public class ToggleConfig {
 

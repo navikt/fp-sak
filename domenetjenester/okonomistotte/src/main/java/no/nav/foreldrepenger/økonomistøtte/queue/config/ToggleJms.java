@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Cluster;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class ToggleJms implements no.nav.vedtak.felles.integrasjon.jms.ToggleJms {

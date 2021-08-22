@@ -19,9 +19,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskre
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
+import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.Arbeidsfordeling;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRequest;
 import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingResponse;
-import no.nav.vedtak.felles.integrasjon.arbeidsfordeling.rest.ArbeidsfordelingRestKlient;
+import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 
 @ApplicationScoped
 public class EnhetsTjeneste {
@@ -36,7 +37,7 @@ public class EnhetsTjeneste {
     private static final OrganisasjonsEnhet KLAGE_ENHET =  new OrganisasjonsEnhet(NK_ENHET_ID, "NAV Klageinstans Midt-Norge");
 
     private PersoninfoAdapter personinfoAdapter;
-    private ArbeidsfordelingRestKlient norgRest;
+    private Arbeidsfordeling norgRest;
 
     private LocalDate sisteInnhenting = LocalDate.MIN;
     private OrganisasjonsEnhet enhetKode6;
@@ -48,7 +49,7 @@ public class EnhetsTjeneste {
 
     @Inject
     public EnhetsTjeneste(PersoninfoAdapter personinfoAdapter,
-                          ArbeidsfordelingRestKlient arbeidsfordelingRestKlient) {
+                          @Jersey Arbeidsfordeling arbeidsfordelingRestKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.norgRest = arbeidsfordelingRestKlient;
     }

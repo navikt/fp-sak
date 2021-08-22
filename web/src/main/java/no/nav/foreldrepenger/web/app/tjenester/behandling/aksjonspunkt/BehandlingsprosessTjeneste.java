@@ -27,7 +27,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.integrasjon.ldap.LdapBrukeroppslag;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
 @ApplicationScoped

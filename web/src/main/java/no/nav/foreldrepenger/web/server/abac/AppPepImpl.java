@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.interceptor.Interceptor;
 
 import no.nav.foreldrepenger.sikkerhet.abac.LegacyTokenProvider;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.abac.AbacAuditlogger;
 import no.nav.vedtak.sikkerhet.abac.PdpKlient;
 import no.nav.vedtak.sikkerhet.abac.PdpRequest;

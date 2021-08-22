@@ -88,7 +88,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
-        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.class))).thenReturn(OPPGAVE);
 
         var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());
         assertThat(OppgaveBehandlingKobling.getAktivOppgaveMedÅrsak(OppgaveÅrsak.BEHANDLE_SAK, oppgaver)).isNotPresent();
@@ -118,7 +118,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
         var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
-        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.Builder.class))).thenReturn(OPPGAVE);
+        when(oppgaveRestKlient.opprettetOppgave(any(OpprettOppgave.class))).thenReturn(OPPGAVE);
 
         // Skal ikke ha en oppgave av typen revurder fra før
         var oppgaver = oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(behandling.getId());

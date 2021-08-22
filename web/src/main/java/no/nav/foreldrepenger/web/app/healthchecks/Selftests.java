@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.domene.liveness.KafkaIntegration;
 import no.nav.foreldrepenger.web.app.healthchecks.checks.DatabaseHealthCheck;
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class Selftests {

@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.oppgave;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.vedtak.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.vedtak.sikkerhet.ContextPathHolder;
 
 @ApplicationScoped

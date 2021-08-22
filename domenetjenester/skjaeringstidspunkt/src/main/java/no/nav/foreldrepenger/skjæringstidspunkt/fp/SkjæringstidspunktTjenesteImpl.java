@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped

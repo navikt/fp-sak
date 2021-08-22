@@ -34,8 +34,8 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.kafka.SakOgBehan
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.util.env.Cluster;
-import no.nav.vedtak.util.env.Environment;
+import no.nav.foreldrepenger.konfig.Cluster;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 @ProsessTask(SakOgBehandlingTask.TASKTYPE)
