@@ -43,7 +43,7 @@ final class PleiepengerJustering {
             .filter(ytelse -> K9SAK.equals(ytelse.getKilde()))
             .filter(ytelse -> ytelse.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
             .toList();
-        LOG.info("Pleiepenger k9 i IAY {}", k9pleiepenger);
+        LOG.info("Pleiepenger k9 i IAY {} {}", k9pleiepenger, k9pleiepenger.stream().map(ytelse -> ytelse.getYtelseAnvist()).toList());
         var pleiepengerUtsettelser = k9pleiepenger.stream()
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
