@@ -39,19 +39,25 @@ final class PleiepengerJustering {
             return oppgittePerioder;
         }
 
-        var pleiepengerUtsettelser = aktørYtelseFraRegister.get()
-            .getAlleYtelser()
-            .stream()
+        var k9pleiepenger = aktørYtelseFraRegister.get().getAlleYtelser().stream()
             .filter(ytelse -> K9SAK.equals(ytelse.getKilde()))
             .filter(ytelse -> ytelse.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
+            .toList();
+        LOG.info("Pleiepenger k9 i IAY {}", k9pleiepenger);
+        var pleiepengerUtsettelser = k9pleiepenger.stream()
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
                 .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
             .toList();
 
+        LOG.info("Pleiepenger utsettelser {}", pleiepengerUtsettelser);
+
         exceptionHvisOverlapp(pleiepengerUtsettelser);
 
-        return combine(pleiepengerUtsettelser, oppgittePerioder);
+        var combine = combine(pleiepengerUtsettelser, oppgittePerioder);
+
+        LOG.info("Pleiepenger etter combine {}", combine);
+        return combine;
     }
 
     private static void exceptionHvisOverlapp(List<PleiepengerUtsettelse> pleiepengerUtsettelser) {
