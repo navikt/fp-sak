@@ -61,11 +61,10 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             .filter(a -> !a.getAksjonspunktDefinisjon().getKode().equals(dto.getKode())) // Ikke seg selv
             .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
-        resultatBuilder.leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, avslagsårsak);
-        resultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-
         return resultatBuilder
             .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            .leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, avslagsårsak)
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
             .build();
     }

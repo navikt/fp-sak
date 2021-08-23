@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndr
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
@@ -61,8 +62,12 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
             }
             var resultatBuilder = OppdateringResultat.utenTransisjon();
             var avslagsårsak = dto.getAvslagskode() == null ? null : Avslagsårsak.fraKode(dto.getAvslagskode());
-            resultatBuilder.leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak);
-            return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
+
+            return resultatBuilder
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
         return OppdateringResultat.utenOveropp();
 

@@ -45,7 +45,7 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
                 .build();
         }
         return OppdateringResultat.utenTransisjon()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
             .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET,  Avslagsårsak.SØKT_FOR_SENT, VM_5007)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .build();

@@ -54,7 +54,7 @@ public class AvklarOpptjeningsvilkåretOppdaterer implements AksjonspunktOppdate
                 .build();
         }
         return OppdateringResultat.utenTransisjon()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
             .leggTilAvslåttVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .build();

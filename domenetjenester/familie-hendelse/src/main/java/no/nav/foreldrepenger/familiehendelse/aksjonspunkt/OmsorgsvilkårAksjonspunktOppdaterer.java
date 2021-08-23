@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvilkår1AksjonspunktDto;
@@ -65,9 +66,12 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
             resultatBuilder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT);
             return resultatBuilder.medTotrinn().build();
         }
-        resultatBuilder.leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()));
 
-        return resultatBuilder.medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR).build();
+        return resultatBuilder
+            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+            .leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()))
+            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+            .build();
     }
 
     protected abstract HistorikkEndretFeltType getTekstKode();
