@@ -59,9 +59,9 @@ public class FrilansAvvikLoggTjeneste {
         Optional<OppgittFrilans> relevantOppgittFrilans = finnOppgittFrilansFraSøknad(iayGrunnlag);
 
         List<Yrkesaktivitet> frilansPåSTP = finnFrilansIRegisterSomKrysserSTP(stpBG, iayGrunnlag, ref.getAktørId());
-        List<Arbeidsgiver> arbeidsgivereMedInntektSiste3Mnd = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.getAktørId());
+        List<Arbeidsgiver> arbeidsgivereMedInntektFørSTP = finnArbeidsgivereMedInntekterSiste3Mnd(stpBG, iayGrunnlag, ref.getAktørId());
         List<Yrkesaktivitet> frilansaktiviteterPåSTPMedInntektSiste3Mnd = frilansPåSTP.stream()
-            .filter(ya -> arbeidsgivereMedInntektSiste3Mnd.contains(ya.getArbeidsgiver()))
+            .filter(ya -> arbeidsgivereMedInntektFørSTP.contains(ya.getArbeidsgiver()))
             .collect(Collectors.toList());
 
         if (relevantOppgittFrilans.isEmpty()) {
@@ -78,10 +78,13 @@ public class FrilansAvvikLoggTjeneste {
     private List<Arbeidsgiver> finnArbeidsgivereMedInntekterSiste3Mnd(LocalDate stpBG,
                                                                       InntektArbeidYtelseGrunnlag grunnlag,
                                                                       AktørId aktørId) {
+        LocalDate datoViSjekkerInntektFra = LocalDate.now().isBefore(stpBG.minusWeeks(2))
+            ? stpBG.minusMonths(4).withDayOfMonth(1)
+            : stpBG.minusMonths(3).withDayOfMonth(1);
         InntektFilter inntektfilter = new InntektFilter(grunnlag.getAktørInntektFraRegister(aktørId));
         return inntektfilter.getAlleInntekter(InntektsKilde.INNTEKT_BEREGNING).stream()
             .filter(innt -> innt.getArbeidsgiver() != null)
-            .filter(innt -> finnesInntektEtterDato(innt.getAlleInntektsposter(), stpBG.minusMonths(3).withDayOfMonth(1)))
+            .filter(innt -> finnesInntektEtterDato(innt.getAlleInntektsposter(), datoViSjekkerInntektFra))
             .map(Inntekt::getArbeidsgiver)
             .collect(Collectors.toList());
     }
