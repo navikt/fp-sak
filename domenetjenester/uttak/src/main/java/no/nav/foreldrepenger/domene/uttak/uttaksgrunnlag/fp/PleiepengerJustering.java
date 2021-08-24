@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriod
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import no.nav.foreldrepenger.regler.uttak.felles.Virkedager;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -39,25 +41,18 @@ final class PleiepengerJustering {
             return oppgittePerioder;
         }
 
-        var k9pleiepenger = aktørYtelseFraRegister.get().getAlleYtelser().stream()
-            .filter(ytelse -> K9SAK.equals(ytelse.getKilde()))
-            .filter(ytelse -> ytelse.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
-            .toList();
-        LOG.info("Pleiepenger k9 i IAY {} {}", k9pleiepenger, k9pleiepenger.stream().map(ytelse -> ytelse.getYtelseAnvist()).toList());
-        var pleiepengerUtsettelser = k9pleiepenger.stream()
+        var pleiepengerUtsettelser = aktørYtelseFraRegister.get().getAlleYtelser().stream()
+            .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
+            .filter(ytelse1 -> ytelse1.getRelatertYtelseType().equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN))
             .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
                 .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.ZERO).erNulltall())
                 .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
             .toList();
 
-        LOG.info("Pleiepenger utsettelser {}", pleiepengerUtsettelser);
 
         exceptionHvisOverlapp(pleiepengerUtsettelser);
 
-        var combine = combine(pleiepengerUtsettelser, oppgittePerioder);
-
-        LOG.info("Pleiepenger etter combine {}", combine);
-        return combine;
+        return combine(pleiepengerUtsettelser, oppgittePerioder);
     }
 
     private static void exceptionHvisOverlapp(List<PleiepengerUtsettelse> pleiepengerUtsettelser) {
@@ -92,7 +87,10 @@ final class PleiepengerJustering {
                 return copy(interval, pp.getValue().oppgittPeriode());
 
             });
-        var combined = fellesTimeline.toSegments().stream().map(s -> s.getValue()).toList();
+        var combined = fellesTimeline.toSegments().stream().map(s -> s.getValue())
+            .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
+            .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
+            .toList();
         return slåSammenLikePerioder(combined);
     }
 

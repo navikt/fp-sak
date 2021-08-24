@@ -107,4 +107,55 @@ public class OppgittPeriodeUtilTest {
 
         assertThat(førsteSøkteUttaksdato.get()).isEqualTo(andrePeriodeUttaksperiode.getFom());
     }
+
+    @Test
+    public void skal_slå_sammen_like_perioder() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 25))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 26), LocalDate.of(2021, 9, 3))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+    }
+
+    @Test
+    public void skal_slå_sammen_like_perioder_hvis_eneste_hull_er_helg() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 27))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 30), LocalDate.of(2021, 9, 3))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(1);
+    }
+
+    @Test
+    public void skal_ikke_slå_sammen_like_perioder_hvis_hull() {
+        var p1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 20), LocalDate.of(2021, 8, 27))
+            .build();
+
+        var p2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
+            .medPeriode(LocalDate.of(2021, 8, 31), LocalDate.of(2021, 9, 3))
+            .build();
+
+        var slåttSammen = OppgittPeriodeUtil.slåSammenLikePerioder(List.of(p1, p2));
+
+        assertThat(slåttSammen).hasSize(2);
+    }
 }
