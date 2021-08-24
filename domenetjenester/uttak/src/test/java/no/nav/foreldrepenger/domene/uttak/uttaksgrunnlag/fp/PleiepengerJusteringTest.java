@@ -163,7 +163,7 @@ class PleiepengerJusteringTest {
             .medKilde(Fagsystem.K9SAK)
             .medVedtattTidspunkt(vedtakTidspunkt)
             .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN);
-        var pleiepengerFom = of(2020, 2, 1);
+        var pleiepengerFom = of(2020, 1, 15);
         var pleiepengerTom = of(2020, 2, 13);
         var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(pleiepengerFom, pleiepengerTom);
         ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
@@ -266,6 +266,38 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
         assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval.getFomDato());
         assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval.getTomDato());
+    }
+
+    @Test
+    void skal_slå_sammen_utsettelser_hvis_anviste_perioder_har_hull_i_helger() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval1 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 23),
+            of(2021, 8, 27));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval1)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var pleiepengerInterval2 = DatoIntervallEntitet.fraOgMedTilOgMed(of(2021, 8, 30),
+            of(2021, 9, 3));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval2)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2021, 8, 23), of(2021, 10, 1))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote));
+
+        assertThat(resultat).hasSize(2);
+        assertThat(resultat.get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval1.getFomDato());
+        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval2.getTomDato());
+        assertThat(resultat.get(1).isUtsettelse()).isFalse();
+        assertThat(resultat.get(1).getFom()).isEqualTo(pleiepengerInterval2.getTomDato().plusDays(1));
+        assertThat(resultat.get(1).getTom()).isEqualTo(mødrekvote.getTom());
     }
 
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
