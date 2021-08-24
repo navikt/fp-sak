@@ -29,13 +29,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktRegisterinnhentingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @FagsakYtelseTypeRef("FP")
 @ApplicationScoped
@@ -85,19 +85,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
-        if (behandlingId == 1939438) {
-            // Midl spesialhåndtering pga annen bug
-            var idag = LocalDate.now();
-            return Skjæringstidspunkt.builder()
-                .medKreverSammenhengendeUttak(true)
-                .medFørsteUttaksdato(idag)
-                .medFørsteUttaksdatoGrunnbeløp(idag)
-                .medUtledetSkjæringstidspunkt(idag)
-                .medSkjæringstidspunktOpptjening(idag)
-                .medSkjæringstidspunktBeregning(idag)
-                .medUtledetMedlemsintervall(new LocalDateInterval(idag, idag))
-                .build();
-        }
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var sammenhengendeUttak = kreverSammenhengendeUttak(behandling);
