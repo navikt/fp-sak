@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
+import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -69,7 +69,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
             return BehandleStegResultat.fremoverført(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT);
         }
         // Hvis det ikke allerede er utledet ventepunkt og vi har ventepunkt for sykemelding
-        if (aksjonspunktResultater.stream().noneMatch(BeregningAksjonspunktResultat::harFrist) && ventPåSykemeldingAksjonspunkt.isPresent()) {
+        if (aksjonspunktResultater.stream().noneMatch(BeregningAvklaringsbehovResultat::harFrist) && ventPåSykemeldingAksjonspunkt.isPresent()) {
             return BehandleStegResultat
                 .utførtMedAksjonspunktResultater(Collections.singletonList(ventPåSykemeldingAksjonspunkt.get()));
         }
