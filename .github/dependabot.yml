@@ -26,7 +26,3 @@ updates:
         versions: ["x", "x.x"]
       - dependency-name: "no.nav.foreldrepenger.kontrakter:*"
         versions: ["x", "x.x"]
-
-      # Kalkulus brukes som frittstående applikasjon av k9-sak, følger derfor ikke vanlige regler for versjonering.
-      # Kan fjernes når fpsak er over på rest mot kalkulus og kun bruker kontraktsmodulen
-      - dependency-name: "no.nav.folketrygdloven.kalkulus:*"
