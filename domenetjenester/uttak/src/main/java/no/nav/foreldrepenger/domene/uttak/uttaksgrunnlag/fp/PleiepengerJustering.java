@@ -49,8 +49,11 @@ final class PleiepengerJustering {
                 .map(ya -> new PleiepengerUtsettelse(ytelse.getVedtattTidspunkt(), map(ya))))
             .toList();
 
-
         exceptionHvisOverlapp(pleiepengerUtsettelser);
+
+        if (!pleiepengerUtsettelser.isEmpty()) {
+            LOG.info("Behandlingen har vedtak om pleiepenger. Oppretter utsettelser");
+        }
 
         return combine(pleiepengerUtsettelser, oppgittePerioder);
     }
