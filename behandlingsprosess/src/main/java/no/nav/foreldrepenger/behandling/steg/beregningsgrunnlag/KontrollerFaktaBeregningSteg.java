@@ -56,7 +56,7 @@ public class KontrollerFaktaBeregningSteg implements BeregningsgrunnlagSteg {
         frilansAvvikLoggTjeneste.loggFrilansavvikVedBehov(BehandlingReferanse.fra(behandling));
 
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
     @Override

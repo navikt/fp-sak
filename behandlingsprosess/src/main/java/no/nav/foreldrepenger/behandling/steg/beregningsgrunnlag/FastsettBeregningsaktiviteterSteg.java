@@ -75,7 +75,7 @@ public class FastsettBeregningsaktiviteterSteg implements BeregningsgrunnlagSteg
         }
         // hent på nytt i tilfelle lagret og flushet
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunktResultater.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
     private Optional<AksjonspunktResultat> skalVentePåSykemelding(Behandling behandling) {

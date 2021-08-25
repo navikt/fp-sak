@@ -56,7 +56,7 @@ public class VurderRefusjonBeregningsgrunnlagSteg implements BeregningsgrunnlagS
         }
         var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
     private BeregningsgrunnlagInputFelles getInputTjeneste(FagsakYtelseType ytelseType) {

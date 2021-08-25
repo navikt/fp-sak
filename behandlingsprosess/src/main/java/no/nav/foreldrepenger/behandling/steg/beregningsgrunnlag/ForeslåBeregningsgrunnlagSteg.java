@@ -58,7 +58,7 @@ public class ForeslåBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
         var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBeregningsgrunnlag(input);
 
-        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map)
+        var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map)
                 .collect(Collectors.toList());
 
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
