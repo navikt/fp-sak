@@ -300,6 +300,21 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(1).getTom()).isEqualTo(mødrekvote.getTom());
     }
 
+    @Test
+    void skal_håndtere_empty_oppgitteperioder() {
+        var aktørId = AktørId.dummy();
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(of(2020, 1, 1), of(2020, 2, 1));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of());
+
+        assertThat(resultat).isEmpty();
+    }
+
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)

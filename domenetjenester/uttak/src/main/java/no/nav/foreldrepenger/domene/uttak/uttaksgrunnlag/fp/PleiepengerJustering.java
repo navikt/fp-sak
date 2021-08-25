@@ -35,6 +35,10 @@ final class PleiepengerJustering {
     static List<OppgittPeriodeEntitet> juster(AktørId aktørId,
                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
                                               List<OppgittPeriodeEntitet> oppgittePerioder) {
+        if (oppgittePerioder.isEmpty()) {
+            LOG.info("Oppgitte perioder er empty. Justerer ikke for pleiepenger");
+            return oppgittePerioder;
+        }
         var aktørYtelseFraRegister = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId);
         if (aktørYtelseFraRegister.isEmpty()) {
             LOG.info("Mangler ytelser fra register");
