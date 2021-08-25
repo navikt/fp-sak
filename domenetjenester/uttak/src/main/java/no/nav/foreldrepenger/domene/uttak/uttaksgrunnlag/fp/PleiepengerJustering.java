@@ -37,7 +37,7 @@ final class PleiepengerJustering {
                                               List<OppgittPeriodeEntitet> oppgittePerioder) {
         var aktørYtelseFraRegister = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId);
         if (aktørYtelseFraRegister.isEmpty()) {
-            LOG.warn("Mangler ytelser fra register");
+            LOG.info("Mangler ytelser fra register");
             return oppgittePerioder;
         }
 

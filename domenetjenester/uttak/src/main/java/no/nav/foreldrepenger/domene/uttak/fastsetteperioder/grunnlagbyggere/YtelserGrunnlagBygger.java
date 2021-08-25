@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.foreldrepenger.domene.PleiepengerToggle;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedBarnInnlagt;
@@ -15,9 +14,6 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ytelser.Ytel
 public class YtelserGrunnlagBygger {
 
     public Ytelser byggGrunnlag(UttakInput uttakInput) {
-        if (!PleiepengerToggle.erToggletPå()) {
-            return null;
-        }
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var pleiepengerMedInnleggelse = getPleiepengerMedInnleggelse(fpGrunnlag);
         return new Ytelser(pleiepengerMedInnleggelse.orElse(null));
