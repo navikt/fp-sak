@@ -10,8 +10,7 @@ class BeregningAksjonspunktResultatMapper {
     static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
         AksjonspunktDefinisjon apDef = mapTilAksjonspunkt(beregningResultat);
         if (beregningResultat.harFrist()) {
-            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef,
-                    Venteårsak.fraKode(mapTilVenteårsak(beregningResultat)),
+            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat),
                     beregningResultat.getVentefrist());
         }
         return AksjonspunktResultat.opprettForAksjonspunkt(apDef);
