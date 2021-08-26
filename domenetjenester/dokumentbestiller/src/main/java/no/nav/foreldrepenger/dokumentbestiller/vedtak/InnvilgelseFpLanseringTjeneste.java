@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -47,8 +46,9 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     public DokumentMalType velgFpInnvilgelsesmalProd(Behandling behandling) {
-        boolean lansertDokGen = BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
-            && !harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(behandling)
+        boolean lansertDokGen = behandling.erYtelseBehandling()
+            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
+            && !harPerioderMedGradertOgAvslått(behandling)
             && !harDødtBarn(behandling)
             && harSøknadMedSpråkkodeNB(behandling);
 
@@ -59,13 +59,7 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     public DokumentMalType velgFpInnvilgelsesmalDev(Behandling behandling) {
-        boolean kanBrukeDokgen = behandling.erYtelseBehandling()
-            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
-            && !harPerioderMedGradertOgAvslått(behandling)
-            && !harDødtBarn(behandling)
-            && harSøknadMedSpråkkodeNB(behandling);
-
-        return kanBrukeDokgen ?
+        return (!harDødtBarn(behandling) && harSøknadMedSpråkkodeNB(behandling)) ?
             DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
@@ -77,37 +71,10 @@ public class InnvilgelseFpLanseringTjeneste {
     }
 
     private boolean vilBrukeDokgenVedNesteLansering(Behandling behandling) {
-        return (BehandlingType.REVURDERING.equals(behandling.getType())
-            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
-            && !harPerioderMedGradertOgAvslått(behandling)
+        return harPerioderMedGraderingEllerSamtidigUttak(behandling)
+            && harPerioderMedGradertOgAvslått(behandling)
             && !harDødtBarn(behandling)
-            && harSøknadMedSpråkkodeNB(behandling))
-            || (forrigeLanseringMedAvslag(behandling));
-    }
-
-    private boolean harAvslåttePerioder(Behandling behandling) {
-        return fpUttakRepository.hentUttakHvisEksisterer(behandling.getId())
-            .map(ForeldrepengerUttak::getGjeldendePerioder)
-            .orElse(Collections.emptyList())
-            .stream()
-            .anyMatch(p -> !p.isInnvilget());
-    }
-
-    private boolean forrigeLanseringMedAvslag(Behandling behandling) {
-        return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())
-            && !harPerioderMedGraderingEllerSamtidigUttak(behandling)
-            && !harPerioderMedGradertOgAvslått(behandling)
-            && !harDødtBarn(behandling)
-            && harSøknadMedSpråkkodeNB(behandling)
-            && harAvslåttePerioder(behandling);
-    }
-
-    private boolean harAvslåttePerioderEllerPerioderMedGraderingEllerSamtidigUttak(Behandling behandling) {
-        return fpUttakRepository.hentUttakHvisEksisterer(behandling.getId())
-            .map(ForeldrepengerUttak::getGjeldendePerioder)
-            .orElse(Collections.emptyList())
-            .stream()
-            .anyMatch(p -> !p.isInnvilget() || p.isGraderingInnvilget() || p.isSøktGradering() || p.isSamtidigUttak());
+            && harSøknadMedSpråkkodeNB(behandling);
     }
 
     private boolean harPerioderMedGraderingEllerSamtidigUttak(Behandling behandling) {
