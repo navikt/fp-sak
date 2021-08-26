@@ -85,19 +85,6 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
 
     @Override
     public Skjæringstidspunkt getSkjæringstidspunkter(Long behandlingId) {
-        if (Environment.current().isProd() && behandlingId == 1944710) {
-            // Midl spesialhåndtering pga annen bug
-            var idag = LocalDate.now();
-            return Skjæringstidspunkt.builder()
-                .medKreverSammenhengendeUttak(true)
-                .medFørsteUttaksdato(idag)
-                .medFørsteUttaksdatoGrunnbeløp(idag)
-                .medUtledetSkjæringstidspunkt(idag)
-                .medSkjæringstidspunktOpptjening(idag)
-                .medSkjæringstidspunktBeregning(idag)
-                .medUtledetMedlemsintervall(new LocalDateInterval(idag, idag))
-                .build();
-        }
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var sammenhengendeUttak = kreverSammenhengendeUttak(behandling);
