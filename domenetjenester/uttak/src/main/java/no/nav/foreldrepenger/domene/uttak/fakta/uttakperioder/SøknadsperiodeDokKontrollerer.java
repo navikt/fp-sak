@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.domene.PleiepengerToggle;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.uttak.fakta.KontrollerFaktaUttakFeil;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
@@ -99,7 +100,7 @@ final class SøknadsperiodeDokKontrollerer {
         if (erPeriodenAvklartAvSaksbehandler(søknadsperiode)) {
             return kontrollerAvklartPeriode(søknadsperiode, eksisterendeDokumentasjon);
         }
-        if (erAvklartAvVedtakOmPleiepenger(søknadsperiode)) {
+        if (PleiepengerToggle.erToggletPå() && erAvklartAvVedtakOmPleiepenger(søknadsperiode)) {
             return KontrollerFaktaPeriode.automatiskBekreftet(søknadsperiode, PERIODE_OK);
         }
 
