@@ -48,7 +48,7 @@ public class FordelBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
         var beregningsgrunnlagResultat = beregningsgrunnlagKopierOgLagreTjeneste.fordelBeregningsgrunnlag(input);
         var aksjonspunkter = beregningsgrunnlagResultat.getAksjonspunkter();
         return BehandleStegResultat
-                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningResultatMapper::map).collect(Collectors.toList()));
+                .utførtMedAksjonspunktResultater(aksjonspunkter.stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList()));
     }
 
 

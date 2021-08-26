@@ -60,7 +60,7 @@ public class ForeslåBesteberegningSteg implements BeregningsgrunnlagSteg {
         var input = getInputTjeneste(ref.getFagsakYtelseType()).lagInput(ref.getBehandlingId());
         if (skalBeregnesAutomatisk(ref, input)) {
             var resultat = beregningsgrunnlagKopierOgLagreTjeneste.foreslåBesteberegning(input);
-            var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningResultatMapper::map).collect(Collectors.toList());
+            var aksjonspunkter = resultat.getAksjonspunkter().stream().map(BeregningAksjonspunktResultatMapper::map).collect(Collectors.toList());
             aksjonspunkter.add(opprettKontrollpunkt());
             return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspunkter);
         }

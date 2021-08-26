@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import no.nav.folketrygdloven.kalkulator.output.BeregningAksjonspunktResultat;
+import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 
@@ -24,7 +24,7 @@ class KopierBeregningsgrunnlag {
      * @param forrigeGrunnlag          Forrige grunnlag som lagres i beregningsteget
      * @param forrigeBekreftetGrunnlag Forrige grunnlag som ble lagret etter saksbehandlers vurdering i steget
      */
-    static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
+    static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAvklaringsbehovResultat> aksjonspunkter,
                                                          BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                                                          Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag) {
@@ -44,7 +44,7 @@ class KopierBeregningsgrunnlag {
      * @param forrigeBeregningsgrunnlag          Forrige beregningsgrunnlag som lagres i beregningsteget
      * @param forrigeBekreftetBeregningsgrunnlag Forrige beregningsgrunnlag som ble lagret etter saksbehandlers vurdering i steget
      */
-    static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
+    static boolean kanKopiereFraForrigeBekreftetGrunnlag(List<BeregningAvklaringsbehovResultat> aksjonspunkter,
                                                          BeregningsgrunnlagEntitet nyttBg,
                                                          Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag,
                                                          Optional<BeregningsgrunnlagEntitet> forrigeBekreftetBeregningsgrunnlag) {
@@ -55,7 +55,7 @@ class KopierBeregningsgrunnlag {
         return false;
     }
 
-    private static boolean kanKopiereAktiviteter(List<BeregningAksjonspunktResultat> aksjonspunkter,
+    private static boolean kanKopiereAktiviteter(List<BeregningAvklaringsbehovResultat> aksjonspunkter,
                                                  BeregningsgrunnlagGrunnlagEntitet nyttGrunnlag,
                                                  Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeGrunnlag,
                                                  Optional<BeregningsgrunnlagGrunnlagEntitet> forrigeBekreftetGrunnlag) {
@@ -68,7 +68,7 @@ class KopierBeregningsgrunnlag {
     }
 
 
-    private static boolean kanKopiereBeregningsgrunnlag(List<BeregningAksjonspunktResultat> aksjonspunkter,
+    private static boolean kanKopiereBeregningsgrunnlag(List<BeregningAvklaringsbehovResultat> aksjonspunkter,
                                                         BeregningsgrunnlagEntitet nyttBg,
                                                         Optional<BeregningsgrunnlagEntitet> forrigeBeregningsgrunnlag) {
         return forrigeBeregningsgrunnlag.map(
