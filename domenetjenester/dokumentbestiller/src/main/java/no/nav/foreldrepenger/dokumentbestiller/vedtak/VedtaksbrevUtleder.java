@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 public class VedtaksbrevUtleder {
@@ -79,13 +80,13 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-                return DokumentMalType.AVSLAG_ENGANGSSTØNAD;
+                return DokumentMalType.ENGANGSSTØNAD_AVSLAG;
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;
             }
-            return DokumentMalType.AVSLAG_FORELDREPENGER_DOK;
+            return Environment.current().isProd() ? DokumentMalType.AVSLAG_FORELDREPENGER_DOK : DokumentMalType.FORELDREPENGER_AVSLAG;
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return null; //TODO Implementer
@@ -98,7 +99,7 @@ public class VedtaksbrevUtleder {
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             innvilgelseFpLanseringTjeneste.velgFpInnvilgelsesmal(behandling) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
-            DokumentMalType.INNVILGELSE_ENGANGSSTØNAD : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
+            DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
 
