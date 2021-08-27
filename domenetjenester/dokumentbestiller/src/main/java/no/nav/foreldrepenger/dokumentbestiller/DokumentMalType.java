@@ -15,7 +15,6 @@ public enum DokumentMalType implements Kodeverdi {
     //Mal hos team dokument
     INNVILGELSE_FORELDREPENGER_DOK("INNVFP", "Innvilgelsesbrev Foreldrepenger"),
     OPPHØR_DOK("OPPHOR", "Opphør brev"),
-    AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
 
     //Fritekstbrev - tekst unntatt header og footer genereres av fpformidling
     FRITEKST_DOK("FRITKS", "Fritekstbrev"),
@@ -43,6 +42,7 @@ public enum DokumentMalType implements Kodeverdi {
     FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED", "Forlenget saksbehandlingstid - medlemskap"),
     FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID", "Forlenget saksbehandlingstid - Tidlig søknad"),
     INNVILGELSE_FORELDREPENGER("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
+    FORELDREPENGER_AVSLAG("AVSFOR", "Avslagsbrev Foreldrepenger"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated
@@ -79,6 +79,8 @@ public enum DokumentMalType implements Kodeverdi {
     HENLEGG_BEHANDLING_DOK("HENLEG", "Behandling henlagt"),
     @Deprecated
     INNHENT_DOK("INNHEN", "Innhent dokumentasjon"),
+    @Deprecated
+    AVSLAG_FORELDREPENGER_DOK("AVSLFP", "Avslagsbrev Foreldrepenger"),
     ;
 
     private static final Map<String, DokumentMalType> KODER = new LinkedHashMap<>();

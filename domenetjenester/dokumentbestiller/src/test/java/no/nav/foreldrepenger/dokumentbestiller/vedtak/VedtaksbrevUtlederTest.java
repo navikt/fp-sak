@@ -91,7 +91,7 @@ public class VedtaksbrevUtlederTest {
         doReturn(FagsakYtelseType.FORELDREPENGER).when(behandling).getFagsakYtelseType();
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.AVSLAG_FORELDREPENGER_DOK);
+                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.FORELDREPENGER_AVSLAG);
     }
 
     @Test
