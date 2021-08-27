@@ -1,5 +1,15 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -9,14 +19,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class InnvilgelseFpLanseringTjeneste {
@@ -55,12 +57,12 @@ public class InnvilgelseFpLanseringTjeneste {
         loggSaksnummerForNesteLansering(behandling);
 
         return lansertDokGen ?
-            DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
+            DokumentMalType.FORELDREPENGER_INNVILGELSE : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
     public DokumentMalType velgFpInnvilgelsesmalDev(Behandling behandling) {
         return (!harDødtBarn(behandling) && harSøknadMedSpråkkodeNB(behandling)) ?
-            DokumentMalType.INNVILGELSE_FORELDREPENGER : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
+            DokumentMalType.FORELDREPENGER_INNVILGELSE : DokumentMalType.INNVILGELSE_FORELDREPENGER_DOK;
     }
 
     private void loggSaksnummerForNesteLansering(Behandling behandling) {

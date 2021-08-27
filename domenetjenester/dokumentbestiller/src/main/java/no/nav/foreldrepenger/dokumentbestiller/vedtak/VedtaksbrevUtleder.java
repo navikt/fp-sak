@@ -80,7 +80,7 @@ public class VedtaksbrevUtleder {
     public static DokumentMalType velgNegativVedtaksmal(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var fagsakYtelseType = behandling.getFagsakYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)) {
-                return DokumentMalType.AVSLAG_ENGANGSSTØNAD;
+                return DokumentMalType.ENGANGSSTØNAD_AVSLAG;
         }
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
@@ -99,7 +99,7 @@ public class VedtaksbrevUtleder {
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
             innvilgelseFpLanseringTjeneste.velgFpInnvilgelsesmal(behandling) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
-            DokumentMalType.INNVILGELSE_ENGANGSSTØNAD : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
+            DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
 

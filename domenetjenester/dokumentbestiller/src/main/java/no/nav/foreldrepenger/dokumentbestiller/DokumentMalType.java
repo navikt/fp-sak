@@ -29,20 +29,20 @@ public enum DokumentMalType implements Kodeverdi {
     KLAGE_HJEMSENDT("KHJEMS", "Klage hjemsendt/opphevet"),
 
     //Dokgen
-    INNVILGELSE_ENGANGSSTØNAD ("INNVES", "Innvilget engangsstønad"),
+    ENGANGSSTØNAD_INNVILGELSE("INNVES", "Innvilget engangsstønad"),
+    ENGANGSSTØNAD_AVSLAG("AVSLES", "Avslag engangsstønad"),
+    FORELDREPENGER_INNVILGELSE("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
+    FORELDREPENGER_AVSLAG("AVSFOR", "Avslagsbrev Foreldrepenger"),
+    FORELDREPENGER_INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
     INNHENTE_OPPLYSNINGER ("INNOPP", "Innhente opplysninger"),
-    AVSLAG_ENGANGSSTØNAD("AVSLES", "Avslag engangsstønad"),
     VARSEL_OM_REVURDERING("VARREV", "Varsel om revurdering"),
     INFO_OM_HENLEGGELSE("IOHENL", "Behandling henlagt"),
     IKKE_SØKT("IKKESO", "Ikke mottatt søknad"),
     INNSYN_SVAR( "INNSYN", "Svar på innsynskrav"),
     INGEN_ENDRING("INGEND", "Uendret utfall"),
-    INFO_TIL_ANNEN_FORELDER("INFOAF", "Informasjonsbrev til den andre forelderen"),
     FORLENGET_SAKSBEHANDLINGSTID("FORSAK", "Forlenget saksbehandlingstid"),
     FORLENGET_SAKSBEHANDLINGSTID_MEDL("FORMED", "Forlenget saksbehandlingstid - medlemskap"),
     FORLENGET_SAKSBEHANDLINGSTID_TIDLIG("FORTID", "Forlenget saksbehandlingstid - Tidlig søknad"),
-    INNVILGELSE_FORELDREPENGER("INVFOR", "Innvilgelsesbrev Foreldrepenger"),
-    FORELDREPENGER_AVSLAG("AVSFOR", "Avslagsbrev Foreldrepenger"),
 
     // Disse brevene er utgåtte, men beholdes her grunnet historisk bruk i databasen:
     @Deprecated

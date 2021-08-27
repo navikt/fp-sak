@@ -60,14 +60,14 @@ public class VedtaksbrevUtlederTest {
     @Test
     public void skal_velge_positivt_ES() {
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.INNVILGELSE_ENGANGSSTØNAD);
+                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_INNVILGELSE);
     }
 
     @Test
     public void skal_velge_negativt_ES() {
         doReturn(VedtakResultatType.AVSLAG).when(behandlingVedtakMock).getVedtakResultatType();
         assertThat(VedtaksbrevUtleder.velgDokumentMalForVedtak(behandling, behandlingsresultatMock, behandlingVedtakMock, klageRepository,
-                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.AVSLAG_ENGANGSSTØNAD);
+                ankeRepository, innvilgelseFpLanseringTjeneste)).isEqualTo(DokumentMalType.ENGANGSSTØNAD_AVSLAG);
     }
 
     @Test
