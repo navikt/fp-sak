@@ -16,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,6 +300,19 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
     }
 
     @Override
+    public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder informasjonBuilder) {
+        Objects.requireNonNull(informasjonBuilder, "informasjonBuilder"); // NOSONAR
+
+        var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
+
+        iayGrunnlagBuilder.ryddOppErstattedeArbeidsforhold(aktørId, informasjonBuilder.getReverserteErstattArbeidsforhold());
+        iayGrunnlagBuilder.ryddOppErstattedeArbeidsforhold(aktørId, informasjonBuilder.getErstattArbeidsforhold());
+        iayGrunnlagBuilder.medInformasjon(informasjonBuilder.build());
+
+        konverterOgLagreOverstyring(behandlingId, iayGrunnlagBuilder.build());
+    }
+
+    @Override
     public void lagreInntektsmeldinger(Saksnummer saksnummer, Long behandlingId,
             Collection<InntektsmeldingBuilder> inntektsmeldingBuilderCollection) {
         Objects.requireNonNull(inntektsmeldingBuilderCollection, "inntektsmeldingBuilderCollection");
@@ -533,9 +547,37 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         }
     }
 
+    private void konverterOgLagreOverstyring(Long behandlingId, InntektArbeidYtelseGrunnlag nyttGrunnlag) {
+        Objects.requireNonNull(behandlingId, "behandlingId");
+        if (nyttGrunnlag == null) {
+            return;
+        }
+
+        var tidligereAggregat = finnGrunnlag(behandlingId);
+        if (tidligereAggregat.isPresent()) {
+            var tidligereGrunnlag = tidligereAggregat.get();
+            if (new IAYDiffsjekker(false).getDiffEntity().diff(tidligereGrunnlag, nyttGrunnlag).isEmpty()) {
+                return;
+            }
+            lagreOverstyrtGrunnlag(nyttGrunnlag, behandlingId);
+        } else {
+            lagreOverstyrtGrunnlag(nyttGrunnlag, behandlingId);
+        }
+    }
+
+
     private void lagreGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         lagreGrunnlag(konverterTilDto(behandling, nyttGrunnlag));
+    }
+
+    private void lagreOverstyrtGrunnlag(InntektArbeidYtelseGrunnlag nyttGrunnlag, Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        try {
+            abakusTjeneste.lagreOverstyrtGrunnlag(konverterTilOverstyringDto(behandling, nyttGrunnlag));
+        } catch (IOException e) {
+            throw feilVedKallTilAbakus("Kunne ikke lagre overstyrt grunnlag i Abakus: " + e.getMessage(), e);
+        }
     }
 
     private InntektArbeidYtelseGrunnlagDto konverterTilDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
@@ -544,6 +586,19 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             var tilDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
                     gr.getEksternReferanse(), behandling.getUuid());
             grunnlagDto = tilDto.mapTilDto(gr);
+        } catch (RuntimeException t) {
+            LOG.warn("Kunne ikke transformere til Dto: grunnlag={} behandling={}", gr.getEksternReferanse(), behandling.getId(), t);
+            throw t;
+        }
+        return grunnlagDto;
+    }
+
+    private OverstyrtInntektArbeidYtelseDto konverterTilOverstyringDto(Behandling behandling, InntektArbeidYtelseGrunnlag gr) {
+        OverstyrtInntektArbeidYtelseDto grunnlagDto;
+        try {
+            var tilDto = new IAYTilDtoMapper(behandling.getAktørId(), KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()),
+                gr.getEksternReferanse(), behandling.getUuid());
+            grunnlagDto = tilDto.mapTilOverstyringDto(gr);
         } catch (RuntimeException t) {
             LOG.warn("Kunne ikke transformere til Dto: grunnlag={} behandling={}", gr.getEksternReferanse(), behandling.getId(), t);
             throw t;

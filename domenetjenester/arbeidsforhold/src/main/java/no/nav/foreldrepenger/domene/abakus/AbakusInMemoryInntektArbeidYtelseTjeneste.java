@@ -274,6 +274,18 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     }
 
     @Override
+    public void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId søkerAktørId, ArbeidsforholdInformasjonBuilder informasjon) {
+        Objects.requireNonNull(informasjon, "informasjon"); // NOSONAR
+        var builder = opprettGrunnlagBuilderFor(behandlingId);
+
+        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getReverserteErstattArbeidsforhold());
+        builder.ryddOppErstattedeArbeidsforhold(søkerAktørId, informasjon.getErstattArbeidsforhold());
+        builder.medInformasjon(informasjon.build());
+
+        lagreOgFlush(behandlingId, builder.build());
+    }
+
+    @Override
     public List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse) {
         return Collections.emptyList();
     }

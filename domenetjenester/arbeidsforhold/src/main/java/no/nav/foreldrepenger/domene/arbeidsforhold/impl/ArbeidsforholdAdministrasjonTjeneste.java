@@ -90,6 +90,16 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     }
 
     /**
+     * Lagrer arbeidsforhold avklart i aksjonspunkt 5080
+     *
+     * @param behandlingId behandlingId
+     * @param builder      ArbeidsforholdsOverstyringene som skal lagrers
+     */
+    public void lagreOverstyring(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder) {
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, aktørId, builder);
+    }
+
+    /**
      * Avsjekk arbeidsforhold mot inntektsmeldinger.
      */
     public Set<ArbeidsforholdWrapper> hentArbeidsforholdFerdigUtledet(BehandlingReferanse ref,

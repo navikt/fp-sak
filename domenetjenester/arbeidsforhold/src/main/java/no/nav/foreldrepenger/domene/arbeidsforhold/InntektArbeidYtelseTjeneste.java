@@ -140,6 +140,16 @@ public interface InntektArbeidYtelseTjeneste {
      */
     SakInntektsmeldinger hentInntektsmeldinger(Saksnummer saksnummer);
 
+
+    /**
+     * Lagrer arbeidsforholdene på IAY aggregatet
+     *
+     * @param behandlingId - Behandling Id
+     * @param aktørId      - Aktør Id
+     * @param builder      - {@link ArbeidsforholdInformasjonBuilder}
+     */
+    void lagreOverstyrtArbeidsforhold(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder);
+
     /**
      * Lagre en eller flere inntektsmeldinger på en behandling for en sak.
      *
