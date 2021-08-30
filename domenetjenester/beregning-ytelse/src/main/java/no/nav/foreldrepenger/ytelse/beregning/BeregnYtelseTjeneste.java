@@ -1,17 +1,23 @@
 package no.nav.foreldrepenger.ytelse.beregning;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.regler.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapBeregningsresultatFraVLTilRegel;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatRegelmodell;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import static no.nav.vedtak.felles.integrasjon.rest.jersey.tokenx.TokenProvider.LOG;
 
 @ApplicationScoped
 public class BeregnYtelseTjeneste {
+    private final JacksonJsonConfig jackson = new JacksonJsonConfig();
     private HentOgLagreBeregningsgrunnlagTjeneste beregningsgrunnlagTjeneste;
     private FastsettBeregningsresultatTjeneste fastsettBeregningsresultatTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
@@ -52,9 +58,23 @@ public class BeregnYtelseTjeneste {
         var beregningsresultat = fastsettBeregningsresultatTjeneste.fastsettBeregningsresultat(regelmodell);
 
         // Verifiser beregningsresultat
-        BeregningsresultatOutputVerifiserer.verifiserOutput(beregningsresultat);
+        try {
+            BeregningsresultatOutputVerifiserer.verifiserOutput(beregningsresultat);
+        } catch (Exception e) {
+            log(regelmodell);
+            throw new RuntimeException("Validering av beregningsresultat feilet", e);
+        }
 
         return beregningsresultat;
+    }
+
+    private void log(BeregningsresultatRegelmodell grunnlag) {
+        try {
+            String maskertRegelinput = jackson.toJson(grunnlag).replaceAll("\\d{13}|\\d{11}|\\d{9}", "*");
+            LOG.info("Regelinput til beregning av tilkjent ytelse {}", maskertRegelinput);
+        } catch (JsonProcessingException jsonProcessingException) {
+            LOG.warn("Feil ved logging av regelinput", jsonProcessingException);
+        }
     }
 
     private boolean andelerIBeregningMåLiggeIUttak(BehandlingReferanse ref) {
