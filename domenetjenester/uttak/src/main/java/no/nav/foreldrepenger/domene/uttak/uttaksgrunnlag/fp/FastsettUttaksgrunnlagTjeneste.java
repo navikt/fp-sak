@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.domene.PleiepengerToggle;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -85,9 +84,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = justerFordelingEtterFamilieHendelse(fpGrunnlag, justertePerioder);
         }
         justertePerioder = fjernOppholdsperioderLiggendeTilSlutt(justertePerioder);
-        if (PleiepengerToggle.erToggletPå()) {
-            justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
-        }
+        justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert());
     }
 
