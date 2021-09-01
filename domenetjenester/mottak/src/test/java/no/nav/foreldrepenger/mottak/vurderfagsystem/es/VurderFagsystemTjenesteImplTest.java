@@ -20,9 +20,11 @@ import static no.nav.foreldrepenger.mottak.vurderfagsystem.impl.VurderFagsystemT
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -60,6 +64,8 @@ public class VurderFagsystemTjenesteImplTest {
     private BehandlingRepository behandlingRepositoryMock;
     @Mock
     private FamilieHendelseRepository grunnlagRepository;
+    @Mock
+    private BehandlingVedtakRepository behandlingVedtakRepositoryMock;
 
     @Mock
     private FagsakRepository fagsakRepositoryMock;
@@ -82,6 +88,7 @@ public class VurderFagsystemTjenesteImplTest {
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);
+        lenient().when(repositoryProvider.getBehandlingVedtakRepository()).thenReturn(behandlingVedtakRepositoryMock);
         fagsakFødselES.setId(1L);
         fagsakAdopsjonES.setId(2L);
         var familieTjeneste = new FamilieHendelseTjeneste(null, grunnlagRepository);
@@ -229,11 +236,11 @@ public class VurderFagsystemTjenesteImplTest {
     }
 
     @Test
-    public void ustrukturertVedleggSkalSendesTilManuellBehandlingHvisIngenSaker() throws Exception {
-        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+    public void klageSkalSendesTilManuellBehandlingHvisIngenSaker() throws Exception {
+        var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
         vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
 
-        lenient().when(behandlingRepositoryMock.finnSisteIkkeHenlagteYtelseBehandlingFor(any())).thenReturn(Optional.empty());
+        lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(any())).thenReturn(Optional.empty());
 
         lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
         List<Fagsak> saksliste = new ArrayList<>();
@@ -243,6 +250,50 @@ public class VurderFagsystemTjenesteImplTest {
 
         var result = toVurderFagsystem(vfData);
         assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+    }
+
+    @Test
+    public void klageSkalSendesTilManuellBehandlingHvisFlereSaker() throws Exception {
+        var vfData = byggVurderFagsystem(BehandlingTema.UDEFINERT, false);
+        vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
+
+        var behandlingES = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        var behandlingFP = Optional.of(byggBehandlingFødsel(fpFagsakUdefinert));
+        when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakFødselES.getId())).thenReturn(behandlingES);
+        when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fpFagsakUdefinert.getId())).thenReturn(behandlingFP);
+        var vedtak = mock(BehandlingVedtak.class);
+        when(vedtak.getVedtakstidspunkt()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(behandlingVedtakRepositoryMock.hentForBehandling(any())).thenReturn(vedtak);
+
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
+        List<Fagsak> saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
+
+        when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
+        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
+
+        var result = toVurderFagsystem(vfData);
+        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.MANUELL_VURDERING);
+    }
+
+    @Test
+    public void klageMedBehandlingTemaSkalFordelesHvisFlereSakerMedUlikYtelse() throws Exception {
+        var vfData = byggVurderFagsystem(BehandlingTema.ENGANGSSTØNAD_FØDSEL, false);
+        vfData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
+
+        var behandlingES = Optional.of(byggBehandlingFødsel(fagsakFødselES));
+        when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakFødselES.getId())).thenReturn(behandlingES);
+        var vedtak = mock(BehandlingVedtak.class);
+        when(vedtak.getVedtakstidspunkt()).thenReturn(LocalDateTime.now().minusDays(1));
+        when(behandlingVedtakRepositoryMock.hentForBehandling(any())).thenReturn(vedtak);
+
+        lenient().when(grunnlagRepository.hentAggregatHvisEksisterer(any())).thenReturn(Optional.empty());
+        List<Fagsak> saksliste = List.of(fagsakFødselES, fpFagsakUdefinert);
+
+        when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(saksliste);
+        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
+
+        var result = toVurderFagsystem(vfData);
+        assertThat(result.getBehandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
     }
 
     @Test

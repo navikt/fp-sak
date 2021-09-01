@@ -58,7 +58,7 @@ public class VurderFagsystemFellesTjeneste {
         var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
 
         if (DokumentTypeId.KLAGE_DOKUMENT.equals(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(vurderFagsystem.getDokumentKategori())) {
-            return fellesUtils.vurderFagsystemKlageAnke(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
+            return fellesUtils.vurderFagsystemKlageAnke(behandlingTema, alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
         if (BehandlingTema.UDEFINERT.equals(behandlingTema) || FagsakYtelseType.UDEFINERT.equals(ytelseType)) {

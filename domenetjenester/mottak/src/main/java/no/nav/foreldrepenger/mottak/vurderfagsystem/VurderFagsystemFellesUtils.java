@@ -331,9 +331,10 @@ public class VurderFagsystemFellesUtils {
         return Optional.empty();
     }
 
-    public Optional<BehandlendeFagsystem> vurderFagsystemKlageAnke(List<Fagsak> sakerTilVurdering) {
+    public Optional<BehandlendeFagsystem> vurderFagsystemKlageAnke(BehandlingTema behandlingTema, List<Fagsak> sakerTilVurdering) {
         // Ruter inn på sak med nyeste vedtaksdato
         var behandlinger = sakerTilVurdering.stream()
+            .filter(f -> BehandlingTema.UDEFINERT.equals(behandlingTema) || BehandlingTema.gjelderSammeYtelse(behandlingTema, BehandlingTema.fraFagsak(f, null)))
             .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
             .filter(Objects::nonNull)
             .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
