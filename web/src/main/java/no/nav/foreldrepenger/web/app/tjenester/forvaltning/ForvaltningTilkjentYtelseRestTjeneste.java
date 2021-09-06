@@ -73,12 +73,12 @@ public class ForvaltningTilkjentYtelseRestTjeneste {
         "True = tilbaketrekk hindres ved at tilkjent ytelse omfordeles." +
         "False = tilbaketrekk hindres ikke og det som er utregnet vil gå videre til oppdrag", tags = "FORVALTNING-tilkjentYtelse")
     @BeskyttetRessurs(action = CREATE, resource = FPSakBeskyttetRessursAttributt.DRIFT)
-    public Response hentGjeldendeSatser(@BeanParam @Valid EndreTilbaketrekkValgDto dto) {
-        if (dto.getBehandlingId() == null) {
+    public Response endreTilbaketrekksvalg(@BeanParam @Valid EndreTilbaketrekkValgDto dto) {
+        if (dto.getBehandlingUuid() == null) {
             return Response.noContent().build();
         }
-        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingId());
-        Optional<BehandlingBeregningsresultatEntitet> eksisterendeAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(dto.getBehandlingId());
+        Behandling behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        Optional<BehandlingBeregningsresultatEntitet> eksisterendeAggregat = beregningsresultatRepository.hentBeregningsresultatAggregat(behandling.getId());
         Optional<Boolean> eksisterendeTilbaketrekkvalg = eksisterendeAggregat.flatMap(BehandlingBeregningsresultatEntitet::skalHindreTilbaketrekk);
         // Sjekker at vi ikke har ugyldig tilstand for denne tjenesten
         if (behandling.erAvsluttet()) {
