@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,11 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -245,6 +251,10 @@ public class BeregningsgrunnlagKopierOgLagreTjenesteKontrollerFaktaTest {
                         .medProsentsats(BigDecimal.valueOf(100))
                         .medSisteLønnsendringsdato(SKJÆRINGSTIDSPUNKT.minusMonths(1)))
                     .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)));
+        oppdatere.leggTilAktørInntekt(oppdatere.getAktørInntektBuilder(behandlingReferanse.getAktørId())
+            .leggTilInntekt(InntektBuilder.oppdatere(empty()).medInntektsKilde(InntektsKilde.INNTEKT_SAMMENLIGNING)
+                .leggTilInntektspost(InntektspostBuilder.ny().medPeriode(LocalDate.now().minusMonths(2).withDayOfMonth(1),
+                    LocalDate.now().minusMonths(2).with(TemporalAdjusters.lastDayOfMonth())).medBeløp(BigDecimal.TEN).medInntektspostType(InntektspostType.YTELSE))));
 
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medInformasjon(ArbeidsforholdInformasjonBuilder.oppdatere(empty())
