@@ -22,7 +22,10 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,10 +72,34 @@ public class FrilansAvvikLoggTjeneste {
                 LOG.info("FP-654895: Saksnr {}. Ikke oppgitt frilans i søknad, men arbeidsgiver {} har gitt utbetaling som frilans siste 3 mnd",
                     ref.getSaksnummer().getVerdi(), fl.getArbeidsgiver().toString());
             });
-        } else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()) {
+        }
+        else if (frilansaktiviteterPåSTPMedInntektSiste3Mnd.isEmpty()){
             LOG.info("FP-654896: Saksnr {}. Oppgitt frilans i søknad, men ingen utbetalinger som frilans siste 3 mnd",
                 ref.getSaksnummer().getVerdi());
+
+            // Ingen aktiv inntekt på stp, logg alder på frilansforholdene som er åpne på stp
+            frilansPåSTP.forEach(fl -> {
+                Optional<LocalDate> startdato = finnStartdato(fl, stpBG);
+                startdato.ifPresent(dato -> {
+                    LOG.info("FP-654897: Saksnr {}. Oppgitt frilans i søknad uten inntekt siste periode før stp. " +
+                            "Åpent frilansforhold hos {} som er {} måneder gammelt (startet {})",
+                        ref.getSaksnummer().getVerdi(), fl.getArbeidsgiver().toString(), alderIMnd(dato), dato);
+                });
+            });
         }
+    }
+
+    private long alderIMnd(LocalDate dato) {
+        return ChronoUnit.MONTHS.between(
+            YearMonth.from(dato),
+            YearMonth.from(LocalDate.now()));
+    }
+
+    private Optional<LocalDate> finnStartdato(Yrkesaktivitet fl, LocalDate stpBG) {
+        return fl.getAlleAktivitetsAvtaler().stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .filter(aa -> aa.getPeriode().inkluderer(stpBG)).map(aa -> aa.getPeriode().getFomDato())
+            .min(Comparator.naturalOrder());
     }
 
     private List<Arbeidsgiver> finnArbeidsgivereMedInntekterSiste3Mnd(LocalDate stpBG,
