@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+import no.nav.vedtak.exception.TekniskException;
 
 @JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
@@ -85,6 +87,33 @@ public enum VilkårResultatType implements Kodeverdi {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
         }
+    }
+
+    public static VilkårResultatType utledInngangsvilkårUtfall(Set<VilkårUtfallType> vilkårUtfallene) {
+        return utledInngangsvilkårUtfall(vilkårUtfallene, true);
+    }
+
+    static VilkårResultatType utledInngangsvilkårUtfall(Set<VilkårUtfallType> vilkårUtfallene, boolean exception) {
+        var oppfylt = vilkårUtfallene.contains(VilkårUtfallType.OPPFYLT);
+        var ikkeOppfylt = vilkårUtfallene.contains(VilkårUtfallType.IKKE_OPPFYLT);
+        var ikkeVurdert = vilkårUtfallene.contains(VilkårUtfallType.IKKE_VURDERT);
+
+        // Enkeltutfallene per vilkår sammenstilles til et samlet vilkårsresultat.
+        // Høyest rangerte enkeltutfall ift samlet vilkårsresultat sjekkes først, deretter nest høyeste osv.
+        VilkårResultatType vilkårResultatType;
+        if (ikkeOppfylt) {
+            vilkårResultatType = VilkårResultatType.AVSLÅTT;
+        } else if (ikkeVurdert) {
+            vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
+        } else if (oppfylt) {
+            vilkårResultatType = VilkårResultatType.INNVILGET;
+        } else if (!exception) {
+            vilkårResultatType = VilkårResultatType.IKKE_FASTSATT;
+        } else {
+            throw new TekniskException("FP-384251", "Ikke mulig å utlede gyldig vilkårsresultat fra enkeltvilkår");
+        }
+
+        return vilkårResultatType;
     }
 
     @Converter(autoApply = true)

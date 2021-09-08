@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -554,8 +553,7 @@ public class FatteVedtakStegTest {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                        null, new Properties(), null, false, false, null, null)
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
                 .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
 

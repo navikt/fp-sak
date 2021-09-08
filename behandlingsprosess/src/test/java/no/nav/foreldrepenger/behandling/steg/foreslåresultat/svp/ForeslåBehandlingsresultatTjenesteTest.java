@@ -252,10 +252,11 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         if (vilkårUtfallType.equals(VilkårUtfallType.OPPFYLT)) {
             vilkårsresultatBuilder.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, vilkårUtfallType);
             vilkårsresultatBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, vilkårUtfallType);
+            vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
-            vilkårsresultatBuilder.leggTilVilkårResultatManueltIkkeOppfylt(
-                    VilkårType.OPPTJENINGSVILKÅRET,
+            vilkårsresultatBuilder.manueltVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT,
                     Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING);
+            vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         behandlingRepository.lagre(vilkårsresultatBuilder.buildFor(behandling), lås);
         behandlingRepository.lagre(behandling, lås);

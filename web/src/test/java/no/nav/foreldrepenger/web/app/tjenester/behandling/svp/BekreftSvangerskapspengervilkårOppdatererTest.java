@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
@@ -80,8 +79,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
         var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
-            .forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(),
-                v.getVilkårUtfallMerknad(), new Properties(), v.getAvslagsårsak(), true, false, null, null));
+            .forEach(v -> builder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
         assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(
             VilkårUtfallType.IKKE_OPPFYLT);
@@ -101,8 +99,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
         var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
-            .forEach(v -> builder.leggTilVilkårResultat(v.getVilkårType(), v.getVilkårUtfallType(),
-                v.getVilkårUtfallMerknad(), new Properties(), v.getAvslagsårsak(), true, false, null, null));
+            .forEach(v -> builder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
 
         assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(

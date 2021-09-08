@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -746,8 +745,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, lås);
 
         VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                null, new Properties(), null, false, false, null, null)
+            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
             .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
             .buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);

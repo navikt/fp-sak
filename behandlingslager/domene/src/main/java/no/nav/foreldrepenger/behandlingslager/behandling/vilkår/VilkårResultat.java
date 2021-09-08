@@ -1,21 +1,19 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -31,9 +29,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "VilkarResultat")
@@ -94,10 +96,6 @@ public class VilkårResultat extends BaseEntitet {
 
     public boolean erOverstyrt() {
         return erOverstyrt;
-    }
-
-    void fjernVilkårene(Set<Vilkår> fjernede) {
-        vilkårne.removeAll(fjernede);
     }
 
     void setVilkårene(Set<Vilkår> nyeVilkår) {
@@ -161,11 +159,11 @@ public class VilkårResultat extends BaseEntitet {
     }
 
     public static Builder builder() {
-        return new Builder();
+        return Builder.ny();
     }
 
     public static Builder builderFraEksisterende(VilkårResultat eksisterendeResultat) {
-        return new Builder(eksisterendeResultat);
+        return Builder.oppdatere(eksisterendeResultat);
     }
 
     public boolean erLik(VilkårResultat annen) {
@@ -186,11 +184,10 @@ public class VilkårResultat extends BaseEntitet {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-
-
-    private static record VilkårUtfall(VilkårUtfallType vilkårUtfallType, VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere, // NOSONAR
-                     Avslagsårsak avslagsårsak, boolean erManueltVurdert, boolean erOverstyrt, String regelEvaluering, String regelInput,
-                     VilkårUtfallType utfallManuelt, VilkårUtfallType utfallOverstyrt) {
+    public Set<VilkårUtfallType> hentAlleGjeldendeVilkårsutfall() {
+        return vilkårne.stream()
+            .map(Vilkår::getGjeldendeVilkårUtfall)
+            .collect(toSet());
     }
 
     /**
@@ -198,122 +195,127 @@ public class VilkårResultat extends BaseEntitet {
      */
     public static class Builder {
 
+        private static final Logger LOG = LoggerFactory.getLogger(VilkårResultat.Builder.class);
+        private static final boolean PROD = Environment.current().isProd();
+        private static String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller avslagsårsak";
+
+        private Map<VilkårType, Vilkår> vilkårene = new EnumMap<>(VilkårType.class);
+
         private VilkårResultat resultatKladd = new VilkårResultat();
-        private Map<VilkårType, VilkårUtfall> oppdaterteUtfall = new TreeMap<>();
-        private Set<VilkårType> fjernedeVilkårTyper = new HashSet<>();
-        private Set<Vilkår> opprinneligeVilkår = new HashSet<>();
         private VilkårResultat eksisterendeResultat;
         private VilkårResultatType vilkårResultatType;
-        private VilkårUtfallType utfallManuelt = VilkårUtfallType.UDEFINERT;
-        private VilkårUtfallType utfallOverstyrt = VilkårUtfallType.UDEFINERT;
         private boolean modifisert;
         private boolean built;
 
-        Builder() {
-            super();
+        private Builder() {
+        }
+
+        private Builder(VilkårResultat vilkårResultat) {
+            this.eksisterendeResultat = vilkårResultat;
+            if (vilkårResultat != null) {
+                vilkårResultat.getVilkårene().forEach(v -> this.vilkårene.put(v.getVilkårType(), v));
+            }
+        }
+
+        static Builder ny() {
+            return new Builder();
+        }
+
+        static Builder oppdatere(VilkårResultat vilkårResultat) {
+            return new Builder(vilkårResultat);
         }
 
         private void validerKanModifisere() {
             if(built) throw new IllegalStateException("Kan ikke bygge to ganger med samme builder");
         }
 
-        Builder(VilkårResultat eksisterendeResultat) {
-            super();
-            this.eksisterendeResultat = eksisterendeResultat;
-            if (eksisterendeResultat != null) {
-                this.opprinneligeVilkår.addAll(eksisterendeResultat.getVilkårene());
-            }
+        public VilkårBuilder getVilkårBuilderFor(VilkårType vilkårType) {
+            return getBuilderFor(vilkårType);
         }
 
-        public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfall,
-                                             VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere,
-                                             Avslagsårsak avslagsårsak, boolean erManueltVurdert,
-                                             boolean erOverstyrt, String regelEvaluering, String regelInput) {
-            return leggTilVilkårResultat(vilkårType, vilkårUtfall, vilkårUtfallMerknad, merknadParametere, avslagsårsak, erManueltVurdert,
-                erOverstyrt, regelEvaluering, regelInput, Optional.empty());
+        private VilkårBuilder getBuilderFor(VilkårType vilkårType) {
+            var eksisterende = Optional.ofNullable(vilkårene.get(vilkårType));
+            return VilkårBuilder.oppdatere(eksisterende).medVilkårType(vilkårType);
         }
 
-        public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfall,
-                                             VilkårUtfallMerknad vilkårUtfallMerknad, Properties merknadParametere,
-                                             Avslagsårsak avslagsårsak, boolean erManueltVurdert,
-                                             boolean erOverstyrt, String regelEvaluering, String regelInput, Optional<VilkårUtfallType> overstyrt) {
-            this.modifisert = true;
-            validerKanModifisere();
-            if (erManueltVurdert && utfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
-                utfallManuelt = vilkårUtfall;
-            }
-            if (erOverstyrt && utfallOverstyrt.equals(VilkårUtfallType.UDEFINERT)) {
-                utfallOverstyrt = vilkårUtfall;
-            }
-
-            this.oppdaterteUtfall.put(vilkårType, new VilkårUtfall(vilkårUtfall, vilkårUtfallMerknad,
-                merknadParametere, avslagsårsak, erManueltVurdert, erOverstyrt, regelEvaluering, regelInput, utfallManuelt, overstyrt.orElse(utfallOverstyrt)));
+        public Builder leggTilVilkår(VilkårBuilder vilkårBuilder) {
+            var vilkår = vilkårBuilder.build();
+            vilkårene.put(vilkår.getVilkårType(), vilkår);
+            modifisert = true;
             return this;
         }
 
-        public Builder leggTilVilkårResultatManueltOppfylt(VilkårType vilkårType) {
-            return leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT, null, new Properties(), null, true, false, null, null);
-        }
-
-        public Builder leggTilVilkårResultatManueltIkkeVurdert(VilkårType vilkårType) {
-            return leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, new Properties(), null, true, false, null, null);
-        }
-
-        public Builder leggTilVilkårResultatManueltIkkeOppfylt(VilkårType vilkårType,
-                                                               Avslagsårsak avslagsårsak) {
-            return leggTilVilkårResultatManueltIkkeOppfylt(vilkårType, null, avslagsårsak);
-        }
-
-        public Builder leggTilVilkårResultatManueltIkkeOppfylt(VilkårType vilkårType, VilkårUtfallMerknad vilkårUtfallMerknad,
-                                                               Avslagsårsak avslagsårsak) {
-            leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_OPPFYLT, vilkårUtfallMerknad, new Properties(), avslagsårsak, true,
-                false, null, null);
-            return medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        }
-
         public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType) {
-            return leggTilVilkårResultat(vilkårType, utfallType, null, null,
-                Avslagsårsak.UDEFINERT, false, false, null, null);
+            return leggTilVilkår(vilkårType, utfallType, Avslagsårsak.UDEFINERT);
         }
 
-        public Builder nullstillVilkår(VilkårType vilkårType, VilkårUtfallType utfallOverstyrt) {
-            return leggTilVilkårResultat(vilkårType, VilkårUtfallType.IKKE_VURDERT, null, null,
-                Avslagsårsak.UDEFINERT, false, false, null, null, Optional.of(utfallOverstyrt));
+        public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
+            if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            var builder = getBuilderFor(vilkårType)
+                .medVilkårUtfall(utfallType, avslagsårsak).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+            vilkårene.put(vilkårType, builder.build());
+            modifisert = true;
+            return this;
+        }
+
+        public Builder manueltVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
+            if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            var builder = getBuilderFor(vilkårType)
+                .medUtfallManuell(utfallType, avslagsårsak);
+            vilkårene.put(vilkårType, builder.build());
+            modifisert = true;
+            return this;
         }
 
         public Builder overstyrVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
-            return leggTilVilkårResultat(vilkårType, utfallType, null, null,
-                avslagsårsak, true, true, null, null);
+            if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            var builder = getBuilderFor(vilkårType)
+                .medUtfallManuell(utfallType, avslagsårsak)
+                .medUtfallOverstyrt(utfallType, avslagsårsak);
+            vilkårene.put(vilkårType, builder.build());
+            modifisert = true;
+            return this;
+        }
+
+        public Builder nullstillVilkår(VilkårType vilkårType) {
+            var builder = getBuilderFor(vilkårType)
+                .medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+            vilkårene.put(vilkårType, builder.build());
+            modifisert = true;
+            return this;
         }
 
         public Builder fjernVilkår(VilkårType vilkårType) {
             validerKanModifisere();
-            this.modifisert = true;
-            fjernedeVilkårTyper.add(vilkårType);
+            vilkårene.remove(vilkårType);
+            modifisert = true;
             return this;
         }
 
         public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {
             validerKanModifisere();
-            this.modifisert = true;
             Objects.requireNonNull(vilkårResultatType, "vilkårResultatType");
             this.vilkårResultatType = vilkårResultatType;
+            modifisert = true;
             return this;
         }
 
-        public Builder medUtfallManuelt(VilkårUtfallType utfallManuelt) {
-            validerKanModifisere();
-            this.modifisert = true;
-            Objects.requireNonNull(utfallManuelt, "utfallManuelt");
-            this.utfallManuelt = utfallManuelt;
-            return this;
-        }
-
-        public Builder medUtfallOverstyrt(VilkårUtfallType utfallOverstyrt) {
-            validerKanModifisere();
-            this.modifisert = true;
-            Objects.requireNonNull(utfallOverstyrt, "utfallOverstyrt");
-            this.utfallOverstyrt = utfallOverstyrt;
+        public Builder kopierVilkårFraAnnenBehandling(Vilkår vilkår, boolean settTilIkkeVurdert) {
+            var builder = VilkårBuilder.ny()
+                .medVilkårType(vilkår.getVilkårType())
+                .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt(), vilkår.getAvslagsårsak())
+                .medUtfallManuell(vilkår.getVilkårUtfallManuelt(), vilkår.getAvslagsårsak())
+                .medMerknadParametere(vilkår.getMerknadParametere())
+                .medRegelEvaluering(vilkår.getRegelEvaluering())
+                .medRegelInput(vilkår.getRegelInput());
+            if (settTilIkkeVurdert) {
+                builder.medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+            } else {
+                builder.medVilkårUtfall(vilkår.getVilkårUtfall(), vilkår.getAvslagsårsak())
+                    .medVilkårUtfallMerknad(vilkår.getVilkårUtfallMerknad());
+            }
+            vilkårene.put(vilkår.getVilkårType(), builder.build());
+            modifisert = true;
             return this;
         }
 
@@ -350,87 +352,28 @@ public class VilkårResultat extends BaseEntitet {
             return buildFor(behandlingsresultat);
         }
 
-        /** OBS: Returnerer alltid nytt vilkårresultat. */
+        /** OBS: Testbruk. Returnerer alltid nytt vilkårresultat. */
         public VilkårResultat build() {
             oppdaterVilkår(resultatKladd);
             built = true;
             return resultatKladd;
         }
 
-        private void oppdaterVilkår(VilkårResultat eksisterende) {
+        private void oppdaterVilkår(VilkårResultat resultat) {
             validerKanModifisere();
-            var eksisterendeTyper = eksisterende.vilkårne.stream().map(Vilkår::getVilkårType).collect(Collectors.toList());
+            var vilkårSet = new HashSet<>(vilkårene.values());
 
-            fjernVilkårSomSkalFjernes(eksisterende);
-            oppdaterVilkårSomSkalOppdateres(eksisterendeTyper);
-            leggTilNyeVilkår();
+            resultat.setVilkårene(vilkårSet);
 
-            eksisterende.setVilkårene(opprinneligeVilkår);
+            if (vilkårSet.stream().anyMatch(Vilkår::erOverstyrt)) {
+                resultat.erOverstyrt = true;
+            }
             if (vilkårResultatType != null) {
-                eksisterende.setVilkårResultatType(vilkårResultatType);
-            }
-        }
-
-        private void fjernVilkårSomSkalFjernes(VilkårResultat eksisterende) {
-            var fjernede = opprinneligeVilkår.stream()
-                .filter(v -> fjernedeVilkårTyper.stream().anyMatch(fjernet -> fjernet.equals(v.getVilkårType())))
-                .collect(toSet());
-            opprinneligeVilkår.removeAll(fjernede);
-            eksisterende.fjernVilkårene(fjernede);
-        }
-
-        private void oppdaterVilkårSomSkalOppdateres(List<VilkårType> eksisterendeTyper) {
-            validerKanModifisere();
-            for (var vilkår : opprinneligeVilkår) {
-                for (var entry : oppdaterteUtfall.entrySet()) {
-                    if (vilkår.getVilkårType().equals(entry.getKey()) && eksisterendeTyper.contains(entry.getKey())) {
-                        mapFraVilkårUtfallTilVilkår(entry.getValue(), vilkår);
-                    }
-                }
-            }
-        }
-
-        private void mapFraVilkårUtfallTilVilkår(VilkårUtfall vilkårUtfall, Vilkår vilkår) {
-            validerKanModifisere();
-            if (vilkårUtfall.erOverstyrt ) {
-                // Sett også samlet inngangsvilkårutfall som overstyrt
-                eksisterendeResultat.erOverstyrt = true;
-            }
-            // Overstyring skal aldri nullstilles, må derfor beholde gammelt utfall dersom uendret
-            vilkår.setVilkårUtfallOverstyrt(vilkårUtfall.utfallOverstyrt.equals(VilkårUtfallType.UDEFINERT) ? vilkår.getVilkårUtfallOverstyrt() : vilkårUtfall.utfallOverstyrt);
-            vilkår.setVilkårUtfall(vilkårUtfall.vilkårUtfallType);
-            vilkår.setVilkårUtfallMerknad(vilkårUtfall.vilkårUtfallMerknad);
-            vilkår.setMerknadParametere(vilkårUtfall.merknadParametere);
-            if (vilkårUtfall.erOverstyrt) {
-                // Vilkåret overstyres nå og vi skal ha den nye avslagsårsaken
-                vilkår.setAvslagsårsak(vilkårUtfall.avslagsårsak);
-            } else {
-                // Vilkåret kan ha vært overstyrt til IKKE_OPPFYLT tidligere, og gammel avslagsårsak skal i så fall beholdes
-                vilkår.setAvslagsårsak(VilkårUtfallType.IKKE_OPPFYLT.equals(vilkår.getVilkårUtfallOverstyrt()) ? vilkår.getAvslagsårsak() : vilkårUtfall.avslagsårsak);
-            }
-            vilkår.setVilkårUtfallManuelt(vilkårUtfall.utfallManuelt);
-            vilkår.setRegelEvaluering(vilkårUtfall.regelEvaluering);
-            vilkår.setRegelInput(vilkårUtfall.regelInput);
-        }
-
-        private void leggTilNyeVilkår() {
-            validerKanModifisere();
-            for (var entry : oppdaterteUtfall.entrySet()) {
-                if (!opprinneligeVilkår.stream().map(Vilkår::getVilkårType).collect(toList()).contains(entry.getKey())) {
-                    var utfall = entry.getValue();
-                    opprinneligeVilkår.add(
-                        new VilkårBuilder()
-                            .medVilkårType(entry.getKey())
-                            .medAvslagsårsak(utfall.avslagsårsak)
-                            .medVilkårUtfall(utfall.vilkårUtfallType)
-                            .medVilkårUtfallMerknad(utfall.vilkårUtfallMerknad)
-                            .medMerknadParametere(utfall.merknadParametere)
-                            //.medManueltVurdert(utfall.erManueltVurdert)
-                            .medUtfallManuell(utfall.utfallManuelt)
-                            //.medErOverstyrt(utfall.erOverstyrt)
-                            .medUtfallOverstyrt(utfall.utfallOverstyrt)
-                            .medRegelEvaluering(utfall.regelEvaluering)
-                            .medRegelInput(utfall.regelInput).build());
+                resultat.setVilkårResultatType(vilkårResultatType);
+                var utledetVilkårResultat = VilkårResultatType.utledInngangsvilkårUtfall(resultat.hentAlleGjeldendeVilkårsutfall(), false);
+                if (PROD && !resultat.getVilkårResultatType().equals(utledetVilkårResultat)) {
+                    // TODO: Vurder exception i prod
+                    LOG.info("Vilkårbuilder: Mismatch mellom satt {} og utledet vilkårsresultattype {}", resultat.getVilkårResultatType(), utledetVilkårResultat);
                 }
             }
         }

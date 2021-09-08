@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
-import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,8 +124,7 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
                 .buildFor(behandling);
         var ikkeAvslått = !behandlingResultatType.equals(BehandlingResultatType.AVSLÅTT);
         VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, ikkeAvslått ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                        null, new Properties(), null, false, false, null, null)
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, ikkeAvslått ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
                 .medVilkårResultatType(ikkeAvslått ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
 

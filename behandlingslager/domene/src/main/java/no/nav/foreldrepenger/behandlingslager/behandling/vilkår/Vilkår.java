@@ -110,11 +110,11 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     }
 
     public boolean erManueltVurdert() {
-        return !asList(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallManuelt);
+        return !List.of(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallManuelt);
     }
 
     public boolean erOverstyrt() {
-        return !asList(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallOverstyrt);
+        return !List.of(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallOverstyrt);
     }
 
     public Avslagsårsak getAvslagsårsak() {
@@ -165,6 +165,11 @@ public class Vilkår extends BaseEntitet implements IndexKey {
         } if (!vilkårUtfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
             return vilkårUtfallManuelt;
         }
+        return vilkårUtfall;
+    }
+
+    // Kun for intern bruk i builders. Bruk getGjeldende forøvrig
+    VilkårUtfallType getVilkårUtfall() {
         return vilkårUtfall;
     }
 

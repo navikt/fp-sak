@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adapter;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_OPPFYLT;
@@ -21,6 +20,7 @@ import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -177,9 +177,8 @@ public class RegelOrkestrererTest {
         var behandling = lagBehandling();
 
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
-        var erOverstyrt = true;
         VilkårResultat.builder()
-                .leggTilVilkårResultat(vilkårType, OPPFYLT, null, null, null, false, erOverstyrt, null, null)
+                .overstyrVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT)
                 .buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
@@ -199,9 +198,8 @@ public class RegelOrkestrererTest {
         var behandling = lagBehandling();
         var vilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
 
-        var manueltVurdert = true;
         VilkårResultat.builder()
-            .leggTilVilkårResultat(vilkårType, OPPFYLT, null, null, null, manueltVurdert, false, null, null)
+            .manueltVilkår(vilkårType, OPPFYLT, Avslagsårsak.UDEFINERT)
             .buildFor(behandling);
 
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, List.of(MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET));
@@ -227,8 +225,8 @@ public class RegelOrkestrererTest {
 
         // Legg til vilkårne som automatiske, dvs hverken manuelt vurdert eller overstyrt
         VilkårResultat.builder()
-                .leggTilVilkårResultat(søknadsfristvilkårType, IKKE_VURDERT, null, null, null, false, false, null, null)
-                .leggTilVilkårResultat(adopsjonsvilkårType, IKKE_VURDERT, null, null, null, false, false, null, null)
+                .leggTilVilkår(søknadsfristvilkårType, IKKE_VURDERT)
+                .leggTilVilkår(adopsjonsvilkårType, IKKE_VURDERT)
                 .buildFor(behandling);
 
         var vilkårData = new VilkårData(adopsjonsvilkårType, OPPFYLT, emptyList());
@@ -259,20 +257,20 @@ public class RegelOrkestrererTest {
     @Test
     public void skal_sammenstille_individuelle_vilkårsutfall_til_ett_samlet_vilkårresultat() {
         // Enkelt vilkårutfall
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(Set.of(OPPFYLT))).isEqualTo(VilkårResultatType.INNVILGET);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(OPPFYLT))).isEqualTo(VilkårResultatType.INNVILGET);
 
         // Sammensatt vilkårutfall
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(asList(IKKE_OPPFYLT, IKKE_VURDERT))).isEqualTo(VilkårResultatType.AVSLÅTT);
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(asList(IKKE_OPPFYLT, OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT, IKKE_VURDERT))).isEqualTo(VilkårResultatType.AVSLÅTT);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_OPPFYLT, OPPFYLT))).isEqualTo(VilkårResultatType.AVSLÅTT);
 
-        assertThat(orkestrerer.utledInngangsvilkårUtfall(asList(IKKE_VURDERT, OPPFYLT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
+        assertThat(VilkårResultatType.utledInngangsvilkårUtfall(Set.of(IKKE_VURDERT, OPPFYLT))).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
     }
 
     @Test
     public void skal_kaste_feil_dersom_vilkårsresultat_ikke_kan_utledes() {
-        assertThrows(TekniskException.class, () -> orkestrerer.utledInngangsvilkårUtfall(emptyList()));
+        assertThrows(TekniskException.class, () -> VilkårResultatType.utledInngangsvilkårUtfall(Set.of()));
     }
 
     private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {

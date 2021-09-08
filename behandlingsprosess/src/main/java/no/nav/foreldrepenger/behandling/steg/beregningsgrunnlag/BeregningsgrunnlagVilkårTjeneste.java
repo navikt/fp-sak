@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårU
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -63,18 +62,17 @@ class BeregningsgrunnlagVilkårTjeneste {
     private VilkårResultat.Builder opprettVilkårsResultat(Long behandlingId, String regelEvaluering, String regelInput, boolean oppfylt) {
         var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+        var vilkårBuilder = builder.getVilkårBuilderFor(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)
+            .medRegelEvaluering(regelEvaluering)
+            .medRegelInput(regelInput);
+        if (oppfylt) {
+            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+        } else {
+            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG).medVilkårUtfallMerknad(VilkårUtfallMerknad.VM_1041);
+        }
         return builder
-                .medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-                .leggTilVilkårResultat(
-                        VilkårType.BEREGNINGSGRUNNLAGVILKÅR,
-                        oppfylt ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                        oppfylt ? VilkårUtfallMerknad.UDEFINERT : VilkårUtfallMerknad.VM_1041,
-                        new Properties(),
-                        oppfylt ? null : Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG,
-                        false,
-                        false,
-                        regelEvaluering,
-                        regelInput);
+            .medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+            .leggTilVilkår(vilkårBuilder);
     }
 
     void ryddVedtaksresultatOgVilkår(BehandlingskontrollKontekst kontekst) {
@@ -86,19 +84,18 @@ class BeregningsgrunnlagVilkårTjeneste {
     private void ryddOppVilkårsvurdering(BehandlingskontrollKontekst kontekst, Optional<Behandlingsresultat> behandlingresultatOpt) {
         var vilkårResultatOpt = behandlingresultatOpt
                 .map(Behandlingsresultat::getVilkårResultat);
-        if (!vilkårResultatOpt.isPresent()) {
+        if (vilkårResultatOpt.isEmpty()) {
             return;
         }
         var vilkårResultat = vilkårResultatOpt.get();
-        var beregningsvilkåret = vilkårResultat.getVilkårene().stream()
-                .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.BEREGNINGSGRUNNLAGVILKÅR))
-                .findFirst();
-        if (!beregningsvilkåret.isPresent()) {
-            return;
-        }
-        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                .leggTilVilkår(beregningsvilkåret.get().getVilkårType(), IKKE_VURDERT);
-        behandlingRepository.lagre(builder.buildFor(behandlingRepository.hentBehandling(kontekst.getBehandlingId())), kontekst.getSkriveLås());
+        vilkårResultat.getVilkårene().stream()
+            .filter(vilkår -> vilkår.getVilkårType().equals(VilkårType.BEREGNINGSGRUNNLAGVILKÅR))
+            .findFirst()
+            .ifPresent(bv -> {
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
+                    .leggTilVilkår(bv.getVilkårType(), IKKE_VURDERT);
+                behandlingRepository.lagre(builder.buildFor(behandlingRepository.hentBehandling(kontekst.getBehandlingId())), kontekst.getSkriveLås());
+        });
     }
 
     private void nullstillVedtaksresultat(BehandlingskontrollKontekst kontekst, Optional<Behandlingsresultat> behandlingresultatOpt) {

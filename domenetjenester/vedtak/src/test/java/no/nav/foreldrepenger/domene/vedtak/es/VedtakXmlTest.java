@@ -15,7 +15,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -267,9 +266,7 @@ public class VedtakXmlTest {
 
     private void oppdaterMedBehandlingsresultat(Behandling behandling, boolean innvilget) {
         VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null,
-                        new Properties(),
-                        null, false, false, null, null)
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
                 .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
         if (innvilget) {

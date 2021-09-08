@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -242,8 +241,7 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
 
     private void oppdaterMedBehandlingsresultat(EntityManager em, Behandling behandling, boolean innvilget) {
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT, null,
-                        new Properties(), null, false, false, null, null)
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
                 .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
                 .buildFor(behandling);
         em.persist(vilkårResultat);

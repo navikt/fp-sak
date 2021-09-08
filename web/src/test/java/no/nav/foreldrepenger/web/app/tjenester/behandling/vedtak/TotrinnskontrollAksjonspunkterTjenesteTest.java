@@ -165,14 +165,14 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
+        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = Map.of(
+            VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
+            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
+            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
+            VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG,
+            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR,
+            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
 
         for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
@@ -262,14 +262,13 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
         var ttvGodkjent = false;
         var apAvbrutt = false;
 
-        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new HashMap<>();
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.UDEFINERT, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OPPTJENINGSPERIODEVILKÅR, SkjermlenkeType.UDEFINERT);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.UDEFINERT);
+        Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = Map.of(
+            VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.UDEFINERT,
+            VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.UDEFINERT,
+            VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.UDEFINERT,
+            VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.UDEFINERT,
+            VilkårType.OPPTJENINGSPERIODEVILKÅR, SkjermlenkeType.UDEFINERT,
+            VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.UDEFINERT);
 
         for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
@@ -474,7 +473,7 @@ public class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     private void opprettBehandlingForFP(Optional<VilkårType> vilkårTypeOpt) {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.UDEFINERT));
+        vilkårTypeOpt.ifPresent(vt -> scenario.leggTilVilkår(vt, VilkårUtfallType.IKKE_VURDERT));
         behandling = scenario.lagMocked();
     }
 

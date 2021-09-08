@@ -7,10 +7,8 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
@@ -30,14 +28,10 @@ public class InngangsvilkårGrunnlagByggerTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var vilkårBuilder = VilkårResultat.builder();
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
+        vilkårBuilder.leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.OPPFYLT);
         lagreVilkår(behandling, vilkårBuilder);
 
         var grunnlag = bygger.byggGrunnlag(input(behandling)).build();
@@ -66,14 +60,10 @@ public class InngangsvilkårGrunnlagByggerTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var vilkårBuilder = VilkårResultat.builder();
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
-        vilkårBuilder.leggTilVilkårResultat(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.UDEFINERT,
-                null, Avslagsårsak.UDEFINERT, false, false, null, null);
+        vilkårBuilder.leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.IKKE_OPPFYLT);
         lagreVilkår(behandling, vilkårBuilder);
 
         var grunnlag = bygger.byggGrunnlag(input(behandling)).build();

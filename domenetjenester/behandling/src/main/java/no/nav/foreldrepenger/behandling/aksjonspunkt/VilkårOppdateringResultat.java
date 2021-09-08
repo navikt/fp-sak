@@ -15,12 +15,15 @@ public class VilkårOppdateringResultat {
     public VilkårOppdateringResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
         this.vilkårType = vilkårType;
         this.vilkårUtfallType = vilkårUtfallType;
+        this.avslagsårsak = Avslagsårsak.UDEFINERT;
+        this.vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
     }
 
     public VilkårOppdateringResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
         this.vilkårType = vilkårType;
         this.vilkårUtfallType = VilkårUtfallType.IKKE_OPPFYLT;
         this.avslagsårsak = avslagsårsak;
+        this.vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
     }
 
     public VilkårOppdateringResultat(VilkårType vilkårType,

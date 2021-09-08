@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
@@ -57,6 +58,7 @@ public class ForvaltningStegRestTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private VilkårResultatRepository vilkårResultatRepository;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
@@ -71,6 +73,7 @@ public class ForvaltningStegRestTjeneste {
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.vilkårResultatRepository = vilkårResultatRepository;
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
     }
 
     public ForvaltningStegRestTjeneste() {
@@ -138,11 +141,13 @@ public class ForvaltningStegRestTjeneste {
                     .findFirst();
 
             if (opptjeningsvilkåretOpt.isPresent()) {
+                var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
                 var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
                 builder.fjernVilkår(VilkårType.OPPTJENINGSVILKÅRET);
 
-                var nyttVilkårResulatat = builder.build();
-                vilkårResultatRepository.lagre(behandlingId, nyttVilkårResulatat);
+                var nyttVilkårResulatat = builder.buildFor(behandling);
+                behandlingRepository.lagre(nyttVilkårResulatat, kontekst.getSkriveLås());
+                behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
 
                 if (behandling.erRevurdering()) {
                     hoppTilbake(dto, KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);

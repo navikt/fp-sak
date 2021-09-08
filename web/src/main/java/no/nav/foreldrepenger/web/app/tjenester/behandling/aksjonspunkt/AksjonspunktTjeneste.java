@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -48,6 +47,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -377,26 +377,20 @@ public class AksjonspunktTjeneste {
         }
     }
 
-    private void byggVilkårResultat(Builder vilkårBuilder, OppdateringResultat delresultat) {
+    private void byggVilkårResultat(Builder vilkårResultatBuilder, OppdateringResultat delresultat) {
         delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> {
-            var erManueltVurdert = true;
-            var erOverstyrt = false;
-            String regelEvaluering = null;
-            String regelInput = null;
-            vilkårBuilder.leggTilVilkårResultat(
-                v.getVilkårType(),
-                v.getVilkårUtfallType(),
-                v.getVilkårUtfallMerknad(),
-                new Properties(),
-                v.getAvslagsårsak(),
-                erManueltVurdert,
-                erOverstyrt,
-                regelEvaluering,
-                regelInput);
+            if (VilkårUtfallMerknad.UDEFINERT.equals(v.getVilkårUtfallMerknad())) {
+                vilkårResultatBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak());
+            } else {
+                var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(v.getVilkårType())
+                    .medUtfallManuell(v.getVilkårUtfallType(), v.getAvslagsårsak())
+                    .medVilkårUtfallMerknad(v.getVilkårUtfallMerknad());
+                vilkårResultatBuilder.leggTilVilkår(vilkårBuilder);
+            }
         });
-        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
+        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårResultatBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
-            vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
+            vilkårResultatBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());
         }
     }
 

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Objects;
-import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,15 +107,8 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
     }
 
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> vilkårBuilder.leggTilVilkårResultat(
-            v.getVilkårType(),
-            v.getVilkårUtfallType(),
-            v.getVilkårUtfallMerknad(),
-            new Properties(),
-            v.getAvslagsårsak(),
-            true,
-            false,
-            null, null));
+        delresultat.getVilkårResultatSomSkalLeggesTil()
+            .forEach(v -> vilkårBuilder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
             vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());

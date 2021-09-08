@@ -65,7 +65,7 @@ public class InngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagMocked();
 
@@ -85,7 +85,7 @@ public class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
+        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -95,7 +95,7 @@ public class InngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT);
         var behandling = scenario.lagMocked();
 
@@ -116,7 +116,7 @@ public class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDER_OPPTJENINGSVILKÅRET);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
+        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
         assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
                 .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -134,7 +134,7 @@ public class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
         var revurdering = revurderingsscenario.lagMocked();
@@ -179,7 +179,7 @@ public class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
@@ -206,7 +206,7 @@ public class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -214,7 +214,7 @@ public class InngangsvilkårStegImplTest {
 
         var revurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);
@@ -243,7 +243,7 @@ public class InngangsvilkårStegImplTest {
         // Arrange
         var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT));
         var førstegangsbehandling = førstegangsscenario.lagMocked();
@@ -251,7 +251,7 @@ public class InngangsvilkårStegImplTest {
 
         var førsteRevurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_HENDELSE_FØDSEL)
                 .medBehandlingsresultat(Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INGEN_ENDRING));
@@ -259,7 +259,7 @@ public class InngangsvilkårStegImplTest {
 
         var andreRevurderingsscenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(medlVilkårType, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(oppVilkårType, VilkårUtfallType.OPPFYLT)
                 .medOriginalBehandling(revurdering1, BehandlingÅrsakType.RE_HENDELSE_FØDSEL);

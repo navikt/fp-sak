@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 
 public class OppdateringResultat {
 
+    private static final String MULTI_ENDRING = "Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon";
+
     private BehandlingStegType nesteSteg;
     private final List<VilkårOppdateringResultat> vilkårResultatSomSkalLeggesTil = new ArrayList<>();
     private final List<VilkårType> vilkårTyperSomSkalFjernes = new ArrayList<>(); // Eksisterer for å håndtere vilkåropprydding for Omsorg
@@ -147,6 +149,7 @@ public class OppdateringResultat {
         }
 
         public Builder medVilkårResultatType(VilkårResultatType vilkårResultatType) {
+            Objects.requireNonNull(vilkårResultatType);
             resultat.vilkårResultatType = vilkårResultatType;
             return this;
         }
@@ -154,8 +157,11 @@ public class OppdateringResultat {
         public Builder leggTilVilkårResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
             Objects.requireNonNull(vilkårType);
             Objects.requireNonNull(vilkårUtfallType);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType)) {
+                throw new IllegalArgumentException("Mangler avslagsårsak");
+            }
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
-                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+                throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, vilkårUtfallType));
             return this;
@@ -163,8 +169,9 @@ public class OppdateringResultat {
 
         public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
             Objects.requireNonNull(vilkårType);
+            Objects.requireNonNull(avslagsårsak);
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
-                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+                throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
             return this;
@@ -172,19 +179,19 @@ public class OppdateringResultat {
 
         public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak, VilkårUtfallMerknad merknad) {
             Objects.requireNonNull(vilkårType);
+            Objects.requireNonNull(avslagsårsak);
+            Objects.requireNonNull(merknad);
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
-                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+                throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak, merknad));
             return this;
         }
 
-
-
         public Builder fjernVilkårType(VilkårType vilkårType) {
             Objects.requireNonNull(vilkårType);
             if (resultat.vilkårResultatSomSkalLeggesTil.stream().anyMatch(v -> v.getVilkårType().equals(vilkårType))) {
-                throw new IllegalStateException("Kan ikke fjerne vilkårtype med resultat som er lagt til i samme transisjon");
+                throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårTyperSomSkalFjernes.add(vilkårType);
             return this;
