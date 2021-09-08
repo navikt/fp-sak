@@ -346,6 +346,12 @@ public class VurderFagsystemFellesUtils {
             var sakerMedÅpenBehandling = sakerTilVurdering.stream().filter(f -> !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(f.getId()).isEmpty()).count();
             LOG.info("VFS-KLAGE ingen vedtak - antall saker {} saker med åpen behandling {} saksnummer {}", sakerTilVurdering.size(), sakerMedÅpenBehandling, saker);
         } else if (behandlinger.size() > 1) {
+            var sistOpprettetSakMinusÅr = behandlinger.stream().map(b -> b.getFagsak().getOpprettetTidspunkt())
+                .max(Comparator.naturalOrder()).orElseGet(LocalDateTime::now).minusMonths(12);
+            var fagsakerSisteÅret = behandlinger.stream().map(Behandling::getFagsak).filter(f -> f.getOpprettetTidspunkt().isAfter(sistOpprettetSakMinusÅr)).collect(Collectors.toList());
+            if (fagsakerSisteÅret.size() == 1) { // Første element i fordelingslogikk klage
+                return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(fagsakerSisteÅret.get(0).getSaksnummer()));
+            }
             var saker = sakerTilVurdering.stream().map(Fagsak::getSaksnummer).collect(Collectors.toList());
             var sakerMedKlage = sakerTilVurdering.stream().filter(f -> behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(f.getId(), BehandlingType.KLAGE).isPresent()).count();
             LOG.info("VFS-KLAGE flere saker - antall saker {} saker med klage {} saksnummer {}", sakerTilVurdering.size(), sakerMedKlage, saker);

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.dokumentarkiv.impl;
+package no.nav.foreldrepenger.dokumentarkiv;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,9 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
-import no.nav.foreldrepenger.dokumentarkiv.NAVSkjema;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.saf.DokumentInfo;
@@ -30,6 +27,7 @@ import no.nav.saf.Journalpost;
 import no.nav.saf.Journalposttype;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.Tema;
+import no.nav.saf.Tilleggsopplysning;
 import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.saf.Saf;
 
@@ -198,6 +196,7 @@ public class DokumentArkivSafTest {
         journalpost.setJournalstatus(Journalstatus.JOURNALFOERT);
         journalpost.setJournalposttype(kommunikasjonsretning);
         journalpost.setTittel(SØK_ENG_FØDSEL.getNavn());
+        journalpost.setTilleggsopplysninger(List.of(new Tilleggsopplysning(DokumentArkivTjeneste.FP_DOK_TYPE, SØK_ENG_FØDSEL.getOffisiellKode())));
         journalpost.setDatoOpprettet(Date.from(Instant.from(sendt.toInstant(zone.getRules().getOffset(sendt)))));
         journalpost.setDokumenter(new ArrayList<>());
         journalpost.getDokumenter().add(createDokumentinfo(variantFormatKonst,

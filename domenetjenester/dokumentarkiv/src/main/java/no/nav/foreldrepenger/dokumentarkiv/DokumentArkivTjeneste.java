@@ -35,6 +35,7 @@ import no.nav.saf.JournalpostQueryRequest;
 import no.nav.saf.JournalpostResponseProjection;
 import no.nav.saf.Journalstatus;
 import no.nav.saf.LogiskVedleggResponseProjection;
+import no.nav.saf.TilleggsopplysningResponseProjection;
 import no.nav.saf.Variantformat;
 import no.nav.vedtak.felles.integrasjon.rest.jersey.Jersey;
 import no.nav.vedtak.felles.integrasjon.saf.HentDokumentQuery;
@@ -44,6 +45,7 @@ import no.nav.vedtak.util.LRUCache;
 @ApplicationScoped
 public class DokumentArkivTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(DokumentArkivTjeneste.class);
+    static final String FP_DOK_TYPE = "fp_innholdtype";
 
     private Saf safKlient;
 
@@ -170,6 +172,7 @@ public class DokumentArkivTjeneste {
             .tittel()
             .journalstatus()
             .datoOpprettet()
+            .tilleggsopplysninger(new TilleggsopplysningResponseProjection().nokkel().verdi())
             .dokumenter(new DokumentInfoResponseProjection()
                 .dokumentInfoId()
                 .tittel()
@@ -183,7 +186,20 @@ public class DokumentArkivTjeneste {
         var dokumenter = journalpost.getDokumenter().stream()
             .map(this::mapTilArkivDokument)
             .collect(Collectors.toList());
-        var hoveddokumentType = utledHovedDokumentType(dokumenter.stream().map(ArkivDokument::getDokumentType).collect(Collectors.toSet()));
+
+        var doktypeFraTilleggsopplysning = Optional.ofNullable(journalpost.getTilleggsopplysninger()).orElse(List.of()).stream()
+            .filter(to -> FP_DOK_TYPE.equals(to.getNokkel()))
+            .map(to -> DokumentTypeId.finnForKodeverkEiersKode(to.getVerdi()))
+            .collect(Collectors.toSet());
+        var doktypeFraDokumenter = dokumenter.stream().map(ArkivDokument::getDokumentType).collect(Collectors.toSet());
+        var alleTyper = new HashSet<>(doktypeFraDokumenter);
+        alleTyper.addAll(doktypeFraTilleggsopplysning);
+        if (!doktypeFraTilleggsopplysning.isEmpty() && !doktypeFraDokumenter.containsAll(doktypeFraTilleggsopplysning)) {
+            LOG.info("DokArkivTjenest ulike dokumenttyper fra dokument {} fra tilleggsopplysning {}", doktypeFraDokumenter, doktypeFraTilleggsopplysning);
+        } else if (doktypeFraTilleggsopplysning.isEmpty()) {
+            LOG.info("DokArkivTjenest journalpost {} uten tilleggsopplysninger", journalpost.getJournalpostId());
+        }
+        var hoveddokumentType = utledHovedDokumentType(alleTyper);
         var hoveddokument = dokumenter.stream().filter(d -> hoveddokumentType.equals(d.getDokumentType())).findFirst();
 
         var builder = ArkivJournalPost.Builder.ny()
