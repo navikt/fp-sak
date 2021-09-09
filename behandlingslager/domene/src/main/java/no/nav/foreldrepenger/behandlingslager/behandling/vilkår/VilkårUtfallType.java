@@ -23,8 +23,6 @@ public enum VilkårUtfallType implements Kodeverdi {
     OPPFYLT("OPPFYLT", "Oppfylt"),
     IKKE_OPPFYLT("IKKE_OPPFYLT", "Ikke oppfylt"),
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
-    IKKE_RELEVANT("IKKE_RELEVANT", "Ikke relevant"),
-    AVSLAAS_I_ANNET_VILKAAR("AVSLAAS_I_ANNET_VILKAAR", "Avslås i annet vilkår"),
 
     UDEFINERT("-", "Ikke definert"),
 

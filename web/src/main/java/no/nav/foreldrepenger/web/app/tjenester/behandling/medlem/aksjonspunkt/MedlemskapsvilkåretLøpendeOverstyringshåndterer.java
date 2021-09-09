@@ -60,20 +60,19 @@ public class MedlemskapsvilkåretLøpendeOverstyringshåndterer extends Abstract
         var grBuilder = medlemskapVilkårPeriodeRepository.hentBuilderFor(behandling);
         var periodeBuilder = grBuilder.getPeriodeBuilder();
 
-        var vilkårBuilder = VilkårResultat.builderFraEksisterende(behandling.getBehandlingsresultat().getVilkårResultat());
+        var vilkårResultatBuilder = VilkårResultat.builderFraEksisterende(behandling.getBehandlingsresultat().getVilkårResultat());
         if (dto.getErVilkarOk()) {
             periodeBuilder.opprettOverstryingOppfylt(dto.getOverstryingsdato());
-            vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.OPPFYLT, null, null, null, false, true, null, null);
+            vilkårResultatBuilder.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
         } else {
             var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
             periodeBuilder.opprettOverstryingAvslag(dto.getOverstryingsdato(), avslagsårsak);
-            vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.IKKE_OPPFYLT, null, null, avslagsårsak, false, true,
-                null, null);
+            vilkårResultatBuilder.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
         }
         var lås = kontekst.getSkriveLås();
         grBuilder.medMedlemskapsvilkårPeriode(periodeBuilder);
         medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, grBuilder);
-        behandlingRepository.lagre(vilkårBuilder.buildFor(behandling), lås);
+        behandlingRepository.lagre(vilkårResultatBuilder.buildFor(behandling), lås);
         return OppdateringResultat.utenOveropp();
     }
 }

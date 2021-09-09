@@ -1,76 +1,89 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
-class VilkårBuilder {
-    private VilkårType vilkårType;
-    private Avslagsårsak avslagsårsak;
-    private VilkårUtfallType vilkårUtfall;
-    private VilkårUtfallMerknad vilkårUtfallMerknad;
-    private Properties merknadParametere;
-    private VilkårUtfallType vilkårUtfallManuell;
-    private VilkårUtfallType vilkårUtfallOverstyrt;
-    private String regelEvaluering;
-    private String regelInput;
+public class VilkårBuilder {
+    private Vilkår kladd;
+    private boolean oppdatering;
 
-    VilkårBuilder medVilkårType(VilkårType vilkårType) {
-        this.vilkårType = vilkårType;
+    private VilkårBuilder(Vilkår vilkår, boolean oppdatering) {
+        this.kladd = vilkår;
+        this.oppdatering = oppdatering;
+    }
+
+    static VilkårBuilder ny() {
+        return new VilkårBuilder(new Vilkår(), false);
+    }
+
+    static VilkårBuilder oppdatere(Vilkår vilkår) {
+        return new VilkårBuilder(vilkår, true);
+    }
+
+    public static VilkårBuilder oppdatere(Optional<Vilkår> vilkår) {
+        return vilkår.map(VilkårBuilder::oppdatere).orElseGet(VilkårBuilder::ny);
+    }
+
+    public VilkårBuilder medVilkårType(VilkårType vilkårType) {
+        if (kladd.getVilkårType() != null && !vilkårType.equals(kladd.getVilkårType())) {
+            throw new IllegalArgumentException("Prøver endre vilkårtype på eksisterende vilkår");
+        }
+        kladd.setVilkårType(vilkårType);
         return this;
     }
 
-    VilkårBuilder medAvslagsårsak(Avslagsårsak avslagsårsak) {
-        this.avslagsårsak = avslagsårsak;
+    public VilkårBuilder medVilkårUtfall(VilkårUtfallType vilkårUtfall, Avslagsårsak avslagsårsak) {
+        kladd.setVilkårUtfall(vilkårUtfall);
+        if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
+            kladd.setAvslagsårsak(avslagsårsak);
+        }
         return this;
     }
 
-    VilkårBuilder medVilkårUtfall(VilkårUtfallType vilkårUtfall) {
-        this.vilkårUtfall = vilkårUtfall;
+    public VilkårBuilder medUtfallManuell(VilkårUtfallType vilkårUtfallManuell, Avslagsårsak avslagsårsak) {
+        kladd.setVilkårUtfallManuelt(vilkårUtfallManuell);
+        if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
+            kladd.setAvslagsårsak(avslagsårsak);
+        }
         return this;
     }
 
-    VilkårBuilder medVilkårUtfallMerknad(VilkårUtfallMerknad vilkårUtfallMerknad) {
-        this.vilkårUtfallMerknad = vilkårUtfallMerknad;
+    VilkårBuilder medUtfallOverstyrt(VilkårUtfallType vilkårUtfallOverstyrt, Avslagsårsak avslagsårsak) {
+        kladd.setVilkårUtfallOverstyrt(vilkårUtfallOverstyrt);
+        kladd.setAvslagsårsak(avslagsårsak);
         return this;
     }
 
-    VilkårBuilder medMerknadParametere(Properties merknadParametere) {
-        this.merknadParametere = merknadParametere;
+    public VilkårBuilder medVilkårUtfallMerknad(VilkårUtfallMerknad vilkårUtfallMerknad) {
+        kladd.setVilkårUtfallMerknad(vilkårUtfallMerknad != null ? vilkårUtfallMerknad : VilkårUtfallMerknad.UDEFINERT);
         return this;
     }
 
-    VilkårBuilder medUtfallManuell(VilkårUtfallType vilkårUtfallManuell) {
-        this.vilkårUtfallManuell = vilkårUtfallManuell;
+    public VilkårBuilder medMerknadParametere(Properties merknadParametere) {
+        if (merknadParametere != null && !merknadParametere.isEmpty())
+            kladd.setMerknadParametere(merknadParametere);
         return this;
     }
 
-    VilkårBuilder medUtfallOverstyrt(VilkårUtfallType vilkårUtfallOverstyrt) {
-        this.vilkårUtfallOverstyrt = vilkårUtfallOverstyrt;
+    public VilkårBuilder medRegelEvaluering(String regelEvaluering) {
+        kladd.setRegelEvaluering(regelEvaluering);
         return this;
     }
 
-    VilkårBuilder medRegelEvaluering(String regelEvaluering) {
-        this.regelEvaluering = regelEvaluering;
-        return this;
-    }
-
-    VilkårBuilder medRegelInput(String regelInput) {
-        this.regelInput = regelInput;
+    public VilkårBuilder medRegelInput(String regelInput) {
+        kladd.setRegelInput(regelInput);
         return this;
     }
 
     Vilkår build() {
-        var vilkår = new Vilkår();
-        Objects.requireNonNull(vilkårType, "vilkårType");
-        vilkår.setVilkårType(vilkårType);
-        vilkår.setVilkårUtfall(vilkårUtfall);
-        vilkår.setVilkårUtfallMerknad(vilkårUtfallMerknad);
-        vilkår.setAvslagsårsak(avslagsårsak);
-        vilkår.setMerknadParametere(merknadParametere);
-        vilkår.setVilkårUtfallManuelt(vilkårUtfallManuell);
-        vilkår.setVilkårUtfallOverstyrt(vilkårUtfallOverstyrt);
-        vilkår.setRegelEvaluering(regelEvaluering);
-        vilkår.setRegelInput(regelInput);
-        return vilkår;
+        if (VilkårType.UDEFINERT.equals(kladd.getVilkårType()) || VilkårUtfallType.UDEFINERT.equals(kladd.getGjeldendeVilkårUtfall())) {
+            throw new IllegalStateException("Mangler vilkårType");
+        }
+        return kladd;
     }
+
+    boolean erOppdatering() {
+        return oppdatering;
+    }
+
 }

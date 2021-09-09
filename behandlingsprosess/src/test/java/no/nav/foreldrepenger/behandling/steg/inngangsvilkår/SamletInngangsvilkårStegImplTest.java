@@ -55,7 +55,7 @@ public class SamletInngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_VURDERT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
@@ -79,7 +79,7 @@ public class SamletInngangsvilkårStegImplTest {
         assertThat(stegResultat.getTransisjon()).isEqualTo(TransisjonIdentifikator.forId(FREMHOPP_TIL_UTTAKSPLAN.getId()));
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.IKKE_FASTSATT);
+        assertThat(vilkårResultat.getVilkårResultatType()).isEqualTo(VilkårResultatType.AVSLÅTT);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SamletInngangsvilkårStegImplTest {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medBehandlingType(BehandlingType.REVURDERING)
-                .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
+                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)

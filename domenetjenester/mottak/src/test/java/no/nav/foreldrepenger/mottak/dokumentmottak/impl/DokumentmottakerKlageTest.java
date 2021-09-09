@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Properties;
 
 import javax.inject.Inject;
 
@@ -212,8 +211,7 @@ public class DokumentmottakerKlageTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
         VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT,
-                        null, new Properties(), null, false, false, "", "")
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
         var behandlingsresultat = behandling.getBehandlingsresultat();

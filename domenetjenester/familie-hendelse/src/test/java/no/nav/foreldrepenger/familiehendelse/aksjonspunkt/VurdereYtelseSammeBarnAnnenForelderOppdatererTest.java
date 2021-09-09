@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Properties;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -103,15 +101,8 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
     }
 
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> vilkårBuilder.leggTilVilkårResultat(
-            v.getVilkårType(),
-            v.getVilkårUtfallType(),
-            v.getVilkårUtfallMerknad(),
-            new Properties(),
-            v.getAvslagsårsak(),
-            true,
-            false,
-            null, null));
+        delresultat.getVilkårResultatSomSkalLeggesTil()
+            .forEach(v -> vilkårBuilder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
             vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());

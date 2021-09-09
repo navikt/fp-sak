@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 class RyddVilkårTyper {
 
@@ -69,12 +68,11 @@ class RyddVilkårTyper {
 
     void ryddVedOverhoppFramover(List<VilkårType> vilkårTyper) {
         slettAvklarteFakta(vilkårTyper);
-        nullstillVilkår(vilkårTyper, true);
+        nullstillVilkår(vilkårTyper);
     }
 
     void ryddVedTilbakeføring(List<VilkårType> vilkårTyper) {
-        nullstillInngangsvilkår();
-        nullstillVilkår(vilkårTyper, false);
+        nullstillVilkår(vilkårTyper);
         nullstillVedtaksresultat();
     }
 
@@ -103,42 +101,27 @@ class RyddVilkårTyper {
         });
     }
 
-    private void nullstillInngangsvilkår() {
-        var vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
-                .map(Behandlingsresultat::getVilkårResultat)
-                .filter(inng -> !inng.erOverstyrt());
-        if (!vilkårResultatOpt.isPresent()) {
-            return;
-        }
-
-        var vilkårResultat = vilkårResultatOpt.get();
-        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-        if (!vilkårResultat.getVilkårResultatType().equals(IKKE_FASTSATT)) {
-            builder.medVilkårResultatType(IKKE_FASTSATT);
-        }
-        builder.buildFor(behandling);
-    }
-
-    private void nullstillVilkår(List<VilkårType> vilkårTyper, boolean nullstillOverstyring) {
+    private void nullstillVilkår(List<VilkårType> vilkårTyper) {
         var vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
                 .map(Behandlingsresultat::getVilkårResultat);
-        if (!vilkårResultatOpt.isPresent()) {
+        if (vilkårResultatOpt.isEmpty()) {
             return;
         }
         var vilkårResultat = vilkårResultatOpt.get();
 
         var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
                 .filter(v -> vilkårTyper.contains(v.getVilkårType()))
+                .filter(v -> !v.erOverstyrt())
                 .collect(toList());
         if (vilkårSomSkalNullstilles.isEmpty()) {
             return;
         }
 
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-        vilkårSomSkalNullstilles.stream()
-                .filter(it -> !it.erOverstyrt() || nullstillOverstyring)
-                .forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType(),
-                        !nullstillOverstyring ? vilkår.getVilkårUtfallOverstyrt() : VilkårUtfallType.UDEFINERT));
+        vilkårSomSkalNullstilles.forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType()));
+        if (!vilkårResultat.erOverstyrt() && !vilkårResultat.getVilkårResultatType().equals(IKKE_FASTSATT)) {
+            builder.medVilkårResultatType(IKKE_FASTSATT);
+        }
         builder.buildFor(behandling);
     }
 

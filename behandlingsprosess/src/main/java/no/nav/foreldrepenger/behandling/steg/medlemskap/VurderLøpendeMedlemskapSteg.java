@@ -69,17 +69,18 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 medlemskapVilkårPeriodeRepository.lagreMedlemskapsvilkår(behandling, builder);
 
                 var resultat = medlemskapVilkårPeriodeRepository.utledeVilkårStatus(behandling);
-                var vilkårBuilder = VilkårResultat
+                var vilkårResultatBuilder = VilkårResultat
                         .builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
-                Avslagsårsak avslagsårsak = null;
+                var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.vilkårUtfallType())) {
-                    avslagsårsak = Avslagsårsak.fraKode(resultat.vilkårUtfallMerknad().getKode());
+                    var avslagsårsak = Avslagsårsak.fraKode(resultat.vilkårUtfallMerknad().getKode());
+                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), avslagsårsak).medVilkårUtfallMerknad(resultat.vilkårUtfallMerknad());
+                } else {
+                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), Avslagsårsak.UDEFINERT);
                 }
-                vilkårBuilder.leggTilVilkårResultat(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE, resultat.vilkårUtfallType(), resultat.vilkårUtfallMerknad(), null,
-                        avslagsårsak, false, false, null, null);
-
+                vilkårResultatBuilder.leggTilVilkår(vilkårBuilder);
                 var lås = kontekst.getSkriveLås();
-                behandlingRepository.lagre(vilkårBuilder.buildFor(behandling), lås);
+                behandlingRepository.lagre(vilkårResultatBuilder.buildFor(behandling), lås);
             }
         }
         return BehandleStegResultat.utførtUtenAksjonspunkter();

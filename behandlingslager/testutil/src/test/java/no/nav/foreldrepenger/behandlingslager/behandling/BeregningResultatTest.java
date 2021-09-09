@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
@@ -225,7 +224,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
         // TX_2: Oppdatere Behandlingsresultat med VilkårResultat
         behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.VM_1001, new Properties(), null, false, false, null, null)
+                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
                 .buildFor(behandling1);
 
         var lås = behandlingRepository.taSkriveLås(behandling1);

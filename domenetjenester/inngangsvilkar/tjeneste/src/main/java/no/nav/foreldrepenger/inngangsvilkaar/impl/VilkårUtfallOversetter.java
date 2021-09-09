@@ -41,7 +41,7 @@ public class VilkårUtfallOversetter {
         var vilkårUtfallMerknad = getVilkårUtfallMerknad(summary);
 
         return new VilkårData(vilkårType, vilkårUtfallType, merknadParametere, apDefinisjoner, vilkårUtfallMerknad, null,
-            regelEvalueringJson, jsonGrunnlag, false);
+            regelEvalueringJson, jsonGrunnlag);
 
     }
 

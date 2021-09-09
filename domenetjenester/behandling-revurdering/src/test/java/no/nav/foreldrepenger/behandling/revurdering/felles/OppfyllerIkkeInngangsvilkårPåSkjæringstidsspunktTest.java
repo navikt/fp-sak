@@ -181,7 +181,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_som_skal_behandles_i_infotrygd() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.BEREGNINGSGRUNNLAGVILKÅR,
+                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT,
                         Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN)
                 .buildFor(revurdering);
 
@@ -203,7 +203,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_med_avslagsårsak_null() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, Avslagsårsak.UDEFINERT)
+                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.UDEFINERT)
                 .buildFor(revurdering);
 
         // Act

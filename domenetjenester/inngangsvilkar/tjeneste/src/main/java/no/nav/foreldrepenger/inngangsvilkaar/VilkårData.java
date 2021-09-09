@@ -18,13 +18,12 @@ public class VilkårData {
     private Avslagsårsak avslagsårsak;
     private String regelEvaluering;
     private String regelInput;
-    private boolean erOverstyrt;
     private Object data;
 
     /** Ctor som tar alle parametere inkl. regel input og evaluering. */
     public VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType, Properties merknadParametere,
             List<AksjonspunktDefinisjon> apDefinisjoner, VilkårUtfallMerknad vilkårUtfallMerknad,
-            Avslagsårsak avslagsårsak, String regelEvaluering, String regelInput, boolean erOverstyrt) {
+            Avslagsårsak avslagsårsak, String regelEvaluering, String regelInput) {
 
         this.vilkårType = vilkårType;
         this.utfallType = utfallType;
@@ -34,12 +33,11 @@ public class VilkårData {
         this.avslagsårsak = avslagsårsak;
         this.regelEvaluering = regelEvaluering;
         this.regelInput = regelInput;
-        this.erOverstyrt = erOverstyrt;
     }
 
     /** Ctor som tar minimum av parametere, og ingen regel evaluering og input data.  Vil heller aldri være overstyrt. */
     public VilkårData(VilkårType vilkårType, VilkårUtfallType utfallType, List<AksjonspunktDefinisjon> apDefinisjoner) {
-        this(vilkårType, utfallType, new Properties(), apDefinisjoner, null, null, null, null, false);
+        this(vilkårType, utfallType, new Properties(), apDefinisjoner, null, null, null, null);
     }
 
     /** (Optional) ekstra resultat data. */
@@ -81,9 +79,5 @@ public class VilkårData {
 
     public String getRegelInput() {
         return regelInput;
-    }
-
-    public boolean erOverstyrt() {
-        return erOverstyrt;
     }
 }

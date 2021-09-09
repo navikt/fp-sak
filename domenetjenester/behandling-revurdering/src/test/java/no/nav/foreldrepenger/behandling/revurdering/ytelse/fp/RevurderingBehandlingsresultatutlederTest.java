@@ -197,14 +197,16 @@ public class RevurderingBehandlingsresultatutlederTest {
         lagUttakResultatPlanForBehandling(revurdering, revurderingPerioder, StønadskontoType.FEDREKVOTE);
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
-        var vilkårResultat = VilkårResultat.builder()
+        var vilkårResultatBuilder = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkårResultatManueltIkkeOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE,
-                        VilkårUtfallMerknad.VM_1020, Avslagsårsak.SØKER_ER_IKKE_MEDLEM)
-                .buildFor(revurdering);
+                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
+        var vilkårBuilder =  vilkårResultatBuilder.getVilkårBuilderFor(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE)
+                .medUtfallManuell(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_MEDLEM)
+                .medVilkårUtfallMerknad(VilkårUtfallMerknad.VM_1020);
+        var vilkårResultat = vilkårResultatBuilder.leggTilVilkår(vilkårBuilder)
+            .buildFor(revurdering);
 
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(vilkårResultat, lås);

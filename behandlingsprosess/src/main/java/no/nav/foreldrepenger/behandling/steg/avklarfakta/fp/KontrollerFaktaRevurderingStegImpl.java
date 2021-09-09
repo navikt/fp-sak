@@ -399,11 +399,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     }
 
     private void kopierVilkår(VilkårResultat.Builder vilkårBuilder, Set<Vilkår> vilkårne) {
-        vilkårne
-                .forEach(vilkår -> vilkårBuilder.leggTilVilkårResultat(vilkår.getVilkårType(), vilkår.getGjeldendeVilkårUtfall(),
-                        vilkår.getVilkårUtfallMerknad(),
-                        vilkår.getMerknadParametere(), vilkår.getAvslagsårsak(), vilkår.erManueltVurdert(), vilkår.erOverstyrt(),
-                        vilkår.getRegelEvaluering(),
-                        vilkår.getRegelInput()));
+        vilkårne.forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, false));
     }
 }

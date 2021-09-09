@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
-import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -146,8 +145,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
     private void oppdaterMedBehandlingsresultatAvslagOgLagre(Behandling behandling) {
         VilkårResultat.builder()
-            .leggTilVilkårResultat(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT,
-                null, new Properties(), null, false, false, null, null)
+            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .buildFor(behandling);
 

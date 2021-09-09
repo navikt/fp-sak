@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -98,13 +97,7 @@ public class RevurderingTjenesteFelles {
 
         var vilkårBuilder = VilkårResultat.builder();
         origVilkårResultat.getVilkårene().stream()
-                .forEach(vilkår -> vilkårBuilder
-                        .medUtfallManuelt(vilkår.getVilkårUtfallManuelt())
-                        .medUtfallOverstyrt(vilkår.getVilkårUtfallOverstyrt())
-                        .leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.IKKE_VURDERT, vilkår.getVilkårUtfallMerknad(),
-                                vilkår.getMerknadParametere(), vilkår.getAvslagsårsak(), vilkår.erManueltVurdert(), vilkår.erOverstyrt(),
-                                vilkår.getRegelEvaluering(),
-                                vilkår.getRegelInput()));
+                .forEach(vilkår -> vilkårBuilder.kopierVilkårFraAnnenBehandling(vilkår, true));
         vilkårBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
         var vilkårResultat = vilkårBuilder.buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultat, kontekst.getSkriveLås());
