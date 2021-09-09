@@ -72,6 +72,7 @@ class RyddVilkårTyper {
     }
 
     void ryddVedTilbakeføring(List<VilkårType> vilkårTyper) {
+        nullstillInngangsvilkår();
         nullstillVilkår(vilkårTyper);
         nullstillVedtaksresultat();
     }
@@ -101,28 +102,29 @@ class RyddVilkårTyper {
         });
     }
 
+    private void nullstillInngangsvilkår() {
+        Optional.ofNullable(getBehandlingsresultat(behandling))
+            .map(Behandlingsresultat::getVilkårResultat)
+            .filter(inng -> !inng.erOverstyrt() && !IKKE_FASTSATT.equals(inng.getVilkårResultatType()))
+            .ifPresent(iv -> VilkårResultat.builderFraEksisterende(iv)
+                .medVilkårResultatType(IKKE_FASTSATT)
+                .buildFor(behandling));
+    }
+
     private void nullstillVilkår(List<VilkårType> vilkårTyper) {
-        var vilkårResultatOpt = Optional.ofNullable(getBehandlingsresultat(behandling))
-                .map(Behandlingsresultat::getVilkårResultat);
-        if (vilkårResultatOpt.isEmpty()) {
-            return;
-        }
-        var vilkårResultat = vilkårResultatOpt.get();
-
-        var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
-                .filter(v -> vilkårTyper.contains(v.getVilkårType()))
-                .filter(v -> !v.erOverstyrt())
-                .collect(toList());
-        if (vilkårSomSkalNullstilles.isEmpty()) {
-            return;
-        }
-
-        var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-        vilkårSomSkalNullstilles.forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType()));
-        if (!vilkårResultat.erOverstyrt() && !vilkårResultat.getVilkårResultatType().equals(IKKE_FASTSATT)) {
-            builder.medVilkårResultatType(IKKE_FASTSATT);
-        }
-        builder.buildFor(behandling);
+        Optional.ofNullable(getBehandlingsresultat(behandling))
+            .map(Behandlingsresultat::getVilkårResultat)
+            .ifPresent(vilkårResultat -> {
+                var vilkårSomSkalNullstilles = vilkårResultat.getVilkårene().stream()
+                    .filter(v -> vilkårTyper.contains(v.getVilkårType()))
+                    .filter(v -> !v.erOverstyrt())
+                    .collect(toList());
+                if (!vilkårSomSkalNullstilles.isEmpty()) {
+                    var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
+                    vilkårSomSkalNullstilles.forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType()));
+                    builder.buildFor(behandling);
+                }
+            });
     }
 
 }
