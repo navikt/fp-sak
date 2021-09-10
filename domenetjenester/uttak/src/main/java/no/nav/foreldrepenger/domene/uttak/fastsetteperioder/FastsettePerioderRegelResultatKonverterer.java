@@ -45,6 +45,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Overføring�
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UttakPeriodeAktivitet;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.utfall.InnvilgetÅrsak;
 
 @ApplicationScoped
 public class FastsettePerioderRegelResultatKonverterer {
@@ -72,6 +73,8 @@ public class FastsettePerioderRegelResultatKonverterer {
         var periodeSøknader = lagPeriodeSøknader(oppgittFordeling);
         var resultatSomSkalKonverteres = resultat.stream()
             .sorted(Comparator.comparing(periodeRes -> periodeRes.getUttakPeriode().getFom()))
+            //Trenger ikke å ta vare på "fri-utsettelse" perioder
+            .filter(p -> !InnvilgetÅrsak.UTSETTELSE_GYLDIG.equals(p.getUttakPeriode().getPeriodeResultatÅrsak()))
             .collect(Collectors.toList());
 
         var uttakAktiviteter = lagUttakAktiviteter(resultat);

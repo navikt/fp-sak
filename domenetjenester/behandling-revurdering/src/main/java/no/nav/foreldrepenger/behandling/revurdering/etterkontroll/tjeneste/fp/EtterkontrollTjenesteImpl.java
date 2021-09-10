@@ -135,11 +135,11 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
         if (førsteUttaksdatoMedforelder.isPresent() && førsteUttaksdato.isPresent()) {
             return førsteUttaksdatoMedforelder.get().isAfter(førsteUttaksdato.get());
         }
-        return førsteUttaksdatoMedforelder.isEmpty() || førsteUttaksdato.isPresent();
+        return førsteUttaksdatoMedforelder.isEmpty();
     }
 
     private Optional<LocalDate> finnFørsteUttaksdato(Long behandling) {
-        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling).map(ForeldrepengerUttak::finnFørsteUttaksdato);
+        return foreldrepengerUttakTjeneste.hentUttakHvisEksisterer(behandling).flatMap(ForeldrepengerUttak::finnFørsteUttaksdato);
     }
 
     public void enkøBehandling(Behandling behandling) {
