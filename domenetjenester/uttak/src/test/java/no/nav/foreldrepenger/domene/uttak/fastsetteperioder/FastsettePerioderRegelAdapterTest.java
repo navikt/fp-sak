@@ -58,8 +58,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
@@ -795,8 +793,8 @@ public class FastsettePerioderRegelAdapterTest {
             .medFamilieHendelser(familieHendelser)
             .medAnnenpart(new Annenpart(false, farBehandling.getId(), fødselsdato.atStartOfDay()))
             .medOriginalBehandling(new OriginalBehandling(morBehandling.getId(), null));
-        var input = new UttakInput(ref, tomIay(), ytelsespesifiktGrunnlag)
-            .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser())
+        var input = new UttakInput(ref, null, ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(
+            andelTjeneste.hentStatuser())
             .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
         var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
 
@@ -804,10 +802,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(resultat.getPerioder().get(0).getUtsettelseType()).isEqualTo(UttakUtsettelseType.SYKDOM_SKADE);
         assertThat(resultat.getPerioder().get(0).getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(resultat.getPerioder().get(0).getAktiviteter().get(0).getTrekkdager().decimalValue()).isZero();
-    }
 
-    private InntektArbeidYtelseGrunnlag tomIay() {
-        return InntektArbeidYtelseGrunnlagBuilder.oppdatere(Optional.empty()).build();
     }
 
     @Test
