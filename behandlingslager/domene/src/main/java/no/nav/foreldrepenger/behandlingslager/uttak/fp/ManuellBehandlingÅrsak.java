@@ -41,6 +41,8 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
     IKKE_HELTIDSARBEID("5025", "Søker er ikke registrert med en heltidsstilling i Aa-registeret. Avklar om søker jobber 100 % og dermed har rett til utsettelse"),
     DØDSFALL("5026", "Vurder uttak med hensyn på dødsfall"),
     MOR_UFØR("5027", "Vurder fars/medmors rett til uttak på grunn av mors uføretrygd"),
+    OVERLAPPENDE_PLEIEPENGER_MED_INNLEGGELSE("5028", "Innvilget pleiepenger med innleggelse, vurder riktig ytelse"),
+    OVERLAPPENDE_PLEIEPENGER_UTEN_INNLEGGELSE("5029", "Innvilget pleiepenger uten innleggelse, vurder riktig ytelse"),
     ;
 
     private static final Map<String, ManuellBehandlingÅrsak> KODER = new LinkedHashMap<>();
