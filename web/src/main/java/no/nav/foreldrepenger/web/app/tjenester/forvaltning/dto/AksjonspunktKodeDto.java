@@ -4,6 +4,8 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -36,6 +38,7 @@ public class AksjonspunktKodeDto implements AbacDto {
         return aksjonspunktKode;
     }
 
+    @JsonIgnore
     public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
         return AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
     }
