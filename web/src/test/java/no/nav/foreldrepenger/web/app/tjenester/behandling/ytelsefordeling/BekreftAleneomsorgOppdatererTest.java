@@ -58,7 +58,7 @@ public class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto(
             "begrunnelse");
         dto.setAleneomsorg(oppdatertAleneOmsorg);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftAleneomsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));

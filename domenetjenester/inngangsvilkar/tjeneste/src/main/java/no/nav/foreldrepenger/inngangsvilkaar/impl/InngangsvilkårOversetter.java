@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,14 +50,32 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdops
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.BekreftetAdopsjonBarn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class InngangsvilkårOversetter {
+
+    private static final Map<NavBrukerKjønn, RegelKjønn> MAP_KJØNN = Map.of(
+        NavBrukerKjønn.KVINNE, RegelKjønn.KVINNE,
+        NavBrukerKjønn.MANN, RegelKjønn.MANN
+    );
+
+    private static final Map<RelasjonsRolleType, RegelSøkerRolle> MAP_ROLLE_TYPE = Map.of(
+        RelasjonsRolleType.MORA, RegelSøkerRolle.MORA,
+        RelasjonsRolleType.MEDMOR, RegelSøkerRolle.MEDMOR,
+        RelasjonsRolleType.FARA, RegelSøkerRolle.FARA
+    );
+
+    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(
+        PersonstatusType.BOSA, RegelPersonStatusType.BOSA,
+        PersonstatusType.ADNR, RegelPersonStatusType.BOSA,
+        PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
+        PersonstatusType.DØD, RegelPersonStatusType.DØD
+    );
 
     private MedlemskapRepository medlemskapRepository;
     private FamilieHendelseRepository familieGrunnlagRepository;
@@ -97,7 +115,7 @@ public class InngangsvilkårOversetter {
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon();
         var gjeldendeTerminbekreftelse = familieHendelseGrunnlag.getGjeldendeTerminbekreftelse();
         var kjønn = tilSøkerKjøenn(getSøkersKjønn(ref));
-        var rolle = finnSoekerRolle(ref);
+        var rolle = finnSoekerRolle(ref).orElse(null);
         var bekreftetFødselsDato = bekreftetFamilieHendelse.flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
         var gjeldendeTermindato = gjeldendeTerminbekreftelse.map(TerminbekreftelseEntitet::getTermindato).orElse(null);
         var gjeldendeUtstedtDato = gjeldendeTerminbekreftelse.map(TerminbekreftelseEntitet::getUtstedtdato).orElse(null);
@@ -151,18 +169,8 @@ public class InngangsvilkårOversetter {
         }
     }
 
-    private RegelSøkerRolle finnSoekerRolle(BehandlingReferanse ref) {
-        var relasjonsRolleType = finnRelasjonRolle(ref);
-        if (Objects.equals(RelasjonsRolleType.MORA, relasjonsRolleType)) {
-            return RegelSøkerRolle.MORA;
-        }
-        if (Objects.equals(RelasjonsRolleType.FARA, relasjonsRolleType)) {
-            return RegelSøkerRolle.FARA;
-        }
-        if (Objects.equals(RelasjonsRolleType.MEDMOR, relasjonsRolleType)) {
-            return RegelSøkerRolle.MEDMOR;
-        }
-        return null;
+    private Optional<RegelSøkerRolle> finnSoekerRolle(BehandlingReferanse ref) {
+        return Optional.ofNullable(finnRelasjonRolle(ref)).map(MAP_ROLLE_TYPE::get);
     }
 
     private RelasjonsRolleType finnRelasjonRolle(BehandlingReferanse ref) {
@@ -341,21 +349,12 @@ public class InngangsvilkårOversetter {
         return aggregat.harStatsborgerskapRegionVedSkjæringstidspunkt(aggregat.getSøker().getAktørId(), Region.NORDEN);
     }
 
-    private static PersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {
+    private static RegelPersonStatusType tilPersonStatusType(PersonopplysningerAggregat personopplysninger) {
         // Bruker overstyrt personstatus hvis det finnes
-        var type = Optional.ofNullable(personopplysninger.getPersonstatusFor(personopplysninger.getSøker().getAktørId()))
-            .map(PersonstatusEntitet::getPersonstatus).orElse(null);
-
-        if (PersonstatusType.BOSA.equals(type) || PersonstatusType.ADNR.equals(type)) {
-            return PersonStatusType.BOSA;
-        }
-        if (PersonstatusType.UTVA.equals(type)) {
-            return PersonStatusType.UTVA;
-        }
-        if (PersonstatusType.erDød(type)) {
-            return PersonStatusType.DØD;
-        }
-        return null;
+        return Optional.ofNullable(personopplysninger.getPersonstatusFor(personopplysninger.getSøker().getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus)
+            .map(MAP_PERSONSTATUS_TYPE::get)
+            .orElse(null);
     }
 
     private BekreftetAdopsjon byggBekreftetAdopsjon(BehandlingReferanse ref) {
@@ -382,12 +381,15 @@ public class InngangsvilkårOversetter {
     }
 
     private static RegelKjønn tilSøkerKjøenn(NavBrukerKjønn søkerKjønn) {
-        var kjoenn = RegelKjønn.hentKjønn(søkerKjønn.getKode());
-        Objects.requireNonNull(kjoenn, "Fant ingen kjonn for: " + søkerKjønn.getKode());
-        return kjoenn;
+        return Optional.ofNullable(MAP_KJØNN.get(søkerKjønn))
+            .orElseThrow(() -> new NullPointerException("Fant ingen kjønn for " + søkerKjønn.getKode()));
     }
 
     public static VilkårData tilVilkårData(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
-        return VilkårUtfallOversetter.oversett(vilkårType, evaluation, grunnlag);
+        return VilkårUtfallOversetter.oversett(vilkårType, evaluation, grunnlag, null);
+    }
+
+    public static VilkårData tilVilkårData(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag, Object ekstraData) {
+        return VilkårUtfallOversetter.oversett(vilkårType, evaluation, grunnlag, ekstraData);
     }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,16 +32,20 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         // unngå antatt godkjent
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
 
         // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), bigCorp);
-        grunnlag.leggTil(new LocalDateInterval(dt2, dt4), noCorp);
-
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt2, dt4), noCorp)
+        );
         // inntekt
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L);
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L);
+        var inntekter = List.of(
+            new InntektPeriode(new LocalDateInterval(dt3, dt4), bigCorp.forInntekt(), 1L),
+            new InntektPeriode(new LocalDateInterval(o1, o2), bigCorp.forInntekt(), 0L)
+        );
+
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 
         var output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
@@ -62,18 +67,21 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         // matcher antatt godkjent kun for dt3-dt4
         var behandlingstidspunkt = LocalDate.of(2018, 01, 01);
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
-
-        // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), bigCorp);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
         var førsteArbeidsdagSmallCorp = dt3.withDayOfMonth(1);
         var sisteArbeidsdagSmallCorp = dt4;
-        grunnlag.leggTil(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp);
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp)
+        );
+        // inntekt
+        var inntekter = List.of(
+            new InntektPeriode(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L)
+        );
 
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, dt3), bigCorp.forInntekt(), 1L);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4, aktiviteter, inntekter);
 
         var output = new OpptjeningsvilkårResultat();
         new OpptjeningsvilkårForeldrepenger().evaluer(grunnlag, output);
@@ -97,16 +105,17 @@ public class OpptjeningVilkårAntattGodkjentOgUnderkjentArbeidTest {
 
         // matcher antatt godkjent kun for dt3-dt4
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
-
-        // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), bigCorp);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), bigCorp);
 
         // skal også med som antatt selv om ingen inntekter er rapportert
         var førsteArbeidsdagSmallCorp = dt2;
         var sisteArbeidsdagSmallCorp = dt4;
-        grunnlag.leggTil(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp);
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), bigCorp),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(førsteArbeidsdagSmallCorp, sisteArbeidsdagSmallCorp), smallCorp)
+        );
+
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, List.of());
 
         // Act
         var output = new OpptjeningsvilkårResultat();

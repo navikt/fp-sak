@@ -75,7 +75,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
         // Dto
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("begrunnelse",
             avklartTermindato, avklartUtstedtDato, avklartAntallBarn);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(repositoryProvider,
             lagMockHistory(),
@@ -126,7 +126,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new BekreftTerminbekreftelseAksjonspunktDto(
             "Begrunnelse", now.plusDays(30), now.minusDays(3), 1);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(repositoryProvider,
             lagMockHistory(),
@@ -163,7 +163,7 @@ public class BekreftTerminbekreftelseOppdatererTest extends EntityManagerAwareTe
 
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new BekreftTerminbekreftelseAksjonspunktDto("Begrunnelse", now.plusDays(30), now.minusDays(3), 2);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
         // Act
         var oppdaterer = new BekreftTerminbekreftelseOppdaterer(repositoryProvider,
             lagMockHistory(),

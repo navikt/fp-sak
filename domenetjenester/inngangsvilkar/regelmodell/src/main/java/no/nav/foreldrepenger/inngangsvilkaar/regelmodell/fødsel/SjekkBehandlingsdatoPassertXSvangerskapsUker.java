@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
+import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 /**
@@ -11,7 +13,8 @@ public class SjekkBehandlingsdatoPassertXSvangerskapsUker extends LeafSpecificat
 
     static final String ID = SjekkBehandlingsdatoPassertXSvangerskapsUker.class.getSimpleName();
 
-    static final RuleReasonRefImpl IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES = new RuleReasonRefImpl("1001",
+    static final RuleReasonRef IKKE_OPPFYLT_PASSERT_TIDLIGSTE_SVANGERSKAPSUKE_KAN_BEHANDLES =
+        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1001,
             "Behandlingsdato {0} før svangerskapsuke 22 (termindato ({1}))");
 
     SjekkBehandlingsdatoPassertXSvangerskapsUker() {

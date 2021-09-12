@@ -77,7 +77,7 @@ public class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         bekreftedeFødselsdatoer.put(1, bekreftetFødselsdato);
         var dto = new BekreftDokumentertDatoAksjonspunktDto("begrunnelse", bekreftetOvertakelsesdato,
             bekreftedeFødselsdatoer);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftDokumentasjonOppdaterer(lagMockHistory(), familieHendelseTjeneste, skjæringstidspunktTjeneste).oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));

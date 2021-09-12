@@ -43,7 +43,7 @@ public abstract class OpptjeningFaktaStegFelles implements BehandlingSteg {
         var ref = BehandlingReferanse.fra(behandling, skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId));
 
         var resultat = opptjeningsVilkårTjeneste.vurderOpptjeningsVilkår(ref);
-        if (VilkårUtfallType.OPPFYLT.equals(resultat.getUtfallType())) {
+        if (VilkårUtfallType.OPPFYLT.equals(resultat.utfallType())) {
             return BehandleStegResultat.utførtUtenAksjonspunkter();
         }
 

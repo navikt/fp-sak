@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonstatusEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -43,11 +42,18 @@ import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.InngangsvilkårOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.Medlemskapsvilkår;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class VurderLøpendeMedlemskap {
+
+    private static final Map<PersonstatusType, RegelPersonStatusType> MAP_PERSONSTATUS_TYPE = Map.of(
+        PersonstatusType.BOSA, RegelPersonStatusType.BOSA,
+        PersonstatusType.ADNR, RegelPersonStatusType.BOSA,
+        PersonstatusType.UTVA, RegelPersonStatusType.UTVA,
+        PersonstatusType.DØD, RegelPersonStatusType.DØD
+    );
 
     private PersonopplysningTjeneste personopplysningTjeneste;
     private MedlemskapRepository medlemskapRepository;
@@ -83,10 +89,10 @@ public class VurderLøpendeMedlemskap {
 
         for (var entry : lagGrunnlag(behandlingId).entrySet()) {
             var data = evaluerGrunnlag(entry.getValue());
-            if (data.getUtfallType().equals(VilkårUtfallType.OPPFYLT)) {
+            if (data.utfallType().equals(VilkårUtfallType.OPPFYLT)) {
                 resultat.put(entry.getKey(), data);
-            } else if (data.getUtfallType().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                if (data.getVilkårUtfallMerknad() == null) {
+            } else if (data.utfallType().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
+                if (data.vilkårUtfallMerknad() == null) {
                     throw new IllegalStateException("Forventer at vilkår utfall merknad er satt når vilkåret blir satt til IKKE_OPPFYLT for grunnlag:" + entry.getValue().toString());
                 }
                 resultat.put(entry.getKey(), data);
@@ -212,22 +218,11 @@ public class VurderLøpendeMedlemskap {
             .orElse(false);
     }
 
-    private PersonStatusType tilPersonStatusType(Optional<PersonopplysningerAggregat> aggregatOptional) {
-        if (aggregatOptional.isPresent()) {
-            var aggregat = aggregatOptional.get();
-            var type = Optional.ofNullable(aggregat.getPersonstatusFor(aggregat.getSøker().getAktørId())).map(PersonstatusEntitet::getPersonstatus).orElse(null);
-
-            if (PersonstatusType.BOSA.equals(type) || PersonstatusType.ADNR.equals(type)) {
-                return PersonStatusType.BOSA;
-            }
-            if (PersonstatusType.UTVA.equals(type)) {
-                return PersonStatusType.UTVA;
-            }
-            if (PersonstatusType.erDød(type)) {
-                return PersonStatusType.DØD;
-            }
-        }
-        return null;
+    private RegelPersonStatusType tilPersonStatusType(Optional<PersonopplysningerAggregat> aggregatOptional) {
+        return aggregatOptional.map(aggregat -> aggregat.getPersonstatusFor(aggregat.getSøker().getAktørId()))
+            .map(PersonstatusEntitet::getPersonstatus)
+            .map(MAP_PERSONSTATUS_TYPE::get)
+            .orElse(null);
     }
 
     private boolean finnOmSøkerHarArbeidsforholdOgInntekt(Behandling behandling, LocalDate vurderingsdato) {

@@ -72,7 +72,7 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
         var aktørIder = utledAktørIder(attributter, fagsakIder);
         var aksjonspunktType = pipRepository
-                .hentAksjonspunktTypeForAksjonspunktKoder(attributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_KODE));
+                .hentAksjonspunktTypeForAksjonspunktKoder(attributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON));
         return behandlingData.map(b -> lagPdpRequest(attributter, aktørIder, aksjonspunktType, b))
             .orElseGet(() -> lagPdpRequest(attributter, aktørIder, aksjonspunktType));
     }

@@ -40,9 +40,9 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
 
         assertThat(vilkårData).isNotNull();
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(vilkårData.getApDefinisjoner()).isEmpty();
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.aksjonspunktDefinisjoner()).isEmpty();
     }
 
     @Test
@@ -55,10 +55,10 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         var vilkårData = testObjekt.vurderVilkår(lagRef(behandling));
 
         assertThat(vilkårData).isNotNull();
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
-        assertThat(vilkårData.getApDefinisjoner()).hasSize(1);
-        assertThat(vilkårData.getApDefinisjoner()).contains(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
+        assertThat(vilkårData.aksjonspunktDefinisjoner()).hasSize(1);
+        assertThat(vilkårData.aksjonspunktDefinisjoner()).contains(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU);
     }
 
     @Test
@@ -73,9 +73,9 @@ public class InngangsvilkårSøkersOpplysningspliktTest {
         var vilkårData = testObjekt.vurderVilkår(lagRef(revurdering));
 
         assertThat(vilkårData).isNotNull();
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(vilkårData.getApDefinisjoner()).isEmpty();
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.SØKERSOPPLYSNINGSPLIKT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.aksjonspunktDefinisjoner()).isEmpty();
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

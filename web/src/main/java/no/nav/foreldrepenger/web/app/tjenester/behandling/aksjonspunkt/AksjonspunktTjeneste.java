@@ -143,7 +143,7 @@ public class AksjonspunktTjeneste {
         // Her sikres at behandlingskontroll hopper tilbake til aksjonspunktenes tidligste "løsesteg" dersom aktivt
         // behandlingssteg er lenger fremme i sekvensen
         var bekreftedeApKoder = aksjonspunktDtoer.stream()
-            .map(AksjonspunktKode::getKode)
+            .map(AksjonspunktKode::getAksjonspunktDefinisjon)
             .collect(toList());
 
         behandlingskontrollTjeneste.behandlingTilbakeføringTilTidligsteAksjonspunkt(kontekst, bekreftedeApKoder);
@@ -359,10 +359,9 @@ public class AksjonspunktTjeneste {
                                      OverhoppResultat overhoppResultat,
                                      BekreftetAksjonspunktDto dto) {
         // Endringskontroll for aksjonspunkt
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode())
-            .orElseThrow(() -> new IllegalStateException("Utvikler-feil: Har ikke aksjonspunkt av type: " + dto.getKode()));
+        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
 
-        var oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getKode());
+        var oppdaterer = finnAksjonspunktOppdaterer(dto.getClass(), dto.getAksjonspunktDefinisjon());
         var param = new AksjonspunktOppdaterParameter(behandling, Optional.of(aksjonspunkt), skjæringstidspunkter, dto);
         var delresultat = oppdaterer.oppdater(dto, param);
         overhoppResultat.leggTil(delresultat);
@@ -396,11 +395,11 @@ public class AksjonspunktTjeneste {
 
     @SuppressWarnings("unchecked")
     private AksjonspunktOppdaterer<BekreftetAksjonspunktDto> finnAksjonspunktOppdaterer(Class<? extends BekreftetAksjonspunktDto> dtoClass,
-                                                                                        String aksjonspunktDefinisjonKode) {
+                                                                                        AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var instance = finnAdapter(dtoClass, AksjonspunktOppdaterer.class);
         if (instance.isUnsatisfied()) {
             throw new TekniskException("FP-770743",
-                "Finner ikke håndtering for aksjonspunkt med kode: " + aksjonspunktDefinisjonKode);
+                "Finner ikke håndtering for aksjonspunkt med kode: " + aksjonspunktDefinisjon.getKode());
         }
         var minInstans = instance.get();
         if (minInstans.getClass().isAnnotationPresent(Dependent.class)) {
@@ -445,7 +444,7 @@ public class AksjonspunktTjeneste {
 
     private void settToTrinnPåOverstyrtAksjonspunktHvisKreves(Behandling behandling, OverstyringAksjonspunktDto dto,
                                                               boolean resultatKreverTotrinn) {
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         if (resultatKreverTotrinn && behandling.harAksjonspunktMedType(aksjonspunktDefinisjon)) {
             var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
             setToTrinnsBehandlingKreves(aksjonspunkt);

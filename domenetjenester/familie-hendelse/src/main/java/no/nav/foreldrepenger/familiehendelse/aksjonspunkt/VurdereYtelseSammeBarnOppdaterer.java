@@ -61,7 +61,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                 return resultatBuilder.medTotrinnHvis(totrinn).build();
             }
             var resultatBuilder = OppdateringResultat.utenTransisjon();
-            var avslagsårsak = dto.getAvslagskode() == null ? null : Avslagsårsak.fraKode(dto.getAvslagskode());
+            var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
 
             return resultatBuilder
                 .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
@@ -78,8 +78,7 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                                        AvslagbartAksjonspunktDto dto,
                                        HistorikkEndretFeltType historikkEndretFeltType,
                                        AksjonspunktOppdaterParameter param) {
-        var aksjonspunktKode = dto.getKode();
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var behandling = behandlingRepository.hentBehandling(behandlingReferanse.getBehandlingId());
         return new HistorikkAksjonspunktAdapter(
             behandling, historikkAdapter, param).håndterAksjonspunkt(

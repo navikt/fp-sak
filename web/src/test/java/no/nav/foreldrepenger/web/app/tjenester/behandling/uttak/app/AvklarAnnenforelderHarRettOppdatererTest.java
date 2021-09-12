@@ -72,7 +72,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
 
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
 
         oppdaterer().oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
@@ -103,7 +103,7 @@ public class AvklarAnnenforelderHarRettOppdatererTest extends EntityManagerAware
 
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(getEntityManager(), behandling.getId());
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode()).get();
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
 
         var resultat = oppdaterer().oppdater(dto,
             new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));

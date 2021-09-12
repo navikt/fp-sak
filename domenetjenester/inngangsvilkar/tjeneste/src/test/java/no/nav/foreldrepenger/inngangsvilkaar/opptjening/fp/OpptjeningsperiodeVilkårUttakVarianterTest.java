@@ -95,7 +95,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
             .vurderVilkår(ref);
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isTrue();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(morsmaksdato);
     }
@@ -142,7 +142,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
             .vurderVilkår(ref);
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isTrue();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(førsteUttaksdato.minusDays(1));
     }
@@ -188,7 +188,7 @@ public class OpptjeningsperiodeVilkårUttakVarianterTest extends EntityManagerAw
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste)
             .vurderVilkår(ref);
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(ref.getSkjæringstidspunkt().kreverSammenhengendeUttak()).isFalse();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(førsteUttaksdato.minusDays(1));
     }

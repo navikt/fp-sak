@@ -70,11 +70,6 @@ public class VurderSøknadsfristTjeneste {
 
     private Optional<AksjonspunktDefinisjon> utledAksjonspunkt(SøknadsfristResultat resultat) {
         var årsakKode = resultat.getÅrsakKodeIkkeVurdert();
-        if (!resultat.isRegelOppfylt() && årsakKode.isPresent()) {
-            var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(årsakKode.get());
-
-            return Optional.of(aksjonspunktDefinisjon);
-        }
-        return Optional.empty();
+        return !resultat.isRegelOppfylt() ? årsakKode.map(AksjonspunktDefinisjon::fraKode) : Optional.empty();
     }
 }

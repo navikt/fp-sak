@@ -108,9 +108,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1020);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1020);
     }
 
     /**
@@ -128,9 +128,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1020);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1020);
     }
 
     /**
@@ -153,13 +153,13 @@ public class MedlemskapsvilkårTest {
         // Act
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(vilkårData.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(vilkårData.regelInput());
         var personStatusType = jsonNode.get("personStatusType").asText();
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(vilkårData.getRegelInput()).isNotEmpty();
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.regelInput()).isNotEmpty();
         assertThat(personStatusType).isEqualTo("BOSA");
     }
 
@@ -182,9 +182,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
     }
 
     /**
@@ -207,8 +207,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -233,8 +233,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -258,9 +258,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
     }
 
     /**
@@ -285,8 +285,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -312,8 +312,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -339,9 +339,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1024);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1024);
     }
 
     /**
@@ -368,9 +368,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1023);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1023);
     }
 
     /**
@@ -398,8 +398,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -425,8 +425,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**
@@ -447,9 +447,9 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkårData.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1025);
     }
 
     /**
@@ -474,8 +474,8 @@ public class MedlemskapsvilkårTest {
         var vilkårData = vurderMedlemskapsvilkarEngangsstonad.vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(vilkårData.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.vilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     /**

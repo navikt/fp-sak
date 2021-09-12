@@ -580,12 +580,6 @@ public class Behandling extends BaseEntitet {
                     () -> new TekniskException("FP-138032", "Behandling har ikke aksjonspunkt for definisjon " + definisjon.getKode()));
     }
 
-    public Optional<Aksjonspunkt> getAksjonspunktFor(String aksjonspunktDefinisjonKode) {
-        return getAksjonspunkterStream()
-                .filter(a -> a.getAksjonspunktDefinisjon().getKode().equals(aksjonspunktDefinisjonKode))
-                .findFirst();
-    }
-
     public List<Aksjonspunkt> getÅpneAksjonspunkter() {
         return getÅpneAksjonspunkterStream()
                 .collect(Collectors.toList());

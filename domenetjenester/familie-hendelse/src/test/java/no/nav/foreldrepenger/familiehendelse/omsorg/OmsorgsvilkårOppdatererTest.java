@@ -55,7 +55,7 @@ public class OmsorgsvilkårOppdatererTest {
         // Act
         var oppdatertOmsorgsvilkårOk = true;
         var dto = new OmsorgsvilkårAksjonspunktDto("begrunnelse", oppdatertOmsorgsvilkårOk, "avslagkode");
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         omsorgsvilkarOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, null, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);

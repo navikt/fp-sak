@@ -76,7 +76,7 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         var bekreftOppholdOppdaterer = new BekreftOppholdOppdaterer(
                 lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste) {
         };
@@ -119,7 +119,7 @@ public class BekreftOppholdVurderingTest extends EntityManagerAwareTest {
         final var medlemskapAksjonspunktTjeneste = new MedlemskapAksjonspunktTjeneste(
                 repositoryProvider, mock(HistorikkTjenesteAdapter.class), skjæringstidspunktTjeneste);
 
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         new BekreftOppholdOppdaterer(lagMockHistory(), medlemskapTjeneste, medlemskapAksjonspunktTjeneste) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 

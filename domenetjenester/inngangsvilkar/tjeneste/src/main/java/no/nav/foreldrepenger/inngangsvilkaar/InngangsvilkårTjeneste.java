@@ -111,18 +111,17 @@ public class InngangsvilkårTjeneste {
     /**
      * Overstyr gitt aksjonspunkt på Inngangsvilkår.
      */
-    public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, String avslagsårsakKode,
+    public void overstyrAksjonspunkt(Long behandlingId, VilkårType vilkårType, VilkårUtfallType utfall, Avslagsårsak avslagsårsak,
                                      BehandlingskontrollKontekst kontekst) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
         var vilkårResultat = getBehandlingsresultat(behandlingId).getVilkårResultat();
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
-        var avslagsårsak = finnAvslagsårsak(avslagsårsakKode, utfall);
         builder.overstyrVilkår(vilkårType, utfall, avslagsårsak);
         if (utfall.equals(VilkårUtfallType.IKKE_OPPFYLT)) {
             if (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak))
-                LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsakKode);
+                LOG.warn("Overstyrer til IKKE OPPFYLT uten gyldig avslagskode, behandling {} vilkårtype {} kode {}", behandlingId, vilkårType, avslagsårsak);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         } else if (utfall.equals(VilkårUtfallType.OPPFYLT)) {
             if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
@@ -142,15 +141,5 @@ public class InngangsvilkårTjeneste {
         return vilkårResultat.getVilkårene().stream()
             .filter(vilkår -> !vilkår.getVilkårType().equals(vilkårType))
             .anyMatch(vilkår -> vilkår.erOverstyrt() && vilkår.erIkkeOppfylt());
-    }
-
-    private Avslagsårsak finnAvslagsårsak(String avslagsÅrsakKode, VilkårUtfallType utfall) {
-        Avslagsårsak avslagsårsak;
-        if (avslagsÅrsakKode == null || utfall.equals(VilkårUtfallType.OPPFYLT)) {
-            avslagsårsak = Avslagsårsak.UDEFINERT;
-        } else {
-            avslagsårsak = Avslagsårsak.fraKode(avslagsÅrsakKode);
-        }
-        return avslagsårsak;
     }
 }

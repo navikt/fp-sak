@@ -38,7 +38,7 @@ public abstract class FastsettOpptjeningsperiodeStegFelles extends Inngangsvilk�
 
     @Override
     protected void utførtRegler(BehandlingskontrollKontekst kontekst, Behandling behandling, RegelResultat regelResultat) {
-        var op = (OpptjeningsPeriode) regelResultat.getEkstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
+        var op = (OpptjeningsPeriode) regelResultat.ekstraResultater().get(VilkårType.OPPTJENINGSPERIODEVILKÅR);
         if (op == null) {
             throw new IllegalArgumentException(
                     "Utvikler-feil: finner ikke resultat etter evaluering av Inngangsvilkår/Opptjening:" + behandling.getId());

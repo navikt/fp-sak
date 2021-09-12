@@ -39,8 +39,7 @@ public class BrevHistorikkinnslag {
 
     void opprettHistorikkinnslagForManueltBestiltBrev(HistorikkAktør historikkAktør,
                                                       Behandling behandling,
-                                                      String dokumentMal) {
-        var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
+                                                      DokumentMalType dokumentMalType) {
         opprettHistorikkinnslagForBestiltBrevFraKafka(historikkAktør, behandling, dokumentMalType);
     }
 }

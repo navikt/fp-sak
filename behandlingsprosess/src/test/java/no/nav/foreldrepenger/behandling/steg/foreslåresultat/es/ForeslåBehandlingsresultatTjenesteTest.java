@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.es.RevurderingEndringImpl;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -37,7 +36,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
     private final RevurderingEndringImpl revurderingEndring = mock(RevurderingEndringImpl.class);
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    private final AvslagsårsakTjeneste avslagsårsakTjeneste = new AvslagsårsakTjeneste();
     private ForeslåBehandlingsresultatTjenesteImpl foreslåVedtaTjenesteES;
 
     @BeforeEach
@@ -49,7 +47,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         foreslåVedtaTjenesteES = new ForeslåBehandlingsresultatTjenesteImpl(
                 repositoryProvider.getBehandlingsresultatRepository(),
                 repositoryProvider.getBehandlingRepository(),
-                avslagsårsakTjeneste, revurderingEndring);
+                revurderingEndring);
     }
 
     @Test

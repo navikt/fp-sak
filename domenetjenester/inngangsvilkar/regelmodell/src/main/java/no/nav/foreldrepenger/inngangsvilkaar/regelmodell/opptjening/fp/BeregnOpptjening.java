@@ -143,7 +143,7 @@ public class BeregnOpptjening extends LeafSpecification<OpptjeningsvilkårMellom
 
         var tidslinje = slåSammenTilFellesTidslinje(data, false, Arrays.asList(utlandsFilter));
 
-        var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().getFørsteDatoIOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
+        var maxDatoIkkeUtlandsk =  tidslinje.isEmpty() ? data.getGrunnlag().førsteDatoOpptjening().minusDays(1) : tidslinje.getMaxLocalDate();
 
         // Må overskrive manuell godkjenning da annen aktivitet gjerne er vurdert i aksjonspunkt i steg 82
         return data.splitOgUnderkjennSegmenterEtterDatoForAktivitet(utlandsFilter, maxDatoIkkeUtlandsk);

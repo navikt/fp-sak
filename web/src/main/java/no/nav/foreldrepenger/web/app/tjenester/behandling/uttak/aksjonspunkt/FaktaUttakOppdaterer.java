@@ -69,8 +69,7 @@ public class FaktaUttakOppdaterer implements AksjonspunktOppdaterer<FaktaUttakDt
         var input = uttakInputtjeneste.lagInput(behandling);
         var aksjonspunktReutledet = kontrollerFaktaUttakTjeneste.reutledAksjonspunkterVedOppdateringAvYtelseFordeling(input);
         return aksjonspunktReutledet.stream()
-            .map(a -> a.getKode())
-            .anyMatch(kode -> kode.equals(dto.getKode()));
+            .anyMatch(apDef -> apDef.equals(dto.getAksjonspunktDefinisjon()));
     }
 
     private void avbrytÅpneOverstyringAksjonspunkt(Behandling behandling, OppdateringResultat.Builder resultatBuilder) {

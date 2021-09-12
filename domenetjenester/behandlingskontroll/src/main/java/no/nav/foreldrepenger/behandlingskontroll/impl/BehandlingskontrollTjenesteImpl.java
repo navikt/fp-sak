@@ -142,7 +142,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     @Override
     public void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst,
-            Collection<String> oppdaterteAksjonspunkter) {
+            Collection<AksjonspunktDefinisjon> oppdaterteAksjonspunkter) {
 
         if ((oppdaterteAksjonspunkter == null) || oppdaterteAksjonspunkter.isEmpty()) {
             return;
@@ -565,7 +565,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
         var modell = getModell(behandlingType, ytelseType);
         var apLøsesteg = Optional.ofNullable(modell
-                .finnTidligsteStegForAksjonspunktDefinisjon(singletonList(apDef.getKode())))
+                .finnTidligsteStegForAksjonspunktDefinisjon(singletonList(apDef)))
                 .map(BehandlingStegModell::getBehandlingStegType)
                 .orElse(null);
         if (apLøsesteg == null) {
@@ -580,7 +580,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     // TODO: (PK-49128) Midlertidig løsning for å filtrere aksjonspunkter til høyre
     // for steg i hendelsemodul
     @Override
-    public Set<String> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså) {
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså) {
         var modell = getModell(behandling.getType(), behandling.getFagsakYtelseType());
         return modell.finnAksjonspunktDefinisjonerFraOgMed(steg, medInngangOgså);
     }
@@ -636,7 +636,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
     }
 
     protected void doTilbakeføringTilTidligsteAksjonspunkt(Behandling behandling, BehandlingStegType stegType, BehandlingModell modell,
-            Collection<String> oppdaterteAksjonspunkter) {
+            Collection<AksjonspunktDefinisjon> oppdaterteAksjonspunkter) {
         Consumer<BehandlingStegType> oppdaterBehandlingStegStatus = (bst) -> {
             var stegStatus = modell.finnStegStatusFor(bst, oppdaterteAksjonspunkter);
             if (stegStatus.isPresent()

@@ -154,13 +154,6 @@ public class VedtakXmlTest {
     }
 
     @Test
-    public void test_konvertering_kjønn() {
-        var søkersKjønn = RegelKjønn.KVINNE;
-        var navBrukerKjønn = NavBrukerKjønn.fraKode(søkersKjønn.getKode());
-        assertThat(navBrukerKjønn).isEqualTo(NavBrukerKjønn.KVINNE);
-    }
-
-    @Test
     public void skal_opprette_vedtaks_xml(EntityManager em) {
         var behandling = byggBehandlingMedVedtak(em);
         var avkortetXmlElement = "avkortet>";

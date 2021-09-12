@@ -80,6 +80,9 @@ public class VedtakXmlUtil {
         return periodeOpplysning;
     }
 
+    public static KodeverksOpplysning lagTomKodeverksOpplysning() {
+        return fellesObjectFactory.createKodeverksOpplysning();
+    }
 
     public static KodeverksOpplysning lagKodeverksOpplysning(Kodeverdi kodeverdi) {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();

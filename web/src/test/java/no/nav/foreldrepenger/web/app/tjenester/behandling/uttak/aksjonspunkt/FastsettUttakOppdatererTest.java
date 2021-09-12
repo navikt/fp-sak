@@ -153,7 +153,7 @@ public class FastsettUttakOppdatererTest {
                 .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
                 .build();
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         var avbrutt = resultat.getEkstraAksjonspunktResultat().stream()

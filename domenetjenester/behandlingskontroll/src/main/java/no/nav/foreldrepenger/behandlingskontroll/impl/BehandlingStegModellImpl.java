@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 /**
  * Modellerer ett behandlingssteg, inklusiv hvilke aksjonspunkter må løses
@@ -30,12 +31,12 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     /**
      * Aksjonspunkter som må løses ved inngang til behandlingsteg.
      */
-    private final Set<String> inngangAksjonpunktKoder = new LinkedHashSet<>();
+    private final Set<AksjonspunktDefinisjon> inngangAksjonpunkt = new LinkedHashSet<>();
 
     /**
      * Aksjonspunkter som må løses ved utgang fra behandlingsteg.
      */
-    private final Set<String> utgangAksjonpunktKoder = new LinkedHashSet<>();
+    private final Set<AksjonspunktDefinisjon> utgangAksjonpunkt = new LinkedHashSet<>();
 
     /**
      * Hver steg modell må tilhøre en BehandlingModell som beskriver hvordan de
@@ -73,12 +74,12 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         return behandlingModell;
     }
 
-    Set<String> getInngangAksjonpunktKoder() {
-        return Collections.unmodifiableSet(inngangAksjonpunktKoder);
+    Set<AksjonspunktDefinisjon> getInngangAksjonpunkt() {
+        return Collections.unmodifiableSet(inngangAksjonpunkt);
     }
 
-    Set<String> getUtgangAksjonpunktKoder() {
-        return Collections.unmodifiableSet(utgangAksjonpunktKoder);
+    Set<AksjonspunktDefinisjon> getUtgangAksjonpunkt() {
+        return Collections.unmodifiableSet(utgangAksjonpunkt);
     }
 
     protected void initSteg() {
@@ -94,14 +95,14 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         }
     }
 
-    protected void leggTilAksjonspunktVurderingUtgang(String kode) {
-        behandlingModell.validerErIkkeAlleredeMappet(kode);
-        utgangAksjonpunktKoder.add(kode);
+    protected void leggTilAksjonspunktVurderingUtgang(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        behandlingModell.validerErIkkeAlleredeMappet(aksjonspunktDefinisjon);
+        utgangAksjonpunkt.add(aksjonspunktDefinisjon);
     }
 
-    protected void leggTilAksjonspunktVurderingInngang(String kode) {
-        behandlingModell.validerErIkkeAlleredeMappet(kode);
-        inngangAksjonpunktKoder.add(kode);
+    protected void leggTilAksjonspunktVurderingInngang(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        behandlingModell.validerErIkkeAlleredeMappet(aksjonspunktDefinisjon);
+        inngangAksjonpunkt.add(aksjonspunktDefinisjon);
     }
 
     void destroy() {
@@ -131,12 +132,12 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
      * Avleder status behandlingsteg bør settes i gitt et sett med aksjonpunkter.
      * Tar kun hensyn til aksjonpunkter som gjelder dette steget.
      */
-    Optional<BehandlingStegStatus> avledStatus(Collection<String> aksjonspunkter) {
+    Optional<BehandlingStegStatus> avledStatus(Collection<AksjonspunktDefinisjon> aksjonspunkter) {
 
-        if (!Collections.disjoint(aksjonspunkter, inngangAksjonpunktKoder)) { // NOSONAR
+        if (!Collections.disjoint(aksjonspunkter, inngangAksjonpunkt)) { // NOSONAR
             return Optional.of(BehandlingStegStatus.INNGANG);
         }
-        if (!Collections.disjoint(aksjonspunkter, utgangAksjonpunktKoder)) { // NOSONAR
+        if (!Collections.disjoint(aksjonspunkter, utgangAksjonpunkt)) { // NOSONAR
             return Optional.of(BehandlingStegStatus.UTGANG);
         }
         return Optional.empty();
@@ -145,8 +146,8 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<" + behandlingStegType.getKode() + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "inngangAksjonspunkter=" + inngangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
-                + "utgangAksjonspunkter=" + utgangAksjonpunktKoder + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "inngangAksjonspunkter=" + inngangAksjonpunkt + ", " //$NON-NLS-1$ //$NON-NLS-2$
+                + "utgangAksjonspunkter=" + utgangAksjonpunkt + ", " //$NON-NLS-1$ //$NON-NLS-2$
                 + "impl=" + steg //$NON-NLS-1$
                 + ">"; //$NON-NLS-1$
     }

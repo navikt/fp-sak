@@ -62,22 +62,12 @@ public enum RelasjonsRolleType implements Kodeverdi {
 
     @JsonCreator
     public static RelasjonsRolleType fraKode(@JsonProperty("kode") String kode) {
-        var ad = fraKodeOptional(kode);
-        if (ad.isEmpty()) {
-            throw new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode);
-        }
-        return ad.get();
+        return Optional.ofNullable(kode).map(KODER::get)
+            .orElseThrow(() -> new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode));
     }
 
     public static Map<String, RelasjonsRolleType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
-    }
-
-    public static Optional<RelasjonsRolleType> fraKodeOptional(String kode) {
-        if (kode == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(KODER.get(kode));
     }
 
     @Override

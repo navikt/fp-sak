@@ -78,7 +78,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftAleneomsorgVurderingDto(
             "begrunnelse");
         dto.setAleneomsorg(true);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftAleneomsorgOppdaterer(repositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
@@ -95,7 +95,7 @@ public class YtelseFordelingDtoTjenesteTest extends EntityManagerAwareTest {
         var behandling = opprettBehandling(AksjonspunktDefinisjon.AVKLAR_FAKTA_ANNEN_FORELDER_HAR_RETT);
         var dto = AvklarFaktaTestUtil.opprettDtoAvklarAnnenforelderharIkkeRett();
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         new AvklarAnnenforelderHarRettOppdaterer(kontrollerOppgittFordelingTjeneste, faktaUttakHistorikkTjeneste,
             faktaUttakToTrinnsTjeneste).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);

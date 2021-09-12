@@ -53,7 +53,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     @Override
     public OppdateringResultat oppdater(KlageVurderingResultatAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getBehandling();
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         var totrinn = håndterToTrinnsBehandling(behandling, aksjonspunktDefinisjon, dto.getKlageVurdering());
 
         håndterKlageVurdering(dto, behandling, aksjonspunktDefinisjon);
@@ -90,7 +90,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var aksjonspunkt = behandling.getAksjonspunktFor(aksjonspunktDefinisjon);
         if (aksjonspunkt.isToTrinnsBehandling()) {
-            aksjonspunktUtil.fjernToTrinnsBehandlingKreves(aksjonspunkt);
+            AksjonspunktUtil.fjernToTrinnsBehandlingKreves(aksjonspunkt);
         }
     }
 
@@ -116,7 +116,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         if (årsak != null) {
             historiebygger.medEndretFelt(HistorikkEndretFeltType.KLAGE_OMGJØR_ÅRSAK, null, årsak.getNavn());
         }
-        var skjermlenkeType = getSkjermlenkeType(dto.getKode());
+        var skjermlenkeType = getSkjermlenkeType(dto.getAksjonspunktDefinisjon());
         historiebygger.medBegrunnelse(dto.getBegrunnelse());
         historiebygger.medSkjermlenke(skjermlenkeType);
 
@@ -129,8 +129,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         historikkApplikasjonTjeneste.lagInnslag(innslag);
     }
 
-    private SkjermlenkeType getSkjermlenkeType(String apKode) {
-        return apKode.equals(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.getKode())? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
+    private SkjermlenkeType getSkjermlenkeType(AksjonspunktDefinisjon apDef) {
+        return AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(apDef) ? SkjermlenkeType.KLAGE_BEH_NFP : SkjermlenkeType.KLAGE_BEH_NK;
     }
 
     private HistorikkResultatType konverterKlageVurderingTilResultatType(KlageVurdering vurdering, boolean erNfpAksjonspunkt, KlageVurderingOmgjør klageVurderingOmgjør) {

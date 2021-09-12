@@ -46,20 +46,20 @@ class HistorikkAksjonspunktAdapter {
         var vilkårType = behandling.getVilkårTypeForRelasjonTilBarnet().orElse(null);
         historikkTjenesteAdapter.tekstBuilder()
             .medBegrunnelse(begrunnelse, erBegrunnelseForAksjonspunktEndret)
-            .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon.getKode()));
+            .medSkjermlenke(getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon));
 
         return erEndret;
     }
 
-    static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, String aksjonspunktKode) {
+    static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, AksjonspunktDefinisjon aksjonspunktKode) {
         return switch (aksjonspunktKode) {
-            case "5007" -> SkjermlenkeType.SOEKNADSFRIST;
-            case "5011" -> SkjermlenkeType.PUNKT_FOR_OMSORG;
-            case "5013" -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
-            case "5014" -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
-            case "5017" -> SkjermlenkeType.OPPLYSNINGSPLIKT;
-            case "5031" -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
-            case "5032" -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om annen forelder har mottatt støtte
+            case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> SkjermlenkeType.SOEKNADSFRIST;
+            case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> SkjermlenkeType.PUNKT_FOR_OMSORG;
+            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
+            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
+            case SØKERS_OPPLYSNINGSPLIKT_MANU -> SkjermlenkeType.OPPLYSNINGSPLIKT;
+            case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
+            case AVKLAR_OM_ANNEN_FORELDRE_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om annen forelder har mottatt støtte
             default -> throw new UnsupportedOperationException("Støtter ikke aksjonspunktKode=" + aksjonspunktKode);
         };
     }

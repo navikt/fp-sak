@@ -56,7 +56,7 @@ public class BekreftOmsorgOppdatererTest extends EntityManagerAwareTest {
         // Dto
         var dto = new BekreftFaktaForOmsorgVurderingDto.BekreftOmsorgVurderingDto("begrunnelse");
         dto.setOmsorg(oppdatertOmsorg);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftOmsorgOppdaterer(behandlingRepositoryProvider, lagMockHistory(), ytelseFordelingTjeneste) {}
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));

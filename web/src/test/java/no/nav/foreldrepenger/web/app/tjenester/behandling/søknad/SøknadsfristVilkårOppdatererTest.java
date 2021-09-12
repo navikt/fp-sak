@@ -48,7 +48,7 @@ public class SøknadsfristVilkårOppdatererTest {
         var dto = new SoknadsfristAksjonspunktDto("begrunnelse", oppdatertSoknadsfristOk);
 
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
         var historikkinnslag = new Historikkinnslag();
         historikkinnslag.setType(HistorikkinnslagType.FAKTA_ENDRET);

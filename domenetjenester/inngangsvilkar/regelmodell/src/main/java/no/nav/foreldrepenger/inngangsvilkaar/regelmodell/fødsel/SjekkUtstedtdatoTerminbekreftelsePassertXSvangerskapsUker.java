@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.fpsak.nare.evaluation.Evaluation;
-import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
+import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 public class SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker extends LeafSpecification<FødselsvilkårGrunnlag> {
 
     static final String ID = SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker.class.getSimpleName();
 
-    static final RuleReasonRefImpl IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO = new RuleReasonRefImpl("1019",
-        "Terminbekreftelse utstedt før 22 svangerskapsuke (termindato ({0}))");
+    static final RuleReasonRef IKKE_OPPFYLT_GYLDIG_TERMINBEKREFTELSE_DATO =
+        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1019, "Terminbekreftelse utstedt før 22 svangerskapsuke (termindato ({0}))");
 
     SjekkUtstedtdatoTerminbekreftelsePassertXSvangerskapsUker() {
         super(ID);

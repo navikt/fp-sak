@@ -19,7 +19,6 @@ import org.mockito.ArgumentMatchers;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.svp.RevurderingBehandlingsresultatutleder;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -76,7 +75,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     @BeforeEach
     public void setup() {
-        var avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
@@ -90,7 +88,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
                 medlemTjeneste));
 
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
-                avslagsårsakTjeneste,
                 dokumentBehandlingTjeneste,
                 revurderingBehandlingsresultatutleder);
     }

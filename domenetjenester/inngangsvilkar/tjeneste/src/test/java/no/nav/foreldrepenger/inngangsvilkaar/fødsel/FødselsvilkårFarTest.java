@@ -67,13 +67,13 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getRegelInput()).isNotEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.regelInput()).isNotEmpty();
         assertThat(soekersKjonn).isEqualTo("MANN");
     }
 
@@ -89,13 +89,13 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var soekersKjonn = jsonNode.get("soekersKjonn").asText();
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getRegelInput()).isNotEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.regelInput()).isNotEmpty();
         assertThat(soekersKjonn).isEqualTo("KVINNE");
     }
 
@@ -108,9 +108,9 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1028);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1028);
     }
 
     @Test // FP_VK 11.4 Vilkårsutfall oppfylt
@@ -122,8 +122,8 @@ public class FødselsvilkårFarTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårFødselFar(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
 
     private Behandling lagBehandlingMedFarEllerMedmor(RelasjonsRolleType rolle, NavBrukerKjønn kjønn, boolean fødselErBekreftet,

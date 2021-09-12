@@ -85,7 +85,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @Path("/openAutopunkt")
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
     public Response openAutopunkt(@Parameter(description = "Aksjonspunktkoden") @BeanParam @Valid AksjonspunktKodeDto dto) {
-        var apDef = AksjonspunktDefinisjon.fraKode(dto.getAksjonspunktKode());
+        var apDef = dto.getAksjonspunktDefinisjon();
         if (apDef == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }

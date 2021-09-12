@@ -320,8 +320,6 @@ public class InngangsvilkårStegImplTest {
         scenario.medBekreftetHendelse(scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now()));
 
         var behandling = scenario.lagMocked();
-        // Whitebox.setInternalState(behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().get(0),
-        // "vilkårUtfallOverstyrt", VilkårUtfallType.IKKE_VURDERT);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         var mockMedlemskapRepository = scenario.mockBehandlingRepositoryProvider().getMedlemskapRepository();
         var kontekst = new BehandlingskontrollKontekst(behandling.getFagsakId(), behandling.getAktørId(),

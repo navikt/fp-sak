@@ -139,8 +139,8 @@ public class FatteVedtakTjeneste {
     }
 
     private boolean skalTilbakeTilForeslåVedtakForKlageinstans(Behandling behandling) {
-        var apForeslåMedTT = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.FORESLÅ_VEDTAK.getKode()).orElse(null);
-        var apForeslåUtenTT = behandling.getAksjonspunktFor(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL.getKode()).orElse(null);
+        var apForeslåMedTT = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FORESLÅ_VEDTAK).orElse(null);
+        var apForeslåUtenTT = behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL).orElse(null);
         if ((apForeslåMedTT == null) || (apForeslåMedTT.getEndretTidspunkt() == null)) {
             return false;
         }

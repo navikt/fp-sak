@@ -67,10 +67,10 @@ public class SjekkInntektSamsvarerMedArbeidAktivitet extends LeafSpecification<O
     }
 
     private static LocalDate sisteAntattGodkjentDato(OpptjeningsvilkårMellomregning data) {
-        if(data.getGrunnlag().getBehandlingsTidspunkt().isAfter(data.getGrunnlag().getSisteDatoForOpptjening())) {
-            return data.getGrunnlag().getBehandlingsTidspunkt();
+        if(data.getGrunnlag().behandlingsDato().isAfter(data.getGrunnlag().sisteDatoForOpptjening())) {
+            return data.getGrunnlag().behandlingsDato();
         }
-        return data.getGrunnlag().getSisteDatoForOpptjening();
+        return data.getGrunnlag().sisteDatoForOpptjening();
     }
 
     private Map<Aktivitet, LocalDateTimeline<AktivitetStatus>> finnPerioderSomIkkeHarNokInntektForOpplystArbeid(OpptjeningsvilkårMellomregning data) {

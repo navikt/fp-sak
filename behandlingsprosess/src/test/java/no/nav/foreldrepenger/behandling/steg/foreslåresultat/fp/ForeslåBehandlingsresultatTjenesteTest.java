@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.BeregningUttakTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.HarEtablertYtelseFP;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.fp.RevurderingBehandlingsresultatutleder;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -77,7 +76,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
     @BeforeEach
     public void setup() {
-        var avslagsårsakTjeneste = new AvslagsårsakTjeneste();
         when(medlemTjeneste.utledVilkårUtfall(any())).thenReturn(new MedlemTjeneste.VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT));
         var entityManager = getEntityManager();
         var stønadskontoSaldoTjeneste = new StønadskontoSaldoTjeneste(new UttakRepositoryProvider(
@@ -102,7 +100,6 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
                 uttakTjeneste));
         tjeneste = new ForeslåBehandlingsresultatTjenesteImpl(repositoryProvider,
                 new ForeldrepengerUttakTjeneste(repositoryProvider.getFpUttakRepository()),
-                avslagsårsakTjeneste,
                 dokumentBehandlingTjeneste,
                 revurderingBehandlingsresultatutleder);
         behandlingRepository = repositoryProvider.getBehandlingRepository();

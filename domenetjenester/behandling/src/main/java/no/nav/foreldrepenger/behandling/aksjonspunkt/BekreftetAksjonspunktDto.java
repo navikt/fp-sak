@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,9 +34,10 @@ public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode {
     }
 
     @Override
-    public String getKode() {
+    public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
         if (this.getClass().isAnnotationPresent(JsonTypeName.class)) {
-            return this.getClass().getDeclaredAnnotation(JsonTypeName.class).value();
+            var kode = this.getClass().getDeclaredAnnotation(JsonTypeName.class).value();
+            return AksjonspunktDefinisjon.fraKode(kode);
         }
         throw new IllegalStateException("Utvikler-feil:" + this.getClass().getSimpleName() + " er uten JsonTypeName annotation.");
     }

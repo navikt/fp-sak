@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresultatTjeneste {
 
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
-    private AvslagsårsakTjeneste avslagsårsakTjeneste;
 
     private RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -39,12 +38,10 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
 
     @Inject
     ForeslåBehandlingsresultatTjenesteImpl(BehandlingRepositoryProvider repositoryProvider,
-            AvslagsårsakTjeneste avslagsårsakTjeneste,
             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
             @FagsakYtelseTypeRef("SVP") RevurderingBehandlingsresultatutlederFelles revurderingBehandlingsresultatutlederFelles) {
         this.svangerskapspengerUttakResultatRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
-        this.avslagsårsakTjeneste = avslagsårsakTjeneste;
         this.revurderingBehandlingsresultatutlederFelles = revurderingBehandlingsresultatutlederFelles;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
@@ -93,11 +90,9 @@ class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresu
     }
 
     private void vilkårAvslått(BehandlingReferanse ref, Behandlingsresultat behandlingsresultat) {
-        var ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
-        ikkeOppfyltVilkår.ifPresent(vilkår -> {
-            var avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
-            behandlingsresultat.setAvslagsårsak(avslagsårsak);
-        });
+        behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår()
+            .map(AvslagsårsakMapper::finnAvslagsårsak)
+            .ifPresent(behandlingsresultat::setAvslagsårsak);
         if (ref.erRevurdering()) {
             var erVarselOmRevurderingSendt = erVarselOmRevurderingSendt(ref);
             revurderingBehandlingsresultatutlederFelles.bestemBehandlingsresultatForRevurdering(ref, erVarselOmRevurderingSendt);

@@ -3,12 +3,14 @@ package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening;
 import java.time.LocalDate;
 import java.time.Period;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.doc.RuleOutcomeDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
-import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
+import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 /**
@@ -26,9 +28,9 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
 
     private static final int INNTEKT_RAPPORTERING_SENEST = 5;
 
-    static final String IKKE_TILSTREKKELIG_OPPTJENING_ID = "1035";
-    public static final RuleReasonRefImpl IKKE_TILSTREKKELIG_OPPTJENING = new RuleReasonRefImpl(IKKE_TILSTREKKELIG_OPPTJENING_ID,
-        "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
+    public static final String IKKE_TILSTREKKELIG_OPPTJENING_ID = "1035";
+    public static final RuleReasonRef IKKE_TILSTREKKELIG_OPPTJENING =
+        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1035, "Ikke tilstrekkelig opptjening. Har opptjening: {0}");
 
     public SjekkTilstrekkeligOpptjeningInklAntatt() {
         super(ID);
@@ -50,7 +52,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
         if ((data.getRegelParametre().skalGodkjenneBasertPåAntatt())) {
             // SVP godkjenner basert på antatt opptjening hvis behandling er før frist for inntektsrapportering.
             var fristForInntektsrapportering = beregnFristForOpptjeningsopplysninger(data);
-            var skalKreveRapportertInntekt = data.getGrunnlag().getBehandlingsTidspunkt().isAfter(fristForInntektsrapportering);
+            var skalKreveRapportertInntekt = data.getGrunnlag().behandlingsDato().isAfter(fristForInntektsrapportering);
             var antattOpptjeningTidsserie = data.getAntattTotalOpptjening();
             var avkortetTidsserie = antattOpptjeningTidsserie.getTidslinje().intersection(data.getGrunnlag().getOpptjeningPeriode());
             // Avslå hvis antattopptjening ikke har nok dager (bytte aktivitet, mv) eller rapporteringsfrist passert
@@ -76,7 +78,7 @@ public class SjekkTilstrekkeligOpptjeningInklAntatt extends LeafSpecification<Op
     }
 
     private LocalDate beregnFristForOpptjeningsopplysninger(OpptjeningsvilkårMellomregning data) {
-        var skjæringstidspunkt = data.getGrunnlag().getSisteDatoForOpptjening();
+        var skjæringstidspunkt = data.getGrunnlag().sisteDatoForOpptjening();
 
         // first er 5 i måned etter skjæringstidspunktet
         var frist = skjæringstidspunkt.plusMonths(1).withDayOfMonth(INNTEKT_RAPPORTERING_SENEST);

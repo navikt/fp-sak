@@ -56,7 +56,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
             OpptjeningsvilkårResultat oppResultat);
 
     private OpptjeningsvilkårResultat getVilkårresultat(Behandling behandling, RegelResultat regelResultat) {
-        var op = (OpptjeningsvilkårResultat) regelResultat.getEkstraResultater()
+        var op = (OpptjeningsvilkårResultat) regelResultat.ekstraResultater()
                 .get(OPPTJENINGSVILKÅRET);
         if (op == null) {
             throw new IllegalArgumentException(
@@ -66,7 +66,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
     }
 
     private boolean vilkårErVurdert(RegelResultat regelResultat) {
-        var opptjeningsvilkår = regelResultat.getVilkårResultat().getVilkårene().stream()
+        var opptjeningsvilkår = regelResultat.vilkårResultat().getVilkårene().stream()
                 .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
                 .findFirst();
         return opptjeningsvilkår.map(v -> !v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_VURDERT))

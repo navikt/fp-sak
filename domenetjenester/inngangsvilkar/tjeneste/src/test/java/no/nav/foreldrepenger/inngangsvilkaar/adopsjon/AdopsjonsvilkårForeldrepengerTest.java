@@ -61,9 +61,9 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1004);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1004);
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {
@@ -86,13 +86,13 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1051);
-        assertThat(data.getRegelInput()).isNotEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isEqualTo(VilkårUtfallMerknad.VM_1051);
+        assertThat(data.regelInput()).isNotEmpty();
         assertThat(ektefellesBarn).isEqualTo("true");
     }
 
@@ -113,13 +113,13 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var ektefellesBarn = jsonNode.get("ektefellesBarn").asText();
 
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isNull();
-        assertThat(data.getRegelInput()).isNotEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isNull();
+        assertThat(data.regelInput()).isNotEmpty();
         assertThat(ektefellesBarn).isEqualTo("true");
     }
 
@@ -130,10 +130,10 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        System.out.println(data.getVilkårUtfallMerknad());
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isNull();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        System.out.println(data.vilkårUtfallMerknad());
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isNull();
     }
 
     @Test
@@ -143,9 +143,9 @@ public class AdopsjonsvilkårForeldrepengerTest extends EntityManagerAwareTest {
 
         var data = new InngangsvilkårForeldrepengerAdopsjon(oversetter).vurderVilkår(lagRef(behandling));
 
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getVilkårUtfallMerknad()).isNull();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.vilkårUtfallMerknad()).isNull();
     }
 
     private Behandling settOppAdopsjonBehandlingFor(int alder, boolean ektefellesBarn, NavBrukerKjønn kjønn,

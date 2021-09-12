@@ -27,8 +27,8 @@ public class ModifiserbarBehandlingModell {
             // fake legg til behandlingSteg og vureringspunkter
             modell.leggTil(stegType, behandlingType, fagsakYtelseType);
 
-            konfig.getInngangAksjonspunkter().forEach(a -> modell.internFinnSteg(stegType).leggTilAksjonspunktVurderingInngang(a.getKode()));
-            konfig.getUtgangAksjonspunkter().forEach(a -> modell.internFinnSteg(stegType).leggTilAksjonspunktVurderingUtgang(a.getKode()));
+            konfig.getInngangAksjonspunkter().forEach(a -> modell.internFinnSteg(stegType).leggTilAksjonspunktVurderingInngang(a));
+            konfig.getUtgangAksjonspunkter().forEach(a -> modell.internFinnSteg(stegType).leggTilAksjonspunktVurderingUtgang(a));
 
         }
         return modell;

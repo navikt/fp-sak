@@ -95,7 +95,7 @@ public class FaktaUttakOppdatererTest {
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(entityManager, behandling.getId());
         // dto
         var dto = opprettDtoAvklarFaktaUttakDto();
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
 
         faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
@@ -125,7 +125,7 @@ public class FaktaUttakOppdatererTest {
         AvklarFaktaTestUtil.opprettBehandlingGrunnlag(entityManager, behandling.getId());
         // dto
         var dto = opprettDtoAvklarFaktaUttakDto();
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
 
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
@@ -150,7 +150,7 @@ public class FaktaUttakOppdatererTest {
         // dto
         var dto = opprettDtoAvklarFaktaUttakDto();
 
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         var resultat = faktaUttakOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         var finnesAvbrutt = resultat.getEkstraAksjonspunktResultat().stream()
@@ -182,7 +182,7 @@ public class FaktaUttakOppdatererTest {
                 .medMottattDato(LocalDate.now())
                 .build());
         avklarFaktaDto.setBekreftedePerioder(List.of(bekreftetDto));
-        var aksjonspunkt = behandling.getAksjonspunktFor(avklarFaktaDto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(avklarFaktaDto.getAksjonspunktDefinisjon());
 
         faktaUttakOppdaterer.oppdater(avklarFaktaDto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, avklarFaktaDto));
 

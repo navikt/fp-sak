@@ -62,14 +62,14 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.getRegelInput());
+        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
         var elektroniskSoeknad = jsonNode.get("elektroniskSoeknad").asText();
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getMerknadParametere()).isEmpty();
-        assertThat(data.getRegelInput()).isNotEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.merknadParametere()).isEmpty();
+        assertThat(data.regelInput()).isNotEmpty();
         assertThat(elektroniskSoeknad).isEqualTo("true");
     }
 
@@ -85,11 +85,11 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
-        assertThat(data.getApDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
-        assertThat(data.getMerknadParametere())
+        assertThat(data.aksjonspunktDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
+        assertThat(data.merknadParametere())
             .containsOnlyKeys("antallDagerSoeknadLevertForSent")
             .containsEntry("antallDagerSoeknadLevertForSent", String.valueOf(ANTALL_DAGER_SOKNAD_LEVERT_FOR_SENT));
 
@@ -104,9 +104,9 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
 
         // Assert
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
-        assertThat(data.getMerknadParametere()).isEmpty();
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.merknadParametere()).isEmpty();
     }
 
     private Behandling mockBehandling(boolean elektronisk, LocalDate mottakDato, LocalDate omsorgsovertakelsesDato) {
@@ -222,20 +222,20 @@ public class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
     private void assertOppfylt(Behandling behandling) {
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
-        assertThat(data.getApDefinisjoner()).isEmpty();
-        assertThat(data.getMerknadParametere()).isEmpty();
+        assertThat(data.aksjonspunktDefinisjoner()).isEmpty();
+        assertThat(data.merknadParametere()).isEmpty();
     }
 
     private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(oversetter).vurderVilkår(lagRef(behandling));
-        assertThat(data.getVilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
-        assertThat(data.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
+        assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
+        assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
-        assertThat(data.getApDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
-        assertThat(data.getMerknadParametere())
+        assertThat(data.aksjonspunktDefinisjoner()).contains(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
+        assertThat(data.merknadParametere())
             .containsOnlyKeys("antallDagerSoeknadLevertForSent")
             .containsEntry("antallDagerSoeknadLevertForSent", String.valueOf(dagerForSent));
     }

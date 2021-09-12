@@ -13,9 +13,9 @@ public class InngangsvilkårEngangsstønadOmsorgsovertakelseTest {
     public void skal_uavhengig_av_behandling_alltid_opprette_aksjonspunkt_for_manuell_vurdering() {
         var vilkårData = new InngangsvilkårEngangsstønadOmsorgsovertakelse().vurderVilkår(null);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
-        assertThat(vilkårData.getApDefinisjoner()).hasSize(1);
-        assertThat(vilkårData.getApDefinisjoner().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
+        assertThat(vilkårData.aksjonspunktDefinisjoner()).hasSize(1);
+        assertThat(vilkårData.aksjonspunktDefinisjoner().get(0)).isEqualTo(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
     }
 
 }
