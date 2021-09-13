@@ -106,7 +106,8 @@ public class SvangerskapspengerTjeneste {
             return false;
         }
         return filter.getYrkesaktiviteterForBeregning().stream()
-            .anyMatch(ya -> Objects.equals(ya.getArbeidsgiver(), tilr.getArbeidsgiver().orElse(null)));
+            .anyMatch(ya -> Objects.equals(ya.getArbeidsgiver(), tilr.getArbeidsgiver().orElse(null))
+                && tilr.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()).gjelderFor(ya.getArbeidsforholdRef()));
         }
 
     /**
