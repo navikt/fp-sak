@@ -28,10 +28,16 @@ public final class BeregningsresultatInputVerifiserer {
         uttakAndeler.forEach(uttakAndel -> verifiserUttak(uttakAndel, bGAndeler));
     }
 
+    private static boolean brukerGittFraSegAltUttak(BeregningsresultatRegelmodell input) {
+        return input.getUttakResultat().getUttakResultatPerioder().isEmpty();
+    }
+
     public static void verifiserAlleAndelerIBeregningErIUttak(BeregningsresultatRegelmodell input) {
-        var bGAndeler = hentBGAndeler(input);
-        var uttakAndeler = hentUttakAndeler(input);
-        bGAndeler.forEach(bgAndel -> verifiserAtAndelerMatcher(bgAndel, uttakAndeler));
+        if (!brukerGittFraSegAltUttak(input)) {
+            var bGAndeler = hentBGAndeler(input);
+            var uttakAndeler = hentUttakAndeler(input);
+            bGAndeler.forEach(bgAndel -> verifiserAtAndelerMatcher(bgAndel, uttakAndeler));
+        }
     }
 
     private static LocalDate finnSisteUttaksdato(BeregningsresultatRegelmodell input) {

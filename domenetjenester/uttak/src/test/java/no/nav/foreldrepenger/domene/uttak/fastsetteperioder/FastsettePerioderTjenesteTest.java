@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FELLESPERIODE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,22 +18,24 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AktivitetskravPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.KontrollerAktivitetskravAvklaring;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -57,7 +61,6 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -85,6 +88,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.PersonopplysningerForUttakStub;
+import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMedMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
@@ -126,7 +130,6 @@ public class FastsettePerioderTjenesteTest {
         // Setup
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusWeeks(6);
-        var aktørId = AktørId.dummy();
 
         var virksomhet = virksomhet();
         var fedrekvote = OppgittPeriodeBuilder.ny()
@@ -137,7 +140,7 @@ public class FastsettePerioderTjenesteTest {
 
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var fordeling = new OppgittFordelingEntitet(List.of(fedrekvote), true);
-        var rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = beggeRett();
 
         var behandling = ScenarioMedMorSøkerForeldrepenger.forFødsel()
             .medOppgittDekningsgrad(dekningsgrad)
@@ -145,7 +148,7 @@ public class FastsettePerioderTjenesteTest {
             .medOppgittRettighet(rettighet)
             .lagre(repositoryProvider, iayTjeneste::lagreIayAggregat);
 
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
         opprettStønadskontoerForFarOgMor(behandling);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
@@ -172,13 +175,16 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private UttakInput lagInput(Behandling behandling, LocalDate fødselsdato) {
-        var ref = BehandlingReferanse.fra(behandling, fødselsdato);
+        var ref = BehandlingReferanse.fra(behandling, Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(fødselsdato)
+            .medKreverSammenhengendeUttak(false).build());
         var iayGrunnlag = iayTjeneste.hentGrunnlag(ref.getBehandlingId());
         var familieHendelse = FamilieHendelse.forFødsel(null, fødselsdato, List.of(), 0);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familieHendelser);
-        return new UttakInput(ref, iayGrunnlag, fpGrunnlag).medBeregningsgrunnlagStatuser(
-            beregningsandelTjeneste.hentStatuser()).medSøknadMottattDato(fødselsdato.minusWeeks(4));
+        return new UttakInput(ref, iayGrunnlag, fpGrunnlag)
+            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
+            .medSøknadMottattDato(fødselsdato.minusWeeks(4));
     }
 
     private OverstyrUttakResultatValidator validator() {
@@ -190,7 +196,6 @@ public class FastsettePerioderTjenesteTest {
         // Setup
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now();
-        var aktørId = AktørId.dummy();
 
         var arbeidsgiver1 = virksomhet("orgnr1");
         var arbeidsgiver2 = virksomhet("orgnr2");
@@ -211,7 +216,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
 
         var behandling = behandlingMedSøknadsperioder(List.of(fpff, mødrekvote, fellesperiode));
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(arbeidsgiver1, arbeidsgiver2));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver1, arbeidsgiver2));
         opprettStønadskontoerForFarOgMor(behandling);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
@@ -240,7 +245,6 @@ public class FastsettePerioderTjenesteTest {
         // Setup
         var mottattDato = LocalDate.now().minusWeeks(1);
         var fødselsdato = LocalDate.now().minusWeeks(8);
-        var aktørId = AktørId.dummy();
 
         var arbeidsprosent = new BigDecimal("50.55");
 
@@ -264,7 +268,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
 
         var behandling = behandlingMedSøknadsperioder(List.of(periode1, periode2, periode3));
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
         opprettStønadskontoerForFarOgMor(behandling);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
@@ -289,11 +293,110 @@ public class FastsettePerioderTjenesteTest {
     }
 
     @Test
+    public void skal_filtrere_ut_fri_utsettelse() {
+        var fødselsdato = LocalDate.of(2021, 10, 10);
+        var oppgittMødrekvote1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(MØDREKVOTE)
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(6).minusDays(1))
+            .build();
+        var oppgittFriUtsettelse = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(8).minusDays(1))
+            .build();
+        var oppgittMødrekvote2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(MØDREKVOTE)
+            .medPeriode(fødselsdato.plusWeeks(8), fødselsdato.plusWeeks(10))
+            .build();
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittMødrekvote1, oppgittFriUtsettelse, oppgittMødrekvote2), true))
+            .medOppgittRettighet(beggeRett());
+        var behandling = scenario.lagre(repositoryProvider);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
+        opprettStønadskontoerForFarOgMor(behandling);
+        opprettGrunnlag(behandling.getId(), fødselsdato);
+
+        var input = lagInput(behandling, fødselsdato);
+        tjeneste().fastsettePerioder(input);
+
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+
+        assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(2);
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(1).isUtsettelse()).isFalse();
+    }
+
+    @Test
+    public void skal_ikke_filtrere_ut_fri_utsettelse_når_bare_far_har_rett() {
+        var fødselsdato = LocalDate.of(2021, 10, 10);
+        var oppgittFriUtsettelse1 = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medPeriode(fødselsdato.plusWeeks(6), fødselsdato.plusWeeks(8).minusDays(1))
+            .build();
+        var oppgittForeldrepenger1 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(FELLESPERIODE)
+            .medPeriode(fødselsdato.plusWeeks(8), fødselsdato.plusWeeks(10).minusDays(1))
+            .build();
+        var oppgittFriUtsettelse2 = OppgittPeriodeBuilder.ny()
+            .medÅrsak(UtsettelseÅrsak.FRI)
+            .medPeriode(fødselsdato.plusWeeks(10), fødselsdato.plusWeeks(12).minusDays(1))
+            .build();
+        var oppgittForeldrepenger2 = OppgittPeriodeBuilder.ny()
+            .medPeriodeType(FORELDREPENGER)
+            .medPeriode(fødselsdato.plusWeeks(12), fødselsdato.plusWeeks(14))
+            .build();
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(
+                oppgittFriUtsettelse1, oppgittForeldrepenger1, oppgittFriUtsettelse2, oppgittForeldrepenger2
+            ), true))
+            .medOppgittRettighet(bareFarHarRett());
+        var behandling = scenario.lagre(repositoryProvider);
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123");
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(arbeidsgiver));
+        beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
+        opprettStønadskontoerBareFarHarRett(behandling);
+        opprettGrunnlag(behandling.getId(), fødselsdato);
+
+        var aktivitetskravAvklaring1 = new AktivitetskravPeriodeEntitet(oppgittFriUtsettelse1.getFom(),
+            oppgittFriUtsettelse1.getTom(), KontrollerAktivitetskravAvklaring.I_AKTIVITET, "begrunnelse");
+        var aktivitetskravAvklaring2 = new AktivitetskravPeriodeEntitet(oppgittFriUtsettelse2.getFom(),
+            oppgittFriUtsettelse2.getTom(), KontrollerAktivitetskravAvklaring.IKKE_I_AKTIVITET_IKKE_DOKUMENTERT, "begrunnelse");
+        var aktivitetskravPerioder = new AktivitetskravPerioderEntitet()
+            .leggTil(aktivitetskravAvklaring1)
+            .leggTil(aktivitetskravAvklaring2);
+        var yfMedAktivitetskravAvklaring =
+            YtelseFordelingAggregat.oppdatere(ytelsesFordelingRepository.hentAggregat(behandling.getId()))
+            .medSaksbehandledeAktivitetskravPerioder(aktivitetskravPerioder);
+        ytelsesFordelingRepository.lagre(behandling.getId(), yfMedAktivitetskravAvklaring.build());
+
+        var input = lagInput(behandling, fødselsdato);
+        tjeneste().fastsettePerioder(input);
+
+        var resultat = fpUttakRepository.hentUttakResultat(input.getBehandlingReferanse().getId());
+
+        assertThat(resultat.getGjeldendePerioder().getPerioder()).hasSize(4);
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isUtsettelse()).isTrue();
+        //Innvilget pga oppfylt aktkrav
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(0).isInnvilget()).isTrue();
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(2).isUtsettelse()).isTrue();
+        //Avslag pga ikke oppfylt aktkrav
+        assertThat(resultat.getGjeldendePerioder().getPerioder().get(2).isInnvilget()).isFalse();
+    }
+
+    private OppgittRettighetEntitet bareFarHarRett() {
+        return new OppgittRettighetEntitet(false, true, false);
+    }
+
+    private OppgittRettighetEntitet beggeRett() {
+        return new OppgittRettighetEntitet(true, true, false);
+    }
+
+    @Test
     public void sletterGammeltResultatOgOppretterNyttResultatDersomOpprinneligResultatFinnesFraFør() {
         // Steg 1: Opprett uttaksplan med perioder
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusMonths(3).withDayOfMonth(1);
-        var aktørId = AktørId.dummy();
 
         var virksomhet = virksomhet();
         var periode1 = OppgittPeriodeBuilder.ny()
@@ -303,7 +406,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
 
         var behandling = behandlingMedSøknadsperioder(List.of(periode1));
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
         opprettStønadskontoerForFarOgMor(behandling);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
@@ -359,7 +462,6 @@ public class FastsettePerioderTjenesteTest {
         // Setup
         var mottattDato = LocalDate.now().minusWeeks(1);
         var fødselsdato = LocalDate.now().minusWeeks(8);
-        var aktørId = AktørId.dummy();
 
         var fpffSøknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
@@ -377,7 +479,7 @@ public class FastsettePerioderTjenesteTest {
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, true));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
 
         var fpffKonto = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
@@ -416,7 +518,6 @@ public class FastsettePerioderTjenesteTest {
         // Setup
         var mottattDato = LocalDate.now().minusWeeks(1);
         var fødselsdato = LocalDate.now().minusWeeks(8);
-        var aktørId = AktørId.dummy();
 
         var fpffSøknadsperiode = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
@@ -436,7 +537,7 @@ public class FastsettePerioderTjenesteTest {
             .medOppgittRettighet(new OppgittRettighetEntitet(false, true, true));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
 
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet, person));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet, person));
 
         var fpffKonto = Stønadskonto.builder()
             .medStønadskontoType(StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
@@ -495,7 +596,7 @@ public class FastsettePerioderTjenesteTest {
             .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittFpff, oppgittMødrekvote), true))
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false));
+            .medOppgittRettighet(beggeRett());
         var behandling = scenario.lagre(repositoryProvider);
         relasjonRepository.opprettRelasjon(behandling.getFagsak(), Dekningsgrad._100);
         opprettStønadskontoerForFarOgMor(behandling);
@@ -583,7 +684,6 @@ public class FastsettePerioderTjenesteTest {
         // Steg 1: Opprett uttaksplan med perioder
         var mottattDato = LocalDate.now();
         var fødselsdato = LocalDate.now().minusMonths(3).withDayOfMonth(1);
-        var aktørId = AktørId.dummy();
 
         var opprinneligMødreKvoteSlutt = fødselsdato.plusWeeks(6).minusDays(1);
         var opprinneligFellesPeriodeSlutt = opprinneligMødreKvoteSlutt.plusWeeks(4);
@@ -599,7 +699,7 @@ public class FastsettePerioderTjenesteTest {
             .medPeriodeType(UttakPeriodeType.FELLESPERIODE)
             .build();
         var behandling = behandlingMedSøknadsperioder(List.of(opprinneligeMødreKvote, opprinneligFellesPeriode));
-        byggArbeidForBehandling(behandling, aktørId, fødselsdato, List.of(virksomhet));
+        byggArbeidForBehandling(behandling, fødselsdato, List.of(virksomhet));
         opprettStønadskontoerForFarOgMor(behandling);
 
         opprettGrunnlag(behandling.getId(), mottattDato);
@@ -688,9 +788,17 @@ public class FastsettePerioderTjenesteTest {
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
-    private Fagsak opprettFagsak(RelasjonsRolleType relasjonsRolleType, AktørId aktørId) {
-        return Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), relasjonsRolleType,
-            new Saksnummer("2" + aktørId.getId()));
+    private void opprettStønadskontoerBareFarHarRett(Behandling behandling) {
+        var konto = Stønadskonto.builder()
+            .medStønadskontoType(StønadskontoType.FORELDREPENGER)
+            .medMaxDager(50)
+            .build();
+        var stønadskontoberegning = Stønadskontoberegning.builder()
+            .medRegelEvaluering("evaluering")
+            .medRegelInput("grunnlag")
+            .medStønadskonto(konto)
+            .build();
+        relasjonRepository.lagre(behandling.getFagsak(), behandling.getId(), stønadskontoberegning);
     }
 
     private void opprettStønadskontoerForFarOgMor(Behandling behandling) {
@@ -724,7 +832,7 @@ public class FastsettePerioderTjenesteTest {
     private Behandling behandlingMedSøknadsperioder(List<OppgittPeriodeEntitet> perioder) {
         var dekningsgrad = OppgittDekningsgradEntitet.bruk100();
         var fordeling = new OppgittFordelingEntitet(perioder, true);
-        var rettighet = new OppgittRettighetEntitet(true, true, false);
+        var rettighet = beggeRett();
 
         return ScenarioMorSøkerForeldrepenger.forFødsel()
             .medOppgittDekningsgrad(dekningsgrad)
@@ -734,14 +842,13 @@ public class FastsettePerioderTjenesteTest {
     }
 
     private void byggArbeidForBehandling(Behandling behandling,
-                                         AktørId aktørId,
                                          LocalDate familieHendelse,
                                          List<Arbeidsgiver> arbeidsgivere) {
         var inntektArbeidYtelseAggregatBuilder = iayTjeneste.opprettBuilderForRegister(
             behandling.getId());
         for (var arbeidsgiver : arbeidsgivere) {
             var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
-                .getAktørArbeidBuilder(aktørId);
+                .getAktørArbeidBuilder(behandling.getAktørId());
             var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(
                 new Opptjeningsnøkkel(null, arbeidsgiver.getIdentifikator(), null), ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
 

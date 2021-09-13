@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ForeldrepengerUttak {
@@ -38,8 +39,8 @@ public class ForeldrepengerUttak {
         return sortByFom(perioder);
     }
 
-    public LocalDate finnFørsteUttaksdato() {
-        return getGjeldendePerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo).orElseThrow();
+    public Optional<LocalDate> finnFørsteUttaksdato() {
+        return getGjeldendePerioder().stream().map(p -> p.getTidsperiode().getFomDato()).min(LocalDate::compareTo);
     }
 
     private List<ForeldrepengerUttakPeriode> sortByFom(List<ForeldrepengerUttakPeriode> perioder) {
