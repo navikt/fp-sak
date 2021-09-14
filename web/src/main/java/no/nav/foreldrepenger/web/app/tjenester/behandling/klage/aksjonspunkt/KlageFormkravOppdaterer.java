@@ -297,7 +297,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         var lagretEkternBehandlingUuid = klageResultat.getPåKlagdEksternBehandlingUuid().orElse(null);
 
         var påKlagdBehandlingUuid = formkravDto.hentPåKlagdBehandlingUuid();
-        var påKlagdBehandlingId = påKlagdBehandlingUuid == null ? null
+        var påKlagdBehandlingId = (formkravDto.erTilbakekreving() || påKlagdBehandlingUuid == null) ? null
             : behandlingRepository.hentBehandling(påKlagdBehandlingUuid).getId();
 
         return !Objects.equals(lagretBehandlingId, påKlagdBehandlingId) ||
