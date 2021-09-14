@@ -1,15 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt;
 
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -24,10 +14,22 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarArbeidsforholdDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<AvklarArbeidsforholdDto> {
+    private static final Logger LOG = LoggerFactory.getLogger(AvklarArbeidsforholdOppdaterer.class);
 
     private static final String FIKTIVT_ORG = OrgNummer.KUNSTIG_ORG;
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdTjeneste;
@@ -67,12 +69,12 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
             håndterManuelleArbeidsforhold(param);
         }
         if (!arbeidsforholdLagtTilAvSaksbehandler.isEmpty()) {
-            leggTilArbeidsforholdOppgittAvSaksbehandler(informasjonBuilder, arbeidsforholdLagtTilAvSaksbehandler);
+            leggTilArbeidsforholdOppgittAvSaksbehandler(informasjonBuilder, arbeidsforholdLagtTilAvSaksbehandler, behandlingId);
         }
         if (!arbeidsforholdBasertPåInntektsmelding.isEmpty()) {
-            leggTilArbeidsforholdBasertPåInntektsmelding(informasjonBuilder, arbeidsforholdBasertPåInntektsmelding);
+            leggTilArbeidsforholdBasertPåInntektsmelding(informasjonBuilder, arbeidsforholdBasertPåInntektsmelding, behandlingId);
         }
-        leggPåOverstyringPåOpprinnligeArbeidsforhold(param, informasjonBuilder, opprinneligeArbeidsforhold);
+        leggPåOverstyringPåOpprinnligeArbeidsforhold(param, informasjonBuilder, opprinneligeArbeidsforhold, behandlingId);
 
         // krever totrinn hvis saksbehandler har tatt stilling til dette aksjonspunktet
         arbeidsforholdTjeneste.lagre(param.getBehandlingId(), param.getAktørId(), informasjonBuilder);
@@ -81,9 +83,11 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private void leggTilArbeidsforholdBasertPåInntektsmelding(ArbeidsforholdInformasjonBuilder informasjonBuilder,
-            List<ArbeidsforholdDto> arbeidsforholdBasertPåInntektsmelding) {
+                                                              List<ArbeidsforholdDto> arbeidsforholdBasertPåInntektsmelding,
+                                                              Long behandlingId) {
         for (var arbeidsforholdDto : arbeidsforholdBasertPåInntektsmelding) {
             var handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            LOG.info("FP-787880: BehandlingId: {}, Orgnr: {}, Handling: {}, ", behandlingId, tilArbeidsgiverString(arbeidsforholdDto), handlingType);
             var overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType,
                     OrgNummer.erGyldigOrgnr(arbeidsforholdDto.getArbeidsgiverIdentifikator())
                             ? Arbeidsgiver.virksomhet(arbeidsforholdDto.getArbeidsgiverIdentifikator())
@@ -93,11 +97,20 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
         }
     }
 
+    private String tilArbeidsgiverString(ArbeidsforholdDto arbeidsforhold) {
+        if (arbeidsforhold == null || arbeidsforhold.getArbeidsgiverIdentifikator() == null) {
+            return null;
+        }
+        return hentArbeidsgiver(arbeidsforhold).toString();
+    }
+
     private void leggTilArbeidsforholdOppgittAvSaksbehandler(ArbeidsforholdInformasjonBuilder informasjonBuilder,
-            List<ArbeidsforholdDto> arbeidsforholdLagtTilAvSaksbehandler) {
+                                                             List<ArbeidsforholdDto> arbeidsforholdLagtTilAvSaksbehandler,
+                                                             Long behandlingId) {
         var fiktivArbeidsgiver = Arbeidsgiver.virksomhet(FIKTIVT_ORG);
         for (var arbeidsforholdDto : arbeidsforholdLagtTilAvSaksbehandler) {
             var handlingType = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            LOG.info("FP-787881: BehandlingId: {}, Orgnr: {}, Handling: {}, ", behandlingId, tilArbeidsgiverString(arbeidsforholdDto), handlingType);
             var overstyrt = leggTilOverstyrt(informasjonBuilder, arbeidsforholdDto, handlingType, fiktivArbeidsgiver);
             informasjonBuilder.leggTil(overstyrt);
             arbeidsforholdHistorikkinnslagTjeneste.opprettHistorikkinnslag(arbeidsforholdDto, arbeidsforholdDto.getNavn(), Optional.empty());
@@ -121,14 +134,16 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
     }
 
     private void leggPåOverstyringPåOpprinnligeArbeidsforhold(AksjonspunktOppdaterParameter param,
-            ArbeidsforholdInformasjonBuilder informasjonBuilder,
-            List<ArbeidsforholdDto> arbeidsforhold) {
+                                                              ArbeidsforholdInformasjonBuilder informasjonBuilder,
+                                                              List<ArbeidsforholdDto> arbeidsforhold,
+                                                              Long behandlingId) {
         var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(param.getBehandlingId())
                 .getArbeidsforholdOverstyringer();
         var aktuelle = filtrerUtArbeidsforholdSomHarBlittErsattet(arbeidsforhold);
         for (var arbeidsforholdDto : aktuelle) {
 
             final var handling = ArbeidsforholdHandlingTypeUtleder.utledHandling(arbeidsforholdDto);
+            LOG.info("FP-787882: BehandlingId: {}, Orgnr: {}, Handling: {}, ", behandlingId, tilArbeidsgiverString(arbeidsforholdDto), handling);
             final var arbeidsgiver = hentArbeidsgiver(arbeidsforholdDto);
             final var ref = InternArbeidsforholdRef.ref(arbeidsforholdDto.getArbeidsforholdId());
 
