@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -53,11 +55,6 @@ public class FatterVedtakAksjonspunktOppdaterer implements AksjonspunktOppdatere
     }
 
     private Collection<String> fraDto(Collection<VurderÅrsak> arsaker) {
-        if (arsaker == null) {
-            // TODO HUMLE/SOMMERFUGL Virker merkelig å ha nullsjekk her, men kreves for at tester i
-            // AksjonspunktOppdatererTest skal gå OK
-            return Collections.emptySet();
-        }
-        return arsaker.stream().map(Kodeverdi::getKode).collect(Collectors.toSet());
+        return Optional.ofNullable(arsaker).orElse(List.of()).stream().map(Kodeverdi::getKode).collect(Collectors.toSet());
     }
 }

@@ -32,7 +32,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
@@ -51,7 +51,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
@@ -70,7 +70,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
@@ -89,7 +89,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         // får antatt 2 dager med opptjening i SVP
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P2D"));
@@ -110,7 +110,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         // får antatt 12 dager med opptjening i SVP
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));

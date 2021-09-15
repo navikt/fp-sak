@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.RuleReasonRef;
-import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 @RuleDocumentation(SjekkBrukerErAvklartSomIkkeMedlem.ID)
@@ -11,7 +12,8 @@ public class SjekkBrukerErAvklartSomIkkeMedlem extends LeafSpecification<Medlems
 
     static final String ID = "FP_VK_2.13";
 
-    static final RuleReasonRef IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM = new RuleReasonRefImpl("1020", "Bruker er registrert som ikke medlem.");
+    static final RuleReasonRef IKKE_OPPFYLT_BRUKER_ER_OPPFØRT_SOM_IKKE_MEDLEM =
+        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_1020, "Bruker er registrert som ikke medlem.");
 
     SjekkBrukerErAvklartSomIkkeMedlem() {
         super(ID);

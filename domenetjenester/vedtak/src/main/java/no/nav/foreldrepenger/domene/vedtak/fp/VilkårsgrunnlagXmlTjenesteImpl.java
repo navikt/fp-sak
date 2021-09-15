@@ -22,10 +22,9 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.OpptjeningsperiodevilkårParametre;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
 import no.nav.foreldrepenger.kompletthet.KompletthetsjekkerProvider;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -78,7 +77,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         var grunnlagForVilkår = StandardJsonConfig.fromJson(
             vilkårFraBehandling.getRegelInput(), AdopsjonsvilkårGrunnlag.class);
 
-        vilkårgrunnlag.setSoekersKjoenn(VedtakXmlUtil.lagKodeverksOpplysning(NavBrukerKjønn.fraKode(grunnlagForVilkår.søkersKjønn().getKode())));
+        vilkårgrunnlag.setSoekersKjoenn(VedtakXmlUtil.lagKodeverksOpplysning(NavBrukerKjønn.fraKode(grunnlagForVilkår.søkersKjønn().name())));
 
         VedtakXmlUtil.lagDateOpplysning(grunnlagForVilkår.omsorgsovertakelsesdato()).ifPresent(vilkårgrunnlag::setOmsorgsovertakelsesdato);
 
@@ -122,7 +121,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlagFødselForeldrepenger::setTermindato);
 
-        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::getKode)
+        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::name)
             .map(VedtakXmlUtil::lagStringOpplysning).ifPresent(vilkårgrunnlagFødselForeldrepenger::setSoekersRolle);
 
         Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
@@ -154,7 +153,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         vilkårgrunnlag.setErBrukerPliktigEllerFrivilligMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartPliktigEllerFrivillig()));
         vilkårgrunnlag.setErBrukerMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerErMedlem()));
         vilkårgrunnlag.setPersonstatus(VedtakXmlUtil.lagStringOpplysning(
-            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(PersonStatusType::getKode).orElse("-")
+            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(RegelPersonStatusType::getNavn).orElse("-")
         ));
         return vilkårgrunnlag;
     }
@@ -173,7 +172,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         var opptjeningsparametre = OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger();
 
         if (opptjeningsgrunnlag != null) {
-            VedtakXmlUtil.lagDateOpplysning(opptjeningsgrunnlag.getBehandlingsTidspunkt()).ifPresent(vilkårgrunnlag::setBehandlingsDato);
+            VedtakXmlUtil.lagDateOpplysning(opptjeningsgrunnlag.behandlingsDato()).ifPresent(vilkårgrunnlag::setBehandlingsDato);
 
             vilkårgrunnlag.setMinsteAntallDagerGodkjent(VedtakXmlUtil.lagIntOpplysning(opptjeningsparametre.minsteAntallDagerGodkjent()));
             vilkårgrunnlag.setMinsteAntallMånederGodkjent(VedtakXmlUtil.lagIntOpplysning(opptjeningsparametre.minsteAntallMånederGodkjent()));

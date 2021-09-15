@@ -132,13 +132,9 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
-    public BehandlingStegModell finnSteg(String stegKode) {
-        return steg.get(indexOf(stegKode));
-    }
-
-    @Override
-    public BehandlingStegModell finnNesteSteg(String stegKode) {
-        var idx = indexOf(stegKode);
+    public BehandlingStegModell finnNesteSteg(BehandlingStegType stegType) {
+        Objects.requireNonNull(stegType, "stegType"); //$NON-NLS-1$ // NOSONAR
+        var idx = indexOf(stegType);
         if ((idx >= (steg.size() - 1)) || (idx < 0)) {
             return null;
         }
@@ -146,21 +142,9 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
-    public BehandlingStegModell finnNesteSteg(BehandlingStegType stegType) {
-        Objects.requireNonNull(stegType, "stegType"); //$NON-NLS-1$ // NOSONAR
-        return finnNesteSteg(stegType.getKode());
-    }
-
-    @Override
     public BehandlingStegModell finnForrigeSteg(BehandlingStegType stegType) {
         Objects.requireNonNull(stegType, "stegType"); //$NON-NLS-1$ // NOSONAR
-        return finnForrigeSteg(stegType.getKode());
-    }
-
-    @Override
-    public BehandlingStegModell finnForrigeSteg(String stegKode) {
-
-        var idx = indexOf(stegKode);
+        var idx = indexOf(stegType);
         if ((idx > 0) && (idx < steg.size())) {
             return steg.get(idx - 1);
         }
@@ -169,7 +153,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     @Override
     public BehandlingStegModell finnTidligsteStegFor(AksjonspunktDefinisjon aksjonspunkt) {
-        return finnTidligsteStegFor(Arrays.asList(aksjonspunkt));
+        return finnTidligsteStegFor(List.of(aksjonspunkt));
     }
 
     @Override
@@ -185,9 +169,9 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
-    public BehandlingStegModell finnTidligsteStegForAksjonspunktDefinisjon(Collection<String> aksjonspunktDefinisjoner) {
+    public BehandlingStegModell finnTidligsteStegForAksjonspunktDefinisjon(Collection<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
         for (var stegModell : steg) {
-            var hørerTilSteget = aksjonspunktDefinisjoner.stream().map(AksjonspunktDefinisjon::fraKode)
+            var hørerTilSteget = aksjonspunktDefinisjoner.stream()
                     .map(AksjonspunktDefinisjon::getBehandlingSteg)
                     .anyMatch(s -> s.getKode().equals(stegModell.getBehandlingStegType().getKode()));
             if (hørerTilSteget) {
@@ -250,12 +234,12 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         if (fraOgMedSteg == null) {
             return Stream.empty();
         }
-        var idx = indexOf(fraOgMedSteg.getKode());
+        var idx = indexOf(fraOgMedSteg);
         if (idx < 0) {
             throw new IllegalStateException("BehandlingSteg (fraogmed) " + fraOgMedSteg + ER_IKKE_DEFINERT_BLANT + steg); //$NON-NLS-1$
         }
 
-        var idxEnd = tilSteg == null ? steg.size() - 1 : indexOf(tilSteg.getKode());
+        var idxEnd = tilSteg == null ? steg.size() - 1 : indexOf(tilSteg);
         if (idxEnd < 0) {
             throw new IllegalStateException("BehandlingSteg (til) " + tilSteg + ER_IKKE_DEFINERT_BLANT + steg); //$NON-NLS-1$
         }
@@ -272,28 +256,28 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
-    public Optional<BehandlingStegStatus> finnStegStatusFor(BehandlingStegType stegType, Collection<String> aksjonspunkter) {
+    public Optional<BehandlingStegStatus> finnStegStatusFor(BehandlingStegType stegType, Collection<AksjonspunktDefinisjon> aksjonspunkter) {
         var stegModell = internFinnSteg(stegType);
         return stegModell.avledStatus(aksjonspunkter);
     }
 
     @Override
-    public Set<String> finnAksjonspunktDefinisjonerEtter(BehandlingStegType steg) {
-        Set<String> set = new LinkedHashSet<>();
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerEtter(BehandlingStegType steg) {
+        Set<AksjonspunktDefinisjon> set = new LinkedHashSet<>();
         internHvertStegEtter(steg).forEach(s -> {
-            set.addAll(s.getInngangAksjonpunktKoder());
-            set.addAll(s.getUtgangAksjonpunktKoder());
+            set.addAll(s.getInngangAksjonpunkt());
+            set.addAll(s.getUtgangAksjonpunkt());
         });
         return Collections.unmodifiableSet(set);
     }
 
     @Override
-    public Set<String> finnAksjonspunktDefinisjonerFraOgMed(BehandlingStegType steg, boolean medInngangOgså) {
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(BehandlingStegType steg, boolean medInngangOgså) {
         if (steg == null) {
             return Collections.emptySet();
         }
 
-        Set<String> set = new LinkedHashSet<>();
+        Set<AksjonspunktDefinisjon> set = new LinkedHashSet<>();
 
         if (medInngangOgså) {
             set.addAll(finnAksjonspunktDefinisjoner(steg));
@@ -307,27 +291,27 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     }
 
     @Override
-    public Set<String> finnAksjonspunktDefinisjoner(BehandlingStegType stegType) {
-        Set<String> set = new LinkedHashSet<>();
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjoner(BehandlingStegType stegType) {
+        Set<AksjonspunktDefinisjon> set = new LinkedHashSet<>();
         var stegModell = internFinnSteg(stegType);
-        set.addAll(stegModell.getInngangAksjonpunktKoder());
-        set.addAll(stegModell.getUtgangAksjonpunktKoder());
+        set.addAll(stegModell.getInngangAksjonpunkt());
+        set.addAll(stegModell.getUtgangAksjonpunkt());
         return set;
     }
 
     @Override
-    public Set<String> finnAksjonspunktDefinisjonerInngang(BehandlingStegType steg) {
-        return internFinnSteg(steg).getInngangAksjonpunktKoder();
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerInngang(BehandlingStegType steg) {
+        return internFinnSteg(steg).getInngangAksjonpunkt();
     }
 
     @Override
-    public Set<String> finnAksjonspunktDefinisjonerUtgang(BehandlingStegType steg) {
-        return internFinnSteg(steg).getUtgangAksjonpunktKoder();
+    public Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerUtgang(BehandlingStegType steg) {
+        return internFinnSteg(steg).getUtgangAksjonpunkt();
     }
 
     protected BehandlingStegModellImpl internFinnSteg(BehandlingStegType stegType) {
         Objects.requireNonNull(stegType, "stegType"); //$NON-NLS-1$ // NOSONAR
-        return steg.get(indexOf(stegType.getKode()));
+        return steg.get(indexOf(stegType));
     }
 
     protected List<BehandlingStegModellImpl> internHvertStegEtter(BehandlingStegType stegType) {
@@ -335,7 +319,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
         if (stegType == null) {
             idx = 1;
         } else {
-            idx = indexOf(stegType.getKode());
+            idx = indexOf(stegType);
             if (idx < 0) {
                 throw new IllegalStateException("BehandlingSteg " + stegType + ER_IKKE_DEFINERT_BLANT + steg); //$NON-NLS-1$
             }
@@ -360,7 +344,7 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
     public BehandlingStegUtfall prosesserFra(BehandlingStegType førsteSteg, BehandlingModellVisitor visitor) {
         Objects.requireNonNull(visitor, "visitor"); //$NON-NLS-1$ // NOSONAR
 
-        var idx = førsteSteg == null ? 0 : indexOf(førsteSteg.getKode());
+        var idx = førsteSteg == null ? 0 : indexOf(førsteSteg);
         var entry = steg.get(idx);
         while (entry != null) {
             LOG.debug("Prosesserer steg: {}", entry);
@@ -405,25 +389,25 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     protected void leggTilAksjonspunktDefinisjoner(BehandlingStegType stegType, BehandlingStegModellImpl entry) {
         AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(stegType, VurderingspunktType.INN)
-                .forEach(ad -> entry.leggTilAksjonspunktVurderingInngang(ad.getKode()));
+                .forEach(entry::leggTilAksjonspunktVurderingInngang);
 
         AksjonspunktDefinisjon.finnAksjonspunktDefinisjoner(stegType, VurderingspunktType.UT)
-                .forEach(ad -> entry.leggTilAksjonspunktVurderingUtgang(ad.getKode()));
+                .forEach(entry::leggTilAksjonspunktVurderingUtgang);
     }
 
-    void validerErIkkeAlleredeMappet(String aksjonspunktKode) {
-        Objects.requireNonNull(aksjonspunktKode, "aksjonspunktKode"); //$NON-NLS-1$
+    void validerErIkkeAlleredeMappet(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        Objects.requireNonNull(aksjonspunktDefinisjon, "aksjonspunktDefinisjon"); //$NON-NLS-1$
 
         for (var bsm : this.steg) {
-            if (bsm.getInngangAksjonpunktKoder().contains(aksjonspunktKode)) {
-                throw new IllegalStateException("Aksjonpunktkode [" + aksjonspunktKode + "] allerede mappet til inngang av " + //$NON-NLS-1$ //$NON-NLS-2$
+            if (bsm.getInngangAksjonpunkt().contains(aksjonspunktDefinisjon)) {
+                throw new IllegalStateException("Aksjonpunktkode [" + aksjonspunktDefinisjon + "] allerede mappet til inngang av " + //$NON-NLS-1$ //$NON-NLS-2$
                         bsm.getBehandlingStegType().getKode()
                         + " [behandlingType=" + behandlingType + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 // //
                 // NOSONAR
             }
-            if (bsm.getUtgangAksjonpunktKoder().contains(aksjonspunktKode)) {
-                throw new IllegalStateException("Aksjonpunktkode [" + aksjonspunktKode + "] allerede mappet til utgang av " + //$NON-NLS-1$ //$NON-NLS-2$
+            if (bsm.getUtgangAksjonpunkt().contains(aksjonspunktDefinisjon)) {
+                throw new IllegalStateException("Aksjonpunktkode [" + aksjonspunktDefinisjon + "] allerede mappet til utgang av " + //$NON-NLS-1$ //$NON-NLS-2$
                         bsm.getBehandlingStegType().getKode()
                         + " [behandlingType=" + behandlingType + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 // //
@@ -434,29 +418,28 @@ public class BehandlingModellImpl implements AutoCloseable, BehandlingModell {
 
     @Override
     public int relativStegForflytning(BehandlingStegType stegFørType, BehandlingStegType stegEtterType) {
-        return indexOf(stegEtterType) - indexOf(stegFørType);
+        return indexOfNullable(stegEtterType) - indexOfNullable(stegFørType);
+    }
+
+    private int indexOfNullable(BehandlingStegType stegType) {
+        return stegType == null ? -1 : indexOf(stegType);
     }
 
     private int indexOf(BehandlingStegType stegType) {
-        return stegType == null ? -1 : indexOf(stegType.getKode());
-    }
-
-    private int indexOf(String stegKode) {
-        Objects.requireNonNull(stegKode, "stegKode"); //$NON-NLS-1$ // NOSONAR
+        Objects.requireNonNull(stegType, "stegKode"); //$NON-NLS-1$ // NOSONAR
         for (int i = 0, max = steg.size(); i < max; i++) {
             BehandlingStegModell bsModell = steg.get(i);
-            if (Objects.equals(stegKode, bsModell.getBehandlingStegType().getKode())) {
+            if (Objects.equals(stegType, bsModell.getBehandlingStegType())) {
                 return i;
             }
         }
-        throw new IllegalArgumentException("Ukjent behandlingssteg: " + stegKode + ", [behandlingType=" + behandlingType + "]"); //$NON-NLS-1$ //$NON-NLS-2$
-                                                                                                                                 // //
-                                                                                                                                 // NOSONAR
+        throw new IllegalArgumentException("Ukjent behandlingssteg: " + stegType.getKode() +
+            ", [behandlingType=" + behandlingType + "]"); //$NON-NLS-1$ //$NON-NLS-2$ // NOSONAR
     }
 
     @Override
     public boolean erStegAFørStegB(BehandlingStegType stegA, BehandlingStegType stegB) {
-        return indexOf(stegA) < indexOf(stegB);
+        return indexOfNullable(stegA) < indexOfNullable(stegB);
     }
 
     /** Legger til default. */

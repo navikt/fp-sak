@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.pip.PipBehandlingsData;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
@@ -129,16 +130,13 @@ public class PdpRequestBuilderTest {
     public void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() {
         var attributter = byggAbacAttributtSamling();
         attributter.leggTil(AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0000")
-                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, "0001"));
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL)
+                .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET));
 
-        Set<String> koder = new HashSet<>();
-        koder.add("0000");
-        koder.add("0001");
         Set<String> svar = new HashSet<>();
         svar.add("Overstyring");
         svar.add("Manuell");
-        Mockito.when(pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(koder)).thenReturn(svar);
+        Mockito.when(pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(attributter.getVerdier(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON))).thenReturn(svar);
 
         var request = requestBuilder.lagPdpRequest(attributter);
         assertThat(request.getListOfString(AbacAttributter.RESOURCE_FORELDREPENGER_SAK_AKSJONSPUNKT_TYPE)).containsOnly("Overstyring", "Manuell");

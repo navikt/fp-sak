@@ -29,7 +29,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         // litt rart men opptjeningsperiode 2017-08-29 - 2018-01-30 gir 5 måneder og 7 enkeltdager pga regel om at 26 dager = 1 måned
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P5M7D"));
@@ -49,7 +49,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P9M19D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
@@ -65,7 +65,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         // merk siden dette dekker hele januar 2018, blir det mindre opptjening enn i forrige test (P5M7D), som teller noen dager enkeltvis i januar.
         // skyldes 26 dagers regelen.
@@ -85,7 +85,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P9M18D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
@@ -106,7 +106,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
     }
@@ -121,7 +121,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P7M18D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
@@ -142,7 +142,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P9M5D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
@@ -164,7 +164,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P10M5D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).hasSize(1);
@@ -186,7 +186,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P10M5D"));
         assertThat(output.getAkseptertMellomliggendePerioder()).hasSize(0);
@@ -208,7 +208,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
@@ -225,7 +225,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.OPPFYLT);
 
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
@@ -245,7 +245,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
         assertThat(output.getUnderkjentePerioder()).hasSize(1);
@@ -264,7 +264,7 @@ public class InngangsvilkårOpptjeningTest {
 
         var vilkårData = VilkårUtfallOversetter.oversett(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
 
-        assertThat(vilkårData.getUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårData.utfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
 
         assertThat(output.getAkseptertMellomliggendePerioder()).isEmpty();
         assertThat(output.getUnderkjentePerioder()).hasSize(1);

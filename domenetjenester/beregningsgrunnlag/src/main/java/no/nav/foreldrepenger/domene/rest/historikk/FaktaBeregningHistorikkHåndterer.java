@@ -11,21 +11,21 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDel;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFelt;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
 import no.nav.foreldrepenger.domene.rest.FaktaOmBeregningTilfelleRef;
 import no.nav.foreldrepenger.domene.rest.dto.FaktaBeregningLagreDto;
 import no.nav.foreldrepenger.domene.rest.dto.OverstyrBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.historikk.overstyring.FaktaOmBeregningOverstyringHistorikkTjeneste;
 import no.nav.foreldrepenger.domene.rest.historikk.tilfeller.FaktaOmBeregningHistorikkTjeneste;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagEntitet;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 
@@ -71,7 +71,7 @@ public class FaktaBeregningHistorikkHåndterer {
         var tekstBuilder = historikkAdapter.tekstBuilder();
         håndterTilfelleHistorikk(param.getBehandlingId(), dto.getFakta(), nyttBeregningsgrunnlag, forrigeGrunnlag,
             tekstBuilder, inntektArbeidYtelseGrunnlag);
-        lagHistorikkInnslag(dto.getKode(), dto.getBegrunnelse(), tekstBuilder, param.erBegrunnelseEndret());
+        lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, param.erBegrunnelseEndret());
     }
 
     /**
@@ -94,7 +94,7 @@ public class FaktaBeregningHistorikkHåndterer {
             iayGrunnlag);
         faktaOmBeregningOverstyringHistorikkTjeneste.lagHistorikk(behandling.getId(), dto, tekstBuilder, aktivtGrunnlag,
             forrigeGrunnlag, iayGrunnlag);
-        lagHistorikkInnslag(dto.getKode(), dto.getBegrunnelse(), tekstBuilder, endretBegrunnelse);
+        lagHistorikkInnslag(dto.getAksjonspunktDefinisjon(), dto.getBegrunnelse(), tekstBuilder, endretBegrunnelse);
     }
 
     private void håndterTilfelleHistorikk(Long behandlingId,
@@ -113,13 +113,13 @@ public class FaktaBeregningHistorikkHåndterer {
                 nyttBeregningsgrunnlag, forrigeGrunnlag, iayGrunnlag));
     }
 
-    private void lagHistorikkInnslag(String kode,
+    private void lagHistorikkInnslag(AksjonspunktDefinisjon apDef,
                                      String begrunnelse,
                                      HistorikkInnslagTekstBuilder tekstBuilder,
                                      boolean endretBegrunnelse) {
         tekstBuilder.ferdigstillHistorikkinnslagDel();
         var historikkDeler = tekstBuilder.getHistorikkinnslagDeler();
-        if (AksjonspunktKodeDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG_KODE.equals(kode)) {
+        if (AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNINGSGRUNNLAG.equals(apDef)) {
             settBegrunnelseUtenDiffsjekk(historikkDeler, tekstBuilder, begrunnelse);
         } else {
             settBegrunnelse(historikkDeler, tekstBuilder, begrunnelse, endretBegrunnelse);

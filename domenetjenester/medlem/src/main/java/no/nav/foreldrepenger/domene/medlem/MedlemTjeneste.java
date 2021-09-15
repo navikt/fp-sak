@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.Medlemskapsv
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -268,7 +269,7 @@ public class MedlemTjeneste {
         if (medlemOpt.isPresent()) {
             var medlem = medlemOpt.get();
             if (medlem.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT)) {
-                return new VilkårUtfallMedÅrsak(medlem.getGjeldendeVilkårUtfall(), Avslagsårsak.fraKode(medlem.getVilkårUtfallMerknad().getKode()));
+                return new VilkårUtfallMedÅrsak(medlem.getGjeldendeVilkårUtfall(), AvslagsårsakMapper.fraVilkårUtfallMerknad(medlem.getVilkårUtfallMerknad()));
             }
             var løpendeOpt = behandlingsresultat.getVilkårResultat()
                 .getVilkårene()
@@ -278,7 +279,7 @@ public class MedlemTjeneste {
             if (løpendeOpt.isPresent()) {
                 var løpende = løpendeOpt.get();
                 if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && !løpende.erOverstyrt()) {
-                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.fraKode(løpende.getVilkårUtfallMerknad().getKode()));
+                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, AvslagsårsakMapper.fraVilkårUtfallMerknad(løpende.getVilkårUtfallMerknad()));
                 }
                 if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
                     var avslagsårsak = løpende.getAvslagsårsak();

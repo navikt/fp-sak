@@ -108,7 +108,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
     }
 
     private static String getKode(Object leafBean) {
-        return leafBean instanceof AksjonspunktKode ? ((AksjonspunktKode) leafBean).getKode() : null;
+        return leafBean instanceof AksjonspunktKode ? ((AksjonspunktKode) leafBean).getAksjonspunktDefinisjon().getKode() : null;
     }
 
     private static String getFeltNavn(Path propertyPath) {

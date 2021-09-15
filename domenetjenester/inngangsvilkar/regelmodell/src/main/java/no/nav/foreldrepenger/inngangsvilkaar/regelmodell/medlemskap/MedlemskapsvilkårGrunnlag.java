@@ -4,7 +4,7 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.doc.RuleDocumentationGrunnlag;
 
 @RuleDocumentationGrunnlag
-public record MedlemskapsvilkårGrunnlag(PersonStatusType personStatusType,
+public record MedlemskapsvilkårGrunnlag(RegelPersonStatusType personStatusType,
                                      boolean brukerNorskNordisk,
                                      boolean brukerBorgerAvEUEOS,
                                      boolean brukerHarOppholdstillatelse,

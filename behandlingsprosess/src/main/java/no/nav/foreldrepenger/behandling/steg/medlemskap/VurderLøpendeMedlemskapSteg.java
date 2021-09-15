@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVi
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -61,8 +62,8 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                 vurderingsTilDataMap.forEach((vurderingsdato, vilkårData) -> {
                     var periodeBuilder = perioderBuilder.getBuilderForVurderingsdato(vurderingsdato);
                     periodeBuilder.medVurderingsdato(vurderingsdato);
-                    periodeBuilder.medVilkårUtfall(vilkårData.getUtfallType());
-                    Optional.ofNullable(vilkårData.getVilkårUtfallMerknad()).ifPresent(periodeBuilder::medVilkårUtfallMerknad);
+                    periodeBuilder.medVilkårUtfall(vilkårData.utfallType());
+                    Optional.ofNullable(vilkårData.vilkårUtfallMerknad()).ifPresent(periodeBuilder::medVilkårUtfallMerknad);
                     perioderBuilder.leggTil(periodeBuilder);
                 });
                 builder.medMedlemskapsvilkårPeriode(perioderBuilder);
@@ -73,7 +74,7 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
                         .builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
                 var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.vilkårUtfallType())) {
-                    var avslagsårsak = Avslagsårsak.fraKode(resultat.vilkårUtfallMerknad().getKode());
+                    var avslagsårsak = AvslagsårsakMapper.fraVilkårUtfallMerknad(resultat.vilkårUtfallMerknad());
                     vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), avslagsårsak).medVilkårUtfallMerknad(resultat.vilkårUtfallMerknad());
                 } else {
                     vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), Avslagsårsak.UDEFINERT);

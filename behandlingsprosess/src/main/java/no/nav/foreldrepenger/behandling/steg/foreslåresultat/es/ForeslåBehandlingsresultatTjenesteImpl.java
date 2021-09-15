@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingEndring;
-import no.nav.foreldrepenger.behandling.steg.foreslåresultat.AvslagsårsakTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandling.steg.foreslåresultat.ForeslåBehandlingsresultatTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 @ApplicationScoped
 @FagsakYtelseTypeRef("ES")
 public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandlingsresultatTjeneste {
-    private AvslagsårsakTjeneste avslagsårsakTjeneste;
     private RevurderingEndring revurderingEndring;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingRepository behandlingRepository;
@@ -33,11 +32,9 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
     @Inject
     public ForeslåBehandlingsresultatTjenesteImpl(BehandlingsresultatRepository behandlingsresultatRepository,
             BehandlingRepository behandlingRepository,
-            AvslagsårsakTjeneste avslagsårsakTjeneste,
             @FagsakYtelseTypeRef("ES") RevurderingEndring revurderingEndring) {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingRepository = behandlingRepository;
-        this.avslagsårsakTjeneste = avslagsårsakTjeneste;
         this.revurderingEndring = revurderingEndring;
     }
 
@@ -51,16 +48,13 @@ public class ForeslåBehandlingsresultatTjenesteImpl implements ForeslåBehandli
             Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.INGEN_ENDRING);
         }
         if (BehandlingResultatType.AVSLÅTT.equals(behandlingResultatType)) {
-            var ikkeOppfyltVilkår = behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår();
-            ikkeOppfyltVilkår.ifPresent(vilkår -> {
-                var avslagsårsak = avslagsårsakTjeneste.finnAvslagsårsak(vilkår);
-                behandlingsresultat.setAvslagsårsak(avslagsårsak);
-            });
+            behandlingsresultat.getVilkårResultat().hentIkkeOppfyltVilkår()
+                .map(AvslagsårsakMapper::finnAvslagsårsak)
+                .ifPresent(behandlingsresultat::setAvslagsårsak);
         } else {
-            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor,
-            // hvor avslagårsak kopieres fra et vilkår)
-            var avslagsårsakOpt = Optional.ofNullable(behandlingsresultat.getAvslagsårsak());
-            avslagsårsakOpt.ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
+            // Må nullstille avslagårsak (for symmetri med setting avslagsårsak ovenfor, hvor avslagårsak kopieres fra et vilkår)
+            Optional.ofNullable(behandlingsresultat.getAvslagsårsak())
+                .ifPresent(ufjernetÅrsak -> behandlingsresultat.setAvslagsårsak(Avslagsårsak.UDEFINERT));
         }
         return behandlingsresultat;
     }

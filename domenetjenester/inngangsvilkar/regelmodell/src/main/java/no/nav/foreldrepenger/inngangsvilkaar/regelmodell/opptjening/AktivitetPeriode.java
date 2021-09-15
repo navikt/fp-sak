@@ -78,4 +78,8 @@ public class AktivitetPeriode implements Comparable<AktivitetPeriode> {
         VURDERT_GODKJENT,
         VURDERT_UNDERKJENT
     }
+
+    public static AktivitetPeriode periodeTilVurdering(LocalDateInterval datoIntervall, Aktivitet aktivitet) {
+        return new AktivitetPeriode(datoIntervall, aktivitet, AktivitetPeriode.VurderingsStatus.TIL_VURDERING);
+    }
 }

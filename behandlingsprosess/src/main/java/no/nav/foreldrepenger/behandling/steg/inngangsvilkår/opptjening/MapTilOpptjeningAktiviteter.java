@@ -17,9 +17,8 @@ public class MapTilOpptjeningAktiviteter {
     }
 
     public List<OpptjeningAktivitet> map(Map<Aktivitet, LocalDateTimeline<Boolean>> perioder,
-            OpptjeningAktivitetKlassifisering klassifiseringType) {
-        // slå opp fra kodeverk for å sikre instans fra db.
-        var klassifisering = OpptjeningAktivitetKlassifisering.fraKode(klassifiseringType.getKode());
+            OpptjeningAktivitetKlassifisering klassifisering) {
+
         List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
         for (var entry : perioder.entrySet()) {
             for (var seg : entry.getValue().toSegments()) {

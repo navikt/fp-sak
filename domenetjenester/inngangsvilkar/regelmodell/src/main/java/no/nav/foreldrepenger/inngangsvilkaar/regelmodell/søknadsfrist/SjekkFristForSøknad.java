@@ -7,11 +7,14 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.EnumSet;
 
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelAksjonspunkt;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
 import no.nav.fpsak.nare.doc.RuleDocumentation;
 import no.nav.fpsak.nare.doc.RuleOutcomeDocumentation;
 import no.nav.fpsak.nare.evaluation.Evaluation;
 import no.nav.fpsak.nare.evaluation.Resultat;
-import no.nav.fpsak.nare.evaluation.RuleReasonRefImpl;
+import no.nav.fpsak.nare.evaluation.RuleReasonRef;
 import no.nav.fpsak.nare.specification.LeafSpecification;
 
 /**
@@ -23,15 +26,16 @@ import no.nav.fpsak.nare.specification.LeafSpecification;
  *
  */
 @RuleDocumentation(value = SjekkFristForSøknad.ID, outcomes = {
-        @RuleOutcomeDocumentation(code = SjekkFristForSøknad.ÅRSAKKODE_5007, result = Resultat.IKKE_VURDERT, description = "Søknadsdato har passert frist. Output variabel: '"
+        @RuleOutcomeDocumentation(code = SjekkFristForSøknad.SØKNADSFRIST_AKSJONSPUNKT_KODE, result = Resultat.IKKE_VURDERT, description = "Søknadsdato har passert frist. Output variabel: '"
                 + SjekkFristForSøknad.DAGER_FOR_SENT_PROPERTY + "'")
 })
 public class SjekkFristForSøknad extends LeafSpecification<SøknadsfristvilkårGrunnlag> {
-    static final String ÅRSAKKODE_5007 = "5007";
+    public static final String SØKNADSFRIST_AKSJONSPUNKT_KODE = "5007";
 
-    static final String DAGER_FOR_SENT_PROPERTY = "antallDagerSoeknadLevertForSent";
+    public static final String DAGER_FOR_SENT_PROPERTY = "antallDagerSoeknadLevertForSent";
 
-    private static final RuleReasonRefImpl IKKE_OPPFYLT_ETTER_FRIST = new RuleReasonRefImpl(ÅRSAKKODE_5007,
+    private static final RuleReasonRef IKKE_OPPFYLT_ETTER_FRIST =
+        new MerknadRuleReasonRef(RegelUtfallMerknad.RVM_5007, RegelAksjonspunkt.SØKNADSFRISTVILKÅRET_IKKE_VURDERT,
             "Søknadsdato {0} er {1} dager etter frist ({2}) fra skjæringstidspunkt {3}");
 
     static final String ID = "FP_VK_3.2";

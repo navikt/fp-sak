@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
@@ -126,7 +125,7 @@ public class AksjonspunktRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var dto = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, Collections.emptyList())
                 .stream()
-                .filter(ap -> AksjonspunktKodeDefinisjon.VURDER_FARESIGNALER_KODE.equals(ap.getDefinisjon().getKode()))
+                .filter(ap -> AksjonspunktDefinisjon.VURDER_FARESIGNALER.equals(ap.getDefinisjon()))
                 .findFirst()
                 .orElse(null);
 
@@ -227,7 +226,7 @@ public class AksjonspunktRestTjeneste {
 
     private static boolean erFatteVedtakAkpt(Collection<? extends AksjonspunktKode> aksjonspunktDtoer) {
         return aksjonspunktDtoer.size() == 1 &&
-                aksjonspunktDtoer.iterator().next().getKode().equals(AksjonspunktDefinisjon.FATTER_VEDTAK.getKode());
+                aksjonspunktDtoer.iterator().next().getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.FATTER_VEDTAK);
     }
 
     public static class BekreftetAbacDataSupplier implements Function<Object, AbacDataAttributter> {
@@ -239,7 +238,7 @@ public class AksjonspunktRestTjeneste {
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
             req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> {
-                abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode());
+                abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon());
                 if (apDto instanceof AvklarVergeDto avklarVergeDto && avklarVergeDto.getFnr() != null) {
                     abac.leggTil(AppAbacAttributtType.FNR, avklarVergeDto.getFnr());
                 }
@@ -259,7 +258,7 @@ public class AksjonspunktRestTjeneste {
             var abac = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
-            req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, apDto.getKode()));
+            req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon()));
             return abac;
         }
     }

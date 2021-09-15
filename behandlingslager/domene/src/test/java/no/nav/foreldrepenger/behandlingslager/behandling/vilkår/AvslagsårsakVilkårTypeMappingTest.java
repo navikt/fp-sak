@@ -8,7 +8,7 @@ public class AvslagsårsakVilkårTypeMappingTest {
 
     @Test
     public void test_finn_vilkårtype_fra_avslagårsak() {
-        assertThat(Avslagsårsak.fraKode(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode()).getVilkårTyper()).contains(VilkårType.OMSORGSVILKÅRET);
+        assertThat(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getVilkårTyper()).contains(VilkårType.OMSORGSVILKÅRET);
     }
 
     @Test

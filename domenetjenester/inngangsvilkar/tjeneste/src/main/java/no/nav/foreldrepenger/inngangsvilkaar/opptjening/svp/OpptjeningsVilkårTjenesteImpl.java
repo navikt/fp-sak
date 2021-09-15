@@ -50,9 +50,7 @@ public class OpptjeningsVilkårTjenesteImpl implements OpptjeningsVilkårTjenest
         var output = new OpptjeningsvilkårResultat();
         var evaluation = new OpptjeningsvilkårSvangerskapspenger().evaluer(grunnlag, output);
 
-        var vilkårData = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag);
-        vilkårData.setEkstraVilkårresultat(output);
-
+        var vilkårData = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSVILKÅRET, evaluation, grunnlag, output);
         return vilkårData;
     }
 }

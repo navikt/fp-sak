@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Aktivitet.ReferanseType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.AktivitetPeriode;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.InntektPeriode;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.fp.OpptjeningsvilkårForeldrepenger;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -36,18 +37,16 @@ public class OpptjeningsgrunnlagAdapter {
 
     public Opptjeningsgrunnlag mapTilGrunnlag(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter,
                                               Collection<OpptjeningInntektPeriode> opptjeningInntekter) {
-        var opptjeningsGrunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, startDato, sluttDato);
 
-        // legger til alle rapporterte inntekter og aktiviteter hentet opp. håndterer duplikater/overlapp i
-        // mellomregning.
-        leggTilOpptjening(opptjeningAktiveter, opptjeningsGrunnlag);
-        leggTilRapporterteInntekter(opptjeningInntekter, opptjeningsGrunnlag);
+        // legger til alle rapporterte inntekter og aktiviteter hentet opp. håndterer duplikater/overlapp i mellomregning.
+        var akiviteter = utledAktiviteter(opptjeningAktiveter);
+        var inntekter = utledInntekter(opptjeningInntekter);
 
-        return opptjeningsGrunnlag;
+        return new Opptjeningsgrunnlag(behandlingstidspunkt, startDato, sluttDato, akiviteter, inntekter);
     }
 
-    private void leggTilRapporterteInntekter(Collection<OpptjeningInntektPeriode> opptjeningInntekter,
-                                             Opptjeningsgrunnlag opptjeningsGrunnlag) {
+    private List<InntektPeriode> utledInntekter(Collection<OpptjeningInntektPeriode> opptjeningInntekter) {
+        List<InntektPeriode> inntekter = new ArrayList<>();
         for (var inn : opptjeningInntekter) {
             if (!InntektspostType.LØNN.equals(inn.getType())) {
                 continue;
@@ -63,13 +62,14 @@ public class OpptjeningsgrunnlagAdapter {
             if (refType != null) {
                 if (opptjeningsnøkkel.harType(Opptjeningsnøkkel.Type.ARBEIDSFORHOLD_ID)) {
                     var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.LØNN, getAktivitetReferanseFraNøkkel(opptjeningsnøkkel), refType);
-                    opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
+                    inntekter.add(new InntektPeriode(dateInterval, aktivitet, beløpHeltall));
                 } else {
                     var aktivitet = new Aktivitet(OpptjeningsvilkårForeldrepenger.LØNN, opptjeningsnøkkel.getVerdi(), refType);
-                    opptjeningsGrunnlag.leggTilRapportertInntekt(dateInterval, aktivitet, beløpHeltall);
+                    inntekter.add(new InntektPeriode(dateInterval, aktivitet, beløpHeltall));
                 }
             }
         }
+        return inntekter;
     }
 
     private String getAktivitetReferanseFraNøkkel(Opptjeningsnøkkel opptjeningsnøkkel) {
@@ -89,7 +89,8 @@ public class OpptjeningsgrunnlagAdapter {
         };
     }
 
-    private void leggTilOpptjening(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter, Opptjeningsgrunnlag opptjeningsGrunnlag) {
+    private List<AktivitetPeriode> utledAktiviteter(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter) {
+        List<AktivitetPeriode> aktiviteter = new ArrayList<>();
         var opptjeningAktiveterFiltrert = filtrer(opptjeningAktiveter);
 
         for (var opp : opptjeningAktiveterFiltrert) {
@@ -99,13 +100,14 @@ public class OpptjeningsgrunnlagAdapter {
                 var identifikator = getIdentifikator(opp).arbeidsgiver();
                 var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), identifikator, getAktivtetReferanseType(opptjeningsnøkkel.getArbeidsgiverType()));
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
-                opptjeningsGrunnlag.leggTil(aktivitetPeriode);
+                aktiviteter.add(aktivitetPeriode);
             } else {
                 var opptjeningAktivitet = new Aktivitet(opp.getOpptjeningAktivitetType().getKode(), null, null);
                 var aktivitetPeriode = new AktivitetPeriode(dateInterval, opptjeningAktivitet, mapStatus(opp));
-                opptjeningsGrunnlag.leggTil(aktivitetPeriode);
+                aktiviteter.add(aktivitetPeriode);
             }
         }
+        return aktiviteter;
     }
 
     private Collection<OpptjeningAktivitetPeriode> filtrer(Collection<OpptjeningAktivitetPeriode> opptjeningAktiveter) {

@@ -48,7 +48,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdatererTest {
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktFor(bekreftSokersOpplysningspliktManuDto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(bekreftSokersOpplysningspliktManuDto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(bekreftSokersOpplysningspliktManuDto,
                 new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, bekreftSokersOpplysningspliktManuDto));
         var historikkinnslag = new Historikkinnslag();

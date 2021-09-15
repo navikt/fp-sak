@@ -90,7 +90,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                                               OppdateringResultat.Builder builder) {
         var behandling = param.getBehandling();
 
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
 
         var data = new AvklarOmsorgOgForeldreansvarAksjonspunktData(dto.getVilkårType().getKode(),
             aksjonspunktDefinisjon, dto.getOmsorgsovertakelseDato());
@@ -120,7 +120,7 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
                 .filter(vilkår -> !vilkår.getVilkårType().getKode().equals(omsorgsovertakelseVilkårType.getKode()))
                 .forEach(fjernet -> builder.fjernVilkårType(fjernet.getVilkårType()));
         }
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
         behandling.getAksjonspunkter().stream()
             .filter(ap -> OmsorgsvilkårKonfigurasjon.getOmsorgsovertakelseAksjonspunkter().contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !Objects.equals(ap.getAksjonspunktDefinisjon(), aksjonspunktDefinisjon)) // ikke avbryte seg selv

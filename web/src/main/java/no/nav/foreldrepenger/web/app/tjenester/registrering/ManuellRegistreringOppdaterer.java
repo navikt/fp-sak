@@ -164,9 +164,9 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var behandlingType = behandling.getType();
 
 
-        if (dto.getKode().equals(REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.getKode())) {
+        if (REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.equals(dto.getAksjonspunktDefinisjon())) {
             // minihack for
-            behandlingType = BehandlingType.REVURDERING;;
+            behandlingType = BehandlingType.REVURDERING;
         }
 
         var mapper = finnSøknadMapper(ytelseType, behandlingType);

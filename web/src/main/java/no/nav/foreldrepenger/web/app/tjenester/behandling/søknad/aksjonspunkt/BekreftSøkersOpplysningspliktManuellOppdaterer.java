@@ -58,7 +58,7 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
         }
         // Hoppe rett til foreslå vedtak uten totrinnskontroll
         åpneAksjonspunkter.stream()
-            .filter(a -> !a.getAksjonspunktDefinisjon().getKode().equals(dto.getKode())) // Ikke seg selv
+            .filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
             .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
         return resultatBuilder

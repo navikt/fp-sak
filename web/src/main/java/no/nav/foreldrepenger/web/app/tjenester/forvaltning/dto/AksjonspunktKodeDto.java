@@ -4,6 +4,9 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -26,12 +29,17 @@ public class AksjonspunktKodeDto implements AbacDto {
     public AbacDataAttributter abacAttributter() {
         var abac = AbacDataAttributter.opprett();
         if (aksjonspunktKode != null) {
-            abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_KODE, aksjonspunktKode);
+            abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, getAksjonspunktDefinisjon());
         }
         return abac;
     }
 
     public String getAksjonspunktKode() {
         return aksjonspunktKode;
+    }
+
+    @JsonIgnore
+    public AksjonspunktDefinisjon getAksjonspunktDefinisjon() {
+        return AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
     }
 }

@@ -72,7 +72,7 @@ public interface BehandlingskontrollTjeneste {
      *
      * @see #prosesserBehandling(BehandlingskontrollKontekst)
      */
-    void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst, Collection<String> endredeAksjonspunkt);
+    void behandlingTilbakeføringTilTidligsteAksjonspunkt(BehandlingskontrollKontekst kontekst, Collection<AksjonspunktDefinisjon> endredeAksjonspunkt);
 
     boolean behandlingTilbakeføringHvisTidligereBehandlingSteg(BehandlingskontrollKontekst kontekst,
             BehandlingStegType tidligereStegType);
@@ -221,7 +221,7 @@ public interface BehandlingskontrollTjeneste {
 
     BehandlingStegKonfigurasjon getBehandlingStegKonfigurasjon();
 
-    Set<String> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså);
+    Set<AksjonspunktDefinisjon> finnAksjonspunktDefinisjonerFraOgMed(Behandling behandling, BehandlingStegType steg, boolean medInngangOgså);
 
     void henleggBehandlingFraSteg(BehandlingskontrollKontekst kontekst, BehandlingResultatType årsak);
 

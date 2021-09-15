@@ -5,8 +5,10 @@ import java.time.Period;
 import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -72,7 +74,7 @@ public class OpptjeningsvilkårMellomregning {
                         AktivitetMellomregning::new).setAktivitetManueltUnderkjent(e.getValue()));
 
         // grupper inntektperioder etter aktivitet og avkort i forhold til angitt startDato/skjæringstidspunkt
-        var grupperInntekterEtterAktiitet = grunnlag.getInntektPerioder().stream().collect(
+        var grupperInntekterEtterAktiitet = Optional.ofNullable(grunnlag.inntektPerioder()).orElse(List.of()).stream().collect(
             Collectors.groupingBy(InntektPeriode::getAktivitet,
                 Collectors.mapping(a1 -> new LocalDateSegment<>(a1.getDatoInterval(), a1.getInntektBeløp()), Collectors.toSet())));
 
@@ -91,7 +93,7 @@ public class OpptjeningsvilkårMellomregning {
     }
 
     private Stream<Map.Entry<Aktivitet, LocalDateTimeline<Boolean>>> splitAktiviter(Predicate<AktivitetPeriode> filter) {
-        var aktiviteter = grunnlag.getAktivitetPerioder().stream()
+        var aktiviteter = Optional.ofNullable(grunnlag.aktivitetPerioder()).orElse(List.of()).stream()
             .filter(filter)
             .collect(
                 Collectors.groupingBy(AktivitetPeriode::getAktivitet,
@@ -143,11 +145,11 @@ public class OpptjeningsvilkårMellomregning {
 
     public boolean splitOgUnderkjennSegmenterEtterDatoForAktivitet(Aktivitet aktivitet, LocalDate splitDato) {
 
-        if (splitDato.equals(grunnlag.getSisteDatoForOpptjening()) || mellomregning.get(aktivitet) == null) {
+        if (splitDato.equals(grunnlag.sisteDatoForOpptjening()) || mellomregning.get(aktivitet) == null) {
             return false;
         }
-        var underkjennIntervall = new LocalDateInterval(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening());
-        var underkjennTimeline = new LocalDateTimeline<Boolean>(splitDato.plusDays(1), grunnlag.getSisteDatoForOpptjening(), Boolean.TRUE);
+        var underkjennIntervall = new LocalDateInterval(splitDato.plusDays(1), grunnlag.sisteDatoForOpptjening());
+        var underkjennTimeline = new LocalDateTimeline<Boolean>(splitDato.plusDays(1), grunnlag.sisteDatoForOpptjening(), Boolean.TRUE);
         var aktivitetMellomregning = mellomregning.get(aktivitet);
 
         aktivitetMellomregning.setAktivitetUnderkjent(underkjennTimeline);

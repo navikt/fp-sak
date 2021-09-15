@@ -157,7 +157,7 @@ public class ForvaltningTekniskRestTjeneste {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling);
         behandlingskontrollTjeneste.lagreAksjonspunkterAvbrutt(kontekst, behandling.getAktivtBehandlingSteg(), List.of(aksjonspunkt));
@@ -179,7 +179,7 @@ public class ForvaltningTekniskRestTjeneste {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .filter(Aksjonspunkt::isToTrinnsBehandling)
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         fjernToTrinnsBehandlingKreves(aksjonspunkt);
@@ -201,7 +201,7 @@ public class ForvaltningTekniskRestTjeneste {
         var behandlingId = dto.getBehandlingUuid();
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktKode())
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon())
                 .filter(ap -> !ap.isToTrinnsBehandling())
                 .orElseThrow(() -> new ForvaltningException(MANGLER_AP + dto.getAksjonspunktKode()));
         setToTrinnsBehandlingKreves(aksjonspunkt);

@@ -68,7 +68,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
 
     @Override
     public OppdateringResultat oppdater(KlageFormkravAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var apDefFormkrav = AksjonspunktDefinisjon.fraKode(dto.getKode());
+        var apDefFormkrav = dto.getAksjonspunktDefinisjon();
         var klageVurdertAv = getKlageVurdertAv(apDefFormkrav);
 
         var klageBehandling = behandlingRepository.hentBehandling(param.getBehandlingId());

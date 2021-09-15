@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.domene.vedtak.xml.VilkårsgrunnlagXmlTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.MedlemskapsvilkårGrunnlag;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.PersonStatusType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.RegelPersonStatusType;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsgrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårParametre;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SøknadsfristvilkårGrunnlag;
@@ -99,7 +99,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         Optional.ofNullable(grunnlagForVilkår.terminbekreftelseTermindato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
             .ifPresent(vilkårgrunnlagFødselForeldrepenger::setTermindato);
 
-        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::getKode)
+        Optional.ofNullable(grunnlagForVilkår.søkerRolle()).map(RegelSøkerRolle::name)
             .map(VedtakXmlUtil::lagStringOpplysning).ifPresent(vilkårgrunnlagFødselForeldrepenger::setSoekersRolle);
 
         Optional.ofNullable(grunnlagForVilkår.behandlingsdato()).flatMap(VedtakXmlUtil::lagDateOpplysning)
@@ -132,7 +132,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         vilkårgrunnlag.setErBrukerMedlem(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerErMedlem()));
         vilkårgrunnlag.setOppholdstillatelse(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerHarOppholdstillatelse()));
         vilkårgrunnlag.setPersonstatus(VedtakXmlUtil.lagStringOpplysning(
-            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(PersonStatusType::getKode).orElse("-")
+            Optional.ofNullable(grunnlagForVilkår.personStatusType()).map(RegelPersonStatusType::getNavn).orElse("-")
         ));
         return vilkårgrunnlag;
     }
@@ -151,7 +151,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         var opptjeningsparametre = OpptjeningsvilkårParametre.opptjeningsparametreSvangerskapspenger();
 
         if (opptjeningsgrunnlag != null) {
-            VedtakXmlUtil.lagDateOpplysning(opptjeningsgrunnlag.getBehandlingsTidspunkt()).ifPresent(vilkårgrunnlag::setBehandlingsDato);
+            VedtakXmlUtil.lagDateOpplysning(opptjeningsgrunnlag.behandlingsDato()).ifPresent(vilkårgrunnlag::setBehandlingsDato);
 
             vilkårgrunnlag.setMinsteAntallDagerGodkjent(VedtakXmlUtil.lagIntOpplysning(opptjeningsparametre.minsteAntallDagerGodkjent()));
             vilkårgrunnlag.setMinsteAntallMånederGodkjent(VedtakXmlUtil.lagIntOpplysning(opptjeningsparametre.minsteAntallMånederGodkjent()));

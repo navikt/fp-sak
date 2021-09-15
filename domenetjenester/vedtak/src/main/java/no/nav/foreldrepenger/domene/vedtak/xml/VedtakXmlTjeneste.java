@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -55,7 +56,12 @@ public class VedtakXmlTjeneste {
     }
 
     private void setTema(Vedtak vedtak) {
-        vedtak.setTema(VedtakXmlUtil.lagKodeverksOpplysning(Tema.FORELDRE_OG_SVANGERSKAPSPENGER));
+        // Anomali pga kode FOR_SVA mot DVH vs FOR i behandlingslager.Tema
+        var kodeverksOpplysning = VedtakXmlUtil.lagTomKodeverksOpplysning();
+        kodeverksOpplysning.setKode("FOR_SVA");
+        kodeverksOpplysning.setValue(Tema.FOR.getNavn());
+        kodeverksOpplysning.setKodeverk(Tema.FOR.getKodeverk());
+        vedtak.setTema(kodeverksOpplysning);
     }
 
     private void setSøknadsdato(Vedtak vedtak, Behandling behandling) {

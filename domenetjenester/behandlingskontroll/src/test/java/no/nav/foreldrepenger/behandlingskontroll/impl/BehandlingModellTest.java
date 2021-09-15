@@ -83,47 +83,23 @@ public class BehandlingModellTest {
 
         var modell = setupModell(modellData);
 
-        Set<String> ads = null;
-
-        ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_1);
+        Set<AksjonspunktDefinisjon> ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_1);
 
         assertThat(ads).
 
-                containsOnly(a0_0.getKode(), a0_1.
-
-                        getKode(), a1_0.
-
-                                getKode(),
-                        a1_1.
-
-                                getKode(),
-                        a2_0.
-
-                                getKode(),
-                        a2_1.
-
-                                getKode());
+                containsOnly(a0_0, a0_1, a1_0, a1_1, a2_0, a2_1);
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_2);
 
         assertThat(ads).
 
-                containsOnly(a1_0.getKode(), a1_1.
-
-                        getKode(), a2_0.
-
-                                getKode(),
-                        a2_1.
-
-                                getKode());
+                containsOnly(a1_0, a1_1, a2_0, a2_1);
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_3);
 
         assertThat(ads).
 
-                containsOnly(a2_0.getKode(), a2_1.
-
-                        getKode());
+                containsOnly(a2_0, a2_1);
 
         ads = modell.finnAksjonspunktDefinisjonerEtter(STEG_4);
 
@@ -152,16 +128,14 @@ public class BehandlingModellTest {
 
         var modell = setupModell(modellData);
 
-        Set<String> ads = null;
-
-        ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_1);
+        Set<AksjonspunktDefinisjon> ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_1);
         assertThat(ads).isEmpty();
 
         ads = modell.finnAksjonspunktDefinisjonerInngang(STEG_2);
-        assertThat(ads).containsOnly(a0_0.getKode());
+        assertThat(ads).containsOnly(a0_0);
 
         ads = modell.finnAksjonspunktDefinisjonerUtgang(STEG_3);
-        assertThat(ads).containsOnly(a1_1.getKode());
+        assertThat(ads).containsOnly(a1_1);
 
     }
 

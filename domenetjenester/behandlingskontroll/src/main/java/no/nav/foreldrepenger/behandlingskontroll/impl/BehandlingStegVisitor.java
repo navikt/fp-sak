@@ -316,7 +316,7 @@ class BehandlingStegVisitor {
 
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         if (!åpneAksjonspunkter.isEmpty()) {
-            var aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon().getKode()).collect(Collectors.toList());
+            var aksjonspunkter = åpneAksjonspunkter.stream().map(a -> a.getAksjonspunktDefinisjon()).collect(Collectors.toList());
             var nesteBehandlingStegModell = behandlingModell.finnTidligsteStegForAksjonspunktDefinisjon(aksjonspunkter);
             var nesteStegStatus = behandlingModell.finnStegStatusFor(nesteBehandlingStegModell.getBehandlingStegType(),
                     aksjonspunkter);

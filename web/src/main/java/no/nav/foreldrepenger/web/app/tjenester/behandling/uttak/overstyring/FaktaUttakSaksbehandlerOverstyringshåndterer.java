@@ -43,7 +43,7 @@ public class FaktaUttakSaksbehandlerOverstyringshåndterer extends AbstractOvers
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringFaktaUttakDto.SaksbehandlerOverstyrerFaktaUttakDto dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         if (!kanAksjonspunktAktiveres(behandling)) {
-            throw new TekniskException("FP-605445", "Kan ikke aktivere aksjonspunkt med kode: " + dto.getKode());
+            throw new TekniskException("FP-605445", "Kan ikke aktivere aksjonspunkt med kode: " + dto.getAksjonspunktDefinisjon().getKode());
         }
         return faktaUttakOverstyringFelles.håndterOverstyring(dto, behandling);
     }

@@ -44,9 +44,9 @@ public class BehandlingskontrollTjenesteImplTest {
     private BehandlingStegType steg4;
     private BehandlingStegType steg5;
 
-    private String steg2InngangAksjonspunkt;
+    private AksjonspunktDefinisjon steg2InngangAksjonspunkt;
 
-    private String steg2UtgangAksjonspunkt;
+    private AksjonspunktDefinisjon steg2UtgangAksjonspunkt;
 
     @BeforeEach
     void setUp(EntityManager entityManager) {

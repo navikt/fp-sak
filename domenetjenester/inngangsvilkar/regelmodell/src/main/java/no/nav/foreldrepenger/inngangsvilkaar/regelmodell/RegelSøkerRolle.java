@@ -1,17 +1,7 @@
 package no.nav.foreldrepenger.inngangsvilkaar.regelmodell;
 
-public enum RegelSøkerRolle {
-    MORA("Mor til"),
-    MEDMOR("Medmor til"),
-    FARA("Far til");
-
-    private String kode;
-
-    RegelSøkerRolle(String kode) {
-        this.kode = kode;
-    }
-
-    public String getKode() {
-        return kode;
-    }
+public enum RegelSøkerRolle { // TODO fjerne A-suffix når vedtakXML landet (leser gammel json)
+    MORA,
+    MEDMOR,
+    FARA;
 }

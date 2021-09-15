@@ -47,9 +47,8 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
     public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandling = param.getBehandling();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
-        var aksjonspunktKode = dto.getKode();
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.fraKode(aksjonspunktKode);
-        var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktKode);
+        var aksjonspunktDefinisjon = dto.getAksjonspunktDefinisjon();
+        var skjermlenkeType = HistorikkAksjonspunktAdapter.getSkjermlenkeType(vilkårType, aksjonspunktDefinisjon);
         historikkAdapter.tekstBuilder()
             .medEndretFelt(getTekstKode(), null, dto.getErVilkarOk() ? HistorikkEndretFeltVerdiType.OPPFYLT : HistorikkEndretFeltVerdiType.IKKE_OPPFYLT)
             .medBegrunnelse(dto.getBegrunnelse(), param.erBegrunnelseEndret())

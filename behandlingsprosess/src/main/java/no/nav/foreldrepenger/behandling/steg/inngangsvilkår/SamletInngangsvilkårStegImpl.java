@@ -48,7 +48,7 @@ public class SamletInngangsvilkårStegImpl extends InngangsvilkårStegImpl {
 
     @Override
     protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
-        return regelResultat.getVilkårResultat().getVilkårene().stream()
+        return regelResultat.vilkårResultat().getVilkårene().stream()
                 .filter(v -> alleInngangsVilkår.contains(v.getVilkårType()))
                 .map(Vilkår::getGjeldendeVilkårUtfall)
                 .anyMatch(VilkårUtfallType.IKKE_OPPFYLT::equals);

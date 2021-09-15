@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingskontroll.transisjoner.TransisjonIdentifi
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 /**
  * Håndtere opprydding i Aksjonspunkt og Vilkår ved overhopp framover
@@ -55,12 +56,12 @@ public class BehandlingskontrollFremoverhoppTransisjonEventObserver {
         var aksjonspunktDefinisjonerEtterFra = modell.finnAksjonspunktDefinisjonerFraOgMed(førsteSteg, medInngangFørsteSteg);
         var aksjonspunktDefinisjonerEtterTil = modell.finnAksjonspunktDefinisjonerFraOgMed(sisteSteg, true);
 
-        Set<String> mellomliggende = new HashSet<>(aksjonspunktDefinisjonerEtterFra);
+        Set<AksjonspunktDefinisjon> mellomliggende = new HashSet<>(aksjonspunktDefinisjonerEtterFra);
         mellomliggende.removeAll(aksjonspunktDefinisjonerEtterTil);
 
         List<Aksjonspunkt> avbrutte = new ArrayList<>();
         behandling.getAksjonspunkter().stream()
-                .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon().getKode()))
+                .filter(a -> mellomliggende.contains(a.getAksjonspunktDefinisjon()))
                 .filter(Aksjonspunkt::erÅpentAksjonspunkt)
                 .forEach(a -> {
                     avbrytAksjonspunkt(a);

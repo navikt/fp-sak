@@ -78,7 +78,7 @@ public class FagsakTjeneste {
         // Oppdatering basert på søkers registrerte relasjon til barn
         var funnetRelasjon = finnBarnetsRelasjonTilSøker(barnSøktStønadFor, personopplysninger);
         if (funnetRelasjon.isPresent()) {
-            var brukerRolle = RelasjonsRolleType.fraKodeOptional(funnetRelasjon.get().getRelasjonsrolle().getKode());
+            var brukerRolle = funnetRelasjon.map(PersonRelasjonEntitet::getRelasjonsrolle);
             if (brukerRolle.isPresent()) {
                 LOG.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
                         brukerRolle.get().getKode());

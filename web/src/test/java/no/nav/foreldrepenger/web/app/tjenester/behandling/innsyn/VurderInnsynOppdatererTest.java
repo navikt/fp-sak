@@ -87,7 +87,7 @@ public class VurderInnsynOppdatererTest {
         var nå = LocalDateTime.now();
         var frist = nå.toLocalDate().plusDays(3);
         var dto = new VurderInnsynDto("grunn", InnsynResultatType.INNVILGET, frist, sattPåVent, Collections.emptyList(), frist);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
 
         var oppdateringResultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(innsynbehandling, aksjonspunkt, dto));
 

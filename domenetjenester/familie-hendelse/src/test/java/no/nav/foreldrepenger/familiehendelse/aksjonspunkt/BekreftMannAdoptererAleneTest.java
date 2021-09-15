@@ -55,7 +55,7 @@ public class BekreftMannAdoptererAleneTest extends EntityManagerAwareTest {
         final var behandling = scenario.lagre(repositoryProvider);
         // Dto
         var dto = new BekreftMannAdoptererAksjonspunktDto("begrunnelse", oppdatertMannAdoptererAlene);
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         new BekreftMannAdoptererOppdaterer(repositoryProvider, lagMockHistory(), familieHendelseTjeneste)
             .oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));

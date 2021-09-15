@@ -81,7 +81,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
         assertThat(op.getOpptjeningsperiodeFom()).isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
     }
@@ -100,7 +100,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
     }
 
@@ -134,7 +134,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(skjæringstidspunkt);
         assertThat(op.getOpptjeningsperiodeFom()).isEqualTo(op.getOpptjeningsperiodeTom().plusDays(1).minusMonths(10L));
     }
@@ -170,7 +170,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.now().minusDays(1L));
     }
 
@@ -189,7 +189,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
     }
 
@@ -208,7 +208,7 @@ public class OpptjeningsperiodeVilkårTest extends EntityManagerAwareTest {
         var data = new InngangsvilkårOpptjeningsperiode(opptjeningsperiodeVilkårTjeneste).vurderVilkår(
             lagRef(behandling));
 
-        var op = (OpptjeningsPeriode) data.getEkstraVilkårresultat();
+        var op = (OpptjeningsPeriode) data.ekstraVilkårresultat();
         assertThat(op.getOpptjeningsperiodeTom()).isEqualTo(LocalDate.of(2018, 1, 1).minusDays(1L));
     }
 

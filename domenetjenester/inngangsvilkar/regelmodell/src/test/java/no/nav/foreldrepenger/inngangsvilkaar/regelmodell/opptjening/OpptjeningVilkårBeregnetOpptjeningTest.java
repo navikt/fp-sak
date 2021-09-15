@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,18 +30,18 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
         var dt4 = dt3.plusDays(15);
         var endOfInntekt = dt1.plusMonths(2).minusDays(1);
 
-
         // matcher antatt godkjent kun for dt3-dt4
         var behandlingstidspunkt = LocalDate.of(2018, 01, 18);
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4);
 
+        // skal også med som antatt selv om ingen inntekter er rapportert
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
+        );
+        // inntekt
+        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
-        // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), aktivitet);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
-
-        // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, dt4, aktiviteter, inntekter);
 
         // Act
         var output = new OpptjeningsvilkårResultat();
@@ -85,14 +86,14 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
+        );
+        // inntekt
+        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
-        // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), aktivitet);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
-
-        // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 
         // Act
         var output = new OpptjeningsvilkårResultat();
@@ -132,15 +133,14 @@ public class OpptjeningVilkårBeregnetOpptjeningTest {
 
 
         // matcher antatt godkjent kun for dt3-dt4
-        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt);
+        var aktiviteter = List.of(
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt1, dt2), aktivitet),
+            AktivitetPeriode.periodeTilVurdering(new LocalDateInterval(dt3, dt4), aktivitet)
+        );
+        // inntekt
+        List<InntektPeriode> inntekter = List.of(new InntektPeriode(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L));
 
-
-        // arbeid aktivitet
-        grunnlag.leggTil(new LocalDateInterval(dt1, dt2), aktivitet);
-        grunnlag.leggTil(new LocalDateInterval(dt3, dt4), aktivitet);
-
-        // sikre inntekt i oktober, og november
-        grunnlag.leggTilRapportertInntekt(new LocalDateInterval(dt1, endOfInntekt), aktivitet.forInntekt(), 1L);
+        var grunnlag = new Opptjeningsgrunnlag(behandlingstidspunkt, dt1, behandlingstidspunkt, aktiviteter, inntekter);
 
         // Act
         var output = new OpptjeningsvilkårResultat();

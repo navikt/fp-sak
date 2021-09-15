@@ -88,7 +88,7 @@ public class KlagevurderingOppdatererTest {
                 klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
 
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
@@ -142,7 +142,7 @@ public class KlagevurderingOppdatererTest {
                 klageVurdering, null, null, LocalDate.now(), "Fritekst til brev", null);
 
         // Act
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(behandling, aksjonspunkt, dto));
 
         // Assert
@@ -170,7 +170,7 @@ public class KlagevurderingOppdatererTest {
         var klageBehandling = klageScenario.lagre(repositoryProvider, klageRepository);
 
         // Act
-        var aksjonspunkt = klageBehandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = klageBehandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         getKlageVurderer(repositoryProvider, klageRepository).oppdater(dto, new AksjonspunktOppdaterParameter(klageBehandling, aksjonspunkt, dto));
 
         // Assert

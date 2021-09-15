@@ -6,10 +6,11 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,12 +24,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.søknadsfrist.SjekkFristForSøknad;
 
 
 @ApplicationScoped
 public class RegelOrkestrerer {
+
+    private static final Map<VilkårType, Set<String>> LAGRE_MERKNAD_PARAMETRE =
+        Map.of(VilkårType.SØKNADSFRISTVILKÅRET, Set.of(SjekkFristForSøknad.DAGER_FOR_SENT_PROPERTY));
 
     private InngangsvilkårTjeneste inngangsvilkårTjeneste;
 
@@ -61,10 +65,8 @@ public class RegelOrkestrerer {
         var vilkårDataResultat = kjørRegelmotor(ref, vilkår);
 
         // Ekstraresultat
-        var ekstraResultater = new HashMap<VilkårType, Object>();
-        if (vilkårDataResultat.getEkstraVilkårresultat() != null) {
-            ekstraResultater.put(vilkårDataResultat.getVilkårType(), vilkårDataResultat.getEkstraVilkårresultat());
-        }
+        Map<VilkårType, Object> ekstraResultater = vilkårDataResultat.ekstraVilkårresultat() == null ? Map.of() :
+            Map.of(vilkårDataResultat.vilkårType(), vilkårDataResultat.ekstraVilkårresultat());
 
         // Inngangsvilkårutfall utledet fra alle vilkårsutfallene
         var alleUtfall = sammenslåVilkårUtfall(vilkårResultat, vilkårDataResultat);
@@ -75,7 +77,7 @@ public class RegelOrkestrerer {
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>();
         if (!vilkår.erOverstyrt()) {
             // TODO (essv): PKMANTIS-1988 Sjekk med Anita om AP for manuell vurdering skal (gjen)opprettes dersom allerede overstyrt
-            aksjonspunktDefinisjoner = vilkårDataResultat.getApDefinisjoner();
+            aksjonspunktDefinisjoner = vilkårDataResultat.aksjonspunktDefinisjoner();
         }
 
         return new RegelResultat(vilkårResultat, aksjonspunktDefinisjoner, ekstraResultater);
@@ -100,11 +102,11 @@ public class RegelOrkestrerer {
         var vilkårUtfall = vilkårResultat.getVilkårene().stream()
             .collect(toMap(Vilkår::getVilkårType, Vilkår::getGjeldendeVilkårUtfall));
 
-        var matchendeVilkår = vilkårTyper.get(vdRegelmotor.getVilkårType());
+        var matchendeVilkår = vilkårTyper.get(vdRegelmotor.vilkårType());
         Objects.requireNonNull(matchendeVilkår, "skal finnes match"); //$NON-NLS-1$
         // Utfall fra automatisk regelvurdering skal legges til settet av utfall, dersom vilkår ikke er manuelt vurdert
         if (!(matchendeVilkår.erManueltVurdert() || matchendeVilkår.erOverstyrt())) {
-            vilkårUtfall.put(vdRegelmotor.getVilkårType(), vdRegelmotor.getUtfallType());
+            vilkårUtfall.put(vdRegelmotor.vilkårType(), vdRegelmotor.utfallType());
         }
 
         return new HashSet<>(vilkårUtfall.values());
@@ -123,16 +125,21 @@ public class RegelOrkestrerer {
 
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling,
                                                      VilkårData vilkårData, VilkårResultatType inngangsvilkårUtfall) {
-
+        var merknadParametre = new Properties();
+        if (vilkårData.merknadParametere() != null) {
+            LAGRE_MERKNAD_PARAMETRE.getOrDefault(vilkårData.vilkårType(), Set.of()).stream()
+                .filter(p -> vilkårData.merknadParametere().get(p) instanceof String)
+                .forEach(p -> merknadParametre.setProperty(p , (String) vilkårData.merknadParametere().get(p)));
+        }
         var builder = VilkårResultat
             .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
-        var vilkårBuilder = builder.getVilkårBuilderFor(vilkårData.getVilkårType())
-            .medVilkårUtfall(vilkårData.getUtfallType(), vilkårData.getAvslagsårsak())
-            .medVilkårUtfallMerknad(vilkårData.getVilkårUtfallMerknad())
-            .medMerknadParametere(vilkårData.getMerknadParametere())
-            .medRegelEvaluering(vilkårData.getRegelEvaluering())
-            .medRegelInput(vilkårData.getRegelInput());
+        var vilkårBuilder = builder.getVilkårBuilderFor(vilkårData.vilkårType())
+            .medVilkårUtfall(vilkårData.utfallType(), vilkårData.avslagsårsak())
+            .medVilkårUtfallMerknad(vilkårData.vilkårUtfallMerknad())
+            .medMerknadParametere(merknadParametre)
+            .medRegelEvaluering(vilkårData.regelEvaluering())
+            .medRegelInput(vilkårData.regelInput());
         builder.leggTilVilkår(vilkårBuilder);
 
         builder.buildFor(behandling);

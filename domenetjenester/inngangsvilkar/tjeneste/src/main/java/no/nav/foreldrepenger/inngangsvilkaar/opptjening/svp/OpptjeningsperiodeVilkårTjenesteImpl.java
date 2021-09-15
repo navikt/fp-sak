@@ -37,8 +37,7 @@ public class OpptjeningsperiodeVilkårTjenesteImpl implements Opptjeningsperiode
         final var data = new OpptjeningsPeriode();
         var evaluation = new RegelFastsettOpptjeningsperiode().evaluer(grunnlag, data);
 
-        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag);
-        resultat.setEkstraVilkårresultat(data);
+        var resultat = InngangsvilkårOversetter.tilVilkårData(VilkårType.OPPTJENINGSPERIODEVILKÅR, evaluation, grunnlag, data);
         return resultat;
     }
 }

@@ -91,7 +91,7 @@ public class VurdereYtelseSammeBarnAnnenForelderOppdatererTest {
                                              VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto dto,
                                              BehandlingRepositoryProvider repositoryProvider) {
         var mockHistory = lagMockHistory();
-        var aksjonspunkt = behandling.getAksjonspunktFor(dto.getKode());
+        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         // Act
         var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnAnnenForelderOppdaterer(mockHistory,
             repositoryProvider.getBehandlingsresultatRepository(), repositoryProvider.getBehandlingRepository())

@@ -79,7 +79,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         var regelResultat = inngangsvilkårFellesTjeneste.vurderInngangsvilkår(vilkårTyper, behandling, ref);
 
         // Oppdater behandling
-        behandlingRepository.lagre(regelResultat.getVilkårResultat(), kontekst.getSkriveLås());
+        behandlingRepository.lagre(regelResultat.vilkårResultat(), kontekst.getSkriveLås());
 
         utførtRegler(kontekst, behandling, regelResultat);
 
@@ -120,14 +120,14 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     }
 
     protected BehandleStegResultat stegResultat(RegelResultat regelResultat) {
-        return BehandleStegResultat.utførtMedAksjonspunkter(regelResultat.getAksjonspunktDefinisjoner());
+        return BehandleStegResultat.utførtMedAksjonspunkter(regelResultat.aksjonspunktDefinisjoner());
     }
 
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
         // Forbedring: InngangsvilkårStegImpl som annoterbar med FagsakYtelseType og
         // BehandlingType
         // Her hardkodes disse parameterne
-        return getBehandleStegResultatVedAvslag(behandling, regelResultat.getAksjonspunktDefinisjoner());
+        return getBehandleStegResultatVedAvslag(behandling, regelResultat.aksjonspunktDefinisjoner());
     }
 
     private BehandleStegResultat getBehandleStegResultatVedAvslag(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
@@ -145,7 +145,7 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
 
     // Vennligst ikke override - det er forbeholdt vurdersamlet ....
     protected boolean erNoenVilkårIkkeOppfylt(RegelResultat regelResultat) {
-        return regelResultat.getVilkårResultat().getVilkårene().stream()
+        return regelResultat.vilkårResultat().getVilkårene().stream()
                 .filter(vilkår -> vilkårHåndtertAvSteg().contains(vilkår.getVilkårType()))
                 .anyMatch(v -> v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT));
     }

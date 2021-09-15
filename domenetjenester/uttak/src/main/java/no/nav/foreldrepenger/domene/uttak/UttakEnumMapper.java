@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.regler.uttak.beregnkontoer.grunnlag.Dekningsgrad;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Trekkdager;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetType;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Orgnummer;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeMedAvklartMorsAktivitet;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.PeriodeVurderingType;
@@ -62,16 +63,12 @@ public final class UttakEnumMapper {
     }
 
     public static Perioderesultattype map(PeriodeResultatType periodeResultatType) {
-        if (PeriodeResultatType.INNVILGET.equals(periodeResultatType)) {
-            return Perioderesultattype.INNVILGET;
-        }
-        if (PeriodeResultatType.AVSLÅTT.equals(periodeResultatType)) {
-            return Perioderesultattype.AVSLÅTT;
-        }
-        if (PeriodeResultatType.MANUELL_BEHANDLING.equals(periodeResultatType)) {
-            return Perioderesultattype.MANUELL_BEHANDLING;
-        }
-        throw new IllegalStateException("Ukjent type " + periodeResultatType);
+        return switch (periodeResultatType) {
+            case INNVILGET -> Perioderesultattype.INNVILGET;
+            case AVSLÅTT -> Perioderesultattype.AVSLÅTT;
+            case MANUELL_BEHANDLING -> Perioderesultattype.MANUELL_BEHANDLING;
+            default -> throw new IllegalStateException("Ukjent type " + periodeResultatType);
+        };
     }
 
     public static Trekkdager map(no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager trekkdager) {
@@ -88,26 +85,23 @@ public final class UttakEnumMapper {
     public static AktivitetIdentifikator map(UttakArbeidType uttakArbeidType,
                                              Optional<Arbeidsgiver> arbeidsgiver,
                                              InternArbeidsforholdRef ref) {
-        if (uttakArbeidType.equals(UttakArbeidType.FRILANS)) {
-            return AktivitetIdentifikator.forFrilans();
-        }
-        if (uttakArbeidType.equals(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)) {
-            return AktivitetIdentifikator.forSelvstendigNæringsdrivende();
-        }
-        if (uttakArbeidType.equals(UttakArbeidType.ANNET)) {
-            return AktivitetIdentifikator.annenAktivitet();
-        }
-        if (uttakArbeidType.equals(UttakArbeidType.ORDINÆRT_ARBEID)) {
-            var arbeidsgiverIdentifikator = arbeidsgiver.map(a -> {
-                var identifikator = a.getIdentifikator();
-                if (a.getErVirksomhet()) {
-                    return new Orgnummer(identifikator);
-                }
-                return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId(identifikator);
-            }).orElse(null);
-            return AktivitetIdentifikator.forArbeid(arbeidsgiverIdentifikator, ref.getReferanse());
-        }
-        throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
+        return switch (uttakArbeidType) {
+            case FRILANS -> AktivitetIdentifikator.forFrilans();
+            case SELVSTENDIG_NÆRINGSDRIVENDE ->  AktivitetIdentifikator.forSelvstendigNæringsdrivende();
+            case ANNET -> AktivitetIdentifikator.annenAktivitet();
+            case ORDINÆRT_ARBEID -> AktivitetIdentifikator.forArbeid(mapArbeidTypeArbeid(arbeidsgiver), ref.getReferanse());
+            default -> throw new IllegalStateException("Ukjent uttakarbeidtype " + uttakArbeidType);
+        };
+    }
+
+    private static ArbeidsgiverIdentifikator mapArbeidTypeArbeid(Optional<Arbeidsgiver> arbeidsgiver) {
+        return arbeidsgiver.map(a -> {
+            var identifikator = a.getIdentifikator();
+            if (a.getErVirksomhet()) {
+                return new Orgnummer(identifikator);
+            }
+            return new no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktørId(identifikator);
+        }).orElse(null);
     }
 
     public static Dekningsgrad map(int dekningsgrad) {
@@ -138,23 +132,14 @@ public final class UttakEnumMapper {
     }
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak map(OppholdÅrsak årsakType) {
-        if (OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER.equals(årsakType)) {
-            return no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
-        }
-        if (OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER.equals(årsakType)) {
-            return no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
-        }
-        if (OppholdÅrsak.KVOTE_FELLESPERIODE_ANNEN_FORELDER.equals(årsakType)) {
-            return no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
-        }
-        if (OppholdÅrsak.KVOTE_FORELDREPENGER_ANNEN_FORELDER.equals(årsakType)) {
-            return no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
-        }
-        if (OppholdÅrsak.UDEFINERT.equals(årsakType)) {
-            return null;
-        }
-        throw new IllegalStateException("Ikke støttet årsak " + årsakType);
-
+        return switch (årsakType) {
+            case FEDREKVOTE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER;
+            case MØDREKVOTE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.MØDREKVOTE_ANNEN_FORELDER;
+            case KVOTE_FELLESPERIODE_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FELLESPERIODE_ANNEN_FORELDER;
+            case KVOTE_FORELDREPENGER_ANNEN_FORELDER -> no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OppholdÅrsak.FORELDREPENGER_ANNEN_FORELDER;
+            case UDEFINERT -> null;
+            default -> throw new IllegalStateException("Ikke støttet oppholdårsak " + årsakType);
+        };
     }
 
     public static Stønadskontotype map(UttakPeriodeType uttakPeriodeType) {
@@ -176,7 +161,7 @@ public final class UttakEnumMapper {
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak map(UtsettelseÅrsak årsakType) {
         return UTSETTELSE_ÅRSAK_MAPPER
             .map(årsakType)
-            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet årsak" + årsakType.getKode()));
+            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet utsettelseårsak" + årsakType.getKode()));
     }
 
     private static KodeMapper<UtsettelseÅrsak, no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.UtsettelseÅrsak> initUtsettelseÅrsakMapper() {
@@ -219,7 +204,7 @@ public final class UttakEnumMapper {
     public static PeriodeVurderingType map(UttakPeriodeVurderingType uttakPeriodeVurderingType) {
         return VURDERING_TYPE_MAPPER
             .map(uttakPeriodeVurderingType)
-            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet årsak " + uttakPeriodeVurderingType.getKode()));
+            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet periodevurdering " + uttakPeriodeVurderingType.getKode()));
     }
 
     private static KodeMapper<UttakPeriodeVurderingType, PeriodeVurderingType> initVurderingTypeMapper() {
@@ -234,7 +219,7 @@ public final class UttakEnumMapper {
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.OverføringÅrsak map(OverføringÅrsak overføringÅrsak) {
         return OVERFØRING_ÅRSAK_MAPPER
             .map(overføringÅrsak)
-            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet årsak " + overføringÅrsak.getKode()));
+            .orElseThrow(() -> new UnsupportedOperationException("Ikke støttet overføringårsak " + overføringÅrsak.getKode()));
     }
 
     public static no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.MorsAktivitet map(MorsAktivitet morsAktivitet) {
@@ -331,23 +316,21 @@ public final class UttakEnumMapper {
         if (graderingIkkeInnvilgetÅrsak == null) {
             return GraderingAvslagÅrsak.UKJENT;
         }
-        return GraderingAvslagÅrsak.fraKode(String.valueOf(graderingIkkeInnvilgetÅrsak.getId()));
+        return switch (graderingIkkeInnvilgetÅrsak) {
+            case AVSLAG_PGA_SEN_SØKNAD -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD;
+            case AVSLAG_PGA_FOR_TIDLIG_GRADERING -> GraderingAvslagÅrsak.GRADERING_FØR_UKE_7;
+            default -> throw new IllegalArgumentException("Støtter graderingårsak " + graderingIkkeInnvilgetÅrsak);
+        };
     }
 
     public static UttakArbeidType map(AktivitetType aktivitetType) {
-        if (AktivitetType.SELVSTENDIG_NÆRINGSDRIVENDE.equals(aktivitetType)) {
-            return UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
-        }
-        if (AktivitetType.FRILANS.equals(aktivitetType)) {
-            return UttakArbeidType.FRILANS;
-        }
-        if (AktivitetType.ARBEID.equals(aktivitetType)) {
-            return UttakArbeidType.ORDINÆRT_ARBEID;
-        }
-        if (AktivitetType.ANNET.equals(aktivitetType)) {
-            return UttakArbeidType.ANNET;
-        }
-        throw new IllegalStateException("Ukjent aktivitetstype " + aktivitetType);
+        return switch (aktivitetType) {
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case FRILANS -> UttakArbeidType.FRILANS;
+            case ARBEID -> UttakArbeidType.ORDINÆRT_ARBEID;
+            case ANNET -> UttakArbeidType.ANNET;
+            default -> throw new IllegalStateException("Ukjent aktivitetstype " + aktivitetType);
+        };
     }
 
 

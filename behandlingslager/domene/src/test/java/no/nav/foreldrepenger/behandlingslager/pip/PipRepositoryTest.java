@@ -98,10 +98,10 @@ public class PipRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     public void skal_finne_aksjonspunktTyper_for_aksjonspunktKoder() {
-        var resultat1 = pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(Collections.singletonList(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING.getKode()));
+        var resultat1 = pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(Collections.singletonList(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING));
         assertThat(resultat1).containsOnly("Overstyring");
 
-        var resultat2 = pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING.getKode(), AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD.getKode()));
+        var resultat2 = pipRepository.hentAksjonspunktTypeForAksjonspunktKoder(List.of(AksjonspunktDefinisjon.OVERSTYRING_AV_BEREGNING, AksjonspunktDefinisjon.AVKLAR_LOVLIG_OPPHOLD));
         assertThat(resultat2).containsOnly("Overstyring", "Manuell");
     }
 
