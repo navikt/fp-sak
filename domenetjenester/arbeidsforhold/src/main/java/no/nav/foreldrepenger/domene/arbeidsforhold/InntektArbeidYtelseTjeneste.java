@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.SakInntektsmeldinger;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public interface InntektArbeidYtelseTjeneste {
+
     /**
      * Hent grunnlag.
      *
@@ -28,6 +30,14 @@ public interface InntektArbeidYtelseTjeneste {
      * @return henter aggregat, kaster feil hvis det ikke finnes.
      */
     InntektArbeidYtelseGrunnlag hentGrunnlag(Long behandlingId);
+
+    /**
+     * Hent grunnlag.
+     *
+     * @param behandlingId
+     * @return henter aggregat uten å mappe om til internt objekt, kaster feil hvis det ikke finnes.
+     */
+    InntektArbeidYtelseGrunnlagDto hentGrunnlagKontrakt(Long behandlingId);
 
     /**
      * Hent grunnlag.
