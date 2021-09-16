@@ -77,7 +77,7 @@ public class AvklarArbeidsforholdOppdaterer implements AksjonspunktOppdaterer<Av
         leggPåOverstyringPåOpprinnligeArbeidsforhold(param, informasjonBuilder, opprinneligeArbeidsforhold, behandlingId);
 
         // krever totrinn hvis saksbehandler har tatt stilling til dette aksjonspunktet
-        arbeidsforholdTjeneste.lagre(param.getBehandlingId(), param.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(param.getBehandlingId(), param.getAktørId(), informasjonBuilder);
 
         return OppdateringResultat.utenTransisjon().medTotrinn().build();
     }

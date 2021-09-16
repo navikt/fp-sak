@@ -11,6 +11,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.abakus.iaygrunnlag.v1.OverstyrtInntektArbeidYtelseDto;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -75,6 +76,7 @@ public class AbakusTjeneste {
     private URI endpointRefusjonskravdatoer;
     private URI endpointInntektsmeldingerDiff;
     private URI endpointYtelser;
+    private URI endpointOverstyring;
 
     AbakusTjeneste() {
         // for CDI
@@ -98,7 +100,7 @@ public class AbakusTjeneste {
         this.endpointRefusjonskravdatoer = toUri("/api/iay/inntektsmeldinger/v1/hentRefusjonskravDatoer");
         this.endpointInntektsmeldingerDiff = toUri("/api/iay/inntektsmeldinger/v1/hentDiff");
         this.endpointYtelser = toUri("/api/ytelse/v1/hentVedtakForAktoer");
-
+        this.endpointOverstyring = toUri("/api/iay/grunnlag/v1/overstyrt");
     }
 
     private URI toUri(String relativeUri) {
@@ -257,6 +259,28 @@ public class AbakusTjeneste {
                 var responseBody = EntityUtils.toString(httpResponse.getEntity());
                 var feilmelding = "Kunne ikke lagre IAY grunnlag: " + dto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
                         + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
+
+                if (responseCode == HttpStatus.SC_BAD_REQUEST) {
+                    throw feilKallTilAbakus(feilmelding);
+                }
+                throw feilVedKallTilAbakus(feilmelding);
+            }
+        }
+    }
+
+    public void lagreOverstyrtGrunnlag(OverstyrtInntektArbeidYtelseDto overstyrtDto) throws IOException {
+        var json = iayJsonWriter.writeValueAsString(overstyrtDto);
+
+        var httpPut = new HttpPut(endpointOverstyring);
+        httpPut.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+
+        LOG.info("Lagre IAY grunnlag (behandlingUUID={}) i Abakus", overstyrtDto.getKoblingReferanse());
+        try (var httpResponse = oidcRestClient.execute(httpPut)) {
+            var responseCode = httpResponse.getStatusLine().getStatusCode();
+            if (responseCode != HttpStatus.SC_OK) {
+                var responseBody = EntityUtils.toString(httpResponse.getEntity());
+                var feilmelding = "Kunne ikke lagre overstyrt IAY grunnlag: " + overstyrtDto.getGrunnlagReferanse() + " til abakus: " + httpPut.getURI()
+                    + ", HTTP status=" + httpResponse.getStatusLine() + ". HTTP Errormessage=" + responseBody;
 
                 if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                     throw feilKallTilAbakus(feilmelding);
