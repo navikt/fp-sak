@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Alternative;
 
+import no.nav.abakus.iaygrunnlag.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.IAYDiffsjekker;
@@ -91,6 +92,12 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
     @Override
     public InntektArbeidYtelseGrunnlag hentGrunnlag(Long behandlingId) {
         return getAktivtInntektArbeidGrunnlag(behandlingId).orElseThrow();
+    }
+
+    @Override
+    public InntektArbeidYtelseGrunnlagDto hentGrunnlagKontrakt(Long behandlingId) {
+        // Brukes kun av swagger, så greit å returnere null her
+        return null;
     }
 
     @Override

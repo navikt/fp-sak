@@ -103,6 +103,12 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         return grunnlag;
     }
 
+    @Override
+    public InntektArbeidYtelseGrunnlagDto hentGrunnlagKontrakt(Long behandlingId) {
+        InntektArbeidYtelseGrunnlagRequest request = initRequest(behandlingRepository.hentBehandling(behandlingId));
+        return hentGrunnlag(request);
+    }
+
     private InntektArbeidYtelseGrunnlag hentGrunnlagHvisEksisterer(Behandling behandling) {
         var request = initRequest(behandling);
         var aktørId = behandling.getAktørId();
