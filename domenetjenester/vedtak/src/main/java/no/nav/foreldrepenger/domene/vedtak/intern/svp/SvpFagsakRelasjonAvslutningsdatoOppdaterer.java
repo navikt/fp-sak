@@ -37,9 +37,7 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
     }
 
     protected LocalDate finnAvslutningsdato(Long fagsakId, FagsakRelasjon fagsakRelasjon) {
-        var avsluttningsdato = avsluttningsdatoFraEksisterendeFagsakRelasjon(fagsakRelasjon);
-        var sisteUttaksdato = hentSisteUttaksdatoForFagsak(fagsakId);
-        return (erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, sisteUttaksdato))? sisteUttaksdato : avsluttningsdato;
+        return hentSisteUttaksdatoForFagsak(fagsakId);
     }
 
     private LocalDate hentSisteUttaksdatoForFagsak(Long fagsakId) {
@@ -47,7 +45,8 @@ public class SvpFagsakRelasjonAvslutningsdatoOppdaterer extends FagsakRelasjonAv
             var avsluttningsdato = avsluttningsdatoHvisBehandlingAvslåttEllerOpphørt(behandling, null);
             var uttakInput = uttakInputTjeneste.lagInput(behandling);
             var maxdatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
-            return (maxdatoUttak.isPresent() && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, maxdatoUttak.get()))? maxdatoUttak.get().plusDays(1) : avsluttningsdato;
+            return maxdatoUttak.filter(d -> erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, d)).isPresent() ?
+                maxdatoUttak.get().plusDays(1) : avsluttningsdato;
         }).orElse(LocalDate.now().plusDays(1));
     }
 

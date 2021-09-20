@@ -10,6 +10,7 @@ import java.util.Optional;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -82,8 +83,9 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
 
         }
 
-        var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
-        return behandlingsresultat.isPresent() && behandlingsresultat.get().isBehandlingsresultatAvslåttOrOpphørt()
+        var behandlingsresultatAvslåttOrOpphørt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(Behandlingsresultat::isBehandlingsresultatAvslåttOrOpphørt).isPresent();
+        return behandlingsresultatAvslåttOrOpphørt
             && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, LocalDate.now()) ? LocalDate.now().plusDays(1) : avsluttningsdato;
     }
 
@@ -91,7 +93,7 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
         var maksDatoUttak = maksDatoUttakTjeneste.beregnMaksDatoUttak(uttakInput);
 
-        if( !maksDatoUttak.isPresent() ) return avsluttningsdatoHvisDetIkkeErGjortUttak(behandling, avsluttningsdato);
+        if(maksDatoUttak.isEmpty()) return avsluttningsdatoHvisDetIkkeErGjortUttak(behandling, avsluttningsdato);
         var avslutningsdatoFraMaksDatoUttak = maksDatoUttak.get().plusDays(1);
 
         var stønadRest = stønadskontoSaldoTjeneste.finnStønadRest(uttakInput);
@@ -99,19 +101,22 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         if( stønadRest > 0 ) {
             //rest er allerede lagt til i maksDatoUttak, men der mangler 'buffer'
             avslutningsdatoFraMaksDatoUttak =  avslutningsdatoFraMaksDatoUttak.plusMonths(JUSTERING_I_HELE_MÅNEDER_VED_REST_I_STØNADSDAGER).with(TemporalAdjusters.lastDayOfMonth());
-            var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
-            if(familieHendelseGrunnlag.isPresent() && familieHendelseGrunnlag.get().finnGjeldendeFødselsdato() != null){
-                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(familieHendelseGrunnlag.orElseThrow().finnGjeldendeFødselsdato(), avslutningsdatoFraMaksDatoUttak);
+            var gjeldendeFødselsdato = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+                .map(FamilieHendelseGrunnlagEntitet::finnGjeldendeFødselsdato);
+            if(gjeldendeFødselsdato.isPresent()){
+                avslutningsdatoFraMaksDatoUttak = beskjærMotAbsoluttMaksDato(gjeldendeFødselsdato.get(), avslutningsdatoFraMaksDatoUttak);
             }
         }
-
-        return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
-            avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
+        // TODO: diskuter og slett
+        //return avslutningsdatoFraMaksDatoUttak.isAfter(LocalDate.now()) && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, avslutningsdatoFraMaksDatoUttak)?
+        //    avslutningsdatoFraMaksDatoUttak : avsluttningsdato;
+        return avslutningsdatoFraMaksDatoUttak;
     }
 
     private LocalDate beskjærMotAbsoluttMaksDato(LocalDate fødselsdato, LocalDate beregnetMaksDato) {
-        var absoluttMaksDato = fødselsdato.plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
-            return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
+        var absoluttMaksDato = fødselsdato
+            .plus(StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.GRENSE_ETTER_FØDSELSDATO, Period.class, LocalDate.now()));
+        return absoluttMaksDato.isBefore(beregnetMaksDato)? absoluttMaksDato : beregnetMaksDato;
     }
 
     protected LocalDate avsluttningsdatoHvisDetIkkeErGjortUttak(Behandling behandling, LocalDate avsluttningsdato) {
@@ -124,10 +129,9 @@ public abstract class FagsakRelasjonAvslutningsdatoOppdaterer {
         var termindato = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .flatMap(FamilieHendelseEntitet::getTerminbekreftelse)
             .map(TerminbekreftelseEntitet::getTermindato);
-        return omsorgsovertalsesdato.map(localDate -> (erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, localDate.plusYears(3))
-            ? localDate.plusYears(3) : avsluttningsdato)).orElseGet(() -> (fødselsdato.isPresent()
-            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, fødselsdato.get().plusYears(3)) ? fødselsdato.get().plusYears(3) : termindato.isPresent()
-            && erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, termindato.get().plusYears(3)) ? termindato.get().plusYears(3) : avsluttningsdato));
+        return omsorgsovertalsesdato.or(() -> fødselsdato).or(() -> termindato)
+            .filter(hendelseDato -> erAvsluttningsdatoIkkeSattEllerEtter(avsluttningsdato, hendelseDato.plusYears(3)))
+            .map(hendelseDato -> hendelseDato.plusYears(3)).orElse(avsluttningsdato);
     }
 
     protected boolean erAvsluttningsdatoIkkeSattEllerEtter(LocalDate avsluttningsdato, LocalDate nyAvsluttningsdato) {

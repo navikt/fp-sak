@@ -381,14 +381,14 @@ public class FagsakRelasjonRepository {
         return Optional.of(nyFagsakRelasjon);
     }
 
-    public List<Fagsak> finnFagsakerForAvsluttning(LocalDate localDate) {
+    public List<Fagsak> finnFagsakerForAvsluttning(LocalDate dato) {
+        // La saker som er unde behandling være i fred
         var query = entityManager.createQuery("select f from Fagsak f " +
                 "inner join FagsakRelasjon fr on (f.id in (fr.fagsakNrEn, fr.fagsakNrTo) and fr.aktiv=true) " +
-                "where f.fagsakStatus = 'LOP' and fr.avsluttningsdato<=:datogrense",
-            Fagsak.class);
-
-        var datogrense = localDate != null ? localDate : LocalDate.now();
-        query.setParameter("datogrense", datogrense); // NOSONAR $NON-NLS-1$
+                "where f.fagsakStatus = :lopende and fr.avsluttningsdato < :datogrense",
+            Fagsak.class)
+            .setParameter("datogrense", Optional.ofNullable(dato).orElseGet(LocalDate::now))
+            .setParameter("lopende", FagsakStatus.LØPENDE.getKode()); // NOSONAR $NON-NLS-1$
 
         return query.getResultList();
     }

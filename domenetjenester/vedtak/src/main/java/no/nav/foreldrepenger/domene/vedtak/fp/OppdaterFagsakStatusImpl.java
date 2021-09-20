@@ -151,10 +151,6 @@ public class OppdaterFagsakStatusImpl extends OppdaterFagsakStatus {
     }
 
     private boolean erDatoUtløpt(Optional<LocalDate> dato, LocalDate grensedato) {
-        if (dato.isEmpty()) {
-            // Kan ikke avgjøre om dato er utløpt
-            return false;
-        }
-        return dato.get().isBefore(grensedato);
+        return dato.filter(d -> d.isBefore(grensedato)).isPresent();
     }
 }
