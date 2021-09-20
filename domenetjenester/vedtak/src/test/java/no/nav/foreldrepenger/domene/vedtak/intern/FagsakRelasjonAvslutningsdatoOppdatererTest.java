@@ -141,7 +141,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
             null, Optional.empty(), Optional.empty());
 
         // Assert
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(1), null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, LocalDate.now().plusDays(11), null,
             Optional.empty(), Optional.empty());
     }
 
@@ -156,7 +156,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
             lagBehandlingsresultat(behandling, BehandlingResultatType.AVSLÅTT,
                 KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
         when(fpUttakRepository.hentUttakResultatHvisEksisterer(behandling.getId())).thenReturn(
-            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(45)));
+            lagUttakResultat(LocalDate.now().minusDays(10), LocalDate.now().plusWeeks(12).minusDays(5)));
 
         var familieHendelseGrunnlag = mock(FamilieHendelseGrunnlagEntitet.class);
         var familieHendelse = mock(FamilieHendelseEntitet.class);
@@ -182,7 +182,7 @@ public class FagsakRelasjonAvslutningsdatoOppdatererTest {
         var forventetAvslutning = fødselsdato.plusWeeks(
             StandardKonfigurasjon.KONFIGURASJON.getParameter(Parametertype.UTTAK_ETTER_BARN_DØDT_UKER, LocalDate.now()))
             .plusWeeks(KLAGEFRIST_I_UKER_VED_DØD);
-        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning, null,
+        verify(fagsakRelasjonTjeneste).oppdaterMedAvsluttningsdato(fagsakRelasjon, forventetAvslutning.plusDays(1), null,
             Optional.empty(), Optional.empty());
     }
 
