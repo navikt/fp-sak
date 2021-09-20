@@ -339,6 +339,14 @@ public class VurderFagsystemFellesUtils {
             .filter(Objects::nonNull)
             .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
             .collect(Collectors.toList());
+        if (behandlinger.isEmpty() && !sakerTilVurdering.isEmpty() && (behandlingTema != null && !BehandlingTema.UDEFINERT.equals(behandlingTema))) {
+            // Det var oppgitt et behandlingtema men vi fant ingen passende saker som matchet oppgitt behandlingtema. Sjekker derfor alle saker
+            behandlinger = sakerTilVurdering.stream()
+                .flatMap(f -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(f.getId()).stream())
+                .filter(Objects::nonNull)
+                .filter(b -> behandlingVedtakRepository.hentForBehandling(b.getId()).getVedtakstidspunkt().isAfter(LocalDateTime.now().minusYears(2)))
+                .collect(Collectors.toList());
+        }
         if (behandlinger.isEmpty() && sakerTilVurdering.isEmpty()) {
             LOG.info("VFS-KLAGE ingen saker i VL");
         } else if (behandlinger.isEmpty()) {
