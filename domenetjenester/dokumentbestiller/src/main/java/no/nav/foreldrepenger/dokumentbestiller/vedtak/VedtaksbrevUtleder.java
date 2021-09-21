@@ -1,11 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.vedtak;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
-import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
-
-import java.util.Arrays;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
@@ -17,8 +11,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
+
+import java.util.Arrays;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.MEDHOLD_I_KLAGE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.OPPHEVE_YTELSESVEDTAK;
 
 public class VedtaksbrevUtleder {
 
@@ -86,7 +85,7 @@ public class VedtaksbrevUtleder {
             if (behandlingsresultat.isBehandlingsresultatOpphørt()) {
                 return DokumentMalType.OPPHØR_DOK;
             }
-            return Environment.current().isProd() ? DokumentMalType.AVSLAG_FORELDREPENGER_DOK : DokumentMalType.FORELDREPENGER_AVSLAG;
+            return DokumentMalType.FORELDREPENGER_AVSLAG;
         }
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsakYtelseType)) {
             return null; //TODO Implementer
