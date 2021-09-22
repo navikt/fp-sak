@@ -59,7 +59,7 @@ public class OverlappFPInfotrygdTjeneste {
     }
 
     private Optional<LocalDate> finnMaxDatoUtbetaling(Grunnlag grunnlag) {
-        return grunnlag.getVedtak().stream().filter(this::harUtbetaling).map(Vedtak::getPeriode).map(Periode::getTom).max(Comparator.naturalOrder()).map(VirkedagUtil::tomVirkedag);
+        return grunnlag.getVedtak().stream().filter(this::harUtbetaling).map(Vedtak::periode).map(Periode::tom).max(Comparator.naturalOrder()).map(VirkedagUtil::tomVirkedag);
     }
 
     private LocalDate finnMaxDato(Grunnlag grunnlag) {
@@ -67,17 +67,17 @@ public class OverlappFPInfotrygdTjeneste {
             return localDateMinus1Virkedag(grunnlag.getOpphørFom());
         }
         // Ignoreres og gir ikke overlapp
-        if (grunnlag.getStatus() == null || StatusKode.UKJENT.equals(grunnlag.getStatus().getKode())) {
+        if (grunnlag.getStatus() == null || StatusKode.UKJENT.equals(grunnlag.getStatus().kode())) {
             LOG.info("Sjekk overlapp INFOTRYGD: ukjent status");
             return Tid.TIDENES_BEGYNNELSE;
         }
         // Ikke startet eller Løpende - vet ikke om det kan komme flere vedtak - kan ikke se på utbetalt til nå.
-        if (Set.of(StatusKode.I, StatusKode.L).contains(grunnlag.getStatus().getKode())) {
+        if (Set.of(StatusKode.I, StatusKode.L).contains(grunnlag.getStatus().kode())) {
             LOG.info("Overlapp INFOTRYGD: status i IT {} gjør at vi ikke vet om det kommer flere utbetalinger ", grunnlag.getStatus());
             return Tid.TIDENES_ENDE;
         }
         // Status Avsluttet, opphørFom ikke satt
-        return grunnlag.getPeriode() == null || grunnlag.getPeriode().getTom() == null ? Tid.TIDENES_BEGYNNELSE : grunnlag.getPeriode().getTom();
+        return grunnlag.getPeriode() == null || grunnlag.getPeriode().tom() == null ? Tid.TIDENES_BEGYNNELSE : grunnlag.getPeriode().tom();
     }
 
     private PersonIdent getFnrFraAktørId(AktørId aktørId) {
@@ -85,7 +85,7 @@ public class OverlappFPInfotrygdTjeneste {
     }
 
     private boolean harUtbetaling(Vedtak v) {
-        return v.getUtbetalingsgrad() > 0;
+        return v.utbetalingsgrad() > 0;
     }
 
     private LocalDate localDateMinus1Virkedag(LocalDate opphoerFomDato) {

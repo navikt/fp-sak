@@ -155,7 +155,7 @@ public class BehandlingModellTest {
         var visitor = lagVisitor(behandling);
         var siste = modell.prosesserFra(STEG_1, visitor);
 
-        assertThat(siste.getBehandlingStegType()).isEqualTo(STEG_3);
+        assertThat(siste.behandlingStegType()).isEqualTo(STEG_3);
         assertThat(visitor.kjørteSteg).isEqualTo(List.of(STEG_1, STEG_2, STEG_3));
     }
 
@@ -199,8 +199,8 @@ public class BehandlingModellTest {
         var første = modell.prosesserFra(STEG_1, visitor);
 
         assertThat(første).isNotNull();
-        assertThat(første.getBehandlingStegType()).isEqualTo(STEG_2);
-        assertThat(første.getResultat()).isEqualTo(BehandlingStegStatus.STARTET);
+        assertThat(første.behandlingStegType()).isEqualTo(STEG_2);
+        assertThat(første.resultat()).isEqualTo(BehandlingStegStatus.STARTET);
         assertThat(visitor.kjørteSteg).isEqualTo(List.of(STEG_1, STEG_2));
 
         // Act 2
@@ -208,8 +208,8 @@ public class BehandlingModellTest {
         var neste = modell.prosesserFra(STEG_2, visitorNeste);
 
         assertThat(neste).isNotNull();
-        assertThat(neste.getBehandlingStegType()).isEqualTo(STEG_2);
-        assertThat(neste.getResultat()).isEqualTo(BehandlingStegStatus.VENTER);
+        assertThat(neste.behandlingStegType()).isEqualTo(STEG_2);
+        assertThat(neste.resultat()).isEqualTo(BehandlingStegStatus.VENTER);
         assertThat(visitorNeste.kjørteSteg).isEqualTo(List.of(STEG_2));
 
         // Act 3
@@ -217,8 +217,8 @@ public class BehandlingModellTest {
         var neste2 = modell.prosesserFra(STEG_2, visitorNeste2);
 
         assertThat(neste2).isNotNull();
-        assertThat(neste2.getBehandlingStegType()).isEqualTo(STEG_2);
-        assertThat(neste2.getResultat()).isEqualTo(BehandlingStegStatus.VENTER);
+        assertThat(neste2.behandlingStegType()).isEqualTo(STEG_2);
+        assertThat(neste2.resultat()).isEqualTo(BehandlingStegStatus.VENTER);
         assertThat(visitorNeste2.kjørteSteg).isEqualTo(List.of(STEG_2));
 
         // Act 4
@@ -267,7 +267,7 @@ public class BehandlingModellTest {
         serviceProvider.getAksjonspunktKontrollRepository().setReåpnet(aksjonspunkt);
 
         var siste = modell.prosesserFra(STEG_3, visitor);
-        assertThat(siste.getBehandlingStegType()).isEqualTo(STEG_3);
+        assertThat(siste.behandlingStegType()).isEqualTo(STEG_3);
 
         var beh = hentBehandling(behandling.getId());
         assertThat(beh.getAktivtBehandlingSteg()).isEqualTo(STEG_2);
