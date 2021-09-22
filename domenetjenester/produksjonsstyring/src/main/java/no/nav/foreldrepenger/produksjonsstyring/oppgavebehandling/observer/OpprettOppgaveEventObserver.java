@@ -117,7 +117,7 @@ public class OpprettOppgaveEventObserver {
     private List<Aksjonspunkt> filterAksjonspunkt(List<Aksjonspunkt> åpneAksjonspunkter, BehandlingskontrollEvent event) {
         var aksjonspunktForSteg = event.getBehandlingModell().finnAksjonspunktDefinisjoner(event.getStegType());
         return åpneAksjonspunkter.stream()
-                .filter(ad -> aksjonspunktForSteg.contains(ad.getAksjonspunktDefinisjon().getKode()))
+                .filter(ad -> aksjonspunktForSteg.contains(ad.getAksjonspunktDefinisjon()))
                 .collect(Collectors.toList());
     }
 }

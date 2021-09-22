@@ -716,7 +716,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
             event = new StoppetEvent(kontekst, modell,
                     behandling.getSisteBehandlingStegTilstand().map(BehandlingStegTilstand::getBehandlingSteg).orElse(null), null);
         } else {
-            event = new StoppetEvent(kontekst, modell, stegUtfall.getBehandlingStegType(), stegUtfall.getResultat());
+            event = new StoppetEvent(kontekst, modell, stegUtfall.behandlingStegType(), stegUtfall.resultat());
         }
         eventPubliserer.fireEvent(event);
     }

@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -66,7 +65,7 @@ public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
         behandling.getAksjonspunkter().stream()
             .filter(ap -> !ap.getAksjonspunktDefinisjon().erUtgått())
-            .filter(ap -> aksjonspunkterFraOgMedStartpunkt.contains(ap.getAksjonspunktDefinisjon().getKode()))
+            .filter(ap -> aksjonspunkterFraOgMedStartpunkt.contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !AksjonspunktType.AUTOPUNKT.equals(ap.getAksjonspunktDefinisjon().getAksjonspunktType()))
             .forEach(ap -> behandlingskontrollTjeneste.lagreAksjonspunkterReåpnet(kontekst, List.of(ap), true, false));
     }
