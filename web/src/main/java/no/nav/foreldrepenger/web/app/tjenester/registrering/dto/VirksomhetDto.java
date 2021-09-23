@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -14,6 +15,7 @@ public class VirksomhetDto {
 
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.NAVN)
+    @NotNull
     private String navn;
 
     private Boolean virksomhetRegistrertINorge;
@@ -24,7 +26,9 @@ public class VirksomhetDto {
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.NAVN)
     private String landJobberFra;
+
     @Valid
+    @NotNull
     private NaringsvirksomhetTypeDto typeVirksomhet;
 
     private Boolean varigEndretEllerStartetSisteFireAr;
