@@ -44,6 +44,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
@@ -103,6 +104,13 @@ public class VurderFagsystemFellesUtils {
 
     private boolean harÅpenYtelsesBehandling(Fagsak fagsak) {
         return !behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId()).isEmpty();
+    }
+
+    private boolean harÅpenKlageEllerAnkeBehandlingKlageinstans(Fagsak fagsak) {
+        var klageinstansEnhet = BehandlendeEnhetTjeneste.getKlageInstans().enhetId();
+        return behandlingRepository.hentÅpneBehandlingerForFagsakId(fagsak.getId()).stream()
+            .filter(b -> klageinstansEnhet.equals(b.getBehandlendeEnhet()))
+            .anyMatch(b -> BehandlingType.KLAGE.equals(b.getType()) || BehandlingType.ANKE.equals(b.getType()));
     }
 
     private List<Fagsak> harSakMedAvslagGrunnetManglendeDok(List<Fagsak> saker) {
@@ -329,6 +337,15 @@ public class VurderFagsystemFellesUtils {
             return Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(avslagDokumentasjon.get(0).getSaksnummer()));
         }
         return Optional.empty();
+    }
+
+    public Optional<BehandlendeFagsystem> klageinstansUstrukturertDokumentVurdering(List<Fagsak> sakerTilVurdering) {
+        var åpneFagsaker = sakerTilVurdering.stream()
+            .filter(Fagsak::erÅpen)
+            .filter(this::harÅpenKlageEllerAnkeBehandlingKlageinstans)
+            .collect(Collectors.toList());
+        return åpneFagsaker.size() != 1 ? Optional.empty() :
+            Optional.of(new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(åpneFagsaker.get(0).getSaksnummer()));
     }
 
     public Optional<BehandlendeFagsystem> vurderFagsystemKlageAnke(BehandlingTema behandlingTema, List<Fagsak> sakerTilVurdering) {

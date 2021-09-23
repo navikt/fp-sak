@@ -61,7 +61,7 @@ public class KlageNfpSteg implements BehandlingSteg {
 
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
         if ((behandling.getBehandlendeEnhet() != null)
-                && !behandlendeEnhetTjeneste.getKlageInstans().getEnhetId().equals(behandling.getBehandlendeEnhet())) {
+                && !BehandlendeEnhetTjeneste.getKlageInstans().enhetId().equals(behandling.getBehandlendeEnhet())) {
             return;
         }
         var tilEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());

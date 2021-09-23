@@ -92,4 +92,20 @@ public class VurderFagsystemFellesTjeneste {
 
         return vurderFagsystemTjeneste.vurderFagsystemUstrukturert(vurderFagsystem, brukersSakerAvType);
     }
+
+    public BehandlendeFagsystem vurderFagsystemForKlageinstans(VurderFagsystem vurderFagsystem) {
+        if (vurderFagsystem.getJournalpostId().isPresent()) {
+            var journalpost = fagsakTjeneste.hentJournalpost(vurderFagsystem.getJournalpostId().get());
+            if (journalpost.isPresent()) {
+                return new BehandlendeFagsystem(VEDTAKSLØSNING).medSaksnummer(journalpost.get().getFagsak().getSaksnummer());
+            }
+        }
+        // Endringssøknader og evt ettersendte vedlegg
+        if (vurderFagsystem.getSaksnummer().isPresent()) {
+            return vurderSøknadMedSaksnummer(vurderFagsystem.getSaksnummer().get());
+        }
+        var alleBrukersFagsaker =  fagsakTjeneste.finnFagsakerForAktør(vurderFagsystem.getAktørId());
+
+        return fellesUtils.klageinstansUstrukturertDokumentVurdering(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
+    }
 }

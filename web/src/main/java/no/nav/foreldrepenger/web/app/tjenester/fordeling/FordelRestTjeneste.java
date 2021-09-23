@@ -75,6 +75,8 @@ public class FordelRestTjeneste {
     public static final String KNYTT_JOURNALPOST_PATH = BASE_PATH + KNYTT_JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
     private static final String JOURNALPOST_PART_PATH = "/journalpost";
     public static final String JOURNALPOST_PATH = BASE_PATH + JOURNALPOST_PART_PATH; // NOSONAR TFP-2234
+    private static final String KLAGEINSTANS_PART_PATH = "/klageinstans";
+    public static final String KLAGEINSTANS_PATH = BASE_PATH + KLAGEINSTANS_PART_PATH; // NOSONAR TFP-2234
     private static final String VURDER_FAGSYSTEM_PART_PATH = "/vurderFagsystem";
     public static final String VURDER_FAGSYSTEM_PATH = BASE_PATH + VURDER_FAGSYSTEM_PART_PATH; // NOSONAR TFP-2234
 
@@ -113,6 +115,20 @@ public class FordelRestTjeneste {
         ensureCallId();
         var vurderFagsystem = map(vurderFagsystemDto);
         var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystem(vurderFagsystem);
+        return map(behandlendeFagsystem);
+    }
+
+    @POST
+    @Path(KLAGEINSTANS_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Informasjon om en fagsak klageinstansrelatert", tags = "fordel")
+    @BeskyttetRessurs(action = BeskyttetRessursActionAttributt.READ, resource = FPSakBeskyttetRessursAttributt.FAGSAK)
+    public BehandlendeFagsystemDto vurderForKlageinstans(
+        @Parameter(description = "Krever behandlingstemaOffisiellKode", required = true) @Valid AbacVurderFagsystemDto vurderFagsystemDto) {
+        ensureCallId();
+        var vurderFagsystem = map(vurderFagsystemDto);
+        var behandlendeFagsystem = vurderFagsystemTjeneste.vurderFagsystemForKlageinstans(vurderFagsystem);
         return map(behandlendeFagsystem);
     }
 

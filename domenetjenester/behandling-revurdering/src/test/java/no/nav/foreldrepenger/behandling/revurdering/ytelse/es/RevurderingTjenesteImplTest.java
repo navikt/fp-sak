@@ -72,7 +72,7 @@ public class RevurderingTjenesteImplTest {
         assertThat(revurdering.getFagsak()).isEqualTo(behandlingSomSkalRevurderes.getFagsak());
         assertThat(revurdering.getBehandlingÅrsaker().get(0).getBehandlingÅrsakType())
                 .isEqualTo(BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE);
-        assertThat(revurdering.getBehandlendeOrganisasjonsEnhet().getEnhetId()).isEqualTo(enhet.getEnhetId());
+        assertThat(revurdering.getBehandlendeOrganisasjonsEnhet().enhetId()).isEqualTo(enhet.enhetId());
     }
 
     private Behandling opprettRevurderingsKandidat() {

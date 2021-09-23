@@ -73,7 +73,7 @@ public class EnhetsTjeneste {
 
     Optional<OrganisasjonsEnhet> oppdaterEnhetSjekkOppgittePersoner(String enhetId, BehandlingTema behandlingTema, AktørId hovedAktør, Set<AktørId> alleAktører) {
         oppdaterEnhetCache();
-        if (enhetKode6.getEnhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
+        if (enhetKode6.enhetId().equals(enhetId) || NK_ENHET_ID.equals(enhetId)) {
             return Optional.empty();
         }
         if (harNoenDiskresjonskode6(alleAktører)) {
@@ -108,19 +108,18 @@ public class EnhetsTjeneste {
 
     Optional<OrganisasjonsEnhet> finnOrganisasjonsEnhet(String enhetId) {
         oppdaterEnhetCache();
-        return alleBehandlendeEnheter.stream().filter(e -> enhetId.equals(e.getEnhetId())).findFirst();
+        return alleBehandlendeEnheter.stream().filter(e -> enhetId.equals(e.enhetId())).findFirst();
     }
 
     OrganisasjonsEnhet enhetsPresedens(OrganisasjonsEnhet enhetSak1, OrganisasjonsEnhet enhetSak2) {
         oppdaterEnhetCache();
-        if (enhetKode6.getEnhetId().equals(enhetSak1.getEnhetId()) || enhetKode6.getEnhetId().equals(enhetSak2.getEnhetId())) {
+        if (enhetKode6.enhetId().equals(enhetSak1.enhetId()) || enhetKode6.enhetId().equals(enhetSak2.enhetId())) {
             return enhetKode6;
         }
         return enhetSak1;
     }
 
-    OrganisasjonsEnhet getEnhetKlage() {
-        oppdaterEnhetCache();
+    static OrganisasjonsEnhet getEnhetKlage() {
         return KLAGE_ENHET;
     }
 

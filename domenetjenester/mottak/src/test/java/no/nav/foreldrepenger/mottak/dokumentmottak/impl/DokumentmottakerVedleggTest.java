@@ -80,7 +80,6 @@ public class DokumentmottakerVedleggTest {
         kompletthetskontroller = mock(Kompletthetskontroller.class);
         dokumentmottaker = new DokumentmottakerVedlegg(repositoryProvider, dokumentmottakerFelles, kompletthetskontroller);
         dokumentmottaker = Mockito.spy(dokumentmottaker);
-        lenient().when(behandlendeEnhetTjeneste.getKlageInstans()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
     }
 
     @Test
@@ -169,7 +168,7 @@ public class DokumentmottakerVedleggTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
-        mottattDokument.setJournalEnhet(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId());
+        mottattDokument.setJournalEnhet(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
         when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
@@ -186,7 +185,7 @@ public class DokumentmottakerVedleggTest {
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
-                .isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId()); // Lik enheten som ble satt på behandlingen
+                .isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()); // Lik enheten som ble satt på behandlingen
     }
 
     /**

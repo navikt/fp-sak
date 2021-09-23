@@ -65,7 +65,7 @@ public class BehandlingOpprettingTjeneste {
     }
 
     public Behandling opprettBehandlingVedKlageinstans(Fagsak fagsak, BehandlingType behandlingType) {
-        var enhet = enhetTjeneste.getKlageInstans();
+        var enhet = BehandlendeEnhetTjeneste.getKlageInstans();
         return opprettBehandling(fagsak, behandlingType, enhet, BehandlingÅrsakType.UDEFINERT, true);
     }
 
