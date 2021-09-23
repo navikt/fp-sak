@@ -65,8 +65,8 @@ public class BehandlingDtoForBackendTjeneste {
             dto.setAsyncStatus(asyncStatus);
         }
         endretEnhet.ifPresent(e -> {
-            dto.setBehandlendeEnhetId(e.getEnhetId());
-            dto.setBehandlendeEnhetNavn(e.getEnhetNavn());
+            dto.setBehandlendeEnhetId(e.enhetId());
+            dto.setBehandlendeEnhetNavn(e.enhetNavn());
         });
 
         var uuidDto = new UuidDto(behandling.getUuid());

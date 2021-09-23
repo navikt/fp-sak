@@ -185,7 +185,7 @@ public class VurderOpphørAvYtelser  {
 
         var enhet = utledEnhetFraBehandling(gjeldendeBehandling);
 
-        opprettTaskForÅVurdereKonsekvens(gjeldendeFagsak.getId(), enhet.getEnhetId(),
+        opprettTaskForÅVurdereKonsekvens(gjeldendeFagsak.getId(), enhet.enhetId(),
             "Nytt barn i VL: Vurder opphør av ytelse i Infotrygd", Optional.of(aktørId.getId()));
 
         LOG.info("Overlapp INFOTRYGD på aktør {} for vedtatt sak {}", aktørId, gjeldendeFagsak.getSaksnummer());

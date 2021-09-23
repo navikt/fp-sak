@@ -63,7 +63,7 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
 
         var enhet = enhetTjeneste.gyldigEnhetNfpNk(behandlendeEnhet) ? behandlendeEnhet :
             gjeldendeAktørId.map(a -> enhetTjeneste.finnBehandlendeEnhetForAktørId(new AktørId(a)))
-                .orElseGet(() -> enhetTjeneste.finnBehandlendeEnhetForFagsakId(fagsakId)).getEnhetId();
+                .orElseGet(() -> enhetTjeneste.finnBehandlendeEnhetForFagsakId(fagsakId)).enhetId();
 
         var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 

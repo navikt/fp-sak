@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -13,7 +12,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -69,11 +67,6 @@ public class KlagevurderingOppdatererTest {
     @Mock
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
-    // TODO (FLUORITT): Renskriv tester med færre mocks
-    @BeforeEach
-    public void oppsett() {
-        lenient().when(behandlendeEnhetTjeneste.getKlageInstans()).thenReturn(new OrganisasjonsEnhet("4292", "NAV Klageinstans Midt-Norge"));
-    }
 
     @Test
     public void skal_bestille_dokument_ved_stadfestet_ytelsesvedtak_og_lagre_KlageVurderingResultat() {
@@ -122,8 +115,8 @@ public class KlagevurderingOppdatererTest {
         verify(behandlingsutredningTjeneste).byttBehandlendeEnhet(anyLong(), enhetCapture.capture(), eq(""),
                 eq(HistorikkAktør.VEDTAKSLØSNINGEN));
         var enhet = enhetCapture.getValue();
-        assertThat(enhet.getEnhetId()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetId());
-        assertThat(enhet.getEnhetNavn()).isEqualTo(behandlendeEnhetTjeneste.getKlageInstans().getEnhetNavn());
+        assertThat(enhet.enhetId()).isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId());
+        assertThat(enhet.enhetNavn()).isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetNavn());
         assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
                 .isEqualTo(BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET);
     }

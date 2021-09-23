@@ -101,7 +101,7 @@ public class HåndterOpphørAvYtelser {
 
     private OrganisasjonsEnhet opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
         var enhet = utledEnhetFraBehandling(behandling);
-        opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.getEnhetId(), beskrivelse, Optional.empty());
+        opprettTaskForÅVurdereKonsekvens(behandling.getFagsakId(), enhet.enhetId(), beskrivelse, Optional.empty());
         return enhet;
     }
 

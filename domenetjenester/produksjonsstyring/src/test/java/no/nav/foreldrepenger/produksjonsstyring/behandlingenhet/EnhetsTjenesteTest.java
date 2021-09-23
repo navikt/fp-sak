@@ -84,7 +84,7 @@ public class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.getEnhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -97,7 +97,7 @@ public class EnhetsTjenesteTest {
 
         var enhet = enhetsTjeneste.hentEnhetSjekkKunAktør(MOR_AKTØR_ID, BehandlingTema.ENGANGSSTØNAD);
         var enhet1 = enhetsTjeneste
-                .oppdaterEnhetSjekkOppgittePersoner(enhet.getEnhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
+                .oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(), BehandlingTema.ENGANGSSTØNAD, MOR_AKTØR_ID, FAMILIE).orElse(enhet);
 
         assertThat(enhet).isNotNull();
         assertThat(enhet1).isEqualTo(enhetKode6);
@@ -108,7 +108,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();
@@ -130,7 +130,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(true, false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetKode6.enhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isNotPresent();
@@ -141,7 +141,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, true, false, true);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();
@@ -153,7 +153,7 @@ public class EnhetsTjenesteTest {
         // Oppsett
         settOppTpsStrukturer(false, false, true, false);
 
-        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.getEnhetId(), BehandlingTema.ENGANGSSTØNAD,
+        var enhet = enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhetNormal.enhetId(), BehandlingTema.ENGANGSSTØNAD,
                 MOR_AKTØR_ID, FAMILIE);
 
         assertThat(enhet).isPresent();

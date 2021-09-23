@@ -80,7 +80,7 @@ public class BehandlingBackendRestTjeneste {
 
     private Optional<OrganisasjonsEnhet> sjekkEnhet(Behandling behandling) {
         var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
-        return enhet.getEnhetId().equals(behandling.getBehandlendeEnhet()) ? Optional.empty() : Optional.of(enhet);
+        return enhet.enhetId().equals(behandling.getBehandlendeEnhet()) ? Optional.empty() : Optional.of(enhet);
     }
 
 }

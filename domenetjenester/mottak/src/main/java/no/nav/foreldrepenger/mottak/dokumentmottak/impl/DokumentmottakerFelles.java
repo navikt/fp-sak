@@ -127,19 +127,19 @@ public class DokumentmottakerFelles {
             return dokument.getJournalEnhet().get();
         }
         if (behandling == null) {
-            return finnEnhetFraFagsak(sak).getEnhetId();
+            return finnEnhetFraFagsak(sak).enhetId();
         }
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
             return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(behandling.getFagsak().getId())
                 .map(this::utledEnhetFraBehandling)
-                .orElse(finnEnhetFraFagsak(sak).getEnhetId());
+                .orElse(finnEnhetFraFagsak(sak).enhetId());
         }
         return utledEnhetFraBehandling(behandling);
     }
 
     private String utledEnhetFraBehandling(Behandling behandling) {
         return behandlendeEnhetTjeneste.gyldigEnhetNfpNk(behandling.getBehandlendeEnhet()) ?
-            behandling.getBehandlendeEnhet() : finnEnhetFraFagsak(behandling.getFagsak()).getEnhetId();
+            behandling.getBehandlendeEnhet() : finnEnhetFraFagsak(behandling.getFagsak()).enhetId();
     }
 
     OrganisasjonsEnhet finnEnhetFraFagsak(Fagsak sak) {

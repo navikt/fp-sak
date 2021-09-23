@@ -164,7 +164,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var klageVurdering = dto.getKlageVurdering();
         if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
-            behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),behandlendeEnhetTjeneste.getKlageInstans(),
+            behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),BehandlendeEnhetTjeneste.getKlageInstans(),
                 "", //Det er ikke behov for en begrunnelse i dette tilfellet.
                 HistorikkAktør.VEDTAKSLØSNINGEN);
         }

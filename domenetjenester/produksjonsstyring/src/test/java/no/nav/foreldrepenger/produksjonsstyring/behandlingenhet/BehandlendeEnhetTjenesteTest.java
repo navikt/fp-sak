@@ -53,7 +53,7 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
 
         var morEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandlingMor.getFagsak());
 
-        assertThat(morEnhet.getEnhetId()).isEqualTo(enhetNormal.getEnhetId());
+        assertThat(morEnhet.enhetId()).isEqualTo(enhetNormal.enhetId());
     }
 
     @Test
@@ -69,8 +69,8 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
         when(enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(any(), any(), any(), any())).thenReturn(Optional.of(enhetKode6));
         var nyEnhet = behandlendeEnhetTjeneste.sjekkEnhetEtterEndring(behandlingMor);
 
-        assertThat(morEnhet.getEnhetId()).isEqualTo(enhetNormal.getEnhetId());
-        assertThat(nyEnhet).hasValueSatisfying(enhet -> assertThat(enhet.getEnhetId()).isEqualTo(enhetKode6.getEnhetId()));
+        assertThat(morEnhet.enhetId()).isEqualTo(enhetNormal.enhetId());
+        assertThat(nyEnhet).hasValueSatisfying(enhet -> assertThat(enhet.enhetId()).isEqualTo(enhetKode6.enhetId()));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class BehandlendeEnhetTjenesteTest extends EntityManagerAwareTest {
         var oppdatertEnhet = behandlendeEnhetTjeneste.endretBehandlendeEnhetEtterFagsakKobling(behandlingMor, repositoryProvider.getFagsakRelasjonRepository().finnRelasjonFor(behandlingMor.getFagsak()));
 
         assertThat(oppdatertEnhet).isPresent();
-        assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.getEnhetId()).isEqualTo(enhetKode6.getEnhetId()));
+        assertThat(oppdatertEnhet).hasValueSatisfying(it -> assertThat(it.enhetId()).isEqualTo(enhetKode6.enhetId()));
     }
 
 

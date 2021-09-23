@@ -537,8 +537,8 @@ public class Behandling extends BaseEntitet {
 
     public void setBehandlendeEnhet(OrganisasjonsEnhet enhet) {
         guardTilstandPåBehandling();
-        this.behandlendeEnhet = enhet.getEnhetId();
-        this.behandlendeEnhetNavn = enhet.getEnhetNavn();
+        this.behandlendeEnhet = enhet.enhetId();
+        this.behandlendeEnhetNavn = enhet.enhetNavn();
     }
 
     public OrganisasjonsEnhet getBehandlendeOrganisasjonsEnhet() {
@@ -895,8 +895,8 @@ public class Behandling extends BaseEntitet {
         }
 
         public Builder medBehandlendeEnhet(OrganisasjonsEnhet enhet) {
-            this.behandlendeEnhet = enhet.getEnhetId();
-            this.behandlendeEnhetNavn = enhet.getEnhetNavn();
+            this.behandlendeEnhet = enhet.enhetId();
+            this.behandlendeEnhetNavn = enhet.enhetNavn();
             return this;
         }
 

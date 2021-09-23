@@ -73,7 +73,7 @@ public class BehandlendeEnhetTjeneste {
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetForUkoblet(Fagsak fagsak, OrganisasjonsEnhet sisteBrukt) {
-        if (gyldigEnhetNfpNk(sisteBrukt.getEnhetId())) return sisteBrukt;
+        if (gyldigEnhetNfpNk(sisteBrukt.enhetId())) return sisteBrukt;
         return enhetsTjeneste.hentEnhetSjekkKunAktør(fagsak.getAktørId(), BehandlingTema.fraFagsak(fagsak, null));
     }
 
@@ -95,7 +95,7 @@ public class BehandlendeEnhetTjeneste {
     // Brukes for å sjekke om det er behov for å flytte eller endre til spesialenheter når saken tas av vent.
     public Optional<OrganisasjonsEnhet> sjekkEnhetEtterEndring(Behandling behandling) {
         var enhet = behandling.getBehandlendeOrganisasjonsEnhet();
-        if (enhet.equals(enhetsTjeneste.getEnhetKlage())) {
+        if (enhet.equals(EnhetsTjeneste.getEnhetKlage())) {
             return Optional.empty();
         }
         var oppdatertEnhet = getOrganisasjonsEnhetEtterEndring(behandling, enhet).orElse(enhet);
@@ -121,7 +121,7 @@ public class BehandlendeEnhetTjeneste {
         relasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
         relasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getAktørId).ifPresent(allePersoner::add);
 
-        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.getEnhetId(),
+        return enhetsTjeneste.oppdaterEnhetSjekkOppgittePersoner(enhet.enhetId(),
             BehandlingTema.fraFagsak(fagsak, null), hovedPerson, allePersoner);
     }
 
@@ -168,15 +168,15 @@ public class BehandlendeEnhetTjeneste {
     // Brukes for å sjekke om behandling skal flyttes etter endringer i NORG2-oppsett
     public Optional<OrganisasjonsEnhet> sjekkOppdatertEnhetEtterReallokering(Behandling behandling) {
         var enhet = finnBehandlendeEnhetFor(behandling.getFagsak());
-        if (enhet.getEnhetId().equals(behandling.getBehandlendeEnhet())) {
+        if (enhet.enhetId().equals(behandling.getBehandlendeEnhet())) {
             return Optional.empty();
         }
         return Optional.of(getOrganisasjonsEnhetEtterEndring(behandling.getFagsak(), enhet, behandling.getAktørId(), new HashSet<>()).orElse(enhet));
     }
 
     // Returnerer enhetsnummer for NAV Klageinstans
-    public OrganisasjonsEnhet getKlageInstans() {
-        return enhetsTjeneste.getEnhetKlage();
+    public static OrganisasjonsEnhet getKlageInstans() {
+        return EnhetsTjeneste.getEnhetKlage();
     }
 
     // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
@@ -194,12 +194,12 @@ public class BehandlendeEnhetTjeneste {
 
     private void lagHistorikkInnslagForByttBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, String begrunnelse, HistorikkAktør aktør) {
         var eksisterende = behandling.getBehandlendeOrganisasjonsEnhet();
-        var fraMessage = eksisterende != null ? eksisterende.getEnhetId() + " " + eksisterende.getEnhetNavn() : "ukjent";
+        var fraMessage = eksisterende != null ? eksisterende.enhetId() + " " + eksisterende.enhetNavn() : "ukjent";
         var builder = new HistorikkInnslagTekstBuilder()
             .medHendelse(HistorikkinnslagType.BYTT_ENHET)
             .medEndretFelt(HistorikkEndretFeltType.BEHANDLENDE_ENHET,
                 fraMessage,
-                nyEnhet.getEnhetId() + " " + nyEnhet.getEnhetNavn())
+                nyEnhet.enhetId() + " " + nyEnhet.enhetNavn())
             .medBegrunnelse(begrunnelse);
 
         var innslag = new Historikkinnslag();

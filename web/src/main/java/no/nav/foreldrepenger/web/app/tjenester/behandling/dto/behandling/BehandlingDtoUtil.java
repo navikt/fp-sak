@@ -63,8 +63,8 @@ public class BehandlingDtoUtil {
         dto.setEndretAvBrukernavn(behandling.getEndretAv());
         dto.setAvsluttet(behandling.getAvsluttetDato());
         dto.setStatus(behandling.getStatus());
-        dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().getEnhetId());
-        dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().getEnhetNavn());
+        dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().enhetId());
+        dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
         dto.setFørsteÅrsak(førsteÅrsak(behandling).orElse(null));
         dto.setBehandlingsfristTid(behandling.getBehandlingstidFrist());
         dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
