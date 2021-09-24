@@ -58,7 +58,6 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -302,7 +301,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         iayGrunnlagBuilder.ryddOppErstattedeArbeidsforhold(aktørId, informasjonBuilder.getErstattArbeidsforhold());
         iayGrunnlagBuilder.medInformasjon(informasjonBuilder.build());
 
-        konverterOgLagre(behandlingId, iayGrunnlagBuilder.build());
+        konverterOgLagreOverstyring(behandlingId, iayGrunnlagBuilder.build());
     }
 
     @Override
@@ -369,22 +368,6 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         } catch (IOException e) {
             throw feilVedKallTilAbakus("Lagre mottatte inntektsmeldinger i abakus: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void dropInntektsmeldinger(Long behandlingId, Set<JournalpostId> inntektsmeldingerSet) {
-        Objects.requireNonNull(inntektsmeldingerSet, "inntektsmeldingerSet");
-
-        var iayGrunnlagBuilder = opprettGrunnlagBuilderFor(behandlingId);
-        var inntektsmeldinger = iayGrunnlagBuilder.getInntektsmeldinger();
-
-        Collection<Inntektsmelding> beholdInntektsmelding = inntektsmeldinger.getAlleInntektsmeldinger().stream()
-                .filter(im -> !inntektsmeldingerSet.contains(im.getJournalpostId()))
-                .collect(Collectors.toSet());
-
-        iayGrunnlagBuilder.setInntektsmeldinger(new InntektsmeldingAggregat(beholdInntektsmelding));
-
-        konverterOgLagre(behandlingId, iayGrunnlagBuilder.build());
     }
 
     private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request, AktørId aktørId) {

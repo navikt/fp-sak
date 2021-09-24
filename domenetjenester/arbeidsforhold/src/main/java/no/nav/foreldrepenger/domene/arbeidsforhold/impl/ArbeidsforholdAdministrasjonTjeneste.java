@@ -80,17 +80,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     }
 
     /**
-     * Rydder opp i inntektsmeldinger som blir erstattet
-     *
-     * @param behandlingId behandlingId
-     * @param builder      ArbeidsforholdsOverstyringene som skal lagrers
-     */
-    public void lagre(Long behandlingId, AktørId aktørId, ArbeidsforholdInformasjonBuilder builder) {
-        inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingId, aktørId, builder);
-    }
-
-    /**
-     * Lagrer arbeidsforhold avklart i aksjonspunkt 5080
+     * Lagrer overstyringer i ArbeidsforholdInformasjon
      *
      * @param behandlingId behandlingId
      * @param builder      ArbeidsforholdsOverstyringene som skal lagrers
@@ -175,7 +165,7 @@ public class ArbeidsforholdAdministrasjonTjeneste {
     public void fjernOverstyringerGjortAvSaksbehandler(Long behandlingId, AktørId aktørId) {
         var builder = opprettBuilderFor(behandlingId);
         builder.fjernAlleOverstyringer();
-        inntektArbeidYtelseTjeneste.lagreArbeidsforhold(behandlingId, aktørId, builder);
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandlingId, aktørId, builder);
     }
 
     public void fjernOverstyringerGjortAvSaksbehandlerOpptjening(Long behandlingId) {

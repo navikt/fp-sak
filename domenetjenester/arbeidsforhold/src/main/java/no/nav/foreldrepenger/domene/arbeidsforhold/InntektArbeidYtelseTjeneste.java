@@ -175,17 +175,4 @@ public interface InntektArbeidYtelseTjeneste {
      * @param referanse - behandlingreferanse
      */
     List<Inntektsmelding> finnInntektsmeldingDiff(BehandlingReferanse referanse);
-
-    /**
-     * NB! Denne fungerer ikke etter at abakus har tatt over
-     *
-     * Sletter alle inntektsmeldingere for en behandling
-     *
-     * @param behandlingId      - Behandling Id
-     * @param inntektsmeldinger - Set med {@link JournalpostId}er som skal fjernes.
-     * @deprecated NB! Denne fungerer ikke etter at abakus har tatt over
-     */
-    @Deprecated(forRemoval = true)
-    void dropInntektsmeldinger(Long behandlingId, Set<JournalpostId> inntektsmeldinger);
-
 }

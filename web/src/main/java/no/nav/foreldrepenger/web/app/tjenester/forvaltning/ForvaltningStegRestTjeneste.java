@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegTy
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType.FØRSTEGANGSSØKNAD;
 import static no.nav.vedtak.sikkerhet.abac.BeskyttetRessursActionAttributt.READ;
 
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -36,14 +34,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.HoppTilbakeTil5080OgSlettInntektsmeldingDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningSteg")
@@ -56,7 +51,6 @@ public class ForvaltningStegRestTjeneste {
     private ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste;
     private HistorikkRepository historikkRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private VilkårResultatRepository vilkårResultatRepository;
     private BehandlingRepository behandlingRepository;
 
@@ -64,12 +58,11 @@ public class ForvaltningStegRestTjeneste {
     public ForvaltningStegRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                        BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                        ArbeidsforholdAdministrasjonTjeneste arbeidsforholdAdministrasjonTjeneste,
-                                       InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                       BehandlingRepositoryProvider repositoryProvider, VilkårResultatRepository vilkårResultatRepository) {
+                                       BehandlingRepositoryProvider repositoryProvider,
+                                       VilkårResultatRepository vilkårResultatRepository) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.arbeidsforholdAdministrasjonTjeneste = arbeidsforholdAdministrasjonTjeneste;
-        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.vilkårResultatRepository = vilkårResultatRepository;
@@ -157,23 +150,6 @@ public class ForvaltningStegRestTjeneste {
             }
         }
         return Response.ok().build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hopp tilbake til 5080 og slett inntektsmelding", tags = "FORVALTNING-steg-hopp")
-    @Path("/inntektsmelding")
-    @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT, sporingslogg = false)
-    public Response hoppTilbakeTil5080OgSlettInntektsmelding(@BeanParam @Valid HoppTilbakeTil5080OgSlettInntektsmeldingDto dto) {
-        var behandlingId = getBehandling(dto).getId();
-        var journalpostId = new JournalpostId(Long.parseLong(dto.getJournalpostId().trim()));
-        var inntektsmelding = inntektsmeldingTjeneste.hentInntektsMeldingFor(behandlingId, journalpostId);
-        if (inntektsmelding.isPresent()) {
-            inntektsmeldingTjeneste.fjernInntektsmelding(behandlingId, Set.of(journalpostId));
-            hoppTilbake(dto, KONTROLLER_FAKTA_ARBEIDSFORHOLD);
-            return Response.ok().build();
-        }
-        return Response.noContent().build();
     }
 
     @POST

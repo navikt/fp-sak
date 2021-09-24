@@ -44,7 +44,6 @@ import no.nav.foreldrepenger.domene.iay.modell.RefusjonskravDato;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
@@ -141,22 +140,6 @@ public class AbakusInMemoryInntektArbeidYtelseTjeneste implements InntektArbeidY
                     return new RefusjonskravDato(entry.getKey(), førsteDatoForRefusjon, førsteInnsendingAvRefusjon,
                             entry.getValue().stream().anyMatch(im -> !im.getRefusjonBeløpPerMnd().erNullEllerNulltall()));
                 }).collect(Collectors.toList());
-    }
-
-    @Override
-    public void dropInntektsmeldinger(Long behandlingId, Set<JournalpostId> fjernInntektsmeldinger) {
-        Objects.requireNonNull(fjernInntektsmeldinger, "fjernInntektsmeldinger");
-
-        var builder = opprettGrunnlagBuilderFor(behandlingId);
-        var inntektsmeldinger = builder.getInntektsmeldinger();
-
-        Collection<Inntektsmelding> beholdInntektsmelding = inntektsmeldinger.getAlleInntektsmeldinger().stream()
-                .filter(im -> !fjernInntektsmeldinger.contains(im.getJournalpostId()))
-                .collect(Collectors.toSet());
-
-        builder.setInntektsmeldinger(new InntektsmeldingAggregat(beholdInntektsmelding));
-
-        lagreOgFlush(behandlingId, builder.build());
     }
 
     @Override
