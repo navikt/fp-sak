@@ -257,13 +257,12 @@ public class TilbakehoppTest {
     private Aksjonspunkt medAP(BehandlingStegType identifisertISteg, StegPort port, AksjonspunktStatus status, boolean manueltOpprettet) {
         clearTransisjoner();
         var ad = finnAksjonspunkt(port, manueltOpprettet);
-        var idSteg = identifisertISteg;
 
         var ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
         behandling = Behandling.nyBehandlingFor(ytelseBehandling.getFagsak(), BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
-        var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, idSteg);
+        var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, identifisertISteg);
 
         if (status.getKode().equals(AksjonspunktStatus.UTFØRT.getKode())) {
             serviceProvider.getAksjonspunktKontrollRepository().setTilUtført(ap, "ferdig");

@@ -73,7 +73,6 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
                 .build();
         }
-
     }
 
     protected abstract HistorikkEndretFeltType getTekstKode();

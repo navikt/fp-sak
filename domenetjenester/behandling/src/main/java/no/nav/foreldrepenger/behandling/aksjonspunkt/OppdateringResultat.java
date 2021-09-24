@@ -170,6 +170,9 @@ public class OppdateringResultat {
         public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
             Objects.requireNonNull(vilkårType);
             Objects.requireNonNull(avslagsårsak);
+            if (Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
+                throw new IllegalArgumentException("Mangler gyldig avslagsårsak");
+            }
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
@@ -181,6 +184,9 @@ public class OppdateringResultat {
             Objects.requireNonNull(vilkårType);
             Objects.requireNonNull(avslagsårsak);
             Objects.requireNonNull(merknad);
+            if (Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
+                throw new IllegalArgumentException("Mangler gyldig avslagsårsak");
+            }
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }

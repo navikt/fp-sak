@@ -99,7 +99,7 @@ public class InngangsvilkårTjeneste {
                 builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
             }
         } else {
-            builder.overstyrVilkår(vilkårType, utfall,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
+            builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         builder.buildFor(behandling);

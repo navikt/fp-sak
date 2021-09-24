@@ -182,13 +182,11 @@ public class FremoverhoppTest {
 
     private Aksjonspunkt medAP(BehandlingStegType identifisertI, AksjonspunktStatus status, AksjonspunktDefinisjon ad) {
 
-        var idSteg = identifisertI;
-
         var ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
         behandling = Behandling.nyBehandlingFor(ytelseBehandling.getFagsak(), BehandlingType.FØRSTEGANGSSØKNAD).build();
         behandlingLås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, behandlingLås);
-        var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, idSteg);
+        var ap = serviceProvider.getAksjonspunktKontrollRepository().leggTilAksjonspunkt(behandling, ad, identifisertI);
 
         if (status.getKode().equals(UTFØRT.getKode())) {
             serviceProvider.getAksjonspunktKontrollRepository().setTilUtført(ap, "ferdig");
