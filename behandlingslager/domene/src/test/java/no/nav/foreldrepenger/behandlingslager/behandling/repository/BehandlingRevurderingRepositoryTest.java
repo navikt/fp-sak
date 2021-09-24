@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -145,7 +146,7 @@ public class BehandlingRevurderingRepositoryTest extends EntityManagerAwareTest 
 
     private void oppdaterMedBehandlingsresultatAvslagOgLagre(Behandling behandling) {
         VilkårResultat.builder()
-            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT)
+            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.BARN_OVER_15_ÅR)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
             .buildFor(behandling);
 
