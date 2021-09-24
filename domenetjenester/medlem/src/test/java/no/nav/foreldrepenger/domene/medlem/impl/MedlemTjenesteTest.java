@@ -58,7 +58,7 @@ public class MedlemTjenesteTest {
         var now = LocalDate.now();
 
         var vilkår = VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat());
-        vilkår.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkår.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BOSATT);
         vilkår.overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
 
         var vilkårResultat = vilkår.buildFor(behandling);
