@@ -43,11 +43,12 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             return new OppdateringResultat.Builder()
                 .leggTilVilkårResultat(SØKNADSFRISTVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .build();
+        } else {
+            return OppdateringResultat.utenTransisjon()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET, Avslagsårsak.SØKT_FOR_SENT, VM_5007)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
-        return OppdateringResultat.utenTransisjon()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET,  Avslagsårsak.SØKT_FOR_SENT, VM_5007)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .build();
     }
 }

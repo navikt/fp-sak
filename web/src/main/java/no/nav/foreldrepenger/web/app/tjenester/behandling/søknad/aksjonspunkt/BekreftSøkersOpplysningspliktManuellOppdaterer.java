@@ -43,7 +43,6 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             dto.getInntektsmeldingerSomIkkeKommer().stream().filter(imelding -> !imelding.isBrukerHarSagtAtIkkeKommer()).collect(Collectors.toList()).isEmpty();
         leggTilEndretFeltIHistorikkInnslag(dto.getBegrunnelse(), erVilkårOk);
 
-        var avslagsårsak = erVilkårOk ? null : Avslagsårsak.MANGLENDE_DOKUMENTASJON;
         var åpneAksjonspunkter = behandling.getÅpneAksjonspunkter();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
         if (erVilkårOk) {
@@ -55,18 +54,19 @@ public class BekreftSøkersOpplysningspliktManuellOppdaterer implements Aksjonsp
             resultatBuilder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
 
             return resultatBuilder.build();
-        }
-        // Hoppe rett til foreslå vedtak uten totrinnskontroll
-        åpneAksjonspunkter.stream()
-            .filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
-            .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
+        } else {
+            // Hoppe rett til foreslå vedtak uten totrinnskontroll
+            åpneAksjonspunkter.stream()
+                .filter(a -> !a.getAksjonspunktDefinisjon().equals(dto.getAksjonspunktDefinisjon())) // Ikke seg selv
+                .forEach(a -> resultatBuilder.medEkstraAksjonspunktResultat(a.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
 
-        return resultatBuilder
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, avslagsårsak)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
-            .build();
+            return resultatBuilder
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .leggTilAvslåttVilkårResultat(VilkårType.SØKERSOPPLYSNINGSPLIKT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .medEkstraAksjonspunktResultat(AksjonspunktDefinisjon.VEDTAK_UTEN_TOTRINNSKONTROLL, AksjonspunktStatus.OPPRETTET)
+                .build();
+        }
     }
 
     private void leggTilEndretFeltIHistorikkInnslag(String begrunnelse, Boolean vilkårOppfylt) {

@@ -251,6 +251,8 @@ public class VilkårResultat extends BaseEntitet {
 
         public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
             if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
                 .medVilkårUtfall(utfallType, avslagsårsak).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
             vilkårene.put(vilkårType, builder.build());
@@ -260,6 +262,8 @@ public class VilkårResultat extends BaseEntitet {
 
         public Builder manueltVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
             if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
                 .medUtfallManuell(utfallType, avslagsårsak);
             vilkårene.put(vilkårType, builder.build());
@@ -269,6 +273,8 @@ public class VilkårResultat extends BaseEntitet {
 
         public Builder overstyrVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
             if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
                 .medUtfallManuell(utfallType, avslagsårsak)
                 .medUtfallOverstyrt(utfallType, avslagsårsak);

@@ -33,6 +33,8 @@ public class VilkårBuilder {
     }
 
     public VilkårBuilder medVilkårUtfall(VilkårUtfallType vilkårUtfall, Avslagsårsak avslagsårsak) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfall) && (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfall(vilkårUtfall);
         if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
             kladd.setAvslagsårsak(avslagsårsak);
@@ -41,6 +43,8 @@ public class VilkårBuilder {
     }
 
     public VilkårBuilder medUtfallManuell(VilkårUtfallType vilkårUtfallManuell, Avslagsårsak avslagsårsak) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallManuell) && (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfallManuelt(vilkårUtfallManuell);
         if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
             kladd.setAvslagsårsak(avslagsårsak);
@@ -49,6 +53,8 @@ public class VilkårBuilder {
     }
 
     VilkårBuilder medUtfallOverstyrt(VilkårUtfallType vilkårUtfallOverstyrt, Avslagsårsak avslagsårsak) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallOverstyrt) && (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfallOverstyrt(vilkårUtfallOverstyrt);
         kladd.setAvslagsårsak(avslagsårsak);
         return this;

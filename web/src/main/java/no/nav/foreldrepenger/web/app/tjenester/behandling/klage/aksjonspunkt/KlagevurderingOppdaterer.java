@@ -32,8 +32,6 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     private BehandlingsutredningTjeneste behandlingsutredningTjeneste;
     private HistorikkTjenesteAdapter historikkApplikasjonTjeneste;
     private KlageVurderingTjeneste klageVurderingTjeneste;
-    private AksjonspunktUtil aksjonspunktUtil = new AksjonspunktUtil();
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     KlagevurderingOppdaterer() {
         // for CDI proxy
@@ -42,12 +40,10 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     @Inject
     public KlagevurderingOppdaterer(HistorikkTjenesteAdapter historikkApplikasjonTjeneste,
                                     BehandlingsutredningTjeneste behandlingsutredningTjeneste,
-                                    KlageVurderingTjeneste klageVurderingTjeneste,
-                                    BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
+                                    KlageVurderingTjeneste klageVurderingTjeneste) {
         this.historikkApplikasjonTjeneste = historikkApplikasjonTjeneste;
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
-        this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
     }
 
     @Override
@@ -78,13 +74,13 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
     }
 
     private boolean håndterToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon, KlageVurdering klageVurdering) {
-        if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering)) {
+        if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering)) {
             // Må fjerne totrinnsbehandling i tilfeller hvor totrinn er satt for NFP (klagen ikke er innom NK),
             // beslutter sender behandlingen tilbake til NFP, og NFP deretter gjør et valgt som sender
             // behandlingen til NK. Da skal ikke aksjonspunkt NFP totrinnsbehandles.
             fjernToTrinnsBehandling(behandling, aksjonspunktDefinisjon);
         }
-        return erNfpAksjonspunkt(aksjonspunktDefinisjon) && !KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering);
+        return erNfpAksjonspunkt(aksjonspunktDefinisjon) && !KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering);
     }
 
     private void fjernToTrinnsBehandling(Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
@@ -163,7 +159,7 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
 
     private void oppdatereDatavarehus(KlageVurderingResultatAksjonspunktDto dto, Behandling behandling, AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         var klageVurdering = dto.getKlageVurdering();
-        if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)) {
+        if (erNfpAksjonspunkt(aksjonspunktDefinisjon) && KlageVurderingTjeneste.skalBehandlesAvKlageInstans(KlageVurdertAv.NFP, klageVurdering)) {
             behandlingsutredningTjeneste.byttBehandlendeEnhet(behandling.getId(),BehandlendeEnhetTjeneste.getKlageInstans(),
                 "", //Det er ikke behov for en begrunnelse i dette tilfellet.
                 HistorikkAktør.VEDTAKSLØSNINGEN);

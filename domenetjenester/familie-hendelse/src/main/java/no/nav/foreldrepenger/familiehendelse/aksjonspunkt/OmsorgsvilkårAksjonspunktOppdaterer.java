@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltVerdiType;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.Foreldreansvarsvil
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.omsorg.OmsorgsvilkårKonfigurasjon;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.vedtak.exception.FunksjonellException;
 
 /**
  * Håndterer oppdatering av omsorgsvilkåret.
@@ -64,13 +64,16 @@ public abstract class OmsorgsvilkårAksjonspunktOppdaterer implements Aksjonspun
         if (dto.getErVilkarOk()) {
             resultatBuilder.leggTilVilkårResultat(vilkårType, VilkårUtfallType.OPPFYLT);
             return resultatBuilder.medTotrinn().build();
+        } else {
+            var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+                .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
+            return resultatBuilder
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .leggTilAvslåttVilkårResultat(vilkårType, avslagsårsak)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
 
-        return resultatBuilder
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilAvslåttVilkårResultat(vilkårType, Avslagsårsak.fraKode(dto.getAvslagskode()))
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .build();
     }
 
     protected abstract HistorikkEndretFeltType getTekstKode();

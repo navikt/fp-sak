@@ -257,7 +257,7 @@ public class TilbakehoppTest {
     private Aksjonspunkt medAP(BehandlingStegType identifisertISteg, StegPort port, AksjonspunktStatus status, boolean manueltOpprettet) {
         clearTransisjoner();
         var ad = finnAksjonspunkt(port, manueltOpprettet);
-        var idSteg = BehandlingStegType.fraKode(identifisertISteg.getKode());
+        var idSteg = identifisertISteg;
 
         var ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
         behandling = Behandling.nyBehandlingFor(ytelseBehandling.getFagsak(), BehandlingType.FØRSTEGANGSSØKNAD).build();

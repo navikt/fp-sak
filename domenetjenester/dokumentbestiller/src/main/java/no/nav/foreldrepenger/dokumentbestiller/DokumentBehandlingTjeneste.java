@@ -3,9 +3,9 @@ package no.nav.foreldrepenger.dokumentbestiller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -66,11 +66,9 @@ public class DokumentBehandlingTjeneste {
     }
 
     public boolean erDokumentBestilt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
-        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
-        return behandlingDokument.isPresent() && behandlingDokument.get().getBestilteDokumenter().stream()
-                .map(BehandlingDokumentBestiltEntitet::getDokumentMalType)
-                .collect(Collectors.toList())
-                .contains(dokumentMalTypeKode.getKode());
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter).orElse(List.of()).stream()
+                .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()));
     }
 
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {

@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 
 public abstract class InngangsvilkårOverstyringshåndterer<T extends OverstyringAksjonspunktDto> extends AbstractOverstyringshåndterer<T> {
 
@@ -34,8 +35,9 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
     @Override
     public OppdateringResultat håndterOverstyring(T dto, Behandling behandling, BehandlingskontrollKontekst kontekst) {
         var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        var avslagsårsak = dto.getAvslagskode() == null || dto.getErVilkarOk() ?
-            Avslagsårsak.UDEFINERT : Avslagsårsak.fraKode(dto.getAvslagskode());
+        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT :
+            Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+                .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
         inngangsvilkårTjeneste.overstyrAksjonspunkt(behandling.getId(), vilkårType, utfall, avslagsårsak, kontekst);
 

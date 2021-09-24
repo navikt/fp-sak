@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingskontroll.transisjoner.FellesTransisjoner;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkEndretFeltType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -25,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnAnnenForelderAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.vedtak.exception.FunksjonellException;
 
 /**
  * Håndterer oppdatering av Aksjonspunkt og endringshistorikk ved vurdering av ytelse knyttet til samme barn.
@@ -59,15 +59,17 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
                 resultatBuilder.leggTilVilkårResultat(vilkår.getVilkårType(), VilkårUtfallType.OPPFYLT);
                 return resultatBuilder.medTotrinnHvis(totrinn).build();
-            }
-            var resultatBuilder = OppdateringResultat.utenTransisjon();
-            var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
+            } else {
+                var resultatBuilder = OppdateringResultat.utenTransisjon();
+                var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+                    .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
-            return resultatBuilder
-                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-                .leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak)
-                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .build();
+                return resultatBuilder
+                    .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                    .leggTilAvslåttVilkårResultat(vilkår.getVilkårType(), avslagsårsak)
+                    .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                    .build();
+            }
         }
         return OppdateringResultat.utenOveropp();
 

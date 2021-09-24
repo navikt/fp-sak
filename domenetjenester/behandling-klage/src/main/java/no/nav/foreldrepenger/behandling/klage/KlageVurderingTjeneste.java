@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 public class KlageVurderingTjeneste {
 
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
     private KlageRepository klageRepository;
     private BehandlingRepository behandlingRepository;
@@ -40,12 +42,14 @@ public class KlageVurderingTjeneste {
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
+                                  DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                   ProsesseringAsynkTjeneste prosesseringAsynkTjeneste,
                                   BehandlingRepository behandlingRepository,
                                   KlageRepository klageRepository,
                                   BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                                   BehandlingsresultatRepository behandlingsresultatRepository) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.prosesseringAsynkTjeneste = prosesseringAsynkTjeneste;
         this.klageRepository = klageRepository;
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
@@ -55,6 +59,10 @@ public class KlageVurderingTjeneste {
 
     KlageVurderingTjeneste() {
         // for CDI proxy
+    }
+
+    public static boolean skalBehandlesAvKlageInstans(KlageVurdertAv klageVurdertAv, KlageVurdering klageVurdering) {
+        return KlageVurdertAv.NFP.equals(klageVurdertAv) && KlageVurdering.STADFESTE_YTELSESVEDTAK.equals(klageVurdering);
     }
 
     public KlageResultatEntitet hentEvtOpprettKlageResultat(Behandling behandling) {
@@ -149,8 +157,8 @@ public class KlageVurderingTjeneste {
     }
 
     private void settBehandlingResultatTypeBasertPaaUtfall(Behandling behandling, KlageVurdering klageVurdering, KlageVurdertAv vurdertAv) {
-        if (KlageVurdertAv.NFP.equals(vurdertAv) && klageVurdering.equals(KlageVurdering.STADFESTE_YTELSESVEDTAK)
-                && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())) {
+        if (skalBehandlesAvKlageInstans(vurdertAv, klageVurdering) && !Fagsystem.INFOTRYGD.equals(behandling.getMigrertKilde())
+            && !dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS)) {
 
             var bestillBrevDto = new BestillBrevDto(behandling.getId(), behandling.getUuid(), DokumentMalType.KLAGE_OVERSENDT_KLAGEINSTANS);
             dokumentBestillerTjeneste.bestillDokument(bestillBrevDto, HistorikkAktør.SAKSBEHANDLER, false);

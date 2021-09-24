@@ -182,7 +182,7 @@ public class FremoverhoppTest {
 
     private Aksjonspunkt medAP(BehandlingStegType identifisertI, AksjonspunktStatus status, AksjonspunktDefinisjon ad) {
 
-        var idSteg = BehandlingStegType.fraKode(identifisertI.getKode());
+        var idSteg = identifisertI;
 
         var ytelseBehandling = TestScenario.forForeldrepenger().lagre(serviceProvider);
         behandling = Behandling.nyBehandlingFor(ytelseBehandling.getFagsak(), BehandlingType.FØRSTEGANGSSØKNAD).build();

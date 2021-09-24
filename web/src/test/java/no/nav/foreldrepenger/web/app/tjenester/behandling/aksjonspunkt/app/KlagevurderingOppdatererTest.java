@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioK
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
@@ -64,8 +66,6 @@ public class KlagevurderingOppdatererTest {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     @Mock
     private ProsesseringAsynkTjeneste prosesseringAsynkTjeneste;
-    @Mock
-    private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
 
     @Test
@@ -144,11 +144,10 @@ public class KlagevurderingOppdatererTest {
 
     private KlagevurderingOppdaterer getKlageVurderer(BehandlingRepositoryProvider repositoryProvider, KlageRepository klageRepository) {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
-        final var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste,
+        final var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
                 prosesseringAsynkTjeneste, behandlingRepository, klageRepository, behandlingskontrollTjeneste,
                 repositoryProvider.getBehandlingsresultatRepository());
-        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, klageVurderingTjeneste,
-                behandlendeEnhetTjeneste);
+        return new KlagevurderingOppdaterer(historikkApplikasjonTjeneste, behandlingsutredningTjeneste, klageVurderingTjeneste);
     }
 
     @Test
