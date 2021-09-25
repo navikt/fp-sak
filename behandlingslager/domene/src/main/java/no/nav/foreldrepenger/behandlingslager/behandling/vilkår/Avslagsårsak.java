@@ -119,6 +119,10 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
             .filter(a -> !UDEFINERT.equals(a));
     }
 
+    public static boolean erDefinertÅrsak(Avslagsårsak årsak) {
+        return årsak != null && !UDEFINERT.equals(årsak);
+    }
+
     public static Map<String, Avslagsårsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }

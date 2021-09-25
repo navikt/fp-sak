@@ -62,6 +62,10 @@ public enum VilkårUtfallType implements Kodeverdi {
         return Collections.unmodifiableMap(KODER);
     }
 
+    public static boolean erFastsatt(VilkårUtfallType type) {
+        return OPPFYLT.equals(type) || IKKE_OPPFYLT.equals(type);
+    }
+
     @Override
     public String getNavn() {
         return navn;

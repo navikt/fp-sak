@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.EngangsstønadVilkårUtleder;
 import no.nav.foreldrepenger.inngangsvilkaar.impl.UtledeteVilkår;
@@ -100,7 +99,7 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
                 ? VilkårResultat.builderFraEksisterende(behandlingsresultat.getVilkårResultat())
                 : VilkårResultat.builder();
         utledeteVilkår.getAlleAvklarte()
-                .forEach(vilkårType -> vilkårBuilder.leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT));
+                .forEach(vilkårBuilder::leggTilVilkårIkkeVurdert);
         var vilkårResultat = vilkårBuilder.buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, skriveLås);
     }

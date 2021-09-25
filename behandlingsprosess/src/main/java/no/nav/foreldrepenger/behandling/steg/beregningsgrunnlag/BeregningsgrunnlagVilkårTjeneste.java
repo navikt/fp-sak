@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.beregningsgrunnlag;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_VURDERT;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -66,9 +64,9 @@ class BeregningsgrunnlagVilkårTjeneste {
             .medRegelEvaluering(regelEvaluering)
             .medRegelInput(regelInput);
         if (oppfylt) {
-            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
         } else {
-            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG).medVilkårUtfallMerknad(VilkårUtfallMerknad.VM_1041);
+            vilkårBuilder.medVilkårUtfall(VilkårUtfallType.IKKE_OPPFYLT, VilkårUtfallMerknad.VM_1041);
         }
         return builder
             .medVilkårResultatType(oppfylt ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
@@ -93,7 +91,7 @@ class BeregningsgrunnlagVilkårTjeneste {
             .findFirst()
             .ifPresent(bv -> {
                 var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                    .leggTilVilkår(bv.getVilkårType(), IKKE_VURDERT);
+                    .leggTilVilkårIkkeVurdert(bv.getVilkårType());
                 behandlingRepository.lagre(builder.buildFor(behandlingRepository.hentBehandling(kontekst.getBehandlingId())), kontekst.getSkriveLås());
         });
     }

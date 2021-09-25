@@ -79,7 +79,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
 
         // legg til et nytt vilkårsresultat
         VilkårResultat.builderFraEksisterende(getBehandlingsresultat(behandling2).getVilkårResultat())
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling2);
 
@@ -100,7 +100,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         lagreBehandling(behandling);
         var vilkårResultatBuilder = VilkårResultat.builder()
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-                .leggTilVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .manueltVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
         var behandlingsresultatBuilder = new Behandlingsresultat.Builder(vilkårResultatBuilder);
         var behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling);
 
@@ -128,7 +128,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT)
-            .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkårIkkeVurdert(VilkårType.SØKNADSFRISTVILKÅRET)
             .buildFor(behandling);
 
         // Act
@@ -178,23 +178,22 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
-            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
             .buildFor(behandling);
 
         // Act 1: Ikke oppfylt (overstyrt)
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .overstyrVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
+            .manueltVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_UTVANDRET)
             .buildFor(behandling);
 
         // Assert
-        assertThat(oppdatertVilkårResultat.erOverstyrt()).isTrue();
+        assertThat(oppdatertVilkårResultat.erOverstyrt()).isFalse();
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
         var vilkår = oppdatertVilkårResultat.getVilkårene().get(0);
         assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.MEDLEMSKAPSVILKÅRET);
         assertThat(vilkår.getAvslagsårsak()).isEqualTo(Avslagsårsak.SØKER_ER_UTVANDRET);
         assertThat(vilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
-        assertThat(vilkår.erOverstyrt()).isTrue();
         assertThat(vilkår.erManueltVurdert()).isTrue();
 
         // Act 2: Oppfylt
@@ -220,7 +219,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.INNVILGET)
-            .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+            .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
             .buildFor(behandling);
         var overstyrtVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
@@ -249,7 +248,7 @@ public class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
             .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkårIkkeVurdert(VilkårType.SØKNADSFRISTVILKÅRET)
             .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
             .buildFor(behandling);
 

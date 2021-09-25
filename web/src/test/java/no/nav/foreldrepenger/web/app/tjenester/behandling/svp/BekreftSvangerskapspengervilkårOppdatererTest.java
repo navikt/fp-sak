@@ -79,7 +79,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
         var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
-            .forEach(v -> builder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
+            .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
         assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(
             VilkårUtfallType.IKKE_OPPFYLT);
@@ -99,7 +99,7 @@ public class BekreftSvangerskapspengervilkårOppdatererTest {
 
         var builder = VilkårResultat.builder();
         resultat.getVilkårResultatSomSkalLeggesTil()
-            .forEach(v -> builder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
+            .forEach(v -> builder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
 
 
         assertThat(builder.buildFor(behandling).getVilkårene().get(0).getGjeldendeVilkårUtfall()).isEqualTo(

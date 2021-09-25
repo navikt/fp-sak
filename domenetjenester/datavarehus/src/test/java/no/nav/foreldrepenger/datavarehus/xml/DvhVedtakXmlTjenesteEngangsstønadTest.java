@@ -26,11 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Avstemming;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdrag110;
@@ -241,18 +240,24 @@ public class DvhVedtakXmlTjenesteEngangsstønadTest {
     }
 
     private void oppdaterMedBehandlingsresultat(EntityManager em, Behandling behandling, boolean innvilget) {
-        var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT,
-                    innvilget ? Avslagsårsak.UDEFINERT : Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT)
-                .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-                .buildFor(behandling);
-        em.persist(vilkårResultat);
         if (innvilget) {
+            var vilkårResultat = VilkårResultat.builder()
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .medVilkårResultatType(VilkårResultatType.INNVILGET)
+                .buildFor(behandling);
+            em.persist(vilkårResultat);
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             var beregningResultat = LegacyESBeregningsresultat.builder()
                     .medBeregning(new LegacyESBeregning(48500L, 1L, 48500L, LocalDateTime.now()))
                     .buildFor(behandling, bres);
             em.persist(beregningResultat);
+        } else {
+            var vilkårResultat = VilkårResultat.builder()
+                .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .buildFor(behandling);
+            em.persist(vilkårResultat);
+
         }
     }
 

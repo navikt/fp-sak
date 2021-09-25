@@ -29,10 +29,6 @@ import no.nav.vedtak.felles.jpa.converters.PropertiesToStringConverter;
 @Table(name = "VILKAR")
 public class Vilkår extends BaseEntitet implements IndexKey {
 
-    @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
-    @Column(name="avslag_kode", nullable = false)
-    private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VILKAR")
     private Long id;
@@ -65,9 +61,19 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @Column(name="vilkar_utfall_overstyrt", nullable = false)
     private VilkårUtfallType vilkårUtfallOverstyrt = VilkårUtfallType.UDEFINERT;
 
+    /*
+     * Konvensjon:
+     * - VilkårUtfallMerknad er resultat fra regler (avslags el manuellvurdering),
+     * - Avslagårsak stammer fra manuell vurdering eller overstyring
+     * - AvslagårsakMapper gjør om fra merknad-kode til avslagkode
+     */
     @Convert(converter = VilkårUtfallMerknad.KodeverdiConverter.class)
     @Column(name = "vilkar_utfall_merknad", nullable = false)
     private VilkårUtfallMerknad vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
+
+    @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
+    @Column(name="avslag_kode", nullable = false)
+    private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
 
     @Lob
     @Column(name = "regel_evaluering")
@@ -110,11 +116,11 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     }
 
     public boolean erManueltVurdert() {
-        return !List.of(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallManuelt);
+        return VilkårUtfallType.erFastsatt(vilkårUtfallManuelt);
     }
 
     public boolean erOverstyrt() {
-        return !List.of(VilkårUtfallType.UDEFINERT, VilkårUtfallType.IKKE_VURDERT).contains(vilkårUtfallOverstyrt);
+        return VilkårUtfallType.erFastsatt(vilkårUtfallOverstyrt);
     }
 
     public Avslagsårsak getAvslagsårsak() {
@@ -162,7 +168,8 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     public VilkårUtfallType getGjeldendeVilkårUtfall() {
         if (!vilkårUtfallOverstyrt.equals(VilkårUtfallType.UDEFINERT)) {
             return vilkårUtfallOverstyrt;
-        } if (!vilkårUtfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
+        }
+        if (!vilkårUtfallManuelt.equals(VilkårUtfallType.UDEFINERT)) {
             return vilkårUtfallManuelt;
         }
         return vilkårUtfall;

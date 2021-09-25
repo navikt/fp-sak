@@ -47,7 +47,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat.Builder;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -377,16 +376,8 @@ public class AksjonspunktTjeneste {
     }
 
     private void byggVilkårResultat(Builder vilkårResultatBuilder, OppdateringResultat delresultat) {
-        delresultat.getVilkårResultatSomSkalLeggesTil().forEach(v -> {
-            if (VilkårUtfallMerknad.UDEFINERT.equals(v.getVilkårUtfallMerknad())) {
-                vilkårResultatBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak());
-            } else {
-                var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(v.getVilkårType())
-                    .medUtfallManuell(v.getVilkårUtfallType(), v.getAvslagsårsak())
-                    .medVilkårUtfallMerknad(v.getVilkårUtfallMerknad());
-                vilkårResultatBuilder.leggTilVilkår(vilkårBuilder);
-            }
-        });
+        delresultat.getVilkårResultatSomSkalLeggesTil()
+            .forEach(v -> vilkårResultatBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårResultatBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
             vilkårResultatBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());

@@ -121,7 +121,7 @@ class RyddVilkårTyper {
                     .collect(toList());
                 if (!vilkårSomSkalNullstilles.isEmpty()) {
                     var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
-                    vilkårSomSkalNullstilles.forEach(vilkår -> builder.nullstillVilkår(vilkår.getVilkårType()));
+                    vilkårSomSkalNullstilles.forEach(vilkår -> builder.nullstillVilkår(vilkår));
                     builder.buildFor(behandling);
                 }
             });

@@ -282,8 +282,7 @@ public class MedlemTjeneste {
                     return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, AvslagsårsakMapper.fraVilkårUtfallMerknad(løpende.getVilkårUtfallMerknad()));
                 }
                 if (løpende.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && løpende.erOverstyrt()) {
-                    var avslagsårsak = løpende.getAvslagsårsak();
-                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, avslagsårsak);
+                    return new VilkårUtfallMedÅrsak(VilkårUtfallType.IKKE_OPPFYLT, løpende.getAvslagsårsak());
                 }
             }
             return new VilkårUtfallMedÅrsak(VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);

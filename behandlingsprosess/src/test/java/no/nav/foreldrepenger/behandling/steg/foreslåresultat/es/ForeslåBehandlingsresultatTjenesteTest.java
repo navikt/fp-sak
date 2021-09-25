@@ -112,9 +112,14 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
-        var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? Avslagsårsak.MANGLENDE_DOKUMENTASJON : Avslagsårsak.UDEFINERT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+        var builder = VilkårResultat.builder();
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType)) {
+            builder.manueltVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKT_FOR_SENT);
+        } else {
+            builder.leggTilVilkårOppfylt(VilkårType.SØKNADSFRISTVILKÅRET);
+        }
+        var vilkårResultat = builder
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .medVilkårResultatType(resultatType)
                 .buildFor(behandling);
         behandlingRepository.lagre(vilkårResultat, behandlingRepository.taSkriveLås(behandling));

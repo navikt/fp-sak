@@ -2,37 +2,24 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 public class VilkårOppdateringResultat {
 
     private final VilkårType vilkårType;
     private final VilkårUtfallType vilkårUtfallType;
-    private VilkårUtfallMerknad vilkårUtfallMerknad;
     private Avslagsårsak avslagsårsak;
 
     public VilkårOppdateringResultat(VilkårType vilkårType, VilkårUtfallType vilkårUtfallType) {
         this.vilkårType = vilkårType;
         this.vilkårUtfallType = vilkårUtfallType;
         this.avslagsårsak = Avslagsårsak.UDEFINERT;
-        this.vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
     }
 
     public VilkårOppdateringResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
         this.vilkårType = vilkårType;
         this.vilkårUtfallType = VilkårUtfallType.IKKE_OPPFYLT;
         this.avslagsårsak = avslagsårsak;
-        this.vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
-    }
-
-    public VilkårOppdateringResultat(VilkårType vilkårType,
-                                     Avslagsårsak avslagsårsak,
-                                     VilkårUtfallMerknad merknad) {
-        this.vilkårType = vilkårType;
-        this.vilkårUtfallType = VilkårUtfallType.IKKE_OPPFYLT;
-        this.avslagsårsak = avslagsårsak;
-        this.vilkårUtfallMerknad = merknad;
     }
 
     public VilkårType getVilkårType() {
@@ -45,9 +32,5 @@ public class VilkårOppdateringResultat {
 
     public Avslagsårsak getAvslagsårsak() {
         return avslagsårsak;
-    }
-
-    public VilkårUtfallMerknad getVilkårUtfallMerknad() {
-        return vilkårUtfallMerknad;
     }
 }

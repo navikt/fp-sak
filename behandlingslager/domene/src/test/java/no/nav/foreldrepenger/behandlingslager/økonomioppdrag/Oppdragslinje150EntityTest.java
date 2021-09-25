@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
 
 import java.time.LocalDate;
 
@@ -73,7 +72,6 @@ public class Oppdragslinje150EntityTest {
         // mangler kodeEndringLinje
         try {
             oppdragslinje150Builder.build();
-            fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("kodeEndringLinje");
         }
@@ -82,7 +80,6 @@ public class Oppdragslinje150EntityTest {
         oppdragslinje150Builder.medKodeEndringLinje(KODEENDRINGLINJE);
         try {
             oppdragslinje150Builder.build();
-            fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("kodeKlassifik");
         }
@@ -91,7 +88,6 @@ public class Oppdragslinje150EntityTest {
         oppdragslinje150Builder.medKodeKlassifik(KODEKLASSIFIK);
         try {
             oppdragslinje150Builder.build();
-            fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("vedtakPeriode");
         }
@@ -100,7 +96,6 @@ public class Oppdragslinje150EntityTest {
         oppdragslinje150Builder.medVedtakFomOgTom(DATOVEDTAKFOM, DATOVEDTAKTOM);
         try {
             oppdragslinje150Builder.build();
-            fail(FORVENTET_EXCEPTION);
         } catch (NullPointerException e) {
             assertThat(e.getMessage()).contains("sats");
         }

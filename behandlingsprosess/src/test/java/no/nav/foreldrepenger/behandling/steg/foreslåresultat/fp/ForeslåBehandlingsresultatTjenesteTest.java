@@ -268,8 +268,8 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
         var vilkårsresultatBuilder = VilkårResultat.builder();
         if (vilkårUtfallType.equals(VilkårUtfallType.OPPFYLT)) {
-            vilkårsresultatBuilder.leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, vilkårUtfallType);
-            vilkårsresultatBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, vilkårUtfallType);
+            vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR);
+            vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
             vilkårsresultatBuilder.manueltVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_OPPFYLT,

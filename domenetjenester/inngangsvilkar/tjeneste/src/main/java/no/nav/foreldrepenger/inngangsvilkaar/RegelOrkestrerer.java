@@ -124,7 +124,8 @@ public class RegelOrkestrerer {
     }
 
     private void oppdaterBehandlingMedVilkårresultat(Behandling behandling,
-                                                     VilkårData vilkårData, VilkårResultatType inngangsvilkårUtfall) {
+                                                     VilkårData vilkårData,
+                                                     VilkårResultatType inngangsvilkårUtfall) {
         var merknadParametre = new Properties();
         if (vilkårData.merknadParametere() != null) {
             LAGRE_MERKNAD_PARAMETRE.getOrDefault(vilkårData.vilkårType(), Set.of()).stream()
@@ -135,8 +136,7 @@ public class RegelOrkestrerer {
             .builderFraEksisterende(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId()).getVilkårResultat())
             .medVilkårResultatType(inngangsvilkårUtfall);
         var vilkårBuilder = builder.getVilkårBuilderFor(vilkårData.vilkårType())
-            .medVilkårUtfall(vilkårData.utfallType(), vilkårData.avslagsårsak())
-            .medVilkårUtfallMerknad(vilkårData.vilkårUtfallMerknad())
+            .medVilkårUtfall(vilkårData.utfallType(), vilkårData.vilkårUtfallMerknad())
             .medMerknadParametere(merknadParametre)
             .medRegelEvaluering(vilkårData.regelEvaluering())
             .medRegelInput(vilkårData.regelInput());

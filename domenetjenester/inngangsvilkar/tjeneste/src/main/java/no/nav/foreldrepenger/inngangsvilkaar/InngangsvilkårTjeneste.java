@@ -94,7 +94,7 @@ public class InngangsvilkårTjeneste {
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
         if (Objects.equals(VilkårUtfallType.OPPFYLT, utfall)) {
-            builder.overstyrVilkår(vilkårType, utfall, Avslagsårsak.UDEFINERT);
+            builder.overstyrVilkår(vilkårType, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
             if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
                 builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
             }

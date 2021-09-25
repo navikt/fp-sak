@@ -34,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedle
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -130,7 +131,7 @@ public class VurderLøpendeMedlemskapStegTest {
 
         var revudering = opprettRevudering(behandling);
         var inngangsvilkårBuilder = VilkårResultat.builder();
-        inngangsvilkårBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
+        inngangsvilkårBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
         var vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
 
         var behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
@@ -166,7 +167,7 @@ public class VurderLøpendeMedlemskapStegTest {
         assertThat(ikkeOppfylt).hasSize(1);
         var behandlingsresultat1 = behandlingsresultatRepository.hent(revudering.getId());
         assertThat(behandlingsresultat1.getVilkårResultat().getVilkårene().stream()
-                .filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && (p.getAvslagsårsak() != null)).count())
+                .filter(p -> p.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_OPPFYLT) && AvslagsårsakMapper.finnAvslagsårsak(p) != null).count())
                         .isEqualTo(1);
     }
 

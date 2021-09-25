@@ -22,10 +22,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -77,8 +76,7 @@ public class FagsakRevurderingTest {
     public void kanOppretteRevurderingNårÅpenKlage() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR,
-                VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O).buildFor(behandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())).thenReturn(
                 Collections.emptyList());
 
@@ -91,8 +89,7 @@ public class FagsakRevurderingTest {
     public void kanOppretteRevurderingNårÅpentInnsyn() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O).buildFor(behandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
         when(behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())).thenReturn(
                 Collections.emptyList());
 
@@ -118,8 +115,7 @@ public class FagsakRevurderingTest {
     public void kanOppretteRevurderingDersomBehandlingErVedtatt() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O).buildFor(behandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).buildFor(behandling);
 
         var tjeneste = new FagsakRevurdering(behandlingRepository);
         var kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
@@ -131,8 +127,7 @@ public class FagsakRevurderingTest {
     public void kanIkkeOppretteRevurderingDersomAvlagPåSøkersOpplysningsplikt() {
         behandling.avsluttBehandling();
         Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.AVSLÅTT).buildFor(behandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT,
-                VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O).buildFor(behandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019).buildFor(behandling);
 
         var tjeneste = new FagsakRevurdering(behandlingRepository);
         var kanRevurderingOpprettes = tjeneste.kanRevurderingOpprettes(fagsak);
@@ -150,8 +145,7 @@ public class FagsakRevurderingTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(eldreBehandling);
 
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT,
-                VilkårUtfallType.OPPFYLT).buildFor(eldreBehandling);
+        VilkårResultat.builder().leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT).buildFor(eldreBehandling);
         lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any()))
                 .thenReturn(Optional.of(eldreBehandling));
         var tjeneste = new FagsakRevurdering(behandlingRepository);
@@ -167,12 +161,12 @@ public class FagsakRevurderingTest {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(eldreBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON).buildFor(eldreBehandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019).buildFor(eldreBehandling);
 
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(nyesteBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT).buildFor(nyesteBehandling);
+        VilkårResultat.builder().leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT).buildFor(nyesteBehandling);
         lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any()))
                 .thenReturn(Optional.of(nyesteBehandling));
         var tjeneste = new FagsakRevurdering(behandlingRepository);
@@ -186,12 +180,12 @@ public class FagsakRevurderingTest {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(nyesteBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON).buildFor(nyesteBehandling);
+        VilkårResultat.builder().leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019).buildFor(nyesteBehandling);
 
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(eldreBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT).buildFor(eldreBehandling);
+        VilkårResultat.builder().leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT).buildFor(eldreBehandling);
         lenient().when(behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(any()))
                 .thenReturn(Optional.of(nyesteBehandling));
         var tjeneste = new FagsakRevurdering(behandlingRepository);
