@@ -105,7 +105,7 @@ public abstract class DokumentmottakerTestsupport {
         repositoryProvider.getBehandlingVedtakRepository().lagre(originalVedtak, behandlingLås);
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
+            .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON)
             .buildFor(behandling);
         repositoryProvider.getBehandlingRepository().lagre(vilkårResultat, behandlingLås);
 

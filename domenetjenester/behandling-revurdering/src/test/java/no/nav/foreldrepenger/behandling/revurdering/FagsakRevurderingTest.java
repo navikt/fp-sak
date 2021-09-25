@@ -167,7 +167,7 @@ public class FagsakRevurderingTest {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(eldreBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT).buildFor(eldreBehandling);
+        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON).buildFor(eldreBehandling);
 
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
@@ -186,7 +186,7 @@ public class FagsakRevurderingTest {
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
                 .buildFor(nyesteBehandling);
-        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT).buildFor(nyesteBehandling);
+        VilkårResultat.builder().leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.MANGLENDE_DOKUMENTASJON).buildFor(nyesteBehandling);
 
         Behandlingsresultat.builder()
                 .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)

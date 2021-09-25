@@ -113,7 +113,7 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
         var behandling = scenario.lagre(repositoryProvider);
 
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType)
+                .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? Avslagsårsak.MANGLENDE_DOKUMENTASJON : Avslagsårsak.UDEFINERT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(resultatType)
                 .buildFor(behandling);

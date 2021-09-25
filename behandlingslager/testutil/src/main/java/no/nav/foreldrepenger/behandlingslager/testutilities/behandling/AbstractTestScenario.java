@@ -1012,7 +1012,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 .medVilkårResultatType(vilkårResultatType);
 
         vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> {
-            inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType);
+            inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? Avslagsårsak.MANGLENDE_DOKUMENTASJON : Avslagsårsak.UDEFINERT);
         });
 
         var vilkårResultat = inngangsvilkårBuilder.buildFor(behandling);

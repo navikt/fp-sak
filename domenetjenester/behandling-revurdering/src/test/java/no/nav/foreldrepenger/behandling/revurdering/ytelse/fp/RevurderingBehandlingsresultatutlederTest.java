@@ -150,9 +150,9 @@ public class RevurderingBehandlingsresultatutlederTest {
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT).buildFor(revurdering);
+                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BOSATT).buildFor(revurdering);
 
         var lås = behandlingRepository.taSkriveLås(revurdering);
         behandlingRepository.lagre(vilkårResultat, lås);
@@ -1100,7 +1100,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         var låsFgb = behandlingRepository.taSkriveLås(førstegangsbehandling);
         var vilkårResultatFgb = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(førstegangsbehandling);
         behandlingRepository.lagre(vilkårResultatFgb, låsFgb);
@@ -1117,7 +1117,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(revurdering);
@@ -1139,7 +1139,7 @@ public class RevurderingBehandlingsresultatutlederTest {
         var låsRevurdering2 = behandlingRepository.taSkriveLås(revurdering2);
         var vilkårResultatRevurdering2 = VilkårResultat.builder()
                 .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING)
                 .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
                 .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .medVilkårResultatType(VilkårResultatType.AVSLÅTT).buildFor(revurdering2);
