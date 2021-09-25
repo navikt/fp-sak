@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -158,7 +159,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     private Behandlingsresultat behandlingsresultatMedAvslåttVilkår() {
         var vilkårBuilder = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        vilkårBuilder.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkårBuilder.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.BARN_OVER_15_ÅR);
         var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
         behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
         return behandlingsresultat;
