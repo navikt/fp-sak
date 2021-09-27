@@ -245,6 +245,7 @@ public class AbakusTjeneste {
         }
     }
 
+    @Deprecated
     public void lagreGrunnlag(InntektArbeidYtelseGrunnlagDto dto) throws IOException {
 
         var json = iayJsonWriter.writeValueAsString(dto);

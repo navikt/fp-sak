@@ -144,7 +144,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
         overstyringBuilder.medHandling(ArbeidsforholdHandlingType.IKKE_BRUK);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
 
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
 
@@ -270,7 +270,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         var overstyringBuilder = informasjonBuilder.getOverstyringBuilderFor(arbeidsgiver, ARBEIDSFORHOLD_ID);
         overstyringBuilder.medHandling(ArbeidsforholdHandlingType.BRUK);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
 
         // Assert
@@ -296,7 +296,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         overstyringBuilder.medAngittStillingsprosent(Stillingsprosent.HUNDRED);
         overstyringBuilder.leggTilOverstyrtPeriode(mottattDato.minusYears(1L), Tid.TIDENES_ENDE);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
 
         // Assert
@@ -450,7 +450,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
                 BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
         overstyringBuilder.medBekreftetPermisjon(bekreftetPermisjon);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
 
         // Assert
@@ -482,7 +482,7 @@ public class ArbeidsforholdAdministrasjonTjenesteTest {
         overstyringBuilder.medBekreftetPermisjon(bekreftetPermisjon);
         overstyringBuilder.leggTilOverstyrtPeriode(overstyrtPeriodeFom, overstyrtPeriodeTom);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
         var wrapperList = hentArbeidsforholdFerdigUtledet(behandling);
 
         // Assert

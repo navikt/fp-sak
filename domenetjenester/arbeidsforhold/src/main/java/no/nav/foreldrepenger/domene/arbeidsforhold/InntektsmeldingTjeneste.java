@@ -115,16 +115,6 @@ public class InntektsmeldingTjeneste {
     }
 
     /**
-     * @deprecated fjern når
-     *             RykkTilbakeTilStart#hoppTilbakeTil5080OgSlettInntektsmelding
-     *             fjernes
-     */
-    @Deprecated
-    public void fjernInntektsmelding(Long behandlingId, Set<JournalpostId> fjernInntektsmeldinger) {
-        iayTjeneste.dropInntektsmeldinger(behandlingId, fjernInntektsmeldinger);
-    }
-
-    /**
      * Henter kombinasjon av arbeidsgiver + arbeidsforholdRef på de det ikke vil
      * komme inn inntektsmelding for.
      *

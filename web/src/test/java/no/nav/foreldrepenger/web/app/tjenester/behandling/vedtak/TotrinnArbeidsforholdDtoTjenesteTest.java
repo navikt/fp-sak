@@ -131,7 +131,7 @@ public class TotrinnArbeidsforholdDtoTjenesteTest {
         bekreftetPermisjon.ifPresent(overstyringBuilder::medBekreftetPermisjon);
         overstyringBuilder.medArbeidsgiver(arbeidsgiver);
         informasjonBuilder.leggTil(overstyringBuilder);
-        arbeidsforholdTjeneste.lagre(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
+        arbeidsforholdTjeneste.lagreOverstyring(behandling.getId(), behandling.getAktørId(), informasjonBuilder);
     }
 
     private Virksomhet getVirksomheten() {
