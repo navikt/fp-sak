@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Acknowledge command
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           script: |
             github.reactions.createForIssueComment({
@@ -44,7 +44,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: failure()
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -56,7 +56,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status
         if: success()
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Acknowledge command
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           script: |
             github.reactions.createForIssueComment({
@@ -106,7 +106,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: steps.deploy_dev.outcome == 'failure'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -118,7 +118,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status
         if: steps.deploy_dev.outcome == 'success'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -143,7 +143,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: steps.deploy_prod.outcome == 'failure'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -155,7 +155,7 @@ jobs:
 
       - name: Oppdater kommentar med deployment status
         if: steps.deploy_prod.outcome == 'success'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
