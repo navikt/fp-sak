@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad.VM_5007;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -43,11 +42,12 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             return new OppdateringResultat.Builder()
                 .leggTilVilkårResultat(SØKNADSFRISTVILKÅRET, VilkårUtfallType.OPPFYLT)
                 .build();
+        } else {
+            return OppdateringResultat.utenTransisjon()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
+                .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET, Avslagsårsak.SØKT_FOR_SENT)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .build();
         }
-        return OppdateringResultat.utenTransisjon()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_VED_AVSLAG_VILKÅR)
-            .leggTilAvslåttVilkårResultat(SØKNADSFRISTVILKÅRET,  Avslagsårsak.SØKT_FOR_SENT, VM_5007)
-            .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
-            .build();
     }
 }

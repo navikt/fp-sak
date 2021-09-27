@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -158,7 +158,7 @@ public class RettOgOmsorgGrunnlagByggerTest {
 
     private Behandlingsresultat behandlingsresultatMedAvslåttVilkår() {
         var vilkårBuilder = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.AVSLÅTT);
-        vilkårBuilder.leggTilVilkår(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallType.IKKE_OPPFYLT);
+        vilkårBuilder.leggTilVilkårAvslått(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallMerknad.VM_1004);
         var behandlingsresultat = Behandlingsresultat.builderForInngangsvilkår().build();
         behandlingsresultat.medOppdatertVilkårResultat(vilkårBuilder.build());
         return behandlingsresultat;

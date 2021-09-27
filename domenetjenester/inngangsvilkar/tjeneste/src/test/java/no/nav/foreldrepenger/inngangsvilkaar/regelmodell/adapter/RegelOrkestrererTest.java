@@ -225,8 +225,8 @@ public class RegelOrkestrererTest {
 
         // Legg til vilkårne som automatiske, dvs hverken manuelt vurdert eller overstyrt
         VilkårResultat.builder()
-                .leggTilVilkår(søknadsfristvilkårType, IKKE_VURDERT)
-                .leggTilVilkår(adopsjonsvilkårType, IKKE_VURDERT)
+                .leggTilVilkårIkkeVurdert(søknadsfristvilkårType)
+                .leggTilVilkårIkkeVurdert(adopsjonsvilkårType)
                 .buildFor(behandling);
 
         var vilkårData = new VilkårData(adopsjonsvilkårType, OPPFYLT, emptyList());
@@ -276,7 +276,7 @@ public class RegelOrkestrererTest {
     private Behandling byggBehandlingMedVilkårresultat(VilkårResultatType vilkårResultatType, VilkårType vilkårType) {
         var behandling = lagBehandling();
         VilkårResultat.builder().medVilkårResultatType(vilkårResultatType)
-            .leggTilVilkår(vilkårType, IKKE_VURDERT).buildFor(behandling);
+            .leggTilVilkårIkkeVurdert(vilkårType).buildFor(behandling);
         return behandling;
     }
 

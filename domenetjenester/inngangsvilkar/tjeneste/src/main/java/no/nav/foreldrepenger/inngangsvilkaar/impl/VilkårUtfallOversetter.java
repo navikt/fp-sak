@@ -4,19 +4,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.inngangsvilkaar.InngangsvilkårTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.VilkårData;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelAksjonspunkt;
-import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.MerknadRuleReasonRef;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelUtfallMerknad;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.VilkårGrunnlag;
 import no.nav.fpsak.nare.evaluation.Evaluation;
+import no.nav.fpsak.nare.evaluation.Resultat;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSerializer;
 import no.nav.fpsak.nare.evaluation.summary.EvaluationSummary;
 import no.nav.vedtak.exception.TekniskException;
@@ -24,8 +28,10 @@ import no.nav.vedtak.exception.VLException;
 
 public class VilkårUtfallOversetter {
 
-    private static final Map<RegelAksjonspunkt, AksjonspunktDefinisjon> REGEL_TIL_AKSJONSPUNKT =
-        Map.of(RegelAksjonspunkt.SØKNADSFRISTVILKÅRET_IKKE_VURDERT, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
+    private static final Logger LOG = LoggerFactory.getLogger(VilkårUtfallOversetter.class);
+
+    private static final Map<RegelUtfallMerknad, AksjonspunktDefinisjon> REGEL_TIL_AKSJONSPUNKT =
+        Map.of(RegelUtfallMerknad.RVM_5007, AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET);
 
     public static VilkårData oversett(VilkårType vilkårType, Evaluation evaluation, VilkårGrunnlag grunnlag) {
         return oversett(vilkårType, evaluation, grunnlag, null);
@@ -44,15 +50,15 @@ public class VilkårUtfallOversetter {
                 + "for vilkår: " + vilkårType.getKode(), e);
         }
 
-        var vilkårUtfallType = getVilkårUtfallType(summary);
+        var vilkårUtfallType = getVilkårUtfallType(vilkårType, summary);
         var vilkårReason = getVilkårUtfallMerknad(summary);
         var vilkårUtfallMerknad = vilkårReason.map(MerknadRuleReasonRef::regelUtfallMerknad)
             .map(MapRegelMerknadTilVilkårUtfallMerknad::mapRegelMerknad).orElse(null);
         var merknadParametere = getMerknadParametere(summary);
-        var apDefinisjoner = vilkårReason.map(MerknadRuleReasonRef::regelAksjonspunkt)
-            .map(VilkårUtfallOversetter::getAksjonspunktDefinisjoner).orElse(List.of());
+        var apDefinisjoner = vilkårReason.map(MerknadRuleReasonRef::regelUtfallMerknad)
+            .map(VilkårUtfallOversetter::utledAksjonspunkter).orElse(List.of());
 
-        return new VilkårData(vilkårType, vilkårUtfallType, merknadParametere, apDefinisjoner, vilkårUtfallMerknad, null,
+        return new VilkårData(vilkårType, vilkårUtfallType, merknadParametere, apDefinisjoner, vilkårUtfallMerknad,
             regelEvalueringJson, jsonGrunnlag, ekstraData);
 
     }
@@ -62,7 +68,7 @@ public class VilkårUtfallOversetter {
             .map(Evaluation::getOutcome)
             .filter(o -> o instanceof MerknadRuleReasonRef)
             .map(o -> (MerknadRuleReasonRef) o)
-            .collect(Collectors.toList());
+            .toList();
 
         if (leafReasons.size() > 1) {
             throw new IllegalArgumentException("Støtter kun et utfall p.t., fikk:" + leafReasons);
@@ -73,11 +79,11 @@ public class VilkårUtfallOversetter {
         }
     }
 
-    private static List<AksjonspunktDefinisjon> getAksjonspunktDefinisjoner(RegelAksjonspunkt regelAksjonspunkt) {
-        if (regelAksjonspunkt == null ||  REGEL_TIL_AKSJONSPUNKT.get(regelAksjonspunkt) == null) {
-            return List.of();
-        }
-        return List.of(REGEL_TIL_AKSJONSPUNKT.get(regelAksjonspunkt));
+    private static List<AksjonspunktDefinisjon> utledAksjonspunkter(RegelUtfallMerknad merknad) {
+        return Optional.ofNullable(merknad)
+            .map(REGEL_TIL_AKSJONSPUNKT::get)
+            .map(List::of)
+            .orElse(List.of());
     }
 
     private static Map<String, Object> getMerknadParametere(EvaluationSummary summary) {
@@ -89,22 +95,40 @@ public class VilkårUtfallOversetter {
         return params;
     }
 
-    private static VilkårUtfallType getVilkårUtfallType(EvaluationSummary summary) {
+    private static VilkårUtfallType getVilkårUtfallType(VilkårType vilkårType, EvaluationSummary summary) {
+        // TODO(jol) ta i neste runde av 4570. Virker flaky pga hvisIkke - conditions som returnerer outcome
+        var oldResult = oldGetVilkårUtfallType(summary);
+        var alleUtfall = summary.leafEvaluations().stream()
+            .filter(e -> e.getOutcome() != null)
+            .map(e -> mapEvaluationResultToUtfallType(e.result()))
+            .collect(Collectors.toSet());
+        if (alleUtfall.size() != 1) {
+            LOG.info("REGELOVERSETTER vilkår {} flere utfall {} oldres = {}", vilkårType, alleUtfall, oldResult);
+        } else if (!alleUtfall.contains(oldResult)) {
+            LOG.info("REGELOVERSETTER vilkår {} annet svar {} oldres = {}", vilkårType, alleUtfall, oldResult);
+        }
+        return oldResult;
+    }
+
+    private static VilkårUtfallType oldGetVilkårUtfallType(EvaluationSummary summary) {
+        // TODO(jol) ta i neste runde av 4570. Virker flaky pga hvisIkke - conditions som returnerer outcome  -> bruk annen RREF for conditionals
         var leafEvaluations = summary.leafEvaluations();
         for (var ev : leafEvaluations) {
             if (ev.getOutcome() != null) {
-                var res = ev.result();
-                return switch (res) {
-                    case JA -> VilkårUtfallType.OPPFYLT;
-                    case NEI -> VilkårUtfallType.IKKE_OPPFYLT;
-                    case IKKE_VURDERT -> VilkårUtfallType.IKKE_VURDERT;
-                    default -> throw new IllegalArgumentException("Ukjent Resultat:" + res + " ved evaluering av:" + ev);
-                };
+                return mapEvaluationResultToUtfallType(ev.result());
             }
             return VilkårUtfallType.OPPFYLT;
         }
 
         throw new IllegalArgumentException("leafEvaluations.isEmpty():" + leafEvaluations);
+    }
+
+    private static VilkårUtfallType mapEvaluationResultToUtfallType(Resultat res) {
+        return switch (res) {
+            case JA -> VilkårUtfallType.OPPFYLT;
+            case NEI -> VilkårUtfallType.IKKE_OPPFYLT;
+            case IKKE_VURDERT -> VilkårUtfallType.IKKE_VURDERT;
+        };
     }
 
 }

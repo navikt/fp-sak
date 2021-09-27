@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
@@ -111,6 +112,15 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse{
             throw new IllegalArgumentException("Ukjent Avslagsårsak: " + kode);
         }
         return ad;
+    }
+
+    public static Optional<Avslagsårsak> fraDefinertKode(String kode) {
+        return Optional.ofNullable(fraKode(kode))
+            .filter(a -> !UDEFINERT.equals(a));
+    }
+
+    public static boolean erDefinertÅrsak(Avslagsårsak årsak) {
+        return årsak != null && !UDEFINERT.equals(årsak);
     }
 
     public static Map<String, Avslagsårsak> kodeMap() {

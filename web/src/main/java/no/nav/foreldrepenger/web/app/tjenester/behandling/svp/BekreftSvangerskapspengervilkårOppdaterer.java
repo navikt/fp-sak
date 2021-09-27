@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = BekreftSvangerskapspengervilkårDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -40,13 +41,15 @@ public class BekreftSvangerskapspengervilkårOppdaterer implements AksjonspunktO
             return OppdateringResultat.utenTransisjon()
                 .leggTilVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårUtfallType.OPPFYLT)
                 .medTotrinn().build();
+        } else {
+            var avslagsårsak = Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+                .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
+            return new OppdateringResultat.Builder()
+                .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
+                .medTotrinn()
+                .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
+                .build();
         }
-        var avslagsårsak = Avslagsårsak.fraKode(dto.getAvslagskode());
-        return new OppdateringResultat.Builder()
-            .medFremoverHopp(FellesTransisjoner.FREMHOPP_TIL_FORESLÅ_BEHANDLINGSRESULTAT)
-            .medTotrinn()
-            .leggTilAvslåttVilkårResultat(VilkårType.SVANGERSKAPSPENGERVILKÅR, avslagsårsak)
-            .build();
     }
 
     private void lagHistorikkinnslag(String begrunnelse,

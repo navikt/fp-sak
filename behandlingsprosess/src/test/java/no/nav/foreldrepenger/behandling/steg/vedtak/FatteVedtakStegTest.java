@@ -60,7 +60,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
@@ -552,27 +552,40 @@ public class FatteVedtakStegTest {
     private void oppdaterMedBehandlingsresultat(BehandlingskontrollKontekst kontekst, boolean innvilget, int antallBarn) {
         var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
 
-        var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
-                .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+        if (innvilget) {
+            var vilkårResultat = VilkårResultat.builder()
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
 
-        var lås = kontekst.getSkriveLås();
-        behandlingRepository.lagre(vilkårResultat, lås);
-
-        if (innvilget) {
+            var lås = kontekst.getSkriveLås();
+            behandlingRepository.lagre(vilkårResultat, lås);
             var bres = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
             var beregningResultat = LegacyESBeregningsresultat.builder()
                     .medBeregning(new LegacyESBeregning(48500L, antallBarn, 48500L * antallBarn, LocalDateTime.now()))
                     .buildFor(behandling, bres);
             beregningRepository.lagre(beregningResultat, lås);
-        }
-
-        Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
-                .medBehandlingResultatType(innvilget ? BehandlingResultatType.INNVILGET : BehandlingResultatType.AVSLÅTT)
+            Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
+                .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
 
-        behandlingRepository.lagre(behandling, lås);
+            behandlingRepository.lagre(behandling, lås);
+        } else {
+            var vilkårResultat = VilkårResultat.builder()
+                .leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026)
+                .medVilkårResultatType(VilkårResultatType.AVSLÅTT)
+                .buildFor(behandling);
+
+            var lås = kontekst.getSkriveLås();
+            behandlingRepository.lagre(vilkårResultat, lås);
+            Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling))
+                .medBehandlingResultatType(BehandlingResultatType.AVSLÅTT)
+                .buildFor(behandling);
+
+            behandlingRepository.lagre(behandling, lås);
+        }
+
+
     }
 
 }

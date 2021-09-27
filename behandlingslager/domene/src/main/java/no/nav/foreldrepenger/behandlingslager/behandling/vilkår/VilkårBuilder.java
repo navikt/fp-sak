@@ -32,15 +32,17 @@ public class VilkårBuilder {
         return this;
     }
 
-    public VilkårBuilder medVilkårUtfall(VilkårUtfallType vilkårUtfall, Avslagsårsak avslagsårsak) {
+    public VilkårBuilder medVilkårUtfall(VilkårUtfallType vilkårUtfall, VilkårUtfallMerknad merknad) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfall) && (merknad == null || VilkårUtfallMerknad.UDEFINERT.equals(merknad)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfall(vilkårUtfall);
-        if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
-            kladd.setAvslagsårsak(avslagsårsak);
-        }
+        kladd.setVilkårUtfallMerknad(merknad != null ? merknad : VilkårUtfallMerknad.UDEFINERT);
         return this;
     }
 
-    public VilkårBuilder medUtfallManuell(VilkårUtfallType vilkårUtfallManuell, Avslagsårsak avslagsårsak) {
+    VilkårBuilder medUtfallManuell(VilkårUtfallType vilkårUtfallManuell, Avslagsårsak avslagsårsak) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallManuell) && (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfallManuelt(vilkårUtfallManuell);
         if (!VilkårUtfallType.IKKE_OPPFYLT.equals(kladd.getVilkårUtfallOverstyrt())) {
             kladd.setAvslagsårsak(avslagsårsak);
@@ -49,13 +51,10 @@ public class VilkårBuilder {
     }
 
     VilkårBuilder medUtfallOverstyrt(VilkårUtfallType vilkårUtfallOverstyrt, Avslagsårsak avslagsårsak) {
+        if (VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallOverstyrt) && (avslagsårsak == null || Avslagsårsak.UDEFINERT.equals(avslagsårsak)))
+            throw new IllegalArgumentException("Mangler avslagsårsak");
         kladd.setVilkårUtfallOverstyrt(vilkårUtfallOverstyrt);
         kladd.setAvslagsårsak(avslagsårsak);
-        return this;
-    }
-
-    public VilkårBuilder medVilkårUtfallMerknad(VilkårUtfallMerknad vilkårUtfallMerknad) {
-        kladd.setVilkårUtfallMerknad(vilkårUtfallMerknad != null ? vilkårUtfallMerknad : VilkårUtfallMerknad.UDEFINERT);
         return this;
     }
 

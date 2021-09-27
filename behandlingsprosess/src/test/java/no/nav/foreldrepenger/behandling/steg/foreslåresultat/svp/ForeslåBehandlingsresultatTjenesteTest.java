@@ -247,8 +247,8 @@ public class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareT
 
         var vilkårsresultatBuilder = VilkårResultat.builder();
         if (vilkårUtfallType.equals(VilkårUtfallType.OPPFYLT)) {
-            vilkårsresultatBuilder.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, vilkårUtfallType);
-            vilkårsresultatBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, vilkårUtfallType);
+            vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET);
+            vilkårsresultatBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
             vilkårsresultatBuilder.medVilkårResultatType(VilkårResultatType.INNVILGET);
         } else {
             vilkårsresultatBuilder.manueltVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT,

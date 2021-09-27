@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår.opptjening;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType.IKKE_VURDERT;
-
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -56,7 +54,7 @@ public class RyddOpptjening {
 
         if (opptjeningVilkår.isPresent()) {
             var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                .leggTilVilkår(opptjeningVilkår.get().getVilkårType(), IKKE_VURDERT);
+                .leggTilVilkårIkkeVurdert(opptjeningVilkår.get().getVilkårType());
             builder.buildFor(behandling);
             behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         }
@@ -74,15 +72,14 @@ public class RyddOpptjening {
         if (vilkårResultat == null) {
             return;
         }
-        var opptjeningPeriodeVilkår = vilkårResultat.getVilkårene()
-            .stream()
-            .filter(vilkåret -> vilkåret.getVilkårType().equals(VilkårType.OPPTJENINGSPERIODEVILKÅR))
-            .findFirst();
-        if (opptjeningPeriodeVilkår.isPresent()) {
-            var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
-                .leggTilVilkår(opptjeningPeriodeVilkår.get().getVilkårType(), IKKE_VURDERT);
-            builder.buildFor(behandling);
-            behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
-        }
+        vilkårResultat.getVilkårene().stream()
+            .map(Vilkår::getVilkårType)
+            .filter(VilkårType.OPPTJENINGSPERIODEVILKÅR::equals)
+            .findFirst().ifPresent(vilkårType -> {
+                var builder = VilkårResultat.builderFraEksisterende(vilkårResultat)
+                    .leggTilVilkårIkkeVurdert(vilkårType);
+                builder.buildFor(behandling);
+                behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
+            });
     }
 }

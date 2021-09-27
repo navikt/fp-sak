@@ -12,9 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBereg
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.LegacyESBeregningsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -224,7 +222,7 @@ public class BeregningResultatTest extends EntityManagerAwareTest {
         // TX_2: Oppdatere Behandlingsresultat med VilkårResultat
         behandling1 = behandlingRepository.hentBehandling(behandling1.getId());
         var vilkårResultat = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
                 .buildFor(behandling1);
 
         var lås = behandlingRepository.taSkriveLås(behandling1);

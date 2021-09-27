@@ -17,10 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapVilkårPeriodeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.AvslagsårsakMapper;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.VurderLøpendeMedlemskap;
 
@@ -71,13 +70,12 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
 
                 var resultat = medlemskapVilkårPeriodeRepository.utledeVilkårStatus(behandling);
                 var vilkårResultatBuilder = VilkårResultat
-                        .builderFraEksisterende(getBehandlingsresultat(behandlingId).getVilkårResultat());
+                        .builderFraEksisterende(getBehandlingsresultat(behandlingId).map(Behandlingsresultat::getVilkårResultat).orElse(null));
                 var vilkårBuilder = vilkårResultatBuilder.getVilkårBuilderFor(VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE);
                 if (VilkårUtfallType.IKKE_OPPFYLT.equals(resultat.vilkårUtfallType())) {
-                    var avslagsårsak = AvslagsårsakMapper.fraVilkårUtfallMerknad(resultat.vilkårUtfallMerknad());
-                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), avslagsårsak).medVilkårUtfallMerknad(resultat.vilkårUtfallMerknad());
+                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), resultat.vilkårUtfallMerknad());
                 } else {
-                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), Avslagsårsak.UDEFINERT);
+                    vilkårBuilder.medVilkårUtfall(resultat.vilkårUtfallType(), VilkårUtfallMerknad.UDEFINERT);
                 }
                 vilkårResultatBuilder.leggTilVilkår(vilkårBuilder);
                 var lås = kontekst.getSkriveLås();
@@ -88,14 +86,13 @@ public class VurderLøpendeMedlemskapSteg implements BehandlingSteg {
     }
 
     private boolean skalVurdereLøpendeMedlemskap(Long behandlingId) {
-        var behandlingsresultat = Optional.ofNullable(getBehandlingsresultat(behandlingId));
-        return behandlingsresultat.map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
-                .stream()
-                .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET)
-                        && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
+        return getBehandlingsresultat(behandlingId)
+            .map(b -> b.getVilkårResultat().getVilkårene()).orElse(Collections.emptyList())
+            .stream()
+            .anyMatch(v -> v.getVilkårType().equals(VilkårType.MEDLEMSKAPSVILKÅRET) && v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT));
     }
 
-    private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
+    private Optional<Behandlingsresultat> getBehandlingsresultat(Long behandlingId) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
     }
 }

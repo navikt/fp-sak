@@ -38,7 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
@@ -211,7 +210,7 @@ public class DokumentmottakerKlageTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
         VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
                 .medVilkårResultatType(VilkårResultatType.INNVILGET)
                 .buildFor(behandling);
         var behandlingsresultat = behandling.getBehandlingsresultat();

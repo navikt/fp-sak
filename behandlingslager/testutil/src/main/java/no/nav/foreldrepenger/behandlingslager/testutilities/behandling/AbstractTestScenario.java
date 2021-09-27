@@ -82,6 +82,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittDekningsgradEntitet;
@@ -1012,7 +1013,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
                 .medVilkårResultatType(vilkårResultatType);
 
         vilkårTyper.forEach((vilkårType, vilkårUtfallType) -> {
-            inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType);
+            inngangsvilkårBuilder.leggTilVilkår(vilkårType, vilkårUtfallType, VilkårUtfallType.IKKE_OPPFYLT.equals(vilkårUtfallType) ? VilkårUtfallMerknad.VM_1019 : VilkårUtfallMerknad.UDEFINERT);
         });
 
         var vilkårResultat = inngangsvilkårBuilder.buildFor(behandling);

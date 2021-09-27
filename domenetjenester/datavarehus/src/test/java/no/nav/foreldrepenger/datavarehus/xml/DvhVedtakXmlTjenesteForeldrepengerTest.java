@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.PerioderAleneOmsorgEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -354,7 +353,7 @@ public class DvhVedtakXmlTjenesteForeldrepengerTest {
                 .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
                 .buildFor(behandling);
         var vilkårResultat = VilkårResultat.builder().medVilkårResultatType(VilkårResultatType.INNVILGET)
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
                 .buildFor(behandlingsresultat);
         entityManager.persist(vilkårResultat);
         behandlingsresultat.medOppdatertVilkårResultat(vilkårResultat);

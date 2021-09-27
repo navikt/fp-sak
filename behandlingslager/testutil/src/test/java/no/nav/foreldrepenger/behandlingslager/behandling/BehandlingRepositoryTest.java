@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
@@ -305,7 +305,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, lås);
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkårIkkeVurdert(VilkårType.OMSORGSVILKÅRET)
             .buildFor(behandling);
 
         // Act
@@ -319,7 +319,7 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         // Arrange
         VilkårResultat.builderFraEksisterende(vilkårResultat)
-            .leggTilVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_VURDERT)
+            .leggTilVilkårIkkeVurdert(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
             .fjernVilkår(VilkårType.OMSORGSVILKÅRET)
             .buildFor(behandling);
 
@@ -744,10 +744,13 @@ public class BehandlingRepositoryTest extends EntityManagerAwareTest {
         var lås = behandlingRepository.taSkriveLås(behandling);
         behandlingRepository.lagre(behandling, lås);
 
-        VilkårResultat.builder()
-            .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, innvilget ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
-            .medVilkårResultatType(innvilget ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-            .buildFor(behandling);
+        var builder = VilkårResultat.builder();
+        if (innvilget) {
+            builder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR).medVilkårResultatType(VilkårResultatType.INNVILGET);
+        } else {
+            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026).medVilkårResultatType(VilkårResultatType.AVSLÅTT);
+        }
+        builder.buildFor(behandling);
         behandlingRepository.lagre(behandlingsresultat.getVilkårResultat(), lås);
 
         if (innvilget) {

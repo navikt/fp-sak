@@ -69,8 +69,7 @@ public abstract class VurderOpptjeningsvilkårStegFelles extends Inngangsvilkår
         var opptjeningsvilkår = regelResultat.vilkårResultat().getVilkårene().stream()
                 .filter(v -> v.getVilkårType().equals(OPPTJENINGSVILKÅRET))
                 .findFirst();
-        return opptjeningsvilkår.map(v -> !v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.IKKE_VURDERT))
-                .orElse(Boolean.FALSE);
+        return opptjeningsvilkår.filter(v -> !VilkårUtfallType.IKKE_VURDERT.equals(v.getGjeldendeVilkårUtfall())).isPresent();
     }
 
     @Override

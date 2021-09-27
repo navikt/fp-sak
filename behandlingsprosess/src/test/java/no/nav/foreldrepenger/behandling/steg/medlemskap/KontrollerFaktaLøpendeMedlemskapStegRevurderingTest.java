@@ -35,7 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
@@ -130,7 +130,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         var revudering = opprettRevurdering(behandling);
 
         var inngangsvilkårBuilder = VilkårResultat.builder();
-        inngangsvilkårBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT);
+        inngangsvilkårBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
         var vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
 
         var behandlingsresultat = Behandlingsresultat.opprettFor(revudering);
@@ -177,7 +177,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurderingTest {
         var revudering = opprettRevurdering(behandling);
 
         var inngangsvilkårBuilder = VilkårResultat.builder();
-        inngangsvilkårBuilder.leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT);
+        inngangsvilkårBuilder.leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025);
         var vilkårResultat = inngangsvilkårBuilder.buildFor(revudering);
 
         var behandlingsresultat = Behandlingsresultat.opprettFor(revudering);

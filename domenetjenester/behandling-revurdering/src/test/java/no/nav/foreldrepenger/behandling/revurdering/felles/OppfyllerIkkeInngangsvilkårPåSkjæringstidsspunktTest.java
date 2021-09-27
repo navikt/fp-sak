@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -90,15 +91,15 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_alle_inngangsvilkår_oppfylt_gir_positivt_utfall() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKNADSFRISTVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKNADSFRISTVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.BEREGNINGSGRUNNLAGVILKÅR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSPERIODEVILKÅR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.OMSORGSVILKÅRET)
                 .buildFor(revurdering);
 
         // Act
@@ -113,9 +114,9 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_inngangsvilkår_ikke_oppfylt_gir_negativt_utfall() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019)
                 .buildFor(revurdering);
 
         // Act
@@ -130,9 +131,9 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_inngangsvilkår_ikke_vurdert_gir_samme_som_omliggende() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_VURDERT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårIkkeVurdert(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
                 .buildFor(revurdering);
 
         // Act
@@ -147,10 +148,10 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_negativ_medlemsskapsvilkår_gir_negativt_resultat() {
         // Arrange
         VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025)
                 .buildFor(revurdering);
 
         // Act
@@ -203,7 +204,7 @@ public class OppfyllerIkkeInngangsvilkårPåSkjæringstidsspunktTest {
     public void skal_teste_at_behandlingsresultatet_fastsettes_korrekt_for_saker_med_avslagsårsak_null() {
         // Arrange
         VilkårResultat.builder()
-                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.UDEFINERT)
+                .manueltVilkår(VilkårType.BEREGNINGSGRUNNLAGVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG)
                 .buildFor(revurdering);
 
         // Act

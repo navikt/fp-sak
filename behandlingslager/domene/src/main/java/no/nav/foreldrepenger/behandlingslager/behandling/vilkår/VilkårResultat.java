@@ -197,7 +197,7 @@ public class VilkårResultat extends BaseEntitet {
 
         private static final Logger LOG = LoggerFactory.getLogger(VilkårResultat.Builder.class);
         private static final boolean PROD = Environment.current().isProd();
-        private static String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller avslagsårsak";
+        private static String MISSING_VILKÅR_ARGS = "Mangler vilkårtype, utfall eller årsak";
 
         private Map<VilkårType, Vilkår> vilkårene = new EnumMap<>(VilkårType.class);
 
@@ -245,14 +245,24 @@ public class VilkårResultat extends BaseEntitet {
             return this;
         }
 
-        public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType) {
-            return leggTilVilkår(vilkårType, utfallType, Avslagsårsak.UDEFINERT);
+        public Builder leggTilVilkårIkkeVurdert(VilkårType vilkårType) {
+            return leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
         }
 
-        public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
-            if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+        public Builder leggTilVilkårOppfylt(VilkårType vilkårType) {
+            return leggTilVilkår(vilkårType, VilkårUtfallType.OPPFYLT, VilkårUtfallMerknad.UDEFINERT);
+        }
+
+        public Builder leggTilVilkårAvslått(VilkårType vilkårType, VilkårUtfallMerknad merknad) {
+            return leggTilVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT, merknad);
+        }
+
+        public Builder leggTilVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, VilkårUtfallMerknad merknad) {
+            if (vilkårType == null || utfallType == null || merknad == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && VilkårUtfallMerknad.UDEFINERT.equals(merknad))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
-                .medVilkårUtfall(utfallType, avslagsårsak).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+                .medVilkårUtfall(utfallType, merknad);
             vilkårene.put(vilkårType, builder.build());
             modifisert = true;
             return this;
@@ -260,6 +270,8 @@ public class VilkårResultat extends BaseEntitet {
 
         public Builder manueltVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
             if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
                 .medUtfallManuell(utfallType, avslagsårsak);
             vilkårene.put(vilkårType, builder.build());
@@ -269,18 +281,26 @@ public class VilkårResultat extends BaseEntitet {
 
         public Builder overstyrVilkår(VilkårType vilkårType, VilkårUtfallType utfallType, Avslagsårsak avslagsårsak) {
             if (vilkårType == null || utfallType == null || avslagsårsak == null) throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
+            if (VilkårUtfallType.IKKE_OPPFYLT.equals(utfallType) && Avslagsårsak.UDEFINERT.equals(avslagsårsak))
+                throw new IllegalArgumentException(MISSING_VILKÅR_ARGS);
             var builder = getBuilderFor(vilkårType)
-                .medUtfallManuell(utfallType, avslagsårsak)
                 .medUtfallOverstyrt(utfallType, avslagsårsak);
             vilkårene.put(vilkårType, builder.build());
             modifisert = true;
             return this;
         }
 
-        public Builder nullstillVilkår(VilkårType vilkårType) {
-            var builder = getBuilderFor(vilkårType)
-                .medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
-            vilkårene.put(vilkårType, builder.build());
+        public Builder nullstillVilkår(Vilkår vilkår) {
+            if (VilkårUtfallType.erFastsatt(vilkår.getVilkårUtfallOverstyrt())) {
+                throw new IllegalStateException("Utviklerfeil - vilkåret er overstyrt");
+            }
+            if (VilkårUtfallType.erFastsatt(vilkår.getVilkårUtfallManuelt())) {
+                LOG.info("VILKÅR: Nullstiller vilkår {} som er manuelt vurdert {}", vilkår.getVilkårType(), vilkår.getVilkårUtfallManuelt());
+            }
+            var builder = getBuilderFor(vilkår.getVilkårType())
+                .medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
+                // TODO(jol) sjekk logg og vurdere denne .medUtfallManuell(VilkårUtfallType.UDEFINERT, Avslagsårsak.UDEFINERT);
+            vilkårene.put(vilkår.getVilkårType(), builder.build());
             modifisert = true;
             return this;
         }
@@ -309,10 +329,9 @@ public class VilkårResultat extends BaseEntitet {
                 .medRegelEvaluering(vilkår.getRegelEvaluering())
                 .medRegelInput(vilkår.getRegelInput());
             if (settTilIkkeVurdert) {
-                builder.medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, Avslagsårsak.UDEFINERT).medVilkårUtfallMerknad(VilkårUtfallMerknad.UDEFINERT);
+                builder.medVilkårUtfall(VilkårUtfallType.IKKE_VURDERT, VilkårUtfallMerknad.UDEFINERT);
             } else {
-                builder.medVilkårUtfall(vilkår.getVilkårUtfall(), vilkår.getAvslagsårsak())
-                    .medVilkårUtfallMerknad(vilkår.getVilkårUtfallMerknad());
+                builder.medVilkårUtfall(vilkår.getVilkårUtfall(), vilkår.getVilkårUtfallMerknad());
             }
             vilkårene.put(vilkår.getVilkårType(), builder.build());
             modifisert = true;

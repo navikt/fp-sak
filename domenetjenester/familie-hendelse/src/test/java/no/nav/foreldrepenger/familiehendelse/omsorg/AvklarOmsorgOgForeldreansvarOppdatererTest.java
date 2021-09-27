@@ -108,7 +108,7 @@ public class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwa
 
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
         delresultat.getVilkårResultatSomSkalLeggesTil()
-            .forEach(v -> vilkårBuilder.leggTilVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
+            .forEach(v -> vilkårBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
         delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
         if (delresultat.getVilkårResultatType() != null) {
             vilkårBuilder.medVilkårResultatType(delresultat.getVilkårResultatType());

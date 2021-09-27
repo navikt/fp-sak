@@ -86,7 +86,6 @@ public class InngangsvilkårTjeneste {
      * Overstyr søkers opplysningsplikt.
      */
     public void overstyrAksjonspunktForSøkersopplysningsplikt(Long behandlingId, VilkårUtfallType utfall, BehandlingskontrollKontekst kontekst) {
-        var avslagsårsak = Avslagsårsak.MANGLENDE_DOKUMENTASJON;
         var vilkårType = VilkårType.SØKERSOPPLYSNINGSPLIKT;
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
@@ -95,12 +94,12 @@ public class InngangsvilkårTjeneste {
         var builder = VilkårResultat.builderFraEksisterende(vilkårResultat);
 
         if (Objects.equals(VilkårUtfallType.OPPFYLT, utfall)) {
-            builder.overstyrVilkår(vilkårType, utfall, Avslagsårsak.UDEFINERT);
+            builder.overstyrVilkår(vilkårType, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT);
             if (!finnesOverstyrteAvviste(vilkårResultat, vilkårType)) {
                 builder.medVilkårResultatType(VilkårResultatType.IKKE_FASTSATT);
             }
         } else {
-            builder.overstyrVilkår(vilkårType, utfall, avslagsårsak);
+            builder.overstyrVilkår(vilkårType, VilkårUtfallType.IKKE_OPPFYLT,  Avslagsårsak.MANGLENDE_DOKUMENTASJON);
             builder.medVilkårResultatType(VilkårResultatType.AVSLÅTT);
         }
         builder.buildFor(behandling);

@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 public class OppdateringResultat {
@@ -170,21 +169,13 @@ public class OppdateringResultat {
         public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak) {
             Objects.requireNonNull(vilkårType);
             Objects.requireNonNull(avslagsårsak);
+            if (Avslagsårsak.UDEFINERT.equals(avslagsårsak)) {
+                throw new IllegalArgumentException("Mangler gyldig avslagsårsak");
+            }
             if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
                 throw new IllegalStateException(MULTI_ENDRING);
             }
             resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak));
-            return this;
-        }
-
-        public Builder leggTilAvslåttVilkårResultat(VilkårType vilkårType, Avslagsårsak avslagsårsak, VilkårUtfallMerknad merknad) {
-            Objects.requireNonNull(vilkårType);
-            Objects.requireNonNull(avslagsårsak);
-            Objects.requireNonNull(merknad);
-            if (resultat.vilkårTyperSomSkalFjernes.stream().anyMatch(type -> type.equals(vilkårType))) {
-                throw new IllegalStateException(MULTI_ENDRING);
-            }
-            resultat.vilkårResultatSomSkalLeggesTil.add(new VilkårOppdateringResultat(vilkårType, avslagsårsak, merknad));
             return this;
         }
 

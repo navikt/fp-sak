@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatTy
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -123,10 +123,14 @@ public class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
                 .medBehandlingResultatType(behandlingResultatType)
                 .buildFor(behandling);
         var ikkeAvslått = !behandlingResultatType.equals(BehandlingResultatType.AVSLÅTT);
-        VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, ikkeAvslått ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT)
-                .medVilkårResultatType(ikkeAvslått ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
-                .buildFor(behandling);
+        var builder = VilkårResultat.builder();
+        if (ikkeAvslått) {
+            builder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR);
+        } else {
+            builder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026);
+        }
+        builder.medVilkårResultatType(ikkeAvslått ? VilkårResultatType.INNVILGET : VilkårResultatType.AVSLÅTT)
+            .buildFor(behandling);
 
         var lås = kontekst.getSkriveLås();
         var behandlingsresultat = behandling.getBehandlingsresultat();

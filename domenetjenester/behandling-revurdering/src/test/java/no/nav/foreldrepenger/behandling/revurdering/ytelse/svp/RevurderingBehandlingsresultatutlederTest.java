@@ -50,7 +50,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -59,12 +59,12 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.PeriodeIkkeOppfyltÅrsak
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.prosess.HentOgLagreBeregningsgrunnlagTjeneste;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.OpphørUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.svp.EndringsdatoRevurderingUtlederImpl;
@@ -176,10 +176,10 @@ public class RevurderingBehandlingsresultatutlederTest {
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -223,10 +223,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -276,10 +276,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -328,10 +328,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -385,10 +385,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -433,10 +433,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -488,10 +488,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -544,10 +544,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -598,10 +598,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -653,10 +653,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
 
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
@@ -708,10 +708,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -756,10 +756,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -809,10 +809,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -855,10 +855,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -902,10 +902,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -952,10 +952,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
@@ -1002,10 +1002,10 @@ public class RevurderingBehandlingsresultatutlederTest {
 
         var låsRevurdering = behandlingRepository.taSkriveLås(revurdering);
         var vilkårResultatRevurdering = VilkårResultat.builder()
-                .leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT)
-                .leggTilVilkår(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallType.OPPFYLT)
+                .leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR)
+                .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
+                .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
+                .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
                 .buildFor(revurdering);
         behandlingRepository.lagre(vilkårResultatRevurdering, låsRevurdering);
 
