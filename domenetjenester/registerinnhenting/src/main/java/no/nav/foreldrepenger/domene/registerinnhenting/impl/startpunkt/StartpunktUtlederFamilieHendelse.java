@@ -10,10 +10,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 
 @ApplicationScoped
 @GrunnlagRef("FamilieHendelseGrunnlag")
@@ -22,6 +24,7 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
+    private UtsettelseBehandling2021 utsettelseBehandling2021;
 
     StartpunktUtlederFamilieHendelse() {
         // For CDI
@@ -29,11 +32,13 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
 
     @Inject
     StartpunktUtlederFamilieHendelse(SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     UtsettelseBehandling2021 utsettelseBehandling2021,
                                      FamilieHendelseTjeneste familieHendelseTjeneste,
                                      FagsakRelasjonTjeneste fagsakRelasjonTjeneste) {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
+        this.utsettelseBehandling2021 = utsettelseBehandling2021;
     }
 
     @Override
@@ -50,6 +55,10 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.SØKERS_RELASJON_TIL_BARNET, "antall barn", grunnlag1, grunnlag2);
             return StartpunktType.SØKERS_RELASJON_TIL_BARNET;
         }
+        if (erUttaksreglerEndret(ref, grunnlag1, grunnlag2)) {
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.OPPTJENING, "endret uttaksregler", grunnlag1, grunnlag2);
+            return StartpunktType.OPPTJENING;
+        }
         if (erTilkommetRegisterDødfødselMedDekningsgrad80(ref, grunnlag1, grunnlag2)) {
             FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "antall barn", grunnlag1, grunnlag2);
             return StartpunktType.BEREGNING;
@@ -64,26 +73,28 @@ class StartpunktUtlederFamilieHendelse implements StartpunktUtleder {
             .map(origId -> skjæringstidspunktTjeneste.getSkjæringstidspunkter(origId).getUtledetSkjæringstidspunkt());
 
         var nyBekreftetFødselsdato = grunnlagForBehandling.getGjeldendeBekreftetVersjon()
-            .flatMap(FamilieHendelseEntitet::getFødselsdato);
+            .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
         var origBekreftetFødselsdato = ref.getOriginalBehandlingId()
             .flatMap(origId -> familieHendelseTjeneste.hentAggregat(origId).getGjeldendeBekreftetVersjon())
-            .flatMap(FamilieHendelseEntitet::getFødselsdato);
+            .flatMap(FamilieHendelseEntitet::getFødselsdato).orElse(null);
 
-        if (nyBekreftetFødselsdato.isPresent()) {
-            if (!origBekreftetFødselsdato.isPresent()
-                || nyBekreftetFødselsdato.get().isBefore(origBekreftetFødselsdato.get())) {
-
+        if (nyBekreftetFødselsdato != null) {
+            if (origBekreftetFødselsdato == null || nyBekreftetFødselsdato.isBefore(origBekreftetFødselsdato)) {
                 // Familiehendelse har blitt bekreftet etter original behandling, eller flyttet til tidligere dato
-                if (nyBekreftetFødselsdato.get().isBefore(nySkjæringstidspunkt)) {
+                if (nyBekreftetFødselsdato.isBefore(nySkjæringstidspunkt)) {
                     return true;
                 }
             }
         }
 
-        if (origSkjæringstidspunkt.isPresent()) {
-            return nySkjæringstidspunkt.isBefore(origSkjæringstidspunkt.get());
-        }
-        return false;
+        return origSkjæringstidspunkt.filter(nySkjæringstidspunkt::isBefore).isPresent();
+    }
+
+    private boolean erUttaksreglerEndret(BehandlingReferanse ref, Long id1, Long id2) {
+        if (!FagsakYtelseType.FORELDREPENGER.equals(ref.getFagsakYtelseType())) return false;
+        var grunnlag1 = familieHendelseTjeneste.hentGrunnlagPåId(id1);
+        var grunnlag2 = familieHendelseTjeneste.hentGrunnlagPåId(id2);
+        return utsettelseBehandling2021.endringAvSammenhengendeUttak(ref, grunnlag1, grunnlag2);
     }
 
     private boolean erAntallBekreftedeBarnEndret(Long id1, Long id2) {

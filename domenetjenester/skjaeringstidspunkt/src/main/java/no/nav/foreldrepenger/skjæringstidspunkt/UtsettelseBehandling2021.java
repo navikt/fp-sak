@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -44,12 +45,26 @@ public class UtsettelseBehandling2021 {
             .orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
     }
 
+    public boolean usikkertFrittUttak(Long behandlingId) {
+        return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
+            .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingId))
+            .map(utsettelseCore::usikkertFrittUttak)
+            .orElse(true);
+    }
+
     private Optional<FamilieHendelseGrunnlagEntitet> vedtattFamilieHendelseRelatertFagsak(Long behandlingId) {
         var fagsak = behandlingRepository.hentBehandling(behandlingId).getFagsak();
         return fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsak)
             .flatMap(r -> r.getRelatertFagsak(fagsak)).map(Fagsak::getId)
             .flatMap(behandlingRepository::finnSisteAvsluttedeIkkeHenlagteBehandling).map(Behandling::getId)
             .flatMap(familieHendelseRepository::hentAggregatHvisEksisterer);
+    }
+
+    public boolean endringAvSammenhengendeUttak(BehandlingReferanse ref, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag1, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag2) {
+        var sammenhengendeGrunnlag1 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag1);
+        var sammenhengendeGrunnlag2 = utsettelseCore.kreverSammenhengendeUttak(familieHendelseGrunnlag2);
+        var sammenhengendeBehandling = kreverSammenhengendeUttak(ref.getBehandlingId());
+        return sammenhengendeGrunnlag1 != sammenhengendeGrunnlag2 || sammenhengendeBehandling != sammenhengendeGrunnlag1;
     }
 
 }

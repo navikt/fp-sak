@@ -22,8 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /*
  * OBSOBSOBS: Endelig ikrafttredelse dato og overgangs vedtas først i Statsråd, etter Stortingets behandling av P127L20/21
@@ -39,7 +39,7 @@ public class UtsettelseCore2021 {
     public static final boolean DEFAULT_KREVER_SAMMENHENGENDE_UTTAK = true;
 
     private static final String PROP_NAME_DATO = "dato.for.nye.uttaksregler";
-    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2999,12,31); // LA STÅ. Ikke endre før vi er klare
+    private static final LocalDate DATO_FOR_PROD = LocalDate.of(2021,10,1); // LA STÅ.
 
     private LocalDate ikrafttredelseDato = DATO_FOR_PROD;
 
@@ -63,8 +63,14 @@ public class UtsettelseCore2021 {
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
         if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
-        if (!gjeldendeFH.getGjelderFødsel()) return LocalDate.now().isBefore(ikrafttredelseDato);
-        return LocalDate.now().isBefore(ikrafttredelseDato.plusWeeks(2)); // Frist for registrering av fødsel i FREG
+        return LocalDate.now().isBefore(ikrafttredelseDato);
+    }
+
+    public boolean usikkertFrittUttak(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+        if (familieHendelseGrunnlag == null) return true;
+        var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
+            .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
+        return bekreftetFamilieHendelse.isEmpty();
     }
 
     public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag, LocalDate førsteUttaksdato) {
