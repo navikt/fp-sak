@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,8 +89,19 @@ public class VurderArbeidsforholdTjeneste {
             boolean skalTaStillingTilEndringArbeidsforhold) {
         var arbeidsgiverSetMap = vurderMedÅrsak(behandlingReferanse, iayGrunnlag, sakInntektsmeldinger,
                 skalTaStillingTilEndringArbeidsforhold);
+        logg(arbeidsgiverSetMap, behandlingReferanse.getSaksnummer());
         return arbeidsgiverSetMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, VurderArbeidsforholdTjeneste::mapTilArbeidsforholdRef));
+    }
+
+    private void logg(Map<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> arbeidsgiverSetMap, Saksnummer saksnummer) {
+        Set<ArbeidsforholdMedÅrsak> alleArbeidsforholdMedÅrsaker = arbeidsgiverSetMap.values().stream().flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+        Set<AksjonspunktÅrsak> alleÅrsaker = alleArbeidsforholdMedÅrsaker.stream()
+            .map(ArbeidsforholdMedÅrsak::getÅrsaker)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+        alleÅrsaker.forEach(årsak -> LOG.info("FP-729520: Saksnummer {} har fått utledet årsak for avklar arbeidsforhold {}", saksnummer.getVerdi(), årsak));
     }
 
     private static Set<InternArbeidsforholdRef> mapTilArbeidsforholdRef(Map.Entry<Arbeidsgiver, Set<ArbeidsforholdMedÅrsak>> entry) {

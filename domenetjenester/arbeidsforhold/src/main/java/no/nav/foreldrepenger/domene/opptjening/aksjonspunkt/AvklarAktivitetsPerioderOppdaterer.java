@@ -1,16 +1,5 @@
 package no.nav.foreldrepenger.domene.opptjening.aksjonspunkt;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
@@ -40,10 +29,24 @@ import no.nav.foreldrepenger.historikk.HistorikkTjenesteAdapter;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.konfig.Tid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarAktivitetsPerioderDto.class, adapter = AksjonspunktOppdaterer.class)
 public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdaterer<AvklarAktivitetsPerioderDto> {
+    private static final Logger LOG = LoggerFactory.getLogger(AvklarAktivitetsPerioderOppdaterer.class);
 
     private static final String CHARS = "a-z0-9_:-";
 
@@ -87,6 +90,7 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         if (dto.getOpptjeningAktivitetList().stream().anyMatch(oa -> oa.getErGodkjent() == null)) {
             throw new IllegalStateException("AvklarAktivitetsPerioder: Uavklarte aktiviteter til oppdaterer");
         }
+        logg(dto.getOpptjeningAktivitetList(), param);
         var overstyringer = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingId).getArbeidsforholdInformasjon()
                 .map(ArbeidsforholdInformasjon::getOverstyringer).orElse(Collections.emptyList());
         var bekreftOpptjeningPerioder = map(dto.getOpptjeningAktivitetList(), behandlingId, overstyringer);
@@ -99,6 +103,11 @@ public class AvklarAktivitetsPerioderOppdaterer implements AksjonspunktOppdatere
         var erEndret = erDetGjortEndringer(dto, behandlingId, overstyringer);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(erEndret).build();
+    }
+
+    private void logg(List<AvklarOpptjeningAktivitetDto> opptjeningAktivitetList, AksjonspunktOppdaterParameter param) {
+        opptjeningAktivitetList.forEach(akt -> LOG.info("FP-729521: Saksnummer {} har behandlet arbeidsforhold i aksjonspunkt for oppdatering. Har lagt til ny aktivitet: {}",
+            param.getRef().getSaksnummer().getVerdi(), akt.getErManueltOpprettet()));
     }
 
     private boolean erDetGjortEndringer(AvklarAktivitetsPerioderDto dto, Long behandlingId, List<ArbeidsforholdOverstyring> overstyringer) {
