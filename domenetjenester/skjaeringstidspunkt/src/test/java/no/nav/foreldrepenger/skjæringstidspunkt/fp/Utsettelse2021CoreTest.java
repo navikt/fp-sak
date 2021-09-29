@@ -70,7 +70,7 @@ public class Utsettelse2021CoreTest {
     }
 
     @Test
-    public void skal_returnere_sammenhengende_uttak_hvis_bekreftet_termin_2_dager_etter() {
+    public void skal_returnere_fritt_uttak_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(2);
         var skjæringsdato = ikraftredelse;
@@ -86,7 +86,7 @@ public class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -110,7 +110,7 @@ public class Utsettelse2021CoreTest {
     }
 
     @Test
-    public void skal_returnere_sammenhengende_uttak_hvis_søkt_fødsel_10_dager_etter() {
+    public void skal_returnere_fritt_uttak_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
         var ikraftredelse = LocalDate.now().minusDays(10);
         var skjæringsdato = ikraftredelse;
@@ -125,7 +125,7 @@ public class Utsettelse2021CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isTrue();
+        assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
     }
 
     @Test
@@ -145,6 +145,45 @@ public class Utsettelse2021CoreTest {
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
         assertThat(new UtsettelseCore2021(ikraftredelse).kreverSammenhengendeUttak(fhg)).isFalse();
+    }
+
+    @Test
+    public void skal_returnere_usikkert_fritt_uttak_hvis_termin_10_dager_etter() {
+        // Arrange
+        var ikraftredelse = LocalDate.now().minusDays(10);
+        var skjæringsdato = ikraftredelse;
+        var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
+
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        førstegangScenario.medBekreftetHendelse()
+            .medTerminbekreftelse(førstegangScenario.medBekreftetHendelse().getTerminbekreftelseBuilder()
+                .medTermindato(bekreftetfødselsdato));
+        var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
+        var behandling = førstegangScenario.lagMocked();
+
+        // Act/Assert
+        var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        assertThat(new UtsettelseCore2021(ikraftredelse).usikkertFrittUttak(fhg)).isTrue();
+    }
+
+    @Test
+    public void skal_returnere_uikkert_fritt_uttak_hvis_fødsel_0_dager_etter() {
+        // Arrange
+        var ikraftredelse = LocalDate.of(2021, 10, 1);
+        var skjæringsdato = ikraftredelse;
+        var bekreftetfødselsdato = skjæringsdato;
+
+        var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
+            .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
+        førstegangScenario.medBekreftetHendelse()
+            .medFødselsDato(bekreftetfødselsdato);
+        var mockprovider = førstegangScenario.mockBehandlingRepositoryProvider();
+        var behandling = førstegangScenario.lagMocked();
+
+        // Act/Assert
+        var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
+        assertThat(new UtsettelseCore2021(ikraftredelse).usikkertFrittUttak(fhg)).isFalse();
     }
 
 }

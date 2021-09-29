@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandling.steg.medlemskap.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,7 +37,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.UtledVurderingsdatoerForMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.medlem.VurderMedlemskapTjeneste;
 import no.nav.foreldrepenger.domene.uttak.SkalKopiereUttakTjeneste;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.UtsettelseBehandling2021;
 
 @BehandlingStegRef(kode = "KOFAK_LOP_MEDL")
 @BehandlingTypeRef("BT-004") // Revurdering
@@ -44,6 +48,12 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements KontrollerFaktaLøpendeMedlemskapSteg {
 
     private static final Logger LOG = LoggerFactory.getLogger(KontrollerFaktaLøpendeMedlemskapStegRevurdering.class);
+
+    private static boolean PROD = Environment.current().isProd();
+
+    private static LocalDateTime FRI_UTTAK_UTSETT_BEHANDLING_TIL = LocalDate.of(2021, 10, 5).atStartOfDay();
+
+    private UtsettelseBehandling2021 utsettelseBehandling2021;
 
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UtledVurderingsdatoerForMedlemskapTjeneste tjeneste;
@@ -61,7 +71,8 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
                                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                            BehandlingFlytkontroll flytkontroll,
                                                            SkalKopiereUttakTjeneste skalKopiereUttakTjeneste,
-                                                           UttakInputTjeneste uttakInputTjeneste) {
+                                                           UttakInputTjeneste uttakInputTjeneste,
+                                                           UtsettelseBehandling2021 utsettelseBehandling2021) {
         this.tjeneste = vurderingsdatoer;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = provider.getBehandlingRepository();
@@ -70,6 +81,7 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
         this.flytkontroll = flytkontroll;
         this.skalKopiereUttakTjeneste = skalKopiereUttakTjeneste;
         this.uttakInputTjeneste = uttakInputTjeneste;
+        this.utsettelseBehandling2021 = utsettelseBehandling2021;
     }
 
     KontrollerFaktaLøpendeMedlemskapStegRevurdering() {
@@ -79,6 +91,13 @@ public class KontrollerFaktaLøpendeMedlemskapStegRevurdering implements Kontrol
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var behandlingId = kontekst.getBehandlingId();
+        if (PROD && LocalDateTime.now().isBefore(FRI_UTTAK_UTSETT_BEHANDLING_TIL)
+            && !utsettelseBehandling2021.kreverSammenhengendeUttak(kontekst.getBehandlingId())
+            && utsettelseBehandling2021.usikkertFrittUttak(kontekst.getBehandlingId())) {
+            LOG.info("FRITT UTTAK: Setter behandling {} revurdering på vent til 5/10", kontekst.getBehandlingId());
+            var køAutopunkt = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AUTO_KØET_BEHANDLING, Venteårsak.AVV_FODSEL, FRI_UTTAK_UTSETT_BEHANDLING_TIL);
+            return BehandleStegResultat.utførtMedAksjonspunktResultater(List.of(køAutopunkt));
+        }
         List<AksjonspunktResultat> aksjonspunkter = new ArrayList<>();
         if (flytkontroll.uttaksProsessenSkalVente(kontekst.getBehandlingId())) {
             LOG.info("Flytkontroll UTTAK: Setter behandling {} revurdering på vent grunnet berørt eller annen part", kontekst.getBehandlingId());

@@ -235,7 +235,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .or(() -> finnFHSistVedtatteBehandlingKobletFagsak(behandling))
             .map(utsettelse2021::kreverSammenhengendeUttak).orElse(UtsettelseCore2021.DEFAULT_KREVER_SAMMENHENGENDE_UTTAK);
         if (!sammenhengendeUttak && ER_PROD) {
-            LOG.error("Prod uten krav om sammenhengende periode - sjekk om korrekt, saksnummer {}", behandling.getFagsak().getSaksnummer());
+            LOG.info("Prod uten krav om sammenhengende periode - sjekk om korrekt, saksnummer {}", behandling.getFagsak().getSaksnummer());
         } else if (!sammenhengendeUttak) {
             LOG.info("Non-prod uten krav om sammenhengende periode, saksnummer {} behandling {}", behandling.getFagsak().getSaksnummer(), behandling.getId());
         }
