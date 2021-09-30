@@ -1,14 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkRepository;
@@ -19,7 +10,14 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
-import no.nav.foreldrepenger.dokumentbestiller.vedtak.InnvilgelseFpLanseringTjeneste;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentBestillerTjenesteTest {
@@ -29,8 +27,6 @@ public class DokumentBestillerTjenesteTest {
     @Mock
     private DokumentKafkaBestiller dokumentKafkaBestiller;
 
-    @Mock
-    private InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste;
 
     private Behandling behandling;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -47,8 +43,7 @@ public class DokumentBestillerTjenesteTest {
                 null,
                 null,
                 brevHistorikkinnslag,
-                dokumentKafkaBestiller,
-                innvilgelseFpLanseringTjeneste);
+                dokumentKafkaBestiller);
     }
 
     @Test

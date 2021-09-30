@@ -1,10 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
-import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForVedtak;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
@@ -13,7 +8,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.dokumentbestiller.kafka.DokumentKafkaBestiller;
-import no.nav.foreldrepenger.dokumentbestiller.vedtak.InnvilgelseFpLanseringTjeneste;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import static no.nav.foreldrepenger.dokumentbestiller.vedtak.VedtaksbrevUtleder.velgDokumentMalForVedtak;
 
 @ApplicationScoped
 public class DokumentBestillerTjeneste {
@@ -25,8 +24,6 @@ public class DokumentBestillerTjeneste {
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentKafkaBestiller dokumentKafkaBestiller;
 
-    private InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste;
-
     public DokumentBestillerTjeneste() {
         // for cdi proxy
     }
@@ -36,14 +33,12 @@ public class DokumentBestillerTjeneste {
                                      KlageRepository klageRepository,
                                      AnkeRepository ankeRepository,
                                      BrevHistorikkinnslag brevHistorikkinnslag,
-                                     DokumentKafkaBestiller dokumentKafkaBestiller,
-                                     InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
+                                     DokumentKafkaBestiller dokumentKafkaBestiller) {
         this.behandlingRepository = behandlingRepository;
         this.klageRepository = klageRepository;
         this.ankeRepository = ankeRepository;
         this.brevHistorikkinnslag = brevHistorikkinnslag;
         this.dokumentKafkaBestiller = dokumentKafkaBestiller;
-        this.innvilgelseFpLanseringTjeneste = innvilgelseFpLanseringTjeneste;
     }
 
     public void produserVedtaksbrev(BehandlingVedtak behandlingVedtak) {
@@ -55,7 +50,7 @@ public class DokumentBestillerTjeneste {
 
         var behandling = behandlingRepository.hentBehandling(behandlingsresultat.getBehandlingId());
         var dokumentMal = velgDokumentMalForVedtak(behandling, behandlingsresultat, behandlingVedtak,
-            klageRepository, ankeRepository, innvilgelseFpLanseringTjeneste);
+            klageRepository, ankeRepository);
         dokumentKafkaBestiller.bestillBrev(behandling, dokumentMal, null, null, HistorikkAktør.VEDTAKSLØSNINGEN);
     }
 
