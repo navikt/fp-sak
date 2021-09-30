@@ -235,7 +235,8 @@ public class PersonopplysningRepository {
             "SELECT pbg FROM PersonopplysningGrunnlagEntitet pbg WHERE pbg.behandlingId = :behandling_id order by pbg.opprettetTidspunkt, pbg.id", //$NON-NLS-1$
             PersonopplysningGrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId) // NOSONAR
-                .setMaxResults(1);
+            //    .setMaxResults(1)
+            ;
 
         var resultat = query.getResultStream().findFirst();
 

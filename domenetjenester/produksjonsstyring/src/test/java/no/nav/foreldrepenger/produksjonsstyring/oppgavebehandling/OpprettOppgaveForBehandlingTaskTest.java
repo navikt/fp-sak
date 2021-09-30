@@ -84,7 +84,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         var behandling = behandlingBuilder.build();
         lagreBehandling(behandling);
 
-        var taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(OpprettOppgaveForBehandlingTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 
@@ -114,7 +114,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         var revurdering = Behandling.fraTidligereBehandling(behandling, BehandlingType.REVURDERING).build();
         lagreBehandling(revurdering);
 
-        var taskData = new ProsessTaskData(OpprettOppgaveForBehandlingTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(OpprettOppgaveForBehandlingTask.class);
         taskData.setBehandling(revurdering.getFagsakId(), revurdering.getId(), revurdering.getAktørId().getId());
         var task = new OpprettOppgaveForBehandlingTask(tjeneste);
 

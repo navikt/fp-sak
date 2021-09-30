@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.datavarehus.task.VedtakTilDatavarehusTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
@@ -29,11 +30,10 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOp
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
 public class OpprettProsessTaskIverksett {
-
-    public static final String VEDTAK_TIL_DATAVAREHUS_TASK = "iverksetteVedtak.vedtakTilDatavarehus";
 
     private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort. Opprett en ny behandling.";
     private static final String VKY_KLAGE_UENDRET_BESKRIVELSE = "Vedtaket er stadfestet eller klagen avvist av NAV Klageinstans, dette til informasjon.";
@@ -70,15 +70,15 @@ public class OpprettProsessTaskIverksett {
     public void opprettIverksettingTasks(Behandling behandling) {
         var taskGruppe = new ProsessTaskGruppe();
         // Felles
-        var avsluttBehandling = getProsesstaskFor(AvsluttBehandlingTask.TASKTYPE);
+        var avsluttBehandling = getProsesstaskFor(TaskType.forProsessTask(AvsluttBehandlingTask.class));
         var avsluttOppgave = oppgaveTjeneste.opprettTaskAvsluttOppgave(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, false);
 
         // Send brev og oppdrag i parallell
         List<ProsessTaskData> parallelle = new ArrayList<>();
-        parallelle.add(getProsesstaskFor(SendVedtaksbrevTask.TASKTYPE));
+        parallelle.add(getProsesstaskFor(TaskType.forProsessTask(SendVedtaksbrevTask.class)));
         avsluttOppgave.ifPresent(parallelle::add);
         if (behandling.erYtelseBehandling()) {
-            parallelle.add(getProsesstaskFor(VurderOgSendØkonomiOppdragTask.TASKTYPE));
+            parallelle.add(getProsesstaskFor(TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class)));
         }
         taskGruppe.addNesteParallell(parallelle);
 
@@ -97,13 +97,13 @@ public class OpprettProsessTaskIverksett {
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(VurderOppgaveArenaTask.TASKTYPE));
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(VurderOppgaveArenaTask.class)));
         }
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE));
-            taskGruppe.addNesteSekvensiell(getProsesstaskFor(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE));
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class)));
+            taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class)));
         }
-        taskGruppe.addNesteSekvensiell(getProsesstaskFor(VEDTAK_TIL_DATAVAREHUS_TASK));
+        taskGruppe.addNesteSekvensiell(getProsesstaskFor(TaskType.forProsessTask(VedtakTilDatavarehusTask.class)));
     }
 
     private void leggTilTasksIkkeYtelse(Behandling behandling, ProsessTaskGruppe gruppe) {
@@ -142,15 +142,15 @@ public class OpprettProsessTaskIverksett {
     }
 
     private ProsessTaskData lagOpprettVurderKonsekvensTask(Behandling behandling, String beskrivelse) {
-        var opprettOppgave = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var opprettOppgave = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandling.getBehandlendeEnhet());
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         return opprettOppgave;
     }
 
-    private ProsessTaskData getProsesstaskFor(String tasktype) {
-        var task = new ProsessTaskData(tasktype);
+    private ProsessTaskData getProsesstaskFor(TaskType tasktype) {
+        var task = ProsessTaskData.forTaskType(tasktype);
         task.setPrioritet(50);
         return task;
     }

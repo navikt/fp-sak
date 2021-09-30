@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.domene.vedtak.intern.AutomatiskFagsakAvslutningTask
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.TaskStatus;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
@@ -57,7 +56,7 @@ public class AutomatiskFagsakAvslutningTjeneste {
     }
 
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId) {
-        var prosessTaskData = new ProsessTaskData(AutomatiskFagsakAvslutningTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskFagsakAvslutningTask.class);
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setPrioritet(100);
         // unik per task da det er ulike tasks for hver behandling
@@ -65,7 +64,4 @@ public class AutomatiskFagsakAvslutningTjeneste {
         return prosessTaskData;
     }
 
-    public List<TaskStatus> hentStatusForFagsakAvslutningGruppe(String gruppe) {
-        return prosessTaskRepository.finnStatusForTaskIGruppe(AutomatiskFagsakAvslutningTask.TASKTYPE, gruppe);
-    }
 }

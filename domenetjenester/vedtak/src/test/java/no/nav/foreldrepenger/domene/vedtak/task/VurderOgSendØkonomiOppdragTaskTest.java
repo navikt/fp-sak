@@ -27,12 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.Oppdragskontroll;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class VurderOgSendØkonomiOppdragTaskTest {
@@ -85,20 +86,20 @@ public class VurderOgSendØkonomiOppdragTaskTest {
             .build();
         when(nyOppdragskontrollTjeneste.opprettOppdrag(any())).thenReturn(
             Optional.ofNullable(oppdragskontroll));
-        when(prosessTaskData.getHendelse()).thenReturn(Optional.empty());
+        when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.empty());
 
         // Act
         task.doTask(prosessTaskData);
 
         // Assert
-        verify(prosessTaskData).venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        verify(prosessTaskData).venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         verify(repo).lagre(prosessTaskData);
     }
 
     @Test
     public void testSkalIkkeSendeOppdrag() {
         // Arrange
-        when(prosessTaskData.getHendelse()).thenReturn(Optional.empty());
+        when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.empty());
 
         // Act
         task.doTask(prosessTaskData);
@@ -106,7 +107,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
         // Assert oppretter bare prosesstask for å sende tilkjent ytelse
         var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verify(repo).lagre(captor.capture());
-        Assertions.assertThat(captor.getValue().getTaskType()).isEqualTo(SendTilkjentYtelseTask.TASKTYPE);
+        Assertions.assertThat(captor.getValue().taskType()).isEqualTo(TaskType.forProsessTask(SendTilkjentYtelseTask.class));
         verifyNoMoreInteractions(repo);
 
         verify(prosessTaskData, never()).venterPåHendelse(any());
@@ -115,7 +116,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     @Test
     public void testSkalBehandleKvittering() {
         // Arrange
-        when(prosessTaskData.getHendelse()).thenReturn(Optional.of(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING));
+        when(prosessTaskData.getVentetHendelse()).thenReturn(Optional.of(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING));
 
         // Act
         task.doTask(prosessTaskData);

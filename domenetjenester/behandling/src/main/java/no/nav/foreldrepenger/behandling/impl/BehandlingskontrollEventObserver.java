@@ -82,7 +82,7 @@ public class BehandlingskontrollEventObserver {
     }
 
     private ProsessTaskData opprettProsessTask(Long behandlingId, EventHendelse eventHendelse) throws IOException {
-        var taskData = new ProsessTaskData(PubliserEventTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(PubliserEventTask.class);
         taskData.setCallIdFraEksisterende();
         taskData.setPrioritet(90);
 

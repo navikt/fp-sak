@@ -1,8 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -16,19 +15,20 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.RegisterdataCallback;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelseMottak;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @SuppressWarnings("unused")
 @Dependent
 public class IAYRegisterdataTjeneste {
 
+    private static final TaskType ABAKUS_TASK = TaskType.forProsessTask(InnhentIAYIAbakusTask.class);
+
     private static final Logger LOG = LoggerFactory.getLogger(IAYRegisterdataTjeneste.class);
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
-    private ProsessTaskHendelseMottak hendelseMottak;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public IAYRegisterdataTjeneste() {
     }
@@ -37,19 +37,18 @@ public class IAYRegisterdataTjeneste {
      * Standard ctor som injectes av CDI.
      */
     @Inject
-    public IAYRegisterdataTjeneste(InntektArbeidYtelseTjeneste iayTjeneste, ProsessTaskRepository prosessTaskRepository,
-                                   ProsessTaskHendelseMottak hendelseMottak) {
+    public IAYRegisterdataTjeneste(InntektArbeidYtelseTjeneste iayTjeneste, ProsessTaskTjeneste taskTjeneste) {
         this.iayTjeneste = Objects.requireNonNull(iayTjeneste, "iayTjeneste");
-        this.prosessTaskRepository = prosessTaskRepository;
-        this.hendelseMottak = hendelseMottak;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public void håndterCallback(RegisterdataCallback callback) {
         LOG.info("Mottatt callback fra Abakus etter registerinnhenting for behandlingId={}, eksisterendeGrunnlag={}, nyttGrunnlag={}",
             callback.getBehandlingId(), callback.getEksisterendeGrunnlagRef(), callback.getOppdatertGrunnlagRef());
-        final var tasksSomVenterPåSvar = prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR)
+
+        final var tasksSomVenterPåSvar = taskTjeneste.finnAlle(ProsessTaskStatus.VENTER_SVAR)
             .stream()
-            .filter(it -> InnhentIAYIAbakusTask.TASKTYPE.equals(it.getTaskType()))
+            .filter(it -> ABAKUS_TASK.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + callback.getBehandlingId()))
             .collect(Collectors.toList());
 
@@ -70,18 +69,9 @@ public class IAYRegisterdataTjeneste {
     }
 
     private void mottaHendelse(ProsessTaskData task, UUID oppdatertGrunnlagRef) {
-        Objects.requireNonNull(task, "Task");
-        var venterHendelse = Optional.ofNullable(task.getPropertyValue(ProsessTaskData.HENDELSE_PROPERTY));
-        if (!Objects.equals(ProsessTaskStatus.VENTER_SVAR, task.getStatus()) || venterHendelse.isEmpty()) {
-            throw new IllegalStateException("Uventet hendelse " + InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK + " mottatt i tilstand " + task.getStatus());
-        }
-        if (!Objects.equals(venterHendelse.get(), InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK)) {
-            throw new IllegalStateException("Uventet hendelse " + InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK + " mottatt, venter hendelse " + venterHendelse.get());
-        }
-        task.setStatus(ProsessTaskStatus.KLAR);
-        task.setNesteKjøringEtter(LocalDateTime.now());
-        task.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, oppdatertGrunnlagRef.toString());
+        var props = new Properties();
+        props.setProperty(InnhentIAYIAbakusTask.OPPDATERT_GRUNNLAG_KEY, oppdatertGrunnlagRef.toString());
+        taskTjeneste.mottaHendelse(task, InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, props);
         LOG.info("Behandler hendelse {} i task {}, behandling id {}", InnhentIAYIAbakusTask.IAY_REGISTERDATA_CALLBACK, task.getId(), task.getBehandlingId()); //$NON-NLS-1$
-        prosessTaskRepository.lagre(task);
     }
 }

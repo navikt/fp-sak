@@ -72,7 +72,7 @@ public class RegisterdataOppdatererTaskTest {
         lenient().when(kontekst.getSkriveLås()).thenReturn(lås);
         when(mockEnhetsTjeneste.sjekkEnhetEtterEndring(any())).thenReturn(Optional.of(enhet));
 
-        var prosessTaskData = new ProsessTaskData(RegisterdataOppdatererTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
         prosessTaskData.setBehandling(0L, behandlingId, "0");
 
         task.doTask(prosessTaskData);
@@ -102,7 +102,7 @@ public class RegisterdataOppdatererTaskTest {
 
         var snapshot= EndringsresultatSnapshot.opprett()
             .leggTil(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
-        var prosessTaskData = new ProsessTaskData(RegisterdataOppdatererTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
         prosessTaskData.setBehandling(0L, behandlingId, "0");
         prosessTaskData.setPayload(StandardJsonConfig.toJson(snapshot));
 

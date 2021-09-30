@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @CdiDbAwareTest
 public class DokumentmottakerVedleggTest {
@@ -104,7 +105,7 @@ public class DokumentmottakerVedleggTest {
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(null, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(behandlendeEnhet);
     }
 
@@ -151,10 +152,9 @@ public class DokumentmottakerVedleggTest {
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo("0450"); // Lik enheten som ble
-                                                                                                                                // satt på
-                                                                                                                                // behandlingen
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
+        // Lik enheten som ble satt på behandlingen
+        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo("0450");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class DokumentmottakerVedleggTest {
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
                 .isEqualTo(BehandlendeEnhetTjeneste.getKlageInstans().enhetId()); // Lik enheten som ble satt på behandlingen
     }
@@ -221,14 +221,9 @@ public class DokumentmottakerVedleggTest {
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId); // Lik
-                                                                                                                                                   // enheten
-                                                                                                                                                   // som
-                                                                                                                                                   // ble
-                                                                                                                                                   // satt
-                                                                                                                                                   // på
-                                                                                                                                                   // behandlingen
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
+        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId);
+        // Lik enheten som ble satt på behandlingen
     }
 
     @Test
@@ -277,14 +272,9 @@ public class DokumentmottakerVedleggTest {
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
-        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId); // Lik
-                                                                                                                                                   // enheten
-                                                                                                                                                   // som
-                                                                                                                                                   // ble
-                                                                                                                                                   // satt
-                                                                                                                                                   // på
-                                                                                                                                                   // behandlingen
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
+        // Lik enheten som ble satt på behandlingen
+        assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId);
     }
 
     private Fagsak nyMorFødselFagsak() {

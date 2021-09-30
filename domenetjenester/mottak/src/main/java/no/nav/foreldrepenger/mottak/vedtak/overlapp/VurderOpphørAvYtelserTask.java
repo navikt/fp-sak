@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -13,10 +12,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(VurderOpphørAvYtelserTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.vurderOpphørAvYtelser", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "iverksetteVedtak.vurderOpphørAvYtelser";
 
     private LoggOverlappEksterneYtelserTjeneste overlappsLoggerTjeneste;
     private BehandlingRepository behandlingRepository;

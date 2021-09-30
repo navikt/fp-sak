@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class SaksbehandlingDokumentmottakTjenesteTest {
 
@@ -68,7 +69,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
     }
 

@@ -12,11 +12,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(KlargjørHendelseTask.TASKTYPE)
+@ProsessTask("hendelser.klargjoering")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class KlargjørHendelseTask implements ProsessTaskHandler {
 
-    public static final String TASKTYPE = "hendelser.klargjoering";
     public static final String PROPERTY_HENDELSE_TYPE = "hendelseType";
     public static final String PROPERTY_UID = "hendelseUid";
 

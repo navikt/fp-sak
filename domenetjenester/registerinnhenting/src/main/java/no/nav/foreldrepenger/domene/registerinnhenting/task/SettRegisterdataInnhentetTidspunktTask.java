@@ -15,11 +15,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SettRegisterdataInnhentetTidspunktTask.TASKTYPE)
+@ProsessTask(value = "innhentsaksopplysninger.oppdaterttidspunkt", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SettRegisterdataInnhentetTidspunktTask extends BehandlingProsessTask {
 
-    public static final String TASKTYPE = "innhentsaksopplysninger.oppdaterttidspunkt";
     private static final Logger LOG = LoggerFactory.getLogger(SettRegisterdataInnhentetTidspunktTask.class);
     private BehandlingRepository behandlingRepository;
     private RegisterdataInnhenter registerdataInnhenter;

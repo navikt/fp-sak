@@ -135,7 +135,7 @@ public class OverstyrDekningsgradTjeneste {
     }
 
     private void opprettTaskForÅStarteBehandling(Behandling behandling) {
-        var prosessTaskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

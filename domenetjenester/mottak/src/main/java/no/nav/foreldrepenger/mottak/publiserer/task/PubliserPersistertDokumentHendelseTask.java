@@ -22,10 +22,9 @@ import no.nav.vedtak.hendelser.inntektsmelding.v1.InntektsmeldingV1;
 
 @ApplicationScoped
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-@ProsessTask(PubliserPersistertDokumentHendelseTask.TASKTYPE)
+@ProsessTask("mottak.publiserPersistertDokument")
 public class PubliserPersistertDokumentHendelseTask extends GenerellProsessTask {
 
-    public static final String TASKTYPE = "mottak.publiserPersistertDokument";
     public static final String MOTTATT_DOKUMENT_ID_KEY = "mottattDokumentId";
 
     private static final Logger LOG = LoggerFactory.getLogger(PubliserPersistertDokumentHendelseTask.class);

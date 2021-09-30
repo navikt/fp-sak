@@ -20,11 +20,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SettFagsakRelasjonAvslutningsdatoTask.TASKTYPE)
+@ProsessTask("iverksetteVedtak.fagsakRelasjonAvsluttningsdato")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettFagsakRelasjonAvslutningsdatoTask extends FagsakRelasjonProsessTask {
-
-    public static final String TASKTYPE = "iverksetteVedtak.fagsakRelasjonAvsluttningsdato";
 
     private Instance<FagsakRelasjonAvslutningsdatoOppdaterer> fagsakRelasjonAvslutningsdatoOppdaterer;
 

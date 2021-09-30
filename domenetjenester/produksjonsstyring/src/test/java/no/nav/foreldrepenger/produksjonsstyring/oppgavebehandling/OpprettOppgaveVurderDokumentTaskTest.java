@@ -42,7 +42,7 @@ public class OpprettOppgaveVurderDokumentTaskTest {
     @Test
     public void skal_opprette_oppgave_for_å_vurdere_dokument_basert_på_fagsakId() {
         // Arrange
-        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderDokumentTask.class);
         prosessTaskData.setFagsakId(FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);

@@ -46,6 +46,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -109,7 +110,7 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         verify(revurderingTjenesteMockFP, times(1)).opprettAutomatiskRevurdering(eq(fsavsluttetBehMor), eq(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN), any());
 
         var vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(vurderKonsekvens.getTaskType()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
     }
@@ -135,7 +136,7 @@ public class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         verify(revurderingTjenesteMockFP, times(0)).opprettAutomatiskRevurdering(any(), any(), any());
 
         var vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(vurderKonsekvens.getTaskType()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        assertThat(vurderKonsekvens.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
         assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(BESKRIVELSE);
 

@@ -44,7 +44,7 @@ public class GjenopptaBehandlingTaskTest {
         var behandling = scenario.lagMocked();
         when(mockBehandlingRepository.hentBehandling(any(Long.class))).thenReturn(behandling);
 
-        var prosessTaskData = new ProsessTaskData(GjenopptaBehandlingTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(GjenopptaBehandlingTask.class);
         prosessTaskData.setBehandling(0L, behandlingId, AktørId.dummy().getId());
 
         task.doTask(prosessTaskData);

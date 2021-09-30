@@ -57,9 +57,9 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
                 fagsak.getSaksnummer(), behandling.getId());
         oppgaveBehandlingKoblingRepository.lagre(oppgave);
 
-        var taskData = new ProsessTaskData(AvsluttOppgaveTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(AvsluttOppgaveTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        taskData.setOppgaveId(oppgaveId);
+        OppgaveTjeneste.setOppgaveId(taskData, oppgaveId);
         var task = new AvsluttOppgaveTask(oppgaveTjeneste);
 
         Mockito.doNothing().when(oppgaveRestKlient).ferdigstillOppgave(eq(oppgaveId));

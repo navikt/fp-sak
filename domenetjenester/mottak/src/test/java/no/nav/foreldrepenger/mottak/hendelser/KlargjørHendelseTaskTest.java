@@ -47,7 +47,7 @@ public class KlargjørHendelseTaskTest {
         var domenetjeneste = mock(ForretningshendelseMottak.class);
         var task = new KlargjørHendelseTask(domenetjeneste);
 
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "FØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
@@ -78,7 +78,7 @@ public class KlargjørHendelseTaskTest {
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "FØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new FødselHendelseDto();
@@ -110,7 +110,7 @@ public class KlargjørHendelseTaskTest {
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "DØDFØDSEL");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødfødselHendelseDto();
@@ -140,7 +140,7 @@ public class KlargjørHendelseTaskTest {
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "DØD");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new DødHendelseDto();
@@ -170,7 +170,7 @@ public class KlargjørHendelseTaskTest {
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, "UTFLYTTING");
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, "id_1");
         var hendelse = new UtflyttingHendelseDto();

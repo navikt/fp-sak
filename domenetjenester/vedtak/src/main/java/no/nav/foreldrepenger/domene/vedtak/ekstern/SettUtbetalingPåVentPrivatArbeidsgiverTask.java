@@ -14,11 +14,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.oppgaveUtbetalingPåVent", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(SettUtbetalingPåVentPrivatArbeidsgiverTask.class);
-    public static final String TASKTYPE = "iverksetteVedtak.oppgaveUtbetalingPåVent";
 
     private BehandlingRepository behandlingRepository;
     private VurderOmSetteUtbetalingPåVentPrivatArbeidsgiver vurderOmSetteUtbetalingPåVentPrivatArbeidsgiver;

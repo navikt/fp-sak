@@ -30,11 +30,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
-@ProsessTask(AutomatiskEtterkontrollTask.TASKTYPE)
+@ProsessTask("behandlingsprosess.etterkontroll")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
-
-    public static final String TASKTYPE = "behandlingsprosess.etterkontroll";
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskEtterkontrollTask.class);
 
@@ -104,7 +102,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     }
 
     private void opprettTaskForÅVurdereKonsekvens(Long fagsakId, String behandlendeEnhetsId) {
-        var prosessTaskData = new ProsessTaskData(OpprettOppgaveVurderKonsekvensTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, "Kontroller manglende fødselsregistrering");
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);

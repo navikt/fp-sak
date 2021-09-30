@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.REGISTRER_SØKNAD;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveRegistrerSøknadTask.TASKTYPE;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,10 +15,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("oppgavebehandling.opprettOppgaveRegistrerSøknad")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveRegistrerSøknadTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveRegistrerSøknad";
+
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveRegistrerSøknadTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
 

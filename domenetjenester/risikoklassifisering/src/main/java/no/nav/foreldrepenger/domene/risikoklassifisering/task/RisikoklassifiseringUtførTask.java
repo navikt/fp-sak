@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.risikoklassifisering.task;
 
-import static no.nav.foreldrepenger.domene.risikoklassifisering.task.RisikoklassifiseringUtførTask.TASKTYPE;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -15,13 +13,11 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("risiko.klassifisering")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class RisikoklassifiseringUtførTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RisikoklassifiseringUtførTask.class);
-
-    public static final String TASKTYPE = "risiko.klassifisering";
 
     public static final String KONSUMENT_ID = "konsumentId";
 

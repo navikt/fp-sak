@@ -102,7 +102,7 @@ public class HendelserRestTjeneste {
         }
 
         hendelsemottakRepository.registrerMottattHendelse(hendelse.getId());
-        var taskData = new ProsessTaskData(KlargjørHendelseTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(KlargjørHendelseTask.class);
         taskData.setPayload(StandardJsonConfig.toJson(hendelse));
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());

@@ -10,10 +10,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SendTilkjentYtelseTask.TASKTYPE)
+@ProsessTask("iverksetteVedtak.sendTilkjentYtelse")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendTilkjentYtelseTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "iverksetteVedtak.sendTilkjentYtelse";
+
     private TilkjentYtelseMeldingProducer meldingProducer;
     private BehandlingRepository behandlingRepository;
 

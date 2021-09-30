@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -46,7 +45,7 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
         var baseline = LocalTime.now();
         saker.forEach(sak -> {
             LOG.info("Oppretter informasjonssak-task for {}", sak.getAktørId().getId());
-            var data = new ProsessTaskData(OpprettInformasjonsFagsakTask.TASKTYPE);
+            var data = ProsessTaskData.forProsessTask(OpprettInformasjonsFagsakTask.class);
             data.setAktørId(sak.getAktørId().getId());
             data.setCallIdFraEksisterende();
             data.setPrioritet(100);
@@ -60,12 +59,6 @@ public class SendInformasjonsbrevOppholdBatchTjeneste implements BatchTjeneste {
             prosessTaskRepository.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        // Antar her at alt har gått bra siden denne er en synkron jobb.
-        return BatchStatus.OK;
     }
 
     @Override

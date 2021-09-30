@@ -113,7 +113,7 @@ public class BeregningsgrunnlagRepository {
                 "order by opprettetTidspunkt desc, id desc", BeregningsgrunnlagGrunnlagEntitet.class); //$NON-NLS-1$
         query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
-        query.setMaxResults(1);
+        //query.setMaxResults(1);
         return query.getResultStream().findFirst();
     }
 
@@ -135,7 +135,7 @@ public class BeregningsgrunnlagRepository {
         query.setParameter(BEHANDLING_ID, behandlingId); //$NON-NLS-1$
         query.setParameter(BEREGNINGSGRUNNLAG_TILSTAND, beregningsgrunnlagTilstand); //$NON-NLS-1$
         query.setParameter("opprettetTidspunktMin", opprettetEtter); //$NON-NLS-1$
-        query.setMaxResults(1);
+        //query.setMaxResults(1);
         return query.getResultStream().findFirst();
     }
 

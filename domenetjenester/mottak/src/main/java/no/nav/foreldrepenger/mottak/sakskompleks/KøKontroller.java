@@ -170,7 +170,7 @@ public class KøKontroller {
     }
 
     void lagreOppdaterKøetProsesstask(Behandling behandling) {
-        var data = new ProsessTaskData(GjenopptaKøetBehandlingTask.TASKTYPE);
+        var data = ProsessTaskData.forProsessTask(GjenopptaKøetBehandlingTask.class);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(data);

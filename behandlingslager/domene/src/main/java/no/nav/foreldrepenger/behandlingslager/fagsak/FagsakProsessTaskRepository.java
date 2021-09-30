@@ -141,8 +141,8 @@ public class FagsakProsessTaskRepository {
         // hvis noen er FEILET så oppretter vi ikke ny
         var feilet = matchedTasks.stream().filter(t -> t.getStatus().equals(ProsessTaskStatus.FEILET)).findFirst();
 
-        var nyeTaskTyper = nyeTasks.stream().map(t -> t.task().getTaskType()).collect(Collectors.toSet());
-        var eksisterendeTaskTyper = eksisterendeTasks.stream().map(ProsessTaskData::getTaskType).collect(Collectors.toSet());
+        var nyeTaskTyper = nyeTasks.stream().map(t -> t.task().taskType()).collect(Collectors.toSet());
+        var eksisterendeTaskTyper = eksisterendeTasks.stream().map(ProsessTaskData::taskType).collect(Collectors.toSet());
 
         if (feilet.isEmpty()) {
             if(eksisterendeTaskTyper.containsAll(nyeTaskTyper)){

@@ -73,8 +73,8 @@ public class DokumentKafkaBestillerTest {
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
         var prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
-            assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isNull();
-            assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
+            assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK)).isNull();
+            assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
             assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isNull();
         });
         verify(dokumentBehandlingTjeneste, times(1)).loggDokumentBestilt(eq(behandling), eq(innhentDok));
@@ -91,8 +91,8 @@ public class DokumentKafkaBestillerTest {
         Mockito.verify(brevHistorikkinnslag, Mockito.times(1)).opprettHistorikkinnslagForBestiltBrevFraKafka(aktør, behandling, innhentDok);
         var prosessTaskDataListe = prosessTaskRepository.finnIkkeStartet();
         assertThat(prosessTaskDataListe).anySatisfy(taskData -> {
-            assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.REVURDERING_VARSLING_ÅRSAK)).isEqualTo(årsak.getKode());
-            assertThat(taskData.getPropertyValue(DokumentbestillerKafkaTaskProperties.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
+            assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.REVURDERING_VARSLING_ÅRSAK)).isEqualTo(årsak.getKode());
+            assertThat(taskData.getPropertyValue(DokumentBestillerKafkaTask.DOKUMENT_MAL_TYPE)).isEqualTo(innhentDok.getKode());
             assertThat(StandardJsonConfig.fromJson(taskData.getPayloadAsString(), String.class)).isEqualTo(fritekst);
         });
     }

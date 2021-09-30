@@ -20,11 +20,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
-@ProsessTask(MigrerTilkjentYtelseTask.TASKTYPE)
+@ProsessTask("migrer.sendTilkjentYtelse")
 public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrerTilkjentYtelseTask.class);
-    public static final String TASKTYPE = "migrer.sendTilkjentYtelse";
 
     private static int ANTALL_PR_RUNDE = 10;
     private static Duration DELAY_MELLOM_KJØRINGER = Duration.ofSeconds(10);
@@ -61,7 +60,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
         }
 
         if (behandlinger.size() == ANTALL_PR_RUNDE) {
-            var data = new ProsessTaskData(TASKTYPE);
+            var data = ProsessTaskData.forProsessTask(MigrerTilkjentYtelseTask.class);
             data.setProperty("behandlingIdTak", Long.toString(behandlinger.get(ANTALL_PR_RUNDE - 1).getBehandlingId()));
             data.setNesteKjøringEtter(LocalDateTime.now().plus(DELAY_MELLOM_KJØRINGER));
             prosessTaskRepository.lagre(data);

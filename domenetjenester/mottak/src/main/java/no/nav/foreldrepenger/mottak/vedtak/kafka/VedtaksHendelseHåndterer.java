@@ -15,8 +15,6 @@ import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +24,7 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.abakus.vedtak.ytelse.v1.YtelseV1;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -35,7 +34,9 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.PleipengerOversetter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.vedtak.StartBerørtBehandlingTask;
+import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOpphørAvYtelserTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.VurderOpphørAvYtelserTask;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -44,9 +45,9 @@ import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -148,14 +149,14 @@ public class VedtaksHendelseHåndterer {
             if (FagsakYtelseType.FORELDREPENGER.equals(fagsakYtelseType)) {
                 if (isProd) {
                     var startberørtdelay = 1 + LocalDateTime.now().getNano() % 3;
-                    lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, startberørtdelay);
-                    lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 5);
+                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), startberørtdelay);
+                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 5);
                 } else {
-                    lagreProsesstaskFor(behandling, StartBerørtBehandlingTask.TASKTYPE, 0);
-                    lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 2);
+                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
+                    lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 2);
                 }
             } else { // SVP
-                lagreProsesstaskFor(behandling, VurderOpphørAvYtelserTask.TASKTYPE, 0);
+                lagreProsesstaskFor(behandling, TaskType.forProsessTask(VurderOpphørAvYtelserTask.class), 0);
             }
         } catch (Exception e) {
             LOG.error("Vedtatt-Ytelse mottok vedtak med ugyldig behandling-UUID som ikke finnes i database");
@@ -168,7 +169,7 @@ public class VedtaksHendelseHåndterer {
             .filter(to -> !to.innleggelsesPerioder().isEmpty())
             .isPresent();
 
-        var prosessTaskData = new ProsessTaskData(HåndterOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOpphørAvYtelserTask.class);
         prosessTaskData.setFagsak(f.getId(), f.getAktørId().getId());
         prosessTaskData.setCallId(callID.toString());
 
@@ -235,8 +236,8 @@ public class VedtaksHendelseHåndterer {
         return !fpTidslinje.intersection(ytelseTidslinje).getLocalDateIntervals().isEmpty();
     }
 
-    void lagreProsesstaskFor(Behandling behandling, String taskType, int delaysecs) {
-        var data = new ProsessTaskData(taskType);
+    void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {
+        var data = ProsessTaskData.forTaskType(taskType);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallId(behandling.getUuid().toString());
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));

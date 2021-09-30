@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
@@ -67,17 +66,12 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     }
 
     @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        return BatchStatus.OK;
-    }
-
-    @Override
     public String getBatchName() {
         return BATCHNAME;
     }
 
     private void opprettReguleringTask(Long fagsakId, AktørId aktørId, String callId) {
-        var prosessTaskData = new ProsessTaskData(AutomatiskGrunnbelopReguleringTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskData.setPrioritet(100);

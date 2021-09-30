@@ -23,7 +23,7 @@ public class RisikoklassifiseringMeldingsHåndterer {
     }
 
     void lagreMelding(String payload) {
-        var data = new ProsessTaskData(LesKontrollresultatTask.TASKTYPE);
+        var data = ProsessTaskData.forProsessTask(LesKontrollresultatTask.class);
         data.setPayload(payload);
         prosessTaskRepository.lagre(data);
     }

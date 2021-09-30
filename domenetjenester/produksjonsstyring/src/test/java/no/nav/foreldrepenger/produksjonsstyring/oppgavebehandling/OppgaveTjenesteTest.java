@@ -42,6 +42,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
@@ -183,17 +184,17 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
                 behandling.getId());
         when(oppgaveBehandlingKoblingRepository.hentOppgaverRelatertTilBehandling(anyLong())).thenReturn(Collections.singletonList(kobling));
 
-        tjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.BEHANDLE_SAK, OpprettOppgaveGodkjennVedtakTask.TASKTYPE);
+        tjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
         verify(prosessTaskRepository).lagre(captor.capture());
         assertThat(captor.getAllValues()).hasSize(1);
         var tasks = captor.getValue().getTasks();
-        assertThat(tasks.get(0).task().getTaskType()).isEqualTo(AvsluttOppgaveTask.TASKTYPE);
+        assertThat(tasks.get(0).task().taskType()).isEqualTo(TaskType.forProsessTask(AvsluttOppgaveTask.class));
         assertThat(tasks.get(0).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(tasks.get(0).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(0).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());
-        assertThat(tasks.get(1).task().getTaskType()).isEqualTo(OpprettOppgaveGodkjennVedtakTask.TASKTYPE);
+        assertThat(tasks.get(1).task().taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
         assertThat(tasks.get(1).task().getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(tasks.get(1).task().getBehandlingId()).isEqualTo(behandling.getId().toString());
         assertThat(String.valueOf(tasks.get(1).task().getAktørId())).isEqualTo(behandling.getAktørId().getId());

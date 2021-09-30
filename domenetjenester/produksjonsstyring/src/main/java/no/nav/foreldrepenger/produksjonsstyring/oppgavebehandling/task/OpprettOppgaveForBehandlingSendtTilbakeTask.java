@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -15,10 +13,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("oppgavebehandling.opprettOppgaveSakSendtTilbake")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveForBehandlingSendtTilbakeTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveSakSendtTilbake";
+
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveForBehandlingSendtTilbakeTask.class);
     private OppgaveTjeneste oppgaveTjeneste;
 

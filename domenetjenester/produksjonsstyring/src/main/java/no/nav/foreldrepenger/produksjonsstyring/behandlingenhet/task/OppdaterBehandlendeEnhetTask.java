@@ -16,11 +16,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(OppdaterBehandlendeEnhetTask.TASKTYPE)
+@ProsessTask("oppgavebehandling.oppdaterEnhet")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OppdaterBehandlendeEnhetTask extends BehandlingProsessTask {
-
-    public static final String TASKTYPE = "oppgavebehandling.oppdaterEnhet";
 
     public static final String BEGRUNNELSE = "Enhetsomlegging";
 

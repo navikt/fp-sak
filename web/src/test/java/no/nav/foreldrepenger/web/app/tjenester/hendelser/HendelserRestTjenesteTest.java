@@ -31,6 +31,7 @@ import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +39,7 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 public class HendelserRestTjenesteTest {
 
     private static final String HENDELSE_ID = "1337";
+    private static final TaskType HENDELSE_TASK = TaskType.forProsessTask(KlargjørHendelseTask.class);
 
     @Mock
     private HendelseSorteringRepository sorteringRepository;
@@ -63,8 +65,8 @@ public class HendelserRestTjenesteTest {
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
-        assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
+        var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
+        assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("FØDSEL");
@@ -80,8 +82,8 @@ public class HendelserRestTjenesteTest {
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
         var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var task = tasks.stream().filter(d -> Objects.equals(KlargjørHendelseTask.TASKTYPE, d.getTaskType())).findFirst().orElseThrow();
-        assertThat(task.getTaskType()).isEqualTo(KlargjørHendelseTask.TASKTYPE);
+        var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
+        assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
@@ -96,7 +98,7 @@ public class HendelserRestTjenesteTest {
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
 
         var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        assertThat(tasks).allSatisfy(d -> assertThat(d.getTaskType()).isNotEqualTo(KlargjørHendelseTask.TASKTYPE));
+        assertThat(tasks).allSatisfy(d -> assertThat(d.taskType()).isNotEqualTo(HENDELSE_TASK));
     }
 
     @Test

@@ -31,9 +31,9 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @Dependent
 @Transactional
@@ -215,12 +215,12 @@ class ForvaltningOppdragTjeneste {
     }
 
     private void byttStatusTilVenterPåKvittering(ProsessTaskData task) {
-        task.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        task.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         prosessTaskRepository.lagre(task);
     }
 
     private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
@@ -231,7 +231,7 @@ class ForvaltningOppdragTjeneste {
     }
 
     private void lagSendØkonomioppdragTask(Behandling behandling) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
@@ -241,7 +241,7 @@ class ForvaltningOppdragTjeneste {
     }
 
     private void lagVurderOgSendØkonomioppdragTask(Behandling behandling) {
-        var sendØkonomiOppdrag = new ProsessTaskData(VurderOgSendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(VurderOgSendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "refusjonsinfo-maxDato"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
@@ -251,7 +251,7 @@ class ForvaltningOppdragTjeneste {
     private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {
         var query = entityManager.createNativeQuery(
             "select count(*) from PROSESS_TASK where TASK_TYPE=:task_type AND OPPRETTET_TID > cast(:opprettet_fom as timestamp(0)) AND TASK_PARAMETERE like '%patchet%'")
-            .setParameter("task_type", SendØkonomiOppdragTask.TASKTYPE)
+            .setParameter("task_type", TaskType.forProsessTask(SendØkonomiOppdragTask.class).value())
             .setParameter("opprettet_fom", ZonedDateTime.now().minus(periode));
 
         var result = (BigDecimal) query.getSingleResult();

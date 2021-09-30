@@ -9,22 +9,20 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
+import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHendelse;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 
 @ApplicationScoped
-@ProsessTask(VurderOgSendØkonomiOppdragTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.oppdragTilØkonomi", maxFailedRuns = 1) // TODO BehandleNegativeKvitteringTjenesteTest deps on name
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOgSendØkonomiOppdragTask.class);
-
-    public static final String TASKTYPE = "iverksetteVedtak.oppdragTilØkonomi";
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
     private ProsessTaskRepository prosessTaskRepository;
@@ -51,7 +49,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long behandlingId) {
         // Har vi mottatt kvittering?
-        var hendelse = prosessTaskData.getHendelse();
+        var hendelse = prosessTaskData.getVentetHendelse();
         if (hendelse.isPresent()) {
             behandleHendelse(hendelse.get(), behandlingId);
             return;
@@ -82,13 +80,13 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
-        prosessTaskData.venterPåHendelse(ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING);
+        prosessTaskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }
 
     private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendØkonomiOppdragTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
@@ -98,7 +96,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask, Long behandlingId) {
-        var sendØkonomiOppdrag = new ProsessTaskData(SendTilkjentYtelseTask.TASKTYPE);
+        var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendTilkjentYtelseTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
@@ -107,8 +105,8 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         prosessTaskRepository.lagre(sendØkonomiOppdrag);
     }
 
-    private void behandleHendelse(ProsessTaskHendelse prosessTaskHendelse, Long behandlingId) {
-        if (prosessTaskHendelse == ProsessTaskHendelse.ØKONOMI_OPPDRAG_KVITTERING) {
+    private void behandleHendelse(String prosessTaskHendelse, Long behandlingId) {
+        if (BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING.equals(prosessTaskHendelse)) {
             LOG.info("Økonomioppdrag-kvittering mottatt for behandling: {}", behandlingId); //$NON-NLS-1$
         } else {
             throw new IllegalStateException("Uventet hendelse " + prosessTaskHendelse);

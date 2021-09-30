@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask.TASKTYPE;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -13,11 +11,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("oppgavebehandling.avsluttOppgave")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AvsluttOppgaveTask extends GenerellProsessTask {
-
-    public static final String TASKTYPE = "oppgavebehandling.avsluttOppgave";
 
     private OppgaveTjeneste oppgaveTjeneste;
 
@@ -33,7 +29,7 @@ public class AvsluttOppgaveTask extends GenerellProsessTask {
 
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var oppgaveId = prosessTaskData.getOppgaveId()
+        var oppgaveId = OppgaveTjeneste.getOppgaveId(prosessTaskData)
             .orElseThrow(() -> new IllegalStateException("Mangler oppgaveId"));
 
         oppgaveTjeneste.avslutt(behandlingId, oppgaveId);

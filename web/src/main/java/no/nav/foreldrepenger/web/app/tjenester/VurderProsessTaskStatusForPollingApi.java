@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTas
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class VurderProsessTaskStatusForPollingApi {
     private static final Logger LOG = LoggerFactory.getLogger(VurderProsessTaskStatusForPollingApi.class);
@@ -50,7 +51,7 @@ public class VurderProsessTaskStatusForPollingApi {
         var callId = task.getPropertyValue("callId");
         var taskStatus = task.getStatus();
         if (ProsessTaskStatus.KLAR.equals(taskStatus) ||
-            (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus) && InnhentIAYIAbakusTask.TASKTYPE.equals(task.getTaskType()) &&
+            (ProsessTaskStatus.VENTER_SVAR.equals(taskStatus) && TaskType.forProsessTask(InnhentIAYIAbakusTask.class).equals(task.taskType()) &&
                 task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring))) {
             return ventPåKlar(gruppe, maksTidFørNesteKjøring, task, callId);
         }

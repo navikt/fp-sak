@@ -31,10 +31,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  * rammeverk på github
  */
 @ApplicationScoped
-@ProsessTask(BatchSchedulerTask.TASKTYPE)
+@ProsessTask(value = "batch.scheduler", maxFailedRuns = 1)
 public class BatchSchedulerTask implements ProsessTaskHandler {
 
-    public static final String TASKTYPE = "batch.scheduler";
     public static final String ANT_DAGER = "antallDager=";
 
     private static final String AVSTEMMING = "BVL001";
@@ -94,7 +93,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
         var dagensUkedag = DayOfWeek.from(dagensDato);
 
         // Lagre neste instans av daglig scheduler straks over midnatt
-        var batchScheduler = new ProsessTaskData(BatchSchedulerTask.TASKTYPE);
+        var batchScheduler = ProsessTaskData.forProsessTask(BatchSchedulerTask.class);
         var nesteScheduler = dagensDato.plusDays(1).atStartOfDay().plusHours(1).plusMinutes(1);
         batchScheduler.setNesteKjøringEtter(nesteScheduler);
         var gruppeScheduler = new ProsessTaskGruppe(batchScheduler);
@@ -121,7 +120,7 @@ public class BatchSchedulerTask implements ProsessTaskHandler {
     }
 
     private static ProsessTaskData mapBatchConfigTilBatchRunnerTask(BatchConfig config, LocalDate dagensDato) {
-        var batchRunnerTask = new ProsessTaskData(BatchRunnerTask.TASKTYPE);
+        var batchRunnerTask = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         batchRunnerTask.setProperty(BatchRunnerTask.BATCH_NAME, config.getName());
         if (config.getParams() != null) {
             batchRunnerTask.setProperty(BatchRunnerTask.BATCH_PARAMS, config.getParams());

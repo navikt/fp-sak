@@ -280,7 +280,8 @@ public class MedlemskapRepository {
             "SELECT mbg FROM MedlemskapBehandlingsgrunnlag mbg WHERE mbg.behandlingId = :behandling_id ORDER BY mbg.opprettetTidspunkt, mbg.id", //$NON-NLS-1$
             MedlemskapBehandlingsgrunnlagEntitet.class)
                 .setParameter("behandling_id", behandlingId)
-                .setMaxResults(1); // $NON-NLS-1$
+            //    .setMaxResults(1)
+            ; // $NON-NLS-1$
 
         return query.getResultStream().findFirst();
     }

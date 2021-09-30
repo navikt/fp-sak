@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeFagområde;
 import no.nav.foreldrepenger.økonomistøtte.grensesnittavstemming.queue.producer.GrensesnittavstemmingJmsProducer;
@@ -75,12 +74,6 @@ public class GrensesnittavstemmingBatchTjeneste implements BatchTjeneste {
         var batchArguments = (GrensesnittavstemmingBatchArguments) arguments; // NOSONAR
         utførGrensesnittavstemming(batchArguments.getFom(), batchArguments.getTom(), batchArguments.getFagområde());
         return BATCHNAVN + "-" + UUID.randomUUID();
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        // Antar her at alt har gått bra siden denne er en synkron jobb.
-        return BatchStatus.OK;
     }
 
     @Override

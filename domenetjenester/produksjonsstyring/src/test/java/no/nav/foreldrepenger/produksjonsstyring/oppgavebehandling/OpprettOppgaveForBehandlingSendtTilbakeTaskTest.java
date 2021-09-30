@@ -35,7 +35,7 @@ public class OpprettOppgaveForBehandlingSendtTilbakeTaskTest {
         behandling = scenario.lagMocked();
         task = new OpprettOppgaveForBehandlingSendtTilbakeTask(oppgaveTjeneste);
 
-        taskData = new ProsessTaskData(OpprettOppgaveForBehandlingSendtTilbakeTask.TASKTYPE);
+        taskData = ProsessTaskData.forProsessTask(OpprettOppgaveForBehandlingSendtTilbakeTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
 
         when(oppgaveTjeneste.opprettBehandleOppgaveForBehandlingMedPrioritetOgFrist(anyLong(), anyString(), anyBoolean(), anyInt()))

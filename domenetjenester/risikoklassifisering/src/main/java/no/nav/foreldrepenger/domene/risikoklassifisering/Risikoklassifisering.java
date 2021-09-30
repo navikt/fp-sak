@@ -91,7 +91,7 @@ public class Risikoklassifisering {
                                                   RisikovurderingRequest risikovurderingRequest) throws IOException {
         var callId = MDCOperations.getCallId();
         if (callId == null || callId.isBlank()) callId = MDCOperations.generateCallId();
-        var taskData = new ProsessTaskData(RisikoklassifiseringUtførTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
         taskData.setBehandling(ref.getFagsakId(), behandlingId, ref.getAktørId().getId());
         taskData.setCallId(callId);
         var requestWrapper = new RequestWrapper(callId, risikovurderingRequest);

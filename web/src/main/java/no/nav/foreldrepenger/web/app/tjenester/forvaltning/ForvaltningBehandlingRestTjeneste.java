@@ -116,7 +116,7 @@ public class ForvaltningBehandlingRestTjeneste {
     }
 
     private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        var prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
@@ -183,7 +183,7 @@ public class ForvaltningBehandlingRestTjeneste {
     }
 
     private void opprettMottaDokumentTask(Long fagsakId, MottattDokument mottattDokument) {
-        var prosessTaskData = new ProsessTaskData(HåndterMottattDokumentTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING.getKode());

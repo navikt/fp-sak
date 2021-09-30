@@ -8,12 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -40,7 +38,7 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
     public void vurderOpphørForFørstegangsbehandling() {
         var behandling = lagBehandlingFP(BehandlingType.FØRSTEGANGSSØKNAD);
 
-        var prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(VurderOpphørAvYtelserTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);
@@ -55,7 +53,7 @@ public class VurderOpphørAvYtelserTaskTest extends EntityManagerAwareTest {
     public void ikkeVurderOpphørForRevurderingsbehandling() {
         var behandling = lagBehandlingFP(BehandlingType.REVURDERING);
 
-        var prosessTaskData = new ProsessTaskData(VurderOpphørAvYtelserTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(VurderOpphørAvYtelserTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().toString());
 
         vurderOpphørAvYtelserTask.doTask(prosessTaskData);

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
-import static no.nav.foreldrepenger.behandling.revurdering.satsregulering.AutomatiskGrunnbelopReguleringTask.TASKTYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -43,6 +42,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -90,9 +91,8 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
                 arguments);
         var svar = tjeneste.launch(batchArgs);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.BATCHNAME + "-1");
-        assertThat(
-                prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
-                        .isTrue();
+        var taskTypeExpected = TaskType.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        assertThat(prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR).stream().anyMatch(task -> taskTypeExpected.equals(task.taskType()))).isTrue();
     }
 
     @Test
@@ -125,9 +125,8 @@ public class AutomatiskGrunnbelopReguleringSVPBatchTjenesteTest {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, nySats, 6 * nySats, cutoff.plusDays(5)); // Ny sats
         var svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringSVPBatchTjeneste.BATCHNAME + "-2");
-        assertThat(
-                prosessTaskRepository.finnIkkeStartet().stream().anyMatch(task -> task.getTaskType().equals(TASKTYPE)))
-                        .isFalse();
+        var taskTypeExpected = TaskType.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
+        assertThat(prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR).stream().anyMatch(task -> taskTypeExpected.equals(task.taskType()))).isFalse();
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status,

@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import no.nav.foreldrepenger.batch.BatchArguments;
-import no.nav.foreldrepenger.batch.BatchStatus;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
@@ -46,17 +45,12 @@ public class FlyttEnhetBatchTjeneste implements BatchTjeneste {
         var flyttEnhetBatchArguments = (FlyttEnhetBatchArguments)arguments;  // NOSONAR
         var kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(flyttEnhetBatchArguments.getEnhetId());
         kandidater.forEach(beh -> {
-            var taskData = new ProsessTaskData(OppdaterBehandlendeEnhetTask.TASKTYPE);
+            var taskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
             taskData.setBehandling(beh.getFagsakId(), beh.getId(), beh.getAktørId().getId());
             taskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(taskData);
         });
         return BATCHNAVN + "-" + UUID.randomUUID();
-    }
-
-    @Override
-    public BatchStatus status(String batchInstanceNumber) {
-        return BatchStatus.OK;
     }
 
     @Override

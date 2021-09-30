@@ -13,11 +13,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(SendVedtaksbrevTask.TASKTYPE)
+@ProsessTask("iverksetteVedtak.sendVedtaksbrev")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendVedtaksbrevTask extends BehandlingProsessTask {
-
-    public static final String TASKTYPE = "iverksetteVedtak.sendVedtaksbrev";
 
     private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrevTask.class);
 

@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Acknowledge command
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           script: |
-            github.reactions.createForIssueComment({
+            github.rest.reactions.createForIssueComment({
               comment_id: context.payload.comment.id,
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -44,38 +44,38 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: failure()
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til ${{ env.CLUSTER }} ${{ env.NAMESPACE }} feilet'})
 
       - name: Oppdater kommentar med deployment status
         if: success()
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til  ${{ env.CLUSTER }} ${{ env.NAMESPACE }} utført'})
-            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
+            github.rest.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER }}-${{ env.NAMESPACE }}']})
 
   promote_all:
     if: contains(github.event.comment.html_url, '/issues/') && github.event.comment.body == '/promote'
     runs-on: ubuntu-latest
     steps:
       - name: Acknowledge command
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           script: |
-            github.reactions.createForIssueComment({
+            github.rest.reactions.createForIssueComment({
               comment_id: context.payload.comment.id,
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -106,28 +106,28 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: steps.deploy_dev.outcome == 'failure'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til ${{ env.CLUSTER_DEV }} ${{ env.NAMESPACE }} feilet'})
 
       - name: Oppdater kommentar med deployment status
         if: steps.deploy_dev.outcome == 'success'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til  ${{ env.CLUSTER_DEV }} ${{ env.NAMESPACE }} utført'})
-            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_DEV }}-${{ env.NAMESPACE }}']})
+            github.rest.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_DEV }}-${{ env.NAMESPACE }}']})
 
 
       - name: Promoter til prod og namespace
@@ -143,25 +143,25 @@ jobs:
 
       - name: Oppdater kommentar med deployment status ved feil
         if: steps.deploy_prod.outcome == 'failure'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til ${{ env.CLUSTER_PROD }} ${{ env.NAMESPACE }} feilet'})
 
       - name: Oppdater kommentar med deployment status
         if: steps.deploy_prod.outcome == 'success'
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const issue = { owner: context.issue.owner,
                             repo: context.issue.repo,
                             issue_number: ${{ github.event.issue.number }} }
-            github.issues.createComment({...issue,
+            github.rest.issues.createComment({...issue,
                                     body: 'promote til  ${{ env.CLUSTER_PROD }} ${{ env.NAMESPACE }} utført'})
-            github.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_PROD }}-${{ env.NAMESPACE }}']})
+            github.rest.issues.addLabels({...issue, labels: ['deployment','${{ env.CLUSTER_PROD }}-${{ env.NAMESPACE }}']})

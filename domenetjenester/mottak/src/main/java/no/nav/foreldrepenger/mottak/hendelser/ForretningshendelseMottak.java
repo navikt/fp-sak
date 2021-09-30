@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødfødselHendelseDto;
@@ -39,7 +40,6 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaks
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class ForretningshendelseMottak {
@@ -142,7 +142,7 @@ public class ForretningshendelseMottak {
     }
 
     private void opprettProsesstaskForFagsak(Fagsak fagsak, String hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        var taskData = new ProsessTaskData(MottaHendelseFagsakTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(MottaHendelseFagsakTask.class);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
         taskData.setFagsakId(fagsak.getId());

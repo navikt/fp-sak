@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.observer.Oppdate
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAwareTest {
 
@@ -82,7 +83,7 @@ public class OppdaterSakOgBehandlingEventObserverTest extends EntityManagerAware
     }
 
     private void verifiserProsessTaskData(ScenarioMorSøkerEngangsstønad scenario, ProsessTaskData prosessTaskData) {
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(SakOgBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(SakOgBehandlingTask.class));
         assertThat(new AktørId(prosessTaskData.getAktørId()))
                 .isEqualTo(scenario.getFagsak().getNavBruker().getAktørId());
         assertThat(prosessTaskData.getBehandlingId()).isEqualTo(scenario.getBehandling().getId().toString());

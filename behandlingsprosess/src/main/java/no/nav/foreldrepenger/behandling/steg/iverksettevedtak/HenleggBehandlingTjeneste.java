@@ -95,7 +95,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void opprettOppgaveTilInfotrygd(Behandling behandling) {
-        var data = new ProsessTaskData(OpprettOppgaveSendTilInfotrygdTask.TASKTYPE);
+        var data = ProsessTaskData.forProsessTask(OpprettOppgaveSendTilInfotrygdTask.class);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(data);
@@ -111,7 +111,7 @@ public class HenleggBehandlingTjeneste {
     }
 
     private void startTaskForDekøingAvBerørtBehandling(Behandling behandling) {
-        var taskData = new ProsessTaskData(StartBerørtBehandlingTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(StartBerørtBehandlingTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(taskData);

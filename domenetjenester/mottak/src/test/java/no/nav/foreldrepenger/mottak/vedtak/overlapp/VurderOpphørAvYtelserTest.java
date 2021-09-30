@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.mottak.vedtak.overlapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,6 +50,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -252,7 +256,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
             "Test2", Optional.of(nyBehMorSomIkkeOverlapper.getAktørId().getId()));
         var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
         var vurderKonsekvensTaskForFagsak = tasks.stream()
-            .filter(p -> p.getTaskType().equals(OpprettOppgaveVurderKonsekvensTask.TASKTYPE))
+            .filter(p -> p.taskType().equals(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class)))
             .filter(p -> Objects.equals(p.getFagsakId(), nyBehMorSomIkkeOverlapper.getFagsakId()))
             .collect(Collectors.toList());
         assertThat(vurderKonsekvensTaskForFagsak).hasSize(1);
@@ -548,7 +552,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak) {
         var håndterOpphør = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(håndterOpphør.getTaskType()).isEqualTo(HåndterOpphørAvYtelserTask.TASKTYPE);
+        assertThat(håndterOpphør.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class));
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(fagsak.getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNotNull();
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN.getKode());
@@ -556,7 +560,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet() {
         boolean ikkeFunnetTask = prosessTaskRepository.finnIkkeStartet().stream()
-            .noneMatch(pt -> HåndterOpphørAvYtelserTask.TASKTYPE.equals(pt.getTaskType()));
+            .noneMatch(pt -> pt.taskType().equals(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class)));
         assertThat(ikkeFunnetTask).isTrue();
     }
 }

@@ -12,11 +12,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
-@ProsessTask(LagreHistorikkTask.TASKTYPE)
+@ProsessTask("historikk.kafka.opprettHistorikkinnslag")
 public class LagreHistorikkTask implements ProsessTaskHandler {
     private static final Logger LOG = LoggerFactory.getLogger(LagreHistorikkTask.class);
-
-    public static final String TASKTYPE = "historikk.kafka.opprettHistorikkinnslag";
 
     private HistorikkRepository historikkRepository;
     private HistorikkFraDtoMapper historikkFraDtoMapper;

@@ -62,6 +62,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
 public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
@@ -206,7 +207,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(OpprettOppgaveVurderDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
     }
 
     @Test
@@ -410,7 +411,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test
@@ -473,7 +474,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test
@@ -507,7 +508,7 @@ public class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(prosessTaskRepository).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(StartBehandlingTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(StartBehandlingTask.class));
     }
 
     @Test

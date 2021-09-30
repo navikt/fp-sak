@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task;
 
 import static no.nav.foreldrepenger.historikk.OppgaveÅrsak.VURDER_DOKUMENT;
-import static no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask.TASKTYPE;
 
 import java.util.Optional;
 
@@ -19,10 +18,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("oppgavebehandling.opprettOppgaveVurderDokument")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveVurderDokument";
+
     public static final String KEY_BEHANDLENDE_ENHET = "behandlendEnhetsId";
     public static final String KEY_DOKUMENT_TYPE = "dokumentTypeId";
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveVurderDokumentTask.class);

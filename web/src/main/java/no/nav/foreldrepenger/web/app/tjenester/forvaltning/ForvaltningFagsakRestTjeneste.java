@@ -164,7 +164,7 @@ public class ForvaltningFagsakRestTjeneste {
     }
 
     private void opprettHenleggelseTask(Behandling behandling, BehandlingResultatType henleggelseType) {
-        var prosessTaskData = new ProsessTaskData(HenleggFlyttFagsakTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(HenleggFlyttFagsakTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();

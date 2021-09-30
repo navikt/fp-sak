@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 
-import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask.TASKTYPE;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.CDI;
 
@@ -15,10 +13,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  * Kjører behandlingskontroll automatisk fra start.
  */
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("behandlingskontroll.startBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class StartBehandlingTask implements ProsessTaskHandler {
-    public static final String TASKTYPE = "behandlingskontroll.startBehandling";
 
     public StartBehandlingTask() {
     }

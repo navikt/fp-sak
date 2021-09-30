@@ -82,7 +82,7 @@ public class DatavarehusAdminRestTjeneste {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
             if (genererVedtaksXmlDvhDto.getFagsakYtelseType() == null
                     || behandling.getFagsakYtelseType().getKode().equals(genererVedtaksXmlDvhDto.getFagsakYtelseType())) {
-                var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+                var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
                 prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
                 prosessTaskData.setCallIdFraEksisterende();
@@ -110,7 +110,7 @@ public class DatavarehusAdminRestTjeneste {
 
         for (var behandlingId : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
@@ -135,7 +135,7 @@ public class DatavarehusAdminRestTjeneste {
         var lagretVedtak = vedtakTjeneste.hentLagreteVedtak(behandling.getId());
 
         if (lagretVedtak != null) {
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlTask.class);
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();
             prosessTaskRepository.lagre(prosessTaskData);
@@ -161,7 +161,7 @@ public class DatavarehusAdminRestTjeneste {
         var behandlinger = datavarehusTjeneste.hentVedtakBehandlinger(behandling.getId());
 
         behandlinger.forEach(b -> {
-            var prosessTaskData = new ProsessTaskData(RegenererVedtaksXmlDatavarehusTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlDatavarehusTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();

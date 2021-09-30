@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.task;
 
-import static no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett.VEDTAK_TIL_DATAVAREHUS_TASK;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -12,11 +10,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(VedtakTilDatavarehusTask.TASKTYPE)
+@ProsessTask("iverksetteVedtak.vedtakTilDatavarehus")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakTilDatavarehusTask extends GenerellProsessTask {
-
-    public static final String TASKTYPE = VEDTAK_TIL_DATAVAREHUS_TASK;
 
     private DatavarehusTjeneste datavarehusTjeneste;
 

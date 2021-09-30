@@ -13,10 +13,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(OpprettOppgaveSendTilInfotrygdTask.TASKTYPE)
+@ProsessTask("oppgavebehandling.opprettOppgaveSakTilInfotrygd")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveSendTilInfotrygdTask extends GenerellProsessTask {
-    public static final String TASKTYPE = "oppgavebehandling.opprettOppgaveSakTilInfotrygd";
+
     private static final Logger LOG = LoggerFactory.getLogger(OpprettOppgaveSendTilInfotrygdTask.class);
 
     private OppgaveTjeneste oppgaveTjeneste;

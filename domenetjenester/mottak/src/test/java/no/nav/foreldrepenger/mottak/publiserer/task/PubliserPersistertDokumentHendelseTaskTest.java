@@ -95,7 +95,7 @@ public class PubliserPersistertDokumentHendelseTaskTest extends EntityManagerAwa
     @Test
     public void skal_kalle_InnhentDokumentTjeneste_med_argumenter_fra_ProsessTask() {
         // Arrange
-        var prosessTask = new ProsessTaskData(PubliserPersistertDokumentHendelseTask.TASKTYPE);
+        var prosessTask = ProsessTaskData.forProsessTask(PubliserPersistertDokumentHendelseTask.class);
         prosessTask.setBehandling(FAGSAK_ID, BEHANDLING_ID, AKTØR_ID.getId());
         prosessTask.setProperty(PubliserPersistertDokumentHendelseTask.MOTTATT_DOKUMENT_ID_KEY,
             MOTTATT_DOKUMENT_ID.toString());

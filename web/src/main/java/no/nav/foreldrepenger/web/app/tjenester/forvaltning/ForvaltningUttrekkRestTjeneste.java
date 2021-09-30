@@ -32,7 +32,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.abac.FPSakBeskyttetRessursAttributt;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
@@ -138,7 +137,7 @@ public class ForvaltningUttrekkRestTjeneste {
         var callId = MDCOperations.getCallId();
         int suffix = 1;
         for (var betweendays = fom; !betweendays.isAfter(dto.getTom()); betweendays = betweendays.plusDays(1)) {
-            var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
             prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, dto.getKey());
             prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_FOM_KEY, betweendays.toString());
             prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TOM_KEY, betweendays.toString());
@@ -175,7 +174,7 @@ public class ForvaltningUttrekkRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FPSakBeskyttetRessursAttributt.DRIFT)
     public Response avstemSakForOverlapp(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
                                              @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto s) {
-        var prosessTaskData = new ProsessTaskData(VedtakOverlappAvstemTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemTask.class);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_TEMA_KEY_KEY, VedtakOverlappAvstemTask.LOG_TEMA_BOTH_KEY);
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, s.getVerdi());
         prosessTaskData.setCallIdFraEksisterende();

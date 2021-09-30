@@ -68,7 +68,7 @@ public class OppdaterSakOgBehandlingEventObserver {
             throw new IllegalStateException("Utviklerfeil: Finner ikke behandlingstema for fagsak");
         }
 
-        var prosessTaskData = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
+        var prosessTaskData = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);

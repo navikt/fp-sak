@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentT
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
@@ -380,7 +381,7 @@ public class OpprettNyFørstegangsbehandlingTest {
     // MottattDokument-mock
     private void verifiserProsessTaskData(Behandling behandling, ProsessTaskData prosessTaskData, Long ventetDokument, boolean skalhabehandling) {
 
-        assertThat(prosessTaskData.getTaskType()).isEqualTo(HåndterMottattDokumentTask.TASKTYPE);
+        assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(behandling.getFagsakId());
         if (skalhabehandling) {
             assertThat(prosessTaskData.getBehandlingId()).isEqualTo(behandling.getId().toString());

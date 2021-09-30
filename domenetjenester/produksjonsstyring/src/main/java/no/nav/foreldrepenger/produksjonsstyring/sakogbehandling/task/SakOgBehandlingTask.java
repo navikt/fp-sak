@@ -38,11 +38,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
-@ProsessTask(SakOgBehandlingTask.TASKTYPE)
+@ProsessTask("behandlingskontroll.oppdatersakogbehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SakOgBehandlingTask extends GenerellProsessTask {
-
-    public static final String TASKTYPE = "behandlingskontroll.oppdatersakogbehandling";
 
     private static final Logger LOG = LoggerFactory.getLogger(SakOgBehandlingTask.class);
 

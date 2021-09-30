@@ -194,7 +194,7 @@ public class VedtakRestTjeneste {
 
         for (var b : behandlinger) {
             var behandling = behandlingsprosessTjeneste.hentBehandling(b);
-            var prosessTaskData = new ProsessTaskData(ValiderOgRegenererVedtaksXmlTask.TASKTYPE);
+            var prosessTaskData = ProsessTaskData.forProsessTask(ValiderOgRegenererVedtaksXmlTask.class);
 
             prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
             prosessTaskData.setCallIdFraEksisterende();

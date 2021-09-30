@@ -11,11 +11,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(HenleggFlyttFagsakTask.TASKTYPE)
+@ProsessTask(value = "behandlingskontroll.henleggBehandling", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HenleggFlyttFagsakTask extends BehandlingProsessTask {
-
-    public static final String TASKTYPE = "behandlingskontroll.henleggBehandling";
 
     public static final String HENLEGGELSE_TYPE_KEY = "henleggesGrunn";
 

@@ -36,7 +36,7 @@ public class LagreHistorikkTaskTest {
                 new BehandlingRepository(entityManager), new FagsakRepository(entityManager));
         var task = new LagreHistorikkTask(historikkRepository, historikkFraDtoMapper);
 
-        var data = new ProsessTaskData(LagreHistorikkTask.TASKTYPE);
+        var data = ProsessTaskData.forProsessTask(LagreHistorikkTask.class);
         data.setPayload(melding);
         task.doTask(data);
         var historikkinnslag = historikkRepository.hentHistorikk(behandling.getId());

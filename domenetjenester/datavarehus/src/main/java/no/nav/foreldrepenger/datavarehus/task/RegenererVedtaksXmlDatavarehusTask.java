@@ -10,11 +10,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(RegenererVedtaksXmlDatavarehusTask.TASKTYPE)
+@ProsessTask(value = "iverksetteVedtak.regenererVedtakXmlTilDatavarehus", maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class RegenererVedtaksXmlDatavarehusTask extends GenerellProsessTask {
 
-    public static final String TASKTYPE = "iverksetteVedtak.regenererVedtakXmlTilDatavarehus";
     private DatavarehusTjeneste datavarehusTjeneste;
 
     public RegenererVedtaksXmlDatavarehusTask() {

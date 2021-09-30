@@ -16,11 +16,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(MottaHendelseFagsakTask.TASKTYPE)
+@ProsessTask("hendelser.håndterHendelsePåFagsak")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class MottaHendelseFagsakTask extends FagsakProsessTask {
 
-    public static final String TASKTYPE = "hendelser.håndterHendelsePåFagsak";
     static final String PROPERTY_HENDELSE_TYPE = "hendelseType";
     static final String PROPERTY_ÅRSAK_TYPE = "aarsakType";
 

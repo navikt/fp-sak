@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.produksjonsstyring.sakogbehandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
 
         final var behandling = scenario.lagre(repositoryProvider);
         var fagsak = behandling.getFagsak();
-        var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
+        var task = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
         var captorKey = ArgumentCaptor.forClass(String.class);
@@ -69,7 +69,7 @@ public class SakOgBehandlingKafkaTaskTest extends EntityManagerAwareTest {
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         behandling = repositoryProvider.getBehandlingRepository().hentBehandling(behandling.getId());
         var fagsak =behandling.getFagsak();
-        var task = new ProsessTaskData(SakOgBehandlingTask.TASKTYPE);
+        var task = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         task.setBehandling(fagsak.getId(), behandling.getId(), fagsak.getAktørId().getId());
 
         var captorKey = ArgumentCaptor.forClass(String.class);

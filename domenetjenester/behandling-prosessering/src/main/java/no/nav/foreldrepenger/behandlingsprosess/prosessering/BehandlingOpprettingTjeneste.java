@@ -88,7 +88,7 @@ public class BehandlingOpprettingTjeneste {
      * @return gruppe assignet til prosess task
      */
     public String asynkStartBehandlingsprosess(Behandling behandling) {
-        var taskData = new ProsessTaskData(StartBehandlingTask.TASKTYPE);
+        var taskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
         return prosessTaskRepository.lagre(taskData);

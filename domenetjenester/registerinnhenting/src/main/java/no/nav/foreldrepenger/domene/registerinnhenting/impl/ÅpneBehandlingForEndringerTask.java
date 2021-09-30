@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl;
 
-import static no.nav.foreldrepenger.domene.registerinnhenting.impl.ÅpneBehandlingForEndringerTask.TASKTYPE;
-
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -21,10 +19,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(TASKTYPE)
+@ProsessTask("behandlingskontroll.åpneBehandlingForEndringer")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
-    public static final String TASKTYPE = "behandlingskontroll.åpneBehandlingForEndringer";
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlingRepository behandlingRepository;

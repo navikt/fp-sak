@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
@@ -37,7 +36,7 @@ public class BehandleNegativeKvitteringTjeneste {
             }
 
             if (Objects.equals(prosessTaskData.getStatus(), ProsessTaskStatus.VENTER_SVAR)) {
-                prosessTaskData.setProperty(ProsessTaskData.HENDELSE_PROPERTY, null);
+                prosessTaskData.venterPåHendelse(null);
                 prosessTaskData.setStatus(ProsessTaskStatus.FEILET);
 
                 var feil = new NegativeKvitteringFeil("Det finnes negativ kvittering for minst en av oppdragsmottakerne.");

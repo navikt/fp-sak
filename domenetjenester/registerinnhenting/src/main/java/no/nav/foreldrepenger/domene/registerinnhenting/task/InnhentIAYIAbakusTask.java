@@ -16,14 +16,12 @@ import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 
 @ApplicationScoped
-@ProsessTask(InnhentIAYIAbakusTask.TASKTYPE)
+@ProsessTask("innhentsaksopplysninger.abakus")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
-    public static final String TASKTYPE = "innhentsaksopplysninger.abakus";
     public static final String OVERSTYR_KEY = "overstyrt";
     public static final String OVERSTYR_VALUE = "overstyrt";
     public static final String IAY_REGISTERDATA_CALLBACK = "IAY_REGISTERDATA_CALLBACK";
@@ -52,7 +50,7 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
 
-        var hendelse = Optional.ofNullable(prosessTaskData.getPropertyValue(ProsessTaskData.HENDELSE_PROPERTY));
+        var hendelse = prosessTaskData.getVentetHendelse();
         var grunnlag = Optional.ofNullable(prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
         if (hendelse.isPresent() && grunnlag.filter(s -> !s.isEmpty()).isPresent()) {
             validerHendelse(prosessTaskData);
@@ -87,14 +85,13 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     private void validerHendelse(ProsessTaskData prosessTaskData) {
 
-        Optional.ofNullable(prosessTaskData.getPropertyValue(ProsessTaskData.HENDELSE_PROPERTY))
+        prosessTaskData.getVentetHendelse()
             .filter(IAY_REGISTERDATA_CALLBACK::equals).orElseThrow(() -> new IllegalStateException("Ugyldig hendelse"));
         LOG.info("Nytt aktivt grunnlag for behandling={} i abakus har uuid={}", prosessTaskData.getBehandlingId(), prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
     }
 
     private void settTaskPåVent(ProsessTaskData prosessTaskData) {
-        prosessTaskData.setProperty(ProsessTaskData.HENDELSE_PROPERTY, IAY_REGISTERDATA_CALLBACK);
-        prosessTaskData.setStatus(ProsessTaskStatus.VENTER_SVAR);
+        prosessTaskData.venterPåHendelse(IAY_REGISTERDATA_CALLBACK);
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskRepository.lagre(prosessTaskData);
     }

@@ -16,11 +16,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  * aksjonspunkt som er et autopunkt og har en frist som er passert.
  */
 @ApplicationScoped
-@ProsessTask(GjenopptaBehandlingTask.TASKTYPE)
+@ProsessTask("behandlingskontroll.gjenopptaBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class GjenopptaBehandlingTask extends BehandlingProsessTask {
-
-    public static final String TASKTYPE = "behandlingskontroll.gjenopptaBehandling";
 
     private BehandlingRepository behandlingRepository;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
