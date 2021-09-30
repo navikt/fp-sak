@@ -49,8 +49,7 @@ public class VedtaksbrevUtleder {
                                                            Behandlingsresultat behandlingsresultat,
                                                            BehandlingVedtak behandlingVedtak,
                                                            KlageRepository klageRepository,
-                                                           AnkeRepository ankeRepository,
-                                                           InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
+                                                           AnkeRepository ankeRepository) {
         DokumentMalType dokumentMal = null;
 
         if (erLagetFritekstBrev(behandlingsresultat)) {
@@ -62,7 +61,7 @@ public class VedtaksbrevUtleder {
         } else if (erAnkeBehandling(behandlingVedtak)) {
             dokumentMal = velgAnkemal(behandling, ankeRepository);
         } else if (erInnvilget(behandlingVedtak)) {
-            dokumentMal = velgPositivtVedtaksmal(behandling, innvilgelseFpLanseringTjeneste);
+            dokumentMal = velgPositivtVedtaksmal(behandling);
         } else if (erAvlåttEllerOpphørt(behandlingVedtak)) {
             dokumentMal = velgNegativVedtaksmal(behandling, behandlingsresultat);
         }
@@ -93,11 +92,11 @@ public class VedtaksbrevUtleder {
         return null;
     }
 
-    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling, InnvilgelseFpLanseringTjeneste innvilgelseFpLanseringTjeneste) {
+    public static DokumentMalType velgPositivtVedtaksmal(Behandling behandling) {
         var ytelse = behandling.getFagsakYtelseType();
 
         return FagsakYtelseType.FORELDREPENGER.equals(ytelse) ?
-            innvilgelseFpLanseringTjeneste.velgFpInnvilgelsesmal(behandling) : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
+            DokumentMalType.FORELDREPENGER_INNVILGELSE : FagsakYtelseType.ENGANGSTØNAD.equals(ytelse) ?
             DokumentMalType.ENGANGSSTØNAD_INNVILGELSE : FagsakYtelseType.SVANGERSKAPSPENGER.equals(ytelse) ?
             DokumentMalType.INNVILGELSE_SVANGERSKAPSPENGER_DOK : null;
     }
