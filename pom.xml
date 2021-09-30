@@ -794,7 +794,6 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
-                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
 
