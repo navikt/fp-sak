@@ -69,11 +69,6 @@
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>2.3</version>
-            </dependency>
             <!-- Felles biblioteker - Importerte avhengigheter -->
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
