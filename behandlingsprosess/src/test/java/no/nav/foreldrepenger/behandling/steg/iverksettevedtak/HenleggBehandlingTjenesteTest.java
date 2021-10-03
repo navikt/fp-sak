@@ -43,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class HenleggBehandlingTjenesteTest {
@@ -65,7 +65,7 @@ public class HenleggBehandlingTjenesteTest {
     @Inject
     private AksjonspunktKontrollRepository aksjonspunktKontrollRepository;
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
 
@@ -93,7 +93,7 @@ public class HenleggBehandlingTjenesteTest {
         lenient().when(modell.erStegAFørStegB(any(), any())).thenReturn(true);
 
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider,
-                behandlingskontrollTjenesteImpl, dokumentBestillerTjenesteMock, prosessTaskRepositoryMock);
+                behandlingskontrollTjenesteImpl, dokumentBestillerTjenesteMock, taskTjenesteMock);
     }
 
     @Test

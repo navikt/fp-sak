@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class AutomatiskMilSivReguleringBatchTjenesteTest {
@@ -43,7 +43,7 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
 
     @Inject
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -69,7 +69,7 @@ public class AutomatiskMilSivReguleringBatchTjenesteTest {
         gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1))
                 .getVerdi();
         tjeneste = new AutomatiskMilSivReguleringBatchTjeneste(behandlingRevurderingRepository,
-                beregningsresultatRepository, prosessTaskRepository);
+                beregningsresultatRepository, taskTjeneste);
     }
 
     @Test

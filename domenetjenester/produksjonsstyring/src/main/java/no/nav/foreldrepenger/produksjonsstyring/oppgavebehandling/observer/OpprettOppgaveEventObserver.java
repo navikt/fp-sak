@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOp
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.TotrinnTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.totrinn.Totrinnsvurdering;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -36,19 +36,19 @@ public class OpprettOppgaveEventObserver {
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
     private OppgaveTjeneste oppgaveTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private TotrinnTjeneste totrinnTjeneste;
     private BehandlingRepository behandlingRepository;
 
     @Inject
     public OpprettOppgaveEventObserver(OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository
                                        , OppgaveTjeneste oppgaveTjeneste
-                                       , ProsessTaskRepository prosessTaskRepository
+                                       , ProsessTaskTjeneste taskTjeneste
                                        , BehandlingRepository behandlingRepository
                                        , TotrinnTjeneste totrinnTjeneste) {
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.oppgaveTjeneste = oppgaveTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.totrinnTjeneste = totrinnTjeneste;
     }
@@ -77,7 +77,7 @@ public class OpprettOppgaveEventObserver {
 
                 var enkeltTask = opprettProsessTaskData(behandling, TaskType.forProsessTask(OpprettOppgaveRegistrerSøknadTask.class));
                 enkeltTask.setCallIdFraEksisterende();
-                prosessTaskRepository.lagre(enkeltTask);
+                taskTjeneste.lagre(enkeltTask);
             } else if (harAksjonspunkt(åpneAksjonspunkt, AksjonspunktDefinisjon.FATTER_VEDTAK)) {
                 oppgaveTjeneste.avsluttOppgaveOgStartTask(behandling, behandling.erRevurdering() ? OppgaveÅrsak.REVURDER : OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
             } else if (erSendtTilbakeFraBeslutter(totrinnsvurderings)) {
@@ -97,7 +97,7 @@ public class OpprettOppgaveEventObserver {
         if (!aktivOppgave.isPresent()) {
             var enkeltTask = opprettProsessTaskData(behandling, TaskType.forProsessTask(OpprettOppgaveForBehandlingTask.class));
             enkeltTask.setCallIdFraEksisterende();
-            prosessTaskRepository.lagre(enkeltTask);
+            taskTjeneste.lagre(enkeltTask);
         }
     }
 

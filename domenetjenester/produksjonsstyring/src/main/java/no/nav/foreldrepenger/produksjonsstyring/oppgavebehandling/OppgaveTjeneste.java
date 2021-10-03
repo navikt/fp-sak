@@ -37,7 +37,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.context.SubjectHandler;
 
@@ -70,7 +70,7 @@ public class OppgaveTjeneste {
 
     private BehandlingRepository behandlingRepository;
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private PersoninfoAdapter personinfoAdapter;
     private OppgaveRestKlient restKlient;
 
@@ -83,13 +83,13 @@ public class OppgaveTjeneste {
                            BehandlingRepository behandlingRepository,
                            OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository,
                            OppgaveRestKlient restKlient,
-                           ProsessTaskRepository prosessTaskRepository,
+                           ProsessTaskTjeneste taskTjeneste,
                            PersoninfoAdapter personinfoAdapter) {
         this.fagsakRepository = fagsakRepository;
         this.behandlingRepository = behandlingRepository;
         this.oppgaveBehandlingKoblingRepository = oppgaveBehandlingKoblingRepository;
         this.restKlient = restKlient;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.personinfoAdapter = personinfoAdapter;
     }
 
@@ -179,7 +179,7 @@ public class OppgaveTjeneste {
 
         taskGruppe.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(taskGruppe);
+        taskTjeneste.lagre(taskGruppe);
     }
 
     public Optional<ProsessTaskData> opprettTaskAvsluttOppgave(Behandling behandling) {
@@ -210,7 +210,7 @@ public class OppgaveTjeneste {
             setOppgaveId(avsluttOppgaveTask, aktivOppgave.getOppgaveId());
             if (skalLagres) {
                 avsluttOppgaveTask.setCallIdFraEksisterende();
-                prosessTaskRepository.lagre(avsluttOppgaveTask);
+                taskTjeneste.lagre(avsluttOppgaveTask);
             }
             return Optional.of(avsluttOppgaveTask);
         }

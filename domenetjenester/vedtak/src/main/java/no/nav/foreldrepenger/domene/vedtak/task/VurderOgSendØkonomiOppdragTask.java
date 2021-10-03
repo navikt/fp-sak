@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.oppdragTilØkonomi", maxFailedRuns = 1) // TODO BehandleNegativeKvitteringTjenesteTest deps on name
@@ -25,7 +25,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(VurderOgSendØkonomiOppdragTask.class);
 
     private OppdragskontrollTjeneste oppdragskontrollTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private OppdragPostConditionTjeneste oppdragPostConditionTjeneste;
     private OppdragInputTjeneste oppdragInputTjeneste;
 
@@ -34,13 +34,13 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     }
 
     @Inject
-    public VurderOgSendØkonomiOppdragTask(ProsessTaskRepository prosessTaskRepository,
+    public VurderOgSendØkonomiOppdragTask(ProsessTaskTjeneste taskTjeneste,
                                           BehandlingRepositoryProvider repositoryProvider,
                                           OppdragskontrollTjeneste oppdragskontrollTjeneste,
                                           OppdragPostConditionTjeneste oppdragPostConditionTjeneste,
                                           OppdragInputTjeneste oppdragInputTjeneste) {
         super(repositoryProvider.getBehandlingLåsRepository());
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.oppdragskontrollTjeneste = oppdragskontrollTjeneste;
         this.oppdragPostConditionTjeneste = oppdragPostConditionTjeneste;
         this.oppdragInputTjeneste = oppdragInputTjeneste;
@@ -82,7 +82,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
     private void oppdaterProsessTask(ProsessTaskData prosessTaskData) {
         prosessTaskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private void sendØkonomioppdragTask(ProsessTaskData hovedProsessTask, Long behandlingId) {
@@ -92,7 +92,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             behandlingId,
             hovedProsessTask.getAktørId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void sendTilkjentYtelse(ProsessTaskData hovedProsessTask, Long behandlingId) {
@@ -102,7 +102,7 @@ public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             behandlingId,
             hovedProsessTask.getAktørId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void behandleHendelse(String prosessTaskHendelse, Long behandlingId) {

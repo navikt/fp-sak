@@ -1,7 +1,8 @@
 package no.nav.foreldrepenger.behandling.revurdering.satsregulering;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +14,9 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
@@ -49,18 +53,18 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
+@ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
 
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     private AutomatiskGrunnbelopReguleringBatchTjeneste tjeneste;
@@ -70,8 +74,6 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
     public void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         beregningsgrunnlagRepository = new BeregningsgrunnlagRepository(entityManager);
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, () -> "test",
-                mock(ProsessTaskEventPubliserer.class));
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         var ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         var fagsakLåsRepository = new FagsakLåsRepository(entityManager);
@@ -82,7 +84,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         var behandlingRevurderingRepository = new BehandlingRevurderingRepository(
                 entityManager, behandlingRepository, fagsakRelasjonRepository, søknadRepository, behandlingLåsRepository);
         tjeneste = new AutomatiskGrunnbelopReguleringBatchTjeneste(behandlingRevurderingRepository,
-                beregningsresultatRepository, prosessTaskRepository);
+                beregningsresultatRepository, taskTjeneste);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }
 
@@ -94,10 +96,14 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskGrunnbelopReguleringBatchArguments.REVURDER_KEY, "True");
         var batchArgs = new AutomatiskGrunnbelopReguleringBatchArguments(arguments);
+
         var svar = tjeneste.launch(batchArgs);
+
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-1");
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
         var taskTypeExpected = TaskType.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
-        assertThat(prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR).stream().anyMatch(task -> taskTypeExpected.equals(task.taskType()))).isTrue();
+        assertThat(captor.getValue().taskType()).isEqualTo(taskTypeExpected);
     }
 
     @Test
@@ -107,10 +113,11 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(BehandlingStatus.UTREDES, gammelSats, 6 * gammelSats, cutoff.plusDays(5));
         var svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-0");
+        verifyNoInteractions(taskTjeneste);
     }
 
     @Test
-    public void skal_finne_to_saker_å_revurdere() {
+    public void skal_finne_to_saker_å_revurdere_logg_ikke_task() {
         var nySats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
         var cutoff = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
         var gammelSats = beregningsresultatRepository.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoff.minusDays(1)).getVerdi();
@@ -121,8 +128,7 @@ public class AutomatiskGrunnbelopReguleringBatchTjenesteTest {
         opprettRevurderingsKandidat(BehandlingStatus.AVSLUTTET, nySats, 6 * nySats, cutoff.plusDays(5)); // Ny sats
         var svar = tjeneste.launch(null);
         assertThat(svar).isEqualTo(AutomatiskGrunnbelopReguleringBatchTjeneste.BATCHNAME + "-2");
-        var taskTypeExpected = TaskType.forProsessTask(AutomatiskGrunnbelopReguleringTask.class);
-        assertThat(prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR).stream().anyMatch(task -> taskTypeExpected.equals(task.taskType()))).isFalse();
+        verifyNoInteractions(taskTjeneste);
     }
 
     private Behandling opprettRevurderingsKandidat(BehandlingStatus status,

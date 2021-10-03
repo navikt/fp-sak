@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.tjeneste;
 import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask.GJENOPPTA_STEG;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -34,8 +35,8 @@ import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentPersonopplysn
 import no.nav.foreldrepenger.domene.registerinnhenting.task.SettRegisterdataInnhentetTidspunktTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 /**
@@ -61,17 +62,17 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private RegisterdataEndringshåndterer registerdataEndringshåndterer;
     private EndringsresultatSjekker endringsresultatSjekker;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public BehandlingProsesseringTjenesteImpl(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             RegisterdataEndringshåndterer registerdataEndringshåndterer,
             EndringsresultatSjekker endringsresultatSjekker,
-            ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.registerdataEndringshåndterer = registerdataEndringshåndterer;
         this.endringsresultatSjekker = endringsresultatSjekker;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public BehandlingProsesseringTjenesteImpl() {
@@ -176,7 +177,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             .or(() -> finnesFeiletOppdateringFor(behandling))
             .orElseGet(() -> {
                 var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
-                return prosessTaskRepository.lagre(gruppe);
+                return taskTjeneste.lagre(gruppe);
             });
     }
 
@@ -184,7 +185,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     @Override
     public String opprettTasksForGjenopptaOppdaterFortsettBatch(Behandling behandling, LocalDateTime nesteKjøringEtter) {
         var gruppe = lagTasksForOppdatering(behandling, nesteKjøringEtter);
-        return prosessTaskRepository.lagre(gruppe);
+        return taskTjeneste.lagre(gruppe);
     }
 
     @Override
@@ -199,7 +200,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         fortsettBehandlingTask.setProperty(GJENOPPTA_STEG, BehandlingStegType.INNHENT_REGISTEROPP.getKode());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
-        return prosessTaskRepository.lagre(gruppe);
+        return taskTjeneste.lagre(gruppe);
     }
 
     private ProsessTaskGruppe lagTasksForOppdatering(Behandling behandling, LocalDateTime nesteKjøringEtter) {
@@ -244,11 +245,11 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private String lagreEnkeltTask(ProsessTaskData prosessTaskData) {
-        return prosessTaskRepository.lagre(prosessTaskData);
+        return taskTjeneste.lagre(prosessTaskData);
     }
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
-        return prosessTaskRepository.finnAlle(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR).stream()
+        return taskTjeneste.finnAlleStatuser(List.of(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR)).stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
@@ -256,7 +257,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
-        return prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET).stream()
+        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
             .filter(it -> TASK_ABAKUS.equals(it.taskType()))
             .filter(it -> it.getBehandlingId().equals("" + behandling.getId()))
             .map(ProsessTaskData::getGruppe)
@@ -265,7 +266,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public Set<Long> behandlingerMedFeiletProsessTask() {
-        return prosessTaskRepository.finnAlle(ProsessTaskStatus.FEILET).stream()
+        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
             .filter(it -> TASK_FORTSETT.equals(it.taskType()) || TASK_START.equals(it.taskType()))
             .map(ProsessTaskData::getBehandlingId)
             .filter(Objects::nonNull)

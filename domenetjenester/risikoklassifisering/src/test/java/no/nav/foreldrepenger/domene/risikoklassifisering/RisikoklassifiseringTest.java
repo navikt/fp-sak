@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,7 @@ public class RisikoklassifiseringTest {
     private PersonopplysningRepository personopplysningRepository;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     private static final AktørId ANNEN_PART_AKTØR_ID = AktørId.dummy();
 
@@ -73,7 +73,7 @@ public class RisikoklassifiseringTest {
 
     @BeforeEach
     void setUp() {
-        risikoklassifisering = new Risikoklassifisering(prosessTaskRepository, skjæringstidspunktTjeneste,
+        risikoklassifisering = new Risikoklassifisering(taskTjeneste, skjæringstidspunktTjeneste,
             risikovurderingTjeneste, opplysningsPeriodeTjeneste, personopplysningRepository,
             familieHendelseRepository);
     }

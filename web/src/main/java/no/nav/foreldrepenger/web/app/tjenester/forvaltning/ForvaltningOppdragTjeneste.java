@@ -31,8 +31,8 @@ import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomioppdragRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @Dependent
@@ -44,7 +44,7 @@ class ForvaltningOppdragTjeneste {
     private ØkonomioppdragRepository økonomioppdragRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private EntityManager entityManager;
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
@@ -53,14 +53,14 @@ class ForvaltningOppdragTjeneste {
                                       ØkonomioppdragRepository økonomioppdragRepository,
                                       BehandlingRepository behandlingRepository,
                                       PersoninfoAdapter personinfoAdapter,
-                                      ProsessTaskRepository prosessTaskRepository,
+                                      ProsessTaskTjeneste taskTjeneste,
                                       EntityManager entityManager,
                                       BehandlingVedtakRepository behandlingVedtakRepository) {
         this.økonomioppdragKvitteringTjeneste = økonomioppdragKvitteringTjeneste;
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.entityManager = entityManager;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
     }
@@ -81,7 +81,7 @@ class ForvaltningOppdragTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerUferdigProsesstask(vurderØkonomiTask);
 
@@ -98,7 +98,7 @@ class ForvaltningOppdragTjeneste {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var oppdragskontroll = økonomioppdragRepository.finnOppdragForBehandling(behandlingId)
             .orElseThrow(() -> new IllegalArgumentException("Fant ikke oppdragskontroll for behandlingId=" + behandlingId));
-        var vurderØkonomiTask = prosessTaskRepository.finn(oppdragskontroll.getProsessTaskId());
+        var vurderØkonomiTask = taskTjeneste.finn(oppdragskontroll.getProsessTaskId());
 
         validerFerdigProsesstask(vurderØkonomiTask);
 
@@ -216,7 +216,7 @@ class ForvaltningOppdragTjeneste {
 
     private void byttStatusTilVenterPåKvittering(ProsessTaskData task) {
         task.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
-        prosessTaskRepository.lagre(task);
+        taskTjeneste.lagre(task);
     }
 
     private void lagSendØkonomioppdragTask(ProsessTaskData hovedProsessTask, boolean hardPatch) {
@@ -227,7 +227,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setBehandling(hovedProsessTask.getFagsakId(),
             Long.valueOf(hovedProsessTask.getBehandlingId()),
             hovedProsessTask.getAktørId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void lagSendØkonomioppdragTask(Behandling behandling) {
@@ -237,7 +237,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(),
             behandling.getId(),
             behandling.getAktørId().getId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void lagVurderOgSendØkonomioppdragTask(Behandling behandling) {
@@ -245,7 +245,7 @@ class ForvaltningOppdragTjeneste {
         sendØkonomiOppdrag.setCallIdFraEksisterende();
         sendØkonomiOppdrag.setProperty("patchet", "refusjonsinfo-maxDato"); // for sporing
         sendØkonomiOppdrag.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
-        prosessTaskRepository.lagre(sendØkonomiOppdrag);
+        taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private int finnAntallPatchedeSistePeriode(EntityManager entityManager, Period periode) {

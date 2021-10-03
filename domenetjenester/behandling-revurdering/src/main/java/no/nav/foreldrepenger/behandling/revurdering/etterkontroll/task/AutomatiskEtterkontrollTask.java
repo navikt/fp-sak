@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask("behandlingsprosess.etterkontroll")
@@ -38,7 +38,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     private PersoninfoAdapter personinfoAdapter;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private EtterkontrollRepository etterkontrollRepository;
@@ -54,13 +54,13 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
             HistorikkRepository historikkRepository,
             FamilieHendelseTjeneste familieHendelseTjeneste,
             PersoninfoAdapter personinfoAdapter,
-            ProsessTaskRepository prosessTaskRepository,
+            ProsessTaskTjeneste taskTjeneste,
             BehandlendeEnhetTjeneste behandlendeEnhetTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.personinfoAdapter = personinfoAdapter;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.revurderingHistorikk = new RevurderingHistorikk(historikkRepository);
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
@@ -108,6 +108,6 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 }

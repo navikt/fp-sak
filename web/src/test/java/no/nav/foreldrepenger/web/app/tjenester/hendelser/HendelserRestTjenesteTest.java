@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.hendelser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -16,6 +18,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,9 +33,9 @@ import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.FødselHendelseDto;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacAktørIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste.AbacHendelseWrapperDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -45,14 +48,14 @@ public class HendelserRestTjenesteTest {
     private HendelseSorteringRepository sorteringRepository;
     private HendelserRestTjeneste hendelserRestTjeneste;
     private HendelsemottakRepository hendelsemottakRepository;
-    private ProsessTaskRepositoryImpl prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
     public void before(EntityManager entityManager) {
         hendelsemottakRepository = new HendelsemottakRepository(entityManager);
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, null);
         hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository,
-            prosessTaskRepository);
+            taskTjeneste);
     }
 
     @Test
@@ -64,7 +67,9 @@ public class HendelserRestTjenesteTest {
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
-        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
@@ -81,7 +86,9 @@ public class HendelserRestTjenesteTest {
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(hendelse));
 
         assertThat(hendelsemottakRepository.hendelseErNy(HENDELSE_ID)).isFalse();
-        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
         assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
@@ -97,8 +104,7 @@ public class HendelserRestTjenesteTest {
 
         hendelserRestTjeneste.mottaHendelse(new AbacHendelseWrapperDto(lagFødselHendelse(aktørIdForeldre, fødselsdato)));
 
-        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        assertThat(tasks).allSatisfy(d -> assertThat(d.taskType()).isNotEqualTo(HENDELSE_TASK));
+        verifyNoInteractions(taskTjeneste);
     }
 
     @Test

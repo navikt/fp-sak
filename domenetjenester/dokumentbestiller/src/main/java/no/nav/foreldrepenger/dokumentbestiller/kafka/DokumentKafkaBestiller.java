@@ -15,12 +15,12 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillBrevDto;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class DokumentKafkaBestiller {
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BrevHistorikkinnslag brevHistorikkinnslag;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
@@ -30,11 +30,11 @@ public class DokumentKafkaBestiller {
 
     @Inject
     public DokumentKafkaBestiller(BehandlingRepository behandlingRepository,
-                                  ProsessTaskRepository prosessTaskRepository,
+                                  ProsessTaskTjeneste taskTjeneste,
                                   BrevHistorikkinnslag brevHistorikkinnslag,
                                   DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.behandlingRepository = behandlingRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.brevHistorikkinnslag = brevHistorikkinnslag;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
@@ -69,7 +69,7 @@ public class DokumentKafkaBestiller {
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BESTILLING_UUID, UUID.randomUUID().toString());
         prosessTaskData.setProperty(DokumentBestillerKafkaTask.BEHANDLENDE_ENHET_NAVN, behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
 }

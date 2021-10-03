@@ -52,7 +52,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -67,20 +67,20 @@ public class ForvaltningBehandlingRestTjeneste {
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BerørtBehandlingForvaltningTjeneste berørtBehandlingTjeneste;
     private HistorikkTjenesteAdapter historikkTjenesteAdapter;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(BerørtBehandlingForvaltningTjeneste berørtBehandlingForvaltningTjeneste,
             BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
-            ProsessTaskRepository prosessTaskRepository,
+            ProsessTaskTjeneste taskTjeneste,
             BehandlingRepositoryProvider repositoryProvider,
             HistorikkTjenesteAdapter historikkTjenesteAdapter) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.berørtBehandlingTjeneste = berørtBehandlingForvaltningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.historikkTjenesteAdapter = historikkTjenesteAdapter;
@@ -121,7 +121,7 @@ public class ForvaltningBehandlingRestTjeneste {
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     @POST
@@ -189,7 +189,7 @@ public class ForvaltningBehandlingRestTjeneste {
         prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING.getKode());
         prosessTaskData.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     @POST

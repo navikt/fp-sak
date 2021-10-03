@@ -28,8 +28,8 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEntitet;
 
 /** Repository for å håndtere kobling mellom Fagsak (og Behandling) mot Prosess Tasks. */
@@ -39,21 +39,21 @@ public class FagsakProsessTaskRepository {
     private static final Logger LOG = LoggerFactory.getLogger(FagsakProsessTaskRepository.class);
 
     private EntityManager entityManager;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     FagsakProsessTaskRepository() {
         // for proxy
     }
 
     @Inject
-    public FagsakProsessTaskRepository( EntityManager entityManager, ProsessTaskRepository prosessTaskRepository) {
+    public FagsakProsessTaskRepository( EntityManager entityManager, ProsessTaskTjeneste taskTjeneste) {
         this.entityManager = entityManager;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
 
     public void lagre(FagsakProsessTask fagsakProsessTask) {
-        var ptData = prosessTaskRepository.finn(fagsakProsessTask.getProsessTaskId());
+        var ptData = taskTjeneste.finn(fagsakProsessTask.getProsessTaskId());
         LOG.debug("Linker fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.getTaskType(), fagsakProsessTask.getGruppeSekvensNr());
         var em = getEntityManager();
         em.persist(fagsakProsessTask);
@@ -71,7 +71,7 @@ public class FagsakProsessTaskRepository {
     }
 
     public void fjern(Long fagsakId, Long prosessTaskId, Long gruppeSekvensNr) {
-        var ptData = prosessTaskRepository.finn(prosessTaskId);
+        var ptData = taskTjeneste.finn(prosessTaskId);
         LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], tasktype=[{}] gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.getTaskType(), gruppeSekvensNr);
         var em = getEntityManager();
         var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
@@ -135,7 +135,7 @@ public class FagsakProsessTaskRepository {
 
         if (matchedTasks.isEmpty()) {
             // legg inn nye
-            return prosessTaskRepository.lagre(gruppe);
+            return taskTjeneste.lagre(gruppe);
         }
 
         // hvis noen er FEILET så oppretter vi ikke ny
@@ -148,7 +148,7 @@ public class FagsakProsessTaskRepository {
             if(eksisterendeTaskTyper.containsAll(nyeTaskTyper)){
                 return eksisterendeTasks.get(0).getGruppe();
             }
-            return prosessTaskRepository.lagre(gruppe);
+            return taskTjeneste.lagre(gruppe);
         }
         return feilet.get().getGruppe();
 

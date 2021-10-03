@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class BehandleNegativeKvitteringTjenesteTest {
@@ -21,25 +21,25 @@ public class BehandleNegativeKvitteringTjenesteTest {
     private final static Long FAGSAK_ID = 987654301L;
     private final static String AKTØR_ID = "AA-BB-CC-DD-EE";
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     private BehandleNegativeKvitteringTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
-        prosessTaskRepository = mock(ProsessTaskRepository.class);
-        tjeneste = new BehandleNegativeKvitteringTjeneste(prosessTaskRepository);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
+        tjeneste = new BehandleNegativeKvitteringTjeneste(taskTjeneste);
     }
 
     @Test
     public void skal_nullstille_hendelse() {
         var taskData = lagØkonomioppragTaskPåVent();
 
-        when(prosessTaskRepository.finn(taskData.getId())).thenReturn(taskData);
+        when(taskTjeneste.finn(taskData.getId())).thenReturn(taskData);
 
         tjeneste.nullstilleØkonomioppdragTask(taskData.getId());
 
-        verify(prosessTaskRepository).lagre(taskData);
+        verify(taskTjeneste).lagre(taskData);
 
         assertThat(taskData.getStatus()).isEqualTo(ProsessTaskStatus.FEILET);
         assertThat(taskData.getSisteFeil()).contains("\"Det finnes negativ kvittering for minst en av oppdragsmottakerne.\"");

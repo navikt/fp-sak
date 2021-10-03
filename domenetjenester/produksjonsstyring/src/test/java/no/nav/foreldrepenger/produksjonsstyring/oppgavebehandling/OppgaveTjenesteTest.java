@@ -41,7 +41,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class OppgaveTjenesteTest extends EntityManagerAwareTest {
@@ -54,7 +54,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
 
     private OppgaveTjeneste tjeneste;
     private PersoninfoAdapter personinfoAdapter;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private OppgaveRestKlient oppgaveRestKlient;
 
     private OppgaveBehandlingKoblingRepository oppgaveBehandlingKoblingRepository;
@@ -67,11 +67,11 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
 
         personinfoAdapter = mock(PersoninfoAdapter.class);
-        prosessTaskRepository = mock(ProsessTaskRepository.class);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
         oppgaveRestKlient = Mockito.mock(OppgaveRestKlient.class);
         oppgaveBehandlingKoblingRepository = spy(new OppgaveBehandlingKoblingRepository(entityManager));
         tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
-                oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
+                oppgaveBehandlingKoblingRepository, oppgaveRestKlient, taskTjeneste, personinfoAdapter);
     }
 
     private Behandling lagBehandling() {
@@ -187,7 +187,7 @@ public class OppgaveTjenesteTest extends EntityManagerAwareTest {
         tjeneste.avsluttOppgaveOgStartTask(behandling, OppgaveÅrsak.BEHANDLE_SAK, TaskType.forProsessTask(OpprettOppgaveGodkjennVedtakTask.class));
 
         var captor = ArgumentCaptor.forClass(ProsessTaskGruppe.class);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         assertThat(captor.getAllValues()).hasSize(1);
         var tasks = captor.getValue().getTasks();
         assertThat(tasks.get(0).task().taskType()).isEqualTo(TaskType.forProsessTask(AvsluttOppgaveTask.class));

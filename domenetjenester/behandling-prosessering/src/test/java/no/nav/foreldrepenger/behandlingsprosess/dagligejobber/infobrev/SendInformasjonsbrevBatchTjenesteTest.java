@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class SendInformasjonsbrevBatchTjenesteTest {
@@ -49,7 +49,7 @@ public class SendInformasjonsbrevBatchTjenesteTest {
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     private SendInformasjonsbrevBatchTjeneste tjeneste;
     private SendInformasjonsbrevOppholdBatchTjeneste tjenesteOpphold;
@@ -70,13 +70,13 @@ public class SendInformasjonsbrevBatchTjenesteTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, prosessTaskRepositoryMock);
+        tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, taskTjenesteMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fom.format(ofPattern(DATE_PATTERN)));
         arguments.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tom.format(ofPattern(DATE_PATTERN)));
         batchArgs = new SendInformasjonsbrevBatchArguments(arguments);
 
-        tjenesteOpphold = new SendInformasjonsbrevOppholdBatchTjeneste(repository, prosessTaskRepositoryMock);
+        tjenesteOpphold = new SendInformasjonsbrevOppholdBatchTjeneste(repository, taskTjenesteMock);
         Map<String, String> argumentsOpphold = new HashMap<>();
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.FOM_KEY, fomOpphold.format((ofPattern(DATE_PATTERN))));
         argumentsOpphold.put(SendInformasjonsbrevBatchArguments.TOM_KEY, tomOpphold.format((ofPattern(DATE_PATTERN))));

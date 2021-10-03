@@ -35,7 +35,7 @@ import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OpprettOppgave;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.Prioritet;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class OpprettOppgaveForBehandlingTaskTest {
@@ -59,7 +59,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
     @Mock
     private PersoninfoAdapter personinfoAdapter;
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
     public void setup(EntityManager entityManager) {
@@ -68,7 +68,7 @@ public class OpprettOppgaveForBehandlingTaskTest {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         tjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
-            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
+            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, taskTjeneste, personinfoAdapter);
 
         // Bygg fagsak som gjenbrukes over testene
         fagsak = opprettOgLagreFagsak();

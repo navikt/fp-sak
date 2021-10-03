@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRevurderingRepository;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -30,12 +30,12 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
     private static final String EXECUTION_ID_SEPARATOR = "-";
 
     private BehandlingRevurderingRepository behandlingRevurderingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public AutomatiskArenaReguleringBatchTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+            ProsessTaskTjeneste taskTjeneste) {
+        this.taskTjeneste = taskTjeneste;
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
     }
 
@@ -75,6 +75,6 @@ public class AutomatiskArenaReguleringBatchTjeneste implements BatchTjeneste {
         prosessTaskData.setFagsak(fagsakId, aktørId.getId());
         prosessTaskData.setCallId(callId + fagsakId);
         prosessTaskData.setPrioritet(100);
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 }

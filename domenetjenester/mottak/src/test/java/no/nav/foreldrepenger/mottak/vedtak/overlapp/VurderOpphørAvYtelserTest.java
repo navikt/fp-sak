@@ -6,6 +6,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -48,11 +50,9 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskEventPubliserer;
-import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskRepositoryImpl;
 
 @ExtendWith(MockitoExtension.class)
 public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
@@ -77,8 +77,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRepository fagsakRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
-    private final ProsessTaskEventPubliserer eventPubliserer = Mockito.mock(ProsessTaskEventPubliserer.class);
-    private ProsessTaskRepository prosessTaskRepository;
+    @Mock
+    private ProsessTaskTjeneste taskTjeneste;
     private final BehandlendeEnhetTjeneste behandlendeEnhetTjeneste = Mockito.mock(BehandlendeEnhetTjeneste.class);
 
     @Mock
@@ -93,9 +93,8 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
-        prosessTaskRepository = new ProsessTaskRepositoryImpl(entityManager, null, eventPubliserer);
         vurderOpphørAvYtelser = new VurderOpphørAvYtelser(repositoryProvider, revurderingTjenesteMockFP, revurderingTjenesteMockSVP,
-            prosessTaskRepository, behandlendeEnhetTjeneste, sjekkInfotrygdTjeneste, entityManager);
+            taskTjeneste, behandlendeEnhetTjeneste, sjekkInfotrygdTjeneste, entityManager);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.vurderOpphørAvYtelser(fagsakNy.getId(),nyAvsBehandlingMor.getId());
 
-        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak());
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(avsluttetBehMor.getFagsak(), 2);
         verify(sjekkInfotrygdTjeneste, times(1)).harForeldrepengerInfotrygdSomOverlapper(fsavsluttetBehFar.getAktørId(),SKJÆRINGSTIDSPUNKT_OVERLAPPER_BEH_1 );
     }
 
@@ -241,10 +240,16 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
         var fagsakNy = nyBehMorSomIkkeOverlapper.getFagsak();
 
         vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(),"Test", "Test", Optional.empty() );
-        var vurderKonsekvens = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        var gjeldendeAktørId = Optional.ofNullable(vurderKonsekvens.getPropertyValue(KEY_GJELDENDE_AKTØR_ID));
 
-        assertThat(gjeldendeAktørId.isPresent()).isFalse();
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var gjeldendeAktørId = captor.getAllValues().stream()
+            .filter(p -> p.taskType().equals(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class)))
+            .map(p -> p.getPropertyValue(KEY_GJELDENDE_AKTØR_ID))
+            .filter(Objects::nonNull)
+            .findFirst();
+
+        assertThat(gjeldendeAktørId).isEmpty();
     }
 
     @Test
@@ -254,8 +259,9 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
 
         vurderOpphørAvYtelser.opprettTaskForÅVurdereKonsekvens(fagsakNy.getId(), "Test2",
             "Test2", Optional.of(nyBehMorSomIkkeOverlapper.getAktørId().getId()));
-        var tasks = prosessTaskRepository.finnAlle(ProsessTaskStatus.KLAR);
-        var vurderKonsekvensTaskForFagsak = tasks.stream()
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste).lagre(captor.capture());
+        var vurderKonsekvensTaskForFagsak = captor.getAllValues().stream()
             .filter(p -> p.taskType().equals(TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class)))
             .filter(p -> Objects.equals(p.getFagsakId(), nyBehMorSomIkkeOverlapper.getFagsakId()))
             .collect(Collectors.toList());
@@ -551,16 +557,19 @@ public class VurderOpphørAvYtelserTest extends EntityManagerAwareTest {
     }
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak) {
-        var håndterOpphør = prosessTaskRepository.finnIkkeStartet().stream().findFirst().orElse(null);
-        assertThat(håndterOpphør.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class));
+        verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(fagsak, 1);
+    }
+
+    private void verifiserAtProsesstaskForHåndteringAvOpphørErOpprettet(Fagsak fagsak, int times) {
+        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
+        verify(taskTjeneste, times(times)).lagre(captor.capture());
+        var håndterOpphør = captor.getAllValues().stream().filter(t -> t.taskType().equals(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class))).findFirst().orElse(null);
         assertThat(håndterOpphør.getFagsakId()).isEqualTo(fagsak.getId());
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY)).isNotNull();
         assertThat(håndterOpphør.getPropertyValue(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY)).isEqualTo(BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN.getKode());
     }
 
     private void verifiserAtProsesstaskForHåndteringAvOpphørIkkeErOpprettet() {
-        boolean ikkeFunnetTask = prosessTaskRepository.finnIkkeStartet().stream()
-            .noneMatch(pt -> pt.taskType().equals(TaskType.forProsessTask(HåndterOpphørAvYtelserTask.class)));
-        assertThat(ikkeFunnetTask).isTrue();
+        verifyNoInteractions(taskTjeneste);
     }
 }

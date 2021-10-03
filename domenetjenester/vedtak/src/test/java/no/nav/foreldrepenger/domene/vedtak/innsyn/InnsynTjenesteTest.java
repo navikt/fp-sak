@@ -30,7 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class InnsynTjenesteTest {
@@ -58,7 +58,7 @@ public class InnsynTjenesteTest {
     public void oppsett() {
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(new OrganisasjonsEnhet("1234", ""));
         var oppretter = new BehandlingOpprettingTjeneste(behandlingKontrollTjeneste, behandlendeEnhetTjeneste, historikkRepository,
-                mock(ProsessTaskRepository.class));
+                mock(ProsessTaskTjeneste.class));
         innsynTjeneste = new InnsynTjeneste(oppretter, fagsakRepository, behandlingRepository, behandlingsresultatRepository, innsynRepository);
     }
 

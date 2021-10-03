@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /*
  *
@@ -44,7 +44,7 @@ public class KøKontroller {
     private Behandlingsoppretter behandlingsoppretter;
     private SøknadRepository søknadRepository;
     private BehandlingFlytkontroll flytkontroll;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public KøKontroller() {
         // For CDI proxy
@@ -54,7 +54,7 @@ public class KøKontroller {
     public KøKontroller(BehandlingProsesseringTjeneste prosesseringTjeneste,
                         BehandlingskontrollTjeneste behandlingskontrollTjeneste,
                         BehandlingRepositoryProvider repositoryProvider,
-                        ProsessTaskRepository prosessTaskRepository,
+                        ProsessTaskTjeneste taskTjeneste,
                         Behandlingsoppretter behandlingsoppretter,
                         BehandlingFlytkontroll flytkontroll) {
         this.behandlingProsesseringTjeneste = prosesseringTjeneste;
@@ -62,7 +62,7 @@ public class KøKontroller {
         this.behandlingRevurderingRepository = repositoryProvider.getBehandlingRevurderingRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlingsoppretter = behandlingsoppretter;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.flytkontroll = flytkontroll;
@@ -173,7 +173,7 @@ public class KøKontroller {
         var data = ProsessTaskData.forProsessTask(GjenopptaKøetBehandlingTask.class);
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(data);
+        taskTjeneste.lagre(data);
     }
 
     public boolean skalEvtNyBehandlingKøes(Fagsak fagsak) {

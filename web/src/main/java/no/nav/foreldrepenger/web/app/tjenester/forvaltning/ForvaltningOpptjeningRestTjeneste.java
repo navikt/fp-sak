@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehand
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittFrilansDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.LeggTilOppgittNæringDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 
 @Path("/forvaltningOpptjening")
@@ -57,17 +57,17 @@ public class ForvaltningOpptjeningRestTjeneste {
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private VirksomhetTjeneste virksomhetTjeneste;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public ForvaltningOpptjeningRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
                                              VirksomhetTjeneste virksomhetTjeneste,
-                                             ProsessTaskRepository prosessTaskRepository) {
+                                             ProsessTaskTjeneste taskTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.virksomhetTjeneste = virksomhetTjeneste;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public ForvaltningOpptjeningRestTjeneste() {
@@ -151,7 +151,7 @@ public class ForvaltningOpptjeningRestTjeneste {
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setProperty(InnhentIAYIAbakusTask.OVERSTYR_KEY, InnhentIAYIAbakusTask.OVERSTYR_VALUE);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
         return Response.noContent().build();
     }
 

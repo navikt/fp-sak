@@ -7,12 +7,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
 import no.nav.foreldrepenger.dokumentbestiller.forlengelsesbrev.task.SendForlengelsesbrevTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class SendForlengelsesbrevTjeneste {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlingKandidaterRepository behandlingKandidaterRepository;
 
     SendForlengelsesbrevTjeneste() {
@@ -21,9 +21,9 @@ public class SendForlengelsesbrevTjeneste {
 
     @Inject
     public SendForlengelsesbrevTjeneste(BehandlingKandidaterRepository behandlingKandidaterRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskTjeneste taskTjeneste) {
         this.behandlingKandidaterRepository = behandlingKandidaterRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public String sendForlengelsesbrev() {
@@ -42,7 +42,7 @@ public class SendForlengelsesbrevTjeneste {
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
         return prosessTaskData.getGruppe();
     }
 }

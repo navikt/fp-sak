@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask("migrer.sendTilkjentYtelse")
@@ -30,7 +30,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
 
     private TilkjentYtelseMeldingProducer meldingProducer;
     private MigrerBehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
 
     public MigrerTilkjentYtelseTask() {
@@ -38,10 +38,10 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
     }
 
     @Inject
-    public MigrerTilkjentYtelseTask(TilkjentYtelseMeldingProducer meldingProducer, MigrerBehandlingRepository behandlingRepository, ProsessTaskRepository prosessTaskRepository) {
+    public MigrerTilkjentYtelseTask(TilkjentYtelseMeldingProducer meldingProducer, MigrerBehandlingRepository behandlingRepository, ProsessTaskTjeneste taskTjeneste) {
         this.meldingProducer = meldingProducer;
         this.behandlingRepository = behandlingRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class MigrerTilkjentYtelseTask implements ProsessTaskHandler {
             var data = ProsessTaskData.forProsessTask(MigrerTilkjentYtelseTask.class);
             data.setProperty("behandlingIdTak", Long.toString(behandlinger.get(ANTALL_PR_RUNDE - 1).getBehandlingId()));
             data.setNesteKjøringEtter(LocalDateTime.now().plus(DELAY_MELLOM_KJØRINGER));
-            prosessTaskRepository.lagre(data);
+            taskTjeneste.lagre(data);
         } else {
             LOG.info("siste migrer.sendTilkjentYtelse er ferdig");
         }

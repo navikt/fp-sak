@@ -51,7 +51,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.OverstyrDekningsgradDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -66,7 +66,7 @@ public class ForvaltningFagsakRestTjeneste {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private BehandlingRepository behandlingRepository;
     private PersonopplysningRepository personopplysningRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser;
     private OpprettSakTjeneste opprettSakTjeneste;
     private PersoninfoAdapter personinfoAdapter;
@@ -79,7 +79,7 @@ public class ForvaltningFagsakRestTjeneste {
 
     @Inject
     public ForvaltningFagsakRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-            ProsessTaskRepository prosessTaskRepository,
+            ProsessTaskTjeneste taskTjeneste,
             @Any Instance<OppdaterFagsakStatus> oppdaterFagsakStatuser,
             OpprettSakTjeneste opprettSakTjeneste,
             PersoninfoAdapter personinfoAdapter,
@@ -90,7 +90,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.oppdaterFagsakStatuser = oppdaterFagsakStatuser;
         this.overstyrDekningsgradTjeneste = overstyrDekningsgradTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
@@ -169,7 +169,7 @@ public class ForvaltningFagsakRestTjeneste {
         prosessTaskData.setProperty(HenleggFlyttFagsakTask.HENLEGGELSE_TYPE_KEY, henleggelseType.getKode());
         prosessTaskData.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     @POST

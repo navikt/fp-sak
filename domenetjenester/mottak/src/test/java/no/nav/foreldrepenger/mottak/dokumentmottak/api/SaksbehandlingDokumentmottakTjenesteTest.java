@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 public class SaksbehandlingDokumentmottakTjenesteTest {
@@ -36,15 +36,15 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
     private static final Boolean ELEKTRONISK_SØKNAD = Boolean.TRUE;
     private static final String PAYLOAD_XML = "<test></test>";
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private SaksbehandlingDokumentmottakTjeneste saksbehandlingDokumentmottakTjeneste;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
     @BeforeEach
     public void before() {
-        prosessTaskRepository = mock(ProsessTaskRepository.class);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
         mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
-        saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(prosessTaskRepository, mottatteDokumentTjeneste);
+        saksbehandlingDokumentmottakTjeneste = new SaksbehandlingDokumentmottakTjeneste(taskTjeneste, mottatteDokumentTjeneste);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
 
         // Assert
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
         assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
@@ -92,7 +92,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         verify(mottatteDokumentTjeneste).lagreMottattDokumentPåFagsak(saksdokument);
 
         // Assert
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         saksbehandlingDokumentmottakTjeneste.mottaUbehandletSøknad(md1, BehandlingÅrsakType.UDEFINERT);
 
         // Assert
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isNull();
@@ -141,7 +141,7 @@ public class SaksbehandlingDokumentmottakTjenesteTest {
         saksbehandlingDokumentmottakTjeneste.opprettFraTidligereBehandling(md1, behandling, BehandlingÅrsakType.ETTER_KLAGE);
 
         // Assert
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
         assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getBehandlingId()).isEqualTo("789");

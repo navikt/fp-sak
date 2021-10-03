@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTje
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class OverstyrDekningsgradTjeneste {
@@ -40,7 +40,7 @@ public class OverstyrDekningsgradTjeneste {
     private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private HistorikkRepository historikkRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private RevurderingTjeneste revurderingTjeneste;
     private BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste;
@@ -52,7 +52,7 @@ public class OverstyrDekningsgradTjeneste {
 
     @Inject
     public OverstyrDekningsgradTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                        ProsessTaskRepository prosessTaskRepository,
+                                        ProsessTaskTjeneste taskTjeneste,
                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                         @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjeneste,
                                         BeregnStønadskontoerTjeneste beregnStønadskontoerTjeneste,
@@ -62,7 +62,7 @@ public class OverstyrDekningsgradTjeneste {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.historikkRepository = repositoryProvider.getHistorikkRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.revurderingTjeneste = revurderingTjeneste;
         this.beregnStønadskontoerTjeneste = beregnStønadskontoerTjeneste;
@@ -138,6 +138,6 @@ public class OverstyrDekningsgradTjeneste {
         var prosessTaskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 }

@@ -8,18 +8,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokumentPersistertEvent;
 import no.nav.foreldrepenger.mottak.publiserer.task.PubliserPersistertDokumentHendelseTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class MottattDokumentPersistertEventObserver {
 
-    private ProsessTaskRepository taskRepository;
+    private ProsessTaskTjeneste taskRepository;
 
     public MottattDokumentPersistertEventObserver() {
     }
 
     @Inject
-    public MottattDokumentPersistertEventObserver(ProsessTaskRepository taskRepository) {
+    public MottattDokumentPersistertEventObserver(ProsessTaskTjeneste taskRepository) {
         this.taskRepository = taskRepository;
     }
 

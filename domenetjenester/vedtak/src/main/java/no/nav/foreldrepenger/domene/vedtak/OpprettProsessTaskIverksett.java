@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjenest
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ApplicationScoped
@@ -43,7 +43,7 @@ public class OpprettProsessTaskIverksett {
     private static final Set<AnkeVurdering> ANKE_ENDRES = Set.of(AnkeVurdering.ANKE_OPPHEVE_OG_HJEMSENDE, AnkeVurdering.ANKE_OMGJOER, AnkeVurdering.ANKE_HJEMSEND_UTEN_OPPHEV);
     private static final Set<KlageVurdering> KLAGE_ENDRES = Set.of(KlageVurdering.MEDHOLD_I_KLAGE, KlageVurdering.OPPHEVE_YTELSESVEDTAK, KlageVurdering.HJEMSENDE_UTEN_Å_OPPHEVE);
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private BehandlingRepository behandlingRepository;
     private AnkeRepository ankeRepository;
@@ -55,12 +55,12 @@ public class OpprettProsessTaskIverksett {
     }
 
     @Inject
-    public OpprettProsessTaskIverksett(ProsessTaskRepository prosessTaskRepository,
+    public OpprettProsessTaskIverksett(ProsessTaskTjeneste taskTjeneste,
                                        BehandlingRepository behandlingRepository,
                                        AnkeRepository ankeRepository,
                                        KlageRepository klageRepository,
                                        OppgaveTjeneste oppgaveTjeneste) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.ankeRepository = ankeRepository;
         this.klageRepository = klageRepository;
@@ -92,7 +92,7 @@ public class OpprettProsessTaskIverksett {
         taskGruppe.addNesteSekvensiell(avsluttBehandling);
         taskGruppe.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskGruppe.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(taskGruppe);
+        taskTjeneste.lagre(taskGruppe);
     }
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {

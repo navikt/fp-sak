@@ -49,7 +49,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 
@@ -60,18 +60,18 @@ public class ForvaltningBeregningRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningBeregningRestTjeneste.class);
 
     private FagsakRepository fagsakRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
-    public ForvaltningBeregningRestTjeneste(ProsessTaskRepository prosessTaskRepository,
+    public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
                                             BehandlingRepository behandlingRepository,
                                             BeregningsresultatRepository beregningsresultatRepository,
                                             FagsakRepository fagsakRepository,
                                             BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.fagsakRepository = fagsakRepository;
@@ -158,7 +158,7 @@ public class ForvaltningBeregningRestTjeneste {
         prosessTaskData.setCallIdFraEksisterende();
         prosessTaskData.setPrioritet(50);
         prosessTaskData.setProperty(AutomatiskGrunnbelopReguleringTask.MANUELL_KEY, "true");
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
         return Response.ok().build();
     }
 

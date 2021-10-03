@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.ForretningshendelseSaks
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.FødselForretningshendelseSaksvelger;
 import no.nav.foreldrepenger.mottak.hendelser.saksvelger.UtflyttingForretningshendelseSaksvelger;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class KlargjørHendelseTaskTest {
 
@@ -74,7 +74,7 @@ public class KlargjørHendelseTaskTest {
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.FØDSEL)).thenReturn(saksvelger);
         var domenetjeneste = new ForretningshendelseMottak(null,
-            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
+            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskTjeneste.class), null);
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
@@ -106,7 +106,7 @@ public class KlargjørHendelseTaskTest {
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.DØDFØDSEL)).thenReturn(saksvelger);
         var domenetjeneste = new ForretningshendelseMottak(null,
-            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
+            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskTjeneste.class), null);
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
@@ -136,7 +136,7 @@ public class KlargjørHendelseTaskTest {
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.DØD)).thenReturn(saksvelger);
         var domenetjeneste = new ForretningshendelseMottak(null,
-            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
+            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskTjeneste.class), null);
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 
@@ -166,7 +166,7 @@ public class KlargjørHendelseTaskTest {
         when(saksvelger.finnRelaterteFagsaker(any())).thenReturn(new LinkedHashMap<BehandlingÅrsakType, List<Fagsak>>());
         when(saksvelgerProvider.finnSaksvelger(ForretningshendelseType.UTFLYTTING)).thenReturn(saksvelger);
         var domenetjeneste = new ForretningshendelseMottak(null,
-            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskRepository.class), null);
+            saksvelgerProvider, mock(BehandlingRepositoryProvider.class), mock(ProsessTaskTjeneste.class), null);
 
         var task = new KlargjørHendelseTask(domenetjeneste);
 

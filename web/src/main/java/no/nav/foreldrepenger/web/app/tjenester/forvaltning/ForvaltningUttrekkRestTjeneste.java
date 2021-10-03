@@ -44,7 +44,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AksjonspunktKodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.AvstemmingPeriodeDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -56,7 +56,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private EntityManager entityManager;
     private FagsakRepository fagsakRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private OverlappVedtakRepository overlappRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
@@ -68,11 +68,11 @@ public class ForvaltningUttrekkRestTjeneste {
     public ForvaltningUttrekkRestTjeneste(EntityManager entityManager,
             FagsakRepository fagsakRepository,
             InntektArbeidYtelseTjeneste tjeneste,
-            ProsessTaskRepository prosessTaskRepository,
+            ProsessTaskTjeneste taskTjeneste,
             OverlappVedtakRepository overlappRepository) {
         this.entityManager = entityManager;
         this.fagsakRepository = fagsakRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.overlappRepository = overlappRepository;
         this.inntektArbeidYtelseTjeneste = tjeneste;
     }
@@ -144,7 +144,7 @@ public class ForvaltningUttrekkRestTjeneste {
             prosessTaskData.setNesteKjøringEtter(baseline.plusSeconds(LocalDateTime.now().getNano() % spread));
             prosessTaskData.setCallId(callId + "_" + suffix);
             prosessTaskData.setPrioritet(50);
-            prosessTaskRepository.lagre(prosessTaskData);
+            taskTjeneste.lagre(prosessTaskData);
             suffix++;
         }
 
@@ -179,7 +179,7 @@ public class ForvaltningUttrekkRestTjeneste {
         prosessTaskData.setProperty(VedtakOverlappAvstemTask.LOG_SAKSNUMMER_KEY, s.getVerdi());
         prosessTaskData.setCallIdFraEksisterende();
 
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
 
         return Response.ok().build();
     }

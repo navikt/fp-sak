@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagEntitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagRepository;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagTilstand;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
 public class AutomatiskArenaReguleringBatchTjenesteTest {
@@ -65,9 +65,9 @@ public class AutomatiskArenaReguleringBatchTjenesteTest {
         gammelSats = repositoryProvider.getBeregningsresultatRepository().finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1))
             .getVerdi();
         var nySatsDato = cutoff.plusWeeks(3).plusDays(2);
-        var prosessTaskRepositoryMock = mock(ProsessTaskRepository.class);
+        var taskTjenesteMock = mock(ProsessTaskTjeneste.class);
         tjeneste = new AutomatiskArenaReguleringBatchTjeneste(repositoryProvider,
-                prosessTaskRepositoryMock);
+                taskTjenesteMock);
         Map<String, String> arguments = new HashMap<>();
         arguments.put(AutomatiskArenaReguleringBatchArguments.REVURDER_KEY, "True");
         arguments.put(AutomatiskArenaReguleringBatchArguments.SATS_DATO_KEY,

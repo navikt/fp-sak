@@ -12,18 +12,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class VedtakFattetEventObserver {
 
-    private ProsessTaskRepository taskRepository;
+    private ProsessTaskTjeneste taskRepository;
 
     public VedtakFattetEventObserver() {
     }
 
     @Inject
-    public VedtakFattetEventObserver(ProsessTaskRepository taskRepository) {
+    public VedtakFattetEventObserver(ProsessTaskTjeneste taskRepository) {
         this.taskRepository = taskRepository;
     }
 

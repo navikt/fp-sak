@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.produksjonsstyring.sakogbehandling.task.SakOgBehandlingTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * Observerer relevante status endringer på behandling og fagsak og varsler til Sakogbehandling (eksternt system).
@@ -28,15 +28,15 @@ public class OppdaterSakOgBehandlingEventObserver {
 
     private FamilieHendelseRepository familieGrunnlagRepository;
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     static final String FORELDREPENGER_SAKSTEMA = Tema.FOR.getOffisiellKode();
 
     @Inject
     public OppdaterSakOgBehandlingEventObserver(BehandlingRepositoryProvider repositoryProvider,
-                                                ProsessTaskRepository prosessTaskRepository) {
+                                                ProsessTaskTjeneste taskTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
     }
 
@@ -71,7 +71,7 @@ public class OppdaterSakOgBehandlingEventObserver {
         var prosessTaskData = ProsessTaskData.forProsessTask(SakOgBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private BehandlingTema behandlingTemaFraBehandling(Behandling sisteBehandling) {

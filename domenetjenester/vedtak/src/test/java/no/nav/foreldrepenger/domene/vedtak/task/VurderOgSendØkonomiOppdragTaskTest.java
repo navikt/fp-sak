@@ -32,7 +32,7 @@ import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.OppdragskontrollTjeneste;
 import no.nav.foreldrepenger.økonomistøtte.ny.postcondition.OppdragPostConditionTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +45,7 @@ public class VurderOgSendØkonomiOppdragTaskTest {
     private static final String AKTØR_ID = AktørId.dummy().getId();
 
     @Mock
-    private ProsessTaskRepository repo;
+    private ProsessTaskTjeneste repo;
 
     @Mock
     private ProsessTaskData prosessTaskData;

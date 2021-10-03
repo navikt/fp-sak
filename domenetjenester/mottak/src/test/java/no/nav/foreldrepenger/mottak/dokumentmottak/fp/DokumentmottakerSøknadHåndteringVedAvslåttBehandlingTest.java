@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerSøknadD
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.DokumentmottakerTestsupport;
 import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends DokumentmottakerTestsupport {
 
@@ -50,7 +50,7 @@ public class DokumentmottakerSøknadHåndteringVedAvslåttBehandlingTest extends
         var mockMD = Mockito.mock(MottatteDokumentTjeneste.class);
         var mockHist = Mockito.mock(HistorikkinnslagTjeneste.class);
         var enhetsTjeneste = mock(BehandlendeEnhetTjeneste.class);
-        var taskrepo = mock(ProsessTaskRepository.class);
+        var taskrepo = mock(ProsessTaskTjeneste.class);
         var felles = new DokumentmottakerFelles(repositoryProvider,
             taskrepo,
             enhetsTjeneste,

@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 @CdiDbAwareTest
@@ -55,7 +55,7 @@ public class DokumentmottakerVedleggTest {
     private KlageRepository klageRepository;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     @Mock
@@ -74,7 +74,7 @@ public class DokumentmottakerVedleggTest {
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);
         lenient().when(behandlendeEnhetTjeneste.gyldigEnhetNfpNk(any())).thenReturn(true);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository, behandlendeEnhetTjeneste,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
 
@@ -103,7 +103,7 @@ public class DokumentmottakerVedleggTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(null, mottattDokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(behandlendeEnhet);
@@ -150,7 +150,7 @@ public class DokumentmottakerVedleggTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         // Lik enheten som ble satt på behandlingen
@@ -181,7 +181,7 @@ public class DokumentmottakerVedleggTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(behandling, mottattDokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET))
@@ -219,7 +219,7 @@ public class DokumentmottakerVedleggTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         assertThat(prosessTaskData.getPropertyValue(OpprettOppgaveVurderDokumentTask.KEY_BEHANDLENDE_ENHET)).isEqualTo(førstegangssøknadEnhetsId);
@@ -270,7 +270,7 @@ public class DokumentmottakerVedleggTest {
 
         // Verifiser at korrekt prosesstask for vurder dokument blir opprettet
         verify(kompletthetskontroller, times(0)).persisterDokumentOgVurderKompletthet(klageBehandling, mottattDokument);
-        verify(prosessTaskRepository).lagre(captor.capture());
+        verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(OpprettOppgaveVurderDokumentTask.class));
         // Lik enheten som ble satt på behandlingen

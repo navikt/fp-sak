@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.historikk.OppgaveÅrsak;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.AvsluttOppgaveTask;
 import no.nav.vedtak.felles.integrasjon.oppgave.v1.OppgaveRestKlient;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
@@ -34,14 +34,14 @@ public class AvsluttOppgaveTaskTest extends EntityManagerAwareTest {
     @Mock
     private OppgaveRestKlient oppgaveRestKlient;
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
     public void setup() {
         var entityManager = getEntityManager();
         oppgaveBehandlingKoblingRepository = new OppgaveBehandlingKoblingRepository(entityManager);
         oppgaveTjeneste = new OppgaveTjeneste(new FagsakRepository(entityManager), new BehandlingRepository(entityManager),
-            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, prosessTaskRepository, personinfoAdapter);
+            oppgaveBehandlingKoblingRepository, oppgaveRestKlient, taskTjeneste, personinfoAdapter);
     }
 
     @Test

@@ -18,8 +18,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 public class AutomatiskFagsakAvslutningTjenesteTest {
@@ -27,14 +27,14 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
     private AutomatiskFagsakAvslutningTjeneste automatiskFagsakAvslutningTjeneste;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
     @BeforeEach
     public void setUp() {
-        prosessTaskRepository = spy(ProsessTaskRepository.class);
-        automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(prosessTaskRepository, fagsakRelasjonRepository);
+        taskTjeneste = spy(ProsessTaskTjeneste.class);
+        automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(taskTjeneste, fagsakRelasjonRepository);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of());
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
-        Mockito.verify(prosessTaskRepository, Mockito.times(0)).lagre(Mockito.any(ProsessTaskGruppe.class));
+        Mockito.verifyNoInteractions(taskTjeneste);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
-        Mockito.verify(prosessTaskRepository, Mockito.times(1)).lagre(Mockito.any(ProsessTaskGruppe.class));
+        Mockito.verify(taskTjeneste, Mockito.times(1)).lagre(Mockito.any(ProsessTaskData.class));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class AutomatiskFagsakAvslutningTjenesteTest {
         when(fagsakRelasjonRepository.finnFagsakerForAvsluttning(LocalDate.now())).thenReturn(List.of(fagsak));
 
         automatiskFagsakAvslutningTjeneste.avsluttFagsaker("", LocalDate.now());
-        Mockito.verify(prosessTaskRepository, Mockito.times(1)).lagre(Mockito.any(ProsessTaskGruppe.class));
+        Mockito.verify(taskTjeneste, Mockito.times(1)).lagre(Mockito.any(ProsessTaskData.class));
     }
 
     private Fagsak lagFagsak(FagsakStatus fagsakStatus) {

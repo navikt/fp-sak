@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlin
 import no.nav.foreldrepenger.historikk.HistorikkInnslagTekstBuilder;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  * Grensesnitt for å opprette standardiserte behandlinger
@@ -37,17 +37,17 @@ public class BehandlingOpprettingTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private HistorikkRepository historikkRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     public BehandlingOpprettingTjeneste(BehandlingskontrollTjeneste behandlingskontrollTjeneste,
             BehandlendeEnhetTjeneste enhetTjeneste,
             HistorikkRepository historikkRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+            ProsessTaskTjeneste taskTjeneste) {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.enhetTjeneste = enhetTjeneste;
         this.historikkRepository = historikkRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     public BehandlingOpprettingTjeneste() {
@@ -91,7 +91,7 @@ public class BehandlingOpprettingTjeneste {
         var taskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         taskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         taskData.setCallIdFraEksisterende();
-        return prosessTaskRepository.lagre(taskData);
+        return taskTjeneste.lagre(taskData);
     }
 
     private Behandling opprettBehandling(Fagsak fagsak, BehandlingType behandlingType, OrganisasjonsEnhet enhet, BehandlingÅrsakType årsak,

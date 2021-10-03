@@ -6,25 +6,25 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
 public class RisikoklassifiseringMeldingsHåndterer {
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public RisikoklassifiseringMeldingsHåndterer() {
     }
 
     @Inject
-    public RisikoklassifiseringMeldingsHåndterer(ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+    public RisikoklassifiseringMeldingsHåndterer(ProsessTaskTjeneste taskTjeneste) {
+        this.taskTjeneste = taskTjeneste;
     }
 
     void lagreMelding(String payload) {
         var data = ProsessTaskData.forProsessTask(LesKontrollresultatTask.class);
         data.setPayload(payload);
-        prosessTaskRepository.lagre(data);
+        taskTjeneste.lagre(data);
     }
 }

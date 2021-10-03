@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @CdiDbAwareTest
 public class DokumentmottakerKlageTest {
@@ -56,7 +56,7 @@ public class DokumentmottakerKlageTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Inject
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
     private LegacyESBeregningRepository beregningRepository;
@@ -84,7 +84,7 @@ public class DokumentmottakerKlageTest {
     public void oppsett() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         var mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
-        prosessTaskRepository = mock(ProsessTaskRepository.class);
+        taskTjeneste = mock(ProsessTaskTjeneste.class);
         var behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         historikkinnslagTjeneste = mock(HistorikkinnslagTjeneste.class);
         klageVurderingTjeneste = mock(KlageVurderingTjeneste.class);
@@ -93,11 +93,11 @@ public class DokumentmottakerKlageTest {
 
         var behandlingskontrollTjeneste = DokumentmottakTestUtil.lagBehandlingskontrollTjenesteMock(serviceProvider);
 
-        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, prosessTaskRepository,
+        dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, taskTjeneste,
                 behandlendeEnhetTjeneste, historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter);
         dokumentmottakerFelles = Mockito.spy(dokumentmottakerFelles);
         var behOpprettTjeneste = new BehandlingOpprettingTjeneste(behandlingskontrollTjeneste, behandlendeEnhetTjeneste,
-                mock(HistorikkRepository.class), prosessTaskRepository);
+                mock(HistorikkRepository.class), taskTjeneste);
 
         dokumentmottaker = new DokumentmottakerKlage(repositoryProvider, behOpprettTjeneste, dokumentmottakerFelles,
                 klageVurderingTjeneste);

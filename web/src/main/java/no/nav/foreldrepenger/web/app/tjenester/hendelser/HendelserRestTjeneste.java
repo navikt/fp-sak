@@ -31,7 +31,7 @@ import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
 import no.nav.foreldrepenger.mottak.hendelser.KlargjørHendelseTask;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -48,7 +48,7 @@ public class HendelserRestTjeneste {
 
     private HendelseSorteringRepository sorteringRepository;
     private HendelsemottakRepository hendelsemottakRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public HendelserRestTjeneste() {// For Rest-CDI
     }
@@ -56,10 +56,10 @@ public class HendelserRestTjeneste {
     @Inject
     public HendelserRestTjeneste(HendelseSorteringRepository sorteringRepository,
             HendelsemottakRepository hendelsemottakRepository,
-            ProsessTaskRepository prosessTaskRepository) {
+                                 ProsessTaskTjeneste taskTjeneste) {
         this.sorteringRepository = sorteringRepository;
         this.hendelsemottakRepository = hendelsemottakRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @POST
@@ -107,7 +107,7 @@ public class HendelserRestTjeneste {
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE, hendelse.getHendelsetype());
         taskData.setProperty(KlargjørHendelseTask.PROPERTY_UID, hendelse.getId());
         taskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(taskData);
+        taskTjeneste.lagre(taskData);
         return new EnkelRespons("OK");
     }
 

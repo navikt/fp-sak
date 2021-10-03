@@ -67,7 +67,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
 import no.nav.foreldrepenger.regler.uttak.felles.grunnlag.Periode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(FPsakEntityManagerAwareExtension.class)
@@ -77,7 +77,7 @@ public class AutomatiskEtterkontrollTaskTest {
     private PersoninfoAdapter tpsFamilieTjenesteMock;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepositoryMock;
+    private ProsessTaskTjeneste taskTjenesteMock;
 
     private BehandlingRepositoryProvider repositoryProvider;
 
@@ -329,7 +329,7 @@ public class AutomatiskEtterkontrollTaskTest {
         task = new AutomatiskEtterkontrollTask(repositoryProvider,
                 etterkontrollRepository,
                 historikkRepository, familieHendelseTjeneste, tpsFamilieTjenesteMock,
-                prosessTaskRepositoryMock, behandlendeEnhetTjeneste);
+                taskTjenesteMock, behandlendeEnhetTjeneste);
     }
 
     @Test

@@ -26,14 +26,14 @@ import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 public class Risikoklassifisering {
 
     private static final Logger LOG = LoggerFactory.getLogger(Risikoklassifisering.class);
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
@@ -45,13 +45,13 @@ public class Risikoklassifisering {
     }
 
     @Inject
-    public Risikoklassifisering(ProsessTaskRepository prosessTaskRepository,
+    public Risikoklassifisering(ProsessTaskTjeneste taskTjeneste,
                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                 RisikovurderingTjeneste risikovurderingTjeneste,
                                 OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
                                 PersonopplysningRepository personopplysningRepository,
                                 FamilieHendelseRepository familieHendelseRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.risikovurderingTjeneste = risikovurderingTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
@@ -62,7 +62,7 @@ public class Risikoklassifisering {
     public void opprettProsesstaskForRisikovurdering(BehandlingReferanse ref) {
         try {
             var task = opprettPotensiellTaskProsesstask(ref);
-            task.ifPresent(t -> prosessTaskRepository.lagre(t));
+            task.ifPresent(t -> taskTjeneste.lagre(t));
         } catch (Exception ex) {
             LOG.warn("Publisering av Risikovurderingstask feilet", ex);
         }

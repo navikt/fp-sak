@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask("innhentsaksopplysninger.abakus")
@@ -30,7 +30,7 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(InnhentIAYIAbakusTask.class);
 
     private BehandlingRepository behandlingRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private RegisterdataInnhenter registerdataInnhenter;
 
     InnhentIAYIAbakusTask() {
@@ -39,11 +39,11 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     @Inject
     public InnhentIAYIAbakusTask(BehandlingRepository behandlingRepository,
-                                 ProsessTaskRepository prosessTaskRepository,
+                                 ProsessTaskTjeneste taskTjeneste,
                                  RegisterdataInnhenter registerdataInnhenter) {
         super();
         this.behandlingRepository = behandlingRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.registerdataInnhenter = registerdataInnhenter;
     }
 
@@ -93,6 +93,6 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     private void settTaskPåVent(ProsessTaskData prosessTaskData) {
         prosessTaskData.venterPåHendelse(IAY_REGISTERDATA_CALLBACK);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 }

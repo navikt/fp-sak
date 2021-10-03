@@ -45,7 +45,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.mottak.Behandlingsoppretter;
 import no.nav.foreldrepenger.ytelse.beregning.fp.BeregnFeriepenger;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 public class BerørtBehandlingKontrollerTest {
 
@@ -55,7 +55,7 @@ public class BerørtBehandlingKontrollerTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @Mock
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     @Mock
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     @Mock
@@ -96,7 +96,7 @@ public class BerørtBehandlingKontrollerTest {
 
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         behandlingProsesseringTjeneste = spy(behandlingProsesseringTjeneste);
-        prosessTaskRepository = spy(prosessTaskRepository);
+        taskTjeneste = spy(taskTjeneste);
         berørtBehandlingTjeneste = spy(berørtBehandlingTjeneste);
         behandlingsoppretter = spy(behandlingsoppretter);
         var fagsakLåsRepository = mock(FagsakLåsRepository.class);

@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.batch.BatchArguments;
 import no.nav.foreldrepenger.batch.BatchTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
@@ -23,12 +23,12 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
     static final String BATCHNAVN = "BVL008";
     private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevBatchTjeneste.class);
     private InformasjonssakRepository informasjonssakRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     @Inject
-    public SendInformasjonsbrevBatchTjeneste(InformasjonssakRepository informasjonssakRepository, ProsessTaskRepository prosessTaskRepository) {
+    public SendInformasjonsbrevBatchTjeneste(InformasjonssakRepository informasjonssakRepository, ProsessTaskTjeneste taskTjeneste) {
         this.informasjonssakRepository = informasjonssakRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class SendInformasjonsbrevBatchTjeneste implements BatchTjeneste {
             data.setProperty(OpprettInformasjonsFagsakTask.BEH_ENHET_NAVN_KEY, sak.getEnhetNavn());
             data.setProperty(OpprettInformasjonsFagsakTask.BEHANDLING_AARSAK, BehandlingÅrsakType.INFOBREV_BEHANDLING.getKode());
             data.setProperty(OpprettInformasjonsFagsakTask.FAGSAK_ID_MOR_KEY, sak.getKildeFagsakId().toString());
-            prosessTaskRepository.lagre(data);
+            taskTjeneste.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();
     }

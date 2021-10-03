@@ -44,7 +44,7 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.log.util.LoggerUtils;
@@ -68,7 +68,7 @@ public class VedtaksHendelseHåndterer {
     private LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository tilkjentYtelseRepository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public VedtaksHendelseHåndterer() {
     }
@@ -77,12 +77,12 @@ public class VedtaksHendelseHåndterer {
     public VedtaksHendelseHåndterer(FagsakTjeneste fagsakTjeneste, BeregningsresultatRepository tilkjentYtelseRepository,
             BehandlingRepository behandlingRepository,
             LoggOverlappEksterneYtelserTjeneste eksternOverlappLogger,
-            ProsessTaskRepository prosessTaskRepository) {
+                                    ProsessTaskTjeneste taskTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.eksternOverlappLogger = eksternOverlappLogger;
         this.behandlingRepository = behandlingRepository;
         this.tilkjentYtelseRepository = tilkjentYtelseRepository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     void handleMessage(String key, String payload) {
@@ -182,7 +182,7 @@ public class VedtaksHendelseHåndterer {
 
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BESKRIVELSE_KEY, beskrivelse);
         prosessTaskData.setProperty(HåndterOpphørAvYtelserTask.BEHANDLING_ÅRSAK_KEY, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER.getKode());
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     // Flytt flere eksterne ytelser hit når de er etablert. Utbetalinggrad null = 100.
@@ -241,6 +241,6 @@ public class VedtaksHendelseHåndterer {
         data.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         data.setCallId(behandling.getUuid().toString());
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
-        prosessTaskRepository.lagre(data);
+        taskTjeneste.lagre(data);
     }
 }

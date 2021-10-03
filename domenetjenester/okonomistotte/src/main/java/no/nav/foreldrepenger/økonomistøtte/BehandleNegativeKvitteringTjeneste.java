@@ -7,20 +7,20 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class BehandleNegativeKvitteringTjeneste {
 
-    private ProsessTaskRepository repository;
+    private ProsessTaskTjeneste repository;
 
     BehandleNegativeKvitteringTjeneste() {
         // CDI
     }
 
     @Inject
-    BehandleNegativeKvitteringTjeneste(ProsessTaskRepository repository) {
+    BehandleNegativeKvitteringTjeneste(ProsessTaskTjeneste repository) {
         this.repository = repository;
     }
 

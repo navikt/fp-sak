@@ -25,7 +25,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 /**
  *  Dersom det er identifisert overlapp av VurderOpphørAvYtelser, vil denne tjenesten opprette en
@@ -40,7 +40,7 @@ public class HåndterOpphørAvYtelser {
     private FagsakLåsRepository fagsakLåsRepository;
     private RevurderingTjeneste revurderingTjenesteFP;
     private RevurderingTjeneste revurderingTjenesteSVP;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private KøKontroller køKontroller;
@@ -53,13 +53,13 @@ public class HåndterOpphørAvYtelser {
     public HåndterOpphørAvYtelser(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                  @FagsakYtelseTypeRef("FP") RevurderingTjeneste revurderingTjenesteFP,
                                  @FagsakYtelseTypeRef("SVP") RevurderingTjeneste revurderingTjenesteSVP,
-                                 ProsessTaskRepository prosessTaskRepository,
+                                  ProsessTaskTjeneste taskTjeneste,
                                  BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                  BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                  KøKontroller køKontroller) {
         this.fagsakLåsRepository = behandlingRepositoryProvider.getFagsakLåsRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.revurderingTjenesteFP = revurderingTjenesteFP;
@@ -129,7 +129,7 @@ public class HåndterOpphørAvYtelser {
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
         prosessTaskData.setFagsakId(fagsakId);
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     private void oppdatereBehMedÅrsak(Long behandlingId, BehandlingÅrsakType behandlingÅrsakType) {

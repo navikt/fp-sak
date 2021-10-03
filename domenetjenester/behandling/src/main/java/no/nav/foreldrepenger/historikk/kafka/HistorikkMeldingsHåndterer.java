@@ -6,25 +6,25 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ActivateRequestContext
 @Transactional
 public class HistorikkMeldingsHåndterer {
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public HistorikkMeldingsHåndterer() {
     }
 
     @Inject
-    public HistorikkMeldingsHåndterer(ProsessTaskRepository prosessTaskRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+    public HistorikkMeldingsHåndterer(ProsessTaskTjeneste taskTjeneste) {
+        this.taskTjeneste = taskTjeneste;
     }
 
     void lagreMelding(@SuppressWarnings("unused") String header, String payload) { // NOSONAR
         var data = ProsessTaskData.forProsessTask(LagreHistorikkTask.class);
         data.setPayload(payload);
-        prosessTaskRepository.lagre(data);
+        taskTjeneste.lagre(data);
     }
 }

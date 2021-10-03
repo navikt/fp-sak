@@ -9,7 +9,7 @@ import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.EtterkontrollR
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task.AutomatiskEtterkontrollTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
@@ -31,13 +31,13 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
 
     private static final String BATCHNAME = "BVL002";
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private EtterkontrollRepository etterkontrollRepository;
 
     @Inject
-    public AutomatiskEtterkontrollBatchTjeneste(ProsessTaskRepository prosessTaskRepository,
+    public AutomatiskEtterkontrollBatchTjeneste(ProsessTaskTjeneste taskTjeneste,
             EtterkontrollRepository etterkontrollRepository) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.etterkontrollRepository = etterkontrollRepository;
     }
 
@@ -66,7 +66,7 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
         prosessTaskData.setSekvens("1");
         prosessTaskData.setPrioritet(100);
         prosessTaskData.setCallId(callId);
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
 }

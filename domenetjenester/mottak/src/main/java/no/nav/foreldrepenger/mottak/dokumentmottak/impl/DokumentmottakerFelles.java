@@ -28,12 +28,12 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
 public class DokumentmottakerFelles {
 
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private BehandlingRepository behandlingRepository;
     private HistorikkinnslagTjeneste historikkinnslagTjeneste;
@@ -48,12 +48,12 @@ public class DokumentmottakerFelles {
 
     @Inject
     public DokumentmottakerFelles(BehandlingRepositoryProvider repositoryProvider,
-                                  ProsessTaskRepository prosessTaskRepository,
+                                  ProsessTaskTjeneste taskTjeneste,
                                   BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                   HistorikkinnslagTjeneste historikkinnslagTjeneste,
                                   MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                   Behandlingsoppretter behandlingsoppretter) {
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.historikkinnslagTjeneste = historikkinnslagTjeneste;
@@ -75,7 +75,7 @@ public class DokumentmottakerFelles {
         var prosessTaskData = ProsessTaskData.forProsessTask(StartBehandlingTask.class);
         prosessTaskData.setBehandling(behandling.getFagsakId(), behandling.getId(), behandling.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     public void opprettTaskForÅVurdereDokument(Fagsak fagsak, Behandling behandling, MottattDokument mottattDokument) {
@@ -85,7 +85,7 @@ public class DokumentmottakerFelles {
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, mottattDokument.getDokumentType().getKode());
         prosessTaskData.setFagsak(fagsak.getId(), fagsak.getAktørId().getId());
         prosessTaskData.setCallIdFraEksisterende();
-        prosessTaskRepository.lagre(prosessTaskData);
+        taskTjeneste.lagre(prosessTaskData);
     }
 
     public void opprettKøetHistorikk(Behandling køetBehandling, boolean fantesFraFør) {

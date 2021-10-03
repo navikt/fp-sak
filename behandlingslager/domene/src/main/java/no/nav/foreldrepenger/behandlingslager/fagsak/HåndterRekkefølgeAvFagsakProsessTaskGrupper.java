@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import java.time.Instant;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 
 import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
@@ -15,7 +13,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskLifecycleObserver;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskRepository;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskVeto;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskHandlerRef;
@@ -30,16 +28,16 @@ import no.nav.vedtak.felles.prosesstask.impl.ProsessTaskHandlerRef;
 public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTaskLifecycleObserver {
     private static final Logger LOG = LoggerFactory.getLogger(HåndterRekkefølgeAvFagsakProsessTaskGrupper.class);
     private FagsakProsessTaskRepository repository;
-    private ProsessTaskRepository prosessTaskRepository;
+    private ProsessTaskTjeneste taskTjeneste;
 
     public HåndterRekkefølgeAvFagsakProsessTaskGrupper() {
         // for CDI proxy
     }
 
     @Inject
-    public HåndterRekkefølgeAvFagsakProsessTaskGrupper(FagsakProsessTaskRepository repository, ProsessTaskRepository prosessTaskRepository) {
+    public HåndterRekkefølgeAvFagsakProsessTaskGrupper(FagsakProsessTaskRepository repository, ProsessTaskTjeneste taskTjeneste) {
         this.repository = repository;
-        this.prosessTaskRepository = prosessTaskRepository;
+        this.taskTjeneste = taskTjeneste;
     }
 
     @Override
@@ -53,7 +51,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         // dersom blokkerende task er tom, vetoes ikke tasken
         var vetoed = blokkerendeTask.isPresent();
         if (vetoed) {
-            var blokker = prosessTaskRepository.finn(blokkerendeTask.get().getProsessTaskId());
+            var blokker = taskTjeneste.finn(blokkerendeTask.get().getProsessTaskId());
             LOG.info("Vetoer kjøring av prosesstask[{}] av type[{}] for fagsak [{}] , er blokkert av prosesstask[{}] av type[{}] for samme fagsak.",
                 ptData.getId(), ptData.getTaskType(), ptData.getFagsakId(), blokker.getId(), blokker.getTaskType());
 
@@ -100,17 +98,16 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         return data.getBehandlingId() != null ? Long.valueOf(data.getBehandlingId()) : null;
     }
 
-    private static class LocalProsessTaskHandlerRef implements AutoCloseable {
-
-        private ProsessTaskHandler localBean;
+    private static class LocalProsessTaskHandlerRef extends ProsessTaskHandlerRef {
 
         private LocalProsessTaskHandlerRef(ProsessTaskHandler bean) {
-            this.localBean = bean;
+            super(bean);
         }
 
         private FagsakProsesstaskRekkefølge getFagsakProsesstaskRekkefølge() {
-            Class<?> clazz = (localBean instanceof TargetInstanceProxy<?> tip && !localBean.getClass().isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) ?
-                tip.weld_getTargetInstance().getClass() : localBean.getClass();
+            var bean = getBean();
+            Class<?> clazz = (bean instanceof TargetInstanceProxy<?> tip && !bean.getClass().isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) ?
+                tip.weld_getTargetInstance().getClass() : bean.getClass();
             if (clazz == null || !clazz.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
                 throw new UnsupportedOperationException(clazz != null ? clazz.getSimpleName() : "ukjent klasse" + " må være annotert med "
                     + FagsakProsesstaskRekkefølge.class.getSimpleName() + " for å kobles til en Fagsak");
@@ -123,15 +120,6 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
             return new LocalProsessTaskHandlerRef(bean);
         }
 
-        private static ProsessTaskHandler lookupHandler(TaskType taskType) {
-            return CDI.current().select(ProsessTaskHandler.class, new ProsessTaskHandlerRef.ProsessTaskLiteral(taskType.value())).get();
-        }
-
-        public void close() {
-            if (this.localBean != null && this.localBean.getClass().isAnnotationPresent(Dependent.class)) {
-                CDI.current().destroy(this.localBean);
-            }
-        }
     }
 
 }
