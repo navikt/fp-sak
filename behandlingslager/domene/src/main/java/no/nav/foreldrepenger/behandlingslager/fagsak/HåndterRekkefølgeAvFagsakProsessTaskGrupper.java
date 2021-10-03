@@ -5,7 +5,6 @@ import java.time.Instant;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,11 +104,9 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         }
 
         private FagsakProsesstaskRekkefølge getFagsakProsesstaskRekkefølge() {
-            var bean = getBean();
-            Class<?> clazz = (bean instanceof TargetInstanceProxy<?> tip && !bean.getClass().isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) ?
-                tip.weld_getTargetInstance().getClass() : bean.getClass();
-            if (clazz == null || !clazz.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
-                throw new UnsupportedOperationException(clazz != null ? clazz.getSimpleName() : "ukjent klasse" + " må være annotert med "
+            var clazz = getTargetClassExpectingAnnotation(FagsakProsesstaskRekkefølge.class);
+            if (!clazz.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
+                throw new UnsupportedOperationException(clazz.getSimpleName() + " må være annotert med "
                     + FagsakProsesstaskRekkefølge.class.getSimpleName() + " for å kobles til en Fagsak");
             }
             return clazz.getAnnotation(FagsakProsesstaskRekkefølge.class);
