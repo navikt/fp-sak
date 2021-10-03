@@ -54,12 +54,6 @@
 			<artifactId>uttak</artifactId>
 		</dependency>
 
-		<dependency>
-            <groupId>com.github.jknack</groupId>
-            <artifactId>handlebars</artifactId>
-            <version>4.2.0</version>
-        </dependency>
-
 		<!-- Infrastrukturtjeneste avhengigheter -->
 		<dependency>
 			<groupId>no.nav.foreldrepenger</groupId>
