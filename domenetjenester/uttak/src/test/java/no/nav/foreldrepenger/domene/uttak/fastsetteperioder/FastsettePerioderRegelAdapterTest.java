@@ -150,7 +150,7 @@ public class FastsettePerioderRegelAdapterTest {
     @Test
     public void skalReturnerePlanMedMødrekvotePeriode() {
         // Arrange
-        var fødselsdato = LocalDate.of(2018, 6, 22);
+        var fødselsdato = LocalDate.of(2021, 11, 4);
         var fpff = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL)
             .medPeriode(fødselsdato.minusWeeks(3), fødselsdato.minusDays(1))
@@ -159,7 +159,7 @@ public class FastsettePerioderRegelAdapterTest {
         var virksomhet = virksomhet();
         var mødrekvote = OppgittPeriodeBuilder.ny()
             .medPeriodeType(UttakPeriodeType.MØDREKVOTE)
-            .medPeriode(fødselsdato, fødselsdato.plusWeeks(5))
+            .medPeriode(fødselsdato, fødselsdato.plusWeeks(10))
             .medArbeidsgiver(virksomhet)
             .medErArbeidstaker(true)
             .medArbeidsprosent(arbeidsprosent)
@@ -170,7 +170,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -178,34 +178,28 @@ public class FastsettePerioderRegelAdapterTest {
 
         var fpffPeriode = finnPeriode(uttakResultatPerioder, fødselsdato.minusWeeks(3),
             fødselsdato.minusDays(1));
-        var mkPeriode = finnPeriode(uttakResultatPerioder, fødselsdato,
-            fødselsdato.plusWeeks(5));
-        var manglendeSøktPeriode = finnPeriode(uttakResultatPerioder,
-            mkPeriode.getTom().plusDays(3), fødselsdato.plusWeeks(6).minusDays(1));
+        var mkPeriode1 = finnPeriode(uttakResultatPerioder, fødselsdato,
+            fødselsdato.plusWeeks(6).minusDays(1));
+        var mkPeriode2 = finnPeriode(uttakResultatPerioder, mkPeriode1.getTom().plusDays(1),
+            fødselsdato.plusWeeks(10));
 
-        // manglene søkt periode
         assertThat(fpffPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
         assertThat(fpffPeriode.getAktiviteter()).hasSize(1);
         assertThat(fpffPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(fpffPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(15));
         // mødrekvote innvilget
-        assertThat(mkPeriode.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
-        assertThat(mkPeriode.getAktiviteter()).hasSize(1);
-        assertThat(mkPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(mkPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(
-            new Trekkdager(new SimpleLocalDateInterval(fødselsdato, fødselsdato.plusWeeks(5)).antallArbeidsdager()));
-        // manglene søkt periode.. automatisk avslag og trekk dager
-        assertThat(manglendeSøktPeriode.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
-        assertThat(manglendeSøktPeriode.getAktiviteter()).hasSize(1);
-        assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
-        assertThat(manglendeSøktPeriode.getAktiviteter().get(0).getTrekkdager()).isEqualTo(new Trekkdager(
-            new SimpleLocalDateInterval(fødselsdato.plusWeeks(5).plusDays(1),
-                fødselsdato.plusWeeks(6).minusDays(1)).antallArbeidsdager()));
-    }
-
-    private UttakResultatPerioderEntitet fastsettePerioder(UttakInput input, FastsettePerioderRegelAdapter adapter) {
-        return adapter.fastsettePerioder(input);
+        assertThat(mkPeriode1.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(mkPeriode1.isGraderingInnvilget()).isFalse();
+        assertThat(mkPeriode1.getAktiviteter()).hasSize(1);
+        assertThat(mkPeriode1.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
+        assertThat(mkPeriode1.getAktiviteter().get(0).getTrekkdager()).isEqualTo(
+            new Trekkdager(new SimpleLocalDateInterval(mkPeriode1.getFom(), mkPeriode1.getTom()).antallArbeidsdager()));
+        assertThat(mkPeriode2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
+        assertThat(mkPeriode2.getAktiviteter()).hasSize(1);
+        assertThat(mkPeriode2.isGraderingInnvilget()).isTrue();
+        assertThat(mkPeriode2.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.MØDREKVOTE);
+        assertThat(mkPeriode2.getAktiviteter().get(0).getTrekkdager().merEnn0()).isTrue();
     }
 
     @Test
@@ -228,7 +222,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(2);
@@ -283,10 +277,9 @@ public class FastsettePerioderRegelAdapterTest {
             .medErBerørtBehandling(berørtBehandling)
             .medFamilieHendelser(familieHendelser)
             .medOriginalBehandling(originalBehandling);
-        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()),
-            ytelsespesifiktGrunnlag).medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
-            .medSøknadMottattDato(
-                familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
+        return new UttakInput(ref, iayTjeneste.hentGrunnlag(behandling.getId()), ytelsespesifiktGrunnlag)
+            .medBeregningsgrunnlagStatuser(beregningsandelTjeneste.hentStatuser())
+            .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
     }
 
     @Test
@@ -312,7 +305,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(2);
@@ -352,7 +345,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -394,7 +387,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -415,7 +408,7 @@ public class FastsettePerioderRegelAdapterTest {
             StønadskontoType.FORELDREPENGER_FØR_FØDSEL);
         assertThat(manglendeSøktPeriodeMK.getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             StønadskontoType.MØDREKVOTE);
-        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
     }
 
     @Test
@@ -451,7 +444,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(5);
@@ -472,7 +465,7 @@ public class FastsettePerioderRegelAdapterTest {
 
         assertThat(manglendeSøktPeriodeFP.getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             StønadskontoType.FELLESPERIODE);
-        assertThat(manglendeSøktPeriodeFP.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeFP.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
 
         assertThat(tidligUttakFP2.getAktiviteter().get(0).getTrekkonto()).isEqualTo(StønadskontoType.FELLESPERIODE);
         assertThat(tidligUttakFP2.getResultatType()).isEqualTo(PeriodeResultatType.INNVILGET);
@@ -481,7 +474,7 @@ public class FastsettePerioderRegelAdapterTest {
         assertThat(manglendeSøktPeriodeFPFF.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
         assertThat(manglendeSøktPeriodeMK.getAktiviteter().get(0).getTrekkonto()).isEqualTo(
             StønadskontoType.MØDREKVOTE);
-        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.AVSLÅTT);
+        assertThat(manglendeSøktPeriodeMK.getResultatType()).isEqualTo(PeriodeResultatType.MANUELL_BEHANDLING);
     }
 
     @Test
@@ -531,7 +524,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(5);
@@ -607,7 +600,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(4);
@@ -668,7 +661,7 @@ public class FastsettePerioderRegelAdapterTest {
         // Act
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         // Assert
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -798,7 +791,7 @@ public class FastsettePerioderRegelAdapterTest {
         var input = new UttakInput(ref, tomIay(), ytelsespesifiktGrunnlag)
             .medBeregningsgrunnlagStatuser(andelTjeneste.hentStatuser())
             .medSøknadMottattDato(familieHendelser.getGjeldendeFamilieHendelse().getFamilieHendelseDato().minusWeeks(4));
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         assertThat(resultat.getPerioder()).hasSize(1);
         assertThat(resultat.getPerioder().get(0).getUtsettelseType()).isEqualTo(UttakUtsettelseType.SYKDOM_SKADE);
@@ -833,7 +826,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).hasSize(1);
 
@@ -867,7 +860,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -897,7 +890,7 @@ public class FastsettePerioderRegelAdapterTest {
             false);
         var familieHendelser = new FamilieHendelser().medBekreftetHendelse(familieHendelse);
         var input = lagInput(behandling, beregningsandelTjeneste, false, familieHendelser);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
         assertThat(uttakResultatPerioder).isNotEmpty();
@@ -967,7 +960,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(annenVirksomhet, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         var mødrekvote = finnPeriode(uttakResultatPerioder, oppgittMødrekvote.getFom(),
@@ -1051,7 +1044,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         var mødrekvote = finnPeriode(uttakResultatPerioder, oppgittMødrekvote.getFom(),
@@ -1093,7 +1086,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1140,7 +1133,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         assertThat(uttakResultatPerioder).hasSize(1);
@@ -1175,7 +1168,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         assertThat(uttakResultatPerioder).hasSize(1);
@@ -1207,7 +1200,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         assertThat(uttakResultatPerioder).hasSize(1);
@@ -1241,7 +1234,7 @@ public class FastsettePerioderRegelAdapterTest {
 
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1334,7 +1327,7 @@ public class FastsettePerioderRegelAdapterTest {
         var beregningsandelTjeneste = new UttakBeregningsandelTjenesteTestUtil();
         beregningsandelTjeneste.leggTilFrilans();
         var input = lagInput(revurdering, beregningsandelTjeneste, fødselsdato);
-        var resultatRevurdering = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultatRevurdering = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         assertThat(resultatRevurdering.getPerioder()).hasSize(3);
         assertThat(resultatRevurdering.getPerioder().get(0).getAktiviteter()).hasSize(1);
@@ -1383,7 +1376,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1405,7 +1398,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(null, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1438,7 +1431,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(virksomhet(), null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1493,7 +1486,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
 
         var uttakResultatPerioder = resultat.getPerioder();
 
@@ -1556,7 +1549,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver3, null);
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
 
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter).getPerioder();
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input).getPerioder();
 
         var førsteMødrekvote = finnPeriode(resultat, mk1.getFom(), mk1.getTom());
         var førsteGradering = finnPeriode(resultat, gradering1.getFom(), gradering1.getTom());
@@ -1654,7 +1647,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         var mødrekvote = finnPeriode(uttakResultatPerioder, oppgittPeriode2.getFom(),
@@ -1717,7 +1710,7 @@ public class FastsettePerioderRegelAdapterTest {
         beregningsandelTjeneste.leggTilOrdinærtArbeid(arbeidsgiver, null);
 
         var input = lagInput(behandling, beregningsandelTjeneste, fødselsdato);
-        var resultat = fastsettePerioder(input, fastsettePerioderRegelAdapter);
+        var resultat = fastsettePerioderRegelAdapter.fastsettePerioder(input);
         var uttakResultatPerioder = resultat.getPerioder();
 
         var mødrekvote = finnPeriode(uttakResultatPerioder, oppgittPeriode2.getFom(),
