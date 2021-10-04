@@ -218,16 +218,9 @@ public class UttakRestTjeneste {
     @BeskyttetRessurs(action = READ, resource = FAGSAK)
     public KreverSammenhengendeUttakDto kreverSammenhengendeUttak(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
                                                                             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        //TODO palfi. Fjern try catch når vi er sikre på at stp ikke kaster exception tidlig i behandlingen
-        try {
-            var behandling = hentBehandling(uuidDto);
-            var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            return new KreverSammenhengendeUttakDto(skjæringstidspunkt.kreverSammenhengendeUttak());
-        } catch (Throwable t) {
-            LOG.info("Krever sammenhengende uttak feilet for behandling {}. Returnerer default",
-                uuidDto.getBehandlingUuid(), t);
-            return new KreverSammenhengendeUttakDto(true);
-        }
+        var behandling = hentBehandling(uuidDto);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        return new KreverSammenhengendeUttakDto(skjæringstidspunkt.kreverSammenhengendeUttak());
     }
 
     private Behandling hentBehandling(UuidDto uuidDto) {
