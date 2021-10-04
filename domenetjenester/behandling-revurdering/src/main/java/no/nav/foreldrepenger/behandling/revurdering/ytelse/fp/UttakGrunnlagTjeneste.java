@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.Pleiepenger
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -104,15 +105,13 @@ public class UttakGrunnlagTjeneste implements YtelsesesspesifiktGrunnlagTjeneste
             Optional<Behandling> annenPartBehandling;
             var harVedtak = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).isPresent();
             if (harVedtak) {
-                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(
-                    behandling);
+                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(behandling);
             } else {
-                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(
-                    behandling.getFagsak().getSaksnummer());
+                annenPartBehandling = relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandling.getFagsak().getSaksnummer());
             }
             if (annenPartBehandling.isPresent()) {
-                var opprettetTidspunkt = søknadRepository.hentSøknad(annenPartBehandling.get().getId())
-                    .getOpprettetTidspunkt();
+                var opprettetTidspunkt = Optional.ofNullable(søknadRepository.hentSøknad(annenPartBehandling.get().getId()))
+                    .map(SøknadEntitet::getOpprettetTidspunkt).orElse(annenPartBehandling.get().getOpprettetTidspunkt());
                 return Optional.of(
                     new Annenpart(annenpartHarInnvilgetES(familiehendelser, relatertFagsak.get().getAktørId()),
                         annenPartBehandling.get().getId(), opprettetTidspunkt));
